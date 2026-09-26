@@ -311,14 +311,18 @@
                     if (typeof q.update === 'function') q.update('user');
                 } catch(e) {}
             } else {
+                // Não simular paste: o Gemini/Chromium pode tratar o evento como
+                // uma operação privilegiada de clipboard. Atualizamos o editor
+                // diretamente e notificamos a aplicação pelos eventos de input.
                 try {
-                    const dt = new DataTransfer();
-                    dt.setData('text/plain', text);
-                    const safeHtml = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    dt.setData('text/html', `<p>${safeHtml}</p>`);
-                    target.dispatchEvent(new ClipboardEvent('paste', {
-                        bubbles: true, cancelable: true, composed: true, clipboardData: dt
-                    }));
+                    const p = document.createElement('p');
+                    p.textContent = text;
+                    if (typeof target.replaceChildren === 'function') {
+                        target.replaceChildren(p);
+                    } else {
+                        while (target.firstChild) target.removeChild(target.firstChild);
+                        target.appendChild(p);
+                    }
                 } catch(e) {}
             }
             
