@@ -216,14 +216,20 @@
 
   function isInsideInputArea(element) {
     if (!element) return false;
-    const selector = SELECTORS.INPUT_AREA || [
+
+    // Para ownership de resultado, "chat-window" é amplo demais: em versões
+    // atuais do Gemini ele pode englobar a conversa inteira, inclusive a
+    // resposta gerada. Aqui aceitamos somente wrappers reais do composer.
+    const selector = [
       'rich-textarea',
       '.input-area',
-      'chat-window',
       '.chat-input-container',
       '.chat-input',
       'input-area',
+      '[contenteditable="true"][role="textbox"]',
+      '.ql-editor[contenteditable="true"]',
     ].join(', ');
+
     return Boolean(closestComposed(element, selector));
   }
 
