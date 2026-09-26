@@ -119,27 +119,52 @@
       lower.includes('gstatic.com/images/branding');
   }
 
-  function isModelResponseImage(img) {
-    if (!img) return false;
-    const selector = SELECTORS.RESPONSE || [
+  function getStrictModelResponseContainer(element) {
+    if (!element) return null;
+    const selector = SELECTORS.MODEL_RESPONSE_STRICT || [
       'model-response',
       '[data-test-id*="model-response"]',
-      '.model-response-text',
-      '.response-container',
-      '.model-turn',
+      '[data-testid*="model-response"]',
       '[data-message-author="model"]',
-      'message-content.model',
-      '.presented-turn-content',
       'bard-model-response',
       'div[data-turn-role="model"]',
+      'message-content.model',
       '.model-response-container',
+      '.model-response-text',
     ].join(', ');
 
     try {
-      return Boolean(img.closest && img.closest(selector));
+      if (element.matches && element.matches(selector)) return element;
+      return element.closest ? element.closest(selector) : null;
     } catch (_e) {
-      return false;
+      return null;
     }
+  }
+
+  function getUserTurnContainer(element) {
+    if (!element) return null;
+    const selector = SELECTORS.USER_TURN || [
+      '[data-message-author="user"]',
+      'div[data-turn-role="user"]',
+      '[data-test-id*="user-message"]',
+      '[data-testid*="user-message"]',
+      '.user-query-container',
+      '.user-message',
+    ].join(', ');
+    try {
+      if (element.matches && element.matches(selector)) return element;
+      return element.closest ? element.closest(selector) : null;
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function isModelResponseImage(img) {
+    return Boolean(getStrictModelResponseContainer(img));
+  }
+
+  function isUserTurnImage(img) {
+    return Boolean(getUserTurnContainer(img));
   }
 
   function findSendButton(root) {
@@ -252,7 +277,10 @@
     getEditableElement,
     getImageSource,
     isIgnoredGeminiImageSource,
+    getStrictModelResponseContainer,
+    getUserTurnContainer,
     isModelResponseImage,
+    isUserTurnImage,
     findVisibleStopButton,
     findSendButton,
   };
