@@ -202,6 +202,58 @@ describe('gemini/job-runner.js', () => {
     );
   });
 
+  test('RUN-09: clicar em Usar última registra erro grave de intervenção manual', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    runner.createGeminiManualPanel({
+      jobId: 'job-manual-last',
+      index: 2,
+      executionMode: 'temp_chat',
+    }, () => new Set());
+
+    document.getElementById('mt-gemini-use-last').click();
+
+    expect(options.sendLog).toHaveBeenCalledWith(
+      'error',
+      'GEMINI_MANUAL_INTERVENTION_REQUIRED',
+      expect.stringContaining('ERRO GRAVE'),
+      expect.objectContaining({
+        source: 'last-button',
+        index: 2,
+        jobIdPrefix: 'job-manu',
+        executionMode: 'temp_chat',
+      })
+    );
+  });
+
+  test('RUN-10: clicar em Selecionar registra erro grave de intervenção manual', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    runner.createGeminiManualPanel({
+      jobId: 'job-manual-select',
+      index: 3,
+      executionMode: 'background_delete',
+    }, () => new Set());
+
+    document.getElementById('mt-gemini-pick').click();
+
+    expect(options.sendLog).toHaveBeenCalledWith(
+      'error',
+      'GEMINI_MANUAL_INTERVENTION_REQUIRED',
+      expect.stringContaining('ERRO GRAVE'),
+      expect.objectContaining({
+        source: 'select-button',
+        index: 3,
+        jobIdPrefix: 'job-manu',
+        executionMode: 'background_delete',
+      })
+    );
+  });
+
   test('RUN-06: modos de execução escolhem anti-throttling progressivo', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
