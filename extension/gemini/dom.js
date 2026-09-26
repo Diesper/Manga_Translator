@@ -42,16 +42,6 @@
       element.getAttribute('aria-disabled') !== 'true';
   }
 
-  function findVisible(selector, root) {
-    const base = root || (typeof document !== 'undefined' ? document : null);
-    if (!base || !selector || typeof base.querySelectorAll !== 'function') return null;
-    const elements = base.querySelectorAll(selector);
-    for (const element of elements) {
-      if (isElementVisible(element)) return element;
-    }
-    return null;
-  }
-
   function findAllDeep(root, matcher) {
     const list = [];
     if (!root || typeof matcher !== 'function') return list;
@@ -78,11 +68,93 @@
     return list;
   }
 
+  function matchesSelector(element, selector) {
+    if (!element || element.nodeType !== 1 || !selector) return false;
+    try {
+      return Boolean(element.matches && element.matches(selector));
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function findAllBySelectorDeep(root, selector) {
+    return findAllDeep(root, element => matchesSelector(element, selector));
+  }
+
+  function findFirstDeep(root, selector) {
+    const matches = findAllBySelectorDeep(root, selector);
+    return matches.length ? matches[0] : null;
+  }
+
+  function getComposedParent(node) {
+    if (!node) return null;
+    if (node.parentElement) return node.parentElement;
+
+    const parent = node.parentNode;
+    if (parent && parent.nodeType === 11 && parent.host) return parent.host;
+
+    try {
+      const rootNode = typeof node.getRootNode === 'function' ? node.getRootNode() : null;
+      if (rootNode && rootNode !== node && rootNode.host) return rootNode.host;
+    } catch (_e) {}
+
+    return null;
+  }
+
+  function closestComposed(element, selector) {
+    let current = element;
+    const visited = new Set();
+
+    while (current && !visited.has(current)) {
+      visited.add(current);
+      if (matchesSelector(current, selector)) return current;
+      current = getComposedParent(current);
+    }
+    return null;
+  }
+
+  function isComposedDescendant(ancestor, node) {
+    if (!ancestor || !node) return false;
+    if (ancestor === node) return true;
+
+    let current = node;
+    const visited = new Set();
+    while (current && !visited.has(current)) {
+      visited.add(current);
+      current = getComposedParent(current);
+      if (current === ancestor) return true;
+    }
+    return false;
+  }
+
+  function collectOpenShadowRoots(root) {
+    const roots = [];
+    const seen = new Set();
+    findAllDeep(root, element => {
+      try {
+        if (element.shadowRoot && !seen.has(element.shadowRoot)) {
+          seen.add(element.shadowRoot);
+          roots.push(element.shadowRoot);
+        }
+      } catch (_e) {}
+      return false;
+    });
+    return roots;
+  }
+
+  function findVisible(selector, root) {
+    const base = root || (typeof document !== 'undefined' ? document : null);
+    if (!base || !selector) return null;
+    const elements = findAllBySelectorDeep(base, selector);
+    for (const element of elements) {
+      if (isElementVisible(element)) return element;
+    }
+    return null;
+  }
+
   function getEditableElement(root) {
     if (!root) return null;
-    const editable = root.querySelector
-      ? root.querySelector('.ql-editor, [contenteditable="true"]')
-      : null;
+    const editable = findFirstDeep(root, '.ql-editor, [contenteditable="true"]');
     if (editable) return editable;
 
     if (
@@ -133,12 +205,7 @@
       '.model-response-text',
     ].join(', ');
 
-    try {
-      if (element.matches && element.matches(selector)) return element;
-      return element.closest ? element.closest(selector) : null;
-    } catch (_e) {
-      return null;
-    }
+    return closestComposed(element, selector);
   }
 
   function getUserTurnContainer(element) {
@@ -151,12 +218,7 @@
       '.user-query-container',
       '.user-message',
     ].join(', ');
-    try {
-      if (element.matches && element.matches(selector)) return element;
-      return element.closest ? element.closest(selector) : null;
-    } catch (_e) {
-      return null;
-    }
+    return closestComposed(element, selector);
   }
 
   function isModelResponseImage(img) {
@@ -274,6 +336,13 @@
     isControlEnabled,
     findVisible,
     findAllDeep,
+    findAllBySelectorDeep,
+    findFirstDeep,
+    matchesSelector,
+    getComposedParent,
+    closestComposed,
+    isComposedDescendant,
+    collectOpenShadowRoots,
     getEditableElement,
     getImageSource,
     isIgnoredGeminiImageSource,
