@@ -81,7 +81,7 @@ describe('gemini/attachment.js', () => {
     document.body.appendChild(editor);
 
     editor.addEventListener('paste', () => {
-      if (!document.querySelector('file-preview')) addPreview();
+      if (!document.querySelector('file-preview')) addPreview({ withImage: true });
     });
 
     await expect(api.attachFile({
@@ -185,7 +185,7 @@ describe('gemini/attachment.js', () => {
       writable: true,
       configurable: true,
     });
-    input.addEventListener('change', () => addPreview());
+    input.addEventListener('change', () => addPreview({ withImage: true }));
     document.body.appendChild(input);
 
     const result = await api.attachFile({
@@ -210,7 +210,7 @@ describe('gemini/attachment.js', () => {
 
     editor.addEventListener('drop', event => {
       expect(event.dataTransfer).toBeTruthy();
-      addPreview();
+      addPreview({ withImage: true });
     });
 
     const result = await api.attachFile({
@@ -281,4 +281,102 @@ describe('gemini/attachment.js', () => {
       expect.objectContaining({ el: preview, type: 'container' })
     );
   });
+
+  test('ATT-10: blob global fora do composer não confirma attachment', async () => {
+    const api = loadAttachment();
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    document.body.appendChild(editor);
+
+    editor.addEventListener('paste', () => {
+      const unrelated = document.createElement('img');
+      unrelated.src = 'blob:https://gemini.test/unrelated-global-image';
+      Object.defineProperty(unrelated, 'naturalWidth', { value: 1200, configurable: true });
+      Object.defineProperty(unrelated, 'naturalHeight', { value: 1600, configurable: true });
+      document.body.appendChild(unrelated);
+    });
+
+    const result = await api.attachFile({
+      file: file(),
+      editor,
+      editorRoot: editor,
+      root: document,
+      timeoutMs: 40,
+      retryAfterMs: 5,
+      maxDispatches: 2,
+    });
+
+    expect(result.confirmed).toBe(false);
+    expect(result.evidence).toBeNull();
+  });
+
+  test('ATT-11: somente o input[type=file] mais relevante recebe o arquivo', async () => {
+    const api = loadAttachment();
+    const editorRoot = document.createElement('div');
+    editorRoot.className = 'input-area';
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    editorRoot.appendChild(editor);
+
+    const preferred = document.createElement('input');
+    preferred.type = 'file';
+    preferred.accept = 'image/*';
+    Object.defineProperty(preferred, 'files', { writable: true, configurable: true, value: [] });
+    editorRoot.appendChild(preferred);
+    document.body.appendChild(editorRoot);
+
+    const unrelated = document.createElement('input');
+    unrelated.type = 'file';
+    Object.defineProperty(unrelated, 'files', { writable: true, configurable: true, value: [] });
+    document.body.appendChild(unrelated);
+
+    preferred.addEventListener('change', () => addPreview({
+      parent: editorRoot,
+      withImage: true,
+      src: 'blob:https://gemini.test/preferred',
+    }));
+
+    const result = await api.attachFile({
+      file: file(),
+      editor,
+      editorRoot,
+      root: document,
+      timeoutMs: 300,
+      retryAfterMs: 20,
+      maxDispatches: 2,
+    });
+
+    expect(result.confirmed).toBe(true);
+    expect(preferred.files).toHaveLength(1);
+    expect(unrelated.files).toHaveLength(0);
+  });
+
+  test('ATT-12: sinal parcial interrompe retries para evitar upload duplicado', async () => {
+    const api = loadAttachment();
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    document.body.appendChild(editor);
+
+    let pasteCount = 0;
+    editor.addEventListener('paste', () => {
+      pasteCount += 1;
+      if (!document.querySelector('file-preview')) addPreview({ withImage: false });
+    });
+
+    const result = await api.attachFile({
+      file: file(),
+      editor,
+      editorRoot: editor,
+      root: document,
+      timeoutMs: 45,
+      retryAfterMs: 5,
+      maxDispatches: 5,
+    });
+
+    expect(result.confirmed).toBe(false);
+    expect(result.signalObserved).toBe(true);
+    expect(result.attempts).toBe(1);
+    expect(pasteCount).toBe(1);
+  });
+
 });
