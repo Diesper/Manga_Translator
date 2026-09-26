@@ -241,7 +241,7 @@
         responseIndex: responses.length - 1,
       });
       // A criação de uma resposta estrita do modelo é evidência forte de submit.
-      confirmSubmission('model_response_created');
+      confirmSubmission('response_created');
 
       if (state.responseObserver) {
         try { state.responseObserver.disconnect(); } catch (_e) {}
