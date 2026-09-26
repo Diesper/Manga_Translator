@@ -349,7 +349,12 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             action: 'LOG_ENTRY',
             action_name: 'GEMINI_SEND_SUCCESS',
         }));
-        expect(imageFoundLog.extra).toEqual({ urlKind: '[redacted]', host: 'cdn.gemini.test', hasQuery: true });
+        expect(imageFoundLog.extra).toEqual(expect.objectContaining({
+            urlKind: '[redacted]',
+            host: 'cdn.gemini.test',
+            hasQuery: true,
+            executionMode: 'temp_chat',
+        }));
         expect(JSON.stringify(imageFoundLog)).not.toContain('signed-secret');
         expect(promptLog.extra).toEqual({ promptLen: '[redacted]' });
         expect(JSON.stringify(promptLog)).not.toContain('prompt-private-text');
