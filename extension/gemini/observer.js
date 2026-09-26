@@ -34,7 +34,11 @@
   }
 
   function safeQueryAll(root, selector) {
-    if (!root || !selector || typeof root.querySelectorAll !== 'function') return [];
+    if (!root || !selector) return [];
+    if (typeof domApi.findAllBySelectorDeep === 'function') {
+      return domApi.findAllBySelectorDeep(root, selector);
+    }
+    if (typeof root.querySelectorAll !== 'function') return [];
     try { return Array.from(root.querySelectorAll(selector)); } catch (_e) { return []; }
   }
 
@@ -122,6 +126,44 @@
 
     const submissionWaiters = new Set();
     const resultWaiters = new Set();
+    const observedMutationRoots = new WeakSet();
+    const mutationOptions = {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: [
+        'src',
+        'data-src',
+        'disabled',
+        'aria-disabled',
+        'aria-hidden',
+        'style',
+        'class',
+      ],
+    };
+
+    function observeMutationRoot(target) {
+      if (!state.observer || !target || observedMutationRoots.has(target)) return false;
+      try {
+        state.observer.observe(target, mutationOptions);
+        observedMutationRoots.add(target);
+        return true;
+      } catch (_e) {
+        return false;
+      }
+    }
+
+    function observeDeepMutationRoots() {
+      const primary = root.body || root.documentElement || root;
+      observeMutationRoot(primary);
+
+      if (typeof domApi.collectOpenShadowRoots === 'function') {
+        for (const shadowRoot of domApi.collectOpenShadowRoots(root)) {
+          observeMutationRoot(shadowRoot);
+        }
+      }
+    }
 
     function emitState(type, extra = {}) {
       if (typeof onStateChange !== 'function') return;
@@ -384,29 +426,16 @@
       queueMicrotaskFn(() => {
         state.inspectionScheduled = false;
         if (state.cleanedUp || state.done) return;
+        // Hosts recém-adicionados podem trazer novos shadow roots abertos.
+        observeDeepMutationRoots();
         inspect();
       });
     }
 
     function start() {
       if (state.cleanedUp || state.ready) return api;
-      const observeRoot = root.body || root.documentElement || root;
       state.observer = new MutationObserverImpl(scheduleInspect);
-      state.observer.observe(observeRoot, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-        attributeFilter: [
-          'src',
-          'data-src',
-          'disabled',
-          'aria-disabled',
-          'aria-hidden',
-          'style',
-          'class',
-        ],
-      });
+      observeDeepMutationRoots();
       state.ready = true;
       registryOwner.__mtGeminiObservers[jobId] = api;
       emitState('ready', { initialResponseCount: state.initialResponseCount });
