@@ -120,6 +120,8 @@
       inspectCount: 0,
       resultDomObserved: false,
       seenResultSources: new Set(),
+      trackedResultImages: new WeakSet(),
+      resultRejectionKeys: new Set(),
     };
 
     const submissionWaiters = new Set();
@@ -324,30 +326,68 @@
         value.includes('gemini-result-image');
     }
 
-    function isCandidateImage(image, container) {
+    function isOwnedByAcquiredModelTurn(image, container) {
       if (!image || !container) return false;
-      if (!state.submissionConfirmed) return false;
-      if (quarantinedInputElements.has(image)) return false;
-      if (domApi.isUserTurnImage?.(image)) return false;
 
-      const owner = domApi.getStrictModelResponseContainer?.(image);
-      if (!owner || owner !== container) return false;
+      let contained = false;
+      try {
+        contained = image === container || Boolean(container.contains?.(image));
+      } catch (_e) {}
+      if (!contained) return false;
 
-      const src = domApi.getImageSource(image);
-      if (
-        !src ||
-        state.initialImageSources.has(src) ||
-        domApi.isIgnoredGeminiImageSource(src)
-      ) {
+      // O Gemini pode aninhar wrappers que também casam com o seletor estrito
+      // (ex.: <model-response> > .model-response-text > img). O antigo teste
+      // owner === container rejeitava a imagem correta nesse DOM real.
+      const nearestOwner = domApi.getStrictModelResponseContainer?.(image);
+      if (!nearestOwner) {
+        // A busca da imagem já ocorreu dentro de um model turn estrito adquirido.
+        return true;
+      }
+      if (nearestOwner === container) return true;
+
+      try {
+        return Boolean(container.contains?.(nearestOwner));
+      } catch (_e) {
         return false;
       }
+    }
+
+    function getCandidateRejectionReason(image, container) {
+      if (!image || !container) return 'missing_image_or_turn';
+      if (!state.submissionConfirmed) return 'submission_not_confirmed';
+      if (quarantinedInputElements.has(image)) return 'quarantined_input';
+      if (domApi.isUserTurnImage?.(image)) return 'user_turn';
+      if (!isOwnedByAcquiredModelTurn(image, container)) return 'ownership_mismatch';
+
+      const src = domApi.getImageSource(image);
+      if (!src) return 'missing_source';
+      if (state.initialImageSources.has(src)) return 'baseline_source';
+      if (domApi.isIgnoredGeminiImageSource(src)) return 'ignored_source';
 
       const width = Number(image.naturalWidth || image.width || 0);
       const height = Number(image.naturalHeight || image.height || 0);
 
-      if (strongImageUrl(src)) return true;
-      if (image.complete === false && width <= 0 && height <= 0) return false;
-      return width > 0 && height > 0;
+      if (strongImageUrl(src)) return '';
+      if (image.complete === false && width <= 0 && height <= 0) return 'image_loading';
+      if (width <= 0 || height <= 0) return 'zero_dimensions';
+      return '';
+    }
+
+    function isCandidateImage(image, container) {
+      return getCandidateRejectionReason(image, container) === '';
+    }
+
+    function trackResultImageReadiness(image) {
+      if (!image || state.trackedResultImages.has(image)) return;
+      state.trackedResultImages.add(image);
+
+      const retry = () => scheduleInspect();
+      try { image.addEventListener?.('load', retry, { once: true }); } catch (_e) {}
+      try { image.addEventListener?.('error', retry, { once: true }); } catch (_e) {}
+
+      // Evita a janela em que o load ocorreu entre a primeira inspeção e o
+      // registro do listener. WeakSet impede loop de reagendamento.
+      if (image.complete === true) scheduleInspect();
     }
 
     function inspectResult() {
@@ -364,18 +404,36 @@
       for (let index = images.length - 1; index >= 0; index -= 1) {
         const image = images[index];
         const src = domApi.getImageSource(image);
+        trackResultImageReadiness(image);
+
         if (src && !state.seenResultSources.has(src)) {
           state.seenResultSources.add(src);
           emitState('result_image_seen', {
             urlKind: String(src).split(':', 1)[0] || 'unknown',
-            strongUrl: strongImageUrl(src),
+            isStrong: strongImageUrl(src),
           });
         }
 
-        if (!isCandidateImage(image, container)) continue;
+        const rejectionReason = getCandidateRejectionReason(image, container);
+        if (rejectionReason) {
+          const rejectionKey = [
+            rejectionReason,
+            src || '',
+          ].join('|');
+          if (!state.resultRejectionKeys.has(rejectionKey)) {
+            state.resultRejectionKeys.add(rejectionKey);
+            emitState('result_candidate_rejected', {
+              reason: rejectionReason,
+              urlKind: String(src || '').split(':', 1)[0] || 'unknown',
+              isStrong: strongImageUrl(src),
+            });
+          }
+          continue;
+        }
+
         emitState('result_candidate', {
           urlKind: String(src).split(':', 1)[0] || 'unknown',
-          strongUrl: strongImageUrl(src),
+          isStrong: strongImageUrl(src),
         });
         if (setResult(image, src)) return;
       }
