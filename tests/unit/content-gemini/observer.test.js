@@ -434,4 +434,94 @@ describe('gemini/observer.js — Observer V3', () => {
     observer.stop();
   });
 
+
+  test('OBS-19: resultado dentro de shadow DOM aberto é detectado automaticamente', async () => {
+    const { createGeminiObserver } = loadObserver();
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+
+    const observer = createGeminiObserver({ jobId: 'shadow-result' }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = document.createElement('model-response');
+    const image = document.createElement('img');
+    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/shadow-generated=s1024-rj';
+    Object.defineProperty(image, 'naturalWidth', { value: 0, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 0, configurable: true });
+    Object.defineProperty(image, 'complete', { value: false, configurable: true });
+    response.appendChild(image);
+    shadow.appendChild(response);
+
+    await flushMutations();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/rd-gg-dl/shadow-generated=s1024-rj',
+    });
+    expect(observer.getState().modelTurn).toBe(response);
+    observer.stop();
+  });
+
+  test('OBS-20: rd-gg-dl sem wrapper estrito usa fallback seguro após geração ativa', async () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({
+      jobId: 'relaxed-wrapper-result',
+      onStateChange,
+    }).start();
+    const pending = observer.waitForResult(1000);
+
+    addStop();
+    observer.inspect();
+    expect(observer.getState().generationActiveObserved).toBe(true);
+
+    const shell = document.createElement('section');
+    shell.className = 'new-gemini-image-shell';
+    const image = document.createElement('img');
+    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/relaxed-generated=s1024-rj';
+    Object.defineProperty(image, 'naturalWidth', { value: 1024, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1024, configurable: true });
+    Object.defineProperty(image, 'complete', { value: true, configurable: true });
+    shell.appendChild(image);
+    document.body.appendChild(shell);
+
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/rd-gg-dl/relaxed-generated=s1024-rj',
+    });
+    expect(observer.getState().fallbackOwnerUsed).toBe(true);
+    expect(onStateChange.mock.calls.map(call => call[0])).toContain(
+      'model_turn_fallback_acquired'
+    );
+    observer.stop();
+  });
+
+  test('OBS-21: rd-gg-dl em user turn continua proibido mesmo com geração ativa', () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'user-rd-gg-dl' }).start();
+
+    addStop();
+    observer.inspect();
+
+    const userTurn = document.createElement('div');
+    userTurn.setAttribute('data-message-author', 'user');
+    const image = document.createElement('img');
+    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/input-copy=s1024-rj';
+    Object.defineProperty(image, 'naturalWidth', { value: 1024, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1024, configurable: true });
+    Object.defineProperty(image, 'complete', { value: true, configurable: true });
+    userTurn.appendChild(image);
+    document.body.appendChild(userTurn);
+
+    observer.inspect();
+
+    expect(observer.getState().resultUrl).toBeNull();
+    expect(observer.getState().fallbackOwnerUsed).toBe(false);
+    observer.stop();
+  });
+
 });
