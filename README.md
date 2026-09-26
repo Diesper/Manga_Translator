@@ -11,7 +11,7 @@
 
 ## ✨ Principais Funcionalidades
 
-- **Automação Resiliente com Gemini:** pipeline modular com claim de job, Observer V2 orientado a eventos, submit confirmado por transição observável, attachment verificado e extração com fallbacks controlados — sem necessidade de chaves de API pagas.
+- **Automação Resiliente com Gemini:** pipeline modular com claim de job, Observer V3 orientado a ownership estrito do model turn, submit confirmado por transição observável, attachment gate verificado e extração com fallbacks controlados — sem necessidade de chaves de API pagas.
 - **Cache Perceptual Visual (GTC Fingerprint):** Identificação de imagens por assinatura perceptual dHash/aHash, impedindo retraduções de imagens já processadas mesmo com URLs dinâmicas ou CDN com tokens expiráveis.
 - **Armazenamento Transacional (StorageManager + IndexedDB):** Persistência atômica com eliminação automática de assets órfãos e sem o problema de *read-modify-write* em acessos concorrentes.
 - **Ciclo de Vida Durável (Manifest V3):** Reconciliação automática de abas e estado persistente resistente ao descarregamento (*unload*) do Service Worker do Chrome.
@@ -46,7 +46,7 @@ Como a extensão está em formato de código aberto, você pode carregá-la dire
 │   ├── background/            # Router, estado, lifecycle, watchdog, reconciliação e actions
 │   ├── content_manga.js       # Content script injetado nas páginas de mangá
 │   ├── content_gemini.js      # Bootstrap/claim/keepalive/handlers do worker Gemini
-│   ├── gemini/                 # DOM, Observer V2, editor, attachment, result, deletion e job-runner
+│   ├── gemini/                 # DOM, Observer V3, editor, attachment, result, deletion e job-runner
 │   ├── gtc-fingerprint.js     # Hashing perceptual e extração de assinaturas
 │   ├── gtc-indexeddb.js       # Camada de banco de dados visual IndexedDB
 │   ├── storage-manager.js     # Gerenciamento atômico de blobs e transações

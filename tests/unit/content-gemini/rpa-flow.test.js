@@ -537,7 +537,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
                 const alert = document.createElement('div');
                 alert.setAttribute('role', 'alert');
                 alert.innerText = 'Falha do Gemini';
-                // O Observer V2 exige visibilidade real. JSDOM não calcula
+                // O Observer V3 exige visibilidade real. JSDOM não calcula
                 // layout, então a fixture precisa representar um alerta que
                 // ocuparia espaço na página em vez de enfraquecer a regra de produção.
                 alert.getBoundingClientRect = () => ({
@@ -575,7 +575,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         }));
     });
 
-    test('CG-36: encerra com GEMINI_ERROR quando o Observer V2 estoura o timeout de geração', async () => {
+    test('CG-36: encerra com GEMINI_ERROR quando o Observer V3 estoura o timeout de geração', async () => {
         mountGeminiEditor({
             sendMode: 'exact',
             onSubmit: () => {},
