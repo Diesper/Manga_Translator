@@ -826,7 +826,7 @@
               evidenceType: result.evidence?.type || null,
             }
           );
-          return result;
+          return { ...result, phase };
         };
 
         let attachmentResult = await runAttachmentAttempt({
@@ -920,7 +920,7 @@
             executionMode,
             type: attachmentEvidence.type,
             selector: attachmentEvidence.selector,
-            phase: attachmentResult.attempts > 3 ? 'recovery' : 'normal',
+            phase: attachmentResult.phase || 'unknown',
           }
         );
         await sleep(500);
