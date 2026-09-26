@@ -67,6 +67,11 @@
       '.response-container',
       '.model-turn',
       'message-content.model',
+      'message-content',
+      '[data-message-author="assistant"]',
+      'div[data-turn-role="assistant"]',
+      '.assistant-message',
+      '.assistant-response',
       '.presented-turn-content',
     ].join(', '),
 

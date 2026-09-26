@@ -285,16 +285,38 @@
         pageWindow.__mangaTranslatorManualPickHandler = null;
       }
 
-      root.querySelectorAll('[data-mt-gemini-pickable="true"]').forEach(image => {
+      domApi.findAllDeep(
+        root.body || root.documentElement,
+        element => element?.getAttribute?.('data-mt-gemini-pickable') === 'true'
+      ).forEach(image => {
         image.style.outline = '';
         image.style.outlineOffset = '';
         image.removeAttribute('data-mt-gemini-pickable');
       });
     }
 
+    function reportManualIntervention(job, source) {
+      if (!job) return;
+      if (pageWindow.__mangaTranslatorManualInterventionJobId === job.jobId) return;
+
+      pageWindow.__mangaTranslatorManualInterventionJobId = job.jobId || true;
+      sendLog(
+        'error',
+        'GEMINI_MANUAL_INTERVENTION_REQUIRED',
+        'ERRO GRAVE: a detecção automática falhou e o usuário precisou interagir manualmente com o resultado do Gemini.',
+        {
+          source,
+          index: Number.isFinite(Number(job.index)) ? Number(job.index) : null,
+          jobIdPrefix: String(job.jobId || '').slice(0, 8),
+          executionMode: job.executionMode || null,
+        }
+      );
+    }
+
     function createGeminiManualPanel(job, getIgnoreImages) {
       removeGeminiManualPanel();
       pageWindow.__mangaTranslatorManualGeminiResultUrl = '';
+      pageWindow.__mangaTranslatorManualInterventionJobId = null;
 
       const panel = root.createElement('div');
       panel.id = 'mt-gemini-assist';
@@ -335,6 +357,7 @@
       root.documentElement.appendChild(panel);
 
       panel.querySelector('#mt-gemini-use-last').addEventListener('click', () => {
+        reportManualIntervention(job, 'last-button');
         const images = findGeneratedResultImages(getIgnoreImages());
         const candidate = images[images.length - 1];
         if (candidate) {
@@ -346,10 +369,16 @@
       });
 
       panel.querySelector('#mt-gemini-pick').addEventListener('click', () => {
+        reportManualIntervention(job, 'select-button');
         const status = panel.querySelector('#mt-gemini-assist-status');
         status.textContent = 'Clique diretamente na imagem correta gerada pelo Gemini.';
 
-        root.querySelectorAll('img').forEach(image => {
+        const selectableImages = domApi.findAllDeep(
+          root.body || root.documentElement,
+          element => String(element.tagName || '').toUpperCase() === 'IMG'
+        );
+
+        selectableImages.forEach(image => {
           if (!isManualSelectableImage(image, getIgnoreImages())) return;
           image.dataset.mtGeminiPickable = 'true';
           image.style.outline = '3px solid #FF4444';
@@ -365,7 +394,12 @@
         }
 
         pageWindow.__mangaTranslatorManualPickHandler = event => {
-          const image = event.target?.closest?.('img');
+          const path = typeof event.composedPath === 'function'
+            ? event.composedPath()
+            : [];
+          const image =
+            path.find(node => String(node?.tagName || '').toUpperCase() === 'IMG') ||
+            event.target?.closest?.('img');
           if (!image || !isManualSelectableImage(image, getIgnoreImages())) return;
 
           event.preventDefault();
@@ -379,7 +413,10 @@
           );
           pageWindow.__mangaTranslatorManualPickHandler = null;
 
-          root.querySelectorAll('[data-mt-gemini-pickable="true"]').forEach(candidate => {
+          domApi.findAllDeep(
+            root.body || root.documentElement,
+            element => element?.getAttribute?.('data-mt-gemini-pickable') === 'true'
+          ).forEach(candidate => {
             candidate.style.outline = '';
             candidate.style.outlineOffset = '';
             candidate.removeAttribute('data-mt-gemini-pickable');
@@ -1027,6 +1064,17 @@
                 'Nova resposta estrita do modelo adquiriu ownership do job',
                 { executionMode, responseIndex: detail && detail.responseIndex }
               );
+            } else if (type === 'model_turn_fallback_acquired') {
+              sendLog(
+                'warn',
+                'GEMINI_MODEL_TURN_FALLBACK',
+                'Resultado detectado por fallback seguro porque o wrapper estrito do Gemini mudou.',
+                {
+                  executionMode,
+                  reason: detail && detail.reason,
+                  urlKind: detail && detail.urlKind,
+                }
+              );
             } else if (type === 'result_dom_seen') {
               sendLog(
                 'info',
@@ -1410,6 +1458,7 @@
       setManualGeminiResultUrl,
       removeGeminiManualPanel,
       createGeminiManualPanel,
+      reportManualIntervention,
       setPromptInEditor,
       shouldKeepConversationForDebug,
       requestImageData,

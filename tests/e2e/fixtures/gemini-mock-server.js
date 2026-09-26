@@ -201,6 +201,10 @@ function buildGeminiMockHtml() {
         currentUrl.searchParams.get('cloneInputIntoUserTurn') === '1';
       const orphanImageBeforeResult =
         currentUrl.searchParams.get('orphanImageBeforeResult') === '1';
+      const shadowResult =
+        currentUrl.searchParams.get('shadowResult') === '1';
+      const relaxedResultContainer =
+        currentUrl.searchParams.get('relaxedResultContainer') === '1';
       const chatOptionsButton = document.querySelector('[data-chat-id="mock-chat"] [data-test-id="chat-options"]');
 
       let attachmentSeen = false;
@@ -278,8 +282,16 @@ function buildGeminiMockHtml() {
       }
 
       function appendResultImage() {
-        const response = document.createElement('model-response');
-        response.setAttribute('data-message-author', 'model');
+        const response = relaxedResultContainer
+          ? document.createElement('section')
+          : document.createElement('model-response');
+
+        if (relaxedResultContainer) {
+          response.className = 'assistant-response-new-ui';
+          response.setAttribute('data-message-author', 'assistant');
+        } else {
+          response.setAttribute('data-message-author', 'model');
+        }
 
         const img = document.createElement('img');
         img.alt = 'Imagem traduzida do mock';
@@ -289,7 +301,16 @@ function buildGeminiMockHtml() {
           '&t=' +
           Date.now();
 
-        response.appendChild(img);
+        if (shadowResult) {
+          const shadowHost = document.createElement('div');
+          shadowHost.className = 'mock-generated-image-shadow-host';
+          const shadow = shadowHost.attachShadow({ mode: 'open' });
+          shadow.appendChild(img);
+          response.appendChild(shadowHost);
+        } else {
+          response.appendChild(img);
+        }
+
         resultZone.appendChild(response);
         status.textContent = 'Imagem traduzida pronta';
       }

@@ -38,6 +38,23 @@
     try { return Array.from(root.querySelectorAll(selector)); } catch (_e) { return []; }
   }
 
+  function deepQueryAll(root, selector) {
+    if (!root || !selector) return [];
+    if (!domApi.findAllDeep) return safeQueryAll(root, selector);
+
+    return domApi.findAllDeep(root, element => {
+      if (!element || element.nodeType !== 1 || typeof element.matches !== 'function') {
+        return false;
+      }
+      try {
+        return element.matches(selector);
+      } catch (_e) {
+        return false;
+      }
+    });
+  }
+
+
   function createGeminiObserver({
     jobId,
     root = typeof document !== 'undefined' ? document : null,
@@ -66,10 +83,10 @@
     }
 
     const strictResponseSelector = SELECTORS.MODEL_RESPONSE_STRICT || SELECTORS.RESPONSE;
-    const initialResponses = new Set(safeQueryAll(root, strictResponseSelector));
+    const initialResponses = new Set(deepQueryAll(root, strictResponseSelector));
     const initialImageSources = new Set();
 
-    safeQueryAll(root, 'img').forEach(img => {
+    deepQueryAll(root, 'img').forEach(img => {
       const src = domApi.getImageSource(img);
       if (src) initialImageSources.add(src);
     });
@@ -80,7 +97,7 @@
     const quarantinedInputElements = new Set(inputImageElements || []);
 
     const initialErrors = new Set();
-    safeQueryAll(root, SELECTORS.ERROR).forEach(element => {
+    deepQueryAll(root, SELECTORS.ERROR).forEach(element => {
       if (!domApi.isElementVisible(element)) return;
       const text = String(element.innerText || element.textContent || '').trim();
       if (text) initialErrors.add(text);
@@ -120,6 +137,9 @@
       inspectCount: 0,
       resultDomObserved: false,
       seenResultSources: new Set(),
+      observedMutationRoots: new Set(),
+      heartbeatTimer: null,
+      fallbackOwnerUsed: false,
     };
 
     const submissionWaiters = new Set();
@@ -221,6 +241,72 @@
       return true;
     }
 
+    const mutationObserverOptions = {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: [
+        'src',
+        'data-src',
+        'disabled',
+        'aria-disabled',
+        'aria-hidden',
+        'style',
+        'class',
+      ],
+    };
+
+    function observeMutationRoot(target) {
+      if (!target || !state.observer || state.observedMutationRoots.has(target)) {
+        return false;
+      }
+
+      try {
+        state.observer.observe(target, mutationObserverOptions);
+        state.observedMutationRoots.add(target);
+        return true;
+      } catch (_e) {
+        return false;
+      }
+    }
+
+    function discoverShadowRoots() {
+      if (!state.observer) return 0;
+      const observeRoot = root.body || root.documentElement || root;
+      let discovered = 0;
+
+      const hosts = domApi.findAllDeep
+        ? domApi.findAllDeep(observeRoot, element => Boolean(element?.shadowRoot))
+        : [];
+
+      for (const host of hosts) {
+        try {
+          if (host.shadowRoot && observeMutationRoot(host.shadowRoot)) {
+            discovered += 1;
+          }
+        } catch (_e) {}
+      }
+
+      return discovered;
+    }
+
+    function scheduleHeartbeat() {
+      if (state.cleanedUp || state.done || state.heartbeatTimer !== null) return;
+
+      const timer = setTimeoutFn(() => {
+        state.timers.delete(timer);
+        if (state.heartbeatTimer === timer) state.heartbeatTimer = null;
+        if (state.cleanedUp || state.done) return;
+
+        inspect();
+        scheduleHeartbeat();
+      }, 1250);
+
+      state.heartbeatTimer = timer;
+      state.timers.add(timer);
+    }
+
     function acquireResponseContainer() {
       if (
         state.responseContainer &&
@@ -229,7 +315,7 @@
         return state.responseContainer;
       }
 
-      const responses = safeQueryAll(root, strictResponseSelector);
+      const responses = deepQueryAll(root, strictResponseSelector);
       const candidates = responses.filter(element => !initialResponses.has(element));
       if (!candidates.length) return null;
 
@@ -305,7 +391,7 @@
     }
 
     function inspectErrors() {
-      const errors = safeQueryAll(root, SELECTORS.ERROR);
+      const errors = deepQueryAll(root, SELECTORS.ERROR);
       for (const element of errors) {
         if (!domApi.isElementVisible(element)) continue;
         const text = String(element.innerText || element.textContent || '').trim();
@@ -323,6 +409,14 @@
         value.includes('googleusercontent.com/rd-gg-dl/') ||
         value.includes('gemini-result-image');
     }
+
+    function highConfidenceGeneratedAssetUrl(src) {
+      const value = String(src || '');
+      return value.includes('googleusercontent.com/gg-dl/') ||
+        value.includes('googleusercontent.com/rd-gg-dl/') ||
+        value.includes('gemini-result-image');
+    }
+
 
     function isCandidateImage(image, container) {
       if (!image || !container) return false;
@@ -350,12 +444,74 @@
       return width > 0 && height > 0;
     }
 
+    function isHighConfidenceFallbackImage(image) {
+      if (!image || !state.submissionConfirmed) return false;
+      if (quarantinedInputElements.has(image)) return false;
+      if (domApi.isUserTurnImage?.(image)) return false;
+      if (domApi.isInsideInputArea?.(image)) return false;
+
+      const manualPanel = domApi.closestComposed?.(image, '#mt-gemini-assist');
+      if (manualPanel) return false;
+
+      const src = domApi.getImageSource(image);
+      if (
+        !src ||
+        state.initialImageSources.has(src) ||
+        domApi.isIgnoredGeminiImageSource(src) ||
+        !highConfidenceGeneratedAssetUrl(src)
+      ) {
+        return false;
+      }
+
+      const broadOwner = domApi.getModelResponseContainer?.(image) || null;
+      if (!state.generationActiveObserved && !broadOwner) return false;
+
+      return true;
+    }
+
+    function inspectHighConfidenceFallbackResult() {
+      const images = deepQueryAll(root, 'img');
+
+      for (let index = images.length - 1; index >= 0; index -= 1) {
+        const image = images[index];
+        if (!isHighConfidenceFallbackImage(image)) continue;
+
+        const src = domApi.getImageSource(image);
+        const owner =
+          domApi.getModelResponseContainer?.(image) ||
+          image.parentElement ||
+          image;
+
+        state.responseContainer = owner;
+        state.modelTurn = owner;
+        state.modelTurnObservedAt = Date.now();
+        state.fallbackOwnerUsed = true;
+
+        emitState('model_turn_fallback_acquired', {
+          reason: 'high_confidence_generated_asset',
+          urlKind: String(src).split(':', 1)[0] || 'unknown',
+        });
+        emitState('result_candidate', {
+          urlKind: String(src).split(':', 1)[0] || 'unknown',
+          strongUrl: true,
+          ownership: 'high_confidence_fallback',
+        });
+
+        if (setResult(image, src)) return true;
+      }
+
+      return false;
+    }
+
     function inspectResult() {
       if (!state.submissionConfirmed) return;
       const container = acquireResponseContainer();
-      if (!container) return;
+      if (!container) {
+        inspectHighConfidenceFallbackResult();
+        return;
+      }
 
-      const images = safeQueryAll(container, 'img');
+      const images = deepQueryAll(container, 'img');
       if (images.length > 0 && !state.resultDomObserved) {
         state.resultDomObserved = true;
         emitState('result_dom_seen', { imageCount: images.length });
@@ -379,11 +535,14 @@
         });
         if (setResult(image, src)) return;
       }
+
+      if (!state.resultUrl) inspectHighConfidenceFallbackResult();
     }
 
     function inspect() {
       if (state.cleanedUp || state.done) return;
       state.inspectCount += 1;
+      discoverShadowRoots();
 
       inspectEditor();
       if (state.cleanedUp || state.done) return;
@@ -412,25 +571,13 @@
       if (state.cleanedUp || state.ready) return api;
       const observeRoot = root.body || root.documentElement || root;
       state.observer = new MutationObserverImpl(scheduleInspect);
-      state.observer.observe(observeRoot, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-        attributeFilter: [
-          'src',
-          'data-src',
-          'disabled',
-          'aria-disabled',
-          'aria-hidden',
-          'style',
-          'class',
-        ],
-      });
+      observeMutationRoot(observeRoot);
+      discoverShadowRoots();
       state.ready = true;
       registryOwner.__mtGeminiObservers[jobId] = api;
       emitState('ready', { initialResponseCount: state.initialResponseCount });
       inspect();
+      scheduleHeartbeat();
       return api;
     }
 
@@ -501,6 +648,8 @@
         try { state.observer.disconnect(); } catch (_e) {}
         state.observer = null;
       }
+      state.observedMutationRoots.clear();
+      state.heartbeatTimer = null;
       if (state.responseObserver) {
         try { state.responseObserver.disconnect(); } catch (_e) {}
         state.responseObserver = null;
@@ -560,7 +709,10 @@
     return api;
   }
 
-  const api = { createGeminiObserver };
+  const api = {
+    createGeminiObserver,
+    deepQueryAll,
+  };
   scope.MangaTranslatorGeminiObserver = api;
 
   if (typeof module !== 'undefined' && module.exports) {
