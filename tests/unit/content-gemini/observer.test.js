@@ -378,7 +378,7 @@ describe('gemini/observer.js — Observer V2', () => {
       url: 'blob:https://gemini.google.com/real-fast-model-result',
     });
     expect(observer.getState().modelTurn).toBe(response);
-    expect(observer.getState().submissionReason).toBe('model_response_created');
+    expect(observer.getState().submissionReason).toBe('response_created');
     observer.stop();
   });
 
