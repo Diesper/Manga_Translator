@@ -6,6 +6,14 @@ const RUNNER_PATH = path.resolve(
   __dirname,
   '../../../extension/gemini/job-runner.js'
 );
+const SELECTORS_PATH = path.resolve(
+  __dirname,
+  '../../../extension/gemini/selectors.js'
+);
+const DOM_PATH = path.resolve(
+  __dirname,
+  '../../../extension/gemini/dom.js'
+);
 
 function loadModule() {
   let api;
@@ -177,6 +185,31 @@ describe('gemini/job-runner.js', () => {
     await expect(
       runner.waitForElement('.ql-editor', 100)
     ).resolves.toBe(editor);
+  });
+
+  test('RUN-04B: waitForElement observa editor inserido depois dentro de Shadow DOM', async () => {
+    const { createGeminiJobRunner } = loadModule();
+
+    let realDom;
+    jest.isolateModules(() => {
+      require(SELECTORS_PATH);
+      realDom = require(DOM_PATH);
+    });
+
+    const { options } = baseDependencies({ domApi: realDom });
+    const runner = createGeminiJobRunner(options);
+
+    const host = document.createElement('gemini-composer');
+    const shadow = host.attachShadow({ mode: 'open' });
+    document.body.appendChild(host);
+
+    const pending = runner.waitForElement('.ql-editor', 1000);
+
+    const editor = document.createElement('div');
+    editor.className = 'ql-editor';
+    shadow.appendChild(editor);
+
+    await expect(pending).resolves.toBe(editor);
   });
 
   test('RUN-05: seleção manual é entregue ao observer ativo existente', () => {
