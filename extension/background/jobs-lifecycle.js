@@ -203,7 +203,6 @@
       const batchId = job.batchId || state.currentBatchId;
       state.activeMangaTabId = mangaTabId;
       await syncState();
-      log('info', 'bg', 'JOB_START', 'Iniciando imagem', { index, completedJobs: state.completedJobs, totalJobs: state.totalJobs });
       sendProgress(mangaTabId, `🔄 ABRINDO GEMINI (${state.completedJobs + 1}/${state.totalJobs})...`);
 
       try {
@@ -211,6 +210,13 @@
         let baseUrl = settings.geminiBaseUrl || 'https://gemini.google.com/app';
         if (baseUrl === 'https://gemini.google.com/' || baseUrl === 'https://gemini.google.com') baseUrl = 'https://gemini.google.com/app';
         const executionMode = settings.geminiExecutionMode || 'temp_chat';
+        log('info', 'bg', 'JOB_START', 'Iniciando imagem', {
+          index,
+          completedJobs: state.completedJobs,
+          failedJobs: Number(state.failedJobs) || 0,
+          totalJobs: state.totalJobs,
+          executionMode,
+        });
         const opened = await openGeminiTab(buildGeminiJobUrl(baseUrl, index, jobId), executionMode);
         if (!opened.tab) throw new Error('Não foi possível obter a aba do Gemini');
         const openedTabId = opened.tab.id;
