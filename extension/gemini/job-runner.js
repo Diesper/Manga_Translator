@@ -844,7 +844,7 @@
                 editorElement: recoveredEditor,
                 editorRootElement: recoveredRoot,
                 timeoutMs: 12_000,
-                maxDispatches: 2,
+                maxDispatches: 3,
                 phase: 'foreground_recovery',
               });
             } else {
