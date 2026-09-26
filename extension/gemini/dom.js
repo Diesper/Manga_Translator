@@ -119,6 +119,42 @@
       lower.includes('gstatic.com/images/branding');
   }
 
+  function closestComposed(element, selector) {
+    if (!element || !selector) return null;
+
+    let current = element;
+    const visited = new Set();
+
+    while (current && !visited.has(current)) {
+      visited.add(current);
+
+      try {
+        if (current.nodeType === 1 && current.matches?.(selector)) {
+          return current;
+        }
+      } catch (_e) {}
+
+      if (current.parentElement) {
+        current = current.parentElement;
+        continue;
+      }
+
+      let rootNode = null;
+      try {
+        rootNode = current.getRootNode?.();
+      } catch (_e) {}
+
+      if (rootNode && rootNode.host) {
+        current = rootNode.host;
+        continue;
+      }
+
+      break;
+    }
+
+    return null;
+  }
+
   function getStrictModelResponseContainer(element) {
     if (!element) return null;
     const selector = SELECTORS.MODEL_RESPONSE_STRICT || [
@@ -133,12 +169,25 @@
       '.model-response-text',
     ].join(', ');
 
-    try {
-      if (element.matches && element.matches(selector)) return element;
-      return element.closest ? element.closest(selector) : null;
-    } catch (_e) {
-      return null;
-    }
+    return closestComposed(element, selector);
+  }
+
+  function getModelResponseContainer(element) {
+    if (!element) return null;
+    const strict = getStrictModelResponseContainer(element);
+    if (strict) return strict;
+
+    const selector = SELECTORS.RESPONSE || [
+      'model-response',
+      '[data-message-author="model"]',
+      'div[data-turn-role="model"]',
+      '.response-container',
+      '.model-turn',
+      '.presented-turn-content',
+      'message-content',
+    ].join(', ');
+
+    return closestComposed(element, selector);
   }
 
   function getUserTurnContainer(element) {
@@ -151,12 +200,20 @@
       '.user-query-container',
       '.user-message',
     ].join(', ');
-    try {
-      if (element.matches && element.matches(selector)) return element;
-      return element.closest ? element.closest(selector) : null;
-    } catch (_e) {
-      return null;
-    }
+    return closestComposed(element, selector);
+  }
+
+  function isInsideInputArea(element) {
+    if (!element) return false;
+    const selector = SELECTORS.INPUT_AREA || [
+      'rich-textarea',
+      '.input-area',
+      'chat-window',
+      '.chat-input-container',
+      '.chat-input',
+      'input-area',
+    ].join(', ');
+    return Boolean(closestComposed(element, selector));
   }
 
   function isModelResponseImage(img) {
@@ -277,8 +334,11 @@
     getEditableElement,
     getImageSource,
     isIgnoredGeminiImageSource,
+    closestComposed,
     getStrictModelResponseContainer,
+    getModelResponseContainer,
     getUserTurnContainer,
+    isInsideInputArea,
     isModelResponseImage,
     isUserTurnImage,
     findVisibleStopButton,
