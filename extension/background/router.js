@@ -24,6 +24,7 @@
     'FORCE_SEND_ACTIVATION': 'force-send-activation',
     'FORCE_ATTACHMENT_ACTIVATION': 'force-attachment-activation',
     'RESTORE_ATTACHMENT_ACTIVATION': 'restore-attachment-activation',
+    'REFRESH_JOB_WATCHDOG': 'refresh-job-watchdog',
     'SET_DEBUG_MODE': 'set-debug-mode',
     'LOG_ENTRY': 'log-entry',
     'GET_TAB_ID': 'get-tab-id',
