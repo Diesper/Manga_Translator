@@ -193,7 +193,17 @@ describe('background.js - lifecycle e alarms reais', () => {
 
         await waitFor(async () => {
             const data = await storageMock.get(['translatorLog']);
-            return forwardedMessages.find(message => message.action === 'SHOW_ERROR_INTEGRATED') && (data.translatorLog || []).length > 0 ? data : null;
+            const timeoutForwarded = forwardedMessages.find(
+                message => message.action === 'SHOW_ERROR_INTEGRATED'
+            );
+            const extractionClosed = !tabsMock._tabs.has(extractionTab.id);
+            const accountingDone = backgroundModule.__getState().activeJobsCount === 0;
+            return timeoutForwarded &&
+                extractionClosed &&
+                accountingDone &&
+                (data.translatorLog || []).length > 0
+                ? data
+                : null;
         });
 
         expect(forwardedMessages).toContainEqual(expect.objectContaining({
