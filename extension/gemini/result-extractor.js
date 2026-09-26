@@ -147,18 +147,23 @@
       }, 'Falha base64 background');
     }
 
-    function isGeminiGoogleAssetUrl(url) {
+    function isGoogleUserContentUrl(url) {
       try {
         const parsed = new URL(String(url || ''));
         const host = parsed.hostname.toLowerCase();
-        const isGoogleUserContent =
-          host === 'googleusercontent.com' ||
+        return host === 'googleusercontent.com' ||
           host.endsWith('.googleusercontent.com');
-        return isGoogleUserContent &&
-          (
-            parsed.pathname.includes('/gg-dl/') ||
-            parsed.pathname.includes('/rd-gg-dl/')
-          );
+      } catch (_e) {
+        return false;
+      }
+    }
+
+    function isGeminiGoogleAssetUrl(url) {
+      if (!isGoogleUserContentUrl(url)) return false;
+      try {
+        const parsed = new URL(String(url || ''));
+        return parsed.pathname.includes('/gg-dl/') ||
+          parsed.pathname.includes('/rd-gg-dl/');
       } catch (_e) {
         return false;
       }
@@ -229,10 +234,11 @@
         logExtractionStage('warn', 'canvas', url, attempt, canvasError);
       }
 
-      if (isGeminiGoogleAssetUrl(url)) {
-        // Assets autenticados rd-gg-dl/gg-dl: o Service Worker com sessão é o
-        // caminho principal. O MAIN-world fetch fica apenas como último recurso,
-        // pois o navegador pode bloqueá-lo por CORS.
+      if (isGoogleUserContentUrl(url)) {
+        // Em background_delete este método já é reservado ao resultado do
+        // Gemini; preserve a rota autenticada para qualquer googleusercontent.
+        // Nos demais modos só chegamos aqui automaticamente para rd-gg-dl/gg-dl.
+        // O Service Worker com sessão vem antes do MAIN-world fetch sujeito a CORS.
         try {
           const dataUrl = await fetchGeminiImageThroughExtension(url);
           logExtractionStage('info', 'service_worker_session', url, attempt);
@@ -399,6 +405,7 @@
       fetchImageThroughGeminiPage,
       fetchGeminiImageThroughExtension,
       fetchImageThroughBackground,
+      isGoogleUserContentUrl,
       isGeminiGoogleAssetUrl,
       getExtractionFailureKind,
       logExtractionStage,
