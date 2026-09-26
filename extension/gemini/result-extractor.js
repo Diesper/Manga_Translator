@@ -229,24 +229,43 @@
         logExtractionStage('warn', 'canvas', url, attempt, canvasError);
       }
 
-      // Para assets autenticados do Gemini, prefira o Service Worker com
-      // credentials:'include'. O fetch no MAIN world é sujeito a CORS e aparece
-      // nos logs reais como net::ERR_FAILED para rd-gg-dl.
-      try {
-        const dataUrl = await fetchGeminiImageThroughExtension(url);
-        logExtractionStage('info', 'service_worker_session', url, attempt);
-        return dataUrl;
-      } catch (serviceWorkerError) {
-        logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
+      if (isGeminiGoogleAssetUrl(url)) {
+        // Assets autenticados rd-gg-dl/gg-dl: o Service Worker com sessão é o
+        // caminho principal. O MAIN-world fetch fica apenas como último recurso,
+        // pois o navegador pode bloqueá-lo por CORS.
+        try {
+          const dataUrl = await fetchGeminiImageThroughExtension(url);
+          logExtractionStage('info', 'service_worker_session', url, attempt);
+          return dataUrl;
+        } catch (serviceWorkerError) {
+          logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
+        }
+
+        try {
+          const dataUrl = await fetchImageThroughGeminiPage(url);
+          logExtractionStage('info', 'gemini_page_fetch_last_resort', url, attempt);
+          return dataUrl;
+        } catch (pageFetchError) {
+          logExtractionStage('warn', 'gemini_page_fetch_last_resort', url, attempt, pageFetchError);
+          throw pageFetchError;
+        }
       }
 
       try {
         const dataUrl = await fetchImageThroughGeminiPage(url);
-        logExtractionStage('info', 'gemini_page_fetch_last_resort', url, attempt);
+        logExtractionStage('info', 'gemini_page_fetch', url, attempt);
         return dataUrl;
       } catch (pageFetchError) {
-        logExtractionStage('warn', 'gemini_page_fetch_last_resort', url, attempt, pageFetchError);
-        throw pageFetchError;
+        logExtractionStage('warn', 'gemini_page_fetch', url, attempt, pageFetchError);
+      }
+
+      try {
+        const dataUrl = await fetchImageThroughBackground(url);
+        logExtractionStage('info', 'service_worker_background', url, attempt);
+        return dataUrl;
+      } catch (serviceWorkerError) {
+        logExtractionStage('warn', 'service_worker_background', url, attempt, serviceWorkerError);
+        throw serviceWorkerError;
       }
     }
 
