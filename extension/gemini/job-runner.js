@@ -296,6 +296,20 @@
       removeGeminiManualPanel();
       pageWindow.__mangaTranslatorManualGeminiResultUrl = '';
 
+      function logManualIntervention(source) {
+        sendLog(
+          'error',
+          'GEMINI_MANUAL_INTERVENTION_REQUIRED',
+          'Falha grave de automação: o usuário precisou interagir manualmente com a seleção do resultado do Gemini',
+          {
+            source,
+            index: job && job.index,
+            executionMode: job && job.executionMode,
+            jobIdPrefix: String((job && job.jobId) || '').slice(0, 8),
+          }
+        );
+      }
+
       const panel = root.createElement('div');
       panel.id = 'mt-gemini-assist';
       panel.style.cssText = [
@@ -335,6 +349,7 @@
       root.documentElement.appendChild(panel);
 
       panel.querySelector('#mt-gemini-use-last').addEventListener('click', () => {
+        logManualIntervention('last-button');
         const images = findGeneratedResultImages(getIgnoreImages());
         const candidate = images[images.length - 1];
         if (candidate) {
@@ -346,6 +361,7 @@
       });
 
       panel.querySelector('#mt-gemini-pick').addEventListener('click', () => {
+        logManualIntervention('pick-button');
         const status = panel.querySelector('#mt-gemini-assist-status');
         status.textContent = 'Clique diretamente na imagem correta gerada pelo Gemini.';
 
@@ -1035,25 +1051,45 @@
                 { executionMode, imageCount: detail && detail.imageCount }
               );
             } else if (type === 'result_image_seen') {
+              const panelStatus = root.getElementById('mt-gemini-assist-status');
+              if (panelStatus) {
+                panelStatus.textContent = 'Imagem encontrada no DOM. Validando automaticamente...';
+              }
               sendLog(
                 'info',
                 'GEMINI_RESULT_IMG_SEEN',
                 'Fonte de imagem observada no model turn',
                 {
                   executionMode,
-                  urlKind: detail && detail.urlKind,
-                  strongUrl: Boolean(detail && detail.strongUrl),
+                  sourceScheme: detail && detail.urlKind,
+                  isStrongCandidate: Boolean(detail && detail.isStrong),
+                }
+              );
+            } else if (type === 'result_candidate_rejected') {
+              sendLog(
+                'warn',
+                'GEMINI_RESULT_CANDIDATE_REJECTED',
+                'Imagem observada no model turn ainda não passou pela validação automática',
+                {
+                  executionMode,
+                  reason: detail && detail.reason,
+                  sourceScheme: detail && detail.urlKind,
+                  isStrongCandidate: Boolean(detail && detail.isStrong),
                 }
               );
             } else if (type === 'result_candidate') {
+              const panelStatus = root.getElementById('mt-gemini-assist-status');
+              if (panelStatus) {
+                panelStatus.textContent = 'Imagem validada automaticamente. Extraindo resultado...';
+              }
               sendLog(
                 'success',
                 'GEMINI_RESULT_OWNER_VALID',
                 'Imagem candidata pertence ao model turn atual',
                 {
                   executionMode,
-                  urlKind: detail && detail.urlKind,
-                  strongUrl: Boolean(detail && detail.strongUrl),
+                  sourceScheme: detail && detail.urlKind,
+                  isStrongCandidate: Boolean(detail && detail.isStrong),
                 }
               );
             } else if (
