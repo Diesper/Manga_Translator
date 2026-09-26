@@ -434,4 +434,64 @@ describe('gemini/observer.js — Observer V3', () => {
     observer.stop();
   });
 
+
+  test('OBS-19: wrapper estrito aninhado não invalida ownership do model turn adquirido', async () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({
+      jobId: 'nested-model-wrapper',
+      onStateChange,
+    }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = addResponse();
+    const nested = document.createElement('div');
+    nested.className = 'model-response-text';
+    response.appendChild(nested);
+
+    const image = addResultImage(
+      nested,
+      'https://lh3.googleusercontent.com/rd-gg-dl/nested-generated=s1024-rj'
+    );
+
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/rd-gg-dl/nested-generated=s1024-rj',
+    });
+    expect(observer.getState().modelTurn).toBe(response);
+    expect(onStateChange.mock.calls.map(call => call[0])).toContain('result_candidate');
+    observer.stop();
+  });
+
+  test('OBS-20: imagem não-forte é reavaliada quando o evento load completa dimensões', async () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'result-load-reinspect' }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = addResponse();
+    const image = document.createElement('img');
+    image.src = 'https://cdn.example/delayed-result.png';
+    Object.defineProperty(image, 'naturalWidth', { value: 0, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 0, configurable: true });
+    Object.defineProperty(image, 'complete', { value: false, configurable: true });
+    response.appendChild(image);
+
+    observer.inspect();
+    expect(observer.getState().resultUrl).toBeNull();
+
+    Object.defineProperty(image, 'naturalWidth', { value: 1200, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1600, configurable: true });
+    Object.defineProperty(image, 'complete', { value: true, configurable: true });
+    image.dispatchEvent(new Event('load'));
+
+    await flushMutations();
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://cdn.example/delayed-result.png',
+    });
+    observer.stop();
+  });
+
 });
