@@ -95,7 +95,16 @@ function appendImage(src, metrics = {}) {
     const img = document.createElement('img');
     img.src = src;
     defineImageMetrics(img, metrics);
-    document.body.appendChild(img);
+
+    if (metrics.role === 'body') {
+        document.body.appendChild(img);
+        return img;
+    }
+
+    const response = document.createElement('model-response');
+    response.setAttribute('data-message-author', 'model');
+    response.appendChild(img);
+    document.body.appendChild(response);
     return img;
 }
 
@@ -308,34 +317,47 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         expect(clearIntervalSpy).toHaveBeenCalled();
     });
 
-    test('CG-21: ausencia de thumbnail registra warning e permite continuar o pipeline', async () => {
+    test('CG-21/ATT-GATE-01: ausencia de attachment confirmado bloqueia prompt e submit', async () => {
         mountEditor({ attachThumbnail: false });
-        await seedJob();
+        const send = appendSendButton();
+        await seedJob({ executionMode: 'background_delete' });
         jest.useFakeTimers();
         installResponder({
             GET_TAB_ID: () => ({ tabId: 321 }),
             REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FORCE_ATTACHMENT_ACTIVATION: () => ({ ok: true }),
+            RESTORE_ATTACHMENT_ACTIVATION: () => ({ ok: true }),
         });
 
         const mod = loadContentGeminiModule();
         mod.processGeminiJob();
 
-        for (let i = 0; i < 40; i += 1) {
+        for (let i = 0; i < 70; i += 1) {
             // eslint-disable-next-line no-await-in-loop
             await jest.advanceTimersByTimeAsync(500);
         }
 
-        const warning = sentMessages.find(message =>
-            message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_STEP_3_WARN'
+        const gateError = sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' &&
+            message.action_name === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
         );
-        expect(warning).toEqual(expect.objectContaining({
-            level: 'warn',
-            action_name: 'GEMINI_STEP_3_WARN',
+        expect(gateError).toEqual(expect.objectContaining({
+            level: 'error',
+            action_name: 'GEMINI_ATTACHMENT_NOT_CONFIRMED',
         }));
         expect(sentMessages.some(message =>
-            message.action === 'GEMINI_ERROR' &&
-            String(message.error || '').includes('Thumb (imagem enviada) não foi encontrado')
+            message.action === 'LOG_ENTRY' &&
+            message.action_name === 'PROMPT_INJECTED'
         )).toBe(false);
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' &&
+            message.action_name === 'GEMINI_SUBMIT_ATTEMPT'
+        )).toBe(false);
+        expect(send.click).not.toHaveBeenCalled();
+        expect(sentMessages.some(message =>
+            message.action === 'GEMINI_ERROR' &&
+            String(message.error || '').includes('GEMINI_ATTACHMENT_NOT_CONFIRMED')
+        )).toBe(true);
     });
 
     test('CG-28/CG-29: botoes desabilitados ou ocultos sao ignorados ate achar botao valido', async () => {
@@ -370,7 +392,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     }, 12000);
 
     test('CG-32/CG-33/CG-34: ignora imagem preexistente, avatar e imagem pequena antes de aceitar resultado valido', async () => {
-        appendImage('https://cdn.gemini.test/pre-existing.png');
+        appendImage('https://cdn.gemini.test/pre-existing.png', { role: 'body' });
         mountEditor();
         appendSendButton({
             onSubmit: () => {
@@ -442,7 +464,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         appendSendButton({
             onSubmit: () => {
                 setTimeout(() => {
-                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024 });
+                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024, role: 'body' });
                 }, 1300);
             },
         });
@@ -513,5 +535,41 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         expect(document.getElementById('delete-item').click).toHaveBeenCalled();
         expect(document.getElementById('confirm-delete').click).toHaveBeenCalled();
     }, 20000);
-});
 
+    test('REG-INPUT-RESULT-01: resultado byte-a-byte igual ao input é rejeitado antes da entrega', async () => {
+        mountEditor();
+        appendSendButton({
+            onSubmit: () => {
+                setTimeout(() => appendImage(
+                    'https://cdn.gemini.test/model-result-same-bytes.png',
+                    { width: 900, height: 1200 }
+                ), 50);
+            },
+        });
+
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,QUJDRA==' }),
+        });
+
+        const mod = loadContentGeminiModule();
+        mod.processGeminiJob();
+
+        const errorLog = await waitFor(() => sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' &&
+            message.action_name === 'GEMINI_RESULT_MATCHES_INPUT'
+        ), { timeout: 12000 });
+
+        expect(errorLog.level).toBe('error');
+        expect(sentMessages.some(message =>
+            message.action === 'GEMINI_IMAGE_EXTRACTED'
+        )).toBe(false);
+        expect(sentMessages.some(message =>
+            message.action === 'GEMINI_ERROR' &&
+            String(message.error || '').includes('GEMINI_RESULT_MATCHES_INPUT')
+        )).toBe(true);
+    }, 15000);
+
+});
