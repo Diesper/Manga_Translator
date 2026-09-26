@@ -404,4 +404,34 @@ describe('gemini/observer.js — Observer V3', () => {
     observer.stop();
   });
 
+
+  test('OBS-18: rd-gg-dl dentro do model turn é aceito antes de dimensões carregarem', async () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({
+      jobId: 'rd-gg-dl-result',
+      onStateChange,
+    }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = addResponse();
+    const image = document.createElement('img');
+    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj';
+    Object.defineProperty(image, 'naturalWidth', { value: 0, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 0, configurable: true });
+    Object.defineProperty(image, 'complete', { value: false, configurable: true });
+    response.appendChild(image);
+
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj',
+    });
+    expect(onStateChange.mock.calls.map(call => call[0])).toEqual(
+      expect.arrayContaining(['result_dom_seen', 'result_image_seen', 'result_candidate', 'result_image'])
+    );
+    observer.stop();
+  });
+
 });
