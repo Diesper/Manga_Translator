@@ -118,6 +118,8 @@
       timers: new Set(),
       inspectionScheduled: false,
       inspectCount: 0,
+      resultDomObserved: false,
+      seenResultSources: new Set(),
     };
 
     const submissionWaiters = new Set();
@@ -314,10 +316,12 @@
     }
 
     function strongImageUrl(src) {
-      return src.startsWith('blob:') ||
-        src.startsWith('data:image/') ||
-        src.includes('googleusercontent.com/gg-dl/') ||
-        src.includes('gemini-result-image');
+      const value = String(src || '');
+      return value.startsWith('blob:') ||
+        value.startsWith('data:image/') ||
+        value.includes('googleusercontent.com/gg-dl/') ||
+        value.includes('googleusercontent.com/rd-gg-dl/') ||
+        value.includes('gemini-result-image');
     }
 
     function isCandidateImage(image, container) {
@@ -352,11 +356,27 @@
       if (!container) return;
 
       const images = safeQueryAll(container, 'img');
+      if (images.length > 0 && !state.resultDomObserved) {
+        state.resultDomObserved = true;
+        emitState('result_dom_seen', { imageCount: images.length });
+      }
+
       for (let index = images.length - 1; index >= 0; index -= 1) {
         const image = images[index];
-        if (!isCandidateImage(image, container)) continue;
-
         const src = domApi.getImageSource(image);
+        if (src && !state.seenResultSources.has(src)) {
+          state.seenResultSources.add(src);
+          emitState('result_image_seen', {
+            urlKind: String(src).split(':', 1)[0] || 'unknown',
+            strongUrl: strongImageUrl(src),
+          });
+        }
+
+        if (!isCandidateImage(image, container)) continue;
+        emitState('result_candidate', {
+          urlKind: String(src).split(':', 1)[0] || 'unknown',
+          strongUrl: strongImageUrl(src),
+        });
         if (setResult(image, src)) return;
       }
     }
