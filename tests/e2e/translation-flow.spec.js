@@ -369,6 +369,48 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
+    test('E2E resultado atual do Gemini: shadow DOM + wrapper assistant é detectado sem intervenção manual', async () => {
+        await resetExtensionState(backgroundWorker, {
+            geminiExecutionMode: 'temp_chat',
+            geminiBaseUrl:
+                'http://127.0.0.1:3999/gemini/?shadowResult=1&relaxedResultContainer=1',
+        });
+
+        const page = await browserContext.newPage();
+        await page.goto('http://localhost:3999/manga-page.html');
+        await page.waitForLoadState('networkidle');
+
+        await page.evaluate(() => {
+            document.querySelector('[data-testid="manga-image-1"]')?.remove();
+        });
+
+        const mainContent = page.locator('#manga-main-content');
+        await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+        await mainContent.click();
+
+        await expect.poll(async () => page.evaluate(() =>
+            document.querySelectorAll('img[data-translated="true"]').length
+        ), {
+            timeout: 45000,
+            message: 'Resultado em shadow DOM deveria ser detectado automaticamente',
+        }).toBe(1);
+
+        const storage = await readStorage(backgroundWorker, ['translatorLog']);
+        const logs = Array.isArray(storage.translatorLog)
+            ? storage.translatorLog
+            : [];
+
+        expect(logs.some(entry =>
+            entry && entry.action === 'GEMINI_RESULT_OWNER_VALID'
+        )).toBe(true);
+        expect(logs.some(entry =>
+            entry && entry.action === 'GEMINI_MANUAL_INTERVENTION_REQUIRED'
+        )).toBe(false);
+
+        await page.close();
+    });
+
+
     test('E2E submit ignorado: falha cedo sem entrar em espera de geração de 4 minutos', async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
