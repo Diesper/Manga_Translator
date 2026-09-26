@@ -350,18 +350,16 @@
   }
 
   function dispatchPaste({ editor, editorRoot, transfer }) {
-    let attempted = false;
-    const targets = [editor];
-    if (editorRoot && editorRoot !== editor) targets.push(editorRoot);
-
-    for (const target of targets) {
-      if (!target || typeof target.dispatchEvent !== 'function') continue;
-      try {
-        target.dispatchEvent(createClipboardEvent(transfer));
-        attempted = true;
-      } catch (_e) {}
+    // Último recurso: um único paste sintético no alvo mais específico.
+    // Disparar no editor e no wrapper podia duplicar handlers internos do Gemini.
+    const target = editor || editorRoot;
+    if (!target || typeof target.dispatchEvent !== 'function') return false;
+    try {
+      target.dispatchEvent(createClipboardEvent(transfer));
+      return true;
+    } catch (_e) {
+      return false;
     }
-    return attempted;
   }
 
   function assignFileInputs({ root, editorRoot, transfer }) {
