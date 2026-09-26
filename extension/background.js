@@ -753,6 +753,7 @@ async function startBatch(request, sender) {
     runtimeState.stopRequested = false;
     runtimeState.jobQueue = [];
     runtimeState.completedJobs = 0;
+    runtimeState.failedJobs = 0;
     runtimeState.activeJobsCount = runtimeState.jobIndex.length;
     runtimeState.totalJobs = request.images.length;
     runtimeState.activeMangaTabId = sender && sender.tab ? sender.tab.id : request.mangaTabId;

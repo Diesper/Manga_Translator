@@ -40,6 +40,21 @@
       '[data-testid="stop-generating-button"]',
     ].join(', '),
 
+    // Seletores com ownership forte. Somente estes podem conceder ao Observer
+    // propriedade de uma resposta automática do modelo.
+    MODEL_RESPONSE_STRICT: [
+      'model-response',
+      '[data-test-id*="model-response"]',
+      '[data-testid*="model-response"]',
+      '[data-message-author="model"]',
+      'bard-model-response',
+      'div[data-turn-role="model"]',
+      'message-content.model',
+      '.model-response-container',
+      '.model-response-text',
+    ].join(', '),
+
+    // Compatibilidade para módulos auxiliares. Não usar sozinho para ownership.
     RESPONSE: [
       'model-response',
       '[data-test-id*="model-response"]',
@@ -53,6 +68,15 @@
       '.model-turn',
       'message-content.model',
       '.presented-turn-content',
+    ].join(', '),
+
+    USER_TURN: [
+      '[data-message-author="user"]',
+      'div[data-turn-role="user"]',
+      '[data-test-id*="user-message"]',
+      '[data-testid*="user-message"]',
+      '.user-query-container',
+      '.user-message',
     ].join(', '),
 
     ERROR: [

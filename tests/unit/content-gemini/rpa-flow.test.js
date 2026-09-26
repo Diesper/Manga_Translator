@@ -91,13 +91,16 @@ function installMissingDomApis() {
 }
 
 function appendGeneratedImage(src) {
+    const response = document.createElement('model-response');
+    response.setAttribute('data-message-author', 'model');
     const img = document.createElement('img');
     img.src = src;
     img.scrollIntoView = jest.fn();
     Object.defineProperty(img, 'naturalWidth', { value: 1024, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: 1536, configurable: true });
     Object.defineProperty(img, 'complete', { value: true, configurable: true });
-    document.body.appendChild(img);
+    response.appendChild(img);
+    document.body.appendChild(response);
     return img;
 }
 
@@ -346,7 +349,12 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             action: 'LOG_ENTRY',
             action_name: 'GEMINI_SEND_SUCCESS',
         }));
-        expect(imageFoundLog.extra).toEqual({ urlKind: '[redacted]', host: 'cdn.gemini.test', hasQuery: true });
+        expect(imageFoundLog.extra).toEqual(expect.objectContaining({
+            urlKind: '[redacted]',
+            host: 'cdn.gemini.test',
+            hasQuery: true,
+            executionMode: 'temp_chat',
+        }));
         expect(JSON.stringify(imageFoundLog)).not.toContain('signed-secret');
         expect(promptLog.extra).toEqual({ promptLen: '[redacted]' });
         expect(JSON.stringify(promptLog)).not.toContain('prompt-private-text');

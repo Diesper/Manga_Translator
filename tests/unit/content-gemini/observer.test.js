@@ -300,30 +300,22 @@ describe('gemini/observer.js — Observer V2', () => {
     expect(observer.getState().inspectCount).toBeLessThanOrEqual(before + 2);
     observer.stop();
   });
-  test('PR6: fallback profundo orientado a mutation encontra imagem nova sem response conhecido', async () => {
-    const baseline = document.createElement('img');
-    baseline.src = 'https://cdn.example/input.png';
-    Object.defineProperty(baseline, 'naturalWidth', { value: 1000, configurable: true });
-    Object.defineProperty(baseline, 'naturalHeight', { value: 1400, configurable: true });
-    document.body.appendChild(baseline);
-
+  test('OBS-14: imagem nova fora de model turn é ignorada', async () => {
     const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({ jobId: 'result-fallback' }).start();
-    const pending = observer.waitForResult(1000);
+    const observer = createGeminiObserver({ jobId: 'strict-result-ownership' }).start();
 
     const result = document.createElement('img');
-    result.src = 'https://cdn.example/generated.png';
+    result.src = 'blob:https://gemini.google.com/not-a-model-result';
     Object.defineProperty(result, 'naturalWidth', { value: 1200, configurable: true });
     Object.defineProperty(result, 'naturalHeight', { value: 1600, configurable: true });
     Object.defineProperty(result, 'complete', { value: true, configurable: true });
     document.body.appendChild(result);
 
+    observer.inspect();
     await flushMutations();
 
-    await expect(pending).resolves.toEqual({
-      image: result,
-      url: 'https://cdn.example/generated.png',
-    });
+    expect(observer.getState().resultUrl).toBeNull();
+    expect(observer.getState().modelTurn).toBeNull();
     observer.stop();
   });
 
@@ -338,6 +330,77 @@ describe('gemini/observer.js — Observer V2', () => {
       image: null,
       url: 'blob:https://gemini.google.com/manual-picked',
     });
+    observer.stop();
+  });
+
+
+  test('OBS-15: clone da imagem de entrada em user turn, mesmo com nova blob URL, é ignorado', async () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'user-clone' }).start();
+
+    const send = document.createElement('button');
+    send.setAttribute('aria-label', 'Send message');
+    visibleRect(send, 36, 36);
+    document.body.appendChild(send);
+    send.disabled = false;
+    observer.inspect();
+    send.disabled = true;
+    observer.inspect();
+
+    const userTurn = document.createElement('div');
+    userTurn.setAttribute('data-message-author', 'user');
+    const clone = document.createElement('img');
+    clone.src = 'blob:https://gemini.google.com/reencoded-input';
+    Object.defineProperty(clone, 'naturalWidth', { value: 1200, configurable: true });
+    Object.defineProperty(clone, 'naturalHeight', { value: 1600, configurable: true });
+    Object.defineProperty(clone, 'complete', { value: true, configurable: true });
+    userTurn.appendChild(clone);
+    document.body.appendChild(userTurn);
+
+    observer.inspect();
+    expect(observer.getState().submissionConfirmed).toBe(true);
+    expect(observer.getState().resultUrl).toBeNull();
+    expect(observer.getState().modelTurn).toBeNull();
+    observer.stop();
+  });
+
+  test('OBS-16: model turn estrito com resultado rápido continua sendo aceito', async () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'strict-fast-result' }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = addResponse();
+    const image = addResultImage(response, 'blob:https://gemini.google.com/real-fast-model-result');
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'blob:https://gemini.google.com/real-fast-model-result',
+    });
+    expect(observer.getState().modelTurn).toBe(response);
+    expect(observer.getState().submissionReason).toBe('response_created');
+    observer.stop();
+  });
+
+  test('OBS-17: imagem de user turn googleusercontent não recebe ownership automático', () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'user-googleusercontent' }).start();
+
+    const userTurn = document.createElement('div');
+    userTurn.setAttribute('data-turn-role', 'user');
+    const image = document.createElement('img');
+    image.src = 'https://lh3.googleusercontent.com/input-reencoded=s0';
+    Object.defineProperty(image, 'naturalWidth', { value: 1024, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1536, configurable: true });
+    userTurn.appendChild(image);
+    document.body.appendChild(userTurn);
+
+    const response = addResponse();
+    response.textContent = 'Gerando...';
+    observer.inspect();
+
+    expect(observer.getState().modelTurn).toBe(response);
+    expect(observer.getState().resultUrl).toBeNull();
     observer.stop();
   });
 

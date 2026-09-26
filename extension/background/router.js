@@ -22,6 +22,8 @@
     'SHOW_EXISTING_FOLDER': 'open-existing-folder',
     'OPEN_MANGA_ROOT': 'open-manga-root',
     'FORCE_SEND_ACTIVATION': 'force-send-activation',
+    'FORCE_ATTACHMENT_ACTIVATION': 'force-attachment-activation',
+    'RESTORE_ATTACHMENT_ACTIVATION': 'restore-attachment-activation',
     'SET_DEBUG_MODE': 'set-debug-mode',
     'LOG_ENTRY': 'log-entry',
     'GET_TAB_ID': 'get-tab-id',

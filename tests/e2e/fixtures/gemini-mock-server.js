@@ -188,14 +188,27 @@ function buildGeminiMockHtml() {
       const jobIndex = currentUrl.searchParams.get('jobIndex') || '0';
       const fastResult = currentUrl.searchParams.get('fastResult') === '1';
       const ignoreSubmit = currentUrl.searchParams.get('ignoreSubmit') === '1';
+      const attachmentFails = currentUrl.searchParams.get('attachmentFails') === '1';
+      const attachmentFailAttempts = Math.max(
+        0,
+        Number(currentUrl.searchParams.get('attachmentFailAttempts') || 0)
+      );
+      const attachmentDelayMs = Math.max(
+        0,
+        Number(currentUrl.searchParams.get('attachmentDelayMs') || 0)
+      );
+      const cloneInputIntoUserTurn =
+        currentUrl.searchParams.get('cloneInputIntoUserTurn') === '1';
+      const orphanImageBeforeResult =
+        currentUrl.searchParams.get('orphanImageBeforeResult') === '1';
       const chatOptionsButton = document.querySelector('[data-chat-id="mock-chat"] [data-test-id="chat-options"]');
 
       let attachmentSeen = false;
+      let attachmentAttempts = 0;
       let running = false;
 
-      function showPreviewFromEvent(event) {
+      function commitPreview(event) {
         if (attachmentSeen) return;
-
         attachmentSeen = true;
         label.textContent = 'Imagem anexada pelo content script';
         preview.style.display = 'block';
@@ -216,6 +229,52 @@ function buildGeminiMockHtml() {
               '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="220"><rect width="100%" height="100%" fill="#486581"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="Arial" font-size="18">preview</text></svg>'
             );
         }
+      }
+
+      function showPreviewFromEvent(event) {
+        if (attachmentSeen) return;
+        attachmentAttempts += 1;
+
+        if (attachmentFails || attachmentAttempts <= attachmentFailAttempts) {
+          status.textContent = 'Attachment ignorado pelo mock';
+          return;
+        }
+
+        if (attachmentDelayMs > 0) {
+          status.textContent = 'Attachment atrasado pelo mock';
+          setTimeout(() => commitPreview(event), attachmentDelayMs);
+          return;
+        }
+
+        commitPreview(event);
+      }
+
+      function appendInputClone() {
+        const userTurn = document.createElement('div');
+        userTurn.setAttribute('data-message-author', 'user');
+        userTurn.setAttribute('data-turn-role', 'user');
+
+        const img = document.createElement('img');
+        img.alt = 'Clone da imagem enviada pelo usuário';
+        img.src =
+          '/manga-images/page_001.png?userClone=' +
+          encodeURIComponent(jobIndex) +
+          '&t=' +
+          Date.now();
+
+        userTurn.appendChild(img);
+        resultZone.appendChild(userTurn);
+      }
+
+      function appendOrphanImage() {
+        const img = document.createElement('img');
+        img.alt = 'Imagem grande fora de model turn';
+        img.src =
+          '/manga-images/page_002.png?orphan=' +
+          encodeURIComponent(jobIndex) +
+          '&t=' +
+          Date.now();
+        resultZone.appendChild(img);
       }
 
       function appendResultImage() {
@@ -249,6 +308,9 @@ function buildGeminiMockHtml() {
           editor.textContent = '';
           editor.innerText = '';
         }
+
+        if (cloneInputIntoUserTurn) appendInputClone();
+        if (orphanImageBeforeResult) appendOrphanImage();
 
         if (fastResult) {
           // A resposta aparece no mesmo task lógico do submit. O Observer V2
