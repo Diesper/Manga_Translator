@@ -76,6 +76,37 @@
       });
     }
 
+    function sendRuntimeMessage(message) {
+      return new Promise(resolve => {
+        try {
+          runtime.sendMessage(message, response => {
+            const error = runtime.lastError;
+            if (error) {
+              resolve({ ok: false, error: error.message || String(error) });
+              return;
+            }
+            resolve(response || { ok: true });
+          });
+        } catch (error) {
+          resolve({ ok: false, error: error?.message || String(error) });
+        }
+      });
+    }
+
+    function dataUrlPayload(value) {
+      const raw = String(value || '');
+      if (!raw.startsWith('data:image/')) return '';
+      const comma = raw.indexOf(',');
+      if (comma < 0) return '';
+      return raw.slice(comma + 1).replace(/\s+/g, '');
+    }
+
+    function sameImagePayload(first, second) {
+      const a = dataUrlPayload(first);
+      const b = dataUrlPayload(second);
+      return Boolean(a && b && a === b);
+    }
+
     function dataURLtoFile(dataurl, filename) {
       const raw = String(dataurl || '');
       const commaIndex = raw.indexOf(',');
@@ -754,43 +785,145 @@
         const file = dataURLtoFile(job.srcData, 'manga_page.png');
         assertStage(file.size > 0, 'Imagem gerada vazia.', 3, 'PNG verificado no buffer');
 
-        const attachmentResult = await attachmentApi.attachFile({
-          file,
-          editor: liveEditable,
-          editorRoot: liveEditor,
-          root,
-          timeoutMs: 15_000,
-          retryAfterMs: 2000,
-          maxDispatches: 8,
-          sleep,
+        const runAttachmentAttempt = async ({
+          editorElement,
+          editorRootElement,
+          timeoutMs,
+          maxDispatches,
+          phase,
+        }) => {
+          sendLog(
+            'info',
+            'GEMINI_ATTACHMENT_ATTEMPT',
+            'Tentativa de attachment iniciada',
+            { executionMode, phase, maxDispatches }
+          );
+
+          const result = await attachmentApi.attachFile({
+            file,
+            editor: editorElement,
+            editorRoot: editorRootElement,
+            root,
+            timeoutMs,
+            retryAfterMs: 2500,
+            maxDispatches,
+            sleep,
+          });
+
+          sendLog(
+            result.confirmed ? 'success' : 'warn',
+            result.confirmed ? 'GEMINI_ATTACHMENT_CONFIRMED' : 'GEMINI_ATTACHMENT_UNCONFIRMED',
+            result.confirmed
+              ? 'Attachment confirmado por evidência de DOM do composer'
+              : 'Attachment ainda não confirmado',
+            {
+              executionMode,
+              phase,
+              attempted: result.attempted,
+              attempts: result.attempts,
+              signalObserved: result.signalObserved,
+              methods: result.methodsAttempted,
+              evidenceType: result.evidence?.type || null,
+            }
+          );
+          return result;
+        };
+
+        let attachmentResult = await runAttachmentAttempt({
+          editorElement: liveEditable,
+          editorRootElement: liveEditor,
+          timeoutMs: 8_000,
+          maxDispatches: 3,
+          phase: 'background',
         });
 
         if (!attachmentResult.confirmed) {
-          debugConsole(
-            'warn',
-            '[MangaTranslator Gemini] Attachment não foi confirmado após 15s; prosseguindo sem declarar sucesso.'
-          );
           sendLog(
             'warn',
-            'GEMINI_STEP_3_WARN',
-            'Attachment não confirmado por evidência de DOM',
-            { attempted: attachmentResult.attempted }
+            'GEMINI_ATTACHMENT_RECOVERY',
+            'Attachment não confirmou em background; ativando contexto Gemini temporariamente',
+            { executionMode, signalObserved: attachmentResult.signalObserved }
           );
-        } else {
-          const evidence = attachmentResult.evidence || {};
-          debugConsole(
-            'log',
-            '[MangaTranslator Gemini] Attachment confirmado:',
-            { type: evidence.type, selector: evidence.selector }
-          );
-          sendLog(
-            'success',
-            'GEMINI_STEP_3_OK',
-            'Attachment confirmado por evidência de DOM',
-            { type: evidence.type, selector: evidence.selector }
-          );
+
+          const activation = await sendRuntimeMessage({
+            action: 'FORCE_ATTACHMENT_ACTIVATION',
+            geminiTabId: myTabId,
+            mangaTabId: job.mangaTabId,
+            windowId: job.windowId,
+            executionMode,
+          });
+
+          try {
+            if (activation?.ok !== false) {
+              await sleep(350);
+              const recoveredRoot =
+                root.querySelector('rich-textarea, .ql-editor, [contenteditable="true"]') ||
+                liveEditor;
+              const recoveredEditor = domApi.getEditableElement(recoveredRoot) || recoveredRoot;
+
+              attachmentResult = await runAttachmentAttempt({
+                editorElement: recoveredEditor,
+                editorRootElement: recoveredRoot,
+                timeoutMs: 12_000,
+                maxDispatches: 2,
+                phase: 'foreground_recovery',
+              });
+            } else {
+              sendLog(
+                'warn',
+                'GEMINI_ATTACHMENT_ACTIVATION_FAILED',
+                'Não foi possível ativar o contexto Gemini para recovery de attachment',
+                { executionMode, reason: activation?.reason || activation?.error || null }
+              );
+            }
+          } finally {
+            await sendRuntimeMessage({
+              action: 'RESTORE_ATTACHMENT_ACTIVATION',
+              geminiTabId: myTabId,
+              mangaTabId: job.mangaTabId,
+              windowId: job.windowId,
+              executionMode,
+            });
+          }
         }
-        await sleep(1000);
+
+        if (!attachmentResult.confirmed) {
+          const error = new Error('GEMINI_ATTACHMENT_NOT_CONFIRMED');
+          error.code = 'GEMINI_ATTACHMENT_NOT_CONFIRMED';
+
+          sendLog(
+            'error',
+            'GEMINI_ATTACHMENT_NOT_CONFIRMED',
+            'Attachment não pôde ser confirmado; submit bloqueado',
+            {
+              executionMode,
+              attempted: attachmentResult.attempted,
+              attempts: attachmentResult.attempts,
+              signalObserved: attachmentResult.signalObserved,
+              methods: attachmentResult.methodsAttempted,
+            }
+          );
+          throw error;
+        }
+
+        const attachmentEvidence = attachmentResult.evidence || {};
+        debugConsole(
+          'log',
+          '[MangaTranslator Gemini] Attachment confirmado:',
+          { type: attachmentEvidence.type, selector: attachmentEvidence.selector }
+        );
+        sendLog(
+          'success',
+          'GEMINI_STEP_3_OK',
+          'Attachment confirmado; pipeline liberado para submit',
+          {
+            executionMode,
+            type: attachmentEvidence.type,
+            selector: attachmentEvidence.selector,
+            phase: attachmentResult.attempts > 3 ? 'recovery' : 'normal',
+          }
+        );
+        await sleep(500);
 
         reportProgress('📤 ENVIANDO PROMPT...', job.mangaTabId);
         debugConsole('log', '[MangaTranslator Gemini] Injetando prompt e enviando...');
@@ -850,6 +983,10 @@
             .map(image => getImageSource(image))
             .filter(Boolean)
         );
+        const inputImageElements = new Set();
+        if (attachmentResult.evidence?.img) {
+          inputImageElements.add(attachmentResult.evidence.img);
+        }
 
         activeObserver = observerApi.createGeminiObserver({
           jobId: job.jobId,
@@ -860,13 +997,32 @@
               'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
             ) || activeEditable,
           ignoreImages,
+          inputImageElements,
           onStateChange: (type, detail) => {
             if (type === 'generation_started') {
               sendLog(
                 'info',
                 'GEMINI_GENERATION_ACTIVE',
                 'Geração observada na UI',
-                { reason: detail && detail.reason }
+                { executionMode, reason: detail && detail.reason }
+              );
+            } else if (type === 'model_turn_acquired') {
+              sendLog(
+                'info',
+                'GEMINI_MODEL_TURN_ACQUIRED',
+                'Nova resposta estrita do modelo adquiriu ownership do job',
+                { executionMode, responseIndex: detail && detail.responseIndex }
+              );
+            } else if (
+              type === 'result_image' &&
+              Number(detail?.elapsedAfterSubmitMs) >= 0 &&
+              Number(detail.elapsedAfterSubmitMs) < 750
+            ) {
+              sendLog(
+                'warn',
+                'GEMINI_RESULT_FAST',
+                'Resultado apareceu muito rápido após submit; ownership do model turn foi exigido',
+                { executionMode, elapsedAfterSubmitMs: detail.elapsedAfterSubmitMs }
               );
             }
           },
@@ -897,7 +1053,7 @@
                 'info',
                 'GEMINI_SUBMIT_ATTEMPT',
                 'Tentativa de submit iniciada',
-                { attempt }
+                { executionMode, attempt }
               );
 
               if (attempt === 2) {
@@ -946,7 +1102,7 @@
           'success',
           'GEMINI_SEND_SUCCESS',
           'Envio confirmado por transição observável da UI',
-          { attempt: submission.attempt, reason: submission.reason }
+          { executionMode, attempt: submission.attempt, reason: submission.reason }
         );
         debugConsole(
           'log',
@@ -1055,10 +1211,10 @@
         );
 
         sendLog(
-          'success',
-          'GEMINI_IMG_FOUND',
-          'Imagem gerada!',
-          getUrlLogMetadata(resultUrl)
+          'info',
+          'GEMINI_RESULT_CANDIDATE',
+          'Imagem candidata com ownership de model turn detectada',
+          { executionMode, ...getUrlLogMetadata(resultUrl) }
         );
         reportProgress('📥 EXTRAINDO IMAGEM...', job.mangaTabId);
 
@@ -1088,6 +1244,25 @@
         });
 
         if (extraction.kind === 'extracted' && extraction.dataUrl) {
+          if (sameImagePayload(job.srcData, extraction.dataUrl)) {
+            const error = new Error('GEMINI_RESULT_MATCHES_INPUT');
+            error.code = 'GEMINI_RESULT_MATCHES_INPUT';
+            sendLog(
+              'error',
+              'GEMINI_RESULT_MATCHES_INPUT',
+              'Resultado rejeitado: bytes são idênticos à imagem de entrada',
+              { executionMode }
+            );
+            throw error;
+          }
+
+          sendLog(
+            'success',
+            'GEMINI_IMG_FOUND',
+            'Imagem gerada validada e diferente do input',
+            { executionMode, ...getUrlLogMetadata(resultUrl) }
+          );
+
           await deliverWithSecureDeletion({
             action: 'GEMINI_IMAGE_EXTRACTED',
             mangaTabId: job.mangaTabId,
@@ -1104,6 +1279,12 @@
             : 'delivered_auxiliary',
         };
       } catch (error) {
+        sendLog(
+          'error',
+          error?.code || 'GEMINI_JOB_ERROR',
+          'Job Gemini interrompido',
+          { executionMode, message: error?.message || String(error) }
+        );
         runtime.sendMessage({
           action: 'GEMINI_ERROR',
           mangaTabId: job.mangaTabId,
@@ -1165,6 +1346,9 @@
       setPromptInEditor,
       shouldKeepConversationForDebug,
       requestImageData,
+      sendRuntimeMessage,
+      dataUrlPayload,
+      sameImagePayload,
       getAntiThrottleModeForExecutionMode,
       setAntiThrottleMode,
       getActiveObserver,
