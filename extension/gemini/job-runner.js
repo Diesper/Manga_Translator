@@ -1106,7 +1106,7 @@
         );
         debugConsole(
           'log',
-          '[MangaTranslator Gemini] Envio confirmado pelo Observer V2.',
+          '[MangaTranslator Gemini] Envio confirmado pelo Observer V3.',
           { attempt: submission.attempt, reason: submission.reason }
         );
         assertStage(
@@ -1159,7 +1159,7 @@
             sendLog(
               'error',
               'GEMINI_ERROR',
-              'Erro visível da UI detectado pelo Observer V2',
+              'Erro visível da UI detectado pelo Observer V3',
               { messageLength: String(waitError.message || '').length }
             );
             await deliverWithSecureDeletion({
@@ -1178,7 +1178,7 @@
             sendLog(
               'error',
               'GEMINI_TIMEOUT',
-              'Timeout de geração aguardando Observer V2',
+              'Timeout de geração aguardando Observer V3',
               {}
             );
             await deliverWithSecureDeletion({

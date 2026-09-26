@@ -102,11 +102,12 @@ quando o respectivo schema mudar.
 
 ## 2.2 Baseline funcional conhecido
 
-O baseline funcional completo mais recente validado antes desta atualização documental é o **GitHub Actions run #551**:
+O baseline funcional completo mais recente do `main`, após a estabilização do attachment gate e do ownership estrito do model turn, é o **GitHub Actions run #663** no commit `446f003bec10b71252a67daca6ed87e530c28cd1`:
 
-- **94/94 suítes Jest**;
-- **693/693 testes Jest**;
-- **13/13 testes E2E Playwright**;
+- **98/98 suítes Jest**;
+- **716/716 testes Jest**;
+- **22/22 testes E2E Playwright**;
+- **Version Integrity aprovado**;
 - sintaxe JavaScript aprovada;
 - Manifest V3 aprovado;
 - smoke tests aprovados;
@@ -1138,7 +1139,7 @@ aba).
 4. Temporary Chat quando aplicável;
 5. attachment;
 6. prompt;
-7. Observer V2 antes do submit;
+7. Observer V3 antes do submit;
 8. submit com confirmação observável;
 9. espera do resultado;
 10. extração;
@@ -1165,8 +1166,15 @@ repetidamente.
 separa <em>tentativa</em> de <em>confirmação</em>.
 
 Antes do dispatch é capturado um baseline. O attachment só é confirmado quando
-surge evidência nova/alterada de mídia no DOM; alterações cosméticas de classe,
-style ou dimensões de um thumbnail antigo não são suficientes.
+surge evidência nova/alterada com ownership estrutural do composer ou de um
+container de attachment. Imagens globais, user turns e model turns não confirmam
+upload apenas por serem novas, grandes, blob ou data URL.
+
+Um sinal parcial de attachment interrompe novos dispatches para evitar upload
+duplicado. Se a confirmação não chegar, o runner pode solicitar
+<code>FORCE_ATTACHMENT_ACTIVATION</code>, revalidar a evidência e restaurar a
+ativação depois. Sem confirmação observável, o job falha com
+<code>GEMINI_ATTACHMENT_NOT_CONFIRMED</code> e o prompt não é enviado.
 
 ## 12.5 Editor e submit
 
@@ -1174,7 +1182,7 @@ style ou dimensões de um thumbnail antigo não são suficientes.
 <code>gemini/observer.js</code> é a fonte de verdade para confirmação.
 
 O pipeline não considera click, Enter ou CustomEvent como sucesso de envio.
-Cada um é apenas uma tentativa. O submit só é confirmado quando o Observer V2
+Cada um é apenas uma tentativa. O submit só é confirmado quando o Observer V3
 detecta transição observável da UI, como início da geração ou mudança
 equivalente pertencente ao job atual.
 
@@ -1182,9 +1190,9 @@ A segunda tentativa pode solicitar <code>FORCE_SEND_ACTIVATION</code> e elevar
 temporariamente o anti-throttling, mas a confirmação continua pertencendo ao
 Observer.
 
-## 12.6 Observer V2 e resultado
+## 12.6 Observer V3 e resultado
 
-O Observer V2 é instalado <strong>antes</strong> do submit, com baseline de
+O Observer V3 é instalado <strong>antes</strong> do submit, com baseline de
 imagens já existentes. Ele acompanha mutações e estado da geração e resolve o
 resultado apenas quando encontra evidência posterior pertencente à resposta do
 modelo.
@@ -1901,7 +1909,7 @@ A v6.5 incorpora como estado canônico a refatoração concluída na pilha de PR
 
 - identidade canônica de abas e `CLAIM_GEMINI_JOB` obrigatório;
 - keep-alive somente após claim válido;
-- `selectors.js`, `dom.js`, Observer V2 e editor modular;
+- `selectors.js`, `dom.js`, Observer V3 e editor modular;
 - submit tratado como tentativa até existir confirmação observável;
 - Temporary Chat com verificação de estado e sem fallback posicional inseguro;
 - attachment, extração de resultado e deletion/recovery em módulos dedicados;
@@ -1919,6 +1927,22 @@ O marco v6.5 elimina dependência operacional do número da versão:
 - pasta, ZIP, documento publicado, título e tag são calculados a partir da versão;
 - o CI bloqueia divergência entre package, Manifest e metadados de teste;
 - nomes históricos continuam históricos e não participam da descoberta de arquivos.
+
+## 21.9 Estabilização pós-integração — attachment gate e Observer V3
+
+A PR #36 evoluiu a automação sem alterar o contrato de versionamento v6.5:
+
+- attachment só é confirmado por evidência estrutural ligada ao composer/attachment UI;
+- ausência de confirmação bloqueia o envio do prompt;
+- recuperação de ativação do attachment é explícita e restaurável;
+- resultado automático exige ownership estrito de um model turn;
+- imagens do input, user turn ou imagens órfãs no body não podem virar resultado;
+- resultado rápido continua aceito quando pertence a um model turn válido;
+- telemetria registra execution mode e fases de recovery sem alterar routing;
+- `package.json = 6.5.0`, Manifest `6.5`, `version:sync`, `version:check` e `publish.yml` permaneceram intactos.
+
+O baseline pós-estabilização é o run #663: 98/98 suítes Jest, 716/716 testes
+Jest e 22/22 E2E Playwright aprovados.
 
 ---
 
@@ -2074,7 +2098,7 @@ Bootstrap leve: claim, keep-alive, wiring e handlers.
 
 ### gemini/
 
-Módulos de seletores/DOM, Observer V2, editor, Temporary Chat, attachment,
+Módulos de seletores/DOM, Observer V3, editor, Temporary Chat, attachment,
 extração de resultado, deletion/recovery e Job Runner.
 
 ## A.5 Persistência

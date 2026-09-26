@@ -2,7 +2,7 @@
 // gemini/editor.js — Interações de editor/submit sem falsificar estado da UI.
 //
 // Contrato: ações deste módulo representam TENTATIVAS. Sucesso de envio só pode
-// ser declarado pelo Observer V2 após uma transição observável do Gemini.
+// ser declarado pelo Observer V3 após uma transição observável do Gemini.
 
 (function(scope) {
   let domApi = scope.MangaTranslatorGeminiDom || null;

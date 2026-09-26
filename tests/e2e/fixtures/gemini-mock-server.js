@@ -313,7 +313,7 @@ function buildGeminiMockHtml() {
         if (orphanImageBeforeResult) appendOrphanImage();
 
         if (fastResult) {
-          // A resposta aparece no mesmo task lógico do submit. O Observer V2
+          // A resposta aparece no mesmo task lógico do submit. O Observer V3
           // precisa ter sido instalado antes do click para capturá-la.
           appendResultImage();
           setTimeout(() => {

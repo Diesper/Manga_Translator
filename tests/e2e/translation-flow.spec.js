@@ -345,7 +345,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             );
         }, {
             timeout: 30000,
-            message: 'Observer V2 deveria capturar resultado instantâneo',
+            message: 'Observer V3 deveria capturar resultado instantâneo',
         }).toBe(1);
 
         await expect.poll(async () => {

@@ -72,7 +72,7 @@ jobs:
           - Service Worker Manifest V3 modularizado com estado durável, reconciliação e watchdog.
           - Persistência transacional de páginas e assets em IndexedDB.
           - Cache perceptual GTC com consultas correlacionadas.
-          - Automação do Google Gemini isolada por job, com Observer V2 e ACK real.
+          - Automação do Google Gemini isolada por job, com Observer V3 e ACK real.
           - Versionamento centralizado sem caminhos de release hardcoded.
           - Documentação técnica canônica mantida em docs/Documentação.md.
 

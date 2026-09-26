@@ -8,7 +8,7 @@
 - [x] `WebAI-to-API/master` validado em `adc12107d7913979ec631ca7fb561de5955fc39b`.
 - [x] Plano revisado contra o runtime atual antes de iniciar alterações.
 - [x] Estratégia adotada: PRs pequenos e sequenciais; commits por arquivo sempre que possível.
-- [ ] Refatoração completa integrada em `main`.
+- [x] Refatoração completa integrada em `main`.
 
 ## Ordem prática do plano
 
@@ -197,6 +197,11 @@
 
 ## Notas de execução
 
+- Auditoria pós-PR #36 no `main` atual: run #663 completamente verde; 98/98 suítes Jest, 716/716 testes Jest e 22/22 E2E Playwright.
+- O gate `Version Integrity` confirmou `package.json = 6.5.0` e Manifest `6.5`; `version:sync`, `version:check`, `docs/Documentação.md` e `.github/workflows/publish.yml` permanecem válidos.
+- PR #36 estabilizou attachment gate e ownership estrito do model turn (Observer V3) sem alterar a arquitetura de versionamento.
+
+
 - PR 13: baseline funcional mais recente validado no run #551; 94/94 suítes Jest, 693/693 testes Jest e 13/13 E2E Playwright passaram, além de sintaxe, manifest e coverage.
 
 - PR 12: CI completo verde no run #529.
@@ -207,7 +212,7 @@
 
 - PR 13 remove o legado transitório: fallback posicional do Temporary Chat, adapter legado, flag de submit já confirmado e loader textual baseado em `new Function`.
 - `content_gemini.js` passa a exportar sua API somente em CommonJS de teste e não autoexecuta nesse ambiente; no navegador mantém o bootstrap normal. Após remover wrappers transitórios, o arquivo ficou com ~451 linhas.
-- README e `docs/Documentação.md` descrevem os módulos `gemini/*`, Observer V2, Job Runner, deletion/recovery, extração, anti-throttling progressivo e versionamento centralizado.
+- README e `docs/Documentação.md` descrevem os módulos `gemini/*`, Observer V3, Job Runner, deletion/recovery, extração, anti-throttling progressivo e versionamento centralizado.
 - `package.json` é a fonte única de versão; Manifest/testes são sincronizados e o workflow de release não depende mais de nomes `v6.0`/`v6.5` hardcoded.
 
 - PR 12 substitui o anti-throttling permanente por níveis progressivos: `minimal` (padrão), `balanced` (background/minimized) e `legacy` apenas na segunda tentativa de submit.

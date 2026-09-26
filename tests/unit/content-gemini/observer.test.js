@@ -69,7 +69,7 @@ function flushMutations() {
   return new Promise(resolve => setTimeout(resolve, 0));
 }
 
-describe('gemini/observer.js — Observer V2', () => {
+describe('gemini/observer.js — Observer V3', () => {
   beforeEach(() => {
     document.documentElement.innerHTML = '<head></head><body></body>';
     delete window.__mtGeminiObservers;
