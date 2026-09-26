@@ -460,7 +460,8 @@ describe('gemini/observer.js — Observer V3', () => {
       image,
       url: 'https://lh3.googleusercontent.com/rd-gg-dl/nested-generated=s1024-rj',
     });
-    expect(observer.getState().modelTurn).toBe(response);
+    expect(observer.getState().modelTurn).toBe(nested);
+    expect(response.contains(observer.getState().modelTurn)).toBe(true);
     expect(onStateChange.mock.calls.map(call => call[0])).toContain('result_candidate');
     observer.stop();
   });
@@ -491,6 +492,41 @@ describe('gemini/observer.js — Observer V3', () => {
       image,
       url: 'https://cdn.example/delayed-result.png',
     });
+    observer.stop();
+  });
+
+
+  test('OBS-21: wrapper user ancestral não invalida imagem dentro do novo model turn', async () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({
+      jobId: 'outer-user-wrapper',
+      onStateChange,
+    }).start();
+    const pending = observer.waitForResult(1000);
+
+    const outer = document.createElement('div');
+    outer.className = 'user-query-container';
+    const response = document.createElement('model-response');
+    response.setAttribute('data-message-author', 'model');
+    outer.appendChild(response);
+    document.body.appendChild(outer);
+
+    const image = addResultImage(
+      response,
+      'https://lh3.googleusercontent.com/generated/result=s1024-rj'
+    );
+
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/generated/result=s1024-rj',
+    });
+
+    const types = onStateChange.mock.calls.map(call => call[0]);
+    expect(types).toContain('result_candidate');
+    expect(types).not.toContain('ui_error');
     observer.stop();
   });
 
