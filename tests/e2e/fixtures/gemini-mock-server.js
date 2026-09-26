@@ -281,6 +281,12 @@ function buildGeminiMockHtml() {
         const response = document.createElement('model-response');
         response.setAttribute('data-message-author', 'model');
 
+        // Replica o DOM real observado no Gemini: um wrapper interno também
+        // casa com MODEL_RESPONSE_STRICT. O Observer precisa manter ownership
+        // do model turn externo e aceitar a imagem dentro desse wrapper.
+        const responseText = document.createElement('div');
+        responseText.className = 'model-response-text';
+
         const img = document.createElement('img');
         img.alt = 'Imagem traduzida do mock';
         img.src =
@@ -289,7 +295,8 @@ function buildGeminiMockHtml() {
           '&t=' +
           Date.now();
 
-        response.appendChild(img);
+        responseText.appendChild(img);
+        response.appendChild(responseText);
         resultZone.appendChild(response);
         status.textContent = 'Imagem traduzida pronta';
       }
