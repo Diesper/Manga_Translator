@@ -375,6 +375,11 @@ function buildGeminiMockHtml() {
         });
       }
 
+      editor.addEventListener('drop', event => {
+        event.preventDefault();
+        showPreviewFromEvent(event);
+      });
+
       editor.addEventListener('paste', event => {
         showPreviewFromEvent(event);
       });
