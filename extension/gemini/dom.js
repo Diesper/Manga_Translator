@@ -44,8 +44,19 @@
 
   function findVisible(selector, root) {
     const base = root || (typeof document !== 'undefined' ? document : null);
-    if (!base || !selector || typeof base.querySelectorAll !== 'function') return null;
-    const elements = base.querySelectorAll(selector);
+    if (!base || !selector) return null;
+
+    const elements = findAllDeep(base, element => {
+      if (!element || element.nodeType !== 1 || typeof element.matches !== 'function') {
+        return false;
+      }
+      try {
+        return element.matches(selector);
+      } catch (_e) {
+        return false;
+      }
+    });
+
     for (const element of elements) {
       if (isElementVisible(element)) return element;
     }
