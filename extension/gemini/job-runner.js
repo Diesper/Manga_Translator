@@ -130,8 +130,22 @@
       return new FileImpl([bytes], filename, { type: mimeMatch[1] });
     }
 
+    function queryFirstDeep(selector, base = root) {
+      if (typeof domApi.findFirstDeep === 'function') {
+        return domApi.findFirstDeep(base, selector);
+      }
+      try { return base?.querySelector?.(selector) || null; } catch (_e) { return null; }
+    }
+
+    function queryImagesDeep(base = root) {
+      if (typeof domApi.findAllBySelectorDeep === 'function') {
+        return domApi.findAllBySelectorDeep(base, 'img');
+      }
+      try { return Array.from(base?.querySelectorAll?.('img') || []); } catch (_e) { return []; }
+    }
+
     function waitForElement(selector, timeout = 20_000) {
-      const existing = root.querySelector(selector);
+      const existing = queryFirstDeep(selector);
       if (existing) return Promise.resolve(existing);
 
       const MutationObserverImpl = scope.MutationObserver || pageWindow.MutationObserver;
@@ -143,6 +157,7 @@
         let timer = null;
         let observer = null;
         let settled = false;
+        const observedRoots = new WeakSet();
 
         const finish = element => {
           if (settled) return;
@@ -156,22 +171,35 @@
           resolve(element || null);
         };
 
+        const observeTarget = target => {
+          if (!observer || !target || observedRoots.has(target)) return;
+          try {
+            observer.observe(target, { childList: true, subtree: true });
+            observedRoots.add(target);
+          } catch (_e) {}
+        };
+
+        const observeDeepRoots = () => {
+          observeTarget(root.body || root.documentElement || root);
+          if (typeof domApi.collectOpenShadowRoots === 'function') {
+            for (const shadowRoot of domApi.collectOpenShadowRoots(root)) {
+              observeTarget(shadowRoot);
+            }
+          }
+        };
+
         timer = scope.setTimeout(
-          () => finish(root.querySelector(selector)),
+          () => finish(queryFirstDeep(selector)),
           timeout
         );
 
         observer = new MutationObserverImpl(() => {
-          const element = root.querySelector(selector);
+          observeDeepRoots();
+          const element = queryFirstDeep(selector);
           if (element) finish(element);
         });
 
-        const observeRoot = root.body || root.documentElement;
-        if (!observeRoot) {
-          finish(null);
-          return;
-        }
-        observer.observe(observeRoot, { childList: true, subtree: true });
+        observeDeepRoots();
       });
     }
 
@@ -767,7 +795,7 @@
         }
 
         const liveEditor =
-          root.querySelector('rich-textarea, .ql-editor, [contenteditable="true"]') ||
+          queryFirstDeep('rich-textarea, .ql-editor, [contenteditable="true"]') ||
           editor;
         const liveEditable = domApi.getEditableElement(liveEditor) || liveEditor;
 
@@ -857,7 +885,7 @@
             if (activation?.ok !== false) {
               await sleep(350);
               const recoveredRoot =
-                root.querySelector('rich-textarea, .ql-editor, [contenteditable="true"]') ||
+                queryFirstDeep('rich-textarea, .ql-editor, [contenteditable="true"]') ||
                 liveEditor;
               const recoveredEditor = domApi.getEditableElement(recoveredRoot) || recoveredRoot;
 
@@ -979,7 +1007,7 @@
         await sleep(1000);
 
         const ignoreImages = new Set(
-          Array.from(root.querySelectorAll('img'))
+          queryImagesDeep(root)
             .map(image => getImageSource(image))
             .filter(Boolean)
         );
@@ -993,7 +1021,7 @@
           root,
           editor: activeEditable,
           getEditor: () =>
-            root.querySelector(
+            queryFirstDeep(
               'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
             ) || activeEditable,
           ignoreImages,
