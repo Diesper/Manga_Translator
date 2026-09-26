@@ -231,6 +231,40 @@ describe('gemini/job-runner.js', () => {
     expect(runner.tryClickModelImageCards).toBeUndefined();
   });
 
+  test('RUN-09: qualquer uso do HUD manual é registrado como erro grave de automação', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    runner.createGeminiManualPanel({
+      index: 2,
+      jobId: 'manual-required-job',
+      executionMode: 'temp_chat',
+    }, () => new Set());
+
+    document.getElementById('mt-gemini-use-last').click();
+    document.getElementById('mt-gemini-pick').click();
+
+    const severeCalls = options.sendLog.mock.calls.filter(
+      ([level, action]) =>
+        level === 'error' &&
+        action === 'GEMINI_MANUAL_INTERVENTION_REQUIRED'
+    );
+
+    expect(severeCalls).toHaveLength(2);
+    expect(severeCalls[0][3]).toEqual(expect.objectContaining({
+      source: 'last-button',
+      index: 2,
+      executionMode: 'temp_chat',
+      jobIdPrefix: 'manual-r',
+    }));
+    expect(severeCalls[1][3]).toEqual(expect.objectContaining({
+      source: 'pick-button',
+    }));
+
+    runner.removeGeminiManualPanel();
+  });
+
   test('RUN-07: setAntiThrottleMode publica evento MAIN-world e normaliza inválidos', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
