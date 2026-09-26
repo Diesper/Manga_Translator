@@ -179,7 +179,7 @@ describe('gemini/result-extractor.js', () => {
     expect(runtime.sendMessage).not.toHaveBeenCalled();
   });
 
-  test('EXT-04: canvas + MAIN falhos escalam para SW com geminiSession', async () => {
+  test('EXT-04: rd-gg-dl usa SW com sessão antes do MAIN-world fetch', async () => {
     const { createResultExtractor } = loadModule();
     const events = [];
     const runtime = createRuntime(events, message => {
@@ -200,12 +200,12 @@ describe('gemini/result-extractor.js', () => {
     await expect(
       extractor.extractResultImage(
         createImage(),
-        'https://googleusercontent.com/result.png',
+        'https://lh3.googleusercontent.com/rd-gg-dl/result.png',
         'background_delete'
       )
     ).resolves.toBe('data:image/png;base64,SESSION');
 
-    expect(events).toEqual(['canvas', 'page', 'sw-session']);
+    expect(events).toEqual(['canvas', 'sw-session']);
   });
 
   test('EXT-05: modos não background_delete preservam SW fetch legado direto', async () => {
@@ -310,9 +310,9 @@ describe('gemini/result-extractor.js', () => {
     expect(result.dataUrl).toBeNull();
     expect(result.fallbackResult).toEqual({ delivered: true });
     expect(events).toEqual([
-      'canvas', 'page', 'sw-session',
+      'canvas', 'page', 'sw-background',
       'sleep',
-      'canvas', 'page', 'sw-session',
+      'canvas', 'page', 'sw-background',
       'auxiliary',
     ]);
 
@@ -371,4 +371,37 @@ describe('gemini/result-extractor.js', () => {
       })
     ).rejects.toThrow('SW falhou');
   });
+
+  test('EXT-10: temp_chat também usa sessão para rd-gg-dl quando canvas é bloqueado', async () => {
+    const { createResultExtractor } = loadModule();
+    const events = [];
+    const runtime = createRuntime(events, message => {
+      expect(message).toEqual(expect.objectContaining({
+        action: 'FETCH_IMAGE_AS_BASE64',
+        geminiSession: true,
+      }));
+      return { dataUrl: 'data:image/png;base64,SESSION_TEMP' };
+    });
+
+    const extractor = createResultExtractor({
+      runtime,
+      pageDocument: createCanvasDocument(events, { fail: true }),
+      pageWindow: createPageWindow(events, { error: 'MAIN não deve vencer o SW' }),
+      CustomEventImpl: TestCustomEvent,
+    });
+
+    await expect(
+      extractor.extractResultImage(
+        createImage(),
+        'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj',
+        'temp_chat'
+      )
+    ).resolves.toBe('data:image/png;base64,SESSION_TEMP');
+
+    expect(events).toEqual(['canvas', 'sw-session']);
+    expect(extractor.isGeminiGoogleAssetUrl(
+      'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj'
+    )).toBe(true);
+  });
+
 });
