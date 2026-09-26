@@ -107,7 +107,7 @@
         const mode = executionMode || storage.geminiExecutionMode || 'temp_chat';
 
         if (mode === 'minimized_window' && windowId) {
-          chrome.windows.update(windowId, { state: 'normal', focused: true }, () => {
+          chrome.windows.update(windowId, { focused: true }, () => {
             chrome.tabs.sendMessage(
               geminiTabId,
               { action: 'DO_SEND_NOW' },
