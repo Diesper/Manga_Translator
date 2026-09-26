@@ -356,8 +356,21 @@
       if (!image || !container) return 'missing_image_or_turn';
       if (!state.submissionConfirmed) return 'submission_not_confirmed';
       if (quarantinedInputElements.has(image)) return 'quarantined_input';
-      if (domApi.isUserTurnImage?.(image)) return 'user_turn';
       if (!isOwnedByAcquiredModelTurn(image, container)) return 'ownership_mismatch';
+
+      // O DOM real do Gemini pode ter um wrapper ancestral que casa com os
+      // seletores de user turn e engloba também a resposta do modelo. Isso não
+      // deve vencer o ownership do model turn NOVO já adquirido. Só rejeitamos
+      // user-turn quando esse container está dentro do próprio model turn.
+      const userTurn = domApi.getUserTurnContainer?.(image);
+      if (userTurn) {
+        let userTurnInsideModelTurn = userTurn === container;
+        try {
+          userTurnInsideModelTurn =
+            userTurnInsideModelTurn || Boolean(container.contains?.(userTurn));
+        } catch (_e) {}
+        if (userTurnInsideModelTurn) return 'user_turn';
+      }
 
       const src = domApi.getImageSource(image);
       if (!src) return 'missing_source';
