@@ -1,8 +1,9 @@
 'use strict';
-// gemini/observer.js — Observer orientado a eventos por job Gemini.
+// gemini/observer.js — Observer V3 orientado a ownership do model turn.
 //
-// Este módulo não envia mensagens nem clica na UI. Ele observa transições
-// verificáveis e expõe Promises para confirmação de submit e resultado.
+// Resultado automático só pode nascer de uma resposta ESTRITA do modelo.
+// Imagens novas no body, no composer ou em user turns nunca recebem ownership
+// apenas por serem novas/large/blob.
 
 (function(scope) {
   let selectorsApi = scope.MangaTranslatorGeminiSelectors || null;
@@ -43,6 +44,7 @@
     editor = null,
     getEditor = null,
     ignoreImages = new Set(),
+    inputImageElements = new Set(),
     onStateChange = null,
     MutationObserverImpl = typeof MutationObserver !== 'undefined' ? MutationObserver : null,
     setTimeoutFn = setTimeout,
@@ -63,8 +65,10 @@
       try { existing.stop(); } catch (_e) {}
     }
 
-    const initialResponses = new Set(safeQueryAll(root, SELECTORS.RESPONSE));
+    const strictResponseSelector = SELECTORS.MODEL_RESPONSE_STRICT || SELECTORS.RESPONSE;
+    const initialResponses = new Set(safeQueryAll(root, strictResponseSelector));
     const initialImageSources = new Set();
+
     safeQueryAll(root, 'img').forEach(img => {
       const src = domApi.getImageSource(img);
       if (src) initialImageSources.add(src);
@@ -72,6 +76,8 @@
     for (const src of ignoreImages || []) {
       if (src) initialImageSources.add(src);
     }
+
+    const quarantinedInputElements = new Set(inputImageElements || []);
 
     const initialErrors = new Set();
     safeQueryAll(root, SELECTORS.ERROR).forEach(element => {
@@ -91,15 +97,19 @@
       initialResponseCount: initialResponses.size,
       initialImageSources,
       responseContainer: null,
+      modelTurn: null,
       ready: false,
       submissionConfirmed: false,
       submissionReason: null,
+      submissionConfirmedAt: null,
+      modelTurnObservedAt: null,
       generationActiveObserved: false,
       generationStarted: false,
       generationFinished: false,
       sendEnabledObserved: initialSendEnabled,
       resultImage: null,
       resultUrl: null,
+      resultObservedAt: null,
       error: null,
       done: false,
       cleanedUp: false,
@@ -122,6 +132,7 @@
           submissionConfirmed: state.submissionConfirmed,
           generationActiveObserved: state.generationActiveObserved,
           responseContainer: state.responseContainer,
+          modelTurn: state.modelTurn,
           resultUrl: state.resultUrl,
           error: state.error,
         });
@@ -149,6 +160,7 @@
       if (state.cleanedUp || state.done || state.submissionConfirmed) return false;
       state.submissionConfirmed = true;
       state.submissionReason = reason;
+      state.submissionConfirmedAt = Date.now();
       emitState('submission_confirmed', { reason });
       settleWaiters(submissionWaiters, 'resolve', {
         confirmed: true,
@@ -158,30 +170,48 @@
     }
 
     function markGenerationActive(reason) {
-      if (state.cleanedUp || state.done) return;
-      const wasObserved = state.generationActiveObserved;
-      state.generationActiveObserved = true;
-      state.generationStarted = true;
-      if (!wasObserved) emitState('generation_started', { reason });
-      if (!state.submissionConfirmed) confirmSubmission(reason === 'stop_visible' ? 'stop_visible' : 'generation_started');
+      if (state.cleanedUp || state.done) return false;
+      if (!state.generationActiveObserved) {
+        state.generationActiveObserved = true;
+        state.generationStarted = true;
+        emitState('generation_started', { reason });
+      }
+      confirmSubmission(reason);
+      return true;
     }
 
     function fail(errorText) {
-      if (state.cleanedUp || state.done || state.error) return;
+      if (state.cleanedUp || state.done || !errorText) return false;
       state.error = String(errorText || 'Erro desconhecido do Gemini');
       state.done = true;
       const error = createError('GEMINI_UI_ERROR', state.error);
       emitState('ui_error', { error: state.error });
       settleWaiters(submissionWaiters, 'reject', error);
       settleWaiters(resultWaiters, 'reject', error);
+      return true;
     }
 
     function setResult(image, url) {
-      if (state.cleanedUp || state.done || !url) return false;
+      if (
+        state.cleanedUp ||
+        state.done ||
+        !url ||
+        !state.submissionConfirmed ||
+        !state.modelTurn
+      ) {
+        return false;
+      }
+
       state.resultImage = image || null;
       state.resultUrl = url;
+      state.resultObservedAt = Date.now();
       state.done = true;
-      emitState('result_image', { urlKind: String(url).split(':', 1)[0] || 'unknown' });
+      emitState('result_image', {
+        urlKind: String(url).split(':', 1)[0] || 'unknown',
+        elapsedAfterSubmitMs: state.submissionConfirmedAt
+          ? state.resultObservedAt - state.submissionConfirmedAt
+          : null,
+      });
       settleWaiters(resultWaiters, 'resolve', {
         image: state.resultImage,
         url: state.resultUrl,
@@ -190,19 +220,28 @@
     }
 
     function acquireResponseContainer() {
-      if (state.responseContainer && state.responseContainer.isConnected !== false) {
+      if (
+        state.responseContainer &&
+        state.responseContainer.isConnected !== false
+      ) {
         return state.responseContainer;
       }
 
-      const responses = safeQueryAll(root, SELECTORS.RESPONSE);
+      const responses = safeQueryAll(root, strictResponseSelector);
       const candidates = responses.filter(element => !initialResponses.has(element));
       if (!candidates.length) return null;
 
       const container = candidates[candidates.length - 1];
       state.responseContainer = container;
+      state.modelTurn = container;
+      state.modelTurnObservedAt = Date.now();
       state.generationStarted = true;
-      emitState('response_container', { responseIndex: responses.length - 1 });
-      confirmSubmission('response_created');
+
+      emitState('model_turn_acquired', {
+        responseIndex: responses.length - 1,
+      });
+      // A criação de uma resposta estrita do modelo é evidência forte de submit.
+      confirmSubmission('model_response_created');
 
       if (state.responseObserver) {
         try { state.responseObserver.disconnect(); } catch (_e) {}
@@ -214,7 +253,7 @@
           subtree: true,
           characterData: true,
           attributes: true,
-          attributeFilter: ['src', 'aria-hidden', 'style', 'class'],
+          attributeFilter: ['src', 'data-src', 'aria-hidden', 'style', 'class'],
         });
       } catch (_e) {}
 
@@ -252,8 +291,6 @@
       const hasEnabledSend = sendControls.some(domApi.isControlEnabled);
       if (hasEnabledSend) state.sendEnabledObserved = true;
 
-      // "Send busy" só é evidência de submit quando houve transição real.
-      // Um botão que já nasceu disabled no baseline NÃO confirma envio.
       const transitionedToBusy =
         state.sendEnabledObserved &&
         sendControls.length > 0 &&
@@ -283,34 +320,42 @@
         src.includes('gemini-result-image');
     }
 
-    function isCandidateImage(image) {
+    function isCandidateImage(image, container) {
+      if (!image || !container) return false;
+      if (!state.submissionConfirmed) return false;
+      if (quarantinedInputElements.has(image)) return false;
+      if (domApi.isUserTurnImage?.(image)) return false;
+
+      const owner = domApi.getStrictModelResponseContainer?.(image);
+      if (!owner || owner !== container) return false;
+
       const src = domApi.getImageSource(image);
-      if (!src || state.initialImageSources.has(src) || domApi.isIgnoredGeminiImageSource(src)) {
+      if (
+        !src ||
+        state.initialImageSources.has(src) ||
+        domApi.isIgnoredGeminiImageSource(src)
+      ) {
         return false;
       }
 
       const width = Number(image.naturalWidth || image.width || 0);
       const height = Number(image.naturalHeight || image.height || 0);
+
       if (strongImageUrl(src)) return true;
       if (image.complete === false && width <= 0 && height <= 0) return false;
       return width > 0 && height > 0;
     }
 
     function inspectResult() {
+      if (!state.submissionConfirmed) return;
       const container = acquireResponseContainer();
-      const images = container
-        ? safeQueryAll(container, 'img')
-        : domApi.findAllDeep(root.body || root.documentElement || root, element =>
-            String(element.tagName || '').toUpperCase() === 'IMG'
-          );
+      if (!container) return;
 
+      const images = safeQueryAll(container, 'img');
       for (let index = images.length - 1; index >= 0; index -= 1) {
         const image = images[index];
-        if (!isCandidateImage(image)) continue;
+        if (!isCandidateImage(image, container)) continue;
 
-        // Sem response container, o fallback profundo ainda exige imagem
-        // NOVA e heurísticas de tamanho/source. O baseline criado antes do
-        // submit elimina anexos e imagens antigas do job.
         const src = domApi.getImageSource(image);
         if (setResult(image, src)) return;
       }
@@ -354,6 +399,7 @@
         attributes: true,
         attributeFilter: [
           'src',
+          'data-src',
           'disabled',
           'aria-disabled',
           'aria-hidden',
@@ -387,7 +433,10 @@
         waiter.timer = setTimeoutFn(() => {
           submissionWaiters.delete(waiter);
           state.timers.delete(waiter.timer);
-          reject(createError('GEMINI_SUBMISSION_NOT_CONFIRMED', 'Envio não foi confirmado pela UI'));
+          reject(createError(
+            'GEMINI_SUBMISSION_NOT_CONFIRMED',
+            'Envio não foi confirmado pela UI'
+          ));
         }, timeoutMs);
         state.timers.add(waiter.timer);
         submissionWaiters.add(waiter);
@@ -413,7 +462,10 @@
         waiter.timer = setTimeoutFn(() => {
           resultWaiters.delete(waiter);
           state.timers.delete(waiter.timer);
-          reject(createError('GEMINI_RESULT_TIMEOUT', 'Tempo limite aguardando resultado do Gemini'));
+          reject(createError(
+            'GEMINI_RESULT_TIMEOUT',
+            'Tempo limite aguardando resultado do Gemini'
+          ));
         }, timeoutMs);
         state.timers.add(waiter.timer);
         resultWaiters.add(waiter);
@@ -435,11 +487,18 @@
       }
 
       for (const timer of Array.from(state.timers)) removeTimer(timer);
-      const stopped = createError('OBSERVER_STOPPED', 'Observer interrompido');
-      settleWaiters(submissionWaiters, 'reject', stopped);
-      settleWaiters(resultWaiters, 'reject', stopped);
+      settleWaiters(
+        submissionWaiters,
+        'reject',
+        createError('OBSERVER_STOPPED', 'Observer interrompido')
+      );
+      settleWaiters(
+        resultWaiters,
+        'reject',
+        createError('OBSERVER_STOPPED', 'Observer interrompido')
+      );
 
-      if (registryOwner.__mtGeminiObservers?.[jobId] === api) {
+      if (registryOwner.__mtGeminiObservers[jobId] === api) {
         delete registryOwner.__mtGeminiObservers[jobId];
       }
       emitState('cleanup');
@@ -450,7 +509,20 @@
       return state;
     }
 
+    // Mantido para seleção manual explícita. O usuário é a fonte de ownership
+    // nesse caminho; a automação automática nunca chama isto para IMG global.
     function acceptResult(image, url) {
+      if (!state.submissionConfirmed) {
+        confirmSubmission('manual_selection');
+      }
+      if (!state.modelTurn && image) {
+        state.modelTurn = domApi.getStrictModelResponseContainer?.(image) || null;
+      }
+      if (!state.modelTurn) {
+        // Seleção manual sem elemento DOM (ex.: blob escolhido pelo painel)
+        // usa um sentinel de ownership humano.
+        state.modelTurn = { manual: true };
+      }
       return setResult(image || null, url);
     }
 
