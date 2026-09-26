@@ -22,7 +22,18 @@
   }
 
   function safeClosest(element, selector) {
+    if (typeof domApi.closestComposed === 'function') {
+      return domApi.closestComposed(element, selector);
+    }
     try { return element?.closest?.(selector) || null; } catch (_e) { return null; }
+  }
+
+  function findFirstImageDeep(root) {
+    const images = domApi.findAllDeep(
+      root,
+      element => String(element.tagName || '').toUpperCase() === 'IMG'
+    );
+    return images.length ? images[0] : null;
   }
 
   function isImageFileInput(input) {
@@ -133,7 +144,7 @@
       const meta = describeAttachmentContainer(container);
       if (!meta) continue;
 
-      const img = container.querySelector ? container.querySelector('img') : null;
+      const img = findFirstImageDeep(container);
       const imageSource = img ? domApi.getImageSource(img) : '';
       const ready = imageLooksReady(img);
 
@@ -168,9 +179,13 @@
 
       let insidePreferredComposer = false;
       if (composerRoot) {
-        try {
-          insidePreferredComposer = composerRoot === img || composerRoot.contains?.(img);
-        } catch (_e) {}
+        if (typeof domApi.isComposedDescendant === 'function') {
+          insidePreferredComposer = domApi.isComposedDescendant(composerRoot, img);
+        } else {
+          try {
+            insidePreferredComposer = composerRoot === img || composerRoot.contains?.(img);
+          } catch (_e) {}
+        }
       }
 
       // Nunca aceitar blob/data global só por ser "novo". A mídia precisa ter
