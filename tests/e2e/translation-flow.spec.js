@@ -435,6 +435,155 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
+
+    for (const scenario of [
+        {
+            mode: 'temp_chat',
+            basePath: '/gemini/',
+            label: 'conversa temporária',
+        },
+        {
+            mode: 'minimized_window',
+            basePath: '/gemini/',
+            label: 'janela minimizada',
+        },
+        {
+            mode: 'background_delete',
+            basePath: '/app/mock-chat',
+            label: 'background com exclusão segura',
+        },
+    ]) {
+        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
+            const joiner = scenario.basePath.includes('?') ? '&' : '?';
+            await resetExtensionState(backgroundWorker, {
+                geminiExecutionMode: scenario.mode,
+                geminiBaseUrl:
+                    `http://127.0.0.1:3999${scenario.basePath}${joiner}attachmentFails=1`,
+            });
+
+            const page = await browserContext.newPage();
+            await page.goto('http://localhost:3999/manga-page.html');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+            });
+
+            const mainContent = page.locator('#manga-main-content');
+            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+            await mainContent.click();
+
+            await expect.poll(async () => {
+                backgroundWorker = await getBackgroundWorker(browserContext);
+                const storage = await readStorage(backgroundWorker, ['translatorLog']);
+                const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+                return logs.some(entry =>
+                    entry && entry.action === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
+                );
+            }, {
+                timeout: 45000,
+                message: `Esperava gate de attachment no modo ${scenario.mode}`,
+            }).toBe(true);
+
+            const storage = await readStorage(backgroundWorker, ['translatorLog']);
+            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
+            expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
+            expect(await page.evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            )).toBe(0);
+
+            await page.close();
+        });
+
+        test(`REG attachment recovery: ${scenario.label} recupera upload antes do submit`, async () => {
+            const joiner = scenario.basePath.includes('?') ? '&' : '?';
+            await resetExtensionState(backgroundWorker, {
+                geminiExecutionMode: scenario.mode,
+                geminiBaseUrl:
+                    `http://127.0.0.1:3999${scenario.basePath}${joiner}attachmentFailAttempts=3`,
+            });
+
+            const page = await browserContext.newPage();
+            await page.goto('http://localhost:3999/manga-page.html');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+            });
+
+            const mainContent = page.locator('#manga-main-content');
+            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+            await mainContent.click();
+
+            await expect.poll(async () => page.evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            ), {
+                timeout: 70000,
+                message: `Esperava recovery de attachment no modo ${scenario.mode}`,
+            }).toBe(1);
+
+            const storage = await readStorage(backgroundWorker, ['translatorLog']);
+            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            expect(logs.some(entry =>
+                entry && entry.action === 'GEMINI_ATTACHMENT_RECOVERY'
+            )).toBe(true);
+            expect(logs.some(entry =>
+                entry && entry.action === 'GEMINI_ATTACHMENT_CONFIRMED'
+            )).toBe(true);
+            expect(logs.some(entry =>
+                entry && entry.action === 'GEMINI_SEND_SUCCESS'
+            )).toBe(true);
+
+            await page.close();
+        });
+
+        test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, async () => {
+            const joiner = scenario.basePath.includes('?') ? '&' : '?';
+            await resetExtensionState(backgroundWorker, {
+                geminiExecutionMode: scenario.mode,
+                geminiBaseUrl:
+                    `http://127.0.0.1:3999${scenario.basePath}${joiner}cloneInputIntoUserTurn=1&orphanImageBeforeResult=1`,
+            });
+
+            const page = await browserContext.newPage();
+            await page.goto('http://localhost:3999/manga-page.html');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+            });
+
+            const mainContent = page.locator('#manga-main-content');
+            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+            await mainContent.click();
+
+            await expect.poll(async () => page.evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            ), {
+                timeout: 60000,
+                message: `Esperava resultado real do model turn em ${scenario.mode}`,
+            }).toBe(1);
+
+            const storage = await readStorage(backgroundWorker, ['translatorLog']);
+            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            const modelTurn = logs.find(entry =>
+                entry && entry.action === 'GEMINI_MODEL_TURN_ACQUIRED'
+            );
+            const candidate = logs.find(entry =>
+                entry && entry.action === 'GEMINI_RESULT_CANDIDATE'
+            );
+
+            expect(modelTurn).toBeTruthy();
+            expect(candidate).toBeTruthy();
+            if (Number.isFinite(Number(modelTurn.ts)) && Number.isFinite(Number(candidate.ts))) {
+                expect(Number(candidate.ts)).toBeGreaterThanOrEqual(Number(modelTurn.ts));
+            }
+            expect(logs.some(entry =>
+                entry && entry.action === 'GEMINI_RESULT_MATCHES_INPUT'
+            )).toBe(false);
+
+            await page.close();
+        });
+    }
+
     test('E2E aba Gemini manual: zero automação, zero keepalive e DOM intacto', async () => {
         await backgroundWorker.evaluate(() => {
             chrome.storage.local.set({ __e2e_keepalive_count: 0 });
