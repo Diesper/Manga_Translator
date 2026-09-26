@@ -350,18 +350,16 @@
   }
 
   function dispatchPaste({ editor, editorRoot, transfer }) {
-    let attempted = false;
-    const targets = [editor];
-    if (editorRoot && editorRoot !== editor) targets.push(editorRoot);
-
-    for (const target of targets) {
-      if (!target || typeof target.dispatchEvent !== 'function') continue;
-      try {
-        target.dispatchEvent(createClipboardEvent(transfer));
-        attempted = true;
-      } catch (_e) {}
+    // Último recurso: um único paste sintético no alvo mais específico.
+    // Disparar no editor e no wrapper podia duplicar handlers internos do Gemini.
+    const target = editor || editorRoot;
+    if (!target || typeof target.dispatchEvent !== 'function') return false;
+    try {
+      target.dispatchEvent(createClipboardEvent(transfer));
+      return true;
+    } catch (_e) {
+      return false;
     }
-    return attempted;
   }
 
   function assignFileInputs({ root, editorRoot, transfer }) {
@@ -397,25 +395,22 @@
     editorRoot,
     root,
     transfer,
-    includeDrop = true,
+    method = 'file_input',
   }) {
-    const methods = [];
     let attempted = false;
 
-    if (dispatchPaste({ editor, editorRoot, transfer })) {
-      attempted = true;
-      methods.push('paste');
-    }
-    if (assignFileInputs({ root, editorRoot, transfer })) {
-      attempted = true;
-      methods.push('file_input');
-    }
-    if (includeDrop && dispatchDrop({ editorRoot, transfer })) {
-      attempted = true;
-      methods.push('drop');
+    if (method === 'file_input') {
+      attempted = assignFileInputs({ root, editorRoot, transfer });
+    } else if (method === 'drop') {
+      attempted = dispatchDrop({ editorRoot, transfer });
+    } else if (method === 'paste') {
+      attempted = dispatchPaste({ editor, editorRoot, transfer });
     }
 
-    return { attempted, methods };
+    return {
+      attempted,
+      methods: attempted ? [method] : [],
+    };
   }
 
   function createAttachmentConfirmation({
@@ -579,25 +574,30 @@
     let attempted = false;
     let attempts = 0;
 
-    const dispatch = includeDrop => {
-      attempts += 1;
+    // Um método por vez. O caminho preferido não usa clipboard:
+    // file input -> drop -> paste (último recurso).
+    const methodPlan = ['file_input', 'drop', 'paste'];
+
+    for (const method of methodPlan) {
+      if (attempts >= maxDispatches) break;
+      if (confirmation.hasSignal()) break;
+
       const result = dispatchAttachmentAttempt({
         editor,
         editorRoot,
         root,
         transfer,
-        includeDrop,
+        method,
       });
-      result.methods.forEach(method => methodsAttempted.add(method));
-      attempted = result.attempted || attempted;
+      if (!result.attempted) continue;
+
+      attempts += 1;
+      attempted = true;
+      result.methods.forEach(name => methodsAttempted.add(name));
       confirmation.inspect();
-    };
 
-    dispatch(true);
-
-    for (let dispatchIndex = 1; dispatchIndex < maxDispatches; dispatchIndex += 1) {
       const early = await Promise.race([
-        confirmation.promise.then(result => ({ kind: 'result', result })),
+        confirmation.promise.then(value => ({ kind: 'result', result: value })),
         sleep(retryAfterMs).then(() => ({ kind: 'retry' })),
       ]);
 
@@ -611,10 +611,13 @@
         };
       }
 
-      // Se a UI já mostrou container/spinner/chip relacionado ao upload, o
-      // primeiro dispatch está em andamento. Não repetir o arquivo.
+      // Se o Gemini já expôs chip/spinner/container de attachment, o upload
+      // está em andamento e não devemos disparar outro mecanismo.
       if (confirmation.hasSignal()) break;
-      dispatch(false);
+    }
+
+    if (!attempted) {
+      confirmation.stop();
     }
 
     const result = await confirmation.promise;

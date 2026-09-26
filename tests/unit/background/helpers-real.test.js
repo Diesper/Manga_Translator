@@ -258,7 +258,7 @@ describe('background.js - helpers reais', () => {
         backgroundModule.armWatchdog(55, 8, 2001);
         await flush(4);
 
-        expect(createSpy).toHaveBeenCalledWith('watchdog_2001', { delayInMinutes: 4 });
+        expect(createSpy).toHaveBeenCalledWith('watchdog_2001', { delayInMinutes: 5 });
         expect(await storageMock.get(['wd_data_2001'])).toEqual({
             wd_data_2001: { mangaTabId: 55, index: 8, geminiTabId: 2001 },
         });

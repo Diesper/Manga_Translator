@@ -36,6 +36,7 @@ describe('background/state.js - API de estado serializada', () => {
             extractionTabs: { 44: { mangaTabId: 9, index: 2 } },
             totalJobs: 3,
             completedJobs: 1,
+            failedJobs: 1,
             activeJobsCount: 1,
             jobIndex: [{ geminiTabId: 44, jobId: 'job-44' }],
         });
@@ -45,6 +46,7 @@ describe('background/state.js - API de estado serializada', () => {
 
         expect(snapshot).toEqual(stored.mt_state);
         expect(state.currentBatchId).toBe('batch-9');
+        expect(state.failedJobs).toBe(1);
         expect(state.extractionTabs[44]).toEqual({ mangaTabId: 9, index: 2 });
         expect(state.jobIndex).toEqual([{ geminiTabId: 44, jobId: 'job-44' }]);
     });
@@ -60,6 +62,7 @@ describe('background/state.js - API de estado serializada', () => {
                 extractionTabs: { 18: { mangaTabId: 3 } },
                 totalJobs: 2,
                 completedJobs: 1,
+                failedJobs: 1,
                 activeJobsCount: 1,
                 jobIndex: [{ geminiTabId: 18, jobId: 'job-18' }],
             },
@@ -71,6 +74,7 @@ describe('background/state.js - API de estado serializada', () => {
             currentBatchId: 'batch-restored',
             activeMangaTabId: 3,
             totalJobs: 2,
+            failedJobs: 1,
         }));
         expect(state.jobQueue).toEqual([{ mangaTabId: 3, index: 1 }]);
         expect(state.get()).toEqual(restored);

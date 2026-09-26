@@ -100,7 +100,7 @@ describe('gemini/attachment.js', () => {
     }));
   });
 
-  test('ATT-02: disparar paste/drop sem mudança observável não declara sucesso', async () => {
+  test('ATT-02: drop/paste sequenciais sem mudança observável não declaram sucesso', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -202,7 +202,7 @@ describe('gemini/attachment.js', () => {
     expect(input.files).toHaveLength(1);
   });
 
-  test('ATT-06: drag/drop permanece como fallback inicial', async () => {
+  test('ATT-06: drag/drop é o segundo caminho quando não há file input', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -227,7 +227,7 @@ describe('gemini/attachment.js', () => {
     expect(result.methodsAttempted).toContain('drop');
   });
 
-  test('ATT-07: retries preservam paste + file input sem repetir drag/drop', async () => {
+  test('ATT-07: cada mecanismo de attachment é disparado no máximo uma vez', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -249,8 +249,10 @@ describe('gemini/attachment.js', () => {
     });
 
     expect(result.confirmed).toBe(false);
-    expect(pasteCount).toBe(3);
+    expect(result.attempts).toBe(2);
+    expect(pasteCount).toBe(1);
     expect(dropCount).toBe(1);
+    expect(result.methodsAttempted).toEqual(['drop', 'paste']);
   });
 
   test('ATT-08: input[type=file] é localizado também em shadow root', () => {
@@ -375,7 +377,8 @@ describe('gemini/attachment.js', () => {
 
     expect(result.confirmed).toBe(false);
     expect(result.signalObserved).toBe(true);
-    expect(result.attempts).toBe(1);
+    expect(result.attempts).toBe(2);
+    expect(result.methodsAttempted).toEqual(['drop', 'paste']);
     expect(pasteCount).toBe(1);
   });
 

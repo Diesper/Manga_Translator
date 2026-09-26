@@ -496,9 +496,15 @@ Depois:
 
 ## 6.9 Watchdog
 
-O timeout operacional de job é:
+O pipeline possui dois prazos separados:
 
-- **4 minutos**.
+- **4 minutos** para o timeout terminal do Observer enquanto aguarda o resultado da geração;
+- **5 minutos** para o watchdog global de segurança do job.
+
+Quando a UI confirma que a geração realmente começou, o content script envia
+`REFRESH_JOB_WATCHDOG` e o background rearma o watchdog. Assim, o prazo global
+não consome abertura da aba, attachment e submit e não compete com o timeout do
+Observer.
 
 O watchdog usa:
 

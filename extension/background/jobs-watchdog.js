@@ -87,7 +87,7 @@
             isDebug: false,
           }, () => { if (chrome.runtime.lastError) {} });
         }
-        finalizeJob(tabId, watchdog.mangaTabId, true);
+        await finalizeJob(tabId, watchdog.mangaTabId, true);
 
         const extractionTabs = getExtractionTabs();
         Object.keys(extractionTabs)

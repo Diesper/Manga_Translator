@@ -187,29 +187,14 @@
       return domApi.isModelResponseImage(image);
     }
 
-    function tryClickModelImageCards() {
-      const selectors = [
-        'model-response button[aria-label*="imagem" i]',
-        'model-response button[aria-label*="image" i]',
-        'model-response .image-card',
-        'model-response [data-test-id*="image"]',
-        'model-response [data-test-id*="generated-image"]',
-        'model-response img',
-        '[data-message-author="model"] button[aria-label*="imagem" i]',
-        '[data-message-author="model"] [data-test-id*="image"]',
-        '[data-message-author="model"] img',
-      ];
-
-      for (const selector of selectors) {
-        const element = root.querySelector(selector);
-        if (!element) continue;
-        const target = element.closest?.('button, [role="button"]') || element;
-        try {
-          target.click();
-          return true;
-        } catch (_e) {}
-      }
-      return false;
+    function isStrongGeneratedImageUrl(src) {
+      const value = String(src || '');
+      return value.includes('gemini-result-image') ||
+        value.includes('googleusercontent.com/gg-dl/') ||
+        value.includes('googleusercontent.com/rd-gg-dl/') ||
+        value.startsWith('blob:https://gemini.google.com/') ||
+        value.startsWith('blob:http://127.0.0.1/') ||
+        value.startsWith('data:image/');
     }
 
     function isLikelyGeneratedImage(image, ignoreImages = new Set()) {
@@ -218,14 +203,7 @@
 
       if (isModelResponseImage(image)) return true;
 
-      if (
-        src.includes('gemini-result-image') ||
-        src.includes('googleusercontent.com/gg-dl/') ||
-        src.startsWith('blob:https://gemini.google.com/') ||
-        src.startsWith('blob:http://127.0.0.1/')
-      ) {
-        return true;
-      }
+      if (isStrongGeneratedImageUrl(src)) return true;
 
       const width = image.naturalWidth || image.width || 0;
       const height = image.naturalHeight || image.height || 0;
@@ -569,6 +547,7 @@
 
       setAntiThrottleMode('minimal');
       const myTabId = job.geminiTabId;
+      let watchdogRefreshRequested = false;
       const recoveryResult = await deletionController.recoverPending({
         tabId: myTabId,
         sendDelivery: async delivery => {
@@ -865,7 +844,7 @@
                 editorElement: recoveredEditor,
                 editorRootElement: recoveredRoot,
                 timeoutMs: 12_000,
-                maxDispatches: 2,
+                maxDispatches: 3,
                 phase: 'foreground_recovery',
               });
             } else {
@@ -1006,12 +985,76 @@
                 'Geração observada na UI',
                 { executionMode, reason: detail && detail.reason }
               );
+
+              if (!watchdogRefreshRequested) {
+                watchdogRefreshRequested = true;
+                sendLog(
+                  'info',
+                  'GEMINI_WATCHDOG_REFRESH_REQUESTED',
+                  'Reiniciando o prazo do watchdog a partir do início real da geração',
+                  { executionMode }
+                );
+                sendRuntimeMessage({
+                  action: 'REFRESH_JOB_WATCHDOG',
+                  geminiTabId: myTabId,
+                  mangaTabId: job.mangaTabId,
+                  index: job.index,
+                  jobId: job.jobId,
+                  batchId: job.batchId,
+                }).then(response => {
+                  const ok = response && response.ok !== false;
+                  sendLog(
+                    ok ? 'success' : 'warn',
+                    ok ? 'GEMINI_WATCHDOG_REFRESH_CONFIRMED' : 'GEMINI_WATCHDOG_REFRESH_FAILED',
+                    ok
+                      ? 'Watchdog reiniciado após o início da geração'
+                      : 'Não foi possível reiniciar o watchdog após o início da geração',
+                    { executionMode }
+                  );
+                }).catch(() => {
+                  sendLog(
+                    'warn',
+                    'GEMINI_WATCHDOG_REFRESH_FAILED',
+                    'Falha ao solicitar reinício do watchdog',
+                    { executionMode }
+                  );
+                });
+              }
             } else if (type === 'model_turn_acquired') {
               sendLog(
                 'info',
                 'GEMINI_MODEL_TURN_ACQUIRED',
                 'Nova resposta estrita do modelo adquiriu ownership do job',
                 { executionMode, responseIndex: detail && detail.responseIndex }
+              );
+            } else if (type === 'result_dom_seen') {
+              sendLog(
+                'info',
+                'GEMINI_RESULT_DOM_SEEN',
+                'Imagem apareceu dentro do model turn observado',
+                { executionMode, imageCount: detail && detail.imageCount }
+              );
+            } else if (type === 'result_image_seen') {
+              sendLog(
+                'info',
+                'GEMINI_RESULT_IMG_SEEN',
+                'Fonte de imagem observada no model turn',
+                {
+                  executionMode,
+                  urlKind: detail && detail.urlKind,
+                  strongUrl: Boolean(detail && detail.strongUrl),
+                }
+              );
+            } else if (type === 'result_candidate') {
+              sendLog(
+                'success',
+                'GEMINI_RESULT_OWNER_VALID',
+                'Imagem candidata pertence ao model turn atual',
+                {
+                  executionMode,
+                  urlKind: detail && detail.urlKind,
+                  strongUrl: Boolean(detail && detail.strongUrl),
+                }
               );
             } else if (
               type === 'result_image' &&
@@ -1143,10 +1186,6 @@
           );
         }, 5000);
 
-        const cardNudgeTimer = setIntervalFn(() => {
-          try { tryClickModelImageCards(); } catch (_e) {}
-        }, 3000);
-
         let resultUrl = null;
         let resultImageElement = null;
 
@@ -1195,7 +1234,6 @@
           throw waitError;
         } finally {
           clearIntervalFn(progressTimer);
-          clearIntervalFn(cardNudgeTimer);
         }
 
         assertStage(
@@ -1225,23 +1263,52 @@
           resultUrl = resultUrl.replace(/=s\d+[^?#]*/, '=s0');
         }
 
-        const extraction = await resultExtractor.extractOrAuxiliaryFallback({
-          resultImageElement,
-          resultUrl,
-          executionMode,
-          maxAttempts: 4,
-          retryDelayMs: 1000,
-          onAuxiliaryFallback: async ({ url }) => {
-            return deliverWithSecureDeletion({
-              action: 'GEMINI_RESULT_URL',
-              mangaTabId: job.mangaTabId,
-              index: job.index,
-              url,
-              jobId: job.jobId,
-              batchId: job.batchId,
-            }, shouldDeleteConversation);
-          },
-        });
+        sendLog(
+          'info',
+          'GEMINI_RESULT_EXTRACTION_START',
+          'Iniciando extração da imagem gerada',
+          { executionMode, ...getUrlLogMetadata(resultUrl) }
+        );
+
+        let extraction;
+        try {
+          extraction = await resultExtractor.extractOrAuxiliaryFallback({
+            resultImageElement,
+            resultUrl,
+            executionMode,
+            maxAttempts: 4,
+            retryDelayMs: 1000,
+            onAuxiliaryFallback: async ({ url }) => {
+              return deliverWithSecureDeletion({
+                action: 'GEMINI_RESULT_URL',
+                mangaTabId: job.mangaTabId,
+                index: job.index,
+                url,
+                jobId: job.jobId,
+                batchId: job.batchId,
+              }, shouldDeleteConversation);
+            },
+          });
+          sendLog(
+            'success',
+            'GEMINI_RESULT_EXTRACTION_OK',
+            'Extração da imagem gerada concluída',
+            { executionMode, kind: extraction.kind }
+          );
+        } catch (extractionError) {
+          sendLog(
+            'error',
+            'GEMINI_RESULT_EXTRACTION_FAILED',
+            'Todas as rotas de extração da imagem falharam',
+            {
+              executionMode,
+              errorName: extractionError && extractionError.name
+                ? extractionError.name
+                : 'Error',
+            }
+          );
+          throw extractionError;
+        }
 
         if (extraction.kind === 'extracted' && extraction.dataUrl) {
           if (sameImagePayload(job.srcData, extraction.dataUrl)) {
@@ -1336,7 +1403,7 @@
       run,
       dataURLtoFile,
       waitForElement,
-      tryClickModelImageCards,
+      isStrongGeneratedImageUrl,
       isLikelyGeneratedImage,
       isManualSelectableImage,
       findGeneratedResultImages,

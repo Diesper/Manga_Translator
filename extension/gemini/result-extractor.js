@@ -147,6 +147,28 @@
       }, 'Falha base64 background');
     }
 
+    function isGoogleUserContentUrl(url) {
+      try {
+        const parsed = new URL(String(url || ''));
+        const host = parsed.hostname.toLowerCase();
+        return host === 'googleusercontent.com' ||
+          host.endsWith('.googleusercontent.com');
+      } catch (_e) {
+        return false;
+      }
+    }
+
+    function isGeminiGoogleAssetUrl(url) {
+      if (!isGoogleUserContentUrl(url)) return false;
+      try {
+        const parsed = new URL(String(url || ''));
+        return parsed.pathname.includes('/gg-dl/') ||
+          parsed.pathname.includes('/rd-gg-dl/');
+      } catch (_e) {
+        return false;
+      }
+    }
+
     function getExtractionFailureKind(error) {
       const message = String(error && error.message || '').toLowerCase();
       if (/taint|cors|security|cross-origin/.test(message)) return 'canvas_or_cors';
@@ -212,6 +234,29 @@
         logExtractionStage('warn', 'canvas', url, attempt, canvasError);
       }
 
+      if (isGoogleUserContentUrl(url)) {
+        // Em background_delete este método já é reservado ao resultado do
+        // Gemini; preserve a rota autenticada para qualquer googleusercontent.
+        // Nos demais modos só chegamos aqui automaticamente para rd-gg-dl/gg-dl.
+        // O Service Worker com sessão vem antes do MAIN-world fetch sujeito a CORS.
+        try {
+          const dataUrl = await fetchGeminiImageThroughExtension(url);
+          logExtractionStage('info', 'service_worker_session', url, attempt);
+          return dataUrl;
+        } catch (serviceWorkerError) {
+          logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
+        }
+
+        try {
+          const dataUrl = await fetchImageThroughGeminiPage(url);
+          logExtractionStage('info', 'gemini_page_fetch_last_resort', url, attempt);
+          return dataUrl;
+        } catch (pageFetchError) {
+          logExtractionStage('warn', 'gemini_page_fetch_last_resort', url, attempt, pageFetchError);
+          throw pageFetchError;
+        }
+      }
+
       try {
         const dataUrl = await fetchImageThroughGeminiPage(url);
         logExtractionStage('info', 'gemini_page_fetch', url, attempt);
@@ -221,11 +266,11 @@
       }
 
       try {
-        const dataUrl = await fetchGeminiImageThroughExtension(url);
-        logExtractionStage('info', 'service_worker_session', url, attempt);
+        const dataUrl = await fetchImageThroughBackground(url);
+        logExtractionStage('info', 'service_worker_background', url, attempt);
         return dataUrl;
       } catch (serviceWorkerError) {
-        logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
+        logExtractionStage('warn', 'service_worker_background', url, attempt, serviceWorkerError);
         throw serviceWorkerError;
       }
     }
@@ -243,11 +288,14 @@
         return blobToDataUrl(blob);
       }
 
-      if (executionMode === 'background_delete') {
+      if (
+        executionMode === 'background_delete' ||
+        isGeminiGoogleAssetUrl(url)
+      ) {
         return extractImageInGeminiTab(resultImageElement, url, attempt);
       }
 
-      // Mantém exatamente a rota histórica dos demais execution modes.
+      // Assets públicos/legados continuam no caminho simples do background.
       return fetchImageThroughBackground(url);
     }
 
@@ -357,6 +405,8 @@
       fetchImageThroughGeminiPage,
       fetchGeminiImageThroughExtension,
       fetchImageThroughBackground,
+      isGoogleUserContentUrl,
+      isGeminiGoogleAssetUrl,
       getExtractionFailureKind,
       logExtractionStage,
       blobToDataUrl,

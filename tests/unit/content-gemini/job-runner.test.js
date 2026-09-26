@@ -213,6 +213,24 @@ describe('gemini/job-runner.js', () => {
     expect(runner.getAntiThrottleModeForExecutionMode('unknown')).toBe('minimal');
   });
 
+  test('RUN-08: reconhece rd-gg-dl como resultado forte sem expor auto-click', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    expect(
+      runner.isStrongGeneratedImageUrl(
+        'https://lh3.googleusercontent.com/rd-gg-dl/asset=s1024-rj'
+      )
+    ).toBe(true);
+    expect(
+      runner.isStrongGeneratedImageUrl(
+        'https://lh3.googleusercontent.com/gg-dl/asset=s1024-rj'
+      )
+    ).toBe(true);
+    expect(runner.tryClickModelImageCards).toBeUndefined();
+  });
+
   test('RUN-07: setAntiThrottleMode publica evento MAIN-world e normaliza inválidos', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();

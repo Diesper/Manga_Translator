@@ -147,7 +147,7 @@ describe('content_gemini.js - modo background_delete', () => {
             .toThrow('Tempo limite ao extrair imagem na página Gemini');
     });
 
-    test('BGD-10: após falha da página Gemini, usa Service Worker autenticado sem abrir aba', async () => {
+    test('BGD-10: googleusercontent usa Service Worker autenticado antes da página Gemini', async () => {
         const originalSendMessage = chrome.runtime.sendMessage;
         chrome.runtime.sendMessage = jest.fn((message, callback) => {
             if (message.action === 'FETCH_IMAGE_AS_BASE64') {
@@ -206,15 +206,15 @@ describe('content_gemini.js - modo background_delete', () => {
         window.addEventListener('MANGA_TRANSLATOR_FETCH_IMAGE', pageListener);
 
         await expect(mod.extractImageInGeminiTab(null, 'https://lh3.googleusercontent.com/image', 1)).rejects
-            .toThrow('Failed to fetch');
+            .toThrow('HTTP 403');
 
         const stageLogs = chrome.runtime.sendMessage.mock.calls
             .map(([message]) => message)
             .filter(message => message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_EXTRACT_STAGE');
         expect(stageLogs).toEqual(expect.arrayContaining([
             expect.objectContaining({ extra: expect.objectContaining({ host: 'lh3.googleusercontent.com', stage: 'canvas', attempt: 1, failureKind: 'unknown' }) }),
-            expect.objectContaining({ extra: expect.objectContaining({ host: 'lh3.googleusercontent.com', stage: 'gemini_page_fetch', attempt: 1, failureKind: 'http' }) }),
             expect.objectContaining({ extra: expect.objectContaining({ host: 'lh3.googleusercontent.com', stage: 'service_worker_session', attempt: 1, failureKind: 'network' }) }),
+            expect.objectContaining({ extra: expect.objectContaining({ host: 'lh3.googleusercontent.com', stage: 'gemini_page_fetch_last_resort', attempt: 1, failureKind: 'http' }) }),
         ]));
 
         window.removeEventListener('MANGA_TRANSLATOR_FETCH_IMAGE', pageListener);
