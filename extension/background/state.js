@@ -11,6 +11,7 @@
   let extractionTabs  = {};   
   let totalJobs       = 0;
   let completedJobs   = 0;
+  let failedJobs      = 0;
   let activeJobsCount = 0;
 
   // ── Índice durável de jobs abertos ───────────────────────────────────────────
@@ -34,6 +35,7 @@
           extractionTabs: { ...extractionTabs },
           totalJobs,
           completedJobs,
+          failedJobs,
           activeJobsCount,
           jobIndex: Array.isArray(jobIndex) ? jobIndex.slice() : [],
       };
@@ -49,6 +51,7 @@
       if (Object.prototype.hasOwnProperty.call(nextState, 'extractionTabs')) extractionTabs = nextState.extractionTabs && typeof nextState.extractionTabs === 'object' ? nextState.extractionTabs : {};
       if (Object.prototype.hasOwnProperty.call(nextState, 'totalJobs')) totalJobs = Number(nextState.totalJobs) || 0;
       if (Object.prototype.hasOwnProperty.call(nextState, 'completedJobs')) completedJobs = Number(nextState.completedJobs) || 0;
+      if (Object.prototype.hasOwnProperty.call(nextState, 'failedJobs')) failedJobs = Number(nextState.failedJobs) || 0;
       if (Object.prototype.hasOwnProperty.call(nextState, 'activeJobsCount')) activeJobsCount = Number(nextState.activeJobsCount) || 0;
       if (Object.prototype.hasOwnProperty.call(nextState, 'jobIndex')) jobIndex = Array.isArray(nextState.jobIndex) ? nextState.jobIndex : [];
       return get();
@@ -226,6 +229,8 @@
       set totalJobs(v) { totalJobs = v; },
       get completedJobs() { return completedJobs; },
       set completedJobs(v) { completedJobs = v; },
+      get failedJobs() { return failedJobs; },
+      set failedJobs(v) { failedJobs = Number(v) || 0; },
       get activeJobsCount() { return activeJobsCount; },
       set activeJobsCount(v) { activeJobsCount = v; },
       get jobIndex() { return jobIndex; },
