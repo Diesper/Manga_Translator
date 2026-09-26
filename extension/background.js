@@ -61,6 +61,7 @@ if (typeof importScripts === 'function') {
         importScripts('background/actions/fetch-image-base64.js');
         importScripts('background/actions/calculate-visual-fingerprint.js');
         importScripts('background/actions/force-send-activation.js');
+        importScripts('background/actions/refresh-job-watchdog.js');
         importScripts('background/actions/request-image-data.js');
         importScripts('background/actions/open-manga-root.js');
         importScripts('background/actions/download-image.js');
@@ -118,6 +119,7 @@ if (typeof importScripts === 'function') {
         require('./background/actions/fetch-image-base64.js');
         require('./background/actions/calculate-visual-fingerprint.js');
         require('./background/actions/force-send-activation.js');
+        require('./background/actions/refresh-job-watchdog.js');
         require('./background/actions/request-image-data.js');
         require('./background/actions/open-manga-root.js');
         require('./background/actions/download-image.js');
@@ -437,6 +439,7 @@ function routeRegisteredAction(request, sender, sendResponse) {
                 tabIdentity: initializeTabIdentity(),
                 deliverResultToManga,
                 finalizeJob,
+                armWatchdog,
                 startBatch,
                 stopBatch,
             }),
