@@ -6,7 +6,9 @@
 // acidentalmente entre um espelho antigo e o snapshot durável.
 let backgroundState = null;
 
-const JOB_TIMEOUT_MINUTES = 4;
+// Failsafe do job: deve vencer depois do timeout terminal de geração (4 min),
+// nunca competir com ele. É rearmado quando a geração realmente começa.
+const JOB_TIMEOUT_MINUTES = 5;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 let gtcIndexedDbApi = null;
 let gtcRepository = null;
