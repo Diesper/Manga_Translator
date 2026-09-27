@@ -210,6 +210,15 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             expect(sentMessages.filter(message => message.action === 'FETCH_IMAGE_AS_BASE64')).toHaveLength(0);
         });
 
+        test('google.com comum mantém o modo leitor quando não é aba auxiliar marcada', async () => {
+            const context = await loadContentScript({
+                hostname: 'www.google.com',
+                enabledDomains: ['www.google.com'],
+            });
+
+            expect(context.getButton()).not.toBeNull();
+        });
+
         test('aba auxiliar marcada funciona em host não-Google', async () => {
             const sentMessages = await loadExtractionScript({
                 hostname: '127.0.0.1',
