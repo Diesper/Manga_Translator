@@ -1,11 +1,12 @@
 'use strict';
 // gemini/result-extractor.js — cadeia modular de extração do resultado Gemini.
 //
-// Ordem preservada do runtime legado:
+// Ordem de extração:
 //   data URL -> retorno direto
 //   blob URL -> fetch local -> FileReader
-//   background_delete HTTP -> canvas -> MAIN-world fetch -> SW session fetch
-//   outros modos HTTP -> SW fetch legado
+//   asset gerado do Google, qualquer modo -> canvas -> SW sessão -> MAIN fetch
+//   outros HTTP em background_delete -> cadeia histórica sem reordenação
+//   demais HTTP -> SW fetch legado
 //   retry da cadeia completa
 //   auxiliary fallback somente depois de todas as rotas diretas falharem.
 //
@@ -147,28 +148,6 @@
       }, 'Falha base64 background');
     }
 
-    function isGoogleUserContentUrl(url) {
-      try {
-        const parsed = new URL(String(url || ''));
-        const host = parsed.hostname.toLowerCase();
-        return host === 'googleusercontent.com' ||
-          host.endsWith('.googleusercontent.com');
-      } catch (_e) {
-        return false;
-      }
-    }
-
-    function isGeminiGoogleAssetUrl(url) {
-      if (!isGoogleUserContentUrl(url)) return false;
-      try {
-        const parsed = new URL(String(url || ''));
-        return parsed.pathname.includes('/gg-dl/') ||
-          parsed.pathname.includes('/rd-gg-dl/');
-      } catch (_e) {
-        return false;
-      }
-    }
-
     function getExtractionFailureKind(error) {
       const message = String(error && error.message || '').toLowerCase();
       if (/taint|cors|security|cross-origin/.test(message)) return 'canvas_or_cors';
@@ -234,11 +213,9 @@
         logExtractionStage('warn', 'canvas', url, attempt, canvasError);
       }
 
-      if (isGoogleUserContentUrl(url)) {
-        // Em background_delete este método já é reservado ao resultado do
-        // Gemini; preserve a rota autenticada para qualquer googleusercontent.
-        // Nos demais modos só chegamos aqui automaticamente para rd-gg-dl/gg-dl.
-        // O Service Worker com sessão vem antes do MAIN-world fetch sujeito a CORS.
+      if (isGeneratedGeminiAsset(url)) {
+        // A sessão do SW foi a rota predominante nos testes manuais. O fetch
+        // da página fica como último recurso; canvas e retries são preservados.
         try {
           const dataUrl = await fetchGeminiImageThroughExtension(url);
           logExtractionStage('info', 'service_worker_session', url, attempt);
@@ -266,13 +243,22 @@
       }
 
       try {
-        const dataUrl = await fetchImageThroughBackground(url);
-        logExtractionStage('info', 'service_worker_background', url, attempt);
+        const dataUrl = await fetchGeminiImageThroughExtension(url);
+        logExtractionStage('info', 'service_worker_session', url, attempt);
         return dataUrl;
       } catch (serviceWorkerError) {
-        logExtractionStage('warn', 'service_worker_background', url, attempt, serviceWorkerError);
+        logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
         throw serviceWorkerError;
       }
+    }
+
+    function isGeneratedGeminiAsset(url) {
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'https:' &&
+          (parsed.hostname === 'googleusercontent.com' || parsed.hostname.endsWith('.googleusercontent.com')) &&
+          /\/(?:rd-)?gg-dl\//.test(parsed.pathname);
+      } catch (_e) { return false; }
     }
 
     async function extractResultImage(resultImageElement, resultUrl, executionMode, attempt = 0) {
@@ -288,14 +274,11 @@
         return blobToDataUrl(blob);
       }
 
-      if (
-        executionMode === 'background_delete' ||
-        isGeminiGoogleAssetUrl(url)
-      ) {
+      if (executionMode === 'background_delete' || isGeneratedGeminiAsset(url)) {
         return extractImageInGeminiTab(resultImageElement, url, attempt);
       }
 
-      // Assets públicos/legados continuam no caminho simples do background.
+      // Preserva a rota histórica para URLs que não são assets gerados do Gemini.
       return fetchImageThroughBackground(url);
     }
 
@@ -405,8 +388,6 @@
       fetchImageThroughGeminiPage,
       fetchGeminiImageThroughExtension,
       fetchImageThroughBackground,
-      isGoogleUserContentUrl,
-      isGeminiGoogleAssetUrl,
       getExtractionFailureKind,
       logExtractionStage,
       blobToDataUrl,

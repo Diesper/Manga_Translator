@@ -5,13 +5,12 @@
 [![Manifest V3](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![CI](https://github.com/Diesper/Manga_Translator/actions/workflows/ci.yml/badge.svg)](https://github.com/Diesper/Manga_Translator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests: 100% Passed](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](tests/)
 
 ---
 
 ## ✨ Principais Funcionalidades
 
-- **Automação Resiliente com Gemini:** pipeline modular com claim de job, Observer V3 orientado a ownership estrito do model turn, submit confirmado por transição observável, attachment gate verificado e extração com fallbacks controlados — sem necessidade de chaves de API pagas.
+- **Automação com Gemini em segundo plano:** editor estável, anexo carregado antes do prompt, resultado com autoria de modelo, extração autenticada com fallbacks e exclusão verificada nos modos normal/minimizado. O runner não solicita ativação física da aba/janela nas retentativas.
 - **Cache Perceptual Visual (GTC Fingerprint):** Identificação de imagens por assinatura perceptual dHash/aHash, impedindo retraduções de imagens já processadas mesmo com URLs dinâmicas ou CDN com tokens expiráveis.
 - **Armazenamento Transacional (StorageManager + IndexedDB):** Persistência atômica com eliminação automática de assets órfãos e sem o problema de *read-modify-write* em acessos concorrentes.
 - **Ciclo de Vida Durável (Manifest V3):** Reconciliação automática de abas e estado persistente resistente ao descarregamento (*unload*) do Service Worker do Chrome.
@@ -46,7 +45,7 @@ Como a extensão está em formato de código aberto, você pode carregá-la dire
 │   ├── background/            # Router, estado, lifecycle, watchdog, reconciliação e actions
 │   ├── content_manga.js       # Content script injetado nas páginas de mangá
 │   ├── content_gemini.js      # Bootstrap/claim/keepalive/handlers do worker Gemini
-│   ├── gemini/                 # DOM, Observer V3, editor, attachment, result, deletion e job-runner
+│   ├── gemini/                # DOM, Observer, editor, attachment, result, deletion e job-runner
 │   ├── gtc-fingerprint.js     # Hashing perceptual e extração de assinaturas
 │   ├── gtc-indexeddb.js       # Camada de banco de dados visual IndexedDB
 │   ├── storage-manager.js     # Gerenciamento atômico de blobs e transações
@@ -134,7 +133,10 @@ Também existe um teste específico de carregamento em modo estrito (`tests/unit
 
 A arquitetura vigente, contratos IPC/storage, lifecycle MV3, cache perceptual, Gemini RPA, Reader, compatibilidade, versionamento e critérios de manutenção estão consolidados na documentação canônica de caminho estável:
 
-- [`docs/Documentação.md`](docs/Documentação.md)
+- [`docs/Documentação.md`](docs/Documentação.md): arquitetura canônica.
+- [`docs/DOCUMENTACAO_VERSAO_FUNCIONAL.md`](docs/DOCUMENTACAO_VERSAO_FUNCIONAL.md): revisão funcional 2, fluxo, prazos e manutenção.
+- [`docs/MELHORIAS_EXTRACAO_E_PRAZO.md`](docs/MELHORIAS_EXTRACAO_E_PRAZO.md): extração autenticada e watchdog.
+- [`docs/VALIDACAO_REVISAO_2.json`](docs/VALIDACAO_REVISAO_2.json): 21 resultados manuais, sete por modo, quatro lotes completos e 21 renovações confirmadas. A aprovação manual não presume resultado do CI deste PR.
 
 ---
 

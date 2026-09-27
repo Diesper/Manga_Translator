@@ -1,9 +1,8 @@
 'use strict';
-// gemini/observer.js — Observer V3 orientado a ownership do model turn.
+// gemini/observer.js — Observer orientado a eventos por job Gemini.
 //
-// Resultado automático só pode nascer de uma resposta ESTRITA do modelo.
-// Imagens novas no body, no composer ou em user turns nunca recebem ownership
-// apenas por serem novas/large/blob.
+// Este módulo não envia mensagens nem clica na UI. Ele observa transições
+// verificáveis e expõe Promises para confirmação de submit e resultado.
 
 (function(scope) {
   let selectorsApi = scope.MangaTranslatorGeminiSelectors || null;
@@ -34,26 +33,20 @@
   }
 
   function safeQueryAll(root, selector) {
-    if (!root || !selector || typeof root.querySelectorAll !== 'function') return [];
-    try { return Array.from(root.querySelectorAll(selector)); } catch (_e) { return []; }
-  }
-
-  function deepQueryAll(root, selector) {
     if (!root || !selector) return [];
-    if (!domApi.findAllDeep) return safeQueryAll(root, selector);
-
-    return domApi.findAllDeep(root, element => {
-      if (!element || element.nodeType !== 1 || typeof element.matches !== 'function') {
-        return false;
-      }
-      try {
-        return element.matches(selector);
-      } catch (_e) {
-        return false;
-      }
-    });
+    return domApi.findAllDeep(root.body || root.documentElement || root, element =>
+      element.nodeType === 1 && element.matches?.(selector)
+    );
   }
 
+  function isGeneratedGeminiUrl(src) {
+    try {
+      const url = new URL(src);
+      return url.protocol === 'https:' &&
+        (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com')) &&
+        /\/(?:rd-)?gg-dl\//.test(url.pathname);
+    } catch (_e) { return false; }
+  }
 
   function createGeminiObserver({
     jobId,
@@ -61,7 +54,6 @@
     editor = null,
     getEditor = null,
     ignoreImages = new Set(),
-    inputImageElements = new Set(),
     onStateChange = null,
     MutationObserverImpl = typeof MutationObserver !== 'undefined' ? MutationObserver : null,
     setTimeoutFn = setTimeout,
@@ -82,11 +74,9 @@
       try { existing.stop(); } catch (_e) {}
     }
 
-    const strictResponseSelector = SELECTORS.MODEL_RESPONSE_STRICT || SELECTORS.RESPONSE;
-    const initialResponses = new Set(deepQueryAll(root, strictResponseSelector));
+    const initialResponses = new Set(safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT));
     const initialImageSources = new Set();
-
-    deepQueryAll(root, 'img').forEach(img => {
+    safeQueryAll(root, 'img').forEach(img => {
       const src = domApi.getImageSource(img);
       if (src) initialImageSources.add(src);
     });
@@ -94,10 +84,8 @@
       if (src) initialImageSources.add(src);
     }
 
-    const quarantinedInputElements = new Set(inputImageElements || []);
-
     const initialErrors = new Set();
-    deepQueryAll(root, SELECTORS.ERROR).forEach(element => {
+    safeQueryAll(root, SELECTORS.ERROR).forEach(element => {
       if (!domApi.isElementVisible(element)) return;
       const text = String(element.innerText || element.textContent || '').trim();
       if (text) initialErrors.add(text);
@@ -114,32 +102,25 @@
       initialResponseCount: initialResponses.size,
       initialImageSources,
       responseContainer: null,
-      modelTurn: null,
       ready: false,
       submissionConfirmed: false,
       submissionReason: null,
-      submissionConfirmedAt: null,
-      modelTurnObservedAt: null,
       generationActiveObserved: false,
       generationStarted: false,
       generationFinished: false,
       sendEnabledObserved: initialSendEnabled,
       resultImage: null,
       resultUrl: null,
-      resultObservedAt: null,
       error: null,
       done: false,
       cleanedUp: false,
       observer: null,
       responseObserver: null,
+      shadowRoots: new Set(),
+      inspectionTimer: null,
       timers: new Set(),
       inspectionScheduled: false,
       inspectCount: 0,
-      resultDomObserved: false,
-      seenResultSources: new Set(),
-      observedMutationRoots: new Set(),
-      heartbeatTimer: null,
-      fallbackOwnerUsed: false,
     };
 
     const submissionWaiters = new Set();
@@ -154,7 +135,6 @@
           submissionConfirmed: state.submissionConfirmed,
           generationActiveObserved: state.generationActiveObserved,
           responseContainer: state.responseContainer,
-          modelTurn: state.modelTurn,
           resultUrl: state.resultUrl,
           error: state.error,
         });
@@ -182,7 +162,6 @@
       if (state.cleanedUp || state.done || state.submissionConfirmed) return false;
       state.submissionConfirmed = true;
       state.submissionReason = reason;
-      state.submissionConfirmedAt = Date.now();
       emitState('submission_confirmed', { reason });
       settleWaiters(submissionWaiters, 'resolve', {
         confirmed: true,
@@ -192,48 +171,30 @@
     }
 
     function markGenerationActive(reason) {
-      if (state.cleanedUp || state.done) return false;
-      if (!state.generationActiveObserved) {
-        state.generationActiveObserved = true;
-        state.generationStarted = true;
-        emitState('generation_started', { reason });
-      }
-      confirmSubmission(reason);
-      return true;
+      if (state.cleanedUp || state.done) return;
+      const wasObserved = state.generationActiveObserved;
+      state.generationActiveObserved = true;
+      state.generationStarted = true;
+      if (!wasObserved) emitState('generation_started', { reason });
+      if (!state.submissionConfirmed) confirmSubmission(reason === 'stop_visible' ? 'stop_visible' : 'generation_started');
     }
 
     function fail(errorText) {
-      if (state.cleanedUp || state.done || !errorText) return false;
+      if (state.cleanedUp || state.done || state.error) return;
       state.error = String(errorText || 'Erro desconhecido do Gemini');
       state.done = true;
       const error = createError('GEMINI_UI_ERROR', state.error);
       emitState('ui_error', { error: state.error });
       settleWaiters(submissionWaiters, 'reject', error);
       settleWaiters(resultWaiters, 'reject', error);
-      return true;
     }
 
     function setResult(image, url) {
-      if (
-        state.cleanedUp ||
-        state.done ||
-        !url ||
-        !state.submissionConfirmed ||
-        !state.modelTurn
-      ) {
-        return false;
-      }
-
+      if (state.cleanedUp || state.done || !url) return false;
       state.resultImage = image || null;
       state.resultUrl = url;
-      state.resultObservedAt = Date.now();
       state.done = true;
-      emitState('result_image', {
-        urlKind: String(url).split(':', 1)[0] || 'unknown',
-        elapsedAfterSubmitMs: state.submissionConfirmedAt
-          ? state.resultObservedAt - state.submissionConfirmedAt
-          : null,
-      });
+      emitState('result_image', { urlKind: String(url).split(':', 1)[0] || 'unknown' });
       settleWaiters(resultWaiters, 'resolve', {
         image: state.resultImage,
         url: state.resultUrl,
@@ -241,94 +202,23 @@
       return true;
     }
 
-    const mutationObserverOptions = {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributes: true,
-      attributeFilter: [
-        'src',
-        'data-src',
-        'disabled',
-        'aria-disabled',
-        'aria-hidden',
-        'style',
-        'class',
-      ],
-    };
-
-    function observeMutationRoot(target) {
-      if (!target || !state.observer || state.observedMutationRoots.has(target)) {
-        return false;
-      }
-
-      try {
-        state.observer.observe(target, mutationObserverOptions);
-        state.observedMutationRoots.add(target);
-        return true;
-      } catch (_e) {
-        return false;
-      }
-    }
-
-    function discoverShadowRoots() {
-      if (!state.observer) return 0;
-      const observeRoot = root.body || root.documentElement || root;
-      let discovered = 0;
-
-      const hosts = domApi.findAllDeep
-        ? domApi.findAllDeep(observeRoot, element => Boolean(element?.shadowRoot))
-        : [];
-
-      for (const host of hosts) {
-        try {
-          if (host.shadowRoot && observeMutationRoot(host.shadowRoot)) {
-            discovered += 1;
-          }
-        } catch (_e) {}
-      }
-
-      return discovered;
-    }
-
-    function scheduleHeartbeat() {
-      if (state.cleanedUp || state.done || state.heartbeatTimer !== null) return;
-
-      const timer = setTimeoutFn(() => {
-        state.timers.delete(timer);
-        if (state.heartbeatTimer === timer) state.heartbeatTimer = null;
-        if (state.cleanedUp || state.done) return;
-
-        inspect();
-        scheduleHeartbeat();
-      }, 1250);
-
-      state.heartbeatTimer = timer;
-      state.timers.add(timer);
-    }
-
     function acquireResponseContainer() {
-      if (
-        state.responseContainer &&
-        state.responseContainer.isConnected !== false
-      ) {
+      if (state.responseContainer && state.responseContainer.isConnected !== false) {
         return state.responseContainer;
       }
 
-      const responses = deepQueryAll(root, strictResponseSelector);
-      const candidates = responses.filter(element => !initialResponses.has(element));
+      const responses = safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT);
+      const candidates = responses.filter(element =>
+        !initialResponses.has(element) &&
+        !domApi.getUserTurnContainer(element) && !domApi.isInsideInputArea(element)
+      );
       if (!candidates.length) return null;
 
       const container = candidates[candidates.length - 1];
       state.responseContainer = container;
-      state.modelTurn = container;
-      state.modelTurnObservedAt = Date.now();
       state.generationStarted = true;
-
-      emitState('model_turn_acquired', {
-        responseIndex: responses.length - 1,
-      });
-      // A criação de uma resposta estrita do modelo é evidência forte de submit.
+      emitState('response_container', { responseIndex: responses.length - 1 });
+      markGenerationActive('response_created');
       confirmSubmission('response_created');
 
       if (state.responseObserver) {
@@ -341,7 +231,7 @@
           subtree: true,
           characterData: true,
           attributes: true,
-          attributeFilter: ['src', 'data-src', 'aria-hidden', 'style', 'class'],
+          attributeFilter: ['src', 'srcset', 'data-src', 'aria-hidden', 'style', 'class'],
         });
       } catch (_e) {}
 
@@ -379,6 +269,8 @@
       const hasEnabledSend = sendControls.some(domApi.isControlEnabled);
       if (hasEnabledSend) state.sendEnabledObserved = true;
 
+      // "Send busy" só é evidência de submit quando houve transição real.
+      // Um botão que já nasceu disabled no baseline NÃO confirma envio.
       const transitionedToBusy =
         state.sendEnabledObserved &&
         sendControls.length > 0 &&
@@ -391,7 +283,7 @@
     }
 
     function inspectErrors() {
-      const errors = deepQueryAll(root, SELECTORS.ERROR);
+      const errors = safeQueryAll(root, SELECTORS.ERROR);
       for (const element of errors) {
         if (!domApi.isElementVisible(element)) continue;
         const text = String(element.innerText || element.textContent || '').trim();
@@ -402,147 +294,106 @@
     }
 
     function strongImageUrl(src) {
-      const value = String(src || '');
-      return value.startsWith('blob:') ||
-        value.startsWith('data:image/') ||
-        value.includes('googleusercontent.com/gg-dl/') ||
-        value.includes('googleusercontent.com/rd-gg-dl/') ||
-        value.includes('gemini-result-image');
+      return src.startsWith('blob:') ||
+        src.startsWith('data:image/') ||
+        isGeneratedGeminiUrl(src) ||
+        src.includes('gemini-result-image');
     }
 
-    function highConfidenceGeneratedAssetUrl(src) {
-      const value = String(src || '');
-      return value.includes('googleusercontent.com/gg-dl/') ||
-        value.includes('googleusercontent.com/rd-gg-dl/') ||
-        value.includes('gemini-result-image');
-    }
-
-
-    function isCandidateImage(image, container) {
-      if (!image || !container) return false;
-      if (!state.submissionConfirmed) return false;
-      if (quarantinedInputElements.has(image)) return false;
-      if (domApi.isUserTurnImage?.(image)) return false;
-
-      const owner = domApi.getStrictModelResponseContainer?.(image);
-      if (!owner || owner !== container) return false;
-
+    function isCandidateImage(image) {
       const src = domApi.getImageSource(image);
-      if (
-        !src ||
-        state.initialImageSources.has(src) ||
-        domApi.isIgnoredGeminiImageSource(src)
-      ) {
+      if (!src || state.initialImageSources.has(src) || domApi.isIgnoredGeminiImageSource(src)) {
         return false;
       }
 
       const width = Number(image.naturalWidth || image.width || 0);
       const height = Number(image.naturalHeight || image.height || 0);
-
       if (strongImageUrl(src)) return true;
       if (image.complete === false && width <= 0 && height <= 0) return false;
       return width > 0 && height > 0;
     }
 
-    function isHighConfidenceFallbackImage(image) {
-      if (!image || !state.submissionConfirmed) return false;
-      if (quarantinedInputElements.has(image)) return false;
-      if (domApi.isUserTurnImage?.(image)) return false;
-      if (domApi.isInsideInputArea?.(image)) return false;
-
-      const manualPanel = domApi.closestComposed?.(image, '#mt-gemini-assist');
-      if (manualPanel) return false;
-
-      const src = domApi.getImageSource(image);
-      if (
-        !src ||
-        state.initialImageSources.has(src) ||
-        domApi.isIgnoredGeminiImageSource(src) ||
-        !highConfidenceGeneratedAssetUrl(src)
-      ) {
-        return false;
-      }
-
-      const broadOwner = domApi.getModelResponseContainer?.(image) || null;
-      if (!state.generationActiveObserved && !broadOwner) return false;
-
-      return true;
+    const candidateDiagnostics = new WeakMap();
+    function sourceType(src) {
+      return src.startsWith('blob:') ? 'blob' : src.startsWith('data:image/') ? 'data' :
+        isGeneratedGeminiUrl(src) ? 'generated_google_asset' : 'remote';
     }
-
-    function inspectHighConfidenceFallbackResult() {
-      const images = deepQueryAll(root, 'img');
-
-      for (let index = images.length - 1; index >= 0; index -= 1) {
-        const image = images[index];
-        if (!isHighConfidenceFallbackImage(image)) continue;
-
-        const src = domApi.getImageSource(image);
-        const owner =
-          domApi.getModelResponseContainer?.(image) ||
-          image.parentElement ||
-          image;
-
-        state.responseContainer = owner;
-        state.modelTurn = owner;
-        state.modelTurnObservedAt = Date.now();
-        state.fallbackOwnerUsed = true;
-
-        emitState('model_turn_fallback_acquired', {
-          reason: 'high_confidence_generated_asset',
-          urlKind: String(src).split(':', 1)[0] || 'unknown',
-        });
-        emitState('result_candidate', {
-          urlKind: String(src).split(':', 1)[0] || 'unknown',
-          strongUrl: true,
-          ownership: 'high_confidence_fallback',
-        });
-
-        if (setResult(image, src)) return true;
-      }
-
-      return false;
+    function rejectCandidate(image, reason, src) {
+      const signature = reason + '|' + src;
+      if (candidateDiagnostics.get(image) === signature) return;
+      candidateDiagnostics.set(image, signature);
+      emitState('result_candidate_rejected', { reason, sourceType: sourceType(src) });
     }
-
     function inspectResult() {
+      acquireResponseContainer();
       if (!state.submissionConfirmed) return;
-      const container = acquireResponseContainer();
-      if (!container) {
-        inspectHighConfidenceFallbackResult();
-        return;
-      }
-
-      const images = deepQueryAll(container, 'img');
-      if (images.length > 0 && !state.resultDomObserved) {
-        state.resultDomObserved = true;
-        emitState('result_dom_seen', { imageCount: images.length });
-      }
-
+      const images = safeQueryAll(root, 'img');
       for (let index = images.length - 1; index >= 0; index -= 1) {
         const image = images[index];
+        if (!isCandidateImage(image) || image.isConnected === false) continue;
         const src = domApi.getImageSource(image);
-        if (src && !state.seenResultSources.has(src)) {
-          state.seenResultSources.add(src);
-          emitState('result_image_seen', {
-            urlKind: String(src).split(':', 1)[0] || 'unknown',
-            strongUrl: strongImageUrl(src),
-          });
+        if (domApi.isInsideInputArea(image)) { rejectCandidate(image, 'composer', src); continue; }
+        if (domApi.getUserTurnContainer(image)) { rejectCandidate(image, 'user_turn', src); continue; }
+        const owner = domApi.getStrictModelResponseContainer(image);
+        if (owner && initialResponses.has(owner)) { rejectCandidate(image, 'old_model_turn', src); continue; }
+        const belongsToNewModelTurn = Boolean(owner && !initialResponses.has(owner));
+        // Não aceitar blob/data órfão, nem tratar um message-content genérico
+        // como prova de autoria. Só asset gerado e geração observada podem
+        // usar o fallback sem um wrapper de autoria forte.
+        const trustedFallback = !owner && isGeneratedGeminiUrl(src) && state.generationActiveObserved;
+        if (!belongsToNewModelTurn && !trustedFallback) {
+          rejectCandidate(image, 'missing_model_owner', src); continue;
         }
-
-        if (!isCandidateImage(image, container)) continue;
-        emitState('result_candidate', {
-          urlKind: String(src).split(':', 1)[0] || 'unknown',
-          strongUrl: strongImageUrl(src),
+        if ((src.startsWith('blob:') || src.startsWith('data:image/')) &&
+            (image.complete === false || Number(image.naturalWidth || 0) <= 0 || Number(image.naturalHeight || 0) <= 0)) {
+          rejectCandidate(image, 'pending_model_media', src); continue;
+        }
+        emitState('result_candidate_accepted', {
+          reason: belongsToNewModelTurn ? 'new_model_turn' : 'generated_asset_after_generation',
+          sourceType: sourceType(src), ownerTag: owner?.tagName?.toLowerCase() || null,
         });
         if (setResult(image, src)) return;
       }
+    }
 
-      if (!state.resultUrl) inspectHighConfidenceFallbackResult();
+    const imageEventRoots = new Set();
+    const observationOptions = {
+      childList: true, subtree: true, characterData: true, attributes: true,
+      attributeFilter: ['src', 'srcset', 'data-src', 'disabled', 'aria-disabled', 'aria-hidden', 'style', 'class'],
+    };
+    function observeShadowRoots() {
+      if (!state.observer) return;
+      const searchRoot = root.body || root.documentElement || root;
+      const targets = [searchRoot];
+      for (const host of domApi.findAllDeep(searchRoot, element => Boolean(element.shadowRoot))) {
+        if (!state.shadowRoots.has(host.shadowRoot)) {
+          state.observer.observe(host.shadowRoot, observationOptions);
+          state.shadowRoots.add(host.shadowRoot);
+        }
+        targets.push(host.shadowRoot);
+      }
+      for (const target of targets) {
+        if (imageEventRoots.has(target)) continue;
+        target.addEventListener?.('load', scheduleInspect, true);
+        target.addEventListener?.('error', scheduleInspect, true);
+        imageEventRoots.add(target);
+      }
+    }
+    function schedulePeriodicInspection() {
+      if (state.done || state.cleanedUp) return;
+      state.inspectionTimer = setTimeoutFn(() => {
+        state.timers.delete(state.inspectionTimer);
+        state.inspectionTimer = null;
+        inspect();
+        schedulePeriodicInspection();
+      }, 1250);
+      state.timers.add(state.inspectionTimer);
     }
 
     function inspect() {
       if (state.cleanedUp || state.done) return;
       state.inspectCount += 1;
-      discoverShadowRoots();
+      observeShadowRoots();
 
       inspectEditor();
       if (state.cleanedUp || state.done) return;
@@ -571,13 +422,13 @@
       if (state.cleanedUp || state.ready) return api;
       const observeRoot = root.body || root.documentElement || root;
       state.observer = new MutationObserverImpl(scheduleInspect);
-      observeMutationRoot(observeRoot);
-      discoverShadowRoots();
+      state.observer.observe(observeRoot, observationOptions);
+      observeShadowRoots();
       state.ready = true;
       registryOwner.__mtGeminiObservers[jobId] = api;
       emitState('ready', { initialResponseCount: state.initialResponseCount });
       inspect();
-      scheduleHeartbeat();
+      schedulePeriodicInspection();
       return api;
     }
 
@@ -600,10 +451,7 @@
         waiter.timer = setTimeoutFn(() => {
           submissionWaiters.delete(waiter);
           state.timers.delete(waiter.timer);
-          reject(createError(
-            'GEMINI_SUBMISSION_NOT_CONFIRMED',
-            'Envio não foi confirmado pela UI'
-          ));
+          reject(createError('GEMINI_SUBMISSION_NOT_CONFIRMED', 'Envio não foi confirmado pela UI'));
         }, timeoutMs);
         state.timers.add(waiter.timer);
         submissionWaiters.add(waiter);
@@ -629,10 +477,7 @@
         waiter.timer = setTimeoutFn(() => {
           resultWaiters.delete(waiter);
           state.timers.delete(waiter.timer);
-          reject(createError(
-            'GEMINI_RESULT_TIMEOUT',
-            'Tempo limite aguardando resultado do Gemini'
-          ));
+          reject(createError('GEMINI_RESULT_TIMEOUT', 'Tempo limite aguardando resultado do Gemini'));
         }, timeoutMs);
         state.timers.add(waiter.timer);
         resultWaiters.add(waiter);
@@ -648,26 +493,23 @@
         try { state.observer.disconnect(); } catch (_e) {}
         state.observer = null;
       }
-      state.observedMutationRoots.clear();
-      state.heartbeatTimer = null;
       if (state.responseObserver) {
         try { state.responseObserver.disconnect(); } catch (_e) {}
         state.responseObserver = null;
       }
 
+      for (const target of imageEventRoots) {
+        target.removeEventListener?.('load', scheduleInspect, true);
+        target.removeEventListener?.('error', scheduleInspect, true);
+      }
+      imageEventRoots.clear();
+      state.shadowRoots.clear();
       for (const timer of Array.from(state.timers)) removeTimer(timer);
-      settleWaiters(
-        submissionWaiters,
-        'reject',
-        createError('OBSERVER_STOPPED', 'Observer interrompido')
-      );
-      settleWaiters(
-        resultWaiters,
-        'reject',
-        createError('OBSERVER_STOPPED', 'Observer interrompido')
-      );
+      const stopped = createError('OBSERVER_STOPPED', 'Observer interrompido');
+      settleWaiters(submissionWaiters, 'reject', stopped);
+      settleWaiters(resultWaiters, 'reject', stopped);
 
-      if (registryOwner.__mtGeminiObservers[jobId] === api) {
+      if (registryOwner.__mtGeminiObservers?.[jobId] === api) {
         delete registryOwner.__mtGeminiObservers[jobId];
       }
       emitState('cleanup');
@@ -678,20 +520,7 @@
       return state;
     }
 
-    // Mantido para seleção manual explícita. O usuário é a fonte de ownership
-    // nesse caminho; a automação automática nunca chama isto para IMG global.
     function acceptResult(image, url) {
-      if (!state.submissionConfirmed) {
-        confirmSubmission('manual_selection');
-      }
-      if (!state.modelTurn && image) {
-        state.modelTurn = domApi.getStrictModelResponseContainer?.(image) || null;
-      }
-      if (!state.modelTurn) {
-        // Seleção manual sem elemento DOM (ex.: blob escolhido pelo painel)
-        // usa um sentinel de ownership humano.
-        state.modelTurn = { manual: true };
-      }
       return setResult(image || null, url);
     }
 
@@ -709,10 +538,7 @@
     return api;
   }
 
-  const api = {
-    createGeminiObserver,
-    deepQueryAll,
-  };
+  const api = { createGeminiObserver };
   scope.MangaTranslatorGeminiObserver = api;
 
   if (typeof module !== 'undefined' && module.exports) {

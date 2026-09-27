@@ -1,11 +1,9 @@
 'use strict';
 // gemini/attachment.js — Upload de imagem com confirmação observável.
 //
-// Invariantes V3:
-// 1) dispatch de paste/change/drop é somente tentativa;
-// 2) apenas evidência ligada ao composer/attachment UI confirma o arquivo;
-// 3) sinal parcial interrompe novos dispatches para evitar uploads duplicados;
-// 4) ausência de confirmação nunca é promovida a sucesso pelo chamador.
+// Regra central: disparar paste/change/drop significa apenas TENTATIVA.
+// Attachment só é confirmado quando surge (ou muda) evidência visual/DOM
+// posterior ao baseline capturado antes do upload.
 
 (function(scope) {
   let domApi = scope.MangaTranslatorGeminiDom || null;
@@ -14,139 +12,85 @@
   }
   if (!domApi) throw new Error('MangaTranslatorGeminiDom indisponível');
 
-  const INPUT_AREA_SELECTOR =
-    'rich-textarea, .input-area, .chat-input-container, .chat-input, input-area';
-
   function getSearchRoot(root) {
     return root && (root.body || root.documentElement || root);
   }
 
-  function safeClosest(element, selector) {
-    try { return element?.closest?.(selector) || null; } catch (_e) { return null; }
-  }
-
-  function isImageFileInput(input) {
-    if (!input || input.disabled === true || input.getAttribute?.('aria-disabled') === 'true') {
-      return false;
+  function closestComposed(element, selector) {
+    for (let current = element; current; current = current.parentElement || current.getRootNode?.().host) {
+      if (current.matches?.(selector)) return current;
     }
-    const accept = String(input.accept || input.getAttribute?.('accept') || '').toLowerCase().trim();
-    return !accept || accept.includes('image') || accept.includes('*/*');
+    return null;
+  }
+  const COMPOSER = 'rich-textarea, .input-area, .chat-input-container, .chat-input, input-area, [contenteditable="true"][role="textbox"], .ql-editor[contenteditable="true"]';
+  const USER_OR_MODEL = 'model-response, bard-model-response, [data-message-author], [data-turn-role], .user-query-container, .user-message, .model-response-container';
+  const ATTACHMENT = 'file-preview, attachment-card, [data-test-id*="attachment"], [data-testid*="attachment"], [data-test-id*="preview"], [data-testid*="preview"], .file-preview, .attachment-preview, .image-preview, .attachment-container';
+  function isAttachmentContext(element) {
+    if (closestComposed(element, USER_OR_MODEL)) return false;
+    return Boolean(closestComposed(element, COMPOSER) || closestComposed(element, ATTACHMENT));
+  }
+  function findFileInputsDeep(root) {
+    return domApi.findAllDeep(root, element => {
+      if (String(element.tagName || '').toUpperCase() !== 'INPUT' ||
+          String(element.type || element.getAttribute?.('type') || '').toLowerCase() !== 'file' ||
+          element.disabled || closestComposed(element, USER_OR_MODEL)) return false;
+      const accept = String(element.accept || element.getAttribute?.('accept') || '').trim().toLowerCase();
+      return !accept || accept.includes('image/') || accept.includes('*/*') ||
+        /\.(?:png|jpe?g|webp|gif|bmp|avif)(?:\s*,|$)/.test(accept);
+    }).sort((a, b) => Number(Boolean(closestComposed(b, COMPOSER))) - Number(Boolean(closestComposed(a, COMPOSER))));
+  }
+  function evidenceReady(evidence) {
+    const img = evidence?.img;
+    if (!img || !domApi.getImageSource(img) || img.complete === false ||
+        Number(img.naturalWidth || 0) <= 0 || Number(img.naturalHeight || 0) <= 0) return false;
+    const attachmentRoot = closestComposed(evidence.el, ATTACHMENT) || evidence.el;
+    return !domApi.findAllDeep(attachmentRoot, element =>
+      element.matches?.('[aria-busy="true"], [role="progressbar"], mat-progress-spinner')
+    ).length;
   }
 
-  function scoreFileInput(input, composerRoot) {
-    if (!isImageFileInput(input)) return -Infinity;
-    let score = 0;
-
-    if (composerRoot) {
-      try {
-        if (composerRoot === input || composerRoot.contains?.(input)) score += 100;
-      } catch (_e) {}
-    }
-    if (safeClosest(input, INPUT_AREA_SELECTOR)) score += 70;
-
-    const accept = String(input.accept || input.getAttribute?.('accept') || '').toLowerCase();
-    if (accept.includes('image')) score += 30;
-
-    const name = [
-      input.getAttribute?.('aria-label'),
-      input.getAttribute?.('data-test-id'),
-      input.getAttribute?.('data-testid'),
-      input.getAttribute?.('name'),
-      input.id,
-      typeof input.className === 'string' ? input.className : '',
-    ].filter(Boolean).join(' ').toLowerCase();
-
-    if (/attach|upload|image|file|media|anex/.test(name)) score += 20;
-    return score;
-  }
-
-  function findFileInputsDeep(root, composerRoot = null) {
-    const inputs = domApi.findAllDeep(root, element =>
-      String(element.tagName || '').toUpperCase() === 'INPUT' &&
-      String(element.type || element.getAttribute?.('type') || '').toLowerCase() === 'file'
-    ).filter(isImageFileInput);
-
-    return inputs
-      .map((input, index) => ({ input, index, score: scoreFileInput(input, composerRoot) }))
-      .sort((a, b) => b.score - a.score || a.index - b.index)
-      .map(item => item.input);
-  }
-
-  function describeAttachmentContainer(element) {
-    if (!element) return null;
-    const tag = String(element.tagName || '').toLowerCase();
-    const tid = String(
-      element.getAttribute?.('data-test-id') ||
-      element.getAttribute?.('data-testid') ||
-      ''
-    ).toLowerCase();
-    const className = typeof element.className === 'string'
-      ? element.className.toLowerCase()
-      : '';
-
-    const isContainer =
-      tag === 'file-preview' ||
-      tag === 'attachment-card' ||
-      tid.includes('attachment') ||
-      tid.includes('preview') ||
-      className.includes('file-preview') ||
-      className.includes('attachment-preview') ||
-      className.includes('image-preview') ||
-      className.includes('attachment-container');
-
-    if (!isContainer) return null;
-
-    let rect = null;
-    try { rect = element.getBoundingClientRect(); } catch (_e) {}
-    if (rect && rect.width <= 20 && rect.height <= 20) return null;
-
-    return { tag, tid, className };
-  }
-
-  function imageLooksReady(img) {
-    if (!img) return false;
-    const src = domApi.getImageSource(img);
-    if (!src || domApi.isIgnoredGeminiImageSource(src)) return false;
-
-    const width = Number(img.naturalWidth || img.width || 0);
-    const height = Number(img.naturalHeight || img.height || 0);
-
-    // Blob/data são previews comuns. Ainda assim só são aceitos quando o
-    // elemento está ligado ao composer/container de attachment.
-    if (src.startsWith('blob:') || src.startsWith('data:image/')) return true;
-    if (img.complete === false && width <= 0 && height <= 0) return false;
-    return width > 20 && height > 20;
-  }
-
-  function listAttachmentEvidence(root, composerRoot = null) {
+  function listAttachmentEvidence(root) {
     const searchRoot = getSearchRoot(root);
     if (!searchRoot) return [];
 
     const evidence = [];
-    const seenImages = new Set();
+    const seen = new Set();
 
-    const containers = domApi.findAllDeep(searchRoot, element =>
-      Boolean(describeAttachmentContainer(element))
-    );
+    const containers = domApi.findAllDeep(searchRoot, element => {
+      const tag = String(element.tagName || '').toLowerCase();
+      const tid = String(
+        element.getAttribute?.('data-test-id') ||
+        element.getAttribute?.('data-testid') ||
+        ''
+      ).toLowerCase();
+      const className = typeof element.className === 'string'
+        ? element.className.toLowerCase()
+        : '';
+
+      return tag === 'file-preview' ||
+        tag === 'attachment-card' ||
+        tid.includes('attachment') ||
+        tid.includes('preview') ||
+        className.includes('file-preview') ||
+        className.includes('attachment-preview') ||
+        className.includes('image-preview') ||
+        className.includes('attachment-container');
+    });
 
     for (const container of containers) {
-      const meta = describeAttachmentContainer(container);
-      if (!meta) continue;
+      if (!isAttachmentContext(container)) continue;
+      let rect = null;
+      try { rect = container.getBoundingClientRect(); } catch (_e) {}
+      if (!rect || rect.width <= 20 || rect.height <= 20) continue;
 
-      const img = container.querySelector ? container.querySelector('img') : null;
-      const imageSource = img ? domApi.getImageSource(img) : '';
-      const ready = imageLooksReady(img);
-
+      const img = domApi.findAllDeep(container, element => String(element.tagName || '').toUpperCase() === 'IMG')[0] || null;
       evidence.push({
         el: container,
         img,
-        composer: safeClosest(container, INPUT_AREA_SELECTOR) || composerRoot || null,
         type: 'container',
-        selector: meta.tag || 'attachment-container',
-        imageSource,
-        strength: ready ? 'confirmed' : 'pending',
+        selector: String(container.tagName || '').toLowerCase(),
       });
-      if (img) seenImages.add(img);
+      seen.add(container);
     }
 
     const images = domApi.findAllDeep(searchRoot, element =>
@@ -154,40 +98,37 @@
     );
 
     for (const img of images) {
-      if (seenImages.has(img)) continue;
+      if (seen.has(img) || !isAttachmentContext(img)) continue;
       const src = domApi.getImageSource(img);
-      if (!src || domApi.isIgnoredGeminiImageSource(src)) continue;
 
-      const inputArea = safeClosest(img, INPUT_AREA_SELECTOR);
-      const attachmentContainer = safeClosest(
-        img,
-        'file-preview, attachment-card, [data-test-id*="attachment"], [data-testid*="attachment"], ' +
-        '[data-test-id*="preview"], [data-testid*="preview"], .file-preview, .attachment-preview, ' +
-        '.image-preview, .attachment-container'
-      );
-
-      let insidePreferredComposer = false;
-      if (composerRoot) {
-        try {
-          insidePreferredComposer = composerRoot === img || composerRoot.contains?.(img);
-        } catch (_e) {}
+      if (src.startsWith('blob:') || (src.startsWith('data:image/') && src.length > 500)) {
+        evidence.push({
+          el: img,
+          img,
+          type: 'blob-img',
+          selector: src.startsWith('blob:') ? 'img[src^="blob:"]' : 'img[src^="data:image/"]',
+        });
+        seen.add(img);
+        continue;
       }
 
-      // Nunca aceitar blob/data global só por ser "novo". A mídia precisa ter
-      // ownership estrutural do composer ou de um container de attachment.
-      if (!inputArea && !attachmentContainer && !insidePreferredComposer) continue;
-      if (!imageLooksReady(img)) continue;
+      const parentArea = img.closest
+        ? img.closest('rich-textarea, .input-area, .chat-input, input-area')
+        : null;
 
-      evidence.push({
-        el: img,
-        img,
-        composer: inputArea || composerRoot || null,
-        type: 'input-img',
-        selector: inputArea ? 'input-area img' : 'attachment img',
-        imageSource: src,
-        strength: 'confirmed',
-      });
-      seenImages.add(img);
+      if (parentArea && !domApi.isIgnoredGeminiImageSource(src)) {
+        const width = Number(img.naturalWidth || img.width || 0);
+        const height = Number(img.naturalHeight || img.height || 0);
+        if (width > 20 && height > 20) {
+          evidence.push({
+            el: img,
+            img,
+            type: 'input-img',
+            selector: 'input-area img',
+          });
+          seen.add(img);
+        }
+      }
     }
 
     return evidence;
@@ -207,22 +148,22 @@
       ''
     );
     const childCount = Number(element.childElementCount || 0);
-    const text = String(element.textContent || '').trim().slice(0, 160);
 
+    // A assinatura ignora classe/style/dimensões: esses valores podem mudar
+    // apenas por animação, layout tardio ou carregamento de uma preview antiga.
+    // Confirmação exige mudança estrutural ou de identidade da mídia.
     return [
       evidence.type || '',
       evidence.selector || '',
-      evidence.strength || '',
       dataTestId,
       childCount,
       imageSource,
-      text,
     ].join('|');
   }
 
-  function captureAttachmentBaseline(root, composerRoot = null) {
+  function captureAttachmentBaseline(root) {
     const signatures = new Map();
-    for (const evidence of listAttachmentEvidence(root, composerRoot)) {
+    for (const evidence of listAttachmentEvidence(root)) {
       signatures.set(evidence.el, evidenceSignature(evidence));
     }
     return { signatures };
@@ -234,17 +175,10 @@
     return baseline.signatures.get(evidence.el) !== evidenceSignature(evidence);
   }
 
-  function findAttachmentEvidenceDeep(root, baseline = null, composerRoot = null) {
-    const changed = listAttachmentEvidence(root, composerRoot)
-      .filter(item => !baseline || isEvidenceNewOrChanged(item, baseline));
-
-    const confirmed = changed.find(item => item.strength === 'confirmed') || null;
-    const pending = changed.find(item => item.strength === 'pending') || null;
-    return { confirmed, pending };
-  }
-
-  function findAttachmentThumbnailDeep(root, baseline = null, composerRoot = null) {
-    return findAttachmentEvidenceDeep(root, baseline, composerRoot).confirmed;
+  function findAttachmentThumbnailDeep(root, baseline = null) {
+    const evidence = listAttachmentEvidence(root);
+    if (!baseline) return evidence[0] || null;
+    return evidence.find(item => isEvidenceNewOrChanged(item, baseline)) || null;
   }
 
   function buildDataTransfer(file) {
@@ -257,6 +191,9 @@
       } catch (_e) {}
     }
 
+    // Fallback testável para runtimes sem DataTransfer. Ele continua útil para
+    // eventos sintéticos; assignment em input.files pode rejeitá-lo e é tratado
+    // como uma tentativa falha, nunca como sucesso.
     const files = [file];
     const items = [];
     items.add = item => {
@@ -349,35 +286,34 @@
     return attempted;
   }
 
-  function dispatchPaste({ editor, editorRoot, transfer }) {
-    // Último recurso: um único paste sintético no alvo mais específico.
-    // Disparar no editor e no wrapper podia duplicar handlers internos do Gemini.
-    const target = editor || editorRoot;
-    if (!target || typeof target.dispatchEvent !== 'function') return false;
-    try {
-      target.dispatchEvent(createClipboardEvent(transfer));
-      return true;
-    } catch (_e) {
-      return false;
+  function dispatchPaste({ editor, editorRoot, root, transfer }) {
+    let attempted = false;
+    const targets = [editor || editorRoot];
+
+    for (const target of targets) {
+      if (!target || typeof target.dispatchEvent !== 'function') continue;
+      try {
+        target.dispatchEvent(createClipboardEvent(transfer));
+        attempted = true;
+      } catch (_e) {}
     }
+    return attempted;
   }
 
-  function assignFileInputs({ root, editorRoot, transfer }) {
+  function assignFileInputs({ root, transfer }) {
+    let attempted = false;
     const searchRoot = getSearchRoot(root);
-    const inputs = findFileInputsDeep(searchRoot, editorRoot);
-    if (!inputs.length) return false;
 
-    // Um upload deve atingir um único input escolhido por relevância, nunca
-    // todos os inputs[type=file] internos da página.
-    const input = inputs[0];
-    try {
-      input.files = transfer.files;
-      input.dispatchEvent(new scope.Event('input', { bubbles: true, composed: true }));
-      input.dispatchEvent(new scope.Event('change', { bubbles: true, composed: true }));
-      return true;
-    } catch (_e) {
-      return false;
+    for (const input of findFileInputsDeep(searchRoot).slice(0, 1)) {
+      try {
+        input.files = transfer.files;
+        input.dispatchEvent(new scope.Event('input', { bubbles: true, composed: true }));
+        input.dispatchEvent(new scope.Event('change', { bubbles: true, composed: true }));
+        attempted = true;
+      } catch (_e) {}
     }
+
+    return attempted;
   }
 
   function dispatchDrop({ editorRoot, transfer }) {
@@ -395,45 +331,40 @@
     editorRoot,
     root,
     transfer,
-    method = 'file_input',
+    includeDrop = true,
   }) {
+    const methods = [];
     let attempted = false;
 
-    if (method === 'file_input') {
-      attempted = assignFileInputs({ root, editorRoot, transfer });
-    } else if (method === 'drop') {
-      attempted = dispatchDrop({ editorRoot, transfer });
-    } else if (method === 'paste') {
-      attempted = dispatchPaste({ editor, editorRoot, transfer });
+    if (dispatchPaste({ editor, editorRoot, root, transfer })) {
+      attempted = true;
+      methods.push('paste');
+    }
+    if (assignFileInputs({ root, transfer })) {
+      attempted = true;
+      methods.push('file_input');
+    }
+    if (includeDrop && dispatchDrop({ editorRoot, transfer })) {
+      attempted = true;
+      methods.push('drop');
     }
 
-    return {
-      attempted,
-      methods: attempted ? [method] : [],
-    };
+    return { attempted, methods };
   }
 
   function createAttachmentConfirmation({
     root,
-    composerRoot = null,
-    baseline = captureAttachmentBaseline(root, composerRoot),
+    baseline = captureAttachmentBaseline(root),
     timeoutMs = 15000,
     MutationObserverImpl = scope.MutationObserver,
     setTimeoutFn = scope.setTimeout?.bind(scope) || setTimeout,
     clearTimeoutFn = scope.clearTimeout?.bind(scope) || clearTimeout,
   } = {}) {
     if (!root || typeof MutationObserverImpl !== 'function') {
-      const promise = Promise.resolve({
-        status: 'failed',
-        confirmed: false,
-        evidence: null,
-        signalObserved: false,
-      });
+      const promise = Promise.resolve({ confirmed: false, evidence: null });
       return {
         promise,
         inspect: () => null,
-        hasSignal: () => false,
-        getSignal: () => null,
         stop: () => false,
       };
     }
@@ -442,7 +373,9 @@
     let observer = null;
     let timer = null;
     let resolvePromise = null;
-    let lastSignal = null;
+    let observedEvidence = null;
+    let pollTimer = null;
+    const eventRoots = new Set();
 
     const promise = new Promise(resolve => {
       resolvePromise = resolve;
@@ -459,25 +392,24 @@
         try { clearTimeoutFn(timer); } catch (_e) {}
         timer = null;
       }
-      resolvePromise(result);
+      for (const target of eventRoots) {
+        target.removeEventListener?.('load', inspect, true);
+        target.removeEventListener?.('error', inspect, true);
+      }
+      eventRoots.clear();
+      if (pollTimer !== null) clearTimeoutFn(pollTimer);
+      resolvePromise({ ...result, signalObserved: Boolean(observedEvidence) });
       return true;
     };
 
     const inspect = () => {
       if (settled) return null;
-      const found = findAttachmentEvidenceDeep(root, baseline, composerRoot);
-
-      if (found.pending) lastSignal = found.pending;
-      if (!found.confirmed) return found.pending || null;
-
-      lastSignal = found.confirmed;
-      finish({
-        status: 'confirmed',
-        confirmed: true,
-        evidence: found.confirmed,
-        signalObserved: true,
-      });
-      return found.confirmed;
+      const candidates = listAttachmentEvidence(root).filter(item => isEvidenceNewOrChanged(item, baseline));
+      const evidence = candidates.find(evidenceReady) || candidates[0];
+      if (!evidence) return null;
+      observedEvidence = evidence;
+      if (evidenceReady(evidence)) finish({ confirmed: true, evidence });
+      return evidence;
     };
 
     const observeRoot = getSearchRoot(root);
@@ -497,29 +429,35 @@
       ],
     });
 
-    timer = setTimeoutFn(() => finish({
-      status: 'failed',
-      confirmed: false,
-      evidence: null,
-      signalObserved: Boolean(lastSignal),
-      lastSignal,
-    }), timeoutMs);
+    for (const target of [observeRoot, ...domApi.findAllDeep(observeRoot, element => Boolean(element.shadowRoot)).map(element => element.shadowRoot)]) {
+      if (target !== observeRoot) observer.observe(target, { childList: true, subtree: true, attributes: true });
+      target.addEventListener?.('load', inspect, true);
+      target.addEventListener?.('error', inspect, true);
+      eventRoots.add(target);
+    }
 
+    timer = setTimeoutFn(
+      () => finish({ confirmed: false, evidence: null }),
+      timeoutMs
+    );
+
+    const poll = () => {
+      if (settled) return;
+      inspect();
+      if (!settled) pollTimer = setTimeoutFn(poll, 500);
+    };
+    pollTimer = setTimeoutFn(poll, 500);
+
+    // O baseline foi capturado antes; esta inspeção imediata só aceita algo
+    // novo/alterado, nunca um thumbnail antigo.
     inspect();
 
     return {
       promise,
       inspect,
-      hasSignal: () => Boolean(lastSignal),
-      getSignal: () => lastSignal,
+      hasSignal: () => Boolean(observedEvidence),
       stop() {
-        return finish({
-          status: 'failed',
-          confirmed: false,
-          evidence: null,
-          signalObserved: Boolean(lastSignal),
-          lastSignal,
-        });
+        return finish({ confirmed: false, evidence: null });
       },
     };
   }
@@ -532,6 +470,10 @@
     file,
     editor,
     editorRoot = editor,
+    getEditor = null,
+    getEditorRoot = null,
+    dispatchMethodFn = null,
+    onAttempt = null,
     root = scope.document,
     timeoutMs = 15000,
     retryAfterMs = 2500,
@@ -541,25 +483,18 @@
     setTimeoutFn = scope.setTimeout?.bind(scope) || setTimeout,
     clearTimeoutFn = scope.clearTimeout?.bind(scope) || clearTimeout,
   } = {}) {
-    const startedAt = Date.now();
-
     if (!file || !editor || !root || typeof MutationObserverImpl !== 'function') {
       return {
-        status: 'failed',
         confirmed: false,
         attempted: false,
         evidence: null,
-        signalObserved: false,
         methodsAttempted: [],
-        attempts: 0,
-        elapsedMs: Date.now() - startedAt,
       };
     }
 
-    const baseline = captureAttachmentBaseline(root, editorRoot);
+    const baseline = captureAttachmentBaseline(root);
     const confirmation = createAttachmentConfirmation({
       root,
-      composerRoot: editorRoot,
       baseline,
       timeoutMs,
       MutationObserverImpl,
@@ -571,53 +506,51 @@
 
     const transfer = buildDataTransfer(file);
     const methodsAttempted = new Set();
+
     let attempted = false;
-    let attempts = 0;
-
-    // Um método por vez. O caminho preferido não usa clipboard:
-    // file input -> drop -> paste (último recurso).
-    const methodPlan = ['file_input', 'drop', 'paste'];
-
-    for (const method of methodPlan) {
-      if (attempts >= maxDispatches) break;
-      if (confirmation.hasSignal()) break;
-
-      const result = dispatchAttachmentAttempt({
-        editor,
-        editorRoot,
-        root,
-        transfer,
-        method,
-      });
-      if (!result.attempted) continue;
-
-      attempts += 1;
-      attempted = true;
-      result.methods.forEach(name => methodsAttempted.add(name));
+    const methods = [
+      ['file_input', () => assignFileInputs({ root, transfer })],
+      ['drop', () => dispatchDrop({ editorRoot, transfer })],
+      ['paste', () => dispatchPaste({ editor, editorRoot, root, transfer })],
+    ];
+    let dispatchCount = 0;
+    for (const [method, dispatch] of methods) {
+      if (dispatchCount >= maxDispatches) break;
       confirmation.inspect();
-
-      const early = await Promise.race([
-        confirmation.promise.then(value => ({ kind: 'result', result: value })),
-        sleep(retryAfterMs).then(() => ({ kind: 'retry' })),
-      ]);
-
-      if (early.kind === 'result') {
-        return {
-          ...early.result,
-          attempted,
-          methodsAttempted: Array.from(methodsAttempted),
-          attempts,
-          elapsedMs: Date.now() - startedAt,
-        };
-      }
-
-      // Se o Gemini já expôs chip/spinner/container de attachment, o upload
-      // está em andamento e não devemos disparar outro mecanismo.
+      // Uma preview pendente é sinal de upload em andamento, não autorização
+      // para repetir a imagem por outro mecanismo.
       if (confirmation.hasSignal()) break;
-    }
-
-    if (!attempted) {
-      confirmation.stop();
+      const currentEditor = typeof getEditor === 'function' ? getEditor() : editor;
+      const currentRoot = typeof getEditorRoot === 'function' ? getEditorRoot() : editorRoot;
+      if (!currentEditor || !currentRoot || currentEditor.isConnected === false || currentRoot.isConnected === false) {
+        onAttempt?.({ method, attempted: false, reason: 'editor_disconnected' });
+        continue;
+      }
+      editor = currentEditor;
+      editorRoot = currentRoot;
+      focusForAttachment({ editor, editorRoot });
+      let dispatched = false;
+      let reason = null;
+      try {
+        const result = typeof dispatchMethodFn === 'function' ? await dispatchMethodFn(method) : dispatch();
+        dispatched = typeof result === 'object' ? result?.attempted === true : result === true;
+        reason = typeof result === 'object' ? result?.reason || null : null;
+      } catch (_e) { reason = 'dispatch_failed'; }
+      onAttempt?.({ method, attempted: dispatched, reason, world: dispatchMethodFn ? 'MAIN' : 'ISOLATED' });
+      if (!dispatched) continue;
+      attempted = true;
+      dispatchCount += 1;
+      methodsAttempted.add(method);
+      confirmation.inspect();
+      const early = await Promise.race([
+        confirmation.promise.then(result => ({ kind: 'result', result })),
+        sleep(retryAfterMs).then(() => ({ kind: 'next' })),
+      ]);
+      if (early.kind === 'result') {
+        return { ...early.result, attempted, methodsAttempted: Array.from(methodsAttempted) };
+      }
+      confirmation.inspect();
+      if (confirmation.hasSignal()) break;
     }
 
     const result = await confirmation.promise;
@@ -625,8 +558,6 @@
       ...result,
       attempted,
       methodsAttempted: Array.from(methodsAttempted),
-      attempts,
-      elapsedMs: Date.now() - startedAt,
     };
   }
 
@@ -634,7 +565,6 @@
     findFileInputsDeep,
     listAttachmentEvidence,
     captureAttachmentBaseline,
-    findAttachmentEvidenceDeep,
     findAttachmentThumbnailDeep,
     buildDataTransfer,
     focusForAttachment,

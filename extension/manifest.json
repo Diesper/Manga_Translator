@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Manga Translator",
+  "name": "Manga Translator [MT-UNICO-01] Segundo plano e resposta correta",
   "version": "6.5",
   "description": "Tradução de mangá usando Gemini com cache perceptual visual, armazenamento transacional em IndexedDB e controles de substituição automática.",
   "permissions": [

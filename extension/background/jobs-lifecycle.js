@@ -30,11 +30,7 @@
         // contabilidade foi salvo antes da suspensão; repetir seria duplicar.
         if (recovery && !wasIndexed) return snapshot;
         snapshot.jobIndex = indexed.filter(entry => !belongsToJob(entry));
-        if (marker.fromError) {
-          snapshot.failedJobs = (Number(snapshot.failedJobs) || 0) + 1;
-        } else {
-          snapshot.completedJobs = (Number(snapshot.completedJobs) || 0) + 1;
-        }
+        if (!marker.fromError) snapshot.completedJobs = (Number(snapshot.completedJobs) || 0) + 1;
         snapshot.activeJobsCount = Math.max(0, (Number(snapshot.activeJobsCount) || 0) - 1);
         return snapshot;
       };
@@ -49,11 +45,7 @@
         (!job.jobId || !entry.jobId || entry.jobId === job.jobId));
       if (recovery && !wasIndexed) return;
       indexRemoveJob(geminiTabId);
-      if (marker.fromError) {
-        state.failedJobs = (Number(state.failedJobs) || 0) + 1;
-      } else {
-        state.completedJobs = (Number(state.completedJobs) || 0) + 1;
-      }
+      if (!marker.fromError) state.completedJobs = (Number(state.completedJobs) || 0) + 1;
       state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
       await syncState();
     }
@@ -145,12 +137,24 @@
 
     async function openGeminiTab(url, executionMode) {
       if (executionMode === 'minimized_window') {
+        let createdWindowId = null;
         try {
           const window = await chrome.windows.create({ url, focused: false, state: 'minimized' });
+          createdWindowId = window.id;
+          await chrome.windows.update(window.id, { state: 'minimized', focused: false });
+          const actualWindow = await chrome.windows.get(window.id);
+          log(actualWindow.state === 'minimized' ? 'info' : 'warn', 'bg', 'GEMINI_WINDOW_STATE',
+            'Estado físico da janela do job', { state: actualWindow.state, focused: actualWindow.focused });
+          if (actualWindow.state !== 'minimized') throw new Error('Janela não permaneceu minimizada');
           let tab = (window.tabs && window.tabs[0]) || null;
           if (!tab) tab = (await chrome.tabs.query({ windowId: window.id }))[0];
           if (tab) return { tab, windowId: window.id };
-        } catch (_error) { /* fallback abaixo */ }
+        } catch (_error) {
+          if (createdWindowId !== null) {
+            try { await chrome.windows.remove(createdWindowId); } catch (_e) {}
+          }
+          log('warn', 'bg', 'GEMINI_WINDOW_MINIMIZE_FAILED', 'Janela minimizada indisponível; usando aba inativa', {});
+        }
       }
       const tab = await chrome.tabs.create({ url, active: false });
       return { tab, windowId: tab.windowId };
@@ -165,28 +169,17 @@
           return;
         }
         if (!state.stopRequested && state.jobQueue.length === 0 && state.activeJobsCount === 0) {
-          const failedJobs = Number(state.failedJobs) || 0;
-          const completedJobs = Number(state.completedJobs) || 0;
-          const batchStatus = failedJobs > 0 ? 'partial_failure' : 'success';
+          const completed = Number(state.completedJobs) || 0;
+          const total = Number(state.totalJobs) || 0;
+          const hasErrors = completed < total;
           if (state.activeMangaTabId) {
             chrome.tabs.sendMessage(state.activeMangaTabId, {
-              action: 'BATCH_COMPLETE',
-              batchId: state.currentBatchId,
-              status: batchStatus,
-              completedJobs,
-              failedJobs,
-              totalJobs: Number(state.totalJobs) || 0,
+              action: 'BATCH_COMPLETE', batchId: state.currentBatchId, hasErrors,
             }, () => { void chrome.runtime.lastError; });
           }
-          log(
-            failedJobs > 0 ? 'warn' : 'success',
-            'bg',
-            'BATCH_DONE',
-            failedJobs > 0
-              ? `Lote finalizado com falhas: ${completedJobs} sucesso(s), ${failedJobs} falha(s).`
-              : 'Lote finalizado com sucesso!',
-            { status: batchStatus, completedJobs, failedJobs, totalJobs: Number(state.totalJobs) || 0 }
-          );
+          log(hasErrors ? 'warn' : 'success', 'bg', 'BATCH_DONE',
+            hasErrors ? 'Lote encerrado com falhas; traduções não concluídas.' : 'Lote finalizado com sucesso!',
+            { completed, total, hasErrors });
           state.isProcessing = false;
           state.activeMangaTabId = null;
         }
@@ -203,6 +196,7 @@
       const batchId = job.batchId || state.currentBatchId;
       state.activeMangaTabId = mangaTabId;
       await syncState();
+      log('info', 'bg', 'JOB_START', 'Iniciando imagem', { index, completedJobs: state.completedJobs, totalJobs: state.totalJobs });
       sendProgress(mangaTabId, `🔄 ABRINDO GEMINI (${state.completedJobs + 1}/${state.totalJobs})...`);
 
       try {
@@ -210,13 +204,6 @@
         let baseUrl = settings.geminiBaseUrl || 'https://gemini.google.com/app';
         if (baseUrl === 'https://gemini.google.com/' || baseUrl === 'https://gemini.google.com') baseUrl = 'https://gemini.google.com/app';
         const executionMode = settings.geminiExecutionMode || 'temp_chat';
-        log('info', 'bg', 'JOB_START', 'Iniciando imagem', {
-          index,
-          completedJobs: state.completedJobs,
-          failedJobs: Number(state.failedJobs) || 0,
-          totalJobs: state.totalJobs,
-          executionMode,
-        });
         const opened = await openGeminiTab(buildGeminiJobUrl(baseUrl, index, jobId), executionMode);
         if (!opened.tab) throw new Error('Não foi possível obter a aba do Gemini');
         const openedTabId = opened.tab.id;
@@ -324,6 +311,12 @@
         // Mantém o prazo de limpeza do modo minimizado: o Gemini recebe a
         // oportunidade de apagar a conversa antes de a janela desaparecer.
         const activeUrl = tab.url || '';
+        if (fromError && !/\/app\/[^/?#]+/.test(activeUrl)) {
+          log('info', 'bg', 'DELETE_SKIPPED_NO_CONVERSATION', 'Job falhou antes de criar conversa; não há ID para apagar', {});
+          chrome.windows.remove(tab.windowId, () => { void chrome.runtime.lastError; });
+          processNextJob();
+          return;
+        }
         const stored = await chrome.storage.local.get(['deleting_urls']);
         const deletingUrls = Array.isArray(stored.deleting_urls) ? stored.deleting_urls : [];
         if (activeUrl && !deletingUrls.includes(activeUrl)) deletingUrls.push(activeUrl);
