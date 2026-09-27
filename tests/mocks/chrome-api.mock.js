@@ -375,23 +375,17 @@ class ChromeDownloadsMock {
     this._downloads         = new Map();
     this._nextId            = 1;
     this._onChangedListeners = [];
-    this._timers            = new Set();
   }
 
-  _schedule(callback, delay = 0) {
-    let timer = null;
-    timer = setTimeout(() => {
-      this._timers.delete(timer);
-      callback();
-    }, delay);
-    this._timers.add(timer);
-    if (timer && typeof timer.unref === 'function') timer.unref();
-    return timer;
+  _schedule(callback, _delay = 0) {
+    // O mock só precisa preservar o contrato assíncrono da API. Microtasks
+    // evitam timers reais vazando entre testes e funcionam com fake timers.
+    queueMicrotask(callback);
+    return null;
   }
 
   clearTimers() {
-    for (const timer of this._timers) clearTimeout(timer);
-    this._timers.clear();
+    // Compatibilidade com o reset do mock; microtasks não deixam handles vivos.
   }
 
   download(options, callback) {
