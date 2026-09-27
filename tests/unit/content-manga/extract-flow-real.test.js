@@ -280,6 +280,8 @@ describe('CM-14/CM-15/CM-16/CM-17/CM-18/CM-19/CM-20/CM-51/CM-52/CM-53/CM-54/CM-7
         expect(status).toEqual(expect.objectContaining({
             translating: false,
             batchId: null,
+            batchStatus: 'cancelled',
+            queuePosition: null,
         }));
 
         const popupState = await storageMock.get(['mt_popup_state']);
