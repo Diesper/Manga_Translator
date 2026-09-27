@@ -132,10 +132,28 @@ describe('background.js - handlers onMessage reais', () => {
 
         jest.useFakeTimers();
 
-        backgroundModule.__setState({ activeJobsCount: 1, completedJobs: 0 });
+        tabsMock._tabs.set(3333, {
+            id: 3333, url: 'https://gemini.google.com/app/job-direct',
+            active: false, status: 'complete', title: '',
+        });
+        backgroundModule.__setState({
+            activeJobsCount: 1,
+            completedJobs: 0,
+            currentBatchId: 'batch-direct',
+            isProcessing: true,
+            activeMangaTabId: mangaTab.id,
+            totalJobs: 1,
+            jobIndex: [{
+                geminiTabId: 3333, jobId: 'job-direct', batchId: 'batch-direct',
+                mangaTabId: mangaTab.id, index: 7,
+            }],
+        });
         storageMock._setStore({
             ...storageMock._getStore(),
-            gemini_job_3333: { geminiTabId: 3333, jobId: 'job-direct' },
+            gemini_job_3333: {
+                geminiTabId: 3333, jobId: 'job-direct', batchId: 'batch-direct',
+                mangaTabId: mangaTab.id, index: 7, executionMode: 'temp_chat',
+            },
         });
         const extractedResultPromise = dispatchToBackground(runtimeMock, {
             action: 'GEMINI_IMAGE_EXTRACTED',
@@ -178,16 +196,34 @@ describe('background.js - handlers onMessage reais', () => {
         expect(backgroundModule.__getState().activeJobsCount).toBe(0);
 
         const extractionTab = await tabsMock.create({ url: 'https://cdn.reader.test/result.png', active: false });
+        tabsMock._tabs.set(4444, {
+            id: 4444, url: 'https://gemini.google.com/app/job-extraction',
+            active: false, status: 'complete', title: '',
+        });
         backgroundModule.__setState({
             extractionTabs: {
-                [extractionTab.id]: { mangaTabId: mangaTab.id, index: 8, geminiTabId: 4444, jobId: 'job-extraction' },
+                [extractionTab.id]: {
+                    mangaTabId: mangaTab.id, index: 8, geminiTabId: 4444,
+                    jobId: 'job-extraction', batchId: 'batch-extraction',
+                },
             },
             activeJobsCount: 1,
             completedJobs: 0,
+            currentBatchId: 'batch-extraction',
+            isProcessing: true,
+            activeMangaTabId: mangaTab.id,
+            totalJobs: 1,
+            jobIndex: [{
+                geminiTabId: 4444, jobId: 'job-extraction', batchId: 'batch-extraction',
+                mangaTabId: mangaTab.id, index: 8,
+            }],
         });
         storageMock._setStore({
             ...storageMock._getStore(),
-            gemini_job_4444: { geminiTabId: 4444, jobId: 'job-extraction' },
+            gemini_job_4444: {
+                geminiTabId: 4444, jobId: 'job-extraction', batchId: 'batch-extraction',
+                mangaTabId: mangaTab.id, index: 8, executionMode: 'temp_chat',
+            },
         });
 
         const readyFromTabPromise = dispatchToBackground(runtimeMock, {
