@@ -512,4 +512,70 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
 
         expect(tabsMock._tabs.has(1900)).toBe(false);
     });
+
+    test('BG-31c: background_delete só inicia exclusão depois que o job chega à finalização pós-persistência', async () => {
+        await storageMock.set({
+            debugMode: false,
+            geminiExecutionMode: 'background_delete',
+            deleting_urls: [],
+            gemini_job_1900: {
+                geminiTabId: 1900,
+                jobId: 'job-bg-delete',
+                batchId: 'batch-bg-delete',
+                mangaTabId: 60,
+                executionMode: 'background_delete',
+                state: 'result_committed',
+                resultPersisted: true,
+            },
+            wd_data_1900: {
+                mangaTabId: 60,
+                index: 6,
+                geminiTabId: 1900,
+                jobId: 'job-bg-delete',
+            },
+        });
+        tabsMock._tabs.set(1900, {
+            id: 1900,
+            url: 'https://gemini.google.com/app/job-1900',
+            active: false,
+            status: 'complete',
+            title: '',
+        });
+
+        const received = [];
+        tabsMock._registerMessageHandler(1900, (message, _sender, sendResponse) => {
+            received.push(message);
+            sendResponse({ ok: true });
+        });
+
+        jest.useFakeTimers();
+        backgroundModule.__setState({
+            activeJobsCount: 1,
+            completedJobs: 0,
+            currentBatchId: 'batch-bg-delete',
+            totalJobs: 1,
+            jobIndex: [{
+                geminiTabId: 1900,
+                jobId: 'job-bg-delete',
+                batchId: 'batch-bg-delete',
+                mangaTabId: 60,
+                index: 6,
+            }],
+        });
+
+        await backgroundModule.finalizeJob(1900, 60, false);
+        await flushFakeTimerRounds(6);
+
+        expect(received).toContainEqual({ action: 'DELETE_CONVERSATION' });
+        expect(tabsMock._tabs.has(1900)).toBe(true);
+        expect(storageMock._getStore().deleting_urls)
+            .toContain('https://gemini.google.com/app/job-1900');
+
+        await jest.advanceTimersByTimeAsync(18_001);
+        await flushFakeTimerRounds(4);
+
+        expect(tabsMock._tabs.has(1900)).toBe(false);
+        expect(storageMock._getStore().deleting_urls).toEqual([]);
+    });
+
 });
