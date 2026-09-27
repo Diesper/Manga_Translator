@@ -82,6 +82,8 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             isProcessing: true,
             stopRequested: false,
             activeMangaTabId: mangaTab.id,
+            currentBatchId: 'batch-complete',
+            completionClaimedBatchId: null,
             extractionTabs: {},
             totalJobs: 1,
             completedJobs: 1,
@@ -597,7 +599,9 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             }],
         });
 
-        await backgroundModule.finalizeJob(1900, 60, false);
+        const finalizePromise = backgroundModule.finalizeJob(1900, 60, false);
+        await flushFakeTimerRounds(12);
+        await finalizePromise;
         await flushFakeTimerRounds(6);
 
         expect(received).toContainEqual({ action: 'DELETE_CONVERSATION' });
