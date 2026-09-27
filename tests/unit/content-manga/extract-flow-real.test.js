@@ -130,8 +130,10 @@ describe('CM-14/CM-15/CM-16/CM-17/CM-18/CM-19/CM-20/CM-51/CM-52/CM-53/CM-54/CM-7
             }
 
             if (message.action === 'START_BATCH') {
-                if (typeof onStartBatch === 'function') onStartBatch(message);
-                if (callback) setTimeout(() => callback({ ok: true }), 0);
+                const response = typeof onStartBatch === 'function'
+                    ? onStartBatch(message)
+                    : null;
+                if (callback) setTimeout(() => callback(response || { ok: true }), 0);
                 return;
             }
 
@@ -159,6 +161,40 @@ describe('CM-14/CM-15/CM-16/CM-17/CM-18/CM-19/CM-20/CM-51/CM-52/CM-53/CM-54/CM-7
         expect(startBatch.images).toEqual([{ index: 0 }, { index: 3 }]);
         expect(startBatch.prompt).toBe('Teste prompt');
         await waitFor(() => document.getElementById('manga-main-content').textContent.includes('TRADUZINDO'));
+    });
+
+    test('lote aceito em FIFO mostra posição na fila sem abortar a tradução local', async () => {
+        installRuntimeResponder({
+            onStartBatch(message) {
+                return {
+                    ok: true,
+                    batchId: message.batchId,
+                    queued: true,
+                    queuePosition: 3,
+                    activeBatchId: 'batch-a',
+                };
+            },
+        });
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/page-0.png', width: 800, height: 1200 },
+            ],
+        });
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() =>
+            document.getElementById('manga-main-content').textContent.includes('NA FILA (#3)')
+        );
+
+        const popupState = await storageMock.get(['mt_popup_state']);
+        expect(popupState.mt_popup_state).toEqual(expect.objectContaining({
+            status: 'queued',
+            queuePosition: 3,
+            completed: false,
+        }));
+        expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(true);
     });
 
     test('quando storage nao tem prompts envia START_BATCH com prompt vazio', async () => {
