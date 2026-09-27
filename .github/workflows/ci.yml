@@ -248,14 +248,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - label: background-content
-            projects: background content-scripts
-          - label: content-integration
-            projects: content-scripts integration
-          - label: background-integration
-            projects: background integration
-          - label: small-projects
-            projects: gtc popup reader manifest shared-ui
+          - label: background-only
+            projects: background
+          - label: content-only
+            projects: content-scripts
+          - label: integration-only
+            projects: integration
     defaults:
       run:
         working-directory: tests
