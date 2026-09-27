@@ -47,14 +47,11 @@ const args = [
   '--json',
   '--outputFile', resultFile,
 ];
-// A execução multiprojeto com o fan-out padrão do Jest deixa um worker
-// aguardando teardown e acaba forçando seu encerramento. Dois workers mantêm
-// paralelismo, evitam pressão excessiva e, diferente de --forceExit, não
-// mascaram handles: o processo ainda precisa encerrar naturalmente.
-args.push('--maxWorkers=2');
-
 if (coverageRequested) {
   args.push('--coverage');
+  // V8 coverage aumenta significativamente CPU/memória por worker. Limitar a
+  // concorrência torna o gate determinístico sem aumentar timeouts funcionais.
+  args.push('--maxWorkers=2');
 }
 
 const run = spawnSync(process.execPath, args, {
