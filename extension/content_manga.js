@@ -1477,6 +1477,10 @@ if (!window.__manga_translator_content_injected) {
 
             cancel.addEventListener('click', cleanup);
             translate.addEventListener('click', () => {
+                if (!isActiveContentInstance()) {
+                    cleanup();
+                    return;
+                }
                 if (isTranslating) {
                     cleanup();
                     showSingleImageToast('Já existe uma tradução em andamento.');
@@ -1518,6 +1522,10 @@ if (!window.__manga_translator_content_injected) {
         }
 
         document.addEventListener('click', (event) => {
+            // Listeners de uma injeção anterior continuam registrados no
+            // document até a navegação destruir o contexto. Eles não podem
+            // interceptar cliques depois que outra instância assumiu.
+            if (!isActiveContentInstance()) return;
             if (!clickToTranslateEnabled || event.button !== 0) return;
             const target = event.target && event.target.nodeType === 1 ? event.target : null;
             const img = target && typeof target.closest === 'function' ? target.closest('img') : null;
