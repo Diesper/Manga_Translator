@@ -536,10 +536,36 @@
         })) return processNextJob();
         return processNextJob();
       } catch (error) {
-        state.activeJobsCount = Math.max(0, state.activeJobsCount - 1);
         const message = error && error.message ? error.message : 'Falha ao abrir Gemini';
-        log('error', 'bg', 'JOB_ERROR', 'Erro ao abrir Gemini', { index, error: message });
-        chrome.tabs.sendMessage(mangaTabId, { action: 'SHOW_ERROR_INTEGRATED', errorMsg: `Erro ao abrir: ${message}`, imgIndex: index, isDebug: false }, () => { void chrome.runtime.lastError; });
+        const belongsToCurrentBatch = !state.currentBatchId || state.currentBatchId === batchId;
+
+        if (belongsToCurrentBatch) {
+          state.activeJobsCount = Math.max(0, state.activeJobsCount - 1);
+          log('error', 'bg', 'JOB_ERROR', 'Erro ao abrir Gemini', {
+            index,
+            error: message,
+            batchId: String(batchId || '').slice(0, 8),
+          });
+          chrome.tabs.sendMessage(mangaTabId, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: `Erro ao abrir: ${message}`,
+            imgIndex: index,
+            isDebug: false,
+            batchId,
+          }, () => { void chrome.runtime.lastError; });
+        } else {
+          // A/B/C/... podem trocar de posição enquanto uma API de tabs/windows
+          // ainda está pendente. Um erro tardio de A não pertence à contabilidade
+          // de B e não pode consumir/devolver slots do lote promovido.
+          log('warn', 'bg', 'JOB_ERROR_FOREIGN_BATCH_IGNORED',
+            'Falha tardia de abertura pertence a lote anterior; contadores do lote atual foram preservados.', {
+              index,
+              error: message,
+              batchId: String(batchId || '').slice(0, 8),
+              currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+            });
+        }
+
         await syncState();
         return processNextJob();
       }
