@@ -51,8 +51,12 @@
         const pending = clonePendingBatches(snapshot.pendingBatches);
         const indexed = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
         const queued = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
+        const currentBatchAlreadyCompleted = Boolean(
+          snapshot.currentBatchId &&
+          snapshot.completionClaimedBatchId === snapshot.currentBatchId
+        );
         const idle = !snapshot.stopRequested &&
-          !snapshot.currentBatchId &&
+          (!snapshot.currentBatchId || currentBatchAlreadyCompleted) &&
           !snapshot.isProcessing &&
           queued.length === 0 &&
           Number(snapshot.activeJobsCount) === 0 &&
