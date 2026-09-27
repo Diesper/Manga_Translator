@@ -132,11 +132,13 @@ Além do código de saída normal:
 - Playwright proíbe `test.only` na CI, rejeita testes `skipped` e uma queda silenciosa no inventário E2E;
 - o runner visual falha se houver teste pulado ou se o total cair abaixo do baseline;
 - Smoke falha se o conjunto esperado de arquivos não for descoberto;
-- Coverage usa `tests/jest.coverage.config.js` com provider V8 sobre `extension/**/*.js`; `verify-coverage.js` exige 55/55 arquivos, LCOV/summary válidos, percentuais não-zero, thresholds globais e thresholds de arquivos críticos; apenas a publicação externa no Codecov continua independente do gate local;
+- Coverage usa `tests/jest.coverage.config.js` com provider V8 sobre `extension/**/*.js`; `verify-coverage.js` exige 56/56 arquivos, LCOV/summary válidos, percentuais não-zero, thresholds globais e thresholds de arquivos críticos; apenas a publicação externa no Codecov continua independente do gate local;
 - `tests/ci/verify-ci-contract.js` testa a própria configuração da CI para impedir a reintrodução de `|| true`, jobs funcionais não bloqueantes ou dependências que façam o E2E ser pulado.
 - o runner Jest não usa mais `--forceExit`; o mock de downloads foi corrigido para não deixar timers/handles vivos.
 
 Também existe um teste específico de carregamento em modo estrito (`tests/unit/background/background-strict-load.test.js`) para detectar exceções fatais durante o boot do Service Worker antes do registro dos listeners.
+
+As regressões de ACK da aba auxiliar, isolamento entre testes assíncronos e medição de performance do PR #47 estão descritas em [`docs/REGRESSOES_PR47.md`](docs/REGRESSOES_PR47.md). O baseline Jest protege no mínimo 836 testes; a execução completa e a cobertura são responsabilidade dos jobs do GitHub Actions.
 
 ---
 

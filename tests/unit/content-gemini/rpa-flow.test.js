@@ -646,6 +646,8 @@ describe('content_gemini.js - RPA real do Gemini', () => {
 
         const timeoutError = await waitFor(() => collectActions(sentMessages, 'GEMINI_ERROR')
             .find(message => message.error === 'Tempo limite (4 min)'), { timeout: COVERAGE_MODE ? 30000 : 12000 });
+        expect(processPromise).toBeInstanceOf(Promise);
+        expect(await processPromise).toEqual(expect.objectContaining({ status: 'result_timeout' }));
 
         const timeoutLog = sentMessages.find(message =>
             message && message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_TIMEOUT'
@@ -661,6 +663,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             action: 'LOG_ENTRY',
             action_name: 'GEMINI_TIMEOUT',
         }));
+        expect(collectActions(sentMessages, 'GEMINI_ERROR')).toEqual([timeoutError]);
     });
 
     test('CG-43/CG-52/CG-53: handler DELETE_CONVERSATION responde ok em modo debug', async () => {

@@ -294,6 +294,9 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         await waitFor(() => sendSpy.mock.calls.some(([message]) =>
             message && message.action === 'START_BATCH'
         ));
+        expect(sendSpy.mock.calls.filter(([message]) =>
+            message && message.action === 'START_BATCH'
+        )).toHaveLength(1);
         const main = context.getMainContent();
         if (main) main.click();
         await delay(20);
@@ -370,7 +373,7 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
 
         img.remove();
         document.getElementById('manga-single-image-translate').click();
-        await delay(30);
+        await delay(100);
 
         expect(document.getElementById('manga-single-image-action')).toBeNull();
         expect(logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_ABORTED').length).toBeGreaterThanOrEqual(1);

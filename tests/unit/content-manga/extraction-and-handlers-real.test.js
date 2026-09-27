@@ -129,6 +129,7 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
     async function loadExtractionScript({
         extractionResponse = { isExtractionTab: true, mangaTabId: 77, index: 3, geminiTabId: 999 },
         fetchFallbackResponse = { dataUrl: 'data:image/png;base64,RkFMTEJBQ0s=' },
+        deliveryResponse = { ok: true, persisted: true },
         hostname = 'lh3.googleusercontent.com',
         hash = '',
         buildDom,
@@ -157,7 +158,10 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             }
 
             if (message.action === 'IMAGE_READY_FROM_NEW_TAB') {
-                if (callback) setTimeout(() => callback({ ok: true, persisted: true }), 0);
+                const response = typeof deliveryResponse === 'function'
+                    ? deliveryResponse(message)
+                    : deliveryResponse;
+                if (callback) setTimeout(() => callback(response), 0);
                 return;
             }
 
@@ -176,6 +180,51 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
     }
 
     describe('modo extracao em googleusercontent', () => {
+        test('ACK persistido encerra a entrega sem retry tardio', async () => {
+            const sentMessages = await loadExtractionScript({
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            const deliveries = () => sentMessages.filter(message =>
+                message.action === 'IMAGE_READY_FROM_NEW_TAB'
+            );
+            await waitFor(() => deliveries().length === 1);
+            await delay(850); // maior que o retry de 700 ms
+
+            expect(deliveries()).toHaveLength(1);
+        });
+
+        test('ACK não confirmado repete a entrega e para após persistência', async () => {
+            let acknowledgements = 0;
+            const sentMessages = await loadExtractionScript({
+                deliveryResponse: () => {
+                    acknowledgements++;
+                    return acknowledgements === 1
+                        ? { ok: false, persisted: false, reason: 'not_persisted' }
+                        : { ok: true, persisted: true };
+                },
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            const deliveries = () => sentMessages.filter(message =>
+                message.action === 'IMAGE_READY_FROM_NEW_TAB'
+            );
+            await waitFor(() => deliveries().length === 2, { timeout: 3000 });
+            await delay(850);
+
+            expect(deliveries()).toHaveLength(2);
+            expect(acknowledgements).toBe(2);
+            expect(deliveries()[1]).toEqual(deliveries()[0]);
+        });
+
         test('envia IMAGE_READY_FROM_NEW_TAB imediatamente quando a imagem ja esta carregada', async () => {
             const sentMessages = await loadExtractionScript({
                 buildDom: () => {
