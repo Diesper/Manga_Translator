@@ -226,6 +226,123 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
+    test('E2E overlap: lote B não sobrescreve lote A e resultados de A continuam válidos', async () => {
+        await resetExtensionState(backgroundWorker, {
+            maxConcurrentJobs: 1,
+            geminiExecutionMode: 'temp_chat',
+            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/',
+        });
+
+        const page = await browserContext.newPage();
+        await page.goto('http://localhost:3999/manga-page.html');
+        await page.waitForLoadState('networkidle');
+
+        await page.waitForFunction(() => {
+            const pages = Array.from(document.querySelectorAll('img')).filter(img =>
+                img.src && img.src.includes('page_')
+            );
+            return pages.length >= 2 &&
+                pages.every(img => img.naturalWidth >= 300 && img.naturalHeight >= 400);
+        }, { timeout: 15000 });
+
+        const mainContent = page.locator('#manga-main-content');
+        await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+        await mainContent.click();
+
+        await expect.poll(async () => {
+            backgroundWorker = await getBackgroundWorker(browserContext);
+            const storage = await readStorage(backgroundWorker, ['mt_state']);
+            const state = storage.mt_state || {};
+            return Boolean(
+                state.isProcessing &&
+                state.currentBatchId &&
+                ((state.activeJobsCount || 0) > 0 ||
+                    (Array.isArray(state.jobQueue) && state.jobQueue.length > 0))
+            );
+        }, {
+            timeout: 15000,
+            message: 'Esperava lote A ativo antes de tentar o lote B',
+        }).toBe(true);
+
+        const activeBeforeOverlap = await readStorage(backgroundWorker, ['mt_state']);
+        const batchA = activeBeforeOverlap.mt_state.currentBatchId;
+
+        const mangaTabId = await backgroundWorker.evaluate(async () => {
+            return new Promise(resolve => {
+                chrome.tabs.query({ url: 'http://localhost:3999/manga-page.html' }, tabs => {
+                    resolve(tabs && tabs[0] ? tabs[0].id : null);
+                });
+            });
+        });
+        expect(mangaTabId).not.toBeNull();
+
+        const overlapResponse = await backgroundWorker.evaluate(async ({ mangaTabId }) => {
+            return new Promise(resolve => {
+                chrome.runtime.sendMessage({
+                    action: 'START_BATCH',
+                    batchId: 'e2e-overlap-b',
+                    mangaTabId,
+                    images: [{ index: 0 }],
+                    prompt: 'Tentativa concorrente E2E.',
+                }, response => resolve(response || null));
+            });
+        }, { mangaTabId });
+
+        expect(overlapResponse).toEqual(expect.objectContaining({
+            ok: false,
+            reason: 'batch_busy',
+            activeBatchId: batchA,
+        }));
+
+        await expect.poll(async () => page.evaluate(() =>
+            document.querySelectorAll('img[data-translated="true"]').length
+        ), {
+            timeout: 60000,
+            message: 'O lote A deveria continuar e aplicar suas duas imagens apesar da tentativa B',
+        }).toBe(2);
+
+        await expect.poll(async () => {
+            backgroundWorker = await getBackgroundWorker(browserContext);
+            const storage = await readStorage(backgroundWorker, ['mt_state']);
+            const state = storage.mt_state || {};
+            return {
+                currentBatchId: state.currentBatchId || null,
+                completedJobs: state.completedJobs || 0,
+                totalJobs: state.totalJobs || 0,
+                activeJobsCount: state.activeJobsCount || 0,
+                isProcessing: !!state.isProcessing,
+                queueLength: Array.isArray(state.jobQueue) ? state.jobQueue.length : -1,
+                jobIndexLength: Array.isArray(state.jobIndex) ? state.jobIndex.length : -1,
+            };
+        }, {
+            timeout: 30000,
+            message: 'Lote A deveria concluir sem contadores contaminados pelo lote B',
+        }).toEqual({
+            currentBatchId: batchA,
+            completedJobs: 2,
+            totalJobs: 2,
+            activeJobsCount: 0,
+            isProcessing: false,
+            queueLength: 0,
+            jobIndexLength: 0,
+        });
+
+        const storage = await readStorage(backgroundWorker, ['translatorLog']);
+        const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+        expect(logs.some(entry =>
+            entry && entry.action === 'BATCH_OVERLAP_BLOCKED'
+        )).toBe(true);
+        expect(logs.some(entry =>
+            entry && [
+                'RESULT_JOB_IDENTITY_MISMATCH',
+                'RESULT_COMMIT_REJECTED',
+                'STALE_UPDATE',
+            ].includes(entry.action)
+        )).toBe(false);
+
+        await page.close();
+    });
+
     for (const scenario of [
         {
             mode: 'minimized_window',
