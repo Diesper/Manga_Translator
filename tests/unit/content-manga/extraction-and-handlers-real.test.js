@@ -282,7 +282,16 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
 
         test('aguarda o evento load quando a imagem ainda esta carregando', async () => {
             let img;
+            const currentJobId = 'job-await-load';
             const sentMessages = await loadExtractionScript({
+                extractionResponse: {
+                    isExtractionTab: true,
+                    mangaTabId: 77,
+                    index: 3,
+                    geminiTabId: 999,
+                    jobId: currentJobId,
+                    batchId: 'batch-await-load',
+                },
                 buildDom: () => {
                     img = document.createElement('img');
                     // Sem src: evita que o JSDOM dispare "error" de recurso antes
@@ -292,15 +301,20 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
                 },
             });
 
-            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(0);
+            const deliveriesForCurrentJob = () => sentMessages.filter(message =>
+                message.action === 'IMAGE_READY_FROM_NEW_TAB' &&
+                message.jobId === currentJobId
+            );
+
+            expect(deliveriesForCurrentJob()).toHaveLength(0);
 
             Object.defineProperty(img, 'naturalHeight', { value: 1200, configurable: true, writable: true });
             Object.defineProperty(img, 'complete', { value: true, configurable: true, writable: true });
             img.dispatchEvent(new Event('load'));
 
-            await waitFor(() => sentMessages.find(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+            await waitFor(() => deliveriesForCurrentJob()[0]);
 
-            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(1);
+            expect(deliveriesForCurrentJob()).toHaveLength(1);
         });
 
         test('faz fallback para FETCH_IMAGE_AS_BASE64 quando o canvas falha na aba de extracao', async () => {
