@@ -409,7 +409,7 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
 
         const extractionTab = await waitFor(() =>
             Array.from(tabsMock._tabs.values()).find(tab =>
-                tab.url === 'https://lh3.googleusercontent.com/generated.png'
+                tab.url === 'https://lh3.googleusercontent.com/generated.png#manga-translator-extraction'
                 && backgroundModule.__getState().extractionTabs[tab.id]
             )
         );
