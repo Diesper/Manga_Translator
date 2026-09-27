@@ -501,6 +501,7 @@ function initChromeMocks() {
     storageMock.clear();
     tabsMock._tabs.clear();
     alarmsMock.clearAll();
+    downloadsMock.clearTimers();
     downloadsMock._downloads.clear();
     // CORREÇÃO: _onChangedListeners acumulava entre testes quando um teste registrava
     // um listener mas nunca disparava o evento que o removeria (ex: esperava download 42
