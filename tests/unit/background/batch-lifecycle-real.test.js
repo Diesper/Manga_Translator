@@ -171,7 +171,7 @@ describe('background.js - lifecycle real do batch', () => {
             batchId: geminiJob.value.batchId,
         }, { tab: { id: geminiTabId } });
 
-        expect(extraction.response).toEqual({ ok: true });
+        expect(extraction.response).toEqual({ ok: true, extractionRegistered: true });
         const extractionTabId = await waitFor(() => {
             const newId = [...tabsMock._tabs.keys()].find(id => !beforeIds.has(id));
             return newId || null;
