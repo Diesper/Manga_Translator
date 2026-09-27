@@ -211,4 +211,78 @@ describe('background/jobs-lifecycle batch status', () => {
             expect.objectContaining({ completed: 3, total: 3, hasErrors: false })
         );
     });
+
+    test('BATCH-STATUS-04: duas finalizações concorrentes emitem BATCH_COMPLETE/BATCH_DONE uma única vez', async () => {
+        const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
+        global.chrome = {
+            runtime: { lastError: null },
+            tabs: { sendMessage },
+        };
+
+        let mutationChain = Promise.resolve();
+        const state = {
+            stopRequested: false,
+            jobQueue: [],
+            activeJobsCount: 0,
+            activeMangaTabId: 77,
+            currentBatchId: 'batch-race',
+            completionClaimedBatchId: null,
+            completedJobs: 2,
+            totalJobs: 2,
+            isProcessing: true,
+        };
+        state.mutate = mutator => {
+            mutationChain = mutationChain.then(async () => {
+                const snapshot = {
+                    ...state,
+                    jobQueue: [...state.jobQueue],
+                };
+                delete snapshot.mutate;
+                const next = await mutator(snapshot);
+                Object.assign(state, next);
+                return next;
+            });
+            return mutationChain;
+        };
+
+        const log = jest.fn();
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(),
+            indexJobsOfBatch: jest.fn(() => []),
+            delay: async () => {},
+            generateId: () => 'id',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await Promise.all([
+            api.processNextJob(),
+            api.processNextJob(),
+            api.processNextJob(),
+        ]);
+
+        const completionMessages = sendMessage.mock.calls
+            .map(([, message]) => message)
+            .filter(message => message?.action === 'BATCH_COMPLETE');
+        const completionLogs = log.mock.calls
+            .filter(([, , action]) => action === 'BATCH_DONE');
+
+        expect(completionMessages).toHaveLength(1);
+        expect(completionMessages[0]).toEqual(expect.objectContaining({
+            batchId: 'batch-race',
+            hasErrors: false,
+        }));
+        expect(completionLogs).toHaveLength(1);
+        expect(state.completionClaimedBatchId).toBe('batch-race');
+        expect(state.isProcessing).toBe(false);
+    });
+
 });
