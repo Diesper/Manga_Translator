@@ -965,6 +965,10 @@
             variant: 'MT-UNICO-01', executionMode, ...attachmentSnapshot(),
             jobIdPrefix: String(job.jobId || '').slice(0, 8),
           });
+          sendLog('info', 'ATTACHMENT_STARTED', 'Handshake de anexo iniciado', {
+            variant: 'MT-UNICO-01', executionMode,
+            jobIdPrefix: String(job.jobId || '').slice(0, 8),
+          });
           attachmentResult = await attachmentApi.attachFile({
             file, editor: stableComposer.editor, editorRoot: stableComposer.composer, root,
             getEditor: () => selectLiveComposer()?.editor || null,
@@ -988,11 +992,14 @@
         };
         if (!attachmentResult.confirmed) {
           sendLog('error', 'GEMINI_ATTACHMENT_NOT_CONFIRMED', 'Anexo não confirmou em 20s; prompt não enviado', uploadMeta);
+          sendLog('error', 'ATTACHMENT_REJECTED', 'Handshake de anexo rejeitado', uploadMeta);
+          sendLog('error', 'SUBMIT_BLOCKED_ATTACHMENT', 'Envio bloqueado: anexo não confirmado', uploadMeta);
           const attachmentError = new Error('Anexo não confirmado em 20s; prompt não enviado.');
           attachmentError.code = 'GEMINI_ATTACHMENT_NOT_CONFIRMED';
           throw attachmentError;
         }
         sendLog('success', 'GEMINI_STEP_3_OK', 'Anexo confirmado antes do prompt', uploadMeta);
+        sendLog('success', 'ATTACHMENT_CONFIRMED', 'Handshake de anexo confirmado', uploadMeta);
         await sleep(1000);
 
         reportProgress('📤 ENVIANDO PROMPT...', job.mangaTabId);
