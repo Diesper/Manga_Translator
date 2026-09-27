@@ -48,6 +48,8 @@ async function loadContentScript({
     bannedImages = [],
     imageMinWidth,
     imageMinHeight,
+    floatingButtonEnabled,
+    clickToTranslateEnabled,
     domImages = [],
 } = {}) {
     // 1. Configura window.location
@@ -73,6 +75,8 @@ async function loadContentScript({
     };
     if (imageMinWidth !== undefined) storageInit.imageMinWidth = imageMinWidth;
     if (imageMinHeight !== undefined) storageInit.imageMinHeight = imageMinHeight;
+    if (floatingButtonEnabled !== undefined) storageInit.floatingButtonEnabled = floatingButtonEnabled;
+    if (clickToTranslateEnabled !== undefined) storageInit.clickToTranslateEnabled = clickToTranslateEnabled;
     await global.chrome.storage.local.set(storageInit);
 
     // 4. Constrói DOM com imagens de teste
