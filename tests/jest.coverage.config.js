@@ -1,28 +1,45 @@
 'use strict';
 
+const path = require('path');
 const base = require('./jest.config.js');
 
-const {
-  collectCoverageFrom: _legacyCollectCoverageFrom,
-  coverageDirectory: _legacyCoverageDirectory,
-  coverageProvider: _legacyCoverageProvider,
-  coverageReporters: _legacyCoverageReporters,
-  coverageThreshold: _legacyCoverageThreshold,
-  ...shared
-} = base;
+const repoRoot = path.resolve(__dirname, '..');
+
+function remapRootToken(value) {
+  if (typeof value !== 'string') return value;
+  return value.replace(/^<rootDir>\//, '<rootDir>/tests/');
+}
+
+function remapProject(project) {
+  return {
+    ...project,
+    rootDir: repoRoot,
+    testMatch: (project.testMatch || []).map(remapRootToken),
+    setupFiles: (project.setupFiles || []).map(remapRootToken),
+    setupFilesAfterEnv: (project.setupFilesAfterEnv || []).map(remapRootToken),
+  };
+}
 
 module.exports = {
-  ...shared,
-  // V8 mede código executado pelo Node sem depender apenas da transformação Babel/Istanbul.
+  rootDir: repoRoot,
+  testEnvironment: base.testEnvironment,
+  verbose: base.verbose,
+  cache: true,
+  cacheDirectory: '<rootDir>/tests/.jest-cache-coverage',
+  // Coverage V8 adiciona overhead relevante. Os limites temporais funcionais
+  // continuam sendo testados no Jest normal; aqui damos margem à instrumentação.
+  testTimeout: 60000,
+
+  projects: base.projects.map(remapProject),
+
   coverageProvider: 'v8',
 
-  // A arquitetura atual é modular. Todo JavaScript da extensão entra no inventário;
-  // exclusões futuras devem ser explícitas e tecnicamente justificadas.
+  // Toda a arquitetura JavaScript atual entra na medição.
   collectCoverageFrom: [
-    '<rootDir>/../extension/**/*.js',
+    '<rootDir>/extension/**/*.js',
   ],
 
-  coverageDirectory: '<rootDir>/coverage',
+  coverageDirectory: '<rootDir>/tests/coverage',
   coverageReporters: [
     'text',
     'text-summary',
@@ -31,7 +48,7 @@ module.exports = {
     'html',
   ],
 
-  // Thresholds percentuais são aplicados pelo verify-coverage.js usando o baseline
-  // medido. Assim não herdamos os 70/80% antigos antes de conhecer a cobertura real.
+  // Thresholds são aplicados por tests/ci/verify-coverage.js após medir o
+  // baseline real. Não herdamos os 70/80% históricos antes dessa medição.
   coverageThreshold: undefined,
 };
