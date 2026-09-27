@@ -516,7 +516,9 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             jobId: 'job-1900',
             batchId: 'batch-1900',
         }, { tab: { id: 1900 } });
-        await jest.advanceTimersByTimeAsync(1);
+        // A ação passa por reidratação/storage antes de chrome.tabs.sendMessage;
+        // avance em rodadas para também executar o callback de erro agendado no mock.
+        await flushFakeTimerRounds(24);
         const result = await resultPromise;
 
         expect(result.response.ok).toBe(false);
