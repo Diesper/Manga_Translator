@@ -334,6 +334,7 @@ function initializeJobsModules() {
         syncState,
         processNextJob: () => processNextJob(),
         recoverPendingFinalization: entry => jobsLifecycle.recoverPendingFinalization(entry),
+        recoverPersistedResult: entry => jobsLifecycle.recoverPersistedResult(entry),
     });
     jobsDomAck = scope.MangaTranslatorJobsDomAck.createDomAckDelivery({
         updateJobState: (...args) => updateJobState(...args),
