@@ -130,6 +130,7 @@ describe('background/jobs-lifecycle batch status', () => {
             activeJobsCount: 1,
             completedJobs: 0,
             totalJobs: 1,
+            currentBatchId: 'batch-1',
             stopRequested: true,
             isProcessing: true,
         };
