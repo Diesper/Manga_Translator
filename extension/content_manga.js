@@ -1255,7 +1255,7 @@ if (!window.__manga_translator_content_injected) {
 
             mainContent.addEventListener('click', (e) => {
                 if (Math.abs(e.clientX - dragStartX) > 5 || Math.abs(e.clientY - dragStartY) > 5) return; 
-                if (isTranslating) { chrome.runtime.sendMessage({ action: 'STOP_BATCH' }); isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus(); return; }
+                if (isTranslating) { chrome.runtime.sendMessage({ action: 'STOP_BATCH', batchId: _currentBatchId || undefined }); isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus(); return; }
                 unlockNotificationAudio();
                 if (selectedImagesIndices.size === 0) {
                     chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
@@ -1744,6 +1744,14 @@ if (!window.__manga_translator_content_injected) {
         //   Todos falharam → fila para o Gemini
         // ─────────────────────────────────────────────────────────────────────
         async function extractAndSendImages(indicesToTranslate) {
+            if (isTranslating) {
+                sendLog('warn', 'BATCH_LOCAL_REENTRY_BLOCKED',
+                    'Nova solicitação nesta mesma página foi ignorada para preservar o lote local já aceito.', {
+                        batchId: String(_currentBatchId || '').slice(0, 8),
+                        requestedCount: Array.isArray(indicesToTranslate) ? indicesToTranslate.length : 0,
+                    });
+                return false;
+            }
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
             if (buttonShouldExist()) {
@@ -2339,6 +2347,21 @@ if (!window.__manga_translator_content_injected) {
                     }
 
                     if (resp && resp.batchId) _currentBatchId = resp.batchId;
+                    if (resp && resp.queued === true) {
+                        sendLog('info', resp.alreadyQueued ? 'BATCH_QUEUE_DUPLICATE_IGNORED' : 'BATCH_QUEUED',
+                            resp.alreadyQueued
+                                ? 'Lote desta página já estava na fila; posição FIFO preservada.'
+                                : 'Lote desta página foi aceito na fila FIFO do background.', {
+                                batchId: String(resp.batchId || '').slice(0, 8),
+                                activeBatchId: String(resp.activeBatchId || '').slice(0, 8),
+                                queuePosition: resp.queuePosition || null,
+                            });
+                        if (btn) {
+                            setBtnHTML(btn, `NA FILA (#${resp.queuePosition || '?'})...`, true);
+                            setTranslatorButtonBackground(btn, '#b36b00');
+                        }
+                        return;
+                    }
                     if (resp && resp.alreadyStarted === true) {
                         sendLog('info', 'BATCH_DUPLICATE_IGNORED',
                             'START_BATCH repetido foi tratado como retry idempotente.', {
@@ -2604,6 +2627,14 @@ if (!window.__manga_translator_content_injected) {
                     translating: isTranslating,
                 });
             } else if (request.action === 'START_TRANSLATION_FROM_POPUP') {
+                if (isTranslating) {
+                    sendLog('warn', 'BATCH_LOCAL_REENTRY_BLOCKED',
+                        'Solicitação do popup ignorada porque esta página já possui um lote ativo ou enfileirado.', {
+                            batchId: String(_currentBatchId || '').slice(0, 8),
+                        });
+                    sendResponse({ ok: false, reason: 'local_batch_busy', batchId: _currentBatchId });
+                    return;
+                }
                 if (request.indices && request.indices.length > 0) {
                     selectedImagesIndices = new Set(request.indices);
                     updateBtnStatus();
