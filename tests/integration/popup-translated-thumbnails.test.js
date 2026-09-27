@@ -16,6 +16,7 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
     let tabsMock;
     let sendSpy;
     let pageIndexCalls;
+    let originalIntersectionObserver;
 
     async function createActiveTab(url, title = 'Manga Page') {
         const tab = await tabsMock.create({ url, active: true });
@@ -38,6 +39,7 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
         await storageMock.clear();
         document.documentElement.innerHTML = '<html><head></head><body></body></html>';
         pageIndexCalls = new Map();
+        originalIntersectionObserver = global.IntersectionObserver;
 
         sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage').mockImplementation((message, callback) => {
             if (message.action === 'SM_CHAPTERS_STATS') {
@@ -88,8 +90,8 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
 
     afterEach(() => {
         jest.restoreAllMocks();
-        delete global.IntersectionObserver;
-        delete window.IntersectionObserver;
+        global.IntersectionObserver = originalIntersectionObserver;
+        window.IntersectionObserver = originalIntersectionObserver;
         document.documentElement.innerHTML = '<html><head></head><body></body></html>';
     });
 
@@ -127,6 +129,10 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
     }
 
     test('renderiza miniaturas dentro do capítulo e site corretos sem alterar a hierarquia atual', async () => {
+        // Este caso valida o fallback sem IntersectionObserver; o teste seguinte
+        // cobre explicitamente o caminho lazy real.
+        global.IntersectionObserver = undefined;
+        window.IntersectionObserver = undefined;
         await loadPopupWithTwoSites();
 
         const folders = [...document.querySelectorAll('#chapter-list .site-folder')];
@@ -183,6 +189,8 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
     });
 
     test('falha ao buscar asset mantém a caixa e marca somente a miniatura afetada', async () => {
+        global.IntersectionObserver = undefined;
+        window.IntersectionObserver = undefined;
         sendSpy.mockImplementation((message, callback) => {
             if (message.action === 'SM_CHAPTERS_STATS') {
                 if (callback) setTimeout(() => callback({ ok: true, stats: { chap_a: { pageCount: 1, indices: [0] } } }), 0);
@@ -228,6 +236,8 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
     });
 
     test('capítulo sem índice tenta migração antes do fallback legado', async () => {
+        global.IntersectionObserver = undefined;
+        window.IntersectionObserver = undefined;
         let indexAttempt = 0;
         sendSpy.mockImplementation((message, callback) => {
             if (message.action === 'SM_CHAPTERS_STATS') {
@@ -279,6 +289,8 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
     });
 
     test('fallback legado preserva miniatura quando a migração não produz índice novo', async () => {
+        global.IntersectionObserver = undefined;
+        window.IntersectionObserver = undefined;
         sendSpy.mockImplementation((message, callback) => {
             if (message.action === 'SM_CHAPTERS_STATS') {
                 if (callback) setTimeout(() => callback({ ok: true, stats: {} }), 0);
