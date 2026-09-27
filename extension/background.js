@@ -540,9 +540,13 @@ chrome.runtime.onStartup.addListener(async () => {
     // FIX M-5
     state().extractionTabs = {};
 
+    const currentBatchNeedsWork = Boolean(
+        state().currentBatchId &&
+        state().completionClaimedBatchId !== state().currentBatchId
+    );
     const hadWork = state().jobQueue.length > 0 || state().activeJobsCount > 0 ||
         state().jobIndex.length > 0 || state().pendingBatches.length > 0 ||
-        Boolean(state().currentBatchId);
+        currentBatchNeedsWork;
 
     // Em onStartup o navegador foi reiniciado: nenhuma aba do Gemini sobrevive,
     // então a reconciliação sempre descarta os jobs órfãos e libera os slots.
@@ -558,7 +562,8 @@ chrome.runtime.onStartup.addListener(async () => {
             recovered: reconciled.recovered || 0,
         });
         state().isProcessing = Boolean(
-            state().currentBatchId ||
+            (state().currentBatchId &&
+                state().completionClaimedBatchId !== state().currentBatchId) ||
             state().jobQueue.length > 0 ||
             state().activeJobsCount > 0
         );
