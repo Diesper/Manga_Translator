@@ -378,6 +378,14 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             status: 'complete',
             title: '',
         });
+        tabsMock._tabs.set(60, {
+            id: 60,
+            windowId: 73,
+            url: 'https://reader.test/chapter',
+            active: true,
+            status: 'complete',
+            title: 'Mangá',
+        });
         const removeTab = jest.spyOn(tabsMock, 'remove');
 
         backgroundModule.__setState({ activeJobsCount: 1, completedJobs: 0 });
@@ -386,6 +394,8 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
 
         expect(removeWindow).not.toHaveBeenCalled();
         expect(removeTab).toHaveBeenCalledWith(1850, expect.any(Function));
+        expect(tabsMock._tabs.has(1850)).toBe(false);
+        expect(tabsMock._tabs.has(60)).toBe(true);
     });
 
     test('P0: marca durável impede dupla finalização após perda da proteção em memória', async () => {

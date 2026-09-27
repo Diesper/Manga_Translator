@@ -527,6 +527,15 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 message: `Esperava gate de attachment no modo ${scenario.mode}`,
             }).toBe(true);
 
+            if (scenario.mode === 'minimized_window') {
+                expect(
+                    page.isClosed(),
+                    'O fallback minimizado não pode fechar a janela que contém o mangá'
+                ).toBe(false);
+                await expect(page).toHaveURL('http://localhost:3999/manga-page.html');
+                await expect(mainContent).toBeVisible();
+            }
+
             const storage = await readStorage(backgroundWorker, ['translatorLog']);
             const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
             expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
