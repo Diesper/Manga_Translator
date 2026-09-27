@@ -85,20 +85,20 @@
 
     async function assertJobOwnership(sender, jobId) {
       const senderTabId = sender && sender.tab ? sender.tab.id : null;
-      if (!jobId || senderTabId === null) return { owns: false, tabId: senderTabId };
+      if (!jobId || senderTabId === null) return { owns: false, tabId: senderTabId, job: null };
 
       // Caminho comum sem replacement: uma leitura apenas, preservando a
       // latência original. Só consultamos aliases se a chave física não existe.
       let tabId = senderTabId;
       let data = await chrome.storage.local.get([`gemini_job_${tabId}`]);
       let job = data && data[`gemini_job_${tabId}`];
-      if (job) return { owns: job.jobId === jobId, tabId };
+      if (job) return { owns: job.jobId === jobId, tabId, job };
 
       tabId = await resolveCanonicalTabId(senderTabId);
       if (tabId !== senderTabId) {
         data = await chrome.storage.local.get([`gemini_job_${tabId}`]);
         job = data && data[`gemini_job_${tabId}`];
-        if (job) return { owns: job.jobId === jobId, tabId };
+        if (job) return { owns: job.jobId === jobId, tabId, job };
       }
 
       // Durante a pequena janela entre TAB_REPLACED e o término do rekey, o
@@ -112,7 +112,7 @@
           job = data && data[`gemini_job_${tabId}`];
         }
       }
-      return { owns: Boolean(job && job.jobId === jobId), tabId };
+      return { owns: Boolean(job && job.jobId === jobId), tabId, job: job || null };
     }
 
     function buildGeminiJobUrl(baseUrl, jobIndex, jobId) {
@@ -168,22 +168,61 @@
           await syncState();
           return;
         }
+
         if (!state.stopRequested && state.jobQueue.length === 0 && state.activeJobsCount === 0) {
-          const completed = Number(state.completedJobs) || 0;
-          const total = Number(state.totalJobs) || 0;
-          const hasErrors = completed < total;
-          if (state.activeMangaTabId) {
-            chrome.tabs.sendMessage(state.activeMangaTabId, {
-              action: 'BATCH_COMPLETE', batchId: state.currentBatchId, hasErrors,
-            }, () => { void chrome.runtime.lastError; });
+          let completion = null;
+
+          const claimCompletion = snapshot => {
+            const batchId = snapshot.currentBatchId || null;
+            const queued = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
+            if (!batchId || snapshot.stopRequested || queued.length > 0 ||
+                Number(snapshot.activeJobsCount) > 0 ||
+                snapshot.completionClaimedBatchId === batchId) {
+              return snapshot;
+            }
+
+            const completed = Number(snapshot.completedJobs) || 0;
+            const total = Number(snapshot.totalJobs) || 0;
+            completion = {
+              batchId,
+              mangaTabId: snapshot.activeMangaTabId || null,
+              completed,
+              total,
+              hasErrors: completed < total,
+            };
+            snapshot.completionClaimedBatchId = batchId;
+            snapshot.isProcessing = false;
+            snapshot.activeMangaTabId = null;
+            return snapshot;
+          };
+
+          if (typeof state.mutate === 'function') {
+            await state.mutate(claimCompletion);
+          } else {
+            claimCompletion(state);
+            await syncState();
           }
-          log(hasErrors ? 'warn' : 'success', 'bg', 'BATCH_DONE',
-            hasErrors ? 'Lote encerrado com falhas; traduções não concluídas.' : 'Lote finalizado com sucesso!',
-            { completed, total, hasErrors });
-          state.isProcessing = false;
-          state.activeMangaTabId = null;
+
+          if (completion) {
+            if (completion.mangaTabId) {
+              chrome.tabs.sendMessage(completion.mangaTabId, {
+                action: 'BATCH_COMPLETE',
+                batchId: completion.batchId,
+                hasErrors: completion.hasErrors,
+              }, () => { void chrome.runtime.lastError; });
+            }
+            log(completion.hasErrors ? 'warn' : 'success', 'bg', 'BATCH_DONE',
+              completion.hasErrors
+                ? 'Lote encerrado com falhas; traduções não concluídas.'
+                : 'Lote finalizado com sucesso!',
+              {
+                batchId: String(completion.batchId).slice(0, 8),
+                completed: completion.completed,
+                total: completion.total,
+                hasErrors: completion.hasErrors,
+              });
+          }
         }
-        await syncState();
         return;
       }
       if (state.stopRequested || state.jobQueue.length === 0 || state.activeJobsCount >= state._cachedMaxCon) return;
@@ -311,13 +350,14 @@
           processNextJob();
           return;
         }
-        if (executionMode !== 'minimized_window') {
+        const shouldDeleteConversation = executionMode === 'minimized_window' || executionMode === 'background_delete';
+        if (!shouldDeleteConversation) {
           chrome.tabs.remove(geminiTabId, () => { void chrome.runtime.lastError; });
           processNextJob();
           return;
         }
-        // Mantém o prazo de limpeza do modo minimizado: o Gemini recebe a
-        // oportunidade de apagar a conversa antes de a janela desaparecer.
+        // Resultado já foi persistido no leitor. Agora a conversa pode ser
+        // excluída sem risco de perder os bytes traduzidos.
         const activeUrl = tab.url || '';
         if (fromError && !/\/app\/[^/?#]+/.test(activeUrl)) {
           log('info', 'bg', 'DELETE_SKIPPED_NO_CONVERSATION', 'Job falhou antes de criar conversa; não há ID para apagar', {});
@@ -329,7 +369,15 @@
         const deletingUrls = Array.isArray(stored.deleting_urls) ? stored.deleting_urls : [];
         if (activeUrl && !deletingUrls.includes(activeUrl)) deletingUrls.push(activeUrl);
         await chrome.storage.local.set({ deleting_urls: deletingUrls });
-        chrome.tabs.sendMessage(geminiTabId, { action: 'DELETE_CONVERSATION' }, () => { void chrome.runtime.lastError; });
+        chrome.tabs.sendMessage(geminiTabId, { action: 'DELETE_CONVERSATION' }, response => {
+          const deleteError = chrome.runtime.lastError;
+          log(deleteError || response?.ok === false ? 'warn' : 'success', 'bg',
+            deleteError || response?.ok === false ? 'POST_PERSIST_DELETE_DEFERRED' : 'POST_PERSIST_DELETE_OK',
+            deleteError || response?.ok === false
+              ? 'Resultado já persistido; exclusão da conversa não confirmou imediatamente.'
+              : 'Conversa excluída depois da persistência confirmada do resultado.',
+            { jobId: String(job.jobId || '').slice(0, 8), batchId: String(job.batchId || '').slice(0, 8) });
+        });
         processNextJob();
         setTimeout(() => {
           chrome.storage.local.get(['deleting_urls']).then(next => {
