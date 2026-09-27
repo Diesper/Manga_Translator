@@ -44,7 +44,6 @@ const args = [
   jestBin,
   '--config', jestConfig,
   '--ci',
-  '--forceExit',
   '--json',
   '--outputFile', resultFile,
 ];
