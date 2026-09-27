@@ -118,7 +118,7 @@ class ChromeTabsMock {
     };
     this._tabs.set(tabId, tab);
 
-    setTimeout(() => {
+    scheduleMockTimer(() => {
       tab.status = 'complete';
       this._onUpdatedListeners.forEach(fn => fn(tabId, { status: 'complete' }, tab));
     }, 10);
@@ -133,7 +133,7 @@ class ChromeTabsMock {
       global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
       scheduleMockTimer(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
     } else if (callback) {
-      setTimeout(() => callback(tab), 0);
+      scheduleMockTimer(() => callback(tab), 0);
     }
     return Promise.resolve(tab);
   }
@@ -229,7 +229,7 @@ class ChromeAlarmsMock {
       ? alarmInfo.when
       : Date.now() + ((alarmInfo.delayInMinutes || 0) * 60 * 1000);
     const delayMs = Math.max(0, scheduledTime - Date.now());
-    const timerId = setTimeout(() => {
+    const timerId = scheduleMockTimer(() => {
       const alarm = { name, scheduledTime };
       this._alarms.delete(name);
       this._listeners.forEach(fn => fn(alarm));
@@ -314,7 +314,7 @@ class ChromeRuntimeMock {
     if (!responded && callback) {
       if (this._messageListeners.length === 0) {
         this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
-        setTimeout(() => {
+        scheduleMockTimer(() => {
           callback(undefined);
           this.lastError = null;
         }, 0);
@@ -542,6 +542,7 @@ beforeEach(() => {
 
 afterEach(() => {
   downloadsMock?.clearTimers();
+  clearAllMockTimers();
   jest.clearAllTimers();
   jest.clearAllMocks();
   if (global.chrome?.runtime) global.chrome.runtime.lastError = null;
