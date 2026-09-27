@@ -255,10 +255,12 @@ describe('background.js - lifecycle real do batch', () => {
         expect(Object.keys(data).filter(key => key.startsWith('gemini_job_'))).toHaveLength(0);
         expect(Object.keys(data).filter(key => key.startsWith('wd_data_'))).toHaveLength(0);
         expect(data.mt_state).toEqual(expect.objectContaining({
-            stopRequested: true,
+            stopRequested: false,
             isProcessing: false,
+            currentBatchId: null,
             activeJobsCount: 0,
             activeMangaTabId: null,
+            pendingBatches: [],
         }));
         expect(data.mt_state.jobQueue).toEqual([]);
     });
