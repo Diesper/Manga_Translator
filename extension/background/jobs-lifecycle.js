@@ -291,9 +291,33 @@
       return { tab, windowId: tab.windowId, dedicatedWindow: false };
     }
 
+    // Tombstone apenas em memória: uma Promise de tabs/windows não sobrevive
+    // ao restart do Service Worker, então não há motivo para persistir isso.
+    // Ele serve para distinguir "currentBatchId=null porque A foi cancelado"
+    // de "currentBatchId=null em um fixture/recovery ainda válido".
+    const invalidatedLaunchBatchIds = new Set();
+
+    function invalidateBatchLaunches(batchId) {
+      if (!batchId) return false;
+      invalidatedLaunchBatchIds.add(batchId);
+      // Evita crescimento ilimitado durante uma sessão muito longa do worker.
+      while (invalidatedLaunchBatchIds.size > 128) {
+        const oldest = invalidatedLaunchBatchIds.values().next().value;
+        invalidatedLaunchBatchIds.delete(oldest);
+      }
+      return true;
+    }
+
+    function allowBatchLaunches(batchId) {
+      if (!batchId) return false;
+      return invalidatedLaunchBatchIds.delete(batchId);
+    }
+
     function launchWasInvalidated(batchId) {
       return Boolean(
         state.stopRequested ||
+        (batchId && invalidatedLaunchBatchIds.has(batchId)) ||
+        (batchId && state.completionClaimedBatchId === batchId) ||
         (batchId && state.currentBatchId && batchId !== state.currentBatchId)
       );
     }
@@ -666,7 +690,17 @@
       return true;
     }
 
-    return { updateJobState, assertJobOwnership, refreshMaxConcurrency, processNextJob, finalizeJob, recoverPendingFinalization, recoverPersistedResult };
+    return {
+      updateJobState,
+      assertJobOwnership,
+      refreshMaxConcurrency,
+      processNextJob,
+      finalizeJob,
+      recoverPendingFinalization,
+      recoverPersistedResult,
+      invalidateBatchLaunches,
+      allowBatchLaunches,
+    };
   }
   scope.MangaTranslatorJobsLifecycle = { createLifecycle };
 })(typeof self !== 'undefined' ? self : globalThis);
