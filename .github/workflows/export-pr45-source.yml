@@ -1,0 +1,24 @@
+name: Export PR45 source for local validation
+
+on:
+  push:
+    branches:
+      - tmp/export-pr45-local-validation
+
+jobs:
+  export-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+
+      - name: Pack source
+        run: |
+          tar --exclude='.git' --exclude='node_modules' -czf pr45-source.tar.gz .
+
+      - name: Upload source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr45-source
+          path: pr45-source.tar.gz
+          retention-days: 1
