@@ -209,6 +209,39 @@
       return true;
     }
 
+    function hasExplicitModelOwnership(element) {
+      if (!element || element.nodeType !== 1) return false;
+      const tag = String(element.tagName || '').toLowerCase();
+      if (tag === 'model-response' || tag === 'bard-model-response') return true;
+
+      const author = String(element.getAttribute?.('data-message-author') || '').toLowerCase();
+      if (author === 'model' || author === 'assistant') return true;
+
+      const role = String(element.getAttribute?.('data-turn-role') || '').toLowerCase();
+      if (role === 'model' || role === 'assistant') return true;
+
+      const testId = String(
+        element.getAttribute?.('data-test-id') ||
+        element.getAttribute?.('data-testid') ||
+        ''
+      ).toLowerCase();
+      if (testId.includes('model-response')) return true;
+
+      return tag === 'message-content' && element.classList?.contains('model');
+    }
+
+    function isBlockedByUserTurn(element) {
+      const userTurn = domApi.getUserTurnContainer?.(element);
+      if (!userTurn) return false;
+      if (userTurn === element) return true;
+
+      // O Gemini pode envolver um model turn real em um wrapper que também
+      // casa com USER_TURN. Só atravessamos esse ancestral quando o próprio
+      // candidato traz autoria explícita de modelo; wrappers genéricos
+      // continuam rejeitados para não capturar imagens do usuário.
+      return !hasExplicitModelOwnership(element);
+    }
+
     function acquireResponseContainer() {
       if (state.responseContainer && state.responseContainer.isConnected !== false) {
         return state.responseContainer;
@@ -217,7 +250,7 @@
       const responses = safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT);
       const candidates = responses.filter(element =>
         !initialResponses.has(element) &&
-        !domApi.getUserTurnContainer(element) && !domApi.isInsideInputArea(element)
+        !isBlockedByUserTurn(element) && !domApi.isInsideInputArea(element)
       );
       if (!candidates.length) return null;
 
