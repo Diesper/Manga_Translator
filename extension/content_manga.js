@@ -692,9 +692,25 @@ if (!window.__manga_translator_content_injected) {
     saveGlobalTranslationCacheEntry = cmGtcClient.saveGlobalTranslationCacheEntry;
     confirmWithRegionalHashes = cmGtcClient.confirmWithRegionalHashes;
 
-    if (window.location.hostname.includes('googleusercontent.com') || window.location.hostname.includes('google.com')) {
-        chrome.runtime.sendMessage({ action: 'CHECK_IF_EXTRACTION_TAB' }, (response) => {
-            if (response && response.isExtractionTab) {
+    const isLegacyExtractionHost =
+        window.location.hostname.includes('googleusercontent.com') ||
+        window.location.hostname.includes('google.com');
+    const isMarkedExtractionTab = window.location.hash === '#manga-translator-extraction';
+    const isExtractionCandidate = isLegacyExtractionHost || isMarkedExtractionTab;
+
+    if (isExtractionCandidate) {
+        const MAX_MAPPING_CHECKS = isMarkedExtractionTab ? 20 : 1;
+        let mappingChecks = 0;
+
+        const checkExtractionMapping = () => {
+            mappingChecks++;
+            chrome.runtime.sendMessage({ action: 'CHECK_IF_EXTRACTION_TAB' }, (response) => {
+                if (!response || !response.isExtractionTab) {
+                    if (mappingChecks < MAX_MAPPING_CHECKS) {
+                        setTimeout(checkExtractionMapping, 100);
+                    }
+                    return;
+                }
                 const MAX_ATTEMPTS = 60; let attempts = 0;
                 const extractAndSend = () => {
                     attempts++; if (attempts > MAX_ATTEMPTS) return;
@@ -770,12 +786,13 @@ if (!window.__manga_translator_content_injected) {
                     }
                 };
                 extractAndSend();
-                return;
-            }
-        });
+            });
+        };
+
+        checkExtractionMapping();
     }
 
-    if (window === window.top && !window.location.hostname.includes('googleusercontent.com') && !window.location.hostname.includes('gemini.google.com')) {
+    if (window === window.top && !isExtractionCandidate && !window.location.hostname.includes('gemini.google.com')) {
         const hostname = window.location.hostname;
         let processedCount = 0; let totalToProcess = 0; let batchHasErrors = false;
         let _closeInterval = null; let _closeCountdown = 0;
