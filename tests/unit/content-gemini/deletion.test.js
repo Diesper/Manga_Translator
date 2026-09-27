@@ -154,7 +154,7 @@ describe('gemini/deletion.js', () => {
     const { createDeletionController } = loadModule();
     const dom = mountSuccessfulDeletionDom();
     const pageWindow = createPageWindow('/app/chat-1');
-    dom.confirm.mockImplementation(() => {
+    dom.confirm.click = jest.fn(() => {
       dom.row.remove();
       pageWindow.location.pathname = '/app';
     });

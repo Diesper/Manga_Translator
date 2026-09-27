@@ -95,7 +95,14 @@ function appendImage(src, metrics = {}) {
     const img = document.createElement('img');
     img.src = src;
     defineImageMetrics(img, metrics);
-    document.body.appendChild(img);
+    if (metrics.owner === false) {
+        document.body.appendChild(img);
+    } else {
+        const response = document.createElement('model-response');
+        response.setAttribute('data-message-author', 'model');
+        response.appendChild(img);
+        document.body.appendChild(response);
+    }
     return img;
 }
 
@@ -149,6 +156,22 @@ function mountEditor({
                 document.body.appendChild(preview);
             }
         }
+    });
+    editor.addEventListener('drop', (event) => {
+        const transfer = event.dataTransfer;
+        if (!attachThumbnail || !transfer?.items?.length || document.querySelector('file-preview')) return;
+        const preview = document.createElement('file-preview');
+        const thumbImg = document.createElement('img');
+        thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+        Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+        preview.getBoundingClientRect = () => ({
+            x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+            width: 120, height: 90, toJSON() { return this; },
+        });
+        preview.appendChild(thumbImg);
+        document.body.appendChild(preview);
     });
 
     document.body.appendChild(editor);
@@ -327,7 +350,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         expect(clearIntervalSpy).toHaveBeenCalled();
     });
 
-    test('CG-21: ausencia de thumbnail registra warning e permite continuar o pipeline', async () => {
+    test('CG-21: ausencia de thumbnail bloqueia prompt e submit', async () => {
         mountEditor({ attachThumbnail: false });
         await seedJob();
         jest.useFakeTimers();
@@ -344,17 +367,18 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             await jest.advanceTimersByTimeAsync(500);
         }
 
-        const warning = sentMessages.find(message =>
-            message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_STEP_3_WARN'
+        const gateLog = sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
         );
-        expect(warning).toEqual(expect.objectContaining({
-            level: 'warn',
-            action_name: 'GEMINI_STEP_3_WARN',
+        expect(gateLog).toEqual(expect.objectContaining({
+            level: 'error',
+            action_name: 'GEMINI_ATTACHMENT_NOT_CONFIRMED',
         }));
-        expect(sentMessages.some(message =>
-            message.action === 'GEMINI_ERROR' &&
-            String(message.error || '').includes('Thumb (imagem enviada) não foi encontrado')
-        )).toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GEMINI_ERROR',
+            error: expect.stringContaining('Anexo não confirmado'),
+        }));
+        expect(document.querySelector('.ql-editor').textContent.trim()).toBe('');
     });
 
     test('CG-28/CG-29: botoes desabilitados ou ocultos sao ignorados ate achar botao valido', async () => {
@@ -461,7 +485,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         appendSendButton({
             onSubmit: () => {
                 setTimeout(() => {
-                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024 });
+                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024, owner: false });
                 }, 1300);
             },
         });

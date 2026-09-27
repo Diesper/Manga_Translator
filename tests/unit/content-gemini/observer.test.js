@@ -112,7 +112,7 @@ describe('gemini/observer.js — Observer V2', () => {
 
     expect(observer.getState().responseContainer).toBe(response);
     expect(observer.getState().submissionConfirmed).toBe(true);
-    expect(observer.getState().submissionReason).toBe('response_created');
+    expect(observer.getState().submissionReason).toBe('generation_started');
     observer.stop();
   });
 
@@ -245,7 +245,7 @@ describe('gemini/observer.js — Observer V2', () => {
     observer.stop();
   });
 
-  test('OBS-12: ausência de Stop sem geração ativa não produz done falso', () => {
+  test('OBS-12: resposta nova marca geração ativa sem concluir o job prematuramente', () => {
     const { createGeminiObserver } = loadObserver();
     const observer = createGeminiObserver({ jobId: 'obs-12' }).start();
 
@@ -254,8 +254,8 @@ describe('gemini/observer.js — Observer V2', () => {
     observer.inspect();
 
     expect(observer.getState().responseContainer).toBe(response);
-    expect(observer.getState().generationActiveObserved).toBe(false);
-    expect(observer.getState().generationFinished).toBe(false);
+    expect(observer.getState().generationActiveObserved).toBe(true);
+    expect(observer.getState().generationFinished).toBe(true);
     expect(observer.getState().done).toBe(false);
     observer.stop();
   });
@@ -355,6 +355,32 @@ describe('gemini/observer.js — Observer V2', () => {
       image,
       url: 'https://lh3.googleusercontent.com/gg-dl/AUTHENTICATED_RESULT',
     });
+    observer.stop();
+  });
+
+  test('OBS-17: preview reconstruído do anexo continua em quarentena durante a geração', () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({
+      jobId: 'attachment-preview-rebuilt',
+      onStateChange,
+    }).start();
+
+    addResponse();
+    const host = document.createElement('section');
+    const shadow = host.attachShadow({ mode: 'open' });
+    const preview = document.createElement('file-preview');
+    const image = addResultImage(preview, 'blob:https://gemini.google.com/rebuilt-input');
+    shadow.appendChild(preview);
+    document.body.appendChild(host);
+    observer.inspect();
+
+    expect(observer.getState().resultUrl).toBeNull();
+    expect(onStateChange).toHaveBeenCalledWith(
+      'result_candidate_rejected',
+      expect.objectContaining({ reason: 'attachment_preview' })
+    );
+    expect(image.isConnected).toBe(true);
     observer.stop();
   });
 

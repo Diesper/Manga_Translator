@@ -1,6 +1,6 @@
 # Revisão 2 — extração autenticada e prazo limite
 
-Implementação em 27/09/2026 na mesma pasta `extension/`. **Revisão 2 aprovada:** o usuário confirmou que funciona e os exports atualizados mostram 21 resultados aceitos nos três modos. Nenhum teste automatizado foi executado.
+Implementação em 27/09/2026 na mesma pasta `extension/`. **Revisão 2 aprovada:** o usuário confirmou que funciona e os exports atualizados mostram 21 resultados aceitos nos três modos. Este documento registra especificamente a rodada de extração e prazo; a quarentena acrescentada depois está em `QUARENTENA_DE_IMAGEM.md`. Nenhum Jest foi executado localmente.
 
 ## 1. Motivo e escopo
 
@@ -60,11 +60,11 @@ No tratamento de timeout, `finalizeJob(...)` agora é aguardado antes da continu
 | `gemini/job-runner.js` | Solicita renovação no início observado da geração e registra solicitação, confirmação ou falha com modo e prefixo da tarefa. |
 | `gemini/result-extractor.js` | Reordena apenas a cadeia dos assets gerados reconhecidos do Google. |
 
-São cinco arquivos existentes e um novo em relação à versão aprovada. Os outros 52 arquivos da extensão permanecem idênticos. O manifest continua com o mesmo nome e versão; a revisão consta em `VARIANTE.json`.
+Na rodada aqui documentada foram cinco arquivos existentes e um novo em relação à versão aprovada. A quarentena posterior altera esse inventário e a ordem de scripts do manifest, sem mudar nome, permissões ou versão do produto. Consulte `DOCUMENTACAO_VERSAO_FUNCIONAL.md` para o mapa consolidado atual.
 
 ## 5. Publicação e conferência
 
-A pasta <code>extension/</code> corresponde à versão aprovada. As duas melhorias aqui descritas foram feitas no histórico local da revisão 2; a base main de destino já contém parte desse mecanismo. O PR preserva o contrato de versão 6.5.0/Manifest 6.5, os workflows e os componentes comuns.
+A base da pasta <code>extension/</code> corresponde à versão aprovada. As duas melhorias aqui descritas foram feitas no histórico local da revisão 2; a quarentena posterior ainda aguarda CI e nova validação manual. A base main de destino já contém parte desse mecanismo. O PR preserva o contrato de versão 6.5.0/Manifest 6.5, os workflows e os componentes comuns.
 
 Os exports brutos e backups permanecem locais. [VALIDACAO_REVISAO_2.json](VALIDACAO_REVISAO_2.json) apresenta apenas o resumo das evidências manuais. A comparação de conteúdo confere todos os 58 arquivos da extensão aprovada, descontando quebras de linha.
 

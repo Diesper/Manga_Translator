@@ -88,6 +88,73 @@ function baseDependencies(overrides = {}) {
   };
 }
 
+function successfulPipelineDependencies({ inputDataUrl, resultDataUrl, advanceClock }) {
+  const editor = document.createElement('div');
+  editor.setAttribute('contenteditable', 'true');
+  const composer = document.createElement('rich-textarea');
+  composer.appendChild(editor);
+  document.body.appendChild(composer);
+
+  let onStateChange = null;
+  const observer = {
+    start: jest.fn(function() { return this; }),
+    stop: jest.fn(),
+    waitForResult: jest.fn(async () => ({ image: null, url: resultDataUrl })),
+  };
+  const domApi = {
+    getImageSource: image => image?.src || '',
+    isIgnoredGeminiImageSource: () => false,
+    isModelResponseImage: image => Boolean(image?.closest?.('model-response')),
+    getStrictModelResponseContainer: image => image?.closest?.('model-response') || null,
+    getUserTurnContainer: image => image?.closest?.('[data-message-author="user"]') || null,
+    isInsideInputArea: image => Boolean(image?.closest?.('rich-textarea')),
+    findAllDeep: (root, matcher) => [root, ...root.querySelectorAll('*')].filter(matcher),
+    getEditableElement: element => element,
+    findSendButton: () => null,
+    isElementVisible: () => true,
+  };
+  const { options, runtimeMessages } = baseDependencies({
+    domApi,
+    observerApi: {
+      createGeminiObserver: jest.fn(config => {
+        onStateChange = config.onStateChange;
+        return observer;
+      }),
+    },
+    editorApi: {
+      submitWithConfirmation: jest.fn(async () => {
+        onStateChange('generation_started', { reason: 'response_created' });
+        return { confirmed: true, attempt: 1, reason: 'response_created' };
+      }),
+    },
+    attachmentApi: {
+      attachFile: jest.fn(async () => ({
+        attempted: true,
+        confirmed: true,
+        evidence: { type: 'container' },
+        methodsAttempted: ['file_input'],
+      })),
+      findFileInputsDeep: jest.fn(() => []),
+      listAttachmentEvidence: jest.fn(() => []),
+    },
+    resultExtractor: {
+      extractOrAuxiliaryFallback: jest.fn(async () => ({
+        kind: 'extracted',
+        dataUrl: resultDataUrl,
+      })),
+    },
+    sleep: async ms => advanceClock(Number(ms) || 0),
+  });
+  options.runtime.sendMessage.mockImplementation((message, callback) => {
+    runtimeMessages.push(message);
+    if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: inputDataUrl });
+    else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+    else callback?.({ ok: true });
+  });
+
+  return { options, runtimeMessages };
+}
+
 describe('gemini/job-runner.js', () => {
   beforeEach(() => {
     document.documentElement.innerHTML = '<head></head><body></body>';
@@ -327,6 +394,82 @@ describe('gemini/job-runner.js', () => {
       expect.stringContaining('reiniciado'),
       expect.objectContaining({ executionMode: 'background_delete' })
     );
+  });
+
+  test('RUN-09: seleção automática e manual recusam imagens do preview do anexo', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+    const preview = document.createElement('file-preview');
+    const image = document.createElement('img');
+    image.src = 'blob:https://gemini.google.com/input-preview';
+    Object.defineProperty(image, 'naturalWidth', { value: 1200, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1800, configurable: true });
+    preview.appendChild(image);
+    document.body.appendChild(preview);
+
+    expect(runner.isLikelyGeneratedImage(image)).toBe(false);
+    expect(runner.isManualSelectableImage(image)).toBe(false);
+  });
+
+  test('RUN-10: resultado byte a byte idêntico é bloqueado antes da entrega', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 20_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const identical = 'data:image/png;base64,SU1BR0VNX09SSUdJTkFM';
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: identical,
+      resultDataUrl: identical,
+      advanceClock: ms => { clock += ms; },
+    });
+
+    const result = await createGeminiJobRunner(options).run({
+      jobId: 'job-quarantine-identical',
+      batchId: 'batch-quarantine',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 0,
+      prompt: 'Traduza a imagem para português brasileiro.',
+      executionMode: 'background_delete',
+    });
+
+    expect(result.status).toBe('error');
+    expect(result.error.code).toBe('GEMINI_RESULT_MATCHES_INPUT');
+    expect(runtimeMessages).not.toContainEqual(expect.objectContaining({
+      action: 'GEMINI_IMAGE_EXTRACTED',
+    }));
+    expect(runtimeMessages).toContainEqual(expect.objectContaining({
+      action: 'GEMINI_ERROR',
+      error: expect.stringContaining('idêntico'),
+    }));
+  });
+
+  test('RUN-11: resultado com bytes diferentes atravessa a quarentena e é entregue', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 30_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const input = 'data:image/png;base64,SU1BR0VNX09SSUdJTkFM';
+    const translated = 'data:image/png;base64,SU1BR0VNX1RSQURVWklEQQ==';
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: input,
+      resultDataUrl: translated,
+      advanceClock: ms => { clock += ms; },
+    });
+
+    await expect(createGeminiJobRunner(options).run({
+      jobId: 'job-quarantine-different',
+      batchId: 'batch-quarantine',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 1,
+      prompt: 'Traduza a imagem para português brasileiro.',
+      executionMode: 'background_delete',
+    })).resolves.toEqual({ status: 'delivered_extracted' });
+
+    expect(runtimeMessages).toContainEqual(expect.objectContaining({
+      action: 'GEMINI_IMAGE_EXTRACTED',
+      src: translated,
+    }));
   });
 
 });

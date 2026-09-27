@@ -91,7 +91,10 @@ function appendGeneratedImage(src) {
     Object.defineProperty(img, 'naturalWidth', { value: 1024, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: 1536, configurable: true });
     Object.defineProperty(img, 'complete', { value: true, configurable: true });
-    document.body.appendChild(img);
+    const response = document.createElement('model-response');
+    response.setAttribute('data-message-author', 'model');
+    response.appendChild(img);
+    document.body.appendChild(response);
     return img;
 }
 
@@ -125,6 +128,22 @@ function mountGeminiEditor({ onSubmit } = {}) {
                 document.body.appendChild(preview);
             }
         }
+    });
+    editor.addEventListener('drop', (event) => {
+        const transfer = event.dataTransfer;
+        if (!transfer?.items?.length || document.querySelector('file-preview')) return;
+        const preview = document.createElement('file-preview');
+        const thumbImg = document.createElement('img');
+        thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+        Object.defineProperty(thumbImg, 'naturalWidth', { value: 50, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalHeight', { value: 50, configurable: true });
+        Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+        preview.getBoundingClientRect = () => ({
+            x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+            width: 120, height: 90, toJSON() { return this; },
+        });
+        preview.appendChild(thumbImg);
+        document.body.appendChild(preview);
     });
 
     const sendButton = document.createElement('button');

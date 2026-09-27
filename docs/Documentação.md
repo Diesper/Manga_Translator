@@ -1187,11 +1187,11 @@ A segunda tentativa permanece local e pode elevar o anti-throttling existente, m
 
 ## 12.6 Observer e resultado
 
-O Observer é instalado antes do submit e mantém baseline de fontes e respostas. Resultado automático exige nova autoria estrita de modelo; composer, turno do usuário e respostas antigas são rejeitados. Seletores reconhecem autoria assistant e estruturas user-query.
+O Observer é instalado antes do submit e mantém baseline de fontes e respostas. Resultado automático exige nova autoria estrita de modelo; composer, preview de anexo, turno do usuário e respostas antigas são rejeitados. Seletores reconhecem autoria assistant e estruturas user-query.
 
 O módulo atravessa Shadow DOM aberto, observa src/data-src/srcset e eventos de carga/erro e inspeciona a cada 1,25 s enquanto a tarefa está ativa. Blob/data de resultado precisam estar carregados. Sem autoria estrita, o fallback exige URL HTTPS de asset gerado do Google e geração observada; imagem órfã genérica não basta.
 
-Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa. Esta revisão não acrescenta quarentena por identidade do anexo ou comparação exata de payload.
+Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa. <code>gemini/image-quarantine.js</code> também exclui imagens estruturalmente ligadas à entrada da seleção automática/manual e compara SHA-256 dos bytes antes da entrega. Igualdade exata produz <code>GEMINI_RESULT_MATCHES_INPUT</code>; similaridade perceptual não bloqueia resultados.
 
 ## 12.7 Resolução e extração
 
@@ -2351,4 +2351,3 @@ A regra de manutenção mais importante permanece simples:
 
 > **o código atual, os testes atuais e a documentação atual precisam descrever o
 > mesmo contrato.**
-

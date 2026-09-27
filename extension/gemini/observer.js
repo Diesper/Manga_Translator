@@ -7,6 +7,7 @@
 (function(scope) {
   let selectorsApi = scope.MangaTranslatorGeminiSelectors || null;
   let domApi = scope.MangaTranslatorGeminiDom || null;
+  let quarantineApi = scope.MangaTranslatorGeminiImageQuarantine || null;
 
   if (typeof require === 'function') {
     if (!selectorsApi) {
@@ -14,6 +15,9 @@
     }
     if (!domApi) {
       try { domApi = require('./dom.js'); } catch (_e) {}
+    }
+    if (!quarantineApi) {
+      try { quarantineApi = require('./image-quarantine.js'); } catch (_e) {}
     }
   }
 
@@ -54,6 +58,7 @@
     editor = null,
     getEditor = null,
     ignoreImages = new Set(),
+    imageQuarantine = null,
     onStateChange = null,
     MutationObserverImpl = typeof MutationObserver !== 'undefined' ? MutationObserver : null,
     setTimeoutFn = setTimeout,
@@ -65,6 +70,8 @@
     if (!jobId) throw new Error('jobId é obrigatório');
     if (!root) throw new Error('root é obrigatório');
     if (!MutationObserverImpl) throw new Error('MutationObserver indisponível');
+
+    const quarantine = imageQuarantine || quarantineApi?.createImageQuarantine?.({ dom: domApi });
 
     const registryOwner = root.defaultView || root.ownerDocument?.defaultView || scope;
     registryOwner.__mtGeminiObservers = registryOwner.__mtGeminiObservers || {};
@@ -332,8 +339,8 @@
         const image = images[index];
         if (!isCandidateImage(image) || image.isConnected === false) continue;
         const src = domApi.getImageSource(image);
-        if (domApi.isInsideInputArea(image)) { rejectCandidate(image, 'composer', src); continue; }
-        if (domApi.getUserTurnContainer(image)) { rejectCandidate(image, 'user_turn', src); continue; }
+        const structuralReason = quarantine?.classifyStructuralInput?.(image);
+        if (structuralReason) { rejectCandidate(image, structuralReason, src); continue; }
         const owner = domApi.getStrictModelResponseContainer(image);
         if (owner && initialResponses.has(owner)) { rejectCandidate(image, 'old_model_turn', src); continue; }
         const belongsToNewModelTurn = Boolean(owner && !initialResponses.has(owner));

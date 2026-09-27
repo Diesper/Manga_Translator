@@ -131,6 +131,22 @@ function mountGeminiEditor({
             }
         }
     });
+    editor.addEventListener('drop', (event) => {
+        const transfer = event.dataTransfer;
+        if (!transfer?.items?.length || document.querySelector('file-preview')) return;
+        const preview = document.createElement('file-preview');
+        const thumbImg = document.createElement('img');
+        thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+        Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+        preview.getBoundingClientRect = () => ({
+            x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+            width: 120, height: 90, toJSON() { return this; },
+        });
+        preview.appendChild(thumbImg);
+        document.body.appendChild(preview);
+    });
 
     editor.addEventListener('keydown', (event) => {
         if (sendMode === 'enter' && event.key === 'Enter') onSubmit();
@@ -161,7 +177,10 @@ function appendGeneratedImage(src, { width = 1024, height = 1536 } = {}) {
     Object.defineProperty(img, 'naturalWidth', { value: width, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: height, configurable: true });
     Object.defineProperty(img, 'complete', { value: true, configurable: true });
-    document.body.appendChild(img);
+    const response = document.createElement('model-response');
+    response.setAttribute('data-message-author', 'model');
+    response.appendChild(img);
+    document.body.appendChild(response);
     return img;
 }
 
@@ -470,9 +489,8 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         const mod = loadContentGeminiModule();
         await expect(mod.deleteCurrentConversation()).resolves.toBe(false);
 
-        // O toggle pode abrir a barra lateral para procurar o chatId, mas não
-        // pode acionar a exclusão de um item genérico.
-        expect(optionsBtn.click).toHaveBeenCalled();
+        // Um controle genérico sem vínculo com o chat atual não é acionado.
+        expect(optionsBtn.click).not.toHaveBeenCalled();
         expect(deleteItem.click).not.toHaveBeenCalled();
         expect(confirmBtn.click).not.toHaveBeenCalled();
         expect(sentMessages).toContainEqual(expect.objectContaining({ action: 'LOG_ENTRY', action_name: 'DELETE_ERROR' }));

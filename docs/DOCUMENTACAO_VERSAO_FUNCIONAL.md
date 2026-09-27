@@ -2,7 +2,7 @@
 
 Identificação: MT-UNICO-01, revisão 2. Atualização: 27/09/2026. Pasta: `extension/`.
 
-**Estado: aprovado pelo usuário e sustentado pelos logs manuais da revisão 2.** Foram concluídos quatro lotes com 21 imagens: sete temporárias, sete minimizadas e sete normais. Nenhum teste automatizado foi executado pelo agente. Esta atualização modifica documentação e metadados; preserva o código que foi aprovado.
+**Estado da base: aprovado pelo usuário e sustentado pelos logs manuais da revisão 2.** Foram concluídos quatro lotes com 21 imagens: sete temporárias, sete minimizadas e sete normais. A proteção adicional de quarentena descrita abaixo foi acrescentada depois dessa validação manual e deve passar pelo GitHub Actions e pelo novo teste manual do mantenedor. Nenhum Jest foi executado localmente pelo agente.
 
 ## 1. Qual pasta utilizar
 
@@ -20,8 +20,9 @@ Após atualizar o código, recarregue a extensão e reabra também mangá/Gemini
 6. O envio é confirmado por uma transição observável da interface. O observer rejeita anexos/mensagens do usuário e procura um resultado ligado a nova autoria de modelo.
 7. Ao observar início de geração, solicita uma renovação do watchdog; o background confere tarefa e aba dona antes de rearmá-lo.
 8. Extrai a imagem. Assets gerados reconhecidos do Google usam canvas, SW autenticado e fetch pela página como último recurso, nessa ordem.
-9. Nos modos normal/minimizado, aguarda exclusão da conversa ou registra a recuperação pendente antes da entrega final conforme o controlador existente.
-10. O resultado é entregue à página para aplicação/persistência. A finalização e o encerramento do lote seguem as confirmações existentes; sucesso de lote exige que o total concluído corresponda ao total esperado.
+9. Compara SHA-256 dos bytes extraídos com a imagem de entrada. Payload idêntico é colocado em quarentena e não é entregue.
+10. Nos modos normal/minimizado, aguarda exclusão da conversa ou registra a recuperação pendente antes da entrega final conforme o controlador existente.
+11. O resultado é entregue à página para aplicação/persistência. A finalização e o encerramento do lote seguem as confirmações existentes; sucesso de lote exige que o total concluído corresponda ao total esperado.
 
 Um resultado servido pelo cache não percorre todas essas etapas. Para avaliar mudanças futuras no fluxo Gemini, use uma imagem nova ou o recurso existente para ignorar/remover somente sua entrada de cache.
 
@@ -40,6 +41,7 @@ O runner automático não solicita as ações que ativam fisicamente aba/janela 
 - **Editor pronto:** existir um wrapper não basta; o editor precisa estar editável e estável.
 - **Upload confirmado:** disparar eventos é tentativa. Imagem carregada com dimensões naturais positivas e sem processamento pendente é a evidência de confirmação.
 - **Autoria da resposta:** rejeitar composer, turno do usuário, fontes iniciais e respostas antigas; preservar os seletores de autoria forte.
+- **Quarentena da entrada:** rejeitar preview de anexo também na seleção manual e bloquear igualdade SHA-256 exata antes da entrega.
 - **Shadow DOM e carregamento:** manter busca profunda, observação de raízes, mudanças de `src`/`srcset` e eventos de carga/erro.
 - **Fallback de resposta restrito:** sem autoria estrita, exigir asset HTTPS gerado do Google e geração observada; blob/data órfãos não bastam.
 - **Sessão de extração:** manter `geminiSession:true` para a rota autenticada e validação de host no background.
@@ -47,7 +49,7 @@ O runner automático não solicita as ações que ativam fisicamente aba/janela 
 - **Prazo finito:** renovar uma vez por execução do runner no início observado, sem prolongamento contínuo por heartbeat.
 - **Conclusão honesta:** preservar `hasErrors` e supressão do áudio de sucesso em lote com falhas.
 
-Não houve transplante completo da extensão alternativa, nem importação da recuperação que trazia o Gemini para primeiro plano. As melhorias opcionais de contador explícito de falhas, quarentena por identidade do anexo e igualdade de payload não fazem parte desta revisão.
+Não houve transplante completo da extensão alternativa, nem importação da recuperação que trazia o Gemini para primeiro plano. O contador explícito de falhas continua fora desta revisão. A quarentena usa contexto estrutural e igualdade exata dos bytes; similaridade perceptual permanece somente como telemetria.
 
 ## 5. Extração e autenticação
 
@@ -77,7 +79,7 @@ Esses valores não devem ser somados como garantia de duração total. O watchdo
 
 ## 7. Mapa de implementação
 
-No histórico local, a revisão 2 acrescentou duas melhorias à revisão 1 em seis arquivos. Ao integrar a base main deste repositório, 15 arquivos de extension diferem: 13 com comportamento e dois somente com identificação/comentário. Os outros 43 coincidem após normalizar quebras de linha. Watchdog de cinco minutos e sua ação validada já existiam nesta base e são preservados.
+No histórico local, a revisão 2 acrescentou duas melhorias à revisão 1 em seis arquivos. A quarentena posterior adiciona um módulo e integra quatro arquivos já alterados no fluxo Gemini. Contra a base main, o PR passa a ter 16 arquivos de `extension/` diferentes: 14 com comportamento e dois somente com identificação/comentário. Os outros 42 coincidem após normalizar quebras de linha. Watchdog de cinco minutos e sua ação validada já existiam nesta base e são preservados.
 
 | Arquivo relativo a extension | Responsabilidade na versão funcional |
 |---|---|
@@ -90,11 +92,12 @@ No histórico local, a revisão 2 acrescentou duas melhorias à revisão 1 em se
 | `gemini/attachment.js` | Tentativas sequenciais e confirmação observável/carregada do anexo. |
 | `gemini/deletion.js` | Espera de ID, exclusão verificada, reconhecimento de repetição e recuperação existente. |
 | `gemini/dom.js` | Helpers de busca profunda e autoria/contexto da imagem. |
-| `gemini/job-runner.js` | Editor estável, integração do pipeline, upload obrigatório, refresh e exclusão aguardada. |
-| `gemini/observer.js` | Confirma envio, geração e resultado; aplica filtros de autoria e carregamento. |
+| `gemini/image-quarantine.js` | Classifica imagens do caminho de entrada e compara SHA-256 exato dos payloads. |
+| `gemini/job-runner.js` | Editor estável, integração do pipeline, upload obrigatório, refresh, quarentena antes da entrega e exclusão aguardada. |
+| `gemini/observer.js` | Confirma envio, geração e resultado; aplica filtros de autoria, carregamento e preview de anexo. |
 | `gemini/result-extractor.js` | Cadeia autenticada reordenada somente para assets gerados reconhecidos. |
 | `gemini/selectors.js` | Reconhecimento ampliado de assistant e turnos do usuário. |
-| `manifest.json` | Nome de identificação MT-UNICO-01; a revisão 2 não alterou nome, permissões ou versão 6.5. |
+| `manifest.json` | Nome de identificação MT-UNICO-01 e ordem de carga do módulo de quarentena; permissões e versão 6.5.0 permanecem. |
 
 O diff do PR registra as alterações contra main. Esta documentação descreve o conjunto funcional completo, incluindo componentes que já existiam na base. O resumo público em VALIDACAO_REVISAO_2.json registra contagens e limites da evidência sem publicar os exports brutos.
 
@@ -113,7 +116,7 @@ Há 21 `GEMINI_WATCHDOG_REFRESH_REQUESTED`, 21 `JOB_WATCHDOG_REFRESH` e 21 `GEMI
 
 As exportações são acumulativas e limitadas; normal/minimizado têm 500 eventos cada. A análise remove linhas exatamente repetidas e usa prefixos de tarefas para contar resultados. Eventos anônimos simultâneos podem se repetir ou ficar fora da janela do logger, portanto não são utilizados para inventar uma correspondência por imagem.
 
-Essa evidência confirma o fluxo nas execuções registradas. Não mede melhoria de velocidade, não demonstra expiração provocada do watchdog e não verifica automaticamente a qualidade visual. O relato do usuário confirma que a revisão funciona.
+Essa evidência confirma o fluxo anterior às mudanças de quarentena nas execuções registradas. Não mede melhoria de velocidade, não demonstra expiração provocada do watchdog, não verifica automaticamente a qualidade visual e não substitui o novo teste manual da quarentena. O relato do usuário confirma que a base da revisão funciona.
 
 ## 9. Diagnóstico e conservação
 

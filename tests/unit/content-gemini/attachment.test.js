@@ -233,7 +233,7 @@ describe('gemini/attachment.js', () => {
     expect(result.methodsAttempted).toContain('drop');
   });
 
-  test('ATT-07: retries preservam paste + file input sem repetir drag/drop', async () => {
+  test('ATT-07: cada método de upload é tentado no máximo uma vez', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -255,7 +255,7 @@ describe('gemini/attachment.js', () => {
     });
 
     expect(result.confirmed).toBe(false);
-    expect(pasteCount).toBe(3);
+    expect(pasteCount).toBe(1);
     expect(dropCount).toBe(1);
   });
 

@@ -6,12 +6,18 @@
 // bootstrap/claim/keepalive/message handlers.
 
 (function(scope) {
+  let imageQuarantineApi = scope.MangaTranslatorGeminiImageQuarantine || null;
+  if (!imageQuarantineApi && typeof require === 'function') {
+    try { imageQuarantineApi = require('./image-quarantine.js'); } catch (_e) {}
+  }
+
   function createGeminiJobRunner({
     root = scope.document || null,
     pageWindow = scope.window || null,
     runtime = scope.chrome?.runtime || null,
     storage = scope.chrome?.storage?.local || null,
     domApi = scope.MangaTranslatorGeminiDom,
+    imageQuarantine = imageQuarantineApi?.createImageQuarantine?.({ dom: domApi }),
     observerApi = scope.MangaTranslatorGeminiObserver,
     editorApi = scope.MangaTranslatorGeminiEditor,
     attachmentApi = scope.MangaTranslatorGeminiAttachment,
@@ -33,7 +39,7 @@
     if (!root || !pageWindow || !runtime || !storage) {
       throw new Error('JobRunner requer document/window/runtime/storage');
     }
-    if (!domApi || !observerApi || !editorApi || !attachmentApi || !temporaryChatApi) {
+    if (!domApi || !imageQuarantine || !observerApi || !editorApi || !attachmentApi || !temporaryChatApi) {
       throw new Error('JobRunner requer módulos Gemini DOM/Observer/Editor/Attachment/TemporaryChat');
     }
     if (!resultExtractor || !deletionController) {
@@ -229,6 +235,7 @@
     }
 
     function isLikelyGeneratedImage(image, ignoreImages = new Set()) {
+      if (imageQuarantine.isStructurallyInput(image)) return false;
       const src = getImageSource(image);
       if (!src || ignoreImages.has(src) || isIgnoredGeminiImageSource(src)) return false;
 
@@ -265,6 +272,7 @@
     }
 
     function isManualSelectableImage(image, ignoreImages = new Set()) {
+      if (imageQuarantine.isStructurallyInput(image)) return false;
       const src = getImageSource(image);
       if (!src || ignoreImages.has(src) || isIgnoredGeminiImageSource(src)) return false;
       const width = image.naturalWidth || image.width || 0;
@@ -606,6 +614,7 @@
 
       let scrollInterval = null;
       let executionMode = job.executionMode || null;
+      let inputImageHash = null;
 
       const startScrollAssist = () => {
         scrollInterval = setIntervalFn(() => {
@@ -690,6 +699,22 @@
           'Base64 validada.'
         );
         job.srcData = imageResponse.srcData;
+        try {
+          inputImageHash = await imageQuarantine.computeExactHash(job.srcData);
+          sendLog(
+            'info',
+            'GEMINI_INPUT_QUARANTINE_READY',
+            'Assinatura exata da imagem de entrada calculada',
+            { algorithm: 'SHA-256' }
+          );
+        } catch (hashError) {
+          sendLog(
+            'warn',
+            'GEMINI_QUARANTINE_HASH_UNAVAILABLE',
+            'Não foi possível calcular a assinatura inicial; o filtro estrutural permanece ativo',
+            { messageLength: String(hashError?.message || '').length }
+          );
+        }
 
         reportProgress('⏳ AGUARDANDO INTERFACE...', job.mangaTabId);
         debugConsole('log', '[MangaTranslator Gemini] Aguardando interface do Gemini...');
@@ -899,6 +924,7 @@
               'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
             ) || activeEditable,
           ignoreImages,
+          imageQuarantine,
           onStateChange: (type, detail) => {
             if (type === 'result_candidate_rejected' || type === 'result_candidate_accepted') {
               sendLog('info', type === 'result_candidate_rejected' ? 'GEMINI_RESULT_REJECTED' : 'GEMINI_RESULT_ACCEPTED',
@@ -1147,6 +1173,35 @@
         });
 
         if (extraction.kind === 'extracted' && extraction.dataUrl) {
+          try {
+            const quarantineResult = await imageQuarantine.assessExtractedResult({
+              element: resultImageElement,
+              candidateDataUrl: extraction.dataUrl,
+              inputDataUrl: job.srcData,
+              inputHash: inputImageHash,
+            });
+            if (quarantineResult.quarantined) {
+              sendLog(
+                'error',
+                'GEMINI_RESULT_MATCHES_INPUT',
+                'Resultado bloqueado pela quarentena de imagem',
+                { reason: quarantineResult.reason, exactMatch: quarantineResult.exactMatch === true }
+              );
+              const quarantineError = new Error('O resultado do Gemini é idêntico à imagem de entrada.');
+              quarantineError.code = 'GEMINI_RESULT_MATCHES_INPUT';
+              quarantineError.alreadyLogged = true;
+              throw quarantineError;
+            }
+          } catch (quarantineError) {
+            if (quarantineError?.code === 'GEMINI_RESULT_MATCHES_INPUT') throw quarantineError;
+            sendLog(
+              'warn',
+              'GEMINI_QUARANTINE_HASH_UNAVAILABLE',
+              'A comparação exata do resultado falhou; o fluxo continuará com os filtros estruturais',
+              { messageLength: String(quarantineError?.message || '').length }
+            );
+          }
+
           await deliverWithSecureDeletion({
             action: 'GEMINI_IMAGE_EXTRACTED',
             mangaTabId: job.mangaTabId,
@@ -1163,6 +1218,18 @@
             : 'delivered_auxiliary',
         };
       } catch (error) {
+        if (!error?.alreadyLogged) {
+          sendLog(
+            'error',
+            error?.code || 'GEMINI_ERROR',
+            'Job Gemini encerrado com erro',
+            {
+              executionMode,
+              index: job.index,
+              messageLength: String(error?.message || '').length,
+            }
+          );
+        }
         runtime.sendMessage({
           action: 'GEMINI_ERROR',
           mangaTabId: job.mangaTabId,
