@@ -193,4 +193,44 @@ describe('background/jobs-dom-ack durable staging', () => {
         expect(result.reason).toBe('tab closed');
         expect(finalizeJob).not.toHaveBeenCalled();
     });
+
+    test('message channel closed não vale como ACK de persistência no staging', async () => {
+        const finalizeJob = jest.fn();
+        global.chrome = {
+            runtime: { lastError: null },
+            tabs: {
+                sendMessage: jest.fn((_tabId, _message, callback) => {
+                    global.chrome.runtime.lastError = {
+                        message: 'The message channel closed before a response was received.',
+                    };
+                    callback();
+                    global.chrome.runtime.lastError = null;
+                }),
+            },
+        };
+
+        const api = loadModule().createDomAckDelivery({
+            updateJobState: jest.fn().mockResolvedValue({}),
+            finalizeJob,
+            log: jest.fn(),
+            timeoutMs: 100,
+        });
+
+        const result = await api.deliver({
+            mangaTabId: 77,
+            index: 4,
+            src: 'data:image/png;base64,AA',
+            jobId: 'job-4',
+            batchId: 'batch-1',
+            geminiTabId: 321,
+            finalizeOnAck: false,
+        });
+
+        expect(result).toEqual(expect.objectContaining({
+            ok: false,
+            reason: 'ack_required_for_staging',
+        }));
+        expect(finalizeJob).not.toHaveBeenCalled();
+    });
+
 });
