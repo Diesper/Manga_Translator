@@ -9,6 +9,7 @@ const testsRoot = path.resolve(__dirname, '..');
 const resultDir = path.join(testsRoot, '.ci-results');
 const resultFile = path.join(resultDir, 'jest-results.json');
 const coverageRequested = process.argv.includes('--coverage');
+const jestConfig = coverageRequested ? 'jest.coverage.config.js' : 'jest.config.js';
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -41,7 +42,7 @@ if (expectedFiles.length === 0) {
 const jestBin = path.join(testsRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 const args = [
   jestBin,
-  '--config', 'jest.config.js',
+  '--config', jestConfig,
   '--ci',
   '--forceExit',
   '--json',
@@ -99,17 +100,6 @@ if (!fs.existsSync(resultFile)) {
     ', arquivos=' + actualFiles.size + '/' + expectedFiles.length);
 }
 
-if (coverageRequested) {
-  const lcov = path.join(testsRoot, 'coverage', 'lcov.info');
-  if (!fs.existsSync(lcov) || fs.statSync(lcov).size < 100) {
-    console.warn(
-      'AVISO: os testes do modo coverage foram executados, mas lcov.info ficou vazio. ' +
-      'Isso não mascara falhas de teste: o job continua bloqueante pelo resultado do Jest e pelo inventário 101/101. ' +
-      'O upload de métricas permanece auxiliar e não bloqueante.'
-    );
-  }
-}
-
 if (run.error) problems.push('Falha ao iniciar Jest: ' + run.error.message);
 if (run.status !== 0) problems.push('Jest terminou com código ' + String(run.status) + '.');
 
@@ -119,4 +109,4 @@ if (problems.length) {
   process.exit(1);
 }
 
-console.log('Gate de inventário do Jest aprovado.');
+console.log('Gate de inventário do Jest aprovado usando ' + jestConfig + '.');
