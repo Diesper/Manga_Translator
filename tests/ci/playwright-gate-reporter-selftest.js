@@ -62,6 +62,16 @@ function passedAttempts(total = 21) {
     );
   }
 
+  for (const terminalStatus of ['failed', 'timedOut', 'interrupted']) {
+    const attempts = passedAttempts(20);
+    attempts.push({ id: 't20', status: terminalStatus, retry: 0 });
+    assert.deepStrictEqual(
+      await finish({ attempts }),
+      { status: 'failed' },
+      'status terminal deve reprovar o gate: ' + terminalStatus
+    );
+  }
+
   console.log('Self-test do reporter E2E aprovado.');
 })().catch((error) => {
   console.error(error);
