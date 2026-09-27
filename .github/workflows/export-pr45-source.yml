@@ -16,60 +16,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-
-      - name: Install test dependencies
-        working-directory: tests
-        run: npm ci
-
-      - name: Install Playwright Chromium
-        working-directory: tests
-        run: npx playwright install chromium
-
-      - name: Pack source outside checkout
-        run: |
-          tar --exclude='.git' --exclude='node_modules' -czf "$RUNNER_TEMP/pr45-source.tar.gz" .
-
-      - name: Pack test dependencies
-        run: |
-          tar -C tests -czf "$RUNNER_TEMP/pr45-node_modules.tar.gz" node_modules
 
       - name: Pack exact Node runtime
         run: |
           NODE_ROOT="$(dirname "$(dirname "$(which node)")")"
-          echo "NODE_ROOT=$NODE_ROOT"
           node --version
-          tar -C "$NODE_ROOT" -czf "$RUNNER_TEMP/pr45-node-runtime.tar.gz" .
-
-      - name: Pack Playwright browsers
-        run: |
-          tar -C "$HOME/.cache" -czf "$RUNNER_TEMP/pr45-playwright-browsers.tar.gz" ms-playwright
-
-      - name: Upload source artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr45-source
-          path: ${{ runner.temp }}/pr45-source.tar.gz
-          retention-days: 1
-
-      - name: Upload dependency artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr45-node-modules
-          path: ${{ runner.temp }}/pr45-node_modules.tar.gz
-          retention-days: 1
+          tar -C "$NODE_ROOT" -czf "$RUNNER_TEMP/pr45-node-runtime.tar.gz" bin/node
 
       - name: Upload Node runtime artifact
         uses: actions/upload-artifact@v4
         with:
           name: pr45-node-runtime
           path: ${{ runner.temp }}/pr45-node-runtime.tar.gz
-          retention-days: 1
-
-      - name: Upload Playwright browser artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr45-playwright-browsers
-          path: ${{ runner.temp }}/pr45-playwright-browsers.tar.gz
           retention-days: 1
