@@ -568,4 +568,197 @@ describe('background/jobs-lifecycle batch status', () => {
         );
     });
 
+
+    test('BATCH-STATUS-06: A→B→C→D→E→F→G é promovido em FIFO e cada lote conclui uma única vez', async () => {
+        const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
+        global.chrome = {
+            runtime: { lastError: null },
+            tabs: { sendMessage },
+            storage: {
+                local: {
+                    get: jest.fn(async () => ({ maxConcurrentJobs: 1 })),
+                },
+            },
+        };
+
+        let mutationChain = Promise.resolve();
+        const state = {
+            stopRequested: false,
+            jobQueue: [],
+            activeJobsCount: 0,
+            activeMangaTabId: 101,
+            currentBatchId: 'batch-a',
+            completionClaimedBatchId: null,
+            completedJobs: 1,
+            totalJobs: 1,
+            isProcessing: true,
+            pendingBatches: ['b', 'c', 'd', 'e', 'f', 'g'].map((letter, index) => ({
+                batchId: `batch-${letter}`,
+                mangaTabId: 102 + index,
+                prompt: letter.toUpperCase(),
+                images: [],
+            })),
+            jobIndex: [],
+            _cachedMaxCon: 1,
+        };
+        state.mutate = mutator => {
+            mutationChain = mutationChain.then(async () => {
+                const snapshot = {
+                    ...state,
+                    jobQueue: [...state.jobQueue],
+                    jobIndex: [...state.jobIndex],
+                    pendingBatches: state.pendingBatches.map(batch => ({
+                        ...batch,
+                        images: [...batch.images],
+                    })),
+                };
+                delete snapshot.mutate;
+                const next = await mutator(snapshot);
+                Object.assign(state, next);
+                return next;
+            });
+            return mutationChain;
+        };
+
+        const log = jest.fn();
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(),
+            indexJobsOfBatch: jest.fn(() => []),
+            delay: async () => {},
+            generateId: () => 'id',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await api.processNextJob();
+
+        const completedBatchIds = sendMessage.mock.calls
+            .map(([, message]) => message)
+            .filter(message => message?.action === 'BATCH_COMPLETE')
+            .map(message => message.batchId);
+
+        expect(completedBatchIds).toEqual([
+            'batch-a',
+            'batch-b',
+            'batch-c',
+            'batch-d',
+            'batch-e',
+            'batch-f',
+            'batch-g',
+        ]);
+
+        const doneLogBatchIds = log.mock.calls
+            .filter(([, , action]) => action === 'BATCH_DONE')
+            .map(([, , , , extra]) => extra.batchId);
+        expect(doneLogBatchIds).toEqual([
+            'batch-a',
+            'batch-b',
+            'batch-c',
+            'batch-d',
+            'batch-e',
+            'batch-f',
+            'batch-g',
+        ]);
+
+        expect(state.pendingBatches).toEqual([]);
+        expect(state.currentBatchId).toBe('batch-g');
+        expect(state.completionClaimedBatchId).toBe('batch-g');
+        expect(state.activeJobsCount).toBe(0);
+        expect(state.isProcessing).toBe(false);
+    });
+
+    test('BATCH-STATUS-07: fila longa de 64 lotes não perde, duplica ou reordena batches', async () => {
+        const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
+        global.chrome = {
+            runtime: { lastError: null },
+            tabs: { sendMessage },
+            storage: {
+                local: {
+                    get: jest.fn(async () => ({ maxConcurrentJobs: 1 })),
+                },
+            },
+        };
+
+        const pendingIds = Array.from({ length: 63 }, (_unused, index) =>
+            `batch-${String(index + 2).padStart(2, '0')}`
+        );
+        let mutationChain = Promise.resolve();
+        const state = {
+            stopRequested: false,
+            jobQueue: [],
+            activeJobsCount: 0,
+            activeMangaTabId: 1,
+            currentBatchId: 'batch-01',
+            completionClaimedBatchId: null,
+            completedJobs: 1,
+            totalJobs: 1,
+            isProcessing: true,
+            pendingBatches: pendingIds.map((batchId, index) => ({
+                batchId,
+                mangaTabId: index + 2,
+                prompt: batchId,
+                images: [],
+            })),
+            jobIndex: [],
+            _cachedMaxCon: 1,
+        };
+        state.mutate = mutator => {
+            mutationChain = mutationChain.then(async () => {
+                const snapshot = {
+                    ...state,
+                    jobQueue: [...state.jobQueue],
+                    jobIndex: [...state.jobIndex],
+                    pendingBatches: state.pendingBatches.map(batch => ({
+                        ...batch,
+                        images: [...batch.images],
+                    })),
+                };
+                delete snapshot.mutate;
+                const next = await mutator(snapshot);
+                Object.assign(state, next);
+                return next;
+            });
+            return mutationChain;
+        };
+
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log: jest.fn(),
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(),
+            indexJobsOfBatch: jest.fn(() => []),
+            delay: async () => {},
+            generateId: () => 'id',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await api.processNextJob();
+
+        const completed = sendMessage.mock.calls
+            .map(([, message]) => message)
+            .filter(message => message?.action === 'BATCH_COMPLETE')
+            .map(message => message.batchId);
+        const expected = ['batch-01', ...pendingIds];
+
+        expect(completed).toEqual(expected);
+        expect(new Set(completed).size).toBe(64);
+        expect(state.pendingBatches).toEqual([]);
+        expect(state.currentBatchId).toBe('batch-64');
+        expect(state.isProcessing).toBe(false);
+    });
+
 });
