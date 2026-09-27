@@ -1292,6 +1292,7 @@ if (!window.__manga_translator_content_injected) {
             // a falta do botão mas ainda não consegue confirmar a recuperação.
             btn.style.bottom = '20px';
             btn.style.right = '20px';
+            btn.dataset.positionReady = 'false';
             document.documentElement.appendChild(btn);
             setBtnHTML(btn, floatingButtonViewState.text, floatingButtonViewState.showStop);
             setTranslatorButtonBackground(btn, floatingButtonViewState.background);
@@ -1312,6 +1313,7 @@ if (!window.__manga_translator_content_injected) {
                     clampFloatingButtonToViewport(btn, true);
                 }
                 if (data.debugMode === true) applyDebugDrawer(true);
+                btn.dataset.positionReady = 'true';
             });
         }
 
