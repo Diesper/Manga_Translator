@@ -6,6 +6,9 @@ const path = require('path');
 const root = path.resolve(__dirname, '../..');
 const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
 const playwright = fs.readFileSync(path.join(root, 'tests', 'playwright.config.js'), 'utf8');
+const coverageConfig = fs.readFileSync(path.join(root, 'tests', 'jest.coverage.config.js'), 'utf8');
+const coverageVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage.js'), 'utf8');
+const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage-selftest.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
 
@@ -58,8 +61,20 @@ if (/npm run test:[^\n]*\|\|\s*true/.test(workflow)) {
 }
 
 const coverage = jobBlock('coverage');
-if (!/run:\s+npm run test:coverage:ci/.test(coverage)) {
-  problems.push('coverage: deve executar test:coverage:ci de forma bloqueante');
+if (!/run:\s+npm run test:coverage/.test(coverage)) {
+  problems.push('coverage: deve executar test:coverage de forma bloqueante');
+}
+if (!/run:\s+npm run test:coverage:verify/.test(coverage)) {
+  problems.push('coverage: deve verificar a integridade do relatório em etapa bloqueante');
+}
+if (/npm run test:coverage[^\n]*\|\|\s*true/.test(coverage)) {
+  problems.push('coverage: não pode mascarar Jest/coverage com "|| true"');
+}
+if (!coverage.includes('CODECOV_TOKEN not configured')) {
+  problems.push('coverage: ausência de CODECOV_TOKEN precisa ser reportada explicitamente como SKIPPED');
+}
+if (!coverage.includes('fail_ci_if_error: true')) {
+  problems.push('coverage: Codecov configurado deve reportar sua própria falha');
 }
 
 const gate = jobBlock('ci-gate');
@@ -81,8 +96,35 @@ if (!playwright.includes('./ci/playwright-gate-reporter.js')) {
 if (pkg.scripts['test:ci'] !== 'node ci/run-jest-ci.js') {
   problems.push('tests/package.json#test:ci precisa usar o runner auditável');
 }
-if (pkg.scripts['test:coverage:ci'] !== 'node ci/run-jest-ci.js --coverage') {
-  problems.push('tests/package.json#test:coverage:ci precisa usar o runner auditável com cobertura');
+if (pkg.scripts['test:coverage'] !== 'node ci/run-jest-ci.js --coverage') {
+  problems.push('tests/package.json#test:coverage precisa usar o runner auditável com cobertura');
+}
+if (pkg.scripts['test:coverage:verify'] !== 'node ci/verify-coverage.js') {
+  problems.push('tests/package.json#test:coverage:verify precisa executar o verificador de integridade');
+}
+if (pkg.scripts['test:coverage:infra'] !== 'node ci/verify-coverage-selftest.js') {
+  problems.push('tests/package.json#test:coverage:infra precisa testar a própria infraestrutura');
+}
+if (!coverageConfig.includes("coverageProvider: 'v8'")) {
+  problems.push('jest.coverage.config.js precisa usar coverageProvider v8');
+}
+if (!coverageConfig.includes("<rootDir>/../extension/**/*.js")) {
+  problems.push('coverage precisa incluir a arquitetura atual extension/**/*.js');
+}
+for (const reporter of ['lcov', 'json-summary', 'text-summary']) {
+  if (!coverageConfig.includes("'" + reporter + "'")) {
+    problems.push('jest.coverage.config.js precisa gerar reporter ' + reporter);
+  }
+}
+for (const invariant of ['lcov.info ausente ou vazio', 'coverage zero não é aceito', 'arquivo crítico ausente']) {
+  if (!coverageVerifier.includes(invariant)) {
+    problems.push('verify-coverage.js não protege invariável: ' + invariant);
+  }
+}
+for (const scenario of ['coverage normal', 'lcov vazio', 'coverage 0%', 'arquivo crítico ausente', 'threshold abaixo do mínimo']) {
+  if (!coverageSelfTest.includes(scenario)) {
+    problems.push('self-test de coverage não cobre cenário: ' + scenario);
+  }
 }
 
 for (const [name, value] of [
@@ -91,6 +133,7 @@ for (const [name, value] of [
   ['visual.minTests', baseline.visual && baseline.visual.minTests],
   ['e2e.minTests', baseline.e2e && baseline.e2e.minTests],
   ['smoke.minFiles', baseline.smoke && baseline.smoke.minFiles],
+  ['coverage.minInstrumentedFiles', baseline.coverage && baseline.coverage.minInstrumentedFiles],
 ]) {
   if (!Number.isInteger(value) || value <= 0) problems.push('baseline inválido: ' + name);
 }
