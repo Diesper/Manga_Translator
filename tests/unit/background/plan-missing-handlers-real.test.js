@@ -111,6 +111,9 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
     test('BG-44: START_BATCH não sobrescreve lote ativo e registra bloqueio explícito', async () => {
         await storageMock.set({ maxConcurrentJobs: 3 });
 
+        const liveA = await tabsMock.create({ url: 'https://gemini.google.com/app/a', active: false });
+        const liveB = await tabsMock.create({ url: 'https://gemini.google.com/app/b', active: false });
+
         backgroundModule.__setState({
             isProcessing: true,
             currentBatchId: 'batch-ativo',
@@ -122,8 +125,8 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
                 { mangaTabId: 999, index: 3, prompt: 'antigo', batchId: 'batch-ativo' },
             ],
             jobIndex: [
-                { geminiTabId: 7001, jobId: 'job-a', batchId: 'batch-ativo', mangaTabId: 999, index: 1 },
-                { geminiTabId: 7002, jobId: 'job-b', batchId: 'batch-ativo', mangaTabId: 999, index: 2 },
+                { geminiTabId: liveA.id, jobId: 'job-a', batchId: 'batch-ativo', mangaTabId: 999, index: 1 },
+                { geminiTabId: liveB.id, jobId: 'job-b', batchId: 'batch-ativo', mangaTabId: 999, index: 2 },
             ],
         });
 
@@ -142,7 +145,7 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
             batchId: 'batch-novo',
             activeBatchId: 'batch-ativo',
         }));
-        expect(tabsMock._tabs.size).toBe(0);
+        expect(tabsMock._tabs.size).toBe(2);
 
         const after = backgroundModule.__getState();
         expect(after).toEqual(expect.objectContaining({
@@ -169,6 +172,8 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
     test('BG-45: START_BATCH idempotente não duplica jobs e lote ocioso respeita maxConcurrentJobs', async () => {
         await storageMock.set({ maxConcurrentJobs: 3 });
 
+        const existingTab = await tabsMock.create({ url: 'https://gemini.google.com/app/existing', active: false });
+
         backgroundModule.__setState({
             isProcessing: true,
             currentBatchId: 'batch-idempotente',
@@ -180,7 +185,7 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
                 { mangaTabId: 123, index: 1, prompt: 'mesmo', batchId: 'batch-idempotente' },
             ],
             jobIndex: [
-                { geminiTabId: 7100, jobId: 'job-existing', batchId: 'batch-idempotente', mangaTabId: 123, index: 0 },
+                { geminiTabId: existingTab.id, jobId: 'job-existing', batchId: 'batch-idempotente', mangaTabId: 123, index: 0 },
             ],
         });
 
@@ -198,7 +203,8 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         }));
         expect(backgroundModule.__getState().jobQueue).toHaveLength(1);
         expect(backgroundModule.__getState().jobIndex).toHaveLength(1);
-        expect(tabsMock._tabs.size).toBe(0);
+        expect(tabsMock._tabs.size).toBe(1);
+        await new Promise(resolve => tabsMock.remove(existingTab.id, resolve));
 
         backgroundModule.__setState({
             isProcessing: false,
@@ -304,7 +310,7 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
             jobId: 'job-result-url',
         }, { tab: { id: geminiTab.id, url: 'https://gemini.google.com/app/chat' } });
 
-        expect(result.response).toEqual({ ok: true });
+        expect(result.response).toEqual({ ok: true, extractionRegistered: true });
 
         const extractionTab = await waitFor(() =>
             Array.from(tabsMock._tabs.values()).find(tab =>
