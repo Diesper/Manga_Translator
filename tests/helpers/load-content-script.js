@@ -52,6 +52,15 @@ async function loadContentScript({
     clickToTranslateEnabled,
     domImages = [],
 } = {}) {
+    // Invalida explicitamente qualquer instância anterior ANTES de tocar no
+    // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
+    // listener antigo ainda pode reagir ao clear/set do teste seguinte e
+    // recriar um botão órfão antes da nova instância assumir.
+    window.__manga_translator_active_instance =
+        `__mt_test_reset_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const staleButton = document.getElementById('manga-translator-trigger');
+    if (staleButton) staleButton.remove();
+
     // 1. Configura window.location
     Object.defineProperty(window, 'location', {
         value: {
