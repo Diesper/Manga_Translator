@@ -73,6 +73,20 @@ module.exports = {
             ],
         },
         {
+            displayName: 'manifest',
+            testEnvironment: 'node',
+            testMatch: ['<rootDir>/unit/manifest/**/*.test.js'],
+        },
+        {
+            displayName: 'shared-ui',
+            testEnvironment: 'jsdom',
+            testMatch: ['<rootDir>/unit/shared-ui/**/*.test.js'],
+            setupFilesAfterEnv: [
+                '<rootDir>/mocks/chrome-api.mock.js',
+                '<rootDir>/mocks/dom-environment.js',
+            ],
+        },
+        {
             displayName: 'integration',
             testEnvironment: 'jsdom',
             testMatch: ['<rootDir>/integration/**/*.test.js'],
