@@ -579,6 +579,15 @@ describe('gemini/job-runner.js', () => {
     expect(stageIndex).toBeGreaterThanOrEqual(0);
     expect(commitIndex).toBeGreaterThan(stageIndex);
     expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();
+    expect(options.resultExtractor.extractOrAuxiliaryFallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        logContext: {
+          jobIdPrefix: 'job-orde',
+          batchIdPrefix: 'batch-or',
+          index: 3,
+        },
+      })
+    );
     expect(options.sendLog).toHaveBeenCalledWith(
       'success',
       'GEMINI_RESULT_STAGED',
