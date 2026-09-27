@@ -372,7 +372,8 @@ async function ensureInitialized() {
     // Um alarme pode disparar enquanto este worker já detém um lote vivo. Não
     // sobrescreva essa fila/extractionTabs com um snapshot antigo ou vazio.
     const hasResidentWork = state().jobQueue.length > 0 || state().activeJobsCount > 0 ||
-        state().jobIndex.length > 0 || Object.keys(state().extractionTabs).length > 0;
+        state().jobIndex.length > 0 || state().pendingBatches.length > 0 ||
+        Object.keys(state().extractionTabs).length > 0;
     if (!hasResidentWork) await restoreState();
 
     // A reconciliação é canonical-aware e por isso é o gate síncrono
@@ -384,8 +385,13 @@ async function ensureInitialized() {
         const result = await reconcileJobs();
         if (result.dropped > 0 || result.alive > 0 || result.recovered > 0) {
             await syncState();
-            if (result.dropped > 0 || result.recovered > 0) processNextJob();
         }
+        if (!state().stopRequested && (
+            state().jobQueue.length > 0 ||
+            state().activeJobsCount > 0 ||
+            state().pendingBatches.length > 0 ||
+            (state().isProcessing && state().currentBatchId)
+        )) processNextJob();
     } catch (_e) {}
 
     identity.recoverPendingMigrations()
@@ -757,53 +763,96 @@ function handleMarkerAndShow(safeTitle, sendResponse) {
     });
 }
 
+function createBatchDescriptor(request, mangaTabId, batchId) {
+    return {
+        batchId,
+        mangaTabId,
+        prompt: request.prompt || '',
+        images: request.images.map(image => ({ index: image.index })),
+        enqueuedAt: Date.now(),
+    };
+}
+
+function activateBatchSnapshot(snapshot, batch) {
+    snapshot.currentBatchId = batch.batchId;
+    snapshot.stopRequested = false;
+    snapshot.jobQueue = (Array.isArray(batch.images) ? batch.images : []).map(image => ({
+        mangaTabId: batch.mangaTabId,
+        index: image.index,
+        prompt: batch.prompt || '',
+        batchId: batch.batchId,
+    }));
+    snapshot.completedJobs = 0;
+    snapshot.activeJobsCount = 0;
+    snapshot.totalJobs = snapshot.jobQueue.length;
+    snapshot.activeMangaTabId = batch.mangaTabId || null;
+    snapshot.isProcessing = true;
+    snapshot.completionClaimedBatchId = null;
+    return snapshot;
+}
+
 async function startBatch(request, sender) {
     await ensureInitialized();
     const batchId = request.batchId || generateId();
     const runtimeState = state();
     const mangaTabId = sender && sender.tab ? sender.tab.id : request.mangaTabId;
+    const incoming = createBatchDescriptor(request, mangaTabId, batchId);
     let outcome = null;
 
     const transition = snapshot => {
         const queuedJobs = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
         const indexedJobs = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
-        const hasLiveWork = Boolean(
+        const pending = Array.isArray(snapshot.pendingBatches)
+            ? snapshot.pendingBatches.map(batch => ({
+                ...batch,
+                images: Array.isArray(batch?.images) ? batch.images.map(image => ({ ...image })) : [],
+            }))
+            : [];
+        snapshot.pendingBatches = pending;
+
+        const hasActiveWork = Boolean(
             snapshot.isProcessing ||
             queuedJobs.length > 0 ||
             Number(snapshot.activeJobsCount) > 0 ||
             indexedJobs.length > 0
         );
 
-        if (hasLiveWork) {
-            if (snapshot.currentBatchId === batchId) {
-                outcome = { type: 'duplicate', batchId };
-                return snapshot;
-            }
+        if (snapshot.currentBatchId === batchId) {
             outcome = {
-                type: 'busy',
+                type: 'duplicate_active',
                 batchId,
-                activeBatchId: snapshot.currentBatchId || null,
-                activeJobs: Number(snapshot.activeJobsCount) || 0,
-                indexedJobs: indexedJobs.length,
-                queuedJobs: queuedJobs.length,
+                alreadyCompleted: !hasActiveWork && snapshot.completionClaimedBatchId === batchId,
             };
             return snapshot;
         }
 
-        snapshot.currentBatchId = batchId;
-        snapshot.stopRequested = false;
-        snapshot.jobQueue = request.images.map(img => ({
-            mangaTabId,
-            index: img.index,
-            prompt: request.prompt,
-            batchId,
-        }));
-        snapshot.completedJobs = 0;
-        snapshot.activeJobsCount = 0;
-        snapshot.totalJobs = request.images.length;
-        snapshot.activeMangaTabId = mangaTabId;
-        snapshot.isProcessing = true;
-        snapshot.completionClaimedBatchId = null;
+        const existingPendingIndex = pending.findIndex(batch => batch && batch.batchId === batchId);
+        if (existingPendingIndex >= 0) {
+            outcome = {
+                type: 'duplicate_pending',
+                batchId,
+                activeBatchId: snapshot.currentBatchId || null,
+                queuePosition: existingPendingIndex + 1,
+            };
+            return snapshot;
+        }
+
+        // Se existem lotes aguardando após uma reidratação, o novo lote entra
+        // no fim da fila. Nunca ultrapasse B/C/D já aceitos anteriormente.
+        if (hasActiveWork || pending.length > 0) {
+            pending.push(incoming);
+            snapshot.pendingBatches = pending;
+            outcome = {
+                type: 'queued',
+                batchId,
+                activeBatchId: snapshot.currentBatchId || null,
+                queuePosition: pending.length,
+                pendingCount: pending.length,
+            };
+            return snapshot;
+        }
+
+        activateBatchSnapshot(snapshot, incoming);
         outcome = { type: 'started', batchId, totalJobs: request.images.length };
         return snapshot;
     };
@@ -814,9 +863,11 @@ async function startBatch(request, sender) {
         const snapshot = typeof runtimeState.get === 'function' ? runtimeState.get() : {
             jobQueue: runtimeState.jobQueue,
             jobIndex: runtimeState.jobIndex,
+            pendingBatches: runtimeState.pendingBatches,
             isProcessing: runtimeState.isProcessing,
             activeJobsCount: runtimeState.activeJobsCount,
             currentBatchId: runtimeState.currentBatchId,
+            completionClaimedBatchId: runtimeState.completionClaimedBatchId,
         };
         const next = transition(snapshot);
         if (typeof runtimeState.patch === 'function') runtimeState.patch(next);
@@ -824,27 +875,54 @@ async function startBatch(request, sender) {
         await syncState();
     }
 
-    if (outcome?.type === 'duplicate') {
+    if (outcome?.type === 'duplicate_active') {
         log('info', 'bg', 'BATCH_DUPLICATE_IGNORED',
-            'START_BATCH repetido para o mesmo lote; estado existente foi preservado.', {
+            outcome.alreadyCompleted
+                ? 'START_BATCH repetido para lote já concluído; nenhuma tarefa foi recriada.'
+                : 'START_BATCH repetido para o lote ativo; estado existente foi preservado.', {
                 batchId: batchId.slice(0, 8),
-            });
-        return { batchId, alreadyStarted: true };
-    }
-
-    if (outcome?.type === 'busy') {
-        log('error', 'bg', 'BATCH_OVERLAP_BLOCKED',
-            'Novo lote bloqueado porque ainda existe trabalho ativo.', {
-                incomingBatchId: batchId.slice(0, 8),
-                activeBatchId: String(outcome.activeBatchId || '').slice(0, 8),
-                activeJobs: outcome.activeJobs,
-                indexedJobs: outcome.indexedJobs,
-                queuedJobs: outcome.queuedJobs,
+                alreadyCompleted: outcome.alreadyCompleted === true,
             });
         return {
-            ok: false,
-            reason: 'batch_busy',
             batchId,
+            alreadyStarted: true,
+            alreadyCompleted: outcome.alreadyCompleted === true,
+        };
+    }
+
+    if (outcome?.type === 'duplicate_pending') {
+        log('info', 'bg', 'BATCH_QUEUE_DUPLICATE_IGNORED',
+            'START_BATCH repetido para lote já enfileirado; posição FIFO foi preservada.', {
+                batchId: batchId.slice(0, 8),
+                activeBatchId: String(outcome.activeBatchId || '').slice(0, 8),
+                queuePosition: outcome.queuePosition,
+            });
+        return {
+            batchId,
+            queued: true,
+            alreadyQueued: true,
+            queuePosition: outcome.queuePosition,
+            activeBatchId: outcome.activeBatchId,
+        };
+    }
+
+    if (outcome?.type === 'queued') {
+        log('info', 'bg', 'BATCH_QUEUED',
+            'Lote aceito na fila FIFO sem alterar o lote atualmente ativo.', {
+                batchId: batchId.slice(0, 8),
+                activeBatchId: String(outcome.activeBatchId || '').slice(0, 8),
+                queuePosition: outcome.queuePosition,
+                pendingCount: outcome.pendingCount,
+                totalJobs: request.images.length,
+            });
+        sendProgress(mangaTabId, `⏳ NA FILA (#${outcome.queuePosition})...`);
+        // Também cobre o caso de reidratação em que havia fila persistida mas
+        // nenhum lote ativo no instante desta nova requisição.
+        processNextJob();
+        return {
+            batchId,
+            queued: true,
+            queuePosition: outcome.queuePosition,
             activeBatchId: outcome.activeBatchId,
         };
     }
