@@ -1398,6 +1398,22 @@ if (!window.__manga_translator_content_injected) {
             );
         }
 
+        function getSingleImageCandidate(img) {
+            if (!img || !img.isConnected || img.dataset.translated === 'true') return null;
+            if (img.naturalWidth < imageMinDimensions.minWidth || img.naturalHeight < imageMinDimensions.minHeight) return null;
+            if (bannedImagesForHost.includes(img.src)) return null;
+            if (isBackdropOrBlurredImage(img) && img.getAttribute('aria-hidden') === 'true') return null;
+
+            const index = Array.from(document.querySelectorAll('img')).indexOf(img);
+            if (index < 0) return null;
+            return {
+                index,
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+                cleanUrl: getImageCleanUrl(img),
+            };
+        }
+
         function showSingleImageToast(message) {
             const old = document.getElementById('manga-single-image-toast');
             if (old) old.remove();
@@ -1473,34 +1489,28 @@ if (!window.__manga_translator_content_injected) {
                     return;
                 }
 
-                const allImages = Array.from(document.querySelectorAll('img'));
-                const currentIndex = allImages.indexOf(img);
-                if (currentIndex < 0) {
-                    cleanup();
-                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada não foi encontrada no DOM na confirmação.', { hostname });
-                    return;
-                }
-
-                const candidate = getScanEligibleImages(bannedImagesForHost, imageMinDimensions)
-                    .find(item => item.index === currentIndex);
+                const candidate = getSingleImageCandidate(img);
                 if (!candidate) {
                     cleanup();
                     showSingleImageToast('Esta imagem não está elegível para tradução.');
-                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada ficou inelegível antes da confirmação.', { index: currentIndex, hostname });
+                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada ficou inelegível antes da confirmação.', {
+                        index: Array.from(document.querySelectorAll('img')).indexOf(img),
+                        hostname,
+                    });
                     return;
                 }
 
-                selectedImagesIndices = new Set([currentIndex]);
+                selectedImagesIndices = new Set([candidate.index]);
                 updateBtnStatus();
                 sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada por clique na imagem.', {
-                    index: currentIndex,
-                    cleanUrl: getImageCleanUrl(img),
+                    index: candidate.index,
+                    cleanUrl: candidate.cleanUrl,
                     width: candidate.width,
                     height: candidate.height,
                 });
                 cleanup();
                 unlockNotificationAudio();
-                extractAndSendImages([currentIndex]);
+                extractAndSendImages([candidate.index]);
             });
 
             document.addEventListener('keydown', onKeydown, true);
@@ -1512,25 +1522,25 @@ if (!window.__manga_translator_content_injected) {
             const target = event.target && event.target.nodeType === 1 ? event.target : null;
             const img = target && typeof target.closest === 'function' ? target.closest('img') : null;
             if (!img) return;
-            if (img.dataset.translated === 'true') return;
-            if (img.naturalWidth < imageMinDimensions.minWidth || img.naturalHeight < imageMinDimensions.minHeight) return;
 
+            const candidate = getSingleImageCandidate(img);
+            if (!candidate) return;
+
+            // Só intercepta o clique normal do leitor depois de confirmar que a
+            // própria imagem clicada é traduzível. Cliques em imagens pequenas,
+            // banidas ou decorativas continuam pertencendo ao site.
             event.preventDefault();
             event.stopImmediatePropagation();
 
             if (isTranslating) {
                 showSingleImageToast('Já existe uma tradução em andamento.');
-                sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_BLOCKED', 'Clique individual ignorado porque já há tradução em andamento.', { hostname });
+                sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_BLOCKED', 'Clique individual ignorado porque já há tradução em andamento.', {
+                    index: candidate.index,
+                    hostname,
+                });
                 return;
             }
 
-            const index = Array.from(document.querySelectorAll('img')).indexOf(img);
-            const candidate = getScanEligibleImages(bannedImagesForHost, imageMinDimensions)
-                .find(item => item.index === index);
-            if (!candidate) {
-                showSingleImageToast('Esta imagem não está elegível para tradução.');
-                return;
-            }
             showSingleImagePrompt(img, event.clientX, event.clientY);
         }, true);
 
