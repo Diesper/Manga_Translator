@@ -742,6 +742,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                             return;
                         }
 
+                        if (localState?.batchStatus === 'complete') {
+                            clearInterval(pollProgress);
+                            progressText.textContent = '✅ Tradução concluída!';
+                            progressSub.textContent = 'Lote desta página concluído.';
+                            progressFill.style.width = '100%';
+                            setTimeout(() => window.close(), 1500);
+                            return;
+                        }
+
+                        if (localState?.batchStatus === 'cancelled') {
+                            clearInterval(pollProgress);
+                            progressText.textContent = '⏹️ Tradução cancelada';
+                            progressSub.textContent = 'O lote desta página foi removido.';
+                            progressFill.style.width = '0%';
+                            return;
+                        }
+
                         chrome.storage.local.get(['mt_state', 'mt_popup_state'], (d) => {
                             const state = d.mt_state || {};
                             const popupState = d.mt_popup_state || {};
@@ -752,7 +769,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             if (!pollStarted && !state.isProcessing && !popupStarted) return;
                             pollStarted = true;
 
-                            if (popupStatus === 'cancelled' || localState?.batchStatus === 'idle' && localState?.translating === false && backgroundStarted) {
+                            if (popupStatus === 'cancelled') {
                                 clearInterval(pollProgress);
                                 progressText.textContent = '⏹️ Tradução cancelada';
                                 progressSub.textContent = 'O lote desta página foi removido.';
