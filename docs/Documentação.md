@@ -1121,21 +1121,21 @@ URLs de CDN podem conter:
 
 O clean URL é usado como identidade estável onde apropriado.
 
-## 11.5 Cache antes do Gemini
+## 11.6 Cache antes do Gemini
 
 O Gemini deve ser chamado somente após os estágios de cache aplicáveis.
 
 A ordem geral privilegia hits baratos/exatos antes de fallbacks perceptuais mais
 custosos.
 
-## 11.6 Cache hit e persistência
+## 11.7 Cache hit e persistência
 
 Um cache hit não é apenas uma substituição visual temporária.
 
 Ele precisa alimentar a persistência do capítulo/restore para sobreviver a
 reload.
 
-## 11.7 UPDATE_IMAGE
+## 11.8 UPDATE_IMAGE
 
 Quando o background entrega uma tradução:
 
