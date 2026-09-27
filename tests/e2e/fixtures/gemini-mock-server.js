@@ -293,6 +293,9 @@ function buildGeminiMockHtml() {
           response.setAttribute('data-message-author', 'model');
         }
 
+        const responseText = document.createElement('div');
+        responseText.className = 'model-response-text';
+
         const img = document.createElement('img');
         img.alt = 'Imagem traduzida do mock';
         img.src =
@@ -306,11 +309,12 @@ function buildGeminiMockHtml() {
           shadowHost.className = 'mock-generated-image-shadow-host';
           const shadow = shadowHost.attachShadow({ mode: 'open' });
           shadow.appendChild(img);
-          response.appendChild(shadowHost);
+          responseText.appendChild(shadowHost);
         } else {
-          response.appendChild(img);
+          responseText.appendChild(img);
         }
 
+        response.appendChild(responseText);
         resultZone.appendChild(response);
         status.textContent = 'Imagem traduzida pronta';
       }

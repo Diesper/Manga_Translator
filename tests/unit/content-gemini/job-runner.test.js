@@ -6,6 +6,14 @@ const RUNNER_PATH = path.resolve(
   __dirname,
   '../../../extension/gemini/job-runner.js'
 );
+const SELECTORS_PATH = path.resolve(
+  __dirname,
+  '../../../extension/gemini/selectors.js'
+);
+const DOM_PATH = path.resolve(
+  __dirname,
+  '../../../extension/gemini/dom.js'
+);
 
 function loadModule() {
   let api;
@@ -248,6 +256,31 @@ describe('gemini/job-runner.js', () => {
     ).resolves.toBe(editor);
   });
 
+  test('RUN-04B: waitForElement observa editor inserido depois dentro de Shadow DOM', async () => {
+    const { createGeminiJobRunner } = loadModule();
+
+    let realDom;
+    jest.isolateModules(() => {
+      require(SELECTORS_PATH);
+      realDom = require(DOM_PATH);
+    });
+
+    const { options } = baseDependencies({ domApi: realDom });
+    const runner = createGeminiJobRunner(options);
+
+    const host = document.createElement('gemini-composer');
+    const shadow = host.attachShadow({ mode: 'open' });
+    document.body.appendChild(host);
+
+    const pending = runner.waitForElement('.ql-editor', 1000);
+
+    const editor = document.createElement('div');
+    editor.className = 'ql-editor';
+    shadow.appendChild(editor);
+
+    await expect(pending).resolves.toBe(editor);
+  });
+
   test('RUN-05: seleção manual é entregue ao observer ativo existente', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
@@ -300,6 +333,40 @@ describe('gemini/job-runner.js', () => {
     } finally {
       window.removeEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', listener);
     }
+  });
+
+  test('RUN-07B: qualquer uso do HUD manual é registrado como erro grave de automação', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    runner.createGeminiManualPanel({
+      index: 2,
+      jobId: 'manual-required-job',
+      executionMode: 'temp_chat',
+    }, () => new Set());
+
+    document.getElementById('mt-gemini-use-last').click();
+    document.getElementById('mt-gemini-pick').click();
+
+    const severeCalls = options.sendLog.mock.calls.filter(
+      ([level, action]) =>
+        level === 'error' &&
+        action === 'GEMINI_MANUAL_INTERVENTION_REQUIRED'
+    );
+
+    expect(severeCalls).toHaveLength(2);
+    expect(severeCalls[0][3]).toEqual(expect.objectContaining({
+      source: 'last-button',
+      index: 2,
+      executionMode: 'temp_chat',
+      jobIdPrefix: 'manual-r',
+    }));
+    expect(severeCalls[1][3]).toEqual(expect.objectContaining({
+      source: 'pick-button',
+    }));
+
+    runner.removeGeminiManualPanel();
   });
 
   test('RUN-08: início da geração renova o watchdog uma única vez e valida a resposta', async () => {
