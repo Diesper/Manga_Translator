@@ -104,7 +104,6 @@
 
         const jobBatchId = job.batchId || null;
         const belongsToCurrentBatch = !jobBatchId ||
-          !snapshot.currentBatchId ||
           jobBatchId === snapshot.currentBatchId;
 
         if (belongsToCurrentBatch) {
@@ -134,7 +133,7 @@
         (!job.jobId || !entry.jobId || entry.jobId === job.jobId));
       if (recovery && !wasIndexed) return;
       indexRemoveJob(geminiTabId);
-      const belongsToCurrentBatch = !job.batchId || !state.currentBatchId || job.batchId === state.currentBatchId;
+      const belongsToCurrentBatch = !job.batchId || job.batchId === state.currentBatchId;
       if (belongsToCurrentBatch) {
         if (!marker.fromError) state.completedJobs = (Number(state.completedJobs) || 0) + 1;
         state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
