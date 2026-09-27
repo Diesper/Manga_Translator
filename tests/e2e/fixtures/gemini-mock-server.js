@@ -327,6 +327,13 @@ function buildGeminiMockHtml() {
         if (running) return;
 
         running = true;
+        // O Gemini real associa a primeira mensagem a uma conversa e passa a
+        // expor /app/<chatId>. O fluxo minimized_window precisa desse ID para
+        // validar a exclusão segura antes da entrega; sem isso o mock forçava
+        // artificialmente o caminho de recovery/reload.
+        if (window.location.pathname === '/gemini/' || window.location.pathname === '/gemini') {
+          history.replaceState({}, '', '/app/mock-chat');
+        }
         status.textContent = 'Processando mock...';
         sendButton.disabled = true;
         if (editor) {
