@@ -756,6 +756,22 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
 
             const storage = await readStorage(backgroundWorker, ['translatorLog']);
             const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            const attachmentActions = logs
+                .filter(entry => entry && typeof entry.action === 'string')
+                .map(entry => entry.action);
+
+            expect(attachmentActions).toContain('ATTACHMENT_STARTED');
+            expect(attachmentActions).toContain('ATTACHMENT_REJECTED');
+            expect(attachmentActions).toContain('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(attachmentActions).not.toContain('ATTACHMENT_CONFIRMED');
+
+            const startedAt = attachmentActions.indexOf('ATTACHMENT_STARTED');
+            const rejectedAt = attachmentActions.indexOf('ATTACHMENT_REJECTED');
+            const blockedAt = attachmentActions.indexOf('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(startedAt).toBeGreaterThanOrEqual(0);
+            expect(rejectedAt).toBeGreaterThan(startedAt);
+            expect(blockedAt).toBeGreaterThan(rejectedAt);
+
             expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
             expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
             expect(await page.evaluate(() =>
