@@ -16,11 +16,82 @@
     const markerKey = tabId => `gemini_finalized_${tabId}`;
     const markerAlarm = tabId => `finalization_marker_${tabId}`;
 
+    function clonePendingBatches(value) {
+      return Array.isArray(value)
+        ? value.map(batch => ({
+            ...batch,
+            images: Array.isArray(batch?.images)
+              ? batch.images.map(image => ({ ...image }))
+              : [],
+          }))
+        : [];
+    }
+
+    function activateBatchSnapshot(snapshot, batch) {
+      snapshot.currentBatchId = batch.batchId;
+      snapshot.stopRequested = false;
+      snapshot.jobQueue = (Array.isArray(batch.images) ? batch.images : []).map(image => ({
+        mangaTabId: batch.mangaTabId,
+        index: image.index,
+        prompt: batch.prompt || '',
+        batchId: batch.batchId,
+      }));
+      snapshot.completedJobs = 0;
+      snapshot.activeJobsCount = 0;
+      snapshot.totalJobs = snapshot.jobQueue.length;
+      snapshot.activeMangaTabId = batch.mangaTabId || null;
+      snapshot.isProcessing = true;
+      snapshot.completionClaimedBatchId = null;
+      return snapshot;
+    }
+
+    async function promotePendingBatchIfIdle() {
+      let promoted = null;
+      const transition = snapshot => {
+        const pending = clonePendingBatches(snapshot.pendingBatches);
+        const indexed = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
+        const queued = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
+        const idle = !snapshot.stopRequested &&
+          !snapshot.currentBatchId &&
+          !snapshot.isProcessing &&
+          queued.length === 0 &&
+          Number(snapshot.activeJobsCount) === 0 &&
+          indexed.length === 0;
+
+        if (!idle || pending.length === 0) return snapshot;
+
+        promoted = pending.shift();
+        snapshot.pendingBatches = pending;
+        activateBatchSnapshot(snapshot, promoted);
+        return snapshot;
+      };
+
+      if (typeof state.mutate === 'function') {
+        await state.mutate(transition);
+      } else {
+        transition(state);
+        await syncState();
+      }
+
+      if (promoted) {
+        log('info', 'bg', 'BATCH_PROMOTED',
+          'Próximo lote da fila FIFO foi promovido para execução.', {
+            batchId: String(promoted.batchId || '').slice(0, 8),
+            pendingCount: Array.isArray(state.pendingBatches) ? state.pendingBatches.length : 0,
+            totalJobs: Array.isArray(promoted.images) ? promoted.images.length : 0,
+          });
+        sendProgress(promoted.mangaTabId, '▶️ INICIANDO LOTE DA FILA...');
+      }
+
+      return promoted;
+    }
+
     // chrome.storage não oferece transação entre a marca e o snapshot. O índice
     // persistido funciona como journal: enquanto accountingApplied é falso, o
     // job fica no índice. Se o worker cair nesse intervalo, a reconciliação o
     // encontra e aplica a transição exatamente uma vez.
     async function applyFinalizationAccounting(geminiTabId, job, marker, { recovery = false } = {}) {
+      let skippedForeignBatchAccounting = false;
       const transition = snapshot => {
         const indexed = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
         const belongsToJob = entry => entry && entry.geminiTabId === geminiTabId &&
@@ -30,13 +101,31 @@
         // contabilidade foi salvo antes da suspensão; repetir seria duplicar.
         if (recovery && !wasIndexed) return snapshot;
         snapshot.jobIndex = indexed.filter(entry => !belongsToJob(entry));
-        if (!marker.fromError) snapshot.completedJobs = (Number(snapshot.completedJobs) || 0) + 1;
-        snapshot.activeJobsCount = Math.max(0, (Number(snapshot.activeJobsCount) || 0) - 1);
+
+        const jobBatchId = job.batchId || null;
+        const belongsToCurrentBatch = !jobBatchId ||
+          !snapshot.currentBatchId ||
+          jobBatchId === snapshot.currentBatchId;
+
+        if (belongsToCurrentBatch) {
+          if (!marker.fromError) snapshot.completedJobs = (Number(snapshot.completedJobs) || 0) + 1;
+          snapshot.activeJobsCount = Math.max(0, (Number(snapshot.activeJobsCount) || 0) - 1);
+        } else {
+          skippedForeignBatchAccounting = true;
+        }
         return snapshot;
       };
 
       if (typeof state.mutate === 'function') {
         await state.mutate(transition);
+        if (skippedForeignBatchAccounting) {
+          log('warn', 'bg', 'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
+            'Finalização tardia removeu o job, mas não alterou os contadores do lote atual.', {
+              jobId: String(job.jobId || '').slice(0, 8),
+              jobBatchId: String(job.batchId || '').slice(0, 8),
+              currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+            });
+        }
         return;
       }
 
@@ -45,8 +134,18 @@
         (!job.jobId || !entry.jobId || entry.jobId === job.jobId));
       if (recovery && !wasIndexed) return;
       indexRemoveJob(geminiTabId);
-      if (!marker.fromError) state.completedJobs = (Number(state.completedJobs) || 0) + 1;
-      state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      const belongsToCurrentBatch = !job.batchId || !state.currentBatchId || job.batchId === state.currentBatchId;
+      if (belongsToCurrentBatch) {
+        if (!marker.fromError) state.completedJobs = (Number(state.completedJobs) || 0) + 1;
+        state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      } else {
+        log('warn', 'bg', 'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
+          'Finalização tardia removeu o job, mas não alterou os contadores do lote atual.', {
+            jobId: String(job.jobId || '').slice(0, 8),
+            jobBatchId: String(job.batchId || '').slice(0, 8),
+            currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+          });
+      }
       await syncState();
     }
 
@@ -233,7 +332,9 @@
         closeTab(geminiTabId);
       }
 
-      state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      if (!batchId || !state.currentBatchId || state.currentBatchId === batchId) {
+        state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      }
       await syncState();
       log('warn', 'bg', 'JOB_START_ABORTED',
         'Abertura de job cancelada porque o lote foi interrompido ou substituído durante o lançamento.', {
@@ -248,6 +349,16 @@
     }
 
     async function processNextJob() {
+      if (!state.stopRequested && !state.currentBatchId &&
+          state.jobQueue.length === 0 && state.activeJobsCount === 0 &&
+          Array.isArray(state.pendingBatches) && state.pendingBatches.length > 0) {
+        const promoted = await promotePendingBatchIfIdle();
+        if (promoted) {
+          await refreshMaxConcurrency();
+          return processNextJob();
+        }
+      }
+
       if (state.stopRequested || (state.jobQueue.length === 0 && state.activeJobsCount === 0)) {
         const stillOpen = !state.stopRequested ? indexJobsOfBatch(state.currentBatchId).length : 0;
         if (stillOpen > 0) {
@@ -258,6 +369,7 @@
 
         if (!state.stopRequested && state.jobQueue.length === 0 && state.activeJobsCount === 0) {
           let completion = null;
+          let promotedAfterCompletion = null;
 
           const claimCompletion = snapshot => {
             const batchId = snapshot.currentBatchId || null;
@@ -278,8 +390,16 @@
               hasErrors: completed < total,
             };
             snapshot.completionClaimedBatchId = batchId;
-            snapshot.isProcessing = false;
-            snapshot.activeMangaTabId = null;
+
+            const pending = clonePendingBatches(snapshot.pendingBatches);
+            if (pending.length > 0) {
+              promotedAfterCompletion = pending.shift();
+              snapshot.pendingBatches = pending;
+              activateBatchSnapshot(snapshot, promotedAfterCompletion);
+            } else {
+              snapshot.isProcessing = false;
+              snapshot.activeMangaTabId = null;
+            }
             return snapshot;
           };
 
@@ -308,6 +428,21 @@
                 total: completion.total,
                 hasErrors: completion.hasErrors,
               });
+          }
+
+          if (promotedAfterCompletion) {
+            log('info', 'bg', 'BATCH_PROMOTED',
+              'Próximo lote da fila FIFO foi promovido após a conclusão do lote anterior.', {
+                previousBatchId: String(completion?.batchId || '').slice(0, 8),
+                batchId: String(promotedAfterCompletion.batchId || '').slice(0, 8),
+                pendingCount: Array.isArray(state.pendingBatches) ? state.pendingBatches.length : 0,
+                totalJobs: Array.isArray(promotedAfterCompletion.images)
+                  ? promotedAfterCompletion.images.length
+                  : 0,
+              });
+            sendProgress(promotedAfterCompletion.mangaTabId, '▶️ INICIANDO LOTE DA FILA...');
+            await refreshMaxConcurrency();
+            return processNextJob();
           }
         }
         return;
