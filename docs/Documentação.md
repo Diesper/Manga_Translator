@@ -1691,10 +1691,32 @@ A falha do próprio E2E continua sendo falha real.
 
 ## 18.8 Cobertura
 
-Cobertura é observabilidade.
+Coverage é um gate local verificável, separado da publicação externa no Codecov.
 
-Problemas de publicação/serviço de cobertura não devem transformar sozinhos uma
-execução funcionalmente correta em regressão do produto.
+A medição usa `tests/jest.coverage.config.js`, `coverageProvider: 'v8'` e o
+inventário `extension/**/*.js`. O relatório precisa conter todos os 55 arquivos
+JavaScript atuais da extensão tanto em `coverage-summary.json` quanto em
+`lcov.info`.
+
+O baseline real medido após a correção da instrumentação foi:
+
+- statements: 79,44%;
+- branches: 73,05%;
+- functions: 81,47%;
+- lines: 79,44%.
+
+Os pisos globais iniciais ficam deliberadamente abaixo desse baseline
+(78/71/80/78), e arquivos críticos possuem pisos próprios em
+`tests/ci/test-baseline.json`. `tests/ci/verify-coverage.js` também rejeita
+relatório vazio, 0%, arquivo crítico ausente ou redução inesperada do inventário.
+
+`tests/ci/verify-coverage-selftest.js` testa o próprio verificador com cenários
+positivos e negativos.
+
+Falha de Jest, falha do verificador ou threshold abaixo do mínimo deixam o job
+Code Coverage vermelho. O Codecov é somente dashboard externo: sem
+`CODECOV_TOKEN` a etapa informa explicitamente `SKIPPED`; uma indisponibilidade
+do serviço externo não transforma em falha uma medição local já validada.
 
 ## 18.9 Concurrency do CI
 
@@ -1721,14 +1743,15 @@ Regras:
   `tests/ci/test-baseline.json`;
 - Playwright usa `forbidOnly` em CI e um reporter próprio que transforma
   inventário incompleto ou `skipped` em falha;
-- falhas do comando de cobertura são bloqueantes; somente serviços auxiliares
-  externos, como upload para Codecov, podem ser não bloqueantes;
+- falhas dos testes de coverage, da integridade do relatório ou dos thresholds são bloqueantes;
+  somente a publicação externa no Codecov é independente do gate local;
 - `tests/ci/verify-ci-contract.js` testa o próprio workflow e impede regressões
   estruturais como `npm run test:* || true`, `continue-on-error` no job
   funcional ou dependência do E2E em Jest.
 
-Alterações intencionais que removam um volume relevante de testes precisam ajustar
-o baseline no mesmo PR, deixando a redução explícita e revisável.
+Alterações intencionais que removam um volume relevante de testes ou código medido
+precisam ajustar o baseline no mesmo PR, deixando a redução explícita e revisável.
+O Jest da CI não usa `--forceExit`; open handles devem ser corrigidos na origem.
 
 ---
 
