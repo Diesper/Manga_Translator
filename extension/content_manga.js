@@ -2433,7 +2433,7 @@ if (!window.__manga_translator_content_injected) {
             if ((processedCount >= totalToProcess && totalToProcess > 0) || force) {
                 isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
                 _currentBatchId = null;
-                _localBatchStatus = 'idle';
+                _localBatchStatus = 'complete';
                 _localBatchQueuePosition = null;
                 if (!batchHasErrors) playSuccessSound();
                 sendLog(batchHasErrors ? 'warn' : 'success', 'BATCH_COMPLETE', batchHasErrors ? 'Lote encerrado com erros' : 'Lote de tradução concluído');
@@ -2671,7 +2671,7 @@ if (!window.__manga_translator_content_injected) {
                     isTranslating = false;
                     stopTranslationButtonWatchdog();
                     _currentBatchId = null;
-                    _localBatchStatus = 'idle';
+                    _localBatchStatus = 'cancelled';
                     _localBatchQueuePosition = null;
                     totalToProcess = 0;
                     processedCount = 0;
