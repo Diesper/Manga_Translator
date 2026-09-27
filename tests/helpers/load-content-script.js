@@ -126,7 +126,7 @@ async function loadContentScript({
     });
 
     // 9. Aguarda a inicialização assíncrona do content script de forma determinística
-    const shouldCreateButton = domains.includes(hostname);
+    const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
     const startedAt = Date.now();
     while (Date.now() - startedAt < 250) {
         if (!shouldCreateButton || document.getElementById('manga-translator-trigger')) break;
