@@ -79,6 +79,11 @@ if (!window.__manga_translator_content_injected) {
     const BUTTON_MIN_WIDTH = 130;
     const BUTTON_MIN_HEIGHT = 48;
     const BUTTON_MAX_HEIGHT = 96;
+    const floatingButtonViewState = {
+        text: 'TRADUZIR PÁGINAS',
+        showStop: false,
+        background: '#FF4444',
+    };
     let imageMinDimensions = { minWidth: 300, minHeight: 400 };
 
     function normalizeImageMinDimensions(data = {}) {
@@ -120,6 +125,10 @@ if (!window.__manga_translator_content_injected) {
     // um nó isolado — não representa risco de injeção.
     function setBtnHTML(btn, text, showStop) {
         if (!btn) return;
+        if (btn.id === 'manga-translator-trigger') {
+            floatingButtonViewState.text = String(text || '');
+            floatingButtonViewState.showStop = showStop === true;
+        }
         const mainContent = document.getElementById('manga-main-content');
         clampButtonHeight(btn);
         const target = mainContent || btn;
@@ -144,6 +153,14 @@ if (!window.__manga_translator_content_injected) {
         wrapper.appendChild(iconHolder);
         wrapper.appendChild(label);
         target.appendChild(wrapper);
+    }
+
+    function setTranslatorButtonBackground(btn, color) {
+        if (!btn || !color) return;
+        floatingButtonViewState.background = color;
+        const staticPart = document.getElementById('manga-error-static-part');
+        if (staticPart) staticPart.style.background = color;
+        else btn.style.background = color;
     }
 
     let isPageEnabled = false;
@@ -762,12 +779,221 @@ if (!window.__manga_translator_content_injected) {
         let _closeInterval = null; let _closeCountdown = 0;
         let _activeRestoreMap = {};   
         let _restoreObserver = null;    
-        let _restoreDebounceTimer = null; 
+        let _restoreDebounceTimer = null;
+        let floatingButtonEnabled = true;
+        let clickToTranslateEnabled = false;
+        const bannedImagesStorageKey = `bannedImages_${hostname}`;
+        let bannedImagesForHost = [];
+        let buttonGuardObserver = null;
+        let translationButtonHealthTimer = null;
+        let lastIntegratedErrorState = null;
+        let singleImagePromptCleanup = null;
+        const floatingButtonLogTimes = new Map();
         let _autoRestoreConfig = {
             enabled: true,
             disabledSites: [],
             blockedImages: {},
         };
+
+        function buttonShouldExist() {
+            return isPageEnabled && floatingButtonEnabled;
+        }
+
+        function logFloatingButtonIssue(level, actionName, detail, extra = {}) {
+            const now = Date.now();
+            const throttleKey = `${actionName}:${extra.reason || ''}`;
+            const last = floatingButtonLogTimes.get(throttleKey) || 0;
+            if (now - last < 4000) return;
+            floatingButtonLogTimes.set(throttleKey, now);
+            sendLog(level, actionName, detail, {
+                hostname,
+                batchId: _currentBatchId,
+                isTranslating,
+                ...extra,
+            });
+        }
+
+        function removeFloatingButton(reason = 'intentional') {
+            const btn = document.getElementById('manga-translator-trigger');
+            if (btn) btn.remove();
+            if (reason === 'user_setting') {
+                sendLog('info', 'FLOATING_BUTTON_DISABLED_BY_USER', 'Botão flutuante ocultado pela configuração do usuário.', { hostname });
+            }
+        }
+
+        function clampFloatingButtonToViewport(btn, persist = false) {
+            if (!btn || !btn.isConnected) return false;
+            const left = Number.parseFloat(btn.style.left);
+            const top = Number.parseFloat(btn.style.top);
+            if (!Number.isFinite(left) || !Number.isFinite(top)) return false;
+
+            const width = btn.offsetWidth || Number.parseFloat(btn.style.width) || 220;
+            const height = btn.offsetHeight || Number.parseFloat(btn.style.height) || BUTTON_MIN_HEIGHT;
+            const viewportWidth = Math.max(1, window.innerWidth || document.documentElement.clientWidth || width + 16);
+            const viewportHeight = Math.max(1, window.innerHeight || document.documentElement.clientHeight || height + 16);
+            const margin = 8;
+            const maxLeft = Math.max(margin, viewportWidth - Math.min(width, viewportWidth - margin * 2) - margin);
+            const maxTop = Math.max(margin, viewportHeight - Math.min(height, viewportHeight - margin * 2) - margin);
+            const nextLeft = Math.min(maxLeft, Math.max(margin, left));
+            const nextTop = Math.min(maxTop, Math.max(margin, top));
+
+            if (Math.abs(nextLeft - left) < 0.5 && Math.abs(nextTop - top) < 0.5) return false;
+
+            btn.style.left = `${nextLeft}px`;
+            btn.style.top = `${nextTop}px`;
+            btn.style.right = '';
+            btn.style.bottom = '';
+
+            logFloatingButtonIssue(
+                isTranslating ? 'error' : 'warn',
+                'FLOATING_BUTTON_OFFSCREEN',
+                'Posição inválida do botão flutuante foi corrigida para dentro da área visível.',
+                { reason: 'viewport_clamp', previousLeft: left, previousTop: top, nextLeft, nextTop, viewportWidth, viewportHeight }
+            );
+
+            if (persist) {
+                chrome.storage.local.set({
+                    btnPos: {
+                        top: btn.style.top || '',
+                        left: btn.style.left || '',
+                        width: btn.style.width || '',
+                        height: btn.style.height || '',
+                    },
+                });
+            }
+            return true;
+        }
+
+        function restoreIntegratedErrorDrawer(btn) {
+            if (!btn || !lastIntegratedErrorState) return;
+            const errorLine = document.getElementById('manga-error-line');
+            const collapsibleContainer = document.getElementById('manga-error-collapsible-container');
+            const collapsibleContent = document.getElementById('manga-error-collapsible-content');
+            const staticPart = document.getElementById('manga-error-static-part');
+            const icon = errorLine ? errorLine.querySelector('#manga-error-toggle-icon') : null;
+            if (!errorLine || !collapsibleContainer || !collapsibleContent) return;
+
+            btn.dataset.hasError = 'true';
+            btn.dataset.collapsed = lastIntegratedErrorState.collapsed ? 'true' : 'false';
+            errorLine.style.display = 'flex';
+            collapsibleContent.replaceChildren();
+            const title = document.createElement('strong');
+            title.style.fontSize = '13px';
+            title.textContent = `⚠️ ERRO — IMAGEM ${lastIntegratedErrorState.imgIndex}`;
+            const detail = document.createElement('span');
+            detail.style.cssText = 'font-size:12px;font-weight:normal;line-height:1.4';
+            detail.textContent = lastIntegratedErrorState.message;
+            collapsibleContent.append(title, document.createElement('br'), detail);
+
+            const expanded = !lastIntegratedErrorState.collapsed;
+            collapsibleContent.style.padding = expanded ? '12px 15px' : '0px 15px';
+            collapsibleContainer.style.maxHeight = expanded ? '300px' : '0px';
+            collapsibleContainer.style.opacity = expanded ? '1' : '0';
+            if (staticPart) staticPart.style.setProperty('border-radius', expanded ? '0 0 8px 8px' : '8px', 'important');
+            if (icon) icon.innerText = expanded ? '▼' : '▲';
+        }
+
+        function ensureFloatingButtonHealth(reason = 'health_check') {
+            if (!isActiveContentInstance()) return { ok: true, stale: true };
+            if (!buttonShouldExist()) return { ok: true, expected: false };
+
+            let btn = document.getElementById('manga-translator-trigger');
+            if (!btn || !btn.isConnected) {
+                logFloatingButtonIssue(
+                    'error',
+                    isTranslating ? 'FLOATING_BUTTON_MISSING_DURING_TRANSLATION' : 'FLOATING_BUTTON_MISSING',
+                    isTranslating
+                        ? 'Botão flutuante desapareceu durante uma tradução.'
+                        : 'Botão flutuante desapareceu de um site habilitado.',
+                    { reason }
+                );
+                createTranslatorButton();
+                btn = document.getElementById('manga-translator-trigger');
+                if (btn) {
+                    logFloatingButtonIssue('success', 'FLOATING_BUTTON_RECOVERED', 'Botão flutuante foi recriado automaticamente.', { reason });
+                    return { ok: true, recovered: true };
+                }
+                return { ok: false, reason: 'missing' };
+            }
+
+            let computed = null;
+            try { computed = window.getComputedStyle(btn); } catch (_error) {}
+            const opacity = computed ? Number.parseFloat(computed.opacity) : Number.parseFloat(btn.style.opacity);
+            const hidden = btn.hidden
+                || btn.style.display === 'none'
+                || (computed && computed.display === 'none')
+                || (computed && computed.visibility === 'hidden')
+                || (Number.isFinite(opacity) && opacity <= 0);
+
+            if (hidden) {
+                logFloatingButtonIssue(
+                    'error',
+                    isTranslating ? 'FLOATING_BUTTON_HIDDEN_DURING_TRANSLATION' : 'FLOATING_BUTTON_HIDDEN',
+                    'Botão flutuante existia no DOM, mas estava invisível. A visibilidade foi restaurada.',
+                    { reason }
+                );
+                btn.hidden = false;
+                btn.style.setProperty('display', 'flex', 'important');
+                btn.style.setProperty('visibility', 'visible', 'important');
+                btn.style.setProperty('opacity', '1', 'important');
+                logFloatingButtonIssue('success', 'FLOATING_BUTTON_RECOVERED', 'Visibilidade do botão flutuante foi recuperada.', { reason: `${reason}:hidden` });
+            }
+
+            clampFloatingButtonToViewport(btn, true);
+            return { ok: true };
+        }
+
+        function startButtonGuard() {
+            if (!isActiveContentInstance()) return;
+            if (!buttonGuardObserver && typeof MutationObserver === 'function' && document.documentElement) {
+                buttonGuardObserver = new MutationObserver(() => {
+                    if (!buttonShouldExist()) return;
+                    if (!document.getElementById('manga-translator-trigger')) {
+                        ensureFloatingButtonHealth('dom_mutation');
+                    }
+                });
+                buttonGuardObserver.observe(document.documentElement, { childList: true });
+            }
+            ensureFloatingButtonHealth('guard_start');
+        }
+
+        function startTranslationButtonWatchdog() {
+            if (translationButtonHealthTimer) clearInterval(translationButtonHealthTimer);
+            translationButtonHealthTimer = setInterval(() => {
+                if (!isActiveContentInstance() || !isTranslating) {
+                    if (translationButtonHealthTimer) clearInterval(translationButtonHealthTimer);
+                    translationButtonHealthTimer = null;
+                    return;
+                }
+                ensureFloatingButtonHealth('translation_watchdog');
+            }, 1000);
+        }
+
+        function stopTranslationButtonWatchdog() {
+            if (!translationButtonHealthTimer) return;
+            clearInterval(translationButtonHealthTimer);
+            translationButtonHealthTimer = null;
+        }
+
+        function setFloatingButtonEnabled(enabled, reason = 'storage') {
+            if (!isActiveContentInstance()) return;
+            const next = enabled !== false;
+            const changed = floatingButtonEnabled !== next;
+            floatingButtonEnabled = next;
+            if (!floatingButtonEnabled) {
+                removeFloatingButton(changed && reason === 'storage' ? 'user_setting' : reason);
+                return;
+            }
+            startButtonGuard();
+            ensureFloatingButtonHealth(reason);
+            if (changed && reason === 'storage') {
+                sendLog('info', 'FLOATING_BUTTON_ENABLED_BY_USER', 'Botão flutuante reativado pela configuração do usuário.', { hostname });
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (buttonShouldExist()) ensureFloatingButtonHealth('window_resize');
+        }, { passive: true });
         let autoRestorer = null;
 
         function normalizeBlockedImagesStore(value) {
@@ -830,6 +1056,19 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function showIntegratedError(errorMsg, imgIndex, isDebug) {
+            if (imgIndex !== null && imgIndex !== undefined) {
+                lastIntegratedErrorState = {
+                    message: String(errorMsg || ''),
+                    imgIndex,
+                    collapsed: false,
+                };
+            }
+            if (!floatingButtonEnabled) {
+                if (imgIndex !== null && imgIndex !== undefined) {
+                    sendLog('error', 'BATCH_ERROR', `UI Error: ${errorMsg}`, { imgIndex, floatingButtonHiddenByUser: true });
+                }
+                return;
+            }
             let btn = document.getElementById('manga-translator-trigger');
             if (!btn) { createTranslatorButton(); btn = document.getElementById('manga-translator-trigger'); if (!btn) return; }
             const collapsibleContent  = document.getElementById('manga-error-collapsible-content');
@@ -857,8 +1096,12 @@ if (!window.__manga_translator_content_injected) {
             collapsibleContent.style.padding = '12px 15px';
 
             if (imgIndex !== null && imgIndex !== undefined) {
-                errorLine.style.display = 'flex'; btn.dataset.hasError = 'true'; 
+                errorLine.style.display = 'flex'; btn.dataset.hasError = 'true';
                 playErrorSound(); sendLog('error', 'BATCH_ERROR', `UI Error: ${errorMsg}`, { imgIndex });
+            } else if (isDebug) {
+                // Mensagens positivas do modo debug também precisam tornar a
+                // gaveta visível, inclusive após reconstrução do botão.
+                errorLine.style.display = 'flex';
             }
             btn.style.display = 'flex'; btn.style.opacity = '1';
             const staticPart = document.getElementById('manga-error-static-part');
@@ -868,15 +1111,62 @@ if (!window.__manga_translator_content_injected) {
             if (icon) icon.innerText = '▼'; btn.dataset.collapsed = 'false';
         }
 
-        chrome.storage.local.get(['enabledDomains'], (data) => {
+        chrome.storage.local.get(['enabledDomains', 'floatingButtonEnabled', 'clickToTranslateEnabled', bannedImagesStorageKey], (data) => {
+            if (!isActiveContentInstance()) return;
+            floatingButtonEnabled = data.floatingButtonEnabled !== false;
+            clickToTranslateEnabled = data.clickToTranslateEnabled === true;
+            bannedImagesForHost = Array.isArray(data[bannedImagesStorageKey])
+                ? data[bannedImagesStorageKey].slice()
+                : [];
             if ((data.enabledDomains || []).includes(hostname)) {
                 isPageEnabled = true;
-                createTranslatorButton();
+                if (floatingButtonEnabled) createTranslatorButton();
+                startButtonGuard();
                 initializeAutoRestorer();
             }
         });
 
+        chrome.storage.onChanged.addListener((changes, areaName) => {
+            if (!isActiveContentInstance() || (areaName && areaName !== 'local')) return;
+
+            if (changes.enabledDomains) {
+                const domains = Array.isArray(changes.enabledDomains.newValue) ? changes.enabledDomains.newValue : [];
+                const nowEnabled = domains.includes(hostname);
+                if (nowEnabled !== isPageEnabled) {
+                    isPageEnabled = nowEnabled;
+                    if (!isPageEnabled) {
+                        disconnectAutoRestorer();
+                        removeFloatingButton('site_disabled');
+                    } else {
+                        if (floatingButtonEnabled) createTranslatorButton();
+                        startButtonGuard();
+                        initializeAutoRestorer();
+                    }
+                }
+            }
+
+            if (changes.floatingButtonEnabled) {
+                setFloatingButtonEnabled(changes.floatingButtonEnabled.newValue !== false, 'storage');
+            }
+
+            if (changes.clickToTranslateEnabled) {
+                clickToTranslateEnabled = changes.clickToTranslateEnabled.newValue === true;
+                if (!clickToTranslateEnabled && typeof singleImagePromptCleanup === 'function') {
+                    singleImagePromptCleanup();
+                }
+            }
+
+            if (changes[bannedImagesStorageKey]) {
+                const nextBanned = changes[bannedImagesStorageKey].newValue;
+                bannedImagesForHost = Array.isArray(nextBanned) ? nextBanned.slice() : [];
+                if (typeof singleImagePromptCleanup === 'function') {
+                    singleImagePromptCleanup();
+                }
+            }
+        });
+
         function createTranslatorButton() {
+            if (!isActiveContentInstance() || !buttonShouldExist()) return;
             if (document.getElementById('manga-translator-trigger')) return;
             if (!document.getElementById('manga-error-style')) {
                 const style = document.createElement('style'); style.id = 'manga-error-style';
@@ -956,13 +1246,16 @@ if (!window.__manga_translator_content_injected) {
                 if (isDragging || isResizing) {
                     isDragging = false; isResizing = false; resizeDir = '';
                     const moved = Math.abs((parseFloat(btn.style.left) || 0) - _savedLeft) > 2 || Math.abs((parseFloat(btn.style.top) || 0) - _savedTop) > 2 || Math.abs(btn.offsetWidth - _savedWidth) > 2 || Math.abs(btn.offsetHeight - _savedHeight) > 2;
-                    if (moved) chrome.storage.local.set({ btnPos: { top: btn.style.top || '', left: btn.style.left || '', width: btn.style.width || '', height: btn.style.height || '' } });
+                    if (moved) {
+                        clampFloatingButtonToViewport(btn, false);
+                        chrome.storage.local.set({ btnPos: { top: btn.style.top || '', left: btn.style.left || '', width: btn.style.width || '', height: btn.style.height || '' } });
+                    }
                 }
             });
 
             mainContent.addEventListener('click', (e) => {
                 if (Math.abs(e.clientX - dragStartX) > 5 || Math.abs(e.clientY - dragStartY) > 5) return; 
-                if (isTranslating) { chrome.runtime.sendMessage({ action: 'STOP_BATCH' }); isTranslating = false; updateBtnStatus(); return; }
+                if (isTranslating) { chrome.runtime.sendMessage({ action: 'STOP_BATCH' }); isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus(); return; }
                 unlockNotificationAudio();
                 if (selectedImagesIndices.size === 0) {
                     chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
@@ -987,7 +1280,8 @@ if (!window.__manga_translator_content_injected) {
                     collapsibleContainer.style.maxHeight = '300px'; collapsibleContainer.style.opacity = '1'; collapsibleContent.style.padding = '12px 15px'; 
                     if (staticPart) staticPart.style.setProperty('border-radius', '0 0 8px 8px', 'important'); 
                     if (icon) icon.innerText = '▼'; 
-                    btn.dataset.collapsed = 'false'; 
+                    btn.dataset.collapsed = 'false';
+                    if (lastIntegratedErrorState) lastIntegratedErrorState.collapsed = false; 
                     
                     if (_closeInterval) { clearInterval(_closeInterval); _closeInterval = null; }
                     chrome.storage.local.get(['debugMode'], (data) => {
@@ -1000,7 +1294,8 @@ if (!window.__manga_translator_content_injected) {
                     collapsibleContainer.style.maxHeight = '0px'; collapsibleContainer.style.opacity = '0'; collapsibleContent.style.padding = '0px 15px'; 
                     if (staticPart) staticPart.style.setProperty('border-radius', '0 0 8px 8px', 'important'); 
                     if (icon) icon.innerText = '▲'; 
-                    btn.dataset.collapsed = 'true'; 
+                    btn.dataset.collapsed = 'true';
+                    if (lastIntegratedErrorState) lastIntegratedErrorState.collapsed = true; 
 
                     chrome.storage.local.get(['debugMode'], (data) => {
                         if (!data.debugMode && btn.dataset.hasError === 'true') {
@@ -1013,6 +1308,9 @@ if (!window.__manga_translator_content_injected) {
                                     clearInterval(_closeInterval); _closeInterval = null;
                                     if (btn.dataset.collapsed === 'true') {
                                         errorLine.style.display = 'none'; btn.dataset.hasError = 'false';
+                                        // O erro deixou oficialmente a UI após o countdown;
+                                        // não o ressuscite se o botão precisar ser recriado depois.
+                                        lastIntegratedErrorState = null;
                                         if (staticPart) staticPart.style.setProperty('border-radius', '8px', 'important');
                                         if (textSpan) textSpan.innerText = '🚨 VER ÚLTIMO ERRO';
                                     }
@@ -1038,8 +1336,22 @@ if (!window.__manga_translator_content_injected) {
                 }).observe(mainContent);
             }
 
+            // O nó entra no DOM imediatamente. A posição persistida é aplicada
+            // depois, sem criar uma janela assíncrona em que o watchdog detecta
+            // a falta do botão mas ainda não consegue confirmar a recuperação.
+            btn.style.bottom = '20px';
+            btn.style.right = '20px';
+            btn.dataset.positionReady = 'false';
+            document.documentElement.appendChild(btn);
+            setBtnHTML(btn, floatingButtonViewState.text, floatingButtonViewState.showStop);
+            setTranslatorButtonBackground(btn, floatingButtonViewState.background);
+            restoreIntegratedErrorDrawer(btn);
+
             chrome.storage.local.get(['btnPos', 'debugMode'], (data) => {
+                if (!isActiveContentInstance() || !btn.isConnected || !buttonShouldExist()) return;
                 if (data.btnPos) {
+                    btn.style.bottom = '';
+                    btn.style.right = '';
                     btn.style.top = data.btnPos.top;
                     btn.style.left = data.btnPos.left;
                     btn.style.width = data.btnPos.width;
@@ -1047,10 +1359,10 @@ if (!window.__manga_translator_content_injected) {
                     btn.style.height = Number.isFinite(savedHeight)
                         ? `${Math.min(BUTTON_MAX_HEIGHT, Math.max(BUTTON_MIN_HEIGHT, savedHeight))}px`
                         : (data.btnPos.height || '');
-                } else { btn.style.bottom = '20px'; btn.style.right = '20px'; }
-                document.documentElement.appendChild(btn);
-                setBtnHTML(btn, 'TRADUZIR PÁGINAS', false);
+                    clampFloatingButtonToViewport(btn, true);
+                }
                 if (data.debugMode === true) applyDebugDrawer(true);
+                btn.dataset.positionReady = 'true';
             });
         }
 
@@ -1084,11 +1396,12 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function updateBtnStatus() {
-            const btn = document.getElementById('manga-translator-trigger'), staticPart = document.getElementById('manga-error-static-part');
+            if (buttonShouldExist()) ensureFloatingButtonHealth('update_status');
+            const btn = document.getElementById('manga-translator-trigger');
             if (btn && !isTranslating) {
                 const count = selectedImagesIndices.size;
                 setBtnHTML(btn, count > 0 ? `TRADUZIR ${count} PÁGINA${count > 1 ? 'S' : ''}` : 'TRADUZIR PÁGINAS', false);
-                if (staticPart) staticPart.style.background = '#FF4444'; else btn.style.background = '#FF4444';
+                setTranslatorButtonBackground(btn, '#FF4444');
             }
         }
 
@@ -1097,6 +1410,172 @@ if (!window.__manga_translator_content_injected) {
         const applyImageReplacement = (img, translatedBase64, fromCache = false) => (
             domReplaceApi.applyImageReplacement(img, translatedBase64, fromCache, { sendLog })
         );
+
+        function getImageCleanUrl(img) {
+            if (!img) return null;
+            return domReplaceApi.getCleanUrl(
+                img.getAttribute('src')
+                || img.dataset.src
+                || img.dataset.lazySrc
+                || img.getAttribute('data-original')
+                || img.src
+                || ''
+            );
+        }
+
+        function getSingleImageCandidate(img) {
+            if (!img || !img.isConnected || img.dataset.translated === 'true') return null;
+            if (img.naturalWidth < imageMinDimensions.minWidth || img.naturalHeight < imageMinDimensions.minHeight) return null;
+            if (bannedImagesForHost.includes(img.src)) return null;
+            if (isBackdropOrBlurredImage(img) && img.getAttribute('aria-hidden') === 'true') return null;
+
+            const index = Array.from(document.querySelectorAll('img')).indexOf(img);
+            if (index < 0) return null;
+            return {
+                index,
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+                cleanUrl: getImageCleanUrl(img),
+            };
+        }
+
+        function showSingleImageToast(message) {
+            const old = document.getElementById('manga-single-image-toast');
+            if (old) old.remove();
+            const toast = document.createElement('div');
+            toast.id = 'manga-single-image-toast';
+            toast.textContent = message;
+            toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:2147483647;background:#222;color:#fff;border:1px solid #444;border-radius:7px;padding:9px 14px;font:700 12px sans-serif;box-shadow:0 5px 18px rgba(0,0,0,.45);pointer-events:none';
+            document.documentElement.appendChild(toast);
+            setTimeout(() => toast.remove(), 2200);
+        }
+
+        function closeSingleImagePrompt() {
+            if (typeof singleImagePromptCleanup === 'function') singleImagePromptCleanup();
+        }
+
+        function showSingleImagePrompt(img, clickX, clickY) {
+            closeSingleImagePrompt();
+            const panel = document.createElement('div');
+            panel.id = 'manga-single-image-action';
+            panel.style.cssText = 'position:fixed;z-index:2147483647;background:#171717;color:#fff;border:1px solid #444;border-radius:8px;padding:9px;box-shadow:0 8px 28px rgba(0,0,0,.55);font-family:sans-serif;display:flex;align-items:center;gap:7px;max-width:330px';
+
+            const label = document.createElement('span');
+            label.textContent = 'Traduzir somente esta imagem?';
+            label.style.cssText = 'font-size:12px;font-weight:700;white-space:nowrap';
+
+            const translate = document.createElement('button');
+            translate.id = 'manga-single-image-translate';
+            translate.type = 'button';
+            translate.textContent = 'Traduzir';
+            translate.style.cssText = 'border:0;border-radius:5px;background:#FF4444;color:#fff;padding:6px 9px;font-weight:800;cursor:pointer';
+
+            const cancel = document.createElement('button');
+            cancel.id = 'manga-single-image-cancel';
+            cancel.type = 'button';
+            cancel.textContent = 'Cancelar';
+            cancel.style.cssText = 'border:1px solid #444;border-radius:5px;background:#252525;color:#ddd;padding:6px 8px;font-weight:700;cursor:pointer';
+
+            panel.append(label, translate, cancel);
+            document.documentElement.appendChild(panel);
+
+            const panelWidth = panel.offsetWidth || 310;
+            const panelHeight = panel.offsetHeight || 46;
+            const left = Math.max(8, Math.min(clickX + 10, (window.innerWidth || 1024) - panelWidth - 8));
+            const top = Math.max(8, Math.min(clickY + 10, (window.innerHeight || 768) - panelHeight - 8));
+            panel.style.left = `${left}px`;
+            panel.style.top = `${top}px`;
+
+            const cleanup = () => {
+                document.removeEventListener('keydown', onKeydown, true);
+                document.removeEventListener('pointerdown', onOutside, true);
+                panel.remove();
+                if (singleImagePromptCleanup === cleanup) singleImagePromptCleanup = null;
+            };
+            const onKeydown = (event) => {
+                if (event.key === 'Escape') cleanup();
+            };
+            const onOutside = (event) => {
+                if (!panel.contains(event.target)) cleanup();
+            };
+            singleImagePromptCleanup = cleanup;
+
+            cancel.addEventListener('click', cleanup);
+            translate.addEventListener('click', () => {
+                if (!isActiveContentInstance()) {
+                    cleanup();
+                    return;
+                }
+                if (isTranslating) {
+                    cleanup();
+                    showSingleImageToast('Já existe uma tradução em andamento.');
+                    return;
+                }
+                if (!img.isConnected || img.dataset.translated === 'true') {
+                    cleanup();
+                    showSingleImageToast('A imagem não está mais disponível para tradução.');
+                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada deixou de ser válida antes da confirmação.', { hostname });
+                    return;
+                }
+
+                const candidate = getSingleImageCandidate(img);
+                if (!candidate) {
+                    cleanup();
+                    showSingleImageToast('Esta imagem não está elegível para tradução.');
+                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada ficou inelegível antes da confirmação.', {
+                        index: Array.from(document.querySelectorAll('img')).indexOf(img),
+                        hostname,
+                    });
+                    return;
+                }
+
+                selectedImagesIndices = new Set([candidate.index]);
+                updateBtnStatus();
+                sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada por clique na imagem.', {
+                    index: candidate.index,
+                    cleanUrl: candidate.cleanUrl,
+                    width: candidate.width,
+                    height: candidate.height,
+                });
+                cleanup();
+                unlockNotificationAudio();
+                extractAndSendImages([candidate.index]);
+            });
+
+            document.addEventListener('keydown', onKeydown, true);
+            setTimeout(() => document.addEventListener('pointerdown', onOutside, true), 0);
+        }
+
+        document.addEventListener('click', (event) => {
+            // Listeners de uma injeção anterior continuam registrados no
+            // document até a navegação destruir o contexto. Eles não podem
+            // interceptar cliques depois que outra instância assumiu.
+            if (!isActiveContentInstance()) return;
+            if (!clickToTranslateEnabled || event.button !== 0) return;
+            const target = event.target && event.target.nodeType === 1 ? event.target : null;
+            const img = target && typeof target.closest === 'function' ? target.closest('img') : null;
+            if (!img) return;
+
+            const candidate = getSingleImageCandidate(img);
+            if (!candidate) return;
+
+            // Só intercepta o clique normal do leitor depois de confirmar que a
+            // própria imagem clicada é traduzível. Cliques em imagens pequenas,
+            // banidas ou decorativas continuam pertencendo ao site.
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            if (isTranslating) {
+                showSingleImageToast('Já existe uma tradução em andamento.');
+                sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_BLOCKED', 'Clique individual ignorado porque já há tradução em andamento.', {
+                    index: candidate.index,
+                    hostname,
+                });
+                return;
+            }
+
+            showSingleImagePrompt(img, event.clientX, event.clientY);
+        }, true);
 
         // ── applyAutoRestore ─────────────────────────────────────────────────
         // O mapa agora guarda { assetId, index }. Primeiro descobrimos QUAIS
@@ -1267,6 +1746,10 @@ if (!window.__manga_translator_content_injected) {
         async function extractAndSendImages(indicesToTranslate) {
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
+            if (buttonShouldExist()) {
+                ensureFloatingButtonHealth('translation_start');
+                startTranslationButtonWatchdog();
+            }
 
             const images = Array.from(document.querySelectorAll('img'));
             const btn = document.getElementById('manga-translator-trigger');
@@ -1305,7 +1788,7 @@ if (!window.__manga_translator_content_injected) {
             // ── Fase 1: Gera todos os hashes visuais em paralelo ─────────────
             if(btn) {
                 setBtnHTML(btn, '🕵️ [1/6] Calculando hashes...', true);
-                if (staticPart) staticPart.style.background = '#1565C0'; else btn.style.background = '#1565C0';
+                setTranslatorButtonBackground(btn, '#1565C0');
             }
 
             _logFaseInicio(1, `Calculando fingerprints para ${N} imagem${N !== 1 ? 'ns' : ''}`, { total: N });
@@ -1773,7 +2256,7 @@ if (!window.__manga_translator_content_injected) {
                     sendLog('success', 'GTC_BATCH_HIT', `Lote completo via cache: ${instantCacheHits} imagem${instantCacheHits !== 1 ? 'ns' : ''} (0 para o Gemini)`, { instantCacheHits });
                     checkIfComplete(true);
                 } else {
-                    isTranslating = false; updateBtnStatus();
+                    isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
                     const toast = document.createElement('div');
                     toast.textContent = '⚠️ Nenhuma página de mangá detectada ou selecionada.';
                     toast.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#b35000;color:#fff;padding:10px 20px;border-radius:8px;font-weight:bold;font-size:13px;font-family:sans-serif;z-index:2147483647;box-shadow:0 4px 16px rgba(0,0,0,0.4);pointer-events:none;opacity:1;transition:opacity 0.4s ease;`;
@@ -1792,7 +2275,7 @@ if (!window.__manga_translator_content_injected) {
                 sendLog('info', 'BATCH_INITIATED', `Iniciando ${geminiCount} traduções no Gemini (0 cache hits)`, { gemini: geminiCount });
             }
 
-            if(btn) { setBtnHTML(btn, 'INICIANDO...', true); if (staticPart) staticPart.style.background = '#ff9800'; else btn.style.background = '#ff9800'; }
+            if(btn) { setBtnHTML(btn, 'INICIANDO...', true); setTranslatorButtonBackground(btn, '#ff9800'); }
 
             chrome.storage.local.get(['customPrompt', 'defaultPrompt'], (result) => {
                 _currentBatchId = generateContentId();
@@ -1823,7 +2306,6 @@ if (!window.__manga_translator_content_injected) {
                         return;
                     }
 
-                    // Background may return a different batchId if it overrides.
                     if (resp && resp.batchId) _currentBatchId = resp.batchId;
                     if (resp && resp.alreadyStarted === true) {
                         sendLog('info', 'BATCH_DUPLICATE_IGNORED',
@@ -1899,7 +2381,7 @@ if (!window.__manga_translator_content_injected) {
                 processedCount++;
             }
             if ((processedCount >= totalToProcess && totalToProcess > 0) || force) {
-                isTranslating = false; updateBtnStatus(); 
+                isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
                 _currentBatchId = null;
                 if (!batchHasErrors) playSuccessSound();
                 sendLog(batchHasErrors ? 'warn' : 'success', 'BATCH_COMPLETE', batchHasErrors ? 'Lote encerrado com erros' : 'Lote de tradução concluído');
@@ -2042,8 +2524,15 @@ if (!window.__manga_translator_content_injected) {
                 if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) return;
                 batchHasErrors = true; showIntegratedError(request.errorMsg, request.imgIndex, request.isDebug); checkIfComplete(false, request.imgIndex);
             } else if (request.action === 'PROGRESS') {
-                const btn = document.getElementById('manga-translator-trigger'), staticPart = document.getElementById('manga-error-static-part');
-                if (btn) { setBtnHTML(btn, request.text, true); if (staticPart) staticPart.style.background = '#ff9800'; else btn.style.background = '#ff9800'; }
+                // Atualiza primeiro o estado em memória: se o DOM tiver sido
+                // removido exatamente entre duas mensagens, o botão recriado já
+                // nasce com o progresso mais recente.
+                floatingButtonViewState.text = String(request.text || '');
+                floatingButtonViewState.showStop = true;
+                floatingButtonViewState.background = '#ff9800';
+                if (buttonShouldExist()) ensureFloatingButtonHealth('progress_message');
+                const btn = document.getElementById('manga-translator-trigger');
+                if (btn) { setBtnHTML(btn, request.text, true); setTranslatorButtonBackground(btn, '#ff9800'); }
             } else if (request.action === 'DEBUG_MODE_CHANGED') {
                 applyDebugDrawer(request.debugOn);
             } else if (request.action === 'GET_PAGE_IMAGES') {
@@ -2056,7 +2545,32 @@ if (!window.__manga_translator_content_injected) {
             } else if (request.action === 'SET_SELECTED_IMAGES') {
                 selectedImagesIndices = new Set(request.indices); updateBtnStatus(); sendResponse({ success: true });
             } else if (request.action === 'ENABLE_PAGE') {
-                isPageEnabled = true; createTranslatorButton(); initializeAutoRestorer(); sendResponse({ success: true });
+                isPageEnabled = true;
+                if (floatingButtonEnabled) createTranslatorButton();
+                startButtonGuard();
+                initializeAutoRestorer();
+                sendResponse({ success: true });
+            } else if (request.action === 'DISABLE_PAGE') {
+                isPageEnabled = false;
+                disconnectAutoRestorer();
+                removeFloatingButton('site_disabled');
+                sendResponse({ success: true });
+            } else if (request.action === 'SET_FLOATING_BUTTON_VISIBILITY') {
+                const enabled = request.enabled !== false;
+                chrome.storage.local.set({ floatingButtonEnabled: enabled }, () => {
+                    setFloatingButtonEnabled(enabled, 'message');
+                    sendResponse({ success: true, enabled });
+                });
+                return true;
+            } else if (request.action === 'GET_FLOATING_BUTTON_STATUS') {
+                const btn = document.getElementById('manga-translator-trigger');
+                sendResponse({
+                    success: true,
+                    enabled: floatingButtonEnabled,
+                    expected: buttonShouldExist(),
+                    present: !!(btn && btn.isConnected),
+                    translating: isTranslating,
+                });
             } else if (request.action === 'START_TRANSLATION_FROM_POPUP') {
                 if (request.indices && request.indices.length > 0) {
                     selectedImagesIndices = new Set(request.indices);
