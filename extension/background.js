@@ -920,6 +920,8 @@ async function startBatch(request, sender) {
     }
 
     if (outcome?.type === 'queued') {
+        initializeJobsModules();
+        jobsLifecycle.allowBatchLaunches(batchId);
         log('info', 'bg', 'BATCH_QUEUED',
             'Lote aceito na fila FIFO sem alterar o lote atualmente ativo.', {
                 batchId: batchId.slice(0, 8),
@@ -940,6 +942,8 @@ async function startBatch(request, sender) {
         };
     }
 
+    initializeJobsModules();
+    jobsLifecycle.allowBatchLaunches(batchId);
     log('info', 'bg', 'BATCH_START',
         `Iniciando ${outcome.totalJobs} imagens (batch: ${batchId.slice(0, 8)})`);
     await _refreshMaxCon();
@@ -976,6 +980,10 @@ async function stopBatch(request) {
     runtimeState.jobQueue = runtimeState.jobQueue.filter(job => job.batchId !== targetBatchId);
 
     if (stopsCurrentBatch) {
+        // Marca o batch antes de liberar currentBatchId/stopRequested. Isso
+        // cobre tabs.create/windows.create que resolvem depois da limpeza.
+        initializeJobsModules();
+        jobsLifecycle.invalidateBatchLaunches(targetBatchId);
         // stopRequested permanece true durante a limpeza para invalidar qualquer
         // tabs.create ainda em voo. A promoção do próximo lote ocorre somente
         // depois que os recursos conhecidos do lote atual foram removidos.
