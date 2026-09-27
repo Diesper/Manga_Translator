@@ -51,7 +51,20 @@ describe('background.js - lifecycle e alarms reais', () => {
     });
 
     afterEach(async () => {
-        alarmsMock.clearAll();
+        // onStartup dispara processNextJob() sem await. Bloqueie novos launches e
+        // drene a cadeia assíncrona antes de limpar alarms; caso contrário o
+        // fluxo pode armar um watchdog DEPOIS de clearAll() e manter o worker vivo.
+        if (backgroundModule?.__setState) {
+            backgroundModule.__setState({
+                stopRequested: true,
+                jobQueue: [],
+                pendingBatches: [],
+            });
+        }
+        await flush(12);
+        await alarmsMock.clearAll();
+        await flush(4);
+        await alarmsMock.clearAll();
         tabsMock._tabs.clear();
         await storageMock.clear();
         jest.useRealTimers();
@@ -153,7 +166,13 @@ describe('background.js - lifecycle e alarms reais', () => {
 
         await waitFor(async () => {
             const data = await storageMock.get(['mt_state', 'translatorLog']);
-            return (data.mt_state && Array.isArray(data.translatorLog) && tabsMock._tabs.size === 1) ? data : null;
+            const alarms = await alarmsMock.getAll();
+            const state = data.mt_state || {};
+            const launchFinished = Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'));
+            return (data.mt_state && Array.isArray(data.translatorLog) &&
+                tabsMock._tabs.size === 1 && launchFinished) ? data : null;
         });
 
         const data = await storageMock.get(['mt_state', 'translatorLog']);
@@ -201,8 +220,14 @@ describe('background.js - lifecycle e alarms reais', () => {
 
         await waitFor(async () => {
             const data = await storageMock.get(['mt_state']);
-            return data.mt_state?.currentBatchId === 'batch-b' && tabsMock._tabs.size === 1
-                ? data.mt_state
+            const alarms = await alarmsMock.getAll();
+            const state = data.mt_state || {};
+            const launchFinished = Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'));
+            return state.currentBatchId === 'batch-b' &&
+                tabsMock._tabs.size === 1 && launchFinished
+                ? state
                 : null;
         });
 
@@ -247,8 +272,13 @@ describe('background.js - lifecycle e alarms reais', () => {
 
         await waitFor(async () => {
             const data = await storageMock.get(['mt_state']);
+            const alarms = await alarmsMock.getAll();
             const state = data.mt_state || {};
-            return state.currentBatchId === 'batch-b' && tabsMock._tabs.size === 1
+            const launchFinished = Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'));
+            return state.currentBatchId === 'batch-b' &&
+                tabsMock._tabs.size === 1 && launchFinished
                 ? state
                 : null;
         });
@@ -290,7 +320,16 @@ describe('background.js - lifecycle e alarms reais', () => {
         alarmsMock.create('nextJobAlarm', { delayInMinutes: 1 });
         alarmsMock._fire('nextJobAlarm');
 
-        await waitFor(() => (tabsMock._tabs.size === 1 ? true : null));
+        await waitFor(async () => {
+            const alarms = await alarmsMock.getAll();
+            const state = backgroundModule.__getState();
+            return tabsMock._tabs.size === 1 &&
+                Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'))
+                ? true
+                : null;
+        });
         expect(tabsMock._tabs.size).toBe(1);
     });
 
