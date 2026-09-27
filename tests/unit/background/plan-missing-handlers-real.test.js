@@ -241,6 +241,15 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
             { mangaTabId: 123, index: 3, prompt: 'prompt novo', batchId: 'batch-novo' },
             { mangaTabId: 123, index: 4, prompt: 'prompt novo', batchId: 'batch-novo' },
         ]);
+
+        // Não deixe jobs assíncronos deste teste vazarem para o próximo caso.
+        const stop = await dispatchToBackground(runtimeMock, {
+            action: 'STOP_BATCH',
+            batchId: 'batch-novo',
+        });
+        expect(stop.response).toEqual({ ok: true });
+        await flush(8);
+        expect(backgroundModule.__getState().jobIndex).toEqual([]);
     });
 
     test('BG-46: STOP_BATCH remove abas Gemini, watchdogs, jobs e extractionTabs', async () => {
