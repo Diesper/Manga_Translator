@@ -439,6 +439,10 @@ describe('gemini/job-runner.js', () => {
         callback?.({ srcData: 'data:image/png;base64,QUJDRA==' });
       } else if (message.action === 'REFRESH_JOB_WATCHDOG') {
         callback?.({ ok: true, refreshed: true });
+      } else if (message.action === 'GEMINI_IMAGE_EXTRACTED') {
+        callback?.({ ok: true, staged: true, persisted: true });
+      } else if (message.action === 'GEMINI_RESULT_COMMIT') {
+        callback?.({ ok: true, committed: true });
       } else {
         callback?.({ ok: true });
       }
