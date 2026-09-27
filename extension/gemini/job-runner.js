@@ -674,6 +674,74 @@
         return false;
       }
 
+      function sendRuntimeMessageAsync(message) {
+        return new Promise(resolve => {
+          try {
+            runtime.sendMessage(message, response => {
+              const lastError = runtime.lastError;
+              if (lastError) {
+                resolve({ ok: false, reason: lastError.message || 'runtime_error' });
+                return;
+              }
+              resolve(response || { ok: false, reason: 'empty_response' });
+            });
+          } catch (error) {
+            resolve({ ok: false, reason: error?.message || 'send_exception' });
+          }
+        });
+      }
+
+      async function stageAndCommitResult(delivery) {
+        const staged = await sendRuntimeMessageAsync(delivery);
+        if (!staged?.ok || staged.staged !== true || staged.persisted === false) {
+          const error = new Error(`Resultado não foi persistido no leitor: ${staged?.reason || 'stage_failed'}`);
+          error.code = 'RESULT_STAGE_FAILED';
+          throw error;
+        }
+
+        sendLog('success', 'GEMINI_RESULT_STAGED',
+          'Resultado persistido no leitor antes da exclusão/finalização do Gemini.', {
+            executionMode,
+            jobIdPrefix: String(job.jobId || '').slice(0, 8),
+            batchIdPrefix: String(job.batchId || '').slice(0, 8),
+          });
+
+        const commitMessage = {
+          action: 'GEMINI_RESULT_COMMIT',
+          mangaTabId: job.mangaTabId,
+          index: job.index,
+          jobId: job.jobId,
+          batchId: job.batchId,
+        };
+
+        let committed = null;
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+          committed = await sendRuntimeMessageAsync(commitMessage);
+          if (committed?.ok && committed.committed === true) break;
+          sendLog('warn', 'GEMINI_RESULT_COMMIT_RETRY',
+            'Commit pós-persistência não confirmou; repetindo sem reenviar a imagem.', {
+              attempt,
+              reason: committed?.reason || committed?.error?.code || 'no_ack',
+              jobIdPrefix: String(job.jobId || '').slice(0, 8),
+            });
+          if (attempt < 3) await sleep(250 * attempt);
+        }
+
+        if (!committed?.ok || committed.committed !== true) {
+          const error = new Error(`Resultado persistido, mas o commit do job falhou: ${committed?.reason || 'commit_failed'}`);
+          error.code = 'RESULT_COMMIT_FAILED';
+          throw error;
+        }
+
+        sendLog('success', 'GEMINI_RESULT_COMMITTED',
+          'Background confirmou a finalização somente depois da persistência.', {
+            executionMode,
+            jobIdPrefix: String(job.jobId || '').slice(0, 8),
+            batchIdPrefix: String(job.batchId || '').slice(0, 8),
+          });
+        return true;
+      }
+
       startScrollAssist();
 
       try {
@@ -1167,14 +1235,25 @@
           maxAttempts: 4,
           retryDelayMs: 1000,
           onAuxiliaryFallback: async ({ url }) => {
-            return deliverWithSecureDeletion({
+            const registered = await sendRuntimeMessageAsync({
               action: 'GEMINI_RESULT_URL',
               mangaTabId: job.mangaTabId,
               index: job.index,
               url,
               jobId: job.jobId,
               batchId: job.batchId,
-            }, shouldDeleteConversation);
+            });
+            if (!registered?.ok || registered.extractionRegistered !== true) {
+              const error = new Error(`Fallback auxiliar não foi registrado: ${registered?.reason || 'registration_failed'}`);
+              error.code = 'AUXILIARY_REGISTRATION_FAILED';
+              throw error;
+            }
+            sendLog('info', 'GEMINI_AUXILIARY_REGISTERED',
+              'Aba auxiliar assumiu a extração; o job Gemini permanecerá vivo até a persistência.', {
+                jobIdPrefix: String(job.jobId || '').slice(0, 8),
+                batchIdPrefix: String(job.batchId || '').slice(0, 8),
+              });
+            return registered;
           },
         });
 
@@ -1208,14 +1287,14 @@
             );
           }
 
-          await deliverWithSecureDeletion({
+          await stageAndCommitResult({
             action: 'GEMINI_IMAGE_EXTRACTED',
             mangaTabId: job.mangaTabId,
             index: job.index,
             src: extraction.dataUrl,
             jobId: job.jobId,
             batchId: job.batchId,
-          }, shouldDeleteConversation);
+          });
         }
 
         return {
