@@ -1287,8 +1287,21 @@ if (!window.__manga_translator_content_injected) {
                 }).observe(mainContent);
             }
 
+            // O nó entra no DOM imediatamente. A posição persistida é aplicada
+            // depois, sem criar uma janela assíncrona em que o watchdog detecta
+            // a falta do botão mas ainda não consegue confirmar a recuperação.
+            btn.style.bottom = '20px';
+            btn.style.right = '20px';
+            document.documentElement.appendChild(btn);
+            setBtnHTML(btn, floatingButtonViewState.text, floatingButtonViewState.showStop);
+            setTranslatorButtonBackground(btn, floatingButtonViewState.background);
+            restoreIntegratedErrorDrawer(btn);
+
             chrome.storage.local.get(['btnPos', 'debugMode'], (data) => {
+                if (!btn.isConnected || !buttonShouldExist()) return;
                 if (data.btnPos) {
+                    btn.style.bottom = '';
+                    btn.style.right = '';
                     btn.style.top = data.btnPos.top;
                     btn.style.left = data.btnPos.left;
                     btn.style.width = data.btnPos.width;
@@ -1296,12 +1309,8 @@ if (!window.__manga_translator_content_injected) {
                     btn.style.height = Number.isFinite(savedHeight)
                         ? `${Math.min(BUTTON_MAX_HEIGHT, Math.max(BUTTON_MIN_HEIGHT, savedHeight))}px`
                         : (data.btnPos.height || '');
-                } else { btn.style.bottom = '20px'; btn.style.right = '20px'; }
-                document.documentElement.appendChild(btn);
-                setBtnHTML(btn, floatingButtonViewState.text, floatingButtonViewState.showStop);
-                setTranslatorButtonBackground(btn, floatingButtonViewState.background);
-                clampFloatingButtonToViewport(btn, true);
-                restoreIntegratedErrorDrawer(btn);
+                    clampFloatingButtonToViewport(btn, true);
+                }
                 if (data.debugMode === true) applyDebugDrawer(true);
             });
         }
@@ -2414,6 +2423,12 @@ if (!window.__manga_translator_content_injected) {
                 if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) return;
                 batchHasErrors = true; showIntegratedError(request.errorMsg, request.imgIndex, request.isDebug); checkIfComplete(false, request.imgIndex);
             } else if (request.action === 'PROGRESS') {
+                // Atualiza primeiro o estado em memória: se o DOM tiver sido
+                // removido exatamente entre duas mensagens, o botão recriado já
+                // nasce com o progresso mais recente.
+                floatingButtonViewState.text = String(request.text || '');
+                floatingButtonViewState.showStop = true;
+                floatingButtonViewState.background = '#ff9800';
                 if (buttonShouldExist()) ensureFloatingButtonHealth('progress_message');
                 const btn = document.getElementById('manga-translator-trigger');
                 if (btn) { setBtnHTML(btn, request.text, true); setTranslatorButtonBackground(btn, '#ff9800'); }
