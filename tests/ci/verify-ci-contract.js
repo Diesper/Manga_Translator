@@ -142,6 +142,10 @@ for (const [name, value] of [
   if (!Number.isInteger(value) || value <= 0) problems.push('baseline inválido: ' + name);
 }
 
+if (!Number.isInteger(baseline.e2e && baseline.e2e.maxFlaky) || baseline.e2e.maxFlaky < 0) {
+  problems.push('baseline inválido: e2e.maxFlaky');
+}
+
 if (!e2eReporter.includes('attemptsById') || !e2eReporter.includes('maxFlaky')) {\n  problems.push('reporter E2E precisa preservar tentativas e bloquear flaky/retry');\n}\n\nif (problems.length) {
   console.error('Contrato da CI inválido:');
   for (const problem of problems) console.error('- ' + problem);
