@@ -174,6 +174,52 @@ describe('background.js - lifecycle e alarms reais', () => {
         expect(tabsMock._tabs.size).toBe(1);
     });
 
+    test('BG-69c: startup promove B quando snapshot persistido contém A já concluído + B/C pendentes', async () => {
+        await storageMock.set({
+            geminiBaseUrl: 'http://127.0.0.1:3999/app',
+            maxConcurrentJobs: 1,
+            mt_state: {
+                jobQueue: [],
+                isProcessing: false,
+                stopRequested: false,
+                activeMangaTabId: null,
+                currentBatchId: 'batch-a',
+                completionClaimedBatchId: 'batch-a',
+                extractionTabs: {},
+                totalJobs: 1,
+                completedJobs: 1,
+                activeJobsCount: 0,
+                jobIndex: [],
+                pendingBatches: [
+                    { batchId: 'batch-b', mangaTabId: 21, prompt: 'B', images: [{ index: 0 }] },
+                    { batchId: 'batch-c', mangaTabId: 31, prompt: 'C', images: [{ index: 1 }] },
+                ],
+            },
+        });
+
+        await runtimeMock._simulateStartup();
+
+        await waitFor(async () => {
+            const data = await storageMock.get(['mt_state']);
+            return data.mt_state?.currentBatchId === 'batch-b' && tabsMock._tabs.size === 1
+                ? data.mt_state
+                : null;
+        });
+
+        const data = await storageMock.get(['mt_state', 'translatorLog']);
+        expect(data.mt_state.currentBatchId).toBe('batch-b');
+        expect(data.mt_state.completionClaimedBatchId).toBeNull();
+        expect(data.mt_state.pendingBatches.map(batch => batch.batchId)).toEqual(['batch-c']);
+        expect(data.mt_state.activeMangaTabId).toBe(21);
+        expect(data.mt_state.activeJobsCount).toBe(1);
+        expect(data.translatorLog).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                action: 'BATCH_PROMOTED',
+                extra: expect.objectContaining({ batchId: 'batch-b' }),
+            }),
+        ]));
+    });
+
     test('BG-71b: onStartup promove o primeiro de vários pendingBatches persistidos em FIFO', async () => {
         await storageMock.set({
             geminiBaseUrl: 'http://127.0.0.1:3999/app',
