@@ -144,7 +144,7 @@ describe('background.js - handlers onMessage reais', () => {
             src: 'data:image/png;base64,FROM_GEMINI',
             jobId: 'job-direct',
         }, { tab: { id: 3333 } });
-        await jest.advanceTimersByTimeAsync(1);
+        await flushFakeTimerRounds(20);
         const extractedResult = await extractedResultPromise;
 
         expect(extractedResult.response).toEqual({
@@ -160,12 +160,14 @@ describe('background.js - handlers onMessage reais', () => {
         }));
         expect(backgroundModule.__getState().activeJobsCount).toBe(1);
 
-        const directCommit = await dispatchToBackground(runtimeMock, {
+        const directCommitPromise = dispatchToBackground(runtimeMock, {
             action: 'GEMINI_RESULT_COMMIT',
             mangaTabId: mangaTab.id,
             index: 7,
             jobId: 'job-direct',
         }, { tab: { id: 3333 } });
+        await flushFakeTimerRounds(24);
+        const directCommit = await directCommitPromise;
 
         expect(directCommit.response).toEqual({
             ok: true,
@@ -196,7 +198,7 @@ describe('background.js - handlers onMessage reais', () => {
             geminiTabId: 4444,
             jobId: 'job-extraction',
         }, { tab: { id: extractionTab.id } });
-        await jest.advanceTimersByTimeAsync(1);
+        await flushFakeTimerRounds(28);
         const readyFromTab = await readyFromTabPromise;
 
         expect(readyFromTab.response).toEqual({
@@ -234,7 +236,7 @@ describe('background.js - handlers onMessage reais', () => {
             jobId: 'job-error',
         }, { tab: { id: 5555 } });
 
-        await flushFakeTimerRounds(6);
+        await flushFakeTimerRounds(24);
         const geminiError = await geminiErrorPromise;
         expect(geminiError.response).toEqual({ ok: true });
 
