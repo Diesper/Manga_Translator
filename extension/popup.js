@@ -146,6 +146,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settingsStatus  = document.getElementById('settings-status');
     const settingsSites   = document.getElementById('settings-sites-list');
     const settingsAutoRestoreEnabled = document.getElementById('settings-auto-restore-enabled');
+    const settingsFloatingButtonEnabled = document.getElementById('settings-floating-button-enabled');
+    const settingsClickToTranslateEnabled = document.getElementById('settings-click-to-translate-enabled');
+    const settingsRedoConfirmEnabled = document.getElementById('settings-redo-confirm-enabled');
     const settingsRefreshAutoImages = document.getElementById('settings-refresh-auto-images');
     const settingsClearAutoBlocks = document.getElementById('settings-clear-auto-blocks');
 
@@ -241,6 +244,153 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
         return counts;
+    }
+
+    // Miniaturas da aba "Traduzidas": metadados primeiro, blobs somente quando
+    // entram na área visível. O limite evita dezenas de leituras concorrentes do
+    // IndexedDB quando uma pasta grande é aberta.
+    const translatedThumbQueue = [];
+    let translatedThumbLoads = 0;
+    let translatedRenderGeneration = 0;
+    const MAX_TRANSLATED_THUMB_LOADS = 4;
+
+    function drainTranslatedThumbQueue() {
+        while (translatedThumbLoads < MAX_TRANSLATED_THUMB_LOADS && translatedThumbQueue.length > 0) {
+            const task = translatedThumbQueue.shift();
+            translatedThumbLoads++;
+            Promise.resolve()
+                .then(task)
+                .catch(() => {})
+                .finally(() => {
+                    translatedThumbLoads--;
+                    drainTranslatedThumbQueue();
+                });
+        }
+    }
+
+    function enqueueTranslatedThumbLoad(task) {
+        translatedThumbQueue.push(task);
+        drainTranslatedThumbQueue();
+    }
+
+    async function getChapterPreviewPages(chapterId) {
+        let resp = await smRequest({ action: 'SM_PAGE_INDEX', chapterId });
+        let pages = (resp && resp.ok && Array.isArray(resp.pages)) ? resp.pages : [];
+
+        if (pages.length === 0) {
+            // Migração é idempotente. Tenta trazer capítulos antigos para o
+            // storage novo antes de recorrer ao Base64 legado.
+            await smRequest({ action: 'SM_MIGRATE_CHAPTER', chapterId });
+            resp = await smRequest({ action: 'SM_PAGE_INDEX', chapterId });
+            pages = (resp && resp.ok && Array.isArray(resp.pages)) ? resp.pages : [];
+        }
+
+        if (pages.length > 0) {
+            return pages.slice().sort((a, b) => Number(a.pageIndex) - Number(b.pageIndex));
+        }
+
+        const legacy = await new Promise(resolve => chrome.storage.local.get([`${chapterId}_images`], resolve));
+        const images = legacy[`${chapterId}_images`] || {};
+        return Object.keys(images)
+            .map(Number)
+            .filter(Number.isFinite)
+            .sort((a, b) => a - b)
+            .map(pageIndex => ({ pageIndex, legacyDataUrl: images[pageIndex] }));
+    }
+
+    async function resolveTranslatedThumbnail(chapterId, page) {
+        if (page.legacyDataUrl) return page.legacyDataUrl;
+        if (page.assetId) {
+            const resp = await smRequest({ action: 'SM_GET_ASSET', assetId: page.assetId });
+            if (resp && resp.ok && resp.dataUrl) return resp.dataUrl;
+        }
+        return smGetPage(chapterId, page.pageIndex);
+    }
+
+    function attachChapterThumbnails(item, chapter, generation) {
+        const strip = document.createElement('div');
+        strip.className = 'chapter-thumb-strip';
+        strip.setAttribute('aria-label', `Miniaturas de ${chapter.title || 'capítulo'}`);
+
+        const loading = document.createElement('div');
+        loading.className = 'chapter-thumb-placeholder';
+        loading.textContent = 'Carregando miniaturas...';
+        strip.appendChild(loading);
+
+        const buttons = item.querySelector('.chapter-item-btns');
+        if (buttons) item.insertBefore(strip, buttons);
+        else item.appendChild(strip);
+
+        getChapterPreviewPages(chapter.id).then((pages) => {
+            if (generation !== translatedRenderGeneration || !strip.isConnected) return;
+            strip.replaceChildren();
+
+            if (!pages.length) {
+                const empty = document.createElement('div');
+                empty.className = 'chapter-thumb-placeholder';
+                empty.textContent = 'Sem miniaturas';
+                strip.appendChild(empty);
+                return;
+            }
+
+            pages.forEach((page) => {
+                const card = document.createElement('div');
+                card.className = 'chapter-thumb-card';
+                card.dataset.pageIndex = String(page.pageIndex);
+                card.title = `Página ${Number(page.pageIndex) + 1}`;
+
+                const placeholder = document.createElement('span');
+                placeholder.className = 'chapter-thumb-placeholder';
+                placeholder.textContent = `Pág. ${Number(page.pageIndex) + 1}`;
+                card.appendChild(placeholder);
+                strip.appendChild(card);
+
+                let requested = false;
+                const requestLoad = () => {
+                    if (requested) return;
+                    requested = true;
+                    enqueueTranslatedThumbLoad(async () => {
+                        if (generation !== translatedRenderGeneration || !card.isConnected) return;
+                        const dataUrl = await resolveTranslatedThumbnail(chapter.id, page);
+                        if (generation !== translatedRenderGeneration || !card.isConnected) return;
+                        if (!dataUrl) {
+                            card.classList.add('failed');
+                            placeholder.textContent = 'Falha';
+                            return;
+                        }
+                        const img = document.createElement('img');
+                        img.alt = `Página ${Number(page.pageIndex) + 1}`;
+                        img.loading = 'lazy';
+                        img.onload = () => card.classList.add('loaded');
+                        img.onerror = () => {
+                            card.classList.add('failed');
+                            placeholder.textContent = 'Falha';
+                            img.remove();
+                        };
+                        img.src = dataUrl;
+                        card.appendChild(img);
+                    });
+                };
+
+                if (typeof IntersectionObserver === 'function') {
+                    const observer = new IntersectionObserver((entries) => {
+                        if (!entries.some(entry => entry.isIntersecting)) return;
+                        observer.disconnect();
+                        requestLoad();
+                    }, { root: strip, rootMargin: '120px' });
+                    observer.observe(card);
+                } else {
+                    requestLoad();
+                }
+            });
+        }).catch(() => {
+            if (generation !== translatedRenderGeneration || !strip.isConnected) return;
+            strip.replaceChildren();
+            const failed = document.createElement('div');
+            failed.className = 'chapter-thumb-placeholder';
+            failed.textContent = 'Falha ao carregar miniaturas';
+            strip.appendChild(failed);
+        });
     }
 
     /**
@@ -882,6 +1032,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function loadTranslatedChapters() {
         initToolbarOnce();
+        const renderGeneration = ++translatedRenderGeneration;
 
         const chapterListEl = document.getElementById('chapter-list');
         chapterListEl.innerHTML = '<div class="empty-msg">Carregando...</div>';
@@ -901,6 +1052,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             chrome.storage.local.get(keysToFetch, async (data) => {
                 const pageCounts = await smChapterCounts(list.map(c => c.id));
+                if (renderGeneration !== translatedRenderGeneration) return;
                 const groups = {};
                 list.forEach(chap => {
                     const host = chap.url ? getHostFromUrl(chap.url) : 'desconhecido';
@@ -1100,6 +1252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 });
                             });
                         });
+                        attachChapterThumbnails(item, chap, renderGeneration);
                         body.appendChild(item);
                     });
                     folder.appendChild(header);
@@ -1133,6 +1286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateCharCount(val);
         });
         renderSettingsAutoRestore();
+        initPageInteractionSettings();
         renderSettingsSites();
         initGeminiExecutionMode();
         initDebugToggle();
@@ -1187,6 +1341,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             render(300, 400);
             save(300, 400);
             showSettingsStatus('Tamanho mínimo restaurado para 300 × 400 px.', '#4CAF50');
+        });
+    }
+
+    function initPageInteractionSettings() {
+        const controls = [
+            {
+                element: settingsFloatingButtonEnabled,
+                key: 'floatingButtonEnabled',
+                defaultValue: true,
+                onText: 'Botão flutuante ativado.',
+                offText: 'Botão flutuante ocultado.',
+            },
+            {
+                element: settingsClickToTranslateEnabled,
+                key: 'clickToTranslateEnabled',
+                defaultValue: false,
+                onText: 'Clique para traduzir uma imagem ativado.',
+                offText: 'Clique para traduzir uma imagem desativado.',
+            },
+            {
+                element: settingsRedoConfirmEnabled,
+                key: 'redoConfirmEnabled',
+                defaultValue: true,
+                onText: 'Confirmação de Refazer ativada.',
+                offText: 'Refazer será executado sem confirmação.',
+            },
+        ].filter(item => item.element);
+
+        chrome.storage.local.get(controls.map(item => item.key), (data) => {
+            controls.forEach(({ element, key, defaultValue }) => {
+                const stored = data[key];
+                element.checked = stored === undefined ? defaultValue : stored === true;
+            });
+        });
+
+        controls.forEach(({ element, key, onText, offText }) => {
+            const boundKey = `_mtBound_${key}`;
+            if (element[boundKey]) return;
+            element[boundKey] = true;
+            element.addEventListener('change', () => {
+                chrome.storage.local.set({ [key]: element.checked }, () => {
+                    showSettingsStatus(
+                        element.checked ? onText : offText,
+                        element.checked ? '#4CAF50' : '#FF9800'
+                    );
+                });
+            });
         });
     }
 
