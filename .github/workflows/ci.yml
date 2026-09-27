@@ -81,6 +81,8 @@ jobs:
         run: node tests/ci/verify-ci-contract.js
       - name: Testar verificador de coverage
         run: node tests/ci/verify-coverage-selftest.js
+      - name: Testar gate E2E contra retries/flaky
+        run: node tests/ci/playwright-gate-reporter-selftest.js
 
   smoke:
     name: Smoke Tests
