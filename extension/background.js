@@ -540,22 +540,30 @@ chrome.runtime.onStartup.addListener(async () => {
     // FIX M-5
     state().extractionTabs = {};
 
-    const hadWork = state().jobQueue.length > 0 || state().activeJobsCount > 0 || state().jobIndex.length > 0;
+    const hadWork = state().jobQueue.length > 0 || state().activeJobsCount > 0 ||
+        state().jobIndex.length > 0 || state().pendingBatches.length > 0 ||
+        Boolean(state().currentBatchId);
 
     // Em onStartup o navegador foi reiniciado: nenhuma aba do Gemini sobrevive,
     // então a reconciliação sempre descarta os jobs órfãos e libera os slots.
     const reconciled = await reconcileJobs();
 
     if (hadWork) {
-        log('warn', 'bg', 'STARTUP_RECOVERY', `Service worker reiniciado: ${state().jobQueue.length} jobs na fila, ${reconciled.alive} ativos preservados, ${reconciled.dropped} órfãos descartados, ${reconciled.recovered || 0} finalizações reconciliadas`, {
+        log('warn', 'bg', 'STARTUP_RECOVERY', `Service worker reiniciado: ${state().jobQueue.length} jobs do lote atual, ${state().pendingBatches.length} lote(s) pendente(s), ${reconciled.alive} ativos preservados, ${reconciled.dropped} órfãos descartados, ${reconciled.recovered || 0} finalizações reconciliadas`, {
             jobQueue: state().jobQueue.length,
+            pendingBatches: state().pendingBatches.length,
+            currentBatchId: String(state().currentBatchId || '').slice(0, 8),
             alive: reconciled.alive,
             dropped: reconciled.dropped,
             recovered: reconciled.recovered || 0,
         });
-        state().isProcessing = state().jobQueue.length > 0;
+        state().isProcessing = Boolean(
+            state().currentBatchId ||
+            state().jobQueue.length > 0 ||
+            state().activeJobsCount > 0
+        );
         await syncState();
-        processNextJob();
+        if (!state().stopRequested) processNextJob();
     } else {
         await syncState();
     }
