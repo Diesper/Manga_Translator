@@ -777,12 +777,41 @@ if (!window.__manga_translator_content_injected) {
                     
                     if (img.complete && img.naturalHeight !== 0) sendImage();
                     else {
-                        img.addEventListener('load', sendImage, { once: true });
-                        img.addEventListener('error', () => {
+                        let pollLoaded = null;
+                        let pollSafetyTimeout = null;
+
+                        const stopLoadWaiters = () => {
+                            if (pollLoaded !== null) {
+                                clearInterval(pollLoaded);
+                                pollLoaded = null;
+                            }
+                            if (pollSafetyTimeout !== null) {
+                                clearTimeout(pollSafetyTimeout);
+                                pollSafetyTimeout = null;
+                            }
+                            img.removeEventListener('load', onImageSettled);
+                            img.removeEventListener('error', onImageSettled);
+                        };
+
+                        const onImageSettled = () => {
+                            stopLoadWaiters();
                             sendImage();
-                        }, { once: true });
-                        const pollLoaded = setInterval(() => { if (img.naturalHeight > 0) { clearInterval(pollLoaded); sendImage(); } }, 100);
-                        setTimeout(() => clearInterval(pollLoaded), 20000);
+                        };
+
+                        img.addEventListener('load', onImageSettled, { once: true });
+                        img.addEventListener('error', onImageSettled, { once: true });
+
+                        pollLoaded = setInterval(() => {
+                            if (img.naturalHeight > 0) onImageSettled();
+                        }, 100);
+
+                        pollSafetyTimeout = setTimeout(() => {
+                            if (pollLoaded !== null) {
+                                clearInterval(pollLoaded);
+                                pollLoaded = null;
+                            }
+                            pollSafetyTimeout = null;
+                        }, 20000);
                     }
                 };
                 extractAndSend();
