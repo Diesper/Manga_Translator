@@ -17,12 +17,15 @@
     "test:smoke": "node smoke/run-smoke.js",
     "test:e2e": "node run-e2e.js",
     "test:all": "node run-all-tests.js",
-    "test:coverage": "jest --config jest.config.js --coverage --testPathPattern=\"(unit|integration)\"",
+    "test:coverage": "node ci/run-jest-ci.js --coverage",
     "test:watch": "jest --config jest.config.js --watch --testPathPattern=unit",
     "test:ci": "node ci/run-jest-ci.js",
     "test:images": "node e2e/fixtures/create-test-images.js",
     "mock:server": "node e2e/fixtures/gemini-mock-server.js",
-    "test:coverage:ci": "node ci/run-jest-ci.js --coverage"
+    "test:coverage:ci": "node ci/run-jest-ci.js --coverage && node ci/verify-coverage.js",
+    "test:coverage:verify": "node ci/verify-coverage.js",
+    "test:coverage:infra": "node ci/verify-coverage-selftest.js",
+    "test:open-handles": "jest --config jest.config.js --detectOpenHandles --runInBand"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
