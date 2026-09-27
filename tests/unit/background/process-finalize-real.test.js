@@ -460,12 +460,24 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         expect(stored.mt_state.activeJobsCount).toBe(0);
     });
 
-    test('BG-77: aba do mangá fechada durante tradução não deixa job preso', async () => {
+    test('BG-77: aba do mangá fechada falha staging e erro subsequente encerra o job sem falso sucesso', async () => {
         await storageMock.set({
             debugMode: false,
-            deleting_urls: [],
-            gemini_job_1900: { geminiTabId: 1900, mangaTabId: 404, index: 7, jobId: 'job-1900' },
-            wd_data_1900: { mangaTabId: 404, index: 7, geminiTabId: 1900, jobId: 'job-1900' },
+            geminiExecutionMode: 'temp_chat',
+            gemini_job_1900: {
+                geminiTabId: 1900,
+                mangaTabId: 404,
+                index: 7,
+                jobId: 'job-1900',
+                batchId: 'batch-1900',
+                executionMode: 'temp_chat',
+            },
+            wd_data_1900: {
+                mangaTabId: 404,
+                index: 7,
+                geminiTabId: 1900,
+                jobId: 'job-1900',
+            },
         });
         tabsMock._tabs.set(1900, {
             id: 1900,
@@ -478,6 +490,14 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         jest.useFakeTimers();
         backgroundModule.__setState({
             jobQueue: [],
+            jobIndex: [{
+                geminiTabId: 1900,
+                mangaTabId: 404,
+                index: 7,
+                jobId: 'job-1900',
+                batchId: 'batch-1900',
+            }],
+            currentBatchId: 'batch-1900',
             isProcessing: true,
             stopRequested: false,
             activeMangaTabId: 404,
@@ -492,13 +512,31 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             index: 7,
             src: 'data:image/png;base64,TRANSLATED',
             jobId: 'job-1900',
+            batchId: 'batch-1900',
         }, { tab: { id: 1900 } });
         await jest.advanceTimersByTimeAsync(1);
         const result = await resultPromise;
 
-        expect(result.response).toEqual({ ok: true });
+        expect(result.response.ok).toBe(false);
+        expect(result.response.staged).toBeUndefined();
+        expect(backgroundModule.__getState().activeJobsCount).toBe(1);
+        expect(storageMock._getStore().gemini_job_1900).toBeDefined();
 
-        await jest.advanceTimersByTimeAsync(1500);
+        // O job runner transforma a falha de staging em GEMINI_ERROR. Mesmo
+        // sem a aba do mangá, report-error finaliza o job real e libera o slot.
+        const errorPromise = dispatchToBackground(runtimeMock, {
+            action: 'GEMINI_ERROR',
+            mangaTabId: 404,
+            index: 7,
+            error: 'RESULT_STAGE_FAILED',
+            jobId: 'job-1900',
+            batchId: 'batch-1900',
+        }, { tab: { id: 1900 } });
+        await jest.advanceTimersByTimeAsync(1);
+        const errorResult = await errorPromise;
+        expect(errorResult.response).toEqual({ ok: true });
+
+        await jest.advanceTimersByTimeAsync(601);
         await flushFakeTimerRounds(6);
 
         expect(backgroundModule.__getState()).toEqual(expect.objectContaining({
@@ -506,10 +544,6 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             completedJobs: 0,
         }));
         expect(storageMock._getStore().gemini_job_1900).toBeUndefined();
-
-        await jest.advanceTimersByTimeAsync(18_001);
-        await flushFakeTimerRounds(4);
-
         expect(tabsMock._tabs.has(1900)).toBe(false);
     });
 
