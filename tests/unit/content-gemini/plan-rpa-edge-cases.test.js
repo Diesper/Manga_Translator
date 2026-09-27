@@ -375,6 +375,24 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             action_name: 'GEMINI_ATTACHMENT_NOT_CONFIRMED',
         }));
         expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_STARTED',
+            level: 'info',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_REJECTED',
+            level: 'error',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'SUBMIT_BLOCKED_ATTACHMENT',
+            level: 'error',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'ATTACHMENT_CONFIRMED'
+        )).toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
             action: 'GEMINI_ERROR',
             error: expect.stringContaining('Anexo não confirmado'),
         }));
@@ -407,6 +425,20 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_IMAGE_EXTRACTED'));
 
         expect(submitted).toBe(true);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_STARTED',
+            level: 'info',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_CONFIRMED',
+            level: 'success',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' &&
+            ['ATTACHMENT_REJECTED', 'SUBMIT_BLOCKED_ATTACHMENT'].includes(message.action_name)
+        )).toBe(false);
         expect(disabledButton.click).not.toHaveBeenCalled();
         expect(hiddenButton.click).not.toHaveBeenCalled();
         expect(validButton.click).toHaveBeenCalled();
