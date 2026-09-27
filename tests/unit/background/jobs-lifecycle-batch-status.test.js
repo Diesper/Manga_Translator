@@ -285,4 +285,95 @@ describe('background/jobs-lifecycle batch status', () => {
         expect(state.isProcessing).toBe(false);
     });
 
+
+    test('BATCH-STATUS-05: recovery de worker finaliza resultado já persistido sem regenerar', async () => {
+        const store = {
+            gemini_job_777: {
+                jobId: 'job-persisted',
+                batchId: 'batch-persisted',
+                mangaTabId: 77,
+                geminiTabId: 777,
+                executionMode: 'temp_chat',
+                state: 'dom_applied',
+                resultPersisted: true,
+            },
+            debugMode: true,
+            geminiExecutionMode: 'temp_chat',
+        };
+
+        global.chrome = {
+            runtime: { lastError: null },
+            storage: {
+                local: {
+                    get: jest.fn(async keys => {
+                        const list = Array.isArray(keys) ? keys : [keys];
+                        const result = {};
+                        for (const key of list) {
+                            if (Object.prototype.hasOwnProperty.call(store, key)) result[key] = store[key];
+                        }
+                        return result;
+                    }),
+                    set: jest.fn(async values => Object.assign(store, values)),
+                    remove: jest.fn(async keys => {
+                        for (const key of (Array.isArray(keys) ? keys : [keys])) delete store[key];
+                    }),
+                },
+            },
+            alarms: { create: jest.fn() },
+            tabs: {
+                remove: jest.fn(),
+                sendMessage: jest.fn((_tab, _msg, callback) => callback?.()),
+            },
+        };
+
+        const entry = {
+            geminiTabId: 777,
+            jobId: 'job-persisted',
+            batchId: 'batch-persisted',
+            mangaTabId: 77,
+            index: 2,
+        };
+        let indexed = true;
+        const state = {
+            jobQueue: [],
+            activeJobsCount: 1,
+            completedJobs: 0,
+            totalJobs: 1,
+            currentBatchId: 'batch-persisted',
+            stopRequested: false,
+            isProcessing: true,
+        };
+        const log = jest.fn();
+
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(() => { indexed = false; }),
+            indexJobsOfBatch: jest.fn(() => indexed ? [entry] : []),
+            delay: async () => {},
+            generateId: () => 'id',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await expect(api.recoverPersistedResult(entry)).resolves.toBe(true);
+
+        expect(state.completedJobs).toBe(1);
+        expect(state.activeJobsCount).toBe(0);
+        expect(store.gemini_job_777).toBeUndefined();
+        expect(log).toHaveBeenCalledWith(
+            'warn',
+            'bg',
+            'JOB_RECONCILE_PERSISTED_RESULT',
+            expect.stringContaining('persistido'),
+            expect.objectContaining({ jobId: 'job-pers' })
+        );
+    });
+
 });
