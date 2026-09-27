@@ -399,4 +399,30 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         await context.sendMessage('BATCH_COMPLETE', { hasErrors: false });
     });
 
+
+    test('banir a imagem enquanto a confirmação individual está aberta fecha a ação imediatamente', async () => {
+        await loadContentScript({
+            hostname: 'reader.test',
+            clickToTranslateEnabled: true,
+            domImages: [{ src: 'https://reader.test/becomes-banned.png', width: 800, height: 1200 }],
+        });
+
+        const img = document.querySelector('img');
+        img.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX: 90,
+            clientY: 110,
+        }));
+        await waitFor(() => document.getElementById('manga-single-image-action'));
+
+        await storageMock.set({
+            'bannedImages_reader.test': ['https://reader.test/becomes-banned.png'],
+        });
+        await waitFor(() => !document.getElementById('manga-single-image-action'));
+
+        expect(document.getElementById('manga-single-image-action')).toBeNull();
+    });
+
 });
