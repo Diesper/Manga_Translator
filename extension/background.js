@@ -938,24 +938,60 @@ async function stopBatch(request) {
     await ensureInitialized();
     const runtimeState = state();
     const targetBatchId = request.batchId || runtimeState.currentBatchId;
+
+    // Um lote que ainda está na fila não possui abas/jobs físicos. Removê-lo
+    // deve ser uma operação local e não pode afetar A nem os lotes anteriores.
+    let removedPending = null;
+    if (targetBatchId && Array.isArray(runtimeState.pendingBatches)) {
+        const pendingIndex = runtimeState.pendingBatches.findIndex(
+            batch => batch && batch.batchId === targetBatchId
+        );
+        if (pendingIndex >= 0) {
+            const nextPending = runtimeState.pendingBatches.slice();
+            [removedPending] = nextPending.splice(pendingIndex, 1);
+            runtimeState.pendingBatches = nextPending;
+            await syncState();
+
+            log('warn', 'bg', 'BATCH_QUEUE_CANCELLED',
+                'Lote removido da fila antes de iniciar; demais posições foram preservadas.', {
+                    batchId: String(targetBatchId).slice(0, 8),
+                    removedPosition: pendingIndex + 1,
+                    pendingCount: nextPending.length,
+                });
+
+            if (removedPending?.mangaTabId) {
+                chrome.tabs.sendMessage(removedPending.mangaTabId, {
+                    action: 'BATCH_COMPLETE',
+                    batchId: targetBatchId,
+                    hasErrors: true,
+                    cancelled: true,
+                }, () => { void chrome.runtime.lastError; });
+            }
+            return {};
+        }
+    }
+
     const stopsCurrentBatch = !targetBatchId || targetBatchId === runtimeState.currentBatchId;
-    runtimeState.jobQueue = runtimeState.jobQueue.filter(job => targetBatchId && job.batchId !== targetBatchId);
+    runtimeState.jobQueue = runtimeState.jobQueue.filter(
+        job => targetBatchId && job.batchId !== targetBatchId
+    );
+
     if (stopsCurrentBatch) {
         runtimeState.stopRequested = true;
         runtimeState.isProcessing = false;
         runtimeState.activeMangaTabId = null;
         runtimeState.currentBatchId = null;
+        runtimeState.completionClaimedBatchId = null;
     }
-    log('warn', 'bg', 'BATCH_STOP', `Batch parado (batch: ${(targetBatchId || '').slice(0, 8)})`);
 
-    // O jobIndex é a fonte de verdade: o único ponto que cria um registro
-    // `gemini_job_*` (jobs-lifecycle.js) sempre chama indexAddJob() em seguida,
-    // e reconcileJobs() já reconstrói a contabilidade após reinício do worker
-    // usando exclusivamente o jobIndex persistido (sem varredura). Por isso o
-    // fallback de storage.get(null) foi removido — ver P3 do plano de
-    // refatoração (índice comprovadamente confiável).
+    log('warn', 'bg', 'BATCH_STOP',
+        `Batch parado (batch: ${(targetBatchId || '').slice(0, 8)})`, {
+            pendingCount: Array.isArray(runtimeState.pendingBatches)
+                ? runtimeState.pendingBatches.length
+                : 0,
+        });
+
     let entries = indexJobsOfBatch(targetBatchId);
-
     const keysToRemove = [];
     entries.forEach(entry => {
         if (!entry) return;
@@ -977,8 +1013,25 @@ async function stopBatch(request) {
     });
 
     runtimeState.activeJobsCount = runtimeState.jobIndex.length;
-    await syncState();
-    if (!stopsCurrentBatch && runtimeState.isProcessing) processNextJob();
+
+    if (stopsCurrentBatch) {
+        runtimeState.completedJobs = 0;
+        runtimeState.totalJobs = 0;
+        const hasPending = Array.isArray(runtimeState.pendingBatches) &&
+            runtimeState.pendingBatches.length > 0;
+
+        // Sem próximo lote, manter stopRequested=true fecha a janela de corrida
+        // de tabs.create ainda em voo. Com fila, o próximo lote será promovido;
+        // qualquer lançamento atrasado do lote cancelado será rejeitado pelo
+        // currentBatchId diferente.
+        runtimeState.stopRequested = !hasPending;
+        await syncState();
+        if (hasPending) processNextJob();
+    } else {
+        await syncState();
+        if (runtimeState.isProcessing) processNextJob();
+    }
+
     return {};
 }
 
