@@ -108,7 +108,7 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         }));
     });
 
-    test('BG-44: START_BATCH não sobrescreve lote ativo e registra bloqueio explícito', async () => {
+    test('BG-44: START_BATCH enfileira B/C/D/E/F sem sobrescrever A e preserva FIFO/idempotência', async () => {
         await storageMock.set({ maxConcurrentJobs: 3 });
 
         const liveA = await tabsMock.create({ url: 'https://gemini.google.com/app/a', active: false });
@@ -116,41 +116,50 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
 
         backgroundModule.__setState({
             isProcessing: true,
-            currentBatchId: 'batch-ativo',
+            currentBatchId: 'batch-a',
             completedJobs: 1,
             totalJobs: 4,
             activeJobsCount: 2,
             activeMangaTabId: 999,
+            pendingBatches: [],
             jobQueue: [
-                { mangaTabId: 999, index: 3, prompt: 'antigo', batchId: 'batch-ativo' },
+                { mangaTabId: 999, index: 3, prompt: 'A', batchId: 'batch-a' },
             ],
             jobIndex: [
-                { geminiTabId: liveA.id, jobId: 'job-a', batchId: 'batch-ativo', mangaTabId: 999, index: 1 },
-                { geminiTabId: liveB.id, jobId: 'job-b', batchId: 'batch-ativo', mangaTabId: 999, index: 2 },
+                { geminiTabId: liveA.id, jobId: 'job-a1', batchId: 'batch-a', mangaTabId: 999, index: 1 },
+                { geminiTabId: liveB.id, jobId: 'job-a2', batchId: 'batch-a', mangaTabId: 999, index: 2 },
             ],
         });
 
         const before = backgroundModule.__getState();
-        const result = await dispatchToBackground(runtimeMock, {
-            action: 'START_BATCH',
-            batchId: 'batch-novo',
-            images: Array.from({ length: 5 }, (_unused, index) => ({ index })),
-            prompt: 'prompt novo',
-        }, { tab: { id: 123 } });
+        const batchIds = ['batch-b', 'batch-c', 'batch-d', 'batch-e', 'batch-f'];
+        const responses = [];
 
-        expect(result.keepAlive).toBe(true);
-        expect(result.response).toEqual(expect.objectContaining({
-            ok: false,
-            reason: 'batch_busy',
-            batchId: 'batch-novo',
-            activeBatchId: 'batch-ativo',
-        }));
-        expect(tabsMock._tabs.size).toBe(2);
+        for (let index = 0; index < batchIds.length; index++) {
+            // eslint-disable-next-line no-await-in-loop
+            const result = await dispatchToBackground(runtimeMock, {
+                action: 'START_BATCH',
+                batchId: batchIds[index],
+                images: [{ index: 0 }, { index: 1 }],
+                prompt: `prompt-${batchIds[index]}`,
+            }, { tab: { id: 120 + index } });
+            responses.push(result.response);
+        }
+
+        responses.forEach((response, index) => {
+            expect(response).toEqual(expect.objectContaining({
+                ok: true,
+                queued: true,
+                batchId: batchIds[index],
+                activeBatchId: 'batch-a',
+                queuePosition: index + 1,
+            }));
+        });
 
         const after = backgroundModule.__getState();
         expect(after).toEqual(expect.objectContaining({
             isProcessing: before.isProcessing,
-            currentBatchId: before.currentBatchId,
+            currentBatchId: 'batch-a',
             completedJobs: before.completedJobs,
             totalJobs: before.totalJobs,
             activeJobsCount: before.activeJobsCount,
@@ -158,15 +167,34 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         }));
         expect(after.jobQueue).toEqual(before.jobQueue);
         expect(after.jobIndex).toEqual(before.jobIndex);
+        expect(after.pendingBatches.map(batch => batch.batchId)).toEqual(batchIds);
+        expect(tabsMock._tabs.size).toBe(2);
+
+        const retryD = await dispatchToBackground(runtimeMock, {
+            action: 'START_BATCH',
+            batchId: 'batch-d',
+            images: [{ index: 0 }, { index: 1 }],
+            prompt: 'retry não deve duplicar',
+        }, { tab: { id: 122 } });
+
+        expect(retryD.response).toEqual(expect.objectContaining({
+            ok: true,
+            queued: true,
+            alreadyQueued: true,
+            batchId: 'batch-d',
+            queuePosition: 3,
+            activeBatchId: 'batch-a',
+        }));
+        expect(backgroundModule.__getState().pendingBatches.map(batch => batch.batchId))
+            .toEqual(batchIds);
 
         const logs = await waitFor(async () => {
             const data = await storageMock.get(['translatorLog']);
-            return (data.translatorLog || []).find(entry => entry.action === 'BATCH_OVERLAP_BLOCKED');
+            return data.translatorLog || [];
         });
-        expect(logs).toEqual(expect.objectContaining({
-            level: 'error',
-            action: 'BATCH_OVERLAP_BLOCKED',
-        }));
+        expect(logs.filter(entry => entry.action === 'BATCH_QUEUED')).toHaveLength(5);
+        expect(logs.some(entry => entry.action === 'BATCH_QUEUE_DUPLICATE_IGNORED')).toBe(true);
+        expect(logs.some(entry => entry.action === 'BATCH_OVERLAP_BLOCKED')).toBe(false);
     });
 
     test('BG-45: START_BATCH idempotente não duplica jobs e lote ocioso respeita maxConcurrentJobs', async () => {
