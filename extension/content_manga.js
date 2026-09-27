@@ -1257,7 +1257,28 @@ if (!window.__manga_translator_content_injected) {
 
             mainContent.addEventListener('click', (e) => {
                 if (Math.abs(e.clientX - dragStartX) > 5 || Math.abs(e.clientY - dragStartY) > 5) return; 
-                if (isTranslating) { chrome.runtime.sendMessage({ action: 'STOP_BATCH', batchId: _currentBatchId || undefined }); isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus(); return; }
+                if (isTranslating) {
+                    const ownedBatchId = _currentBatchId;
+                    chrome.runtime.sendMessage({ action: 'STOP_BATCH', batchId: ownedBatchId || undefined });
+                    isTranslating = false;
+                    _currentBatchId = null;
+                    _localBatchStatus = 'cancelled';
+                    _localBatchQueuePosition = null;
+                    totalToProcess = 0;
+                    processedCount = 0;
+                    batchHasErrors = false;
+                    _countedJobIndices.clear();
+                    stopTranslationButtonWatchdog();
+                    chrome.storage.local.set({
+                        mt_popup_state: {
+                            status: 'cancelled',
+                            completed: false,
+                            updatedAt: Date.now(),
+                        }
+                    });
+                    updateBtnStatus();
+                    return;
+                }
                 unlockNotificationAudio();
                 if (selectedImagesIndices.size === 0) {
                     chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
