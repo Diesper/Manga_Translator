@@ -354,7 +354,12 @@
     }
 
     async function processNextJob() {
-      if (!state.stopRequested && !state.currentBatchId &&
+      const currentBatchAlreadyCompleted = Boolean(
+        state.currentBatchId &&
+        state.completionClaimedBatchId === state.currentBatchId
+      );
+      if (!state.stopRequested &&
+          (!state.currentBatchId || currentBatchAlreadyCompleted) &&
           state.jobQueue.length === 0 && state.activeJobsCount === 0 &&
           Array.isArray(state.pendingBatches) && state.pendingBatches.length > 0) {
         const promoted = await promotePendingBatchIfIdle();
