@@ -114,7 +114,16 @@ async function removeGeminiTabs(backgroundWorker) {
     await backgroundWorker.evaluate(async () => {
         const tabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
         const geminiIds = tabs
-            .filter(tab => tab.url && tab.url.includes('127.0.0.1:3999/gemini'))
+            .filter(tab => {
+                try {
+                    const url = new URL(tab.url || '');
+                    return url.hostname === '127.0.0.1' &&
+                        url.port === '3999' &&
+                        (url.pathname === '/gemini/' || url.pathname.startsWith('/app/'));
+                } catch (_error) {
+                    return false;
+                }
+            })
             .map(tab => tab.id);
 
         if (geminiIds.length > 0) {
@@ -126,7 +135,16 @@ async function removeGeminiTabs(backgroundWorker) {
 async function countGeminiTabs(backgroundWorker) {
     return backgroundWorker.evaluate(async () => {
         const tabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
-        return tabs.filter(tab => tab.url && tab.url.includes('127.0.0.1:3999/gemini')).length;
+        return tabs.filter(tab => {
+            try {
+                const url = new URL(tab.url || '');
+                return url.hostname === '127.0.0.1' &&
+                    url.port === '3999' &&
+                    (url.pathname === '/gemini/' || url.pathname.startsWith('/app/'));
+            } catch (_error) {
+                return false;
+            }
+        }).length;
     });
 }
 
