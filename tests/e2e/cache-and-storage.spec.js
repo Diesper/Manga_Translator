@@ -117,9 +117,15 @@ async function removeGeminiTabs(backgroundWorker) {
             .filter(tab => {
                 try {
                     const url = new URL(tab.url || '');
-                    return url.hostname === '127.0.0.1' &&
-                        url.port === '3999' &&
-                        (url.pathname === '/gemini/' || url.pathname.startsWith('/app/'));
+                    const isLoopbackMock =
+                        (url.hostname === '127.0.0.1' || url.hostname === 'localhost') &&
+                        url.port === '3999';
+                    const isGeminiSurface =
+                        url.pathname === '/gemini' ||
+                        url.pathname === '/gemini/' ||
+                        url.pathname === '/app' ||
+                        url.pathname.startsWith('/app/');
+                    return isLoopbackMock && isGeminiSurface;
                 } catch (_error) {
                     return false;
                 }
@@ -138,9 +144,15 @@ async function countGeminiTabs(backgroundWorker) {
         return tabs.filter(tab => {
             try {
                 const url = new URL(tab.url || '');
-                return url.hostname === '127.0.0.1' &&
-                    url.port === '3999' &&
-                    (url.pathname === '/gemini/' || url.pathname.startsWith('/app/'));
+                const isLoopbackMock =
+                    (url.hostname === '127.0.0.1' || url.hostname === 'localhost') &&
+                    url.port === '3999';
+                const isGeminiSurface =
+                    url.pathname === '/gemini' ||
+                    url.pathname === '/gemini/' ||
+                    url.pathname === '/app' ||
+                    url.pathname.startsWith('/app/');
+                return isLoopbackMock && isGeminiSurface;
             } catch (_error) {
                 return false;
             }
