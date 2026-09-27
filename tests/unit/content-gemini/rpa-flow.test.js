@@ -11,7 +11,8 @@ const GEMINI_ATTACHMENT_PATH = path.resolve(__dirname, '../../../extension/gemin
 const GEMINI_TEMP_CHAT_PATH = path.resolve(__dirname, '../../../extension/gemini/temporary-chat.js');
 const GEMINI_RESULT_EXTRACTOR_PATH = path.resolve(__dirname, '../../../extension/gemini/result-extractor.js');
 const GEMINI_DELETION_PATH = path.resolve(__dirname, '../../../extension/gemini/deletion.js');
-const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/gemini/job-runner.js');\nconst COVERAGE_MODE = process.env.COVERAGE_MODE === '1';
+const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/gemini/job-runner.js');
+const COVERAGE_MODE = process.env.COVERAGE_MODE === '1';
 
 function setWindowLocation(pathname = '/app/chat-1') {
     Object.defineProperty(window, 'location', {
