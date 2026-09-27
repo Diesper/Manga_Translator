@@ -786,8 +786,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const stopBtn = document.getElementById('btn-progress-stop');
                 if (stopBtn) stopBtn.addEventListener('click', () => {
                     clearInterval(pollProgress);
-                    chrome.runtime.sendMessage({ action: 'STOP_BATCH' });
-                    window.close();
+                    sendMessageToTab({ action: 'STOP_TRANSLATION_FROM_POPUP' }, (response) => {
+                        if (!response || response.ok !== true) {
+                            showPopupToast('Não foi possível cancelar o lote desta página.', 'error');
+                            return;
+                        }
+                        window.close();
+                    });
                 });
             } else {
                 window.close();
