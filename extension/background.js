@@ -73,6 +73,7 @@ if (typeof importScripts === 'function') {
         importScripts('background/actions/deliver-result-from-tab.js');
         importScripts('background/actions/report-error.js');
         importScripts('background/actions/deliver-result.js');
+        importScripts('background/actions/commit-result.js');
         importScripts('background/actions/start-batch.js');
         importScripts('background/actions/stop-batch.js');
     } catch (e) {
@@ -131,6 +132,7 @@ if (typeof importScripts === 'function') {
         require('./background/actions/deliver-result-from-tab.js');
         require('./background/actions/report-error.js');
         require('./background/actions/deliver-result.js');
+        require('./background/actions/commit-result.js');
         require('./background/actions/start-batch.js');
         require('./background/actions/stop-batch.js');
     } catch (e) {}
@@ -439,6 +441,7 @@ function routeRegisteredAction(request, sender, sendResponse) {
                 ensureInitialized,
                 tabIdentity: initializeTabIdentity(),
                 deliverResultToManga,
+                updateJobState,
                 finalizeJob,
                 armWatchdog,
                 startBatch,
@@ -500,9 +503,13 @@ function clearWatchdog(geminiTabId, jobId) {
 // mensagem e nunca responde; a garantia durável continua sendo o alarme watchdog.
 const DOM_ACK_TIMEOUT_MS = 30_000;
 
-function deliverResultToManga({ mangaTabId, index, src, jobId, batchId, geminiTabId }) {
+function deliverResultToManga({
+    mangaTabId, index, src, jobId, batchId, geminiTabId, finalizeOnAck = true,
+}) {
     initializeJobsModules();
-    return jobsDomAck.deliver({ mangaTabId, index, src, jobId, batchId, geminiTabId });
+    return jobsDomAck.deliver({
+        mangaTabId, index, src, jobId, batchId, geminiTabId, finalizeOnAck,
+    });
 }
 
 // SEC-05: Constante nomeada para prompt padrão em vez de string longa inline
@@ -753,20 +760,97 @@ async function startBatch(request, sender) {
     await ensureInitialized();
     const batchId = request.batchId || generateId();
     const runtimeState = state();
-    runtimeState.currentBatchId = batchId;
-    runtimeState.stopRequested = false;
-    runtimeState.jobQueue = [];
-    runtimeState.completedJobs = 0;
-    runtimeState.activeJobsCount = runtimeState.jobIndex.length;
-    runtimeState.totalJobs = request.images.length;
-    runtimeState.activeMangaTabId = sender && sender.tab ? sender.tab.id : request.mangaTabId;
-    runtimeState.isProcessing = true;
+    const mangaTabId = sender && sender.tab ? sender.tab.id : request.mangaTabId;
+    let outcome = null;
 
-    request.images.forEach(img => {
-        runtimeState.jobQueue.push({ mangaTabId: runtimeState.activeMangaTabId, index: img.index, prompt: request.prompt, batchId });
-    });
-    log('info', 'bg', 'BATCH_START', `Iniciando ${runtimeState.totalJobs} imagens (batch: ${batchId.slice(0, 8)})`);
-    await Promise.all([_refreshMaxCon(), syncState()]);
+    const transition = snapshot => {
+        const queuedJobs = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
+        const indexedJobs = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
+        const hasLiveWork = Boolean(
+            snapshot.isProcessing ||
+            queuedJobs.length > 0 ||
+            Number(snapshot.activeJobsCount) > 0 ||
+            indexedJobs.length > 0
+        );
+
+        if (hasLiveWork) {
+            if (snapshot.currentBatchId === batchId) {
+                outcome = { type: 'duplicate', batchId };
+                return snapshot;
+            }
+            outcome = {
+                type: 'busy',
+                batchId,
+                activeBatchId: snapshot.currentBatchId || null,
+                activeJobs: Number(snapshot.activeJobsCount) || 0,
+                indexedJobs: indexedJobs.length,
+                queuedJobs: queuedJobs.length,
+            };
+            return snapshot;
+        }
+
+        snapshot.currentBatchId = batchId;
+        snapshot.stopRequested = false;
+        snapshot.jobQueue = request.images.map(img => ({
+            mangaTabId,
+            index: img.index,
+            prompt: request.prompt,
+            batchId,
+        }));
+        snapshot.completedJobs = 0;
+        snapshot.activeJobsCount = 0;
+        snapshot.totalJobs = request.images.length;
+        snapshot.activeMangaTabId = mangaTabId;
+        snapshot.isProcessing = true;
+        snapshot.completionClaimedBatchId = null;
+        outcome = { type: 'started', batchId, totalJobs: request.images.length };
+        return snapshot;
+    };
+
+    if (typeof runtimeState.mutate === 'function') {
+        await runtimeState.mutate(transition);
+    } else {
+        const snapshot = typeof runtimeState.get === 'function' ? runtimeState.get() : {
+            jobQueue: runtimeState.jobQueue,
+            jobIndex: runtimeState.jobIndex,
+            isProcessing: runtimeState.isProcessing,
+            activeJobsCount: runtimeState.activeJobsCount,
+            currentBatchId: runtimeState.currentBatchId,
+        };
+        const next = transition(snapshot);
+        if (typeof runtimeState.patch === 'function') runtimeState.patch(next);
+        else Object.assign(runtimeState, next);
+        await syncState();
+    }
+
+    if (outcome?.type === 'duplicate') {
+        log('info', 'bg', 'BATCH_DUPLICATE_IGNORED',
+            'START_BATCH repetido para o mesmo lote; estado existente foi preservado.', {
+                batchId: batchId.slice(0, 8),
+            });
+        return { batchId, alreadyStarted: true };
+    }
+
+    if (outcome?.type === 'busy') {
+        log('error', 'bg', 'BATCH_OVERLAP_BLOCKED',
+            'Novo lote bloqueado porque ainda existe trabalho ativo.', {
+                incomingBatchId: batchId.slice(0, 8),
+                activeBatchId: String(outcome.activeBatchId || '').slice(0, 8),
+                activeJobs: outcome.activeJobs,
+                indexedJobs: outcome.indexedJobs,
+                queuedJobs: outcome.queuedJobs,
+            });
+        return {
+            ok: false,
+            reason: 'batch_busy',
+            batchId,
+            activeBatchId: outcome.activeBatchId,
+        };
+    }
+
+    log('info', 'bg', 'BATCH_START',
+        `Iniciando ${outcome.totalJobs} imagens (batch: ${batchId.slice(0, 8)})`);
+    await _refreshMaxCon();
     processNextJob();
     return { batchId };
 }
@@ -830,8 +914,8 @@ const updateJobState = (...args) => {
 const assertJobOwnership = (sender, jobId, callback) => {
     initializeJobsModules();
     jobsLifecycle.assertJobOwnership(sender, jobId)
-        .then(({ owns, tabId }) => callback(owns, tabId))
-        .catch(() => callback(false, sender && sender.tab ? sender.tab.id : null));
+        .then(({ owns, tabId, job }) => callback(owns, tabId, job || null))
+        .catch(() => callback(false, sender && sender.tab ? sender.tab.id : null, null));
 };
 const processNextJob = (...args) => {
     initializeJobsModules();
