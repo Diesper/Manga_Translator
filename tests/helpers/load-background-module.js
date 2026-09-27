@@ -17,6 +17,7 @@ function __getState() {
         completedJobs: runtimeState.completedJobs,
         activeJobsCount: runtimeState.activeJobsCount,
         completionClaimedBatchId: runtimeState.completionClaimedBatchId,
+        pendingBatches: runtimeState.pendingBatches,
         jobIndex: runtimeState.jobIndex,
         _cachedMaxCon: runtimeState._cachedMaxCon,
         _logQueue,
@@ -42,6 +43,7 @@ function __setState(next = {}) {
     if (has('completedJobs')) runtimeState.completedJobs = next.completedJobs;
     if (has('activeJobsCount')) runtimeState.activeJobsCount = next.activeJobsCount;
     if (has('completionClaimedBatchId')) runtimeState.completionClaimedBatchId = next.completionClaimedBatchId;
+    if (has('pendingBatches')) runtimeState.pendingBatches = next.pendingBatches;
     if (has('jobIndex')) runtimeState.jobIndex = next.jobIndex;
     if (has('_cachedMaxCon')) runtimeState._cachedMaxCon = next._cachedMaxCon;
     if (has('_logQueue')) _logQueue = next._logQueue;
