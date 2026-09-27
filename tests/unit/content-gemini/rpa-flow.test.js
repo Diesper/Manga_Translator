@@ -306,6 +306,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         },
         storage = {},
         responders = {},
+        autoProcess = true,
     } = {}) {
         setWindowLocation(pathname);
 
@@ -342,7 +343,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             require(GEMINI_DELETION_PATH);
             require(GEMINI_JOB_RUNNER_PATH);
             const contentGemini = require(CONTENT_GEMINI_PATH);
-            contentGemini.processGeminiJob();
+            if (autoProcess) contentGemini.processGeminiJob();
         });
 
         await advance(0);
@@ -661,6 +662,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
 
         await loadScript({
             job: null,
+            autoProcess: false,
             storage: { debugMode: true },
             responders: {
                 GET_TAB_ID: () => undefined,
@@ -704,6 +706,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
 
         await loadScript({
             job: null,
+            autoProcess: false,
             responders: {
                 GET_TAB_ID: () => undefined,
             },
