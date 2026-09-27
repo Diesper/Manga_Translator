@@ -140,6 +140,54 @@ describe('background.js - lifecycle e alarms reais', () => {
         expect(tabsMock._tabs.size).toBe(1);
     });
 
+    test('BG-71b: onStartup promove o primeiro de vários pendingBatches persistidos em FIFO', async () => {
+        await storageMock.set({
+            geminiBaseUrl: 'http://127.0.0.1:3999/app',
+            maxConcurrentJobs: 1,
+            mt_state: {
+                jobQueue: [],
+                isProcessing: false,
+                stopRequested: false,
+                activeMangaTabId: null,
+                currentBatchId: null,
+                extractionTabs: {},
+                totalJobs: 0,
+                completedJobs: 0,
+                activeJobsCount: 0,
+                jobIndex: [],
+                pendingBatches: [
+                    { batchId: 'batch-b', mangaTabId: 21, prompt: 'B', images: [{ index: 0 }] },
+                    { batchId: 'batch-c', mangaTabId: 31, prompt: 'C', images: [{ index: 1 }] },
+                    { batchId: 'batch-d', mangaTabId: 41, prompt: 'D', images: [{ index: 2 }] },
+                ],
+            },
+        });
+
+        await runtimeMock._simulateStartup();
+
+        await waitFor(async () => {
+            const data = await storageMock.get(['mt_state']);
+            const state = data.mt_state || {};
+            return state.currentBatchId === 'batch-b' && tabsMock._tabs.size === 1
+                ? state
+                : null;
+        });
+
+        const data = await storageMock.get(['mt_state', 'translatorLog']);
+        expect(data.mt_state.currentBatchId).toBe('batch-b');
+        expect(data.mt_state.pendingBatches.map(batch => batch.batchId))
+            .toEqual(['batch-c', 'batch-d']);
+        expect(data.mt_state.activeMangaTabId).toBe(21);
+        expect(data.mt_state.totalJobs).toBe(1);
+        expect(data.mt_state.activeJobsCount).toBe(1);
+        expect(data.translatorLog).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                action: 'BATCH_PROMOTED',
+                extra: expect.objectContaining({ batchId: 'batch-b' }),
+            }),
+        ]));
+    });
+
     test('BG-72: onConnect registra listener de disconnect para porta keep-alive', async () => {
         const keepAlivePort = runtimeMock.connect({ name: 'gemini-keep-alive' });
         const genericPort = runtimeMock.connect({ name: 'generic-port' });
