@@ -1849,8 +1849,8 @@ if (!window.__manga_translator_content_injected) {
             if ((processedCount >= totalToProcess && totalToProcess > 0) || force) {
                 isTranslating = false; updateBtnStatus(); 
                 _currentBatchId = null;
-                playSuccessSound();
-                sendLog('success', 'BATCH_COMPLETE', 'Lote de tradução concluído');
+                if (!batchHasErrors) playSuccessSound();
+                sendLog(batchHasErrors ? 'warn' : 'success', 'BATCH_COMPLETE', batchHasErrors ? 'Lote encerrado com erros' : 'Lote de tradução concluído');
 
                 const toast = document.createElement('div');
                 toast.innerHTML = `<span style="font-size:20px;">✅</span><span>${batchHasErrors ? 'Concluído com erros — veja a gaveta' : 'Tradução Concluída!'}</span>`;
@@ -1984,6 +1984,7 @@ if (!window.__manga_translator_content_injected) {
                     sendLog('warn', 'STALE_COMPLETE', `BATCH_COMPLETE ignorado de batch antigo`, { received: (request.batchId||'').slice(0,8) });
                     return;
                 }
+                if (request.hasErrors === true) batchHasErrors = true;
                 checkIfComplete(true);
             } else if (request.action === 'SHOW_ERROR_INTEGRATED') {
                 if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) return;

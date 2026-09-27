@@ -6,6 +6,7 @@
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const GeminiDom = globalThis.MangaTranslatorGeminiDom;
+const GeminiImageQuarantine = globalThis.MangaTranslatorGeminiImageQuarantine;
 const GeminiObserver = globalThis.MangaTranslatorGeminiObserver;
 const GeminiEditor = globalThis.MangaTranslatorGeminiEditor;
 const GeminiAttachment = globalThis.MangaTranslatorGeminiAttachment;
@@ -16,6 +17,7 @@ const GeminiJobRunner = globalThis.MangaTranslatorGeminiJobRunner;
 
 if (
     !GeminiDom ||
+    !GeminiImageQuarantine ||
     !GeminiObserver ||
     !GeminiEditor ||
     !GeminiAttachment ||
@@ -212,12 +214,17 @@ const deletionController = GeminiDeletion.createDeletionController({
     sendLog,
 });
 
+const imageQuarantine = GeminiImageQuarantine.createImageQuarantine({
+    dom: GeminiDom,
+});
+
 const jobRunner = GeminiJobRunner.createGeminiJobRunner({
     root: document,
     pageWindow: window,
     runtime: chrome.runtime,
     storage: chrome.storage.local,
     domApi: GeminiDom,
+    imageQuarantine,
     observerApi: GeminiObserver,
     editorApi: GeminiEditor,
     attachmentApi: GeminiAttachment,

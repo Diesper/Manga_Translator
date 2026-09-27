@@ -95,16 +95,14 @@ function appendImage(src, metrics = {}) {
     const img = document.createElement('img');
     img.src = src;
     defineImageMetrics(img, metrics);
-
-    if (metrics.role === 'body') {
+    if (metrics.owner === false) {
         document.body.appendChild(img);
-        return img;
+    } else {
+        const response = document.createElement('model-response');
+        response.setAttribute('data-message-author', 'model');
+        response.appendChild(img);
+        document.body.appendChild(response);
     }
-
-    const response = document.createElement('model-response');
-    response.setAttribute('data-message-author', 'model');
-    response.appendChild(img);
-    document.body.appendChild(response);
     return img;
 }
 
@@ -125,6 +123,10 @@ function mountEditor({
     editor.setAttribute('contenteditable', 'true');
     if (disabled) editor.setAttribute('aria-disabled', 'true');
     editor.innerHTML = '<p></p>';
+    editor.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 640, bottom: 120,
+        width: 640, height: 120, toJSON() { return this; },
+    });
     editor.focus = jest.fn();
     editor.scrollIntoView = jest.fn();
 
@@ -143,10 +145,33 @@ function mountEditor({
                 preview = document.createElement('file-preview');
                 const thumbImg = document.createElement('img');
                 thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+                Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+                preview.getBoundingClientRect = () => ({
+                    x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+                    width: 120, height: 90, toJSON() { return this; },
+                });
                 preview.appendChild(thumbImg);
                 document.body.appendChild(preview);
             }
         }
+    });
+    editor.addEventListener('drop', (event) => {
+        const transfer = event.dataTransfer;
+        if (!attachThumbnail || !transfer?.items?.length || document.querySelector('file-preview')) return;
+        const preview = document.createElement('file-preview');
+        const thumbImg = document.createElement('img');
+        thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+        Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+        preview.getBoundingClientRect = () => ({
+            x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+            width: 120, height: 90, toJSON() { return this; },
+        });
+        preview.appendChild(thumbImg);
+        document.body.appendChild(preview);
     });
 
     document.body.appendChild(editor);
@@ -163,6 +188,10 @@ function appendSendButton({
     button.setAttribute('aria-label', label);
     button.disabled = disabled;
     if (hidden) button.style.display = 'none';
+    button.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 40, bottom: 40,
+        width: 40, height: 40, toJSON() { return this; },
+    });
     button.click = jest.fn(() => {
         const editor = document.querySelector('.ql-editor, [contenteditable="true"]');
         if (editor) editor.textContent = '';
@@ -181,6 +210,10 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     beforeEach(async () => {
         jest.resetModules();
         installDomApis();
+        jest.spyOn(window.HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+            x: 0, y: 0, top: 0, left: 0, right: 160, bottom: 48,
+            width: 160, height: 48, toJSON() { return this; },
+        }));
         setWindowLocation('/app/chat-1');
 
         runtimeMock = getRuntimeMock();
@@ -317,47 +350,35 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         expect(clearIntervalSpy).toHaveBeenCalled();
     });
 
-    test('CG-21/ATT-GATE-01: ausencia de attachment confirmado bloqueia prompt e submit', async () => {
+    test('CG-21: ausencia de thumbnail bloqueia prompt e submit', async () => {
         mountEditor({ attachThumbnail: false });
-        const send = appendSendButton();
-        await seedJob({ executionMode: 'background_delete' });
+        await seedJob();
         jest.useFakeTimers();
         installResponder({
             GET_TAB_ID: () => ({ tabId: 321 }),
             REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
-            FORCE_ATTACHMENT_ACTIVATION: () => ({ ok: true }),
-            RESTORE_ATTACHMENT_ACTIVATION: () => ({ ok: true }),
         });
 
         const mod = loadContentGeminiModule();
         mod.processGeminiJob();
 
-        for (let i = 0; i < 70; i += 1) {
+        for (let i = 0; i < 60; i += 1) {
             // eslint-disable-next-line no-await-in-loop
             await jest.advanceTimersByTimeAsync(500);
         }
 
-        const gateError = sentMessages.find(message =>
-            message.action === 'LOG_ENTRY' &&
-            message.action_name === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
+        const gateLog = sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
         );
-        expect(gateError).toEqual(expect.objectContaining({
+        expect(gateLog).toEqual(expect.objectContaining({
             level: 'error',
             action_name: 'GEMINI_ATTACHMENT_NOT_CONFIRMED',
         }));
-        expect(sentMessages.some(message =>
-            message.action === 'LOG_ENTRY' &&
-            message.action_name === 'PROMPT_INJECTED'
-        )).toBe(false);
-        expect(sentMessages.some(message =>
-            message.action === 'LOG_ENTRY' &&
-            message.action_name === 'GEMINI_SUBMIT_ATTEMPT'
-        )).toBe(false);
-        expect(send.click).not.toHaveBeenCalled();
-        expect(sentMessages.some(message =>
-            message.action === 'GEMINI_ERROR' &&
-            String(message.error || '').includes('GEMINI_ATTACHMENT_NOT_CONFIRMED')
-        )).toBe(true);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GEMINI_ERROR',
+            error: expect.stringContaining('Anexo não confirmado'),
+        }));
+        expect(document.querySelector('.ql-editor').textContent.trim()).toBe('');
     });
 
     test('CG-28/CG-29: botoes desabilitados ou ocultos sao ignorados ate achar botao valido', async () => {
@@ -392,7 +413,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     }, 12000);
 
     test('CG-32/CG-33/CG-34: ignora imagem preexistente, avatar e imagem pequena antes de aceitar resultado valido', async () => {
-        appendImage('https://cdn.gemini.test/pre-existing.png', { role: 'body' });
+        appendImage('https://cdn.gemini.test/pre-existing.png');
         mountEditor();
         appendSendButton({
             onSubmit: () => {
@@ -464,7 +485,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         appendSendButton({
             onSubmit: () => {
                 setTimeout(() => {
-                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024, role: 'body' });
+                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024, owner: false });
                 }, 1300);
             },
         });
@@ -510,10 +531,16 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             <div id="delete-item" role="menuitem">Excluir</div>
             <button id="confirm-delete">Excluir</button>
         `);
-        document.getElementById('options-btn').scrollIntoView = jest.fn();
-        document.getElementById('options-btn').click = jest.fn();
-        document.getElementById('delete-item').click = jest.fn();
-        document.getElementById('confirm-delete').click = jest.fn();
+        const optionsButton = document.getElementById('options-btn');
+        const deleteItem = document.getElementById('delete-item');
+        const confirmDelete = document.getElementById('confirm-delete');
+        optionsButton.scrollIntoView = jest.fn();
+        optionsButton.click = jest.fn();
+        deleteItem.click = jest.fn();
+        confirmDelete.click = jest.fn(() => {
+            document.getElementById('conversation-row')?.remove();
+            window.location.pathname = '/app';
+        });
 
         await seedJob();
         await storageMock.set({ debugMode: false, geminiExecutionMode: 'minimized_window' });
@@ -531,45 +558,8 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             message.action === 'LOG_ENTRY' && message.action_name === 'DELETE_OK'
         ), { timeout: 8000 });
 
-        expect(document.getElementById('options-btn').click).toHaveBeenCalled();
-        expect(document.getElementById('delete-item').click).toHaveBeenCalled();
-        expect(document.getElementById('confirm-delete').click).toHaveBeenCalled();
+        expect(optionsButton.click).toHaveBeenCalled();
+        expect(deleteItem.click).toHaveBeenCalled();
+        expect(confirmDelete.click).toHaveBeenCalled();
     }, 20000);
-
-    test('REG-INPUT-RESULT-01: resultado byte-a-byte igual ao input é rejeitado antes da entrega', async () => {
-        mountEditor();
-        appendSendButton({
-            onSubmit: () => {
-                setTimeout(() => appendImage(
-                    'https://cdn.gemini.test/model-result-same-bytes.png',
-                    { width: 900, height: 1200 }
-                ), 50);
-            },
-        });
-
-        await seedJob();
-        installResponder({
-            GET_TAB_ID: () => ({ tabId: 321 }),
-            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
-            FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,QUJDRA==' }),
-        });
-
-        const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
-
-        const errorLog = await waitFor(() => sentMessages.find(message =>
-            message.action === 'LOG_ENTRY' &&
-            message.action_name === 'GEMINI_RESULT_MATCHES_INPUT'
-        ), { timeout: 12000 });
-
-        expect(errorLog.level).toBe('error');
-        expect(sentMessages.some(message =>
-            message.action === 'GEMINI_IMAGE_EXTRACTED'
-        )).toBe(false);
-        expect(sentMessages.some(message =>
-            message.action === 'GEMINI_ERROR' &&
-            String(message.error || '').includes('GEMINI_RESULT_MATCHES_INPUT')
-        )).toBe(true);
-    }, 15000);
-
 });

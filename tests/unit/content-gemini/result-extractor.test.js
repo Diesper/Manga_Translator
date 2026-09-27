@@ -179,7 +179,7 @@ describe('gemini/result-extractor.js', () => {
     expect(runtime.sendMessage).not.toHaveBeenCalled();
   });
 
-  test('EXT-04: rd-gg-dl usa SW com sessão antes do MAIN-world fetch', async () => {
+  test('EXT-04: canvas + MAIN falhos escalam para SW com geminiSession', async () => {
     const { createResultExtractor } = loadModule();
     const events = [];
     const runtime = createRuntime(events, message => {
@@ -200,12 +200,12 @@ describe('gemini/result-extractor.js', () => {
     await expect(
       extractor.extractResultImage(
         createImage(),
-        'https://lh3.googleusercontent.com/rd-gg-dl/result.png',
+        'https://googleusercontent.com/result.png',
         'background_delete'
       )
     ).resolves.toBe('data:image/png;base64,SESSION');
 
-    expect(events).toEqual(['canvas', 'sw-session']);
+    expect(events).toEqual(['canvas', 'page', 'sw-session']);
   });
 
   test('EXT-05: modos não background_delete preservam SW fetch legado direto', async () => {
@@ -310,9 +310,9 @@ describe('gemini/result-extractor.js', () => {
     expect(result.dataUrl).toBeNull();
     expect(result.fallbackResult).toEqual({ delivered: true });
     expect(events).toEqual([
-      'canvas', 'page', 'sw-background',
+      'canvas', 'page', 'sw-session',
       'sleep',
-      'canvas', 'page', 'sw-background',
+      'canvas', 'page', 'sw-session',
       'auxiliary',
     ]);
 
@@ -372,36 +372,76 @@ describe('gemini/result-extractor.js', () => {
     ).rejects.toThrow('SW falhou');
   });
 
-  test('EXT-10: temp_chat também usa sessão para rd-gg-dl quando canvas é bloqueado', async () => {
+  test.each(['temp_chat', 'minimized_window', 'background_delete'])(
+    'EXT-10: asset gg-dl usa sessão autenticada no modo %s',
+    async executionMode => {
+      const { createResultExtractor } = loadModule();
+      const events = [];
+      const runtime = createRuntime(events, message => {
+        expect(message).toEqual(expect.objectContaining({
+          action: 'FETCH_IMAGE_AS_BASE64',
+          geminiSession: true,
+        }));
+        return { dataUrl: 'data:image/png;base64,AUTHENTICATED' };
+      });
+      const extractor = createResultExtractor({
+        runtime,
+        pageDocument: createCanvasDocument(events, { fail: true }),
+        pageWindow: createPageWindow(events, { error: 'MAIN não deve ser a primeira rota' }),
+        CustomEventImpl: TestCustomEvent,
+      });
+
+      await expect(extractor.extractResultImage(
+        createImage(),
+        'https://lh3.googleusercontent.com/gg-dl/GENERATED_IMAGE',
+        executionMode
+      )).resolves.toBe('data:image/png;base64,AUTHENTICATED');
+
+      expect(events).toEqual(['canvas', 'sw-session']);
+    }
+  );
+
+  test('EXT-11: asset rd-gg-dl usa MAIN apenas após falha da sessão autenticada', async () => {
     const { createResultExtractor } = loadModule();
     const events = [];
-    const runtime = createRuntime(events, message => {
-      expect(message).toEqual(expect.objectContaining({
-        action: 'FETCH_IMAGE_AS_BASE64',
-        geminiSession: true,
-      }));
-      return { dataUrl: 'data:image/png;base64,SESSION_TEMP' };
-    });
-
     const extractor = createResultExtractor({
-      runtime,
+      runtime: createRuntime(events, () => ({ error: 'sessão indisponível' })),
       pageDocument: createCanvasDocument(events, { fail: true }),
-      pageWindow: createPageWindow(events, { error: 'MAIN não deve vencer o SW' }),
+      pageWindow: createPageWindow(events, { dataUrl: 'data:image/png;base64,PAGE_LAST' }),
       CustomEventImpl: TestCustomEvent,
     });
 
-    await expect(
-      extractor.extractResultImage(
-        createImage(),
-        'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj',
-        'temp_chat'
-      )
-    ).resolves.toBe('data:image/png;base64,SESSION_TEMP');
+    await expect(extractor.extractResultImage(
+      createImage(),
+      'https://lh3.googleusercontent.com/rd-gg-dl/GENERATED_IMAGE',
+      'temp_chat'
+    )).resolves.toBe('data:image/png;base64,PAGE_LAST');
 
-    expect(events).toEqual(['canvas', 'sw-session']);
-    expect(extractor.isGeminiGoogleAssetUrl(
-      'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj'
-    )).toBe(true);
+    expect(events).toEqual(['canvas', 'sw-session', 'page']);
   });
 
+  test('EXT-12: URL comum em temp_chat preserva fetch legado sem credencial de sessão', async () => {
+    const { createResultExtractor } = loadModule();
+    const events = [];
+    const runtime = createRuntime(events, message => {
+      expect(message).not.toHaveProperty('geminiSession');
+      return { dataUrl: 'data:image/png;base64,LEGACY' };
+    });
+    const extractor = createResultExtractor({
+      runtime,
+      pageDocument: {
+        createElement() {
+          throw new Error('canvas não deve executar para URL comum neste modo');
+        },
+      },
+    });
+
+    await expect(extractor.extractResultImage(
+      createImage(),
+      'https://cdn.example/result.png',
+      'temp_chat'
+    )).resolves.toBe('data:image/png;base64,LEGACY');
+
+    expect(events).toEqual(['sw-background']);
+  });
 });

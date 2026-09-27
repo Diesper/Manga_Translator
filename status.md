@@ -1,5 +1,17 @@
 # Status da Refatoração Gemini RPA V2
 
+## Atualização funcional — 27/09/2026
+
+- Revisão MT-UNICO-01/2 aprovada manualmente: 21 imagens, sete em cada modo; quatro lotes completos.
+- Upload exige editor estável e preview carregada; runner não solicita ativação física.
+- Normal/minimizado aguardam exclusão verificada; conclusão informa hasErrors.
+- Extração de assets gerados usa canvas, SW com sessão e MAIN como último recurso; watchdog de cinco minutos é validado/rearmado no início observado.
+- Extensão corresponde à cópia aprovada; versão de produto, schemas, workflows e infraestrutura de testes permanecem.
+- Nenhum teste local executado nesta publicação. CI autorizado a executar no GitHub.
+- [Documentação funcional](docs/DOCUMENTACAO_VERSAO_FUNCIONAL.md) e [evidências resumidas](docs/VALIDACAO_REVISAO_2.json).
+
+O rastreador abaixo preserva o histórico da refatoração; seus runs não são aprovação automática da revisão atual.
+
 > Rastreador de execução do `plano.md`. Este arquivo deve ser atualizado no mesmo conjunto de PRs que implementa a refatoração.
 
 ## Baseline validado

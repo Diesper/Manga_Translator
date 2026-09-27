@@ -6,12 +6,18 @@
 // bootstrap/claim/keepalive/message handlers.
 
 (function(scope) {
+  let imageQuarantineApi = scope.MangaTranslatorGeminiImageQuarantine || null;
+  if (!imageQuarantineApi && typeof require === 'function') {
+    try { imageQuarantineApi = require('./image-quarantine.js'); } catch (_e) {}
+  }
+
   function createGeminiJobRunner({
     root = scope.document || null,
     pageWindow = scope.window || null,
     runtime = scope.chrome?.runtime || null,
     storage = scope.chrome?.storage?.local || null,
     domApi = scope.MangaTranslatorGeminiDom,
+    imageQuarantine = imageQuarantineApi?.createImageQuarantine?.({ dom: domApi }),
     observerApi = scope.MangaTranslatorGeminiObserver,
     editorApi = scope.MangaTranslatorGeminiEditor,
     attachmentApi = scope.MangaTranslatorGeminiAttachment,
@@ -33,7 +39,7 @@
     if (!root || !pageWindow || !runtime || !storage) {
       throw new Error('JobRunner requer document/window/runtime/storage');
     }
-    if (!domApi || !observerApi || !editorApi || !attachmentApi || !temporaryChatApi) {
+    if (!domApi || !imageQuarantine || !observerApi || !editorApi || !attachmentApi || !temporaryChatApi) {
       throw new Error('JobRunner requer módulos Gemini DOM/Observer/Editor/Attachment/TemporaryChat');
     }
     if (!resultExtractor || !deletionController) {
@@ -76,35 +82,51 @@
       });
     }
 
-    function sendRuntimeMessage(message) {
-      return new Promise(resolve => {
-        try {
-          runtime.sendMessage(message, response => {
-            const error = runtime.lastError;
-            if (error) {
-              resolve({ ok: false, error: error.message || String(error) });
-              return;
-            }
-            resolve(response || { ok: true });
-          });
-        } catch (error) {
-          resolve({ ok: false, error: error?.message || String(error) });
+    function selectLiveComposer() {
+      const all = domApi.findAllDeep(root.body || root.documentElement || root, element =>
+        element.matches?.('[contenteditable="true"]') && element.isConnected !== false &&
+        domApi.isElementVisible(element) && element.getAttribute('aria-disabled') !== 'true' &&
+        !element.closest?.('[data-message-author], [data-turn-role], model-response, .user-query-container')
+      );
+      const editable = all.find(element => element.closest?.('rich-textarea, .input-area, .chat-input-container, input-area')) || all[0];
+      if (!editable) return null;
+      let composer = editable;
+      for (let current = editable; current; current = current.parentElement || current.getRootNode?.().host) {
+        if (current.matches?.('rich-textarea, .input-area, .chat-input-container, input-area')) { composer = current; break; }
+      }
+      if ([editable, composer].some(element => element.disabled === true || element.getAttribute?.('aria-disabled') === 'true')) return null;
+      return { editor: editable, composer };
+    }
+
+    async function waitForStableComposer(timeoutMs = 12_000) {
+      const started = Date.now();
+      let previousEditor = null, previousComposer = null, stableSince = 0;
+      while (Date.now() - started < timeoutMs) {
+        const current = selectLiveComposer();
+        if (current && current.editor === previousEditor && current.composer === previousComposer) {
+          if (Date.now() - stableSince >= 750 && Date.now() - started >= 1500) return current;
+        } else {
+          previousEditor = current?.editor || null;
+          previousComposer = current?.composer || null;
+          stableSince = Date.now();
         }
-      });
+        await sleep(250);
+      }
+      const error = new Error('Editor editável do Gemini não estabilizou em 12s; envio bloqueado.');
+      error.code = 'GEMINI_COMPOSER_NOT_READY';
+      throw error;
     }
 
-    function dataUrlPayload(value) {
-      const raw = String(value || '');
-      if (!raw.startsWith('data:image/')) return '';
-      const comma = raw.indexOf(',');
-      if (comma < 0) return '';
-      return raw.slice(comma + 1).replace(/\s+/g, '');
-    }
-
-    function sameImagePayload(first, second) {
-      const a = dataUrlPayload(first);
-      const b = dataUrlPayload(second);
-      return Boolean(a && b && a === b);
+    function attachmentSnapshot() {
+      const current = selectLiveComposer();
+      const searchRoot = root.body || root.documentElement || root;
+      return {
+        editorConnected: current?.editor.isConnected === true,
+        composerTag: current?.composer.tagName?.toLowerCase() || null,
+        fileInputs: domApi.findAllDeep(searchRoot, element => element.matches?.('input[type="file"]')).length,
+        imageInputs: attachmentApi.findFileInputsDeep(searchRoot).length,
+        previewCount: attachmentApi.listAttachmentEvidence(root).length,
+      };
     }
 
     function dataURLtoFile(dataurl, filename) {
@@ -187,23 +209,46 @@
       return domApi.isModelResponseImage(image);
     }
 
-    function isStrongGeneratedImageUrl(src) {
-      const value = String(src || '');
-      return value.includes('gemini-result-image') ||
-        value.includes('googleusercontent.com/gg-dl/') ||
-        value.includes('googleusercontent.com/rd-gg-dl/') ||
-        value.startsWith('blob:https://gemini.google.com/') ||
-        value.startsWith('blob:http://127.0.0.1/') ||
-        value.startsWith('data:image/');
+    function tryClickModelImageCards() {
+      const selectors = [
+        'model-response button[aria-label*="imagem" i]',
+        'model-response button[aria-label*="image" i]',
+        'model-response .image-card',
+        'model-response [data-test-id*="image"]',
+        'model-response [data-test-id*="generated-image"]',
+        'model-response img',
+        '[data-message-author="model"] button[aria-label*="imagem" i]',
+        '[data-message-author="model"] [data-test-id*="image"]',
+        '[data-message-author="model"] img',
+      ];
+
+      for (const selector of selectors) {
+        const element = root.querySelector(selector);
+        if (!element) continue;
+        const target = element.closest?.('button, [role="button"]') || element;
+        try {
+          target.click();
+          return true;
+        } catch (_e) {}
+      }
+      return false;
     }
 
     function isLikelyGeneratedImage(image, ignoreImages = new Set()) {
+      if (imageQuarantine.isStructurallyInput(image)) return false;
       const src = getImageSource(image);
       if (!src || ignoreImages.has(src) || isIgnoredGeminiImageSource(src)) return false;
 
       if (isModelResponseImage(image)) return true;
 
-      if (isStrongGeneratedImageUrl(src)) return true;
+      if (
+        src.includes('gemini-result-image') ||
+        src.includes('googleusercontent.com/gg-dl/') ||
+        src.startsWith('blob:https://gemini.google.com/') ||
+        src.startsWith('blob:http://127.0.0.1/')
+      ) {
+        return true;
+      }
 
       const width = image.naturalWidth || image.width || 0;
       const height = image.naturalHeight || image.height || 0;
@@ -227,6 +272,7 @@
     }
 
     function isManualSelectableImage(image, ignoreImages = new Set()) {
+      if (imageQuarantine.isStructurallyInput(image)) return false;
       const src = getImageSource(image);
       if (!src || ignoreImages.has(src) || isIgnoredGeminiImageSource(src)) return false;
       const width = image.naturalWidth || image.width || 0;
@@ -285,38 +331,16 @@
         pageWindow.__mangaTranslatorManualPickHandler = null;
       }
 
-      domApi.findAllDeep(
-        root.body || root.documentElement,
-        element => element?.getAttribute?.('data-mt-gemini-pickable') === 'true'
-      ).forEach(image => {
+      root.querySelectorAll('[data-mt-gemini-pickable="true"]').forEach(image => {
         image.style.outline = '';
         image.style.outlineOffset = '';
         image.removeAttribute('data-mt-gemini-pickable');
       });
     }
 
-    function reportManualIntervention(job, source) {
-      if (!job) return;
-      if (pageWindow.__mangaTranslatorManualInterventionJobId === job.jobId) return;
-
-      pageWindow.__mangaTranslatorManualInterventionJobId = job.jobId || true;
-      sendLog(
-        'error',
-        'GEMINI_MANUAL_INTERVENTION_REQUIRED',
-        'ERRO GRAVE: a detecção automática falhou e o usuário precisou interagir manualmente com o resultado do Gemini.',
-        {
-          source,
-          index: Number.isFinite(Number(job.index)) ? Number(job.index) : null,
-          jobIdPrefix: String(job.jobId || '').slice(0, 8),
-          executionMode: job.executionMode || null,
-        }
-      );
-    }
-
     function createGeminiManualPanel(job, getIgnoreImages) {
       removeGeminiManualPanel();
       pageWindow.__mangaTranslatorManualGeminiResultUrl = '';
-      pageWindow.__mangaTranslatorManualInterventionJobId = null;
 
       const panel = root.createElement('div');
       panel.id = 'mt-gemini-assist';
@@ -357,7 +381,6 @@
       root.documentElement.appendChild(panel);
 
       panel.querySelector('#mt-gemini-use-last').addEventListener('click', () => {
-        reportManualIntervention(job, 'last-button');
         const images = findGeneratedResultImages(getIgnoreImages());
         const candidate = images[images.length - 1];
         if (candidate) {
@@ -369,16 +392,10 @@
       });
 
       panel.querySelector('#mt-gemini-pick').addEventListener('click', () => {
-        reportManualIntervention(job, 'select-button');
         const status = panel.querySelector('#mt-gemini-assist-status');
         status.textContent = 'Clique diretamente na imagem correta gerada pelo Gemini.';
 
-        const selectableImages = domApi.findAllDeep(
-          root.body || root.documentElement,
-          element => String(element.tagName || '').toUpperCase() === 'IMG'
-        );
-
-        selectableImages.forEach(image => {
+        root.querySelectorAll('img').forEach(image => {
           if (!isManualSelectableImage(image, getIgnoreImages())) return;
           image.dataset.mtGeminiPickable = 'true';
           image.style.outline = '3px solid #FF4444';
@@ -394,12 +411,7 @@
         }
 
         pageWindow.__mangaTranslatorManualPickHandler = event => {
-          const path = typeof event.composedPath === 'function'
-            ? event.composedPath()
-            : [];
-          const image =
-            path.find(node => String(node?.tagName || '').toUpperCase() === 'IMG') ||
-            event.target?.closest?.('img');
+          const image = event.target?.closest?.('img');
           if (!image || !isManualSelectableImage(image, getIgnoreImages())) return;
 
           event.preventDefault();
@@ -413,10 +425,7 @@
           );
           pageWindow.__mangaTranslatorManualPickHandler = null;
 
-          domApi.findAllDeep(
-            root.body || root.documentElement,
-            element => element?.getAttribute?.('data-mt-gemini-pickable') === 'true'
-          ).forEach(candidate => {
+          root.querySelectorAll('[data-mt-gemini-pickable="true"]').forEach(candidate => {
             candidate.style.outline = '';
             candidate.style.outlineOffset = '';
             candidate.removeAttribute('data-mt-gemini-pickable');
@@ -605,6 +614,7 @@
 
       let scrollInterval = null;
       let executionMode = job.executionMode || null;
+      let inputImageHash = null;
 
       const startScrollAssist = () => {
         scrollInterval = setIntervalFn(() => {
@@ -629,7 +639,7 @@
       };
 
       async function deliverWithSecureDeletion(delivery, shouldDeleteConversation) {
-        if (executionMode !== 'background_delete') {
+        if (executionMode !== 'background_delete' && executionMode !== 'minimized_window') {
           if (shouldDeleteConversation) {
             deletionController.deleteCurrentConversation().catch(() => {});
           }
@@ -649,6 +659,9 @@
         }
 
         stopScrollAssist();
+        sendLog('info', 'GEMINI_DELETE_BEFORE_DELIVERY', 'Aguardando exclusão antes de finalizar o job', {
+          executionMode, jobIdPrefix: String(job.jobId || '').slice(0, 8),
+        });
         const deletion = await deletionController.deleteOrScheduleRecovery({
           tabId: myTabId,
           delivery,
@@ -686,6 +699,22 @@
           'Base64 validada.'
         );
         job.srcData = imageResponse.srcData;
+        try {
+          inputImageHash = await imageQuarantine.computeExactHash(job.srcData);
+          sendLog(
+            'info',
+            'GEMINI_INPUT_QUARANTINE_READY',
+            'Assinatura exata da imagem de entrada calculada',
+            { algorithm: 'SHA-256' }
+          );
+        } catch (hashError) {
+          sendLog(
+            'warn',
+            'GEMINI_QUARANTINE_HASH_UNAVAILABLE',
+            'Não foi possível calcular a assinatura inicial; o filtro estrutural permanece ativo',
+            { messageLength: String(hashError?.message || '').length }
+          );
+        }
 
         reportProgress('⏳ AGUARDANDO INTERFACE...', job.mangaTabId);
         debugConsole('log', '[MangaTranslator Gemini] Aguardando interface do Gemini...');
@@ -695,6 +724,12 @@
           20_000
         );
         assertStage(editor !== null, 'Editor não carregou.', 2, 'Editor alvo detectado');
+        assertStage(
+          editor.disabled !== true && editor.getAttribute?.('aria-disabled') !== 'true',
+          'Editor do Gemini está desabilitado.',
+          2,
+          'Editor habilitado'
+        );
 
         try {
           editor.focus?.({ preventScroll: true });
@@ -782,164 +817,50 @@
           }
         }
 
-        const liveEditor =
-          root.querySelector('rich-textarea, .ql-editor, [contenteditable="true"]') ||
-          editor;
-        const liveEditable = domApi.getEditableElement(liveEditor) || liveEditor;
-
-        const editorIsDisabled = [liveEditor, liveEditable].some(element =>
-          element && (
-            element.disabled === true ||
-            element.getAttribute?.('aria-disabled') === 'true' ||
-            element.getAttribute?.('contenteditable') === 'false'
-          )
-        );
-        assertStage(!editorIsDisabled, 'Editor do Gemini está desabilitado.', 2);
-
+        // O aparecimento do wrapper não comprova que o editor esteja hidratado.
+        // A seleção é renovada entre métodos; nunca reutiliza nó desconectado.
+        let stableComposer = await waitForStableComposer();
+        const liveEditor = stableComposer.composer;
+        const liveEditable = stableComposer.editor;
         reportProgress('📎 ANEXANDO IMAGEM...', job.mangaTabId);
-        debugConsole('log', '[MangaTranslator Gemini] Anexando imagem...');
         const file = dataURLtoFile(job.srcData, 'manga_page.png');
         assertStage(file.size > 0, 'Imagem gerada vazia.', 3, 'PNG verificado no buffer');
-
-        const runAttachmentAttempt = async ({
-          editorElement,
-          editorRootElement,
-          timeoutMs,
-          maxDispatches,
-          phase,
-        }) => {
-          sendLog(
-            'info',
-            'GEMINI_ATTACHMENT_ATTEMPT',
-            'Tentativa de attachment iniciada',
-            { executionMode, phase, maxDispatches }
-          );
-
-          const result = await attachmentApi.attachFile({
-            file,
-            editor: editorElement,
-            editorRoot: editorRootElement,
-            root,
-            timeoutMs,
-            retryAfterMs: 2500,
-            maxDispatches,
-            sleep,
+        let attachmentResult;
+        try {
+          // Variante 01 mantém a aba/janela no contexto original.
+          sendLog('info', 'GEMINI_ATTACHMENT_CONTEXT', 'Contexto antes do upload', {
+            variant: 'MT-UNICO-01', executionMode, ...attachmentSnapshot(),
+            jobIdPrefix: String(job.jobId || '').slice(0, 8),
           });
-
-          sendLog(
-            result.confirmed ? 'success' : 'warn',
-            result.confirmed ? 'GEMINI_ATTACHMENT_CONFIRMED' : 'GEMINI_ATTACHMENT_UNCONFIRMED',
-            result.confirmed
-              ? 'Attachment confirmado por evidência de DOM do composer'
-              : 'Attachment ainda não confirmado',
-            {
-              executionMode,
-              phase,
-              attempted: result.attempted,
-              attempts: result.attempts,
-              signalObserved: result.signalObserved,
-              methods: result.methodsAttempted,
-              evidenceType: result.evidence?.type || null,
-            }
-          );
-          return { ...result, phase };
+          attachmentResult = await attachmentApi.attachFile({
+            file, editor: stableComposer.editor, editorRoot: stableComposer.composer, root,
+            getEditor: () => selectLiveComposer()?.editor || null,
+            getEditorRoot: () => selectLiveComposer()?.composer || null,
+            timeoutMs: 20_000, retryAfterMs: 3500, maxDispatches: 3, sleep,
+            // Eventos de upload continuam no content script.
+            onAttempt: detail => sendLog('info', 'GEMINI_ATTACHMENT_METHOD', 'Método de upload observado', {
+              variant: 'MT-UNICO-01', executionMode, ...detail, ...attachmentSnapshot(),
+              jobIdPrefix: String(job.jobId || '').slice(0, 8),
+            }),
+          });
+        } finally {
+          // Nenhum contexto físico foi alterado nesta variante.
+        }
+        const uploadMeta = {
+          variant: 'MT-UNICO-01', executionMode,
+          methodsAttempted: attachmentResult.methodsAttempted,
+          signalObserved: attachmentResult.signalObserved,
+          evidenceType: attachmentResult.evidence?.type || null,
+          ...attachmentSnapshot(),
         };
-
-        let attachmentResult = await runAttachmentAttempt({
-          editorElement: liveEditable,
-          editorRootElement: liveEditor,
-          timeoutMs: 8_000,
-          maxDispatches: 3,
-          phase: 'background',
-        });
-
         if (!attachmentResult.confirmed) {
-          sendLog(
-            'warn',
-            'GEMINI_ATTACHMENT_RECOVERY',
-            'Attachment não confirmou em background; ativando contexto Gemini temporariamente',
-            { executionMode, signalObserved: attachmentResult.signalObserved }
-          );
-
-          const activation = await sendRuntimeMessage({
-            action: 'FORCE_ATTACHMENT_ACTIVATION',
-            geminiTabId: myTabId,
-            mangaTabId: job.mangaTabId,
-            windowId: job.windowId,
-            executionMode,
-          });
-
-          try {
-            if (activation?.ok !== false) {
-              await sleep(350);
-              const recoveredRoot =
-                root.querySelector('rich-textarea, .ql-editor, [contenteditable="true"]') ||
-                liveEditor;
-              const recoveredEditor = domApi.getEditableElement(recoveredRoot) || recoveredRoot;
-
-              attachmentResult = await runAttachmentAttempt({
-                editorElement: recoveredEditor,
-                editorRootElement: recoveredRoot,
-                timeoutMs: 12_000,
-                maxDispatches: 3,
-                phase: 'foreground_recovery',
-              });
-            } else {
-              sendLog(
-                'warn',
-                'GEMINI_ATTACHMENT_ACTIVATION_FAILED',
-                'Não foi possível ativar o contexto Gemini para recovery de attachment',
-                { executionMode, reason: activation?.reason || activation?.error || null }
-              );
-            }
-          } finally {
-            await sendRuntimeMessage({
-              action: 'RESTORE_ATTACHMENT_ACTIVATION',
-              geminiTabId: myTabId,
-              mangaTabId: job.mangaTabId,
-              windowId: job.windowId,
-              executionMode,
-            });
-          }
+          sendLog('error', 'GEMINI_ATTACHMENT_NOT_CONFIRMED', 'Anexo não confirmou em 20s; prompt não enviado', uploadMeta);
+          const attachmentError = new Error('Anexo não confirmado em 20s; prompt não enviado.');
+          attachmentError.code = 'GEMINI_ATTACHMENT_NOT_CONFIRMED';
+          throw attachmentError;
         }
-
-        if (!attachmentResult.confirmed) {
-          const error = new Error('GEMINI_ATTACHMENT_NOT_CONFIRMED');
-          error.code = 'GEMINI_ATTACHMENT_NOT_CONFIRMED';
-
-          sendLog(
-            'error',
-            'GEMINI_ATTACHMENT_NOT_CONFIRMED',
-            'Attachment não pôde ser confirmado; submit bloqueado',
-            {
-              executionMode,
-              attempted: attachmentResult.attempted,
-              attempts: attachmentResult.attempts,
-              signalObserved: attachmentResult.signalObserved,
-              methods: attachmentResult.methodsAttempted,
-            }
-          );
-          throw error;
-        }
-
-        const attachmentEvidence = attachmentResult.evidence || {};
-        debugConsole(
-          'log',
-          '[MangaTranslator Gemini] Attachment confirmado:',
-          { type: attachmentEvidence.type, selector: attachmentEvidence.selector }
-        );
-        sendLog(
-          'success',
-          'GEMINI_STEP_3_OK',
-          'Attachment confirmado; pipeline liberado para submit',
-          {
-            executionMode,
-            type: attachmentEvidence.type,
-            selector: attachmentEvidence.selector,
-            phase: attachmentResult.phase || 'unknown',
-          }
-        );
-        await sleep(500);
+        sendLog('success', 'GEMINI_STEP_3_OK', 'Anexo confirmado antes do prompt', uploadMeta);
+        await sleep(1000);
 
         reportProgress('📤 ENVIANDO PROMPT...', job.mangaTabId);
         debugConsole('log', '[MangaTranslator Gemini] Injetando prompt e enviando...');
@@ -999,10 +920,6 @@
             .map(image => getImageSource(image))
             .filter(Boolean)
         );
-        const inputImageElements = new Set();
-        if (attachmentResult.evidence?.img) {
-          inputImageElements.add(attachmentResult.evidence.img);
-        }
 
         activeObserver = observerApi.createGeminiObserver({
           jobId: job.jobId,
@@ -1013,108 +930,45 @@
               'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
             ) || activeEditable,
           ignoreImages,
-          inputImageElements,
+          imageQuarantine,
           onStateChange: (type, detail) => {
+            if (type === 'result_candidate_rejected' || type === 'result_candidate_accepted') {
+              sendLog('info', type === 'result_candidate_rejected' ? 'GEMINI_RESULT_REJECTED' : 'GEMINI_RESULT_ACCEPTED',
+                type === 'result_candidate_rejected' ? 'Candidato descartado pelo contexto da imagem' : 'Resposta do modelo validada', {
+                  executionMode, jobIdPrefix: String(job.jobId || '').slice(0, 8),
+                  reason: detail?.reason, sourceType: detail?.sourceType,
+                  ownerTag: detail?.ownerTag || null,
+                });
+            }
             if (type === 'generation_started') {
               sendLog(
                 'info',
                 'GEMINI_GENERATION_ACTIVE',
                 'Geração observada na UI',
-                { executionMode, reason: detail && detail.reason }
+                { executionMode, jobIdPrefix: String(job.jobId || '').slice(0, 8), reason: detail && detail.reason }
               );
-
               if (!watchdogRefreshRequested) {
                 watchdogRefreshRequested = true;
-                sendLog(
-                  'info',
-                  'GEMINI_WATCHDOG_REFRESH_REQUESTED',
-                  'Reiniciando o prazo do watchdog a partir do início real da geração',
-                  { executionMode }
-                );
-                sendRuntimeMessage({
-                  action: 'REFRESH_JOB_WATCHDOG',
-                  geminiTabId: myTabId,
-                  mangaTabId: job.mangaTabId,
-                  index: job.index,
-                  jobId: job.jobId,
-                  batchId: job.batchId,
-                }).then(response => {
-                  const ok = response && response.ok !== false;
-                  sendLog(
-                    ok ? 'success' : 'warn',
+                const refreshMetadata = {
+                  executionMode, jobIdPrefix: String(job.jobId || '').slice(0, 8),
+                };
+                const reportRefresh = (response, error) => {
+                  const ok = !error && response?.ok === true && response.refreshed === true;
+                  sendLog(ok ? 'success' : 'warn',
                     ok ? 'GEMINI_WATCHDOG_REFRESH_CONFIRMED' : 'GEMINI_WATCHDOG_REFRESH_FAILED',
-                    ok
-                      ? 'Watchdog reiniciado após o início da geração'
-                      : 'Não foi possível reiniciar o watchdog após o início da geração',
-                    { executionMode }
-                  );
-                }).catch(() => {
-                  sendLog(
-                    'warn',
-                    'GEMINI_WATCHDOG_REFRESH_FAILED',
-                    'Falha ao solicitar reinício do watchdog',
-                    { executionMode }
-                  );
-                });
+                    ok ? 'Watchdog reiniciado após o início da geração' : 'Não foi possível reiniciar o watchdog',
+                    refreshMetadata);
+                };
+                sendLog('info', 'GEMINI_WATCHDOG_REFRESH_REQUESTED',
+                  'Solicitando novo prazo de 5 min a partir do início da geração', refreshMetadata);
+                try {
+                  runtime.sendMessage({
+                    action: 'REFRESH_JOB_WATCHDOG', jobId: job.jobId,
+                  }, response => reportRefresh(response, runtime.lastError));
+                } catch (error) {
+                  reportRefresh(null, error);
+                }
               }
-            } else if (type === 'model_turn_acquired') {
-              sendLog(
-                'info',
-                'GEMINI_MODEL_TURN_ACQUIRED',
-                'Nova resposta estrita do modelo adquiriu ownership do job',
-                { executionMode, responseIndex: detail && detail.responseIndex }
-              );
-            } else if (type === 'model_turn_fallback_acquired') {
-              sendLog(
-                'warn',
-                'GEMINI_MODEL_TURN_FALLBACK',
-                'Resultado detectado por fallback seguro porque o wrapper estrito do Gemini mudou.',
-                {
-                  executionMode,
-                  reason: detail && detail.reason,
-                  urlKind: detail && detail.urlKind,
-                }
-              );
-            } else if (type === 'result_dom_seen') {
-              sendLog(
-                'info',
-                'GEMINI_RESULT_DOM_SEEN',
-                'Imagem apareceu dentro do model turn observado',
-                { executionMode, imageCount: detail && detail.imageCount }
-              );
-            } else if (type === 'result_image_seen') {
-              sendLog(
-                'info',
-                'GEMINI_RESULT_IMG_SEEN',
-                'Fonte de imagem observada no model turn',
-                {
-                  executionMode,
-                  urlKind: detail && detail.urlKind,
-                  strongUrl: Boolean(detail && detail.strongUrl),
-                }
-              );
-            } else if (type === 'result_candidate') {
-              sendLog(
-                'success',
-                'GEMINI_RESULT_OWNER_VALID',
-                'Imagem candidata pertence ao model turn atual',
-                {
-                  executionMode,
-                  urlKind: detail && detail.urlKind,
-                  strongUrl: Boolean(detail && detail.strongUrl),
-                }
-              );
-            } else if (
-              type === 'result_image' &&
-              Number(detail?.elapsedAfterSubmitMs) >= 0 &&
-              Number(detail.elapsedAfterSubmitMs) < 750
-            ) {
-              sendLog(
-                'warn',
-                'GEMINI_RESULT_FAST',
-                'Resultado apareceu muito rápido após submit; ownership do model turn foi exigido',
-                { executionMode, elapsedAfterSubmitMs: detail.elapsedAfterSubmitMs }
-              );
             }
           },
         }).start();
@@ -1144,19 +998,14 @@
                 'info',
                 'GEMINI_SUBMIT_ATTEMPT',
                 'Tentativa de submit iniciada',
-                { executionMode, attempt }
+                { attempt }
               );
 
               if (attempt === 2) {
+                // Retry local; não ativa aba/janela nem dispara DO_SEND_NOW.
                 setAntiThrottleMode('legacy');
-                runtime.sendMessage({
-                  action: 'FORCE_SEND_ACTIVATION',
-                  geminiTabId: myTabId,
-                  mangaTabId: job.mangaTabId,
-                  windowId: job.windowId,
-                  executionMode: job.executionMode,
-                }, () => {
-                  if (runtime.lastError) {}
+                sendLog('warn', 'GEMINI_SEND_RETRY_BACKGROUND', 'Nova tentativa de envio em segundo plano', {
+                  executionMode, jobIdPrefix: String(job.jobId || '').slice(0, 8),
                 });
               }
             },
@@ -1193,11 +1042,11 @@
           'success',
           'GEMINI_SEND_SUCCESS',
           'Envio confirmado por transição observável da UI',
-          { executionMode, attempt: submission.attempt, reason: submission.reason }
+          { attempt: submission.attempt, reason: submission.reason }
         );
         debugConsole(
           'log',
-          '[MangaTranslator Gemini] Envio confirmado pelo Observer V3.',
+          '[MangaTranslator Gemini] Envio confirmado pelo Observer V2.',
           { attempt: submission.attempt, reason: submission.reason }
         );
         assertStage(
@@ -1246,7 +1095,7 @@
             sendLog(
               'error',
               'GEMINI_ERROR',
-              'Erro visível da UI detectado pelo Observer V3',
+              'Erro visível da UI detectado pelo Observer V2',
               { messageLength: String(waitError.message || '').length }
             );
             await deliverWithSecureDeletion({
@@ -1265,7 +1114,7 @@
             sendLog(
               'error',
               'GEMINI_TIMEOUT',
-              'Timeout de geração aguardando Observer V3',
+              'Timeout de geração aguardando Observer V2',
               {}
             );
             await deliverWithSecureDeletion({
@@ -1297,10 +1146,10 @@
         );
 
         sendLog(
-          'info',
-          'GEMINI_RESULT_CANDIDATE',
-          'Imagem candidata com ownership de model turn detectada',
-          { executionMode, ...getUrlLogMetadata(resultUrl) }
+          'success',
+          'GEMINI_IMG_FOUND',
+          'Imagem gerada!',
+          getUrlLogMetadata(resultUrl)
         );
         reportProgress('📥 EXTRAINDO IMAGEM...', job.mangaTabId);
 
@@ -1311,72 +1160,53 @@
           resultUrl = resultUrl.replace(/=s\d+[^?#]*/, '=s0');
         }
 
-        sendLog(
-          'info',
-          'GEMINI_RESULT_EXTRACTION_START',
-          'Iniciando extração da imagem gerada',
-          { executionMode, ...getUrlLogMetadata(resultUrl) }
-        );
-
-        let extraction;
-        try {
-          extraction = await resultExtractor.extractOrAuxiliaryFallback({
-            resultImageElement,
-            resultUrl,
-            executionMode,
-            maxAttempts: 4,
-            retryDelayMs: 1000,
-            onAuxiliaryFallback: async ({ url }) => {
-              return deliverWithSecureDeletion({
-                action: 'GEMINI_RESULT_URL',
-                mangaTabId: job.mangaTabId,
-                index: job.index,
-                url,
-                jobId: job.jobId,
-                batchId: job.batchId,
-              }, shouldDeleteConversation);
-            },
-          });
-          sendLog(
-            'success',
-            'GEMINI_RESULT_EXTRACTION_OK',
-            'Extração da imagem gerada concluída',
-            { executionMode, kind: extraction.kind }
-          );
-        } catch (extractionError) {
-          sendLog(
-            'error',
-            'GEMINI_RESULT_EXTRACTION_FAILED',
-            'Todas as rotas de extração da imagem falharam',
-            {
-              executionMode,
-              errorName: extractionError && extractionError.name
-                ? extractionError.name
-                : 'Error',
-            }
-          );
-          throw extractionError;
-        }
+        const extraction = await resultExtractor.extractOrAuxiliaryFallback({
+          resultImageElement,
+          resultUrl,
+          executionMode,
+          maxAttempts: 4,
+          retryDelayMs: 1000,
+          onAuxiliaryFallback: async ({ url }) => {
+            return deliverWithSecureDeletion({
+              action: 'GEMINI_RESULT_URL',
+              mangaTabId: job.mangaTabId,
+              index: job.index,
+              url,
+              jobId: job.jobId,
+              batchId: job.batchId,
+            }, shouldDeleteConversation);
+          },
+        });
 
         if (extraction.kind === 'extracted' && extraction.dataUrl) {
-          if (sameImagePayload(job.srcData, extraction.dataUrl)) {
-            const error = new Error('GEMINI_RESULT_MATCHES_INPUT');
-            error.code = 'GEMINI_RESULT_MATCHES_INPUT';
+          try {
+            const quarantineResult = await imageQuarantine.assessExtractedResult({
+              element: resultImageElement,
+              candidateDataUrl: extraction.dataUrl,
+              inputDataUrl: job.srcData,
+              inputHash: inputImageHash,
+            });
+            if (quarantineResult.quarantined) {
+              sendLog(
+                'error',
+                'GEMINI_RESULT_MATCHES_INPUT',
+                'Resultado bloqueado pela quarentena de imagem',
+                { reason: quarantineResult.reason, exactMatch: quarantineResult.exactMatch === true }
+              );
+              const quarantineError = new Error('O resultado do Gemini é idêntico à imagem de entrada.');
+              quarantineError.code = 'GEMINI_RESULT_MATCHES_INPUT';
+              quarantineError.alreadyLogged = true;
+              throw quarantineError;
+            }
+          } catch (quarantineError) {
+            if (quarantineError?.code === 'GEMINI_RESULT_MATCHES_INPUT') throw quarantineError;
             sendLog(
-              'error',
-              'GEMINI_RESULT_MATCHES_INPUT',
-              'Resultado rejeitado: bytes são idênticos à imagem de entrada',
-              { executionMode }
+              'warn',
+              'GEMINI_QUARANTINE_HASH_UNAVAILABLE',
+              'A comparação exata do resultado falhou; o fluxo continuará com os filtros estruturais',
+              { messageLength: String(quarantineError?.message || '').length }
             );
-            throw error;
           }
-
-          sendLog(
-            'success',
-            'GEMINI_IMG_FOUND',
-            'Imagem gerada validada e diferente do input',
-            { executionMode, ...getUrlLogMetadata(resultUrl) }
-          );
 
           await deliverWithSecureDeletion({
             action: 'GEMINI_IMAGE_EXTRACTED',
@@ -1394,12 +1224,18 @@
             : 'delivered_auxiliary',
         };
       } catch (error) {
-        sendLog(
-          'error',
-          error?.code || 'GEMINI_JOB_ERROR',
-          'Job Gemini interrompido',
-          { executionMode, message: error?.message || String(error) }
-        );
+        if (!error?.alreadyLogged) {
+          sendLog(
+            'error',
+            error?.code || 'GEMINI_ERROR',
+            'Job Gemini encerrado com erro',
+            {
+              executionMode,
+              index: job.index,
+              messageLength: String(error?.message || '').length,
+            }
+          );
+        }
         runtime.sendMessage({
           action: 'GEMINI_ERROR',
           mangaTabId: job.mangaTabId,
@@ -1451,20 +1287,16 @@
       run,
       dataURLtoFile,
       waitForElement,
-      isStrongGeneratedImageUrl,
+      tryClickModelImageCards,
       isLikelyGeneratedImage,
       isManualSelectableImage,
       findGeneratedResultImages,
       setManualGeminiResultUrl,
       removeGeminiManualPanel,
       createGeminiManualPanel,
-      reportManualIntervention,
       setPromptInEditor,
       shouldKeepConversationForDebug,
       requestImageData,
-      sendRuntimeMessage,
-      dataUrlPayload,
-      sameImagePayload,
       getAntiThrottleModeForExecutionMode,
       setAntiThrottleMode,
       getActiveObserver,

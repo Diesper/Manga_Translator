@@ -380,7 +380,10 @@ function buildGeminiMockHtml() {
             confirm.textContent = 'Excluir';
             confirm.addEventListener('click', () => {
               dialog.dataset.confirmed = 'true';
+              document.querySelector('[data-chat-id="mock-chat"]')?.remove();
+              history.replaceState({}, '', '/app');
               status.textContent = 'Conversa excluída pelo mock';
+              dialog.remove();
             });
 
             const cancel = document.createElement('button');

@@ -153,11 +153,16 @@ describe('gemini/deletion.js', () => {
   test('DEL-04: exclusão completa usa a linha do chat atual, menu e confirmação', async () => {
     const { createDeletionController } = loadModule();
     const dom = mountSuccessfulDeletionDom();
+    const pageWindow = createPageWindow('/app/chat-1');
+    dom.confirm.click = jest.fn(() => {
+      dom.row.remove();
+      pageWindow.location.pathname = '/app';
+    });
     const logs = [];
 
     const controller = createDeletionController({
       root: document,
-      pageWindow: createPageWindow('/app/chat-1'),
+      pageWindow,
       storage,
       sleep: async () => {},
       sendLog: (...args) => logs.push(args),
@@ -171,9 +176,36 @@ describe('gemini/deletion.js', () => {
     expect(dom.confirm.click).toHaveBeenCalledTimes(1);
     expect(controller.isDeletionInProgress()).toBe(false);
     expect(logs.some(([, action]) => action === 'DELETE_OK')).toBe(true);
+
+    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);
+    expect(dom.options.click).toHaveBeenCalledTimes(1);
+    expect(logs.some(([, action]) => action === 'DELETE_ALREADY_CONFIRMED')).toBe(true);
   });
 
-  test('DEL-05: segunda exclusão concorrente é recusada enquanto a primeira está ativa', async () => {
+  test('DEL-05: clique sem mudança de URL e sidebar não declara exclusão', async () => {
+    const { createDeletionController } = loadModule();
+    const dom = mountSuccessfulDeletionDom();
+    const logs = [];
+    let clock = 0;
+    const controller = createDeletionController({
+      root: document,
+      pageWindow: createPageWindow('/app/chat-1'),
+      storage,
+      now: () => clock,
+      sleep: async ms => { clock += Number(ms) || 0; },
+      sendLog: (...args) => logs.push(args),
+    });
+
+    await expect(controller.deleteCurrentConversation()).resolves.toBe(false);
+
+    expect(dom.confirm.click).toHaveBeenCalledTimes(1);
+    expect(dom.row.isConnected).toBe(true);
+    expect(logs.some(([, action, detail]) =>
+      action === 'DELETE_ERROR' && detail.includes('não confirmada')
+    )).toBe(true);
+  });
+
+  test('DEL-06: segunda exclusão concorrente é recusada enquanto a primeira está ativa', async () => {
     const { createDeletionController } = loadModule();
 
     let releaseFirstSleep;
@@ -208,7 +240,7 @@ describe('gemini/deletion.js', () => {
     expect(controller.isDeletionInProgress()).toBe(false);
   });
 
-  test('DEL-06: save/read/clear recovery preserva entrega e chatId', async () => {
+  test('DEL-07: save/read/clear recovery preserva entrega e chatId', async () => {
     const { createDeletionController } = loadModule();
     const pageWindow = createPageWindow('/app/chat-abc');
     const controller = createDeletionController({
@@ -233,7 +265,7 @@ describe('gemini/deletion.js', () => {
     await expect(controller.readRecovery(77)).resolves.toBeNull();
   });
 
-  test('DEL-07: recovery executa exclusão, limpa marker e entrega uma única vez', async () => {
+  test('DEL-08: recovery executa exclusão, limpa marker e entrega uma única vez', async () => {
     const { createDeletionController } = loadModule();
     const pageWindow = createPageWindow('/app/chat-1');
     await storage.set({
@@ -264,7 +296,7 @@ describe('gemini/deletion.js', () => {
     await expect(controller.readRecovery(88)).resolves.toBeNull();
   });
 
-  test('DEL-08: falha de exclusão persiste recovery antes de recarregar', async () => {
+  test('DEL-09: falha de exclusão persiste recovery antes de recarregar', async () => {
     const { createDeletionController } = loadModule();
     const pageWindow = createPageWindow('/app/chat-1');
     const controller = createDeletionController({
@@ -294,7 +326,7 @@ describe('gemini/deletion.js', () => {
     expect(pageWindow.location.reload).toHaveBeenCalledTimes(1);
   });
 
-  test('DEL-09: recovery inexistente não apaga nem entrega nada', async () => {
+  test('DEL-10: recovery inexistente não apaga nem entrega nada', async () => {
     const { createDeletionController } = loadModule();
     const sendDelivery = jest.fn();
     const controller = createDeletionController({

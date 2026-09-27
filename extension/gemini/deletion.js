@@ -14,6 +14,7 @@
       : null,
   } = {}) {
     let deletionInProgress = false;
+    let lastDeletedChatId = null;
 
     function getElementText(element) {
       if (!element) return '';
@@ -248,10 +249,18 @@
           return true;
         }
 
-        const chatId = getCurrentChatId();
-        if (!chatId) {
-          throw new Error('A URL não possui o ID da conversa ativa.');
+        let chatId = getCurrentChatId();
+        // O background pode repetir DELETE_CONVERSATION após o ACK.
+        if (lastDeletedChatId && (!chatId || chatId === lastDeletedChatId)) {
+          sendLog('info', 'DELETE_ALREADY_CONFIRMED', 'Exclusão deste contexto já foi confirmada', {});
+          return true;
         }
+        if (!chatId) {
+          sendLog('info', 'DELETE_WAIT_CHAT_ID', 'Aguardando URL da conversa ativa antes de excluir', {});
+          const started = now();
+          while (!chatId && now() - started < 8000) { await sleep(250); chatId = getCurrentChatId(); }
+        }
+        if (!chatId) throw new Error('A URL não possui o ID da conversa ativa após aguardar 8s.');
 
         const escapedChatId = escapeCssAttributeValue(chatId);
         const linkSelector = `a[href*="${escapedChatId}"]`;
@@ -340,7 +349,14 @@
         }
 
         confirmButton.click();
-        await sleep(1200);
+        const verificationStarted = now();
+        let verified = false;
+        do {
+          await sleep(250);
+          verified = getCurrentChatId() !== chatId && !root.querySelector(linkSelector);
+        } while (!verified && now() - verificationStarted < 6000);
+        if (!verified) throw new Error('Exclusão não confirmada: URL ou entrada da conversa continua presente.');
+        lastDeletedChatId = chatId;
 
         sendLog('success', 'DELETE_OK', 'Conversa excluída com segurança!', { chatId });
         return true;

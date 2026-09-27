@@ -10,6 +10,8 @@
 > etapas de refatoração.
 >
 > **Data da consolidação:** 26/09/2026.
+> **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente, integrada ao runtime.
+> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para a rodada validada e seus limites.
 >
 > **Escopo da auditoria:** manifesto, Service Worker, módulos de background,
 > content scripts, cache perceptual, IndexedDB, persistência de capítulos,
@@ -102,7 +104,7 @@ quando o respectivo schema mudar.
 
 ## 2.2 Baseline funcional conhecido
 
-O baseline funcional completo mais recente do `main`, após a estabilização do attachment gate e do ownership estrito do model turn, é o **GitHub Actions run #663** no commit `446f003bec10b71252a67daca6ed87e530c28cd1`:
+O baseline automatizado histórico registrado é o [GitHub Actions run #663](https://github.com/Diesper/Manga_Translator/actions/runs/36270638017), no commit `446f003bec10b71252a67daca6ed87e530c28cd1`. Esse resultado não valida automaticamente a revisão funcional deste PR:
 
 - **98/98 suítes Jest**;
 - **716/716 testes Jest**;
@@ -114,7 +116,9 @@ O baseline funcional completo mais recente do `main`, após a estabilização do
 - testes visuais/perceptuais aprovados;
 - pipeline sem mascaramento das falhas funcionais.
 
-O marco v6.5 preserva a lógica funcional do pipeline de tradução e adiciona versionamento centralizado, validação de consistência e publicação independente de números hardcoded.
+A revisão funcional 2 foi aprovada manualmente em 21 traduções: sete temporárias, sete minimizadas e sete normais, em quatro lotes completos. Houve 21 renovações de watchdog confirmadas e 14 exclusões verificadas. Nenhum teste local foi executado nesta publicação; o CI do GitHub permanece habilitado. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+
+O marco v6.5 mantém versionamento centralizado; esta revisão não altera versão de produto, schema de banco ou permissões.
 
 ## 2.3 O que não deve mais ser considerado estado atual
 
@@ -501,10 +505,9 @@ O pipeline possui dois prazos separados:
 - **4 minutos** para o timeout terminal do Observer enquanto aguarda o resultado da geração;
 - **5 minutos** para o watchdog global de segurança do job.
 
-Quando a UI confirma que a geração realmente começou, o content script envia
-`REFRESH_JOB_WATCHDOG` e o background rearma o watchdog. Assim, o prazo global
-não consome abertura da aba, attachment e submit e não compete com o timeout do
-Observer.
+O watchdog é armado desde a abertura da aba. No primeiro início de geração observado naquela execução, o runner envia `REFRESH_JOB_WATCHDOG`; o background valida jobId, índice durável e identidade canônica da aba antes de renovar por cinco minutos. Sem esse evento, o prazo inicial permanece. Não há renovação contínua por heartbeat.
+
+A espera terminal continua em quatro minutos por padrão. A margem global reduz a competição entre preparação, geração e limpeza, sem garantir duração ilimitada de rede/recuperação. O timeout aguarda `finalizeJob` antes de continuar a limpeza das abas de extração.
 
 O watchdog usa:
 
@@ -592,9 +595,10 @@ altere o comportamento de jobs que já foram abertos.
 
 ### minimized_window
 
-- abre o job em janela minimizada;
-- pode focar temporariamente a janela para ações que exigem interação;
-- ao final, tenta limpar a conversa antes de remover a janela.
+- solicita minimização, reaplica o estado e confere o estado físico;
+- usa aba inativa como fallback se a criação/verificação falhar, limpando a janela criada quando possível;
+- não solicita ativação física nas tentativas automáticas de anexo/envio;
+- aguarda exclusão verificada ou recuperação pendente antes da conclusão da entrega, como no modo normal.
 
 ### background_delete
 
@@ -640,13 +644,7 @@ O resultado pode chegar como:
 - resultado vindo de aba auxiliar;
 - seleção manual assistida em caso extremo.
 
-No modo <code>background_delete</code>, a prioridade é extrair o resultado na
-própria aba autenticada do Gemini, sem criar uma aba auxiliar. Primeiro o script
-tenta converter a imagem já renderizada para Data URL via canvas. Se o canvas
-for bloqueado por CORS, <code>inject.js</code> realiza o fetch no mundo MAIN com
-<code>credentials: 'include'</code> e devolve o Data URL por CustomEvent. Se a
-página não puder ler o asset, o Service Worker tenta a mesma URL com a sessão do
-Gemini, limitada a assets <code>googleusercontent.com</code> validados.
+Para assets HTTPS gerados reconhecidos do Google (`/gg-dl/` ou `/rd-gg-dl/`), nos três modos, a ordem é canvas → Service Worker com sessão Gemini → fetch pela página no mundo MAIN como último recurso. A rota SW usa `geminiSession:true`, valida o host e inclui credenciais. Outros tipos/URLs preservam seus caminhos históricos.
 
 A cadeia direta é repetida antes de recorrer à compatibilidade histórica da aba
 auxiliar. As falhas por etapa registram host, tentativa e classe da falha no log,
@@ -711,7 +709,8 @@ O mapa atual é:
 | EXPORT_ALL_AND_SHOW | export-all |
 | SHOW_EXISTING_FOLDER | open-existing-folder |
 | OPEN_MANGA_ROOT | open-manga-root |
-| FORCE_SEND_ACTIVATION | force-send-activation |
+| FORCE_SEND_ACTIVATION | force-send-activation (compatibilidade; não solicitado pelo runner automático) |
+| REFRESH_JOB_WATCHDOG | refresh-job-watchdog |
 | SET_DEBUG_MODE | set-debug-mode |
 | LOG_ENTRY | log-entry |
 | GET_TAB_ID | get-tab-id |
@@ -1145,7 +1144,7 @@ aba).
 4. Temporary Chat quando aplicável;
 5. attachment;
 6. prompt;
-7. Observer V3 antes do submit;
+7. Observer antes do submit;
 8. submit com confirmação observável;
 9. espera do resultado;
 10. extração;
@@ -1168,19 +1167,11 @@ repetidamente.
 
 ## 12.4 Attachment
 
-<code>gemini/attachment.js</code> preserva paste, file input e drag/drop, mas
-separa <em>tentativa</em> de <em>confirmação</em>.
+<code>gemini/attachment.js</code> separa tentativa de confirmação. O runner espera editor editável, conectado e estável por até 12 s e renova os alvos entre métodos. A ordem é input de arquivo → drop → paste, com intervalo de 3,5 s e janela total de confirmação de 20 s.
 
-Antes do dispatch é capturado um baseline. O attachment só é confirmado quando
-surge evidência nova/alterada com ownership estrutural do composer ou de um
-container de attachment. Imagens globais, user turns e model turns não confirmam
-upload apenas por serem novas, grandes, blob ou data URL.
+O baseline exige evidência nova/alterada ligada ao composer/attachment UI. Um sinal parcial interrompe novos dispatches; confirmação exige preview carregada, dimensões naturais positivas e ausência de processamento pendente. Mensagens do usuário/modelo não confirmam anexo. Sem confirmação, <code>GEMINI_ATTACHMENT_NOT_CONFIRMED</code> bloqueia o prompt.
 
-Um sinal parcial de attachment interrompe novos dispatches para evitar upload
-duplicado. Se a confirmação não chegar, o runner pode solicitar
-<code>FORCE_ATTACHMENT_ACTIVATION</code>, revalidar a evidência e restaurar a
-ativação depois. Sem confirmação observável, o job falha com
-<code>GEMINI_ATTACHMENT_NOT_CONFIRMED</code> e o prompt não é enviado.
+O runner não ativa fisicamente aba/janela para recuperar upload. O paste da imagem continua como último recurso; não foi removido junto com as solicitações de foco.
 
 ## 12.5 Editor e submit
 
@@ -1188,37 +1179,31 @@ ativação depois. Sem confirmação observável, o job falha com
 <code>gemini/observer.js</code> é a fonte de verdade para confirmação.
 
 O pipeline não considera click, Enter ou CustomEvent como sucesso de envio.
-Cada um é apenas uma tentativa. O submit só é confirmado quando o Observer V3
+Cada um é apenas uma tentativa. O submit só é confirmado quando o Observer
 detecta transição observável da UI, como início da geração ou mudança
 equivalente pertencente ao job atual.
 
-A segunda tentativa pode solicitar <code>FORCE_SEND_ACTIVATION</code> e elevar
-temporariamente o anti-throttling, mas a confirmação continua pertencendo ao
-Observer.
+A segunda tentativa permanece local e pode elevar o anti-throttling existente, mas não solicita `FORCE_SEND_ACTIVATION`. A confirmação continua pertencendo ao Observer.
 
-## 12.6 Observer V3 e resultado
+## 12.6 Observer e resultado
 
-O Observer V3 é instalado <strong>antes</strong> do submit, com baseline de
-imagens já existentes. Ele acompanha mutações e estado da geração e resolve o
-resultado apenas quando encontra evidência posterior pertencente à resposta do
-modelo.
+O Observer é instalado antes do submit e mantém baseline de fontes e respostas. Resultado automático exige nova autoria estrita de modelo; composer, preview de anexo, turno do usuário e respostas antigas são rejeitados. Seletores reconhecem autoria assistant e estruturas user-query.
 
-Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de
-resultado dentro da janela terminal produz <code>GEMINI_RESULT_TIMEOUT</code>.
-Não existe mais polling legado independente competindo com o Observer.
+O módulo atravessa Shadow DOM aberto, observa src/data-src/srcset e eventos de carga/erro e inspeciona a cada 1,25 s enquanto a tarefa está ativa. Blob/data de resultado precisam estar carregados. Sem autoria estrita, o fallback exige URL HTTPS de asset gerado do Google e geração observada; imagem órfã genérica não basta.
+
+Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa. <code>gemini/image-quarantine.js</code> também exclui imagens estruturalmente ligadas à entrada da seleção automática/manual e compara SHA-256 dos bytes antes da entrega. Igualdade exata produz <code>GEMINI_RESULT_MATCHES_INPUT</code>; similaridade perceptual não bloqueia resultados.
 
 ## 12.7 Resolução e extração
 
 Quando o resultado usa CDN do Google e o formato permite, a URL é elevada para
 <code>=s0</code> antes da extração.
 
-<code>gemini/result-extractor.js</code> preserva os caminhos por modo:
+`gemini/result-extractor.js` utiliza:
 
 - Data URL: retorno direto;
 - Blob URL: fetch local + FileReader;
-- <code>background_delete</code>: canvas → bridge MAIN autenticada → Service
-  Worker com sessão Gemini;
-- demais modos HTTP: fetch do Service Worker compatível com o fluxo anterior.
+- assets HTTPS gerados reconhecidos do Google, em qualquer modo: canvas → SW autenticado → MAIN como último recurso;
+- demais URLs HTTP: caminhos históricos por modo, sem reordenação.
 
 A cadeia completa pode ser repetida até quatro vezes. Somente depois de esgotar
 as rotas diretas o módulo aciona o fallback auxiliar por callback e registra
@@ -1238,6 +1223,8 @@ as rotas diretas o módulo aciona o fallback auxiliar por callback e registra
 - retomada após reload;
 - limpeza do marker e entrega preservada.
 
+Normal e minimizado aguardam `deleteOrScheduleRecovery` antes da entrega final. O controlador espera até 8 s pelo ID quando necessário e verifica por até 6 s que URL e entrada do chat mudaram após excluir. `DELETE_ALREADY_CONFIRMED` reconhece repetição de uma exclusão confirmada.
+
 No modo debug, erros podem preservar a conversa para diagnóstico.
 
 ## 12.9 Assistência manual
@@ -1246,7 +1233,11 @@ O HUD de assistência manual continua disponível quando a heurística automáti
 não consegue identificar com segurança a imagem correta. A escolha manual é
 encaminhada ao mesmo Observer ativo; não cria um pipeline paralelo.
 
-## 12.10 Privacidade de logs
+## 12.10 Conclusão de lote
+
+`BATCH_COMPLETE` propaga `hasErrors`, calculado quando completedJobs é menor que totalJobs. A página preserva o estado de falha e não toca áudio de sucesso para lote com erros. Esta revisão utiliza o indicador existente, sem adicionar contador persistente failedJobs.
+
+## 12.11 Privacidade de logs
 
 Logs do Gemini são sanitizados. Prompt, signed URL, Data URL/base64, cookies,
 tokens e campos equivalentes não devem ser persistidos no log.
@@ -1934,7 +1925,9 @@ O marco v6.5 elimina dependência operacional do número da versão:
 - o CI bloqueia divergência entre package, Manifest e metadados de teste;
 - nomes históricos continuam históricos e não participam da descoberta de arquivos.
 
-## 21.9 Estabilização pós-integração — attachment gate e Observer V3
+## 21.9 Histórico pós-integração — attachment gate e Observer V3
+
+O registro a seguir descreve a PR #36; o comportamento operacional vigente está nas seções 7 e 12. A revisão funcional posterior retirou a recuperação com ativação física.
 
 A PR #36 evoluiu a automação sem alterar o contrato de versionamento v6.5:
 
@@ -2189,7 +2182,8 @@ Leitor offline/lazy.
 | GEMINI_PROGRESS | progresso |
 | CHECK_IF_EXTRACTION_TAB | consulta identidade de aba auxiliar |
 | REQUEST_IMAGE_DATA | solicita imagem |
-| FORCE_SEND_ACTIVATION | permite ativação/foco |
+| FORCE_SEND_ACTIVATION | compatibilidade de ativação/foco; runner automático não solicita |
+| REFRESH_JOB_WATCHDOG | renova prazo após validar tarefa e aba remetente |
 | GET_TAB_ID | resolve tabId |
 
 ## B.4 Mensagens para a página de mangá
@@ -2357,4 +2351,3 @@ A regra de manutenção mais importante permanece simples:
 
 > **o código atual, os testes atuais e a documentação atual precisam descrever o
 > mesmo contrato.**
-

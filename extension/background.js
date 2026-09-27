@@ -6,8 +6,7 @@
 // acidentalmente entre um espelho antigo e o snapshot durável.
 let backgroundState = null;
 
-// Failsafe do job: deve vencer depois do timeout terminal de geração (4 min),
-// nunca competir com ele. É rearmado quando a geração realmente começa.
+// Margem sobre os 4 min de geração; rearmada ao observar seu início real.
 const JOB_TIMEOUT_MINUTES = 5;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 let gtcIndexedDbApi = null;
@@ -758,7 +757,6 @@ async function startBatch(request, sender) {
     runtimeState.stopRequested = false;
     runtimeState.jobQueue = [];
     runtimeState.completedJobs = 0;
-    runtimeState.failedJobs = 0;
     runtimeState.activeJobsCount = runtimeState.jobIndex.length;
     runtimeState.totalJobs = request.images.length;
     runtimeState.activeMangaTabId = sender && sender.tab ? sender.tab.id : request.mangaTabId;

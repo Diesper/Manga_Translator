@@ -19,7 +19,7 @@ describe('background/jobs-lifecycle batch status', () => {
         jest.restoreAllMocks();
     });
 
-    test('BATCH-STATUS-01: lote com falhas termina como partial_failure, não como sucesso', async () => {
+    test('BATCH-STATUS-01: lote incompleto informa hasErrors sem depender de contador paralelo', async () => {
         const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
         global.chrome = {
             runtime: { lastError: null },
@@ -33,7 +33,6 @@ describe('background/jobs-lifecycle batch status', () => {
             activeMangaTabId: 77,
             currentBatchId: 'batch-1',
             completedJobs: 2,
-            failedJobs: 1,
             totalJobs: 3,
             isProcessing: true,
         };
@@ -63,10 +62,8 @@ describe('background/jobs-lifecycle batch status', () => {
             77,
             expect.objectContaining({
                 action: 'BATCH_COMPLETE',
-                status: 'partial_failure',
-                completedJobs: 2,
-                failedJobs: 1,
-                totalJobs: 3,
+                batchId: 'batch-1',
+                hasErrors: true,
             }),
             expect.any(Function)
         );
@@ -75,12 +72,12 @@ describe('background/jobs-lifecycle batch status', () => {
             'bg',
             'BATCH_DONE',
             expect.stringContaining('falha'),
-            expect.objectContaining({ status: 'partial_failure', failedJobs: 1 })
+            expect.objectContaining({ completed: 2, total: 3, hasErrors: true })
         );
         expect(state.isProcessing).toBe(false);
     });
 
-    test('BATCH-STATUS-02: finalizeJob(fromError=true) incrementa failedJobs e não completedJobs', async () => {
+    test('BATCH-STATUS-02: finalizeJob(fromError=true) deixa completedJobs inalterado', async () => {
         const store = {
             gemini_job_321: {
                 jobId: 'job-1',
@@ -132,7 +129,6 @@ describe('background/jobs-lifecycle batch status', () => {
             jobQueue: [],
             activeJobsCount: 1,
             completedJobs: 0,
-            failedJobs: 0,
             totalJobs: 1,
             stopRequested: true,
             isProcessing: true,
@@ -157,8 +153,62 @@ describe('background/jobs-lifecycle batch status', () => {
 
         await expect(api.finalizeJob(321, 77, true)).resolves.toBe(true);
 
-        expect(state.failedJobs).toBe(1);
         expect(state.completedJobs).toBe(0);
         expect(state.activeJobsCount).toBe(0);
+    });
+
+    test('BATCH-STATUS-03: lote integral informa hasErrors=false', async () => {
+        const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
+        global.chrome = {
+            runtime: { lastError: null },
+            tabs: { sendMessage },
+        };
+
+        const state = {
+            stopRequested: false,
+            jobQueue: [],
+            activeJobsCount: 0,
+            activeMangaTabId: 77,
+            currentBatchId: 'batch-ok',
+            completedJobs: 3,
+            totalJobs: 3,
+            isProcessing: true,
+        };
+        const log = jest.fn();
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(),
+            indexJobsOfBatch: jest.fn(() => []),
+            delay: async () => {},
+            generateId: () => 'id',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await api.processNextJob();
+
+        expect(sendMessage).toHaveBeenCalledWith(
+            77,
+            expect.objectContaining({
+                action: 'BATCH_COMPLETE',
+                batchId: 'batch-ok',
+                hasErrors: false,
+            }),
+            expect.any(Function)
+        );
+        expect(log).toHaveBeenCalledWith(
+            'success',
+            'bg',
+            'BATCH_DONE',
+            expect.stringContaining('sucesso'),
+            expect.objectContaining({ completed: 3, total: 3, hasErrors: false })
+        );
     });
 });

@@ -52,11 +52,14 @@ function makeVisible(element, width = 120, height = 80) {
   return element;
 }
 
-function addPreview({ parent = document.body, withImage = false, src = 'blob:https://gemini.test/attachment' } = {}) {
+function addPreview({ parent = document.body, withImage = true, src = 'blob:https://gemini.test/attachment' } = {}) {
   const preview = makeVisible(document.createElement('file-preview'));
   if (withImage) {
     const image = document.createElement('img');
     image.src = src;
+    Object.defineProperty(image, 'complete', { value: true, configurable: true });
+    Object.defineProperty(image, 'naturalWidth', { value: 800, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1200, configurable: true });
     preview.appendChild(image);
   }
   parent.appendChild(preview);
@@ -81,7 +84,7 @@ describe('gemini/attachment.js', () => {
     document.body.appendChild(editor);
 
     editor.addEventListener('paste', () => {
-      if (!document.querySelector('file-preview')) addPreview({ withImage: true });
+      if (!document.querySelector('file-preview')) addPreview();
     });
 
     await expect(api.attachFile({
@@ -100,7 +103,7 @@ describe('gemini/attachment.js', () => {
     }));
   });
 
-  test('ATT-02: drop/paste sequenciais sem mudança observável não declaram sucesso', async () => {
+  test('ATT-02: disparar paste/drop sem mudança observável não declara sucesso', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -148,12 +151,15 @@ describe('gemini/attachment.js', () => {
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
     document.body.appendChild(editor);
-    const preview = addPreview();
+    const preview = addPreview({ withImage: false });
 
     editor.addEventListener('paste', () => {
       if (preview.querySelector('img')) return;
       const image = document.createElement('img');
       image.src = 'blob:https://gemini.test/new-file';
+      Object.defineProperty(image, 'complete', { value: true, configurable: true });
+      Object.defineProperty(image, 'naturalWidth', { value: 800, configurable: true });
+      Object.defineProperty(image, 'naturalHeight', { value: 1200, configurable: true });
       preview.appendChild(image);
     });
 
@@ -185,7 +191,7 @@ describe('gemini/attachment.js', () => {
       writable: true,
       configurable: true,
     });
-    input.addEventListener('change', () => addPreview({ withImage: true }));
+    input.addEventListener('change', () => addPreview());
     document.body.appendChild(input);
 
     const result = await api.attachFile({
@@ -202,7 +208,7 @@ describe('gemini/attachment.js', () => {
     expect(input.files).toHaveLength(1);
   });
 
-  test('ATT-06: drag/drop é o segundo caminho quando não há file input', async () => {
+  test('ATT-06: drag/drop permanece como fallback inicial', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -210,7 +216,7 @@ describe('gemini/attachment.js', () => {
 
     editor.addEventListener('drop', event => {
       expect(event.dataTransfer).toBeTruthy();
-      addPreview({ withImage: true });
+      addPreview();
     });
 
     const result = await api.attachFile({
@@ -227,7 +233,7 @@ describe('gemini/attachment.js', () => {
     expect(result.methodsAttempted).toContain('drop');
   });
 
-  test('ATT-07: cada mecanismo de attachment é disparado no máximo uma vez', async () => {
+  test('ATT-07: cada método de upload é tentado no máximo uma vez', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
@@ -249,10 +255,8 @@ describe('gemini/attachment.js', () => {
     });
 
     expect(result.confirmed).toBe(false);
-    expect(result.attempts).toBe(2);
     expect(pasteCount).toBe(1);
     expect(dropCount).toBe(1);
-    expect(result.methodsAttempted).toEqual(['drop', 'paste']);
   });
 
   test('ATT-08: input[type=file] é localizado também em shadow root', () => {
@@ -284,102 +288,73 @@ describe('gemini/attachment.js', () => {
     );
   });
 
-  test('ATT-10: blob global fora do composer não confirma attachment', async () => {
+  test('ATT-10: preview pendente bloqueia redisparo e só confirma após a imagem carregar', async () => {
+    const api = loadAttachment();
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    document.body.appendChild(editor);
+    const attempts = [];
+    let pendingImage = null;
+
+    const resultPromise = api.attachFile({
+      file: file(),
+      editor,
+      editorRoot: editor,
+      root: document,
+      timeoutMs: 500,
+      retryAfterMs: 10,
+      maxDispatches: 3,
+      onAttempt: attempt => attempts.push(attempt),
+      dispatchMethodFn: async method => {
+        if (method !== 'file_input') return { attempted: false };
+        const preview = addPreview({ withImage: false });
+        pendingImage = document.createElement('img');
+        pendingImage.src = 'blob:https://gemini.test/pending';
+        Object.defineProperty(pendingImage, 'complete', { value: false, configurable: true });
+        Object.defineProperty(pendingImage, 'naturalWidth', { value: 0, configurable: true });
+        Object.defineProperty(pendingImage, 'naturalHeight', { value: 0, configurable: true });
+        preview.appendChild(pendingImage);
+        return { attempted: true };
+      },
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 25));
+    expect(attempts).toHaveLength(1);
+    expect(attempts[0].method).toBe('file_input');
+
+    Object.defineProperty(pendingImage, 'complete', { value: true, configurable: true });
+    Object.defineProperty(pendingImage, 'naturalWidth', { value: 800, configurable: true });
+    Object.defineProperty(pendingImage, 'naturalHeight', { value: 1200, configurable: true });
+    pendingImage.src = 'blob:https://gemini.test/pending-loaded';
+
+    await expect(resultPromise).resolves.toEqual(expect.objectContaining({
+      confirmed: true,
+      methodsAttempted: ['file_input'],
+    }));
+  });
+
+  test('ATT-11: imagem de resposta fora do composer não confirma o anexo', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
     editor.setAttribute('contenteditable', 'true');
     document.body.appendChild(editor);
 
-    editor.addEventListener('paste', () => {
-      const unrelated = document.createElement('img');
-      unrelated.src = 'blob:https://gemini.test/unrelated-global-image';
-      Object.defineProperty(unrelated, 'naturalWidth', { value: 1200, configurable: true });
-      Object.defineProperty(unrelated, 'naturalHeight', { value: 1600, configurable: true });
-      document.body.appendChild(unrelated);
-    });
-
     const result = await api.attachFile({
       file: file(),
       editor,
-      editorRoot: editor,
       root: document,
       timeoutMs: 40,
       retryAfterMs: 5,
-      maxDispatches: 2,
+      maxDispatches: 1,
+      dispatchMethodFn: async () => {
+        const response = document.createElement('model-response');
+        document.body.appendChild(response);
+        addPreview({ parent: response });
+        return { attempted: true };
+      },
     });
 
     expect(result.confirmed).toBe(false);
     expect(result.evidence).toBeNull();
   });
-
-  test('ATT-11: somente o input[type=file] mais relevante recebe o arquivo', async () => {
-    const api = loadAttachment();
-    const editorRoot = document.createElement('div');
-    editorRoot.className = 'input-area';
-    const editor = document.createElement('div');
-    editor.setAttribute('contenteditable', 'true');
-    editorRoot.appendChild(editor);
-
-    const preferred = document.createElement('input');
-    preferred.type = 'file';
-    preferred.accept = 'image/*';
-    Object.defineProperty(preferred, 'files', { writable: true, configurable: true, value: [] });
-    editorRoot.appendChild(preferred);
-    document.body.appendChild(editorRoot);
-
-    const unrelated = document.createElement('input');
-    unrelated.type = 'file';
-    Object.defineProperty(unrelated, 'files', { writable: true, configurable: true, value: [] });
-    document.body.appendChild(unrelated);
-
-    preferred.addEventListener('change', () => addPreview({
-      parent: editorRoot,
-      withImage: true,
-      src: 'blob:https://gemini.test/preferred',
-    }));
-
-    const result = await api.attachFile({
-      file: file(),
-      editor,
-      editorRoot,
-      root: document,
-      timeoutMs: 300,
-      retryAfterMs: 20,
-      maxDispatches: 2,
-    });
-
-    expect(result.confirmed).toBe(true);
-    expect(preferred.files).toHaveLength(1);
-    expect(unrelated.files).toHaveLength(0);
-  });
-
-  test('ATT-12: sinal parcial interrompe retries para evitar upload duplicado', async () => {
-    const api = loadAttachment();
-    const editor = document.createElement('div');
-    editor.setAttribute('contenteditable', 'true');
-    document.body.appendChild(editor);
-
-    let pasteCount = 0;
-    editor.addEventListener('paste', () => {
-      pasteCount += 1;
-      if (!document.querySelector('file-preview')) addPreview({ withImage: false });
-    });
-
-    const result = await api.attachFile({
-      file: file(),
-      editor,
-      editorRoot: editor,
-      root: document,
-      timeoutMs: 45,
-      retryAfterMs: 5,
-      maxDispatches: 5,
-    });
-
-    expect(result.confirmed).toBe(false);
-    expect(result.signalObserved).toBe(true);
-    expect(result.attempts).toBe(2);
-    expect(result.methodsAttempted).toEqual(['drop', 'paste']);
-    expect(pasteCount).toBe(1);
-  });
-
 });

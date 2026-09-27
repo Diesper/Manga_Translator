@@ -43,6 +43,8 @@
     // Seletores com ownership forte. Somente estes podem conceder ao Observer
     // propriedade de uma resposta automática do modelo.
     MODEL_RESPONSE_STRICT: [
+      '[data-message-author="assistant"]',
+      '[data-turn-role="assistant"]',
       'model-response',
       '[data-test-id*="model-response"]',
       '[data-testid*="model-response"]',
@@ -76,6 +78,10 @@
     ].join(', '),
 
     USER_TURN: [
+      'user-query',
+      'user-query-content',
+      '.user-query',
+      '[data-turn-role="user"]',
       '[data-message-author="user"]',
       'div[data-turn-role="user"]',
       '[data-test-id*="user-message"]',
