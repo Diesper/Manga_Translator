@@ -270,16 +270,49 @@
       if (executionMode === 'minimized_window') {
         let createdWindowId = null;
         try {
+          // IMPORTANTE: chrome.windows.create() já recebe state=minimized.
+          // Não bloqueie a persistência do job em windows.update/get: o
+          // content script pode chegar a CLAIM_GEMINI_JOB imediatamente e a
+          // janela minimizada é justamente o caso mais sujeito a scheduling
+          // lento. O estado físico é verificado somente DEPOIS de gemini_job_*
+          // + jobIndex estarem duráveis.
           const window = await chrome.windows.create({ url, focused: false, state: 'minimized' });
           createdWindowId = window.id;
-          await chrome.windows.update(window.id, { state: 'minimized', focused: false });
-          const actualWindow = await chrome.windows.get(window.id);
-          log(actualWindow.state === 'minimized' ? 'info' : 'warn', 'bg', 'GEMINI_WINDOW_STATE',
-            'Estado físico da janela do job', { state: actualWindow.state, focused: actualWindow.focused });
-          if (actualWindow.state !== 'minimized') throw new Error('Janela não permaneceu minimizada');
           let tab = (window.tabs && window.tabs[0]) || null;
           if (!tab) tab = (await chrome.tabs.query({ windowId: window.id }))[0];
-          if (tab) return { tab, windowId: window.id, dedicatedWindow: true };
+          if (tab) {
+            return {
+              tab,
+              windowId: window.id,
+              dedicatedWindow: true,
+              ensureWindowState: async () => {
+                try {
+                  await chrome.windows.update(window.id, { state: 'minimized', focused: false });
+                  const actualWindow = await chrome.windows.get(window.id);
+                  log(actualWindow.state === 'minimized' ? 'info' : 'warn', 'bg', 'GEMINI_WINDOW_STATE',
+                    'Estado físico da janela do job', {
+                      state: actualWindow.state,
+                      focused: actualWindow.focused,
+                    });
+                  if (actualWindow.state !== 'minimized') {
+                    log('warn', 'bg', 'GEMINI_WINDOW_MINIMIZE_DEGRADED',
+                      'Job preservado, mas a janela não confirmou estado minimizado após persistência.', {
+                        windowId: window.id,
+                        state: actualWindow.state,
+                      });
+                  }
+                } catch (error) {
+                  // Neste ponto o job já pode ter sido reivindicado. Nunca
+                  // destrua a superfície só porque a verificação física falhou.
+                  log('warn', 'bg', 'GEMINI_WINDOW_MINIMIZE_DEGRADED',
+                    'Job preservado; falhou apenas a confirmação do estado minimizado.', {
+                      windowId: window.id,
+                      error: error && error.message ? error.message : 'window_state_error',
+                    });
+                }
+              },
+            };
+          }
         } catch (_error) {
           if (createdWindowId !== null) {
             try { await chrome.windows.remove(createdWindowId); } catch (_e) {}
@@ -288,7 +321,7 @@
         }
       }
       const tab = await chrome.tabs.create({ url, active: false });
-      return { tab, windowId: tab.windowId, dedicatedWindow: false };
+      return { tab, windowId: tab.windowId, dedicatedWindow: false, ensureWindowState: null };
     }
 
     // Tombstone apenas em memória: uma Promise de tabs/windows não sobrevive
@@ -528,6 +561,13 @@
           batchId, jobId, geminiTabId: canonicalTabId, opened,
           indexed: true, phase: 'after_job_persist',
         })) return processNextJob();
+
+        // A confirmação física da janela minimizada vem DEPOIS da persistência
+        // do job. Assim o content script nunca precisa esperar update/get de
+        // window para conseguir reivindicar seu job.
+        if (typeof opened.ensureWindowState === 'function') {
+          await opened.ensureWindowState();
+        }
 
         // Fecha a corrida nas duas ordens:
         // 1) replacement antes da persistência -> alias já existe e migramos;

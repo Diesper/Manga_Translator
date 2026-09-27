@@ -231,7 +231,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
-            // Mantém A ativo tempo suficiente para B-F entrarem na fila por
+            // Mantém A ativo tempo suficiente para B-G entrarem na fila por
             // seus content scripts reais, sem depender de corrida de milissegundos.
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
         });
@@ -379,9 +379,10 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
 
         const storage = await readStorage(backgroundWorker, ['translatorLog']);
         const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
-        const queuedLogs = logs.filter(entry => entry?.action === 'BATCH_QUEUED');
-        const promotedLogs = logs.filter(entry => entry?.action === 'BATCH_PROMOTED');
-        const doneLogs = logs.filter(entry => entry?.action === 'BATCH_DONE');
+        const schedulerLogs = logs.filter(entry => entry?.source === 'bg');
+        const queuedLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_QUEUED');
+        const promotedLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_PROMOTED');
+        const doneLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_DONE');
 
         expect(queuedLogs.map(entry => entry.extra?.queuePosition)).toEqual([1, 2, 3, 4, 5, 6]);
         expect(promotedLogs.map(entry => entry.extra?.batchId)).toEqual(

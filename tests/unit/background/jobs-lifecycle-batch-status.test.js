@@ -941,4 +941,142 @@ describe('background/jobs-lifecycle batch status', () => {
         );
     });
 
+
+    test('BATCH-STATUS-10: minimized_window persiste o job antes de aguardar confirmação física da janela', async () => {
+        const store = {
+            geminiBaseUrl: 'https://gemini.google.com/app',
+            geminiExecutionMode: 'minimized_window',
+        };
+        let releaseWindowUpdate;
+        let updateStarted = false;
+
+        const state = {
+            stopRequested: false,
+            jobQueue: [
+                { mangaTabId: 77, index: 0, prompt: 'Traduzir', batchId: 'batch-min' },
+            ],
+            activeJobsCount: 0,
+            activeMangaTabId: 77,
+            currentBatchId: 'batch-min',
+            completionClaimedBatchId: null,
+            completedJobs: 0,
+            totalJobs: 1,
+            isProcessing: true,
+            pendingBatches: [],
+            jobIndex: [],
+            _cachedMaxCon: 1,
+        };
+
+        global.chrome = {
+            runtime: { lastError: null },
+            storage: {
+                local: {
+                    get: jest.fn(async keys => {
+                        const list = Array.isArray(keys) ? keys : [keys];
+                        const result = {};
+                        for (const key of list) {
+                            if (Object.prototype.hasOwnProperty.call(store, key)) result[key] = store[key];
+                        }
+                        return result;
+                    }),
+                    set: jest.fn(async values => Object.assign(store, values)),
+                    remove: jest.fn(async keys => {
+                        for (const key of (Array.isArray(keys) ? keys : [keys])) delete store[key];
+                    }),
+                },
+            },
+            windows: {
+                create: jest.fn(async () => ({
+                    id: 55,
+                    state: 'minimized',
+                    focused: false,
+                    tabs: [{ id: 321, windowId: 55 }],
+                })),
+                update: jest.fn(() => {
+                    updateStarted = true;
+                    return new Promise(resolve => { releaseWindowUpdate = resolve; });
+                }),
+                get: jest.fn(async () => ({ id: 55, state: 'minimized', focused: false })),
+                remove: jest.fn(async () => {}),
+            },
+            tabs: {
+                query: jest.fn(async () => [{ id: 321, windowId: 55 }]),
+                remove: jest.fn((_tabId, callback) => callback?.()),
+                sendMessage: jest.fn((_tabId, _message, callback) => callback?.()),
+            },
+            alarms: {
+                create: jest.fn(),
+                clear: jest.fn(),
+            },
+        };
+
+        const log = jest.fn();
+        const syncState = jest.fn().mockResolvedValue();
+        const indexAddJob = jest.fn(entry => {
+            state.jobIndex = state.jobIndex.filter(job => job.geminiTabId !== entry.geminiTabId);
+            state.jobIndex.push(entry);
+        });
+        const indexRemoveJob = jest.fn(tabId => {
+            state.jobIndex = state.jobIndex.filter(job => job.geminiTabId !== tabId);
+        });
+        const indexJobsOfBatch = jest.fn(batchId =>
+            state.jobIndex.filter(job => !batchId || job.batchId === batchId)
+        );
+
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState,
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn().mockResolvedValue(),
+            clearWatchdog: jest.fn(),
+            indexAddJob,
+            indexRemoveJob,
+            indexJobsOfBatch,
+            delay: async () => {},
+            generateId: () => 'job-minimized-bootstrap',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        const running = api.processNextJob();
+
+        // Aguarda apenas microtasks: windows.update continua bloqueado.
+        for (let attempt = 0; attempt < 20 && !updateStarted; attempt += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await Promise.resolve();
+        }
+
+        expect(updateStarted).toBe(true);
+        expect(store.gemini_job_321).toEqual(expect.objectContaining({
+            jobId: 'job-minimized-bootstrap',
+            batchId: 'batch-min',
+            mangaTabId: 77,
+            index: 0,
+            geminiTabId: 321,
+            executionMode: 'minimized_window',
+            state: 'opening',
+        }));
+        expect(state.jobIndex).toEqual([
+            expect.objectContaining({
+                geminiTabId: 321,
+                jobId: 'job-minimized-bootstrap',
+                batchId: 'batch-min',
+            }),
+        ]);
+
+        releaseWindowUpdate({ id: 55, state: 'minimized', focused: false });
+        await running;
+
+        expect(global.chrome.windows.get).toHaveBeenCalledWith(55);
+        expect(log).toHaveBeenCalledWith(
+            'info',
+            'bg',
+            'GEMINI_WINDOW_STATE',
+            expect.any(String),
+            expect.objectContaining({ state: 'minimized', focused: false })
+        );
+    });
+
 });
