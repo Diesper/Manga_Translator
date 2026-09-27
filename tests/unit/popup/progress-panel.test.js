@@ -163,9 +163,9 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
         expect(closeBtn).not.toBeNull();
     });
 
-    test('botão de parar cancela o lote enviando STOP_BATCH', async () => {
+    test('botão de parar cancela somente o lote da aba ativa via content script', async () => {
         const closeSpy = jest.spyOn(window, 'close').mockImplementation(() => {});
-        const sendMessageSpy = jest.spyOn(chrome.runtime, 'sendMessage');
+        const tabSendSpy = jest.spyOn(chrome.tabs, 'sendMessage');
 
         const activeTab = await tabsMock.create({
             url: 'https://manga.test/ch1',
@@ -181,6 +181,8 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
                 });
             } else if (message.action === 'START_TRANSLATION_FROM_POPUP') {
                 sendResponse({ started: true });
+            } else if (message.action === 'STOP_TRANSLATION_FROM_POPUP') {
+                sendResponse({ ok: true, batchId: 'batch-queued-b' });
             }
         });
 
@@ -195,16 +197,93 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
         });
         await flushAsyncTasks(8);
 
-        // Inicia tradução
         document.getElementById('btn-translate').click();
         await flushAsyncTasks(8);
 
-        // Clica em parar
         const stopBtn = document.getElementById('btn-progress-stop');
         expect(stopBtn).not.toBeNull();
         stopBtn.click();
+        await flushAsyncTasks(4);
 
-        expect(sendMessageSpy).toHaveBeenCalledWith({ action: 'STOP_BATCH' });
+        expect(tabSendSpy).toHaveBeenCalledWith(
+            activeTab.id,
+            { action: 'STOP_TRANSLATION_FROM_POPUP' },
+            expect.any(Function)
+        );
         expect(closeSpy).toHaveBeenCalled();
+    });
+
+    test('painel mostra posição do lote da aba quando B/C/D/... ainda aguardam na FIFO', async () => {
+        let pollCallback = null;
+        jest.spyOn(window, 'setInterval').mockImplementation((cb) => {
+            pollCallback = cb;
+            return 1001;
+        });
+
+        const activeTab = await tabsMock.create({
+            url: 'https://manga.test/ch-queued',
+            active: true,
+            title: 'Manga Queued',
+        });
+        tabsMock._activeTabId = activeTab.id;
+
+        tabsMock._registerMessageHandler(activeTab.id, (message, _sender, sendResponse) => {
+            if (message.action === 'GET_PAGE_IMAGES') {
+                sendResponse({
+                    images: [{ index: 0, src: 'https://manga.test/p1.png', width: 800, height: 1200 }],
+                });
+            } else if (message.action === 'START_TRANSLATION_FROM_POPUP') {
+                sendResponse({ ok: true });
+            } else if (message.action === 'GET_FLOATING_BUTTON_STATUS') {
+                sendResponse({
+                    success: true,
+                    translating: true,
+                    batchId: 'batch-g',
+                    batchStatus: 'queued',
+                    queuePosition: 6,
+                });
+            }
+        });
+
+        await storageMock.set({
+            enabledDomains: ['manga.test'],
+            // A está ativo globalmente; o popup de G não pode exibir os contadores de A.
+            mt_state: {
+                isProcessing: true,
+                currentBatchId: 'batch-a',
+                totalJobs: 10,
+                completedJobs: 7,
+                activeJobsCount: 1,
+                jobQueue: [{ index: 9 }],
+            },
+            mt_popup_state: {
+                status: 'queued',
+                queuePosition: 6,
+                geminiTotal: 1,
+                cacheHits: 0,
+            },
+        });
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup.html',
+            scriptPath: 'extension/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(8);
+
+        document.getElementById('btn-translate').click();
+        await flushAsyncTasks(8);
+        expect(typeof pollCallback).toBe('function');
+
+        pollCallback();
+        await flushAsyncTasks(8);
+
+        expect(document.getElementById('progress-text').textContent)
+            .toBe('⏳ Aguardando na fila...');
+        expect(document.getElementById('progress-sub').textContent)
+            .toContain('Posição #6');
+        expect(document.getElementById('progress-sub').textContent)
+            .not.toContain('7 / 10');
+        expect(document.getElementById('progress-bar-fill').style.width).toBe('0%');
     });
 });
