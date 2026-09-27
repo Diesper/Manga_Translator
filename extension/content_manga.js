@@ -792,7 +792,12 @@ if (!window.__manga_translator_content_injected) {
         checkExtractionMapping();
     }
 
-    if (window === window.top && !isExtractionCandidate && !window.location.hostname.includes('gemini.google.com')) {
+    const isReaderExcludedHost =
+        window.location.hostname.includes('googleusercontent.com') ||
+        window.location.hostname.includes('gemini.google.com') ||
+        isMarkedExtractionTab;
+
+    if (window === window.top && !isReaderExcludedHost) {
         const hostname = window.location.hostname;
         let processedCount = 0; let totalToProcess = 0; let batchHasErrors = false;
         let _closeInterval = null; let _closeCountdown = 0;
