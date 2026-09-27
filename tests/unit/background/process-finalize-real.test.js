@@ -511,7 +511,9 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
 
         const stored = await storageMock.get(null);
         expect(backgroundModule.__getState()).toEqual(expect.objectContaining({
-            stopRequested: true,
+            stopRequested: false,
+            isProcessing: false,
+            currentBatchId: null,
             activeJobsCount: 0,
             jobIndex: [],
         }));
