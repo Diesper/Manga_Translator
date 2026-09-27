@@ -240,6 +240,27 @@ jobs:
           path: tests/test-results/
           retention-days: 7
 
+  open-handles-diagnostic:
+    name: Open Handles Diagnostic
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Instalar dependências
+        run: npm ci
+      - name: Diagnosticar handles do projeto content-scripts
+        run: npx jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles
+
   ci-gate:
     name: CI Gate
     if: ${{ always() }}
