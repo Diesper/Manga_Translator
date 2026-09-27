@@ -1262,6 +1262,9 @@ if (!window.__manga_translator_content_injected) {
                                     clearInterval(_closeInterval); _closeInterval = null;
                                     if (btn.dataset.collapsed === 'true') {
                                         errorLine.style.display = 'none'; btn.dataset.hasError = 'false';
+                                        // O erro deixou oficialmente a UI após o countdown;
+                                        // não o ressuscite se o botão precisar ser recriado depois.
+                                        lastIntegratedErrorState = null;
                                         if (staticPart) staticPart.style.setProperty('border-radius', '8px', 'important');
                                         if (textSpan) textSpan.innerText = '🚨 VER ÚLTIMO ERRO';
                                     }
