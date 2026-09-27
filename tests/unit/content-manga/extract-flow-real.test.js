@@ -236,6 +236,58 @@ describe('CM-14/CM-15/CM-16/CM-17/CM-18/CM-19/CM-20/CM-51/CM-52/CM-53/CM-54/CM-7
         expect(stopBatch.batchId).not.toBe('batch-a');
     });
 
+    test('STOP_TRANSLATION_FROM_POPUP cancela somente o batchId pertencente à aba atual', async () => {
+        installRuntimeResponder({
+            onStartBatch(message) {
+                return {
+                    ok: true,
+                    batchId: message.batchId,
+                    queued: true,
+                    queuePosition: 5,
+                    activeBatchId: 'batch-a',
+                };
+            },
+        });
+        const context = await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/page-0.png', width: 800, height: 1200 },
+            ],
+        });
+
+        document.getElementById('manga-main-content').click();
+        const startBatch = await waitFor(() =>
+            sentMessages.find(message => message.action === 'START_BATCH')
+        );
+        await waitFor(() =>
+            document.getElementById('manga-main-content').textContent.includes('NA FILA (#5)')
+        );
+
+        const response = await context.sendMessage('STOP_TRANSLATION_FROM_POPUP');
+
+        expect(response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: startBatch.batchId,
+        }));
+        const stopMessages = sentMessages.filter(message => message.action === 'STOP_BATCH');
+        expect(stopMessages).toEqual([{
+            action: 'STOP_BATCH',
+            batchId: startBatch.batchId,
+        }]);
+        expect(stopMessages[0].batchId).not.toBe('batch-a');
+
+        const status = await context.sendMessage('GET_FLOATING_BUTTON_STATUS');
+        expect(status).toEqual(expect.objectContaining({
+            translating: false,
+            batchId: null,
+        }));
+
+        const popupState = await storageMock.get(['mt_popup_state']);
+        expect(popupState.mt_popup_state).toEqual(expect.objectContaining({
+            status: 'cancelled',
+        }));
+    });
+
     test('segunda solicitação na mesma aba não sobrescreve batchId nem cria outro START_BATCH', async () => {
         installRuntimeResponder({
             onStartBatch(message) {
