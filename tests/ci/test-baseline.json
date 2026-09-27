@@ -1,7 +1,7 @@
 {
   "jest": {
-    "minSuites": 95,
-    "minTests": 700,
+    "minSuites": 104,
+    "minTests": 774,
     "maxSkipped": 0,
     "maxTodo": 0
   },
@@ -15,5 +15,14 @@
   },
   "smoke": {
     "minFiles": 6
+  },
+  "coverage": {
+    "minInstrumentedFiles": 55,
+    "minimum": {
+      "statements": 0.01,
+      "branches": 0.01,
+      "functions": 0.01,
+      "lines": 0.01
+    }
   }
 }
