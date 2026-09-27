@@ -62,9 +62,12 @@
             const error = chrome.runtime.lastError;
             if (error) {
               const legacyNoAck = /message channel closed/i.test(error.message || '');
+              const legacyAccepted = legacyNoAck && finalizeOnAck;
               void settle(
-                legacyNoAck,
-                legacyNoAck ? 'legacy_no_ack' : (error.message || 'send_failed'),
+                legacyAccepted,
+                legacyNoAck
+                  ? (legacyAccepted ? 'legacy_no_ack' : 'ack_required_for_staging')
+                  : (error.message || 'send_failed'),
                 response
               );
             } else if (response && response.ok === false) {
