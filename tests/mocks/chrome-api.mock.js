@@ -9,30 +9,6 @@
  *    runtime para que o background.js permaneça registrado entre os testes).
  */
 
-const pendingMockTimers = new Set();
-
-function scheduleMockTimer(callback, delay = 0) {
-  const timerId = setTimeout(() => {
-    pendingMockTimers.delete(timerId);
-    callback();
-  }, delay);
-  pendingMockTimers.add(timerId);
-  return timerId;
-}
-
-function clearMockTimer(timerId) {
-  if (timerId === null || timerId === undefined) return;
-  pendingMockTimers.delete(timerId);
-  clearTimeout(timerId);
-}
-
-function clearAllMockTimers() {
-  for (const timerId of Array.from(pendingMockTimers)) {
-    try { clearTimeout(timerId); } catch (_error) {}
-  }
-  pendingMockTimers.clear();
-}
-
 // ── Storage Mock (Stateful) ────────────────────────────────────────
 class ChromeStorageMock {
   constructor() {
@@ -56,8 +32,8 @@ class ChromeStorageMock {
         });
       }
 
-      if (callback) scheduleMockTimer(() => callback(result), 0);
-      scheduleMockTimer(() => resolve(result), 0);
+      if (callback) setTimeout(() => callback(result), 0);
+      setTimeout(() => resolve(result), 0);
     });
   }
 
@@ -69,7 +45,7 @@ class ChromeStorageMock {
         this._store[key] = items[key];
       });
       this._listeners.forEach(listener => listener(changes, 'local'));
-      scheduleMockTimer(() => { if (callback) callback(); resolve(); }, 0);
+      setTimeout(() => { if (callback) callback(); resolve(); }, 0);
     });
   }
 
@@ -77,13 +53,13 @@ class ChromeStorageMock {
     return new Promise((resolve) => {
       const toRemove = Array.isArray(keys) ? keys : [keys];
       toRemove.forEach(k => delete this._store[k]);
-      scheduleMockTimer(() => { if (callback) callback(); resolve(); }, 0);
+      setTimeout(() => { if (callback) callback(); resolve(); }, 0);
     });
   }
 
   clear(callback) {
     this._store = {};
-    if (callback) scheduleMockTimer(callback, 0);
+    if (callback) setTimeout(callback, 0);
     return Promise.resolve();
   }
 
@@ -118,12 +94,12 @@ class ChromeTabsMock {
     };
     this._tabs.set(tabId, tab);
 
-    scheduleMockTimer(() => {
+    setTimeout(() => {
       tab.status = 'complete';
       this._onUpdatedListeners.forEach(fn => fn(tabId, { status: 'complete' }, tab));
     }, 10);
 
-    if (callback) scheduleMockTimer(() => callback(tab), 0);
+    if (callback) setTimeout(() => callback(tab), 0);
     return Promise.resolve(tab);
   }
 
@@ -131,9 +107,9 @@ class ChromeTabsMock {
     const tab = this._tabs.get(tabId) || null;
     if (!tab && callback) {
       global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
-      scheduleMockTimer(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
+      setTimeout(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
     } else if (callback) {
-      scheduleMockTimer(() => callback(tab), 0);
+      setTimeout(() => callback(tab), 0);
     }
     return Promise.resolve(tab);
   }
@@ -148,7 +124,7 @@ class ChromeTabsMock {
         global.chrome.runtime.lastError = { message: `No tab with id: ${id}` };
       }
     });
-    if (callback) scheduleMockTimer(() => { callback(); global.chrome.runtime.lastError = null; }, 0);
+    if (callback) setTimeout(() => { callback(); global.chrome.runtime.lastError = null; }, 0);
     return Promise.resolve();
   }
 
@@ -157,7 +133,7 @@ class ChromeTabsMock {
     if (queryInfo.active !== undefined) {
       results = results.filter(t => t.active === queryInfo.active);
     }
-    if (callback) scheduleMockTimer(() => callback(results), 0);
+    if (callback) setTimeout(() => callback(results), 0);
     return Promise.resolve(results);
   }
 
@@ -165,12 +141,12 @@ class ChromeTabsMock {
     const handlers = this._messageHandlers.get(tabId) || [];
     if (handlers.length === 0) {
       global.chrome.runtime.lastError = { message: 'Could not establish connection.' };
-      if (callback) scheduleMockTimer(() => { callback(undefined); global.chrome.runtime.lastError = null; }, 0);
+      if (callback) setTimeout(() => { callback(undefined); global.chrome.runtime.lastError = null; }, 0);
       return;
     }
     handlers.forEach(handler => {
       const sendResponse = (response) => {
-        if (callback) scheduleMockTimer(() => callback(response), 0);
+        if (callback) setTimeout(() => callback(response), 0);
       };
       handler(message, { tab: this._tabs.get(tabId) }, sendResponse);
     });
@@ -229,7 +205,7 @@ class ChromeAlarmsMock {
       ? alarmInfo.when
       : Date.now() + ((alarmInfo.delayInMinutes || 0) * 60 * 1000);
     const delayMs = Math.max(0, scheduledTime - Date.now());
-    const timerId = scheduleMockTimer(() => {
+    const timerId = setTimeout(() => {
       const alarm = { name, scheduledTime };
       this._alarms.delete(name);
       this._listeners.forEach(fn => fn(alarm));
@@ -239,13 +215,13 @@ class ChromeAlarmsMock {
 
   clear(name, callback) {
     const alarm = this._alarms.get(name);
-    if (alarm) { clearMockTimer(alarm.timerId); this._alarms.delete(name); }
+    if (alarm) { clearTimeout(alarm.timerId); this._alarms.delete(name); }
     if (callback) callback(!!alarm);
     return Promise.resolve(!!alarm);
   }
 
   clearAll(callback) {
-    this._alarms.forEach(alarm => clearMockTimer(alarm.timerId));
+    this._alarms.forEach(alarm => clearTimeout(alarm.timerId));
     this._alarms.clear();
     if (callback) callback();
     return Promise.resolve();
@@ -268,7 +244,7 @@ class ChromeAlarmsMock {
   _fire(name) {
     const alarm = this._alarms.get(name);
     if (alarm) {
-      clearMockTimer(alarm.timerId);
+      clearTimeout(alarm.timerId);
       this._alarms.delete(name);
       this._listeners.forEach(fn => fn({ name, scheduledTime: alarm.scheduledTime }));
     }
@@ -297,12 +273,12 @@ class ChromeRuntimeMock {
     let responseTimeoutId = null;
     const sendResponse = (response) => {
       if (responseTimeoutId) {
-        clearMockTimer(responseTimeoutId);
+        clearTimeout(responseTimeoutId);
         responseTimeoutId = null;
       }
       if (!responded) {
         responded = true;
-        if (callback) scheduleMockTimer(() => callback(response), 0);
+        if (callback) setTimeout(() => callback(response), 0);
       }
     };
     const sender = { id: this.id, tab: null };
@@ -314,12 +290,12 @@ class ChromeRuntimeMock {
     if (!responded && callback) {
       if (this._messageListeners.length === 0) {
         this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
-        scheduleMockTimer(() => {
+        setTimeout(() => {
           callback(undefined);
           this.lastError = null;
         }, 0);
       } else {
-        responseTimeoutId = scheduleMockTimer(() => {
+        responseTimeoutId = setTimeout(() => {
           this.lastError = { message: 'The message channel closed before a response was received.' };
           callback(undefined);
           this.lastError = null;
@@ -364,7 +340,7 @@ class ChromeRuntimeMock {
   onInstalled = {
     addListener:    (fn) => {
       this._installedListeners.push(fn);
-      scheduleMockTimer(() => fn({ reason: 'install' }), 0);
+      setTimeout(() => fn({ reason: 'install' }), 0);
     },
     removeListener: (fn) => {
       this._installedListeners = this._installedListeners.filter(listener => listener !== fn);
@@ -542,7 +518,6 @@ beforeEach(() => {
 
 afterEach(() => {
   downloadsMock?.clearTimers();
-  clearAllMockTimers();
   jest.clearAllTimers();
   jest.clearAllMocks();
   if (global.chrome?.runtime) global.chrome.runtime.lastError = null;
