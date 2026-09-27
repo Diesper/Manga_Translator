@@ -9,6 +9,7 @@
     syncState,
     processNextJob,
     recoverPendingFinalization,
+    recoverPersistedResult,
     resolveCanonicalTabId = async tabId => tabId,
     migrateTabIdentity = async (_oldTabId, newTabId) => newTabId,
   }) {
@@ -37,6 +38,10 @@
         // Uma marca de finalização significa que o resultado já foi aceito;
         // ela vence a verificação da aba para não ressuscitar um slot pendente.
         if (typeof recoverPendingFinalization === 'function' && await recoverPendingFinalization(canonicalEntry)) {
+          recovered += 1;
+          continue;
+        }
+        if (typeof recoverPersistedResult === 'function' && await recoverPersistedResult(canonicalEntry)) {
           recovered += 1;
           continue;
         }
