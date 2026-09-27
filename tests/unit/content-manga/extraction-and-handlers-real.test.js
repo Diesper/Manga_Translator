@@ -81,7 +81,7 @@ function defineImageState(img, {
     height = 1200,
     complete = true,
 } = {}) {
-    img.src = src;
+    if (src !== null) img.src = src;
     img.scrollIntoView = jest.fn();
     Object.defineProperty(img, 'naturalWidth', { value: width, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: height, configurable: true, writable: true });
@@ -285,7 +285,9 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             const sentMessages = await loadExtractionScript({
                 buildDom: () => {
                     img = document.createElement('img');
-                    defineImageState(img, { complete: false, height: 0 });
+                    // Sem src: evita que o JSDOM dispare "error" de recurso antes
+                    // do load manual que este teste quer validar.
+                    defineImageState(img, { src: null, complete: false, height: 0 });
                     document.body.appendChild(img);
                 },
             });
