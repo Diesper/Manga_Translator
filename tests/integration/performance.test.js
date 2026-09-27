@@ -21,7 +21,9 @@ if (typeof globalThis.structuredClone !== 'function') {
 
 const ROOT = path.join(__dirname, '..', '..');
 const BACKGROUND_PATH = path.join(ROOT, 'extension', 'background.js');
-const MB = 1024 * 1024;\nconst COVERAGE_MODE = process.env.COVERAGE_MODE === '1';\nconst perfLimit = ms => COVERAGE_MODE ? Math.ceil(ms * 10) : ms;
+const MB = 1024 * 1024;
+const COVERAGE_MODE = process.env.COVERAGE_MODE === '1';
+const perfLimit = ms => COVERAGE_MODE ? Math.ceil(ms * 10) : ms;
 
 function delay(ms = 0) {
     return new Promise(resolve => setTimeout(resolve, ms));
