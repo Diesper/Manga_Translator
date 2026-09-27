@@ -94,6 +94,40 @@ describe('background.js - lifecycle e alarms reais', () => {
         expect(createSpy).not.toHaveBeenCalled();
     });
 
+    test('BG-69b: onStartup não ressuscita lote cujo completionClaimedBatchId já foi persistido', async () => {
+        const createSpy = jest.spyOn(tabsMock, 'create');
+        await storageMock.set({
+            mt_state: {
+                jobQueue: [],
+                isProcessing: false,
+                stopRequested: false,
+                activeMangaTabId: null,
+                currentBatchId: 'batch-done',
+                completionClaimedBatchId: 'batch-done',
+                extractionTabs: {},
+                totalJobs: 2,
+                completedJobs: 2,
+                activeJobsCount: 0,
+                jobIndex: [],
+                pendingBatches: [],
+            },
+        });
+
+        await runtimeMock._simulateStartup();
+        await flush(8);
+
+        const data = await storageMock.get(['mt_state']);
+        expect(data.mt_state).toEqual(expect.objectContaining({
+            currentBatchId: 'batch-done',
+            completionClaimedBatchId: 'batch-done',
+            isProcessing: false,
+            activeJobsCount: 0,
+            jobQueue: [],
+            pendingBatches: [],
+        }));
+        expect(createSpy).not.toHaveBeenCalled();
+    });
+
     test('REG-13/BG-70/BG-71: onStartup recupera fila, zera extractionTabs e reinicia processamento sem ficar preso', async () => {
         await storageMock.set({
             geminiBaseUrl: 'http://127.0.0.1:3999/app',
