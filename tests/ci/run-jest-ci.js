@@ -47,7 +47,12 @@ const args = [
   '--json',
   '--outputFile', resultFile,
 ];
-if (coverageRequested) args.push('--coverage');
+if (coverageRequested) {
+  args.push('--coverage');
+  // V8 coverage aumenta significativamente CPU/memória por worker. Limitar a
+  // concorrência torna o gate determinístico sem aumentar timeouts funcionais.
+  args.push('--maxWorkers=2');
+}
 
 const run = spawnSync(process.execPath, args, {
   cwd: testsRoot,
