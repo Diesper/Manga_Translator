@@ -201,6 +201,7 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
 
         await storageMock.set({
             enabledDomains: ['reader.test'],
+            redoConfirmEnabled: false,
             chapterList: [{
                 id: 'chap_options_redo',
                 title: 'Capítulo Options Refazer',
@@ -284,5 +285,48 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         expect((await storageMock.get(['geminiExecutionMode'])).geminiExecutionMode).toBe('background_delete');
         expect(document.getElementById('gemini-mode-status').textContent).toContain('Exclusão Segura');
     });
+
+    test('controles de interação restauram preferências e persistem alterações', async () => {
+        await storageMock.set({
+            floatingButtonEnabled: false,
+            clickToTranslateEnabled: true,
+            redoConfirmEnabled: false,
+        });
+
+        await loadExtensionPage({
+            htmlPath: 'extension/options.html',
+            scriptPath: 'extension/options.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(5);
+
+        const floating = document.getElementById('floating-button-enabled');
+        const single = document.getElementById('click-to-translate-enabled');
+        const redo = document.getElementById('redo-confirm-enabled');
+
+        expect(floating.checked).toBe(false);
+        expect(single.checked).toBe(true);
+        expect(redo.checked).toBe(false);
+
+        floating.checked = true;
+        floating.dispatchEvent(new Event('change', { bubbles: true }));
+        single.checked = false;
+        single.dispatchEvent(new Event('change', { bubbles: true }));
+        redo.checked = true;
+        redo.dispatchEvent(new Event('change', { bubbles: true }));
+        await flushAsyncTasks(5);
+
+        const data = await storageMock.get([
+            'floatingButtonEnabled',
+            'clickToTranslateEnabled',
+            'redoConfirmEnabled',
+        ]);
+        expect(data).toEqual(expect.objectContaining({
+            floatingButtonEnabled: true,
+            clickToTranslateEnabled: false,
+            redoConfirmEnabled: true,
+        }));
+    });
+
 });
 
