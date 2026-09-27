@@ -516,7 +516,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 batchDone: true,
             });
 
-            if (scenario.mode === 'background_delete') {
+            if (scenario.mode === 'background_delete' || scenario.mode === 'minimized_window') {
                 await expect.poll(async () => {
                     const storage = await readStorage(backgroundWorker, ['translatorLog']);
                     const logs = Array.isArray(storage.translatorLog)
@@ -527,7 +527,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                     );
                 }, {
                     timeout: 15000,
-                    message: 'Esperava exclusão segura confirmada no log',
+                    message: `Esperava exclusão segura confirmada no log para ${scenario.mode}`,
                 }).toBe(true);
             }
 
