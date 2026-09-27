@@ -362,7 +362,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         const mod = loadContentGeminiModule();
         mod.processGeminiJob();
 
-        for (let i = 0; i < 40; i += 1) {
+        for (let i = 0; i < 60; i += 1) {
             // eslint-disable-next-line no-await-in-loop
             await jest.advanceTimersByTimeAsync(500);
         }

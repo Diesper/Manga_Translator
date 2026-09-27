@@ -724,6 +724,12 @@
           20_000
         );
         assertStage(editor !== null, 'Editor não carregou.', 2, 'Editor alvo detectado');
+        assertStage(
+          editor.disabled !== true && editor.getAttribute?.('aria-disabled') !== 'true',
+          'Editor do Gemini está desabilitado.',
+          2,
+          'Editor habilitado'
+        );
 
         try {
           editor.focus?.({ preventScroll: true });

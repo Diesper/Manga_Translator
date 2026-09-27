@@ -616,13 +616,14 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             },
         });
 
-        await waitFor(() => collectActions(sentMessages, 'GEMINI_ERROR')[0], { timeout: 12000 });
+        const timeoutError = await waitFor(() => collectActions(sentMessages, 'GEMINI_ERROR')
+            .find(message => message.error === 'Tempo limite (4 min)'), { timeout: 12000 });
 
         const timeoutLog = sentMessages.find(message =>
             message && message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_TIMEOUT'
         );
 
-        expect(collectActions(sentMessages, 'GEMINI_ERROR')[0]).toEqual(expect.objectContaining({
+        expect(timeoutError).toEqual(expect.objectContaining({
             action: 'GEMINI_ERROR',
             mangaTabId: 77,
             index: 5,
