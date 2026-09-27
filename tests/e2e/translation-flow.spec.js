@@ -227,15 +227,16 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     });
 
     test('E2E FIFO N-lotes: A→B→C→D→E→F preserva resultados e ordem sem stale', async () => {
-        test.setTimeout(150000);
+        test.setTimeout(180000);
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
-            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/',
+            // Mantém A ativo tempo suficiente para B-F entrarem na fila por
+            // seus content scripts reais, sem depender de corrida de milissegundos.
+            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
         });
 
         const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
-        const batchIds = labels.map(label => `batch${label}-e2e-fifo`);
         const pages = [];
 
         for (const label of labels) {
@@ -250,13 +251,10 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 const image = document.querySelector('[data-testid="manga-image-0"]');
                 return image && image.naturalWidth >= 300 && image.naturalHeight >= 400;
             }, { timeout: 15000 });
-            // Um job direto do background precisa do mesmo índice que o fluxo
-            // normal gravaria antes de REQUEST_IMAGE_DATA.
+            // Cada aba representa um lote de uma única página.
             // eslint-disable-next-line no-await-in-loop
             await page.evaluate(() => {
                 document.querySelector('[data-testid="manga-image-1"]')?.remove();
-                const first = document.querySelector('[data-testid="manga-image-0"]');
-                if (first) first.dataset.mangaIndex = '0';
             });
             pages.push(page);
         }
@@ -277,51 +275,74 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         }, labels);
         labels.forEach(label => expect(tabIds[label]).not.toBeNull());
 
-        const responses = [];
-        for (let index = 0; index < labels.length; index++) {
+        const startReaderBatch = async label => {
+            return backgroundWorker.evaluate(async tabId => {
+                return new Promise(resolve => {
+                    chrome.tabs.sendMessage(tabId, {
+                        action: 'START_TRANSLATION_FROM_POPUP',
+                        indices: [0],
+                    }, response => {
+                        const error = chrome.runtime.lastError;
+                        resolve(error ? { ok: false, error: error.message } : (response || null));
+                    });
+                });
+            }, tabIds[label]);
+        };
+
+        expect(await startReaderBatch('A')).toEqual(expect.objectContaining({ ok: true }));
+
+        await expect.poll(async () => {
+            const storage = await readStorage(backgroundWorker, ['mt_state']);
+            const state = storage.mt_state || {};
+            return Boolean(
+                state.currentBatchId &&
+                state.activeMangaTabId === tabIds.A &&
+                state.isProcessing
+            );
+        }, {
+            timeout: 15000,
+            message: 'Lote A deveria assumir o scheduler antes da fila B-F',
+        }).toBe(true);
+
+        let stateData = await readStorage(backgroundWorker, ['mt_state']);
+        const batchIds = [stateData.mt_state.currentBatchId];
+
+        for (let index = 1; index < labels.length; index++) {
             const label = labels[index];
             // eslint-disable-next-line no-await-in-loop
-            const response = await backgroundWorker.evaluate(async request => {
-                return new Promise(resolve => {
-                    chrome.runtime.sendMessage(request, value => resolve(value || null));
-                });
+            expect(await startReaderBatch(label)).toEqual(expect.objectContaining({ ok: true }));
+
+            // Aguarda este content script terminar hashing/seleção e efetivamente
+            // registrar seu START_BATCH no fim da fila.
+            // eslint-disable-next-line no-await-in-loop
+            await expect.poll(async () => {
+                const storage = await readStorage(backgroundWorker, ['mt_state']);
+                const pending = storage.mt_state?.pendingBatches || [];
+                return pending.length >= index &&
+                    pending[index - 1]?.mangaTabId === tabIds[label];
             }, {
-                action: 'START_BATCH',
-                batchId: batchIds[index],
-                mangaTabId: tabIds[label],
-                images: [{ index: 0 }],
-                prompt: `FIFO E2E lote ${label}`,
-            });
-            responses.push(response);
+                timeout: 15000,
+                message: `Lote ${label} deveria ocupar a posição FIFO ${index}`,
+            }).toBe(true);
+
+            // eslint-disable-next-line no-await-in-loop
+            stateData = await readStorage(backgroundWorker, ['mt_state']);
+            batchIds.push(stateData.mt_state.pendingBatches[index - 1].batchId);
         }
 
-        expect(responses[0]).toEqual(expect.objectContaining({
-            ok: true,
-            batchId: batchIds[0],
-        }));
-        expect(responses[0].queued).not.toBe(true);
-
-        for (let index = 1; index < responses.length; index++) {
-            expect(responses[index]).toEqual(expect.objectContaining({
-                ok: true,
-                queued: true,
-                batchId: batchIds[index],
-                activeBatchId: batchIds[0],
-                queuePosition: index,
-            }));
-        }
-
-        const queuedState = await readStorage(backgroundWorker, ['mt_state']);
-        expect((queuedState.mt_state.pendingBatches || []).map(batch => batch.batchId))
+        stateData = await readStorage(backgroundWorker, ['mt_state']);
+        expect(stateData.mt_state.currentBatchId).toBe(batchIds[0]);
+        expect(stateData.mt_state.pendingBatches.map(batch => batch.batchId))
             .toEqual(batchIds.slice(1));
-        expect(queuedState.mt_state.currentBatchId).toBe(batchIds[0]);
+        expect(stateData.mt_state.pendingBatches.map(batch => batch.mangaTabId))
+            .toEqual(labels.slice(1).map(label => tabIds[label]));
 
         for (let index = 0; index < pages.length; index++) {
             // eslint-disable-next-line no-await-in-loop
             await expect.poll(async () => pages[index].evaluate(() =>
                 document.querySelectorAll('img[data-translated="true"]').length
             ), {
-                timeout: 120000,
+                timeout: 150000,
                 message: `Lote ${labels[index]} deveria receber seu resultado sem ser invalidado pelos lotes seguintes`,
             }).toBe(1);
         }
@@ -343,7 +364,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 jobIndexLength: Array.isArray(state.jobIndex) ? state.jobIndex.length : -1,
             };
         }, {
-            timeout: 120000,
+            timeout: 150000,
             message: 'Todos os seis lotes deveriam drenar a fila FIFO completamente',
         }).toEqual({
             currentBatchId: batchIds[batchIds.length - 1],
