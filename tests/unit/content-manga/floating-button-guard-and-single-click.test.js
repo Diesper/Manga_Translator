@@ -309,4 +309,88 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
 
         expect(logMessages(sendSpy, 'FLOATING_BUTTON_MISSING')).toHaveLength(0);
     });
+
+    test('remoção durante lote ativo registra erro grave e recria com o progresso mais recente', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+        const context = await loadContentScript({
+            hostname: 'reader.test',
+            domImages: [{ src: 'https://reader.test/p1.png', width: 800, height: 1200 }],
+        });
+
+        const startPromise = context.sendMessage('START_TRANSLATION_FROM_POPUP', { indices: [0] });
+        await delay(5);
+        const oldButton = context.getButton();
+        expect(oldButton).not.toBeNull();
+        oldButton.remove();
+
+        await context.sendMessage('PROGRESS', { text: 'TRADUZINDO 1/1 — TESTE' });
+        const recovered = await waitFor(() => {
+            const button = context.getButton();
+            return button && button !== oldButton ? button : null;
+        });
+
+        expect(context.getMainContent().textContent).toContain('TRADUZINDO 1/1 — TESTE');
+        expect(logMessages(sendSpy, 'FLOATING_BUTTON_MISSING_DURING_TRANSLATION').length).toBeGreaterThanOrEqual(1);
+        expect(logMessages(sendSpy, 'FLOATING_BUTTON_RECOVERED').length).toBeGreaterThanOrEqual(1);
+
+        await context.sendMessage('BATCH_COMPLETE', { hasErrors: false });
+        await startPromise;
+    });
+
+    test('imagem removida entre clique e confirmação aborta sem iniciar tradução', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+        await loadContentScript({
+            hostname: 'reader.test',
+            clickToTranslateEnabled: true,
+            domImages: [{ src: 'https://reader.test/remove-before-confirm.png', width: 800, height: 1200 }],
+        });
+
+        const img = document.querySelector('img');
+        img.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX: 80,
+            clientY: 90,
+        }));
+        await waitFor(() => document.getElementById('manga-single-image-action'));
+
+        img.remove();
+        document.getElementById('manga-single-image-translate').click();
+        await delay(30);
+
+        expect(document.getElementById('manga-single-image-action')).toBeNull();
+        expect(logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_ABORTED').length).toBeGreaterThanOrEqual(1);
+        expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
+    });
+
+    test('clique individual durante tradução ativa não abre segundo fluxo', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+        const context = await loadContentScript({
+            hostname: 'reader.test',
+            clickToTranslateEnabled: true,
+            domImages: [
+                { src: 'https://reader.test/p1.png', width: 800, height: 1200 },
+                { src: 'https://reader.test/p2.png', width: 800, height: 1200 },
+            ],
+        });
+
+        context.sendMessage('START_TRANSLATION_FROM_POPUP', { indices: [0] });
+        await delay(5);
+
+        document.querySelector('[data-testid="img-1"]').dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX: 100,
+            clientY: 120,
+        }));
+        await delay(30);
+
+        expect(document.getElementById('manga-single-image-action')).toBeNull();
+        expect(logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_BLOCKED').length).toBeGreaterThanOrEqual(1);
+
+        await context.sendMessage('BATCH_COMPLETE', { hasErrors: false });
+    });
+
 });
