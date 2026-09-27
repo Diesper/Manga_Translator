@@ -1305,6 +1305,11 @@
           executionMode,
           maxAttempts: 4,
           retryDelayMs: 1000,
+          logContext: {
+            jobIdPrefix: String(job.jobId || '').slice(0, 8),
+            batchIdPrefix: String(job.batchId || '').slice(0, 8),
+            index: job.index,
+          },
           onAuxiliaryFallback: async ({ url }) => {
             const registered = await sendRuntimeMessageAsync({
               action: 'GEMINI_RESULT_URL',
