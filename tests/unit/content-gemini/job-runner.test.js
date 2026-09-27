@@ -149,6 +149,9 @@ function successfulPipelineDependencies({ inputDataUrl, resultDataUrl, advanceCl
     runtimeMessages.push(message);
     if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: inputDataUrl });
     else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+    else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: true, staged: true, persisted: true });
+    else if (message.action === 'GEMINI_RESULT_COMMIT') callback?.({ ok: true, committed: true });
+    else if (message.action === 'GEMINI_RESULT_URL') callback?.({ ok: true, extractionRegistered: true });
     else callback?.({ ok: true });
   });
 
@@ -369,6 +372,12 @@ describe('gemini/job-runner.js', () => {
         callback?.({ srcData: 'data:image/png;base64,QUJDRA==' });
       } else if (message.action === 'REFRESH_JOB_WATCHDOG') {
         callback?.({ ok: true, refreshed: true });
+      } else if (message.action === 'GEMINI_IMAGE_EXTRACTED') {
+        callback?.({ ok: true, staged: true, persisted: true });
+      } else if (message.action === 'GEMINI_RESULT_COMMIT') {
+        callback?.({ ok: true, committed: true });
+      } else if (message.action === 'GEMINI_RESULT_URL') {
+        callback?.({ ok: true, extractionRegistered: true });
       } else {
         callback?.({ ok: true });
       }
@@ -470,6 +479,126 @@ describe('gemini/job-runner.js', () => {
       action: 'GEMINI_IMAGE_EXTRACTED',
       src: translated,
     }));
+  });
+
+
+  test('RUN-12: resultado direto é persistido antes do commit e não usa deleção-before-delivery', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 40_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const input = 'data:image/png;base64,SU5QVVQ=';
+    const translated = 'data:image/png;base64,VFJBTlNMQVRFRA==';
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: input,
+      resultDataUrl: translated,
+      advanceClock: ms => { clock += ms; },
+    });
+
+    await expect(createGeminiJobRunner(options).run({
+      jobId: 'job-order',
+      batchId: 'batch-order',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 3,
+      prompt: 'Traduza.',
+      executionMode: 'background_delete',
+    })).resolves.toEqual({ status: 'delivered_extracted' });
+
+    const stageIndex = runtimeMessages.findIndex(message =>
+      message.action === 'GEMINI_IMAGE_EXTRACTED'
+    );
+    const commitIndex = runtimeMessages.findIndex(message =>
+      message.action === 'GEMINI_RESULT_COMMIT'
+    );
+
+    expect(stageIndex).toBeGreaterThanOrEqual(0);
+    expect(commitIndex).toBeGreaterThan(stageIndex);
+    expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();
+    expect(options.sendLog).toHaveBeenCalledWith(
+      'success',
+      'GEMINI_RESULT_STAGED',
+      expect.stringContaining('persistido'),
+      expect.objectContaining({ jobIdPrefix: expect.any(String) })
+    );
+  });
+
+  test('RUN-13: falha de staging nunca envia commit e preserva diagnóstico', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 50_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
+      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',
+      advanceClock: ms => { clock += ms; },
+    });
+
+    options.runtime.sendMessage.mockImplementation((message, callback) => {
+      runtimeMessages.push(message);
+      if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: 'data:image/png;base64,SU5QVVQ=' });
+      else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+      else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: false, reason: 'persist_failed' });
+      else callback?.({ ok: true });
+    });
+
+    const result = await createGeminiJobRunner(options).run({
+      jobId: 'job-stage-fail',
+      batchId: 'batch-stage-fail',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 4,
+      prompt: 'Traduza.',
+      executionMode: 'background_delete',
+    });
+
+    expect(result.status).toBe('error');
+    expect(result.error.code).toBe('RESULT_STAGE_FAILED');
+    expect(runtimeMessages).not.toContainEqual(expect.objectContaining({
+      action: 'GEMINI_RESULT_COMMIT',
+    }));
+    expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();
+  });
+
+  test('RUN-14: commit pós-persistência tenta novamente sem reenviar a imagem', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 60_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
+      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',
+      advanceClock: ms => { clock += ms; },
+    });
+
+    let commitAttempts = 0;
+    options.runtime.sendMessage.mockImplementation((message, callback) => {
+      runtimeMessages.push(message);
+      if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: 'data:image/png;base64,SU5QVVQ=' });
+      else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+      else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: true, staged: true, persisted: true });
+      else if (message.action === 'GEMINI_RESULT_COMMIT') {
+        commitAttempts += 1;
+        callback?.(commitAttempts < 3
+          ? { ok: false, reason: 'worker_wakeup' }
+          : { ok: true, committed: true });
+      } else callback?.({ ok: true });
+    });
+
+    await expect(createGeminiJobRunner(options).run({
+      jobId: 'job-commit-retry',
+      batchId: 'batch-commit-retry',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 5,
+      prompt: 'Traduza.',
+      executionMode: 'background_delete',
+    })).resolves.toEqual({ status: 'delivered_extracted' });
+
+    expect(commitAttempts).toBe(3);
+    expect(runtimeMessages.filter(message =>
+      message.action === 'GEMINI_IMAGE_EXTRACTED'
+    )).toHaveLength(1);
+    expect(runtimeMessages.filter(message =>
+      message.action === 'GEMINI_RESULT_COMMIT'
+    )).toHaveLength(3);
   });
 
 });
