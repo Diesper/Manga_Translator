@@ -197,6 +197,48 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         expect(logs.some(entry => entry.action === 'BATCH_OVERLAP_BLOCKED')).toBe(false);
     });
 
+    test('BG-44b: STOP_BATCH remove somente um lote pendente e mantém a ordem dos demais', async () => {
+        backgroundModule.__setState({
+            isProcessing: true,
+            currentBatchId: 'batch-a',
+            completedJobs: 0,
+            totalJobs: 1,
+            activeJobsCount: 0,
+            activeMangaTabId: 10,
+            jobQueue: [{ mangaTabId: 10, index: 0, prompt: 'A', batchId: 'batch-a' }],
+            jobIndex: [],
+            pendingBatches: [
+                { batchId: 'batch-b', mangaTabId: 20, prompt: 'B', images: [{ index: 0 }] },
+                { batchId: 'batch-c', mangaTabId: 30, prompt: 'C', images: [{ index: 0 }] },
+                { batchId: 'batch-d', mangaTabId: 40, prompt: 'D', images: [{ index: 0 }] },
+            ],
+        });
+
+        const result = await dispatchToBackground(runtimeMock, {
+            action: 'STOP_BATCH',
+            batchId: 'batch-c',
+        });
+
+        expect(result.response).toEqual({ ok: true });
+        const state = backgroundModule.__getState();
+        expect(state.currentBatchId).toBe('batch-a');
+        expect(state.jobQueue).toEqual([
+            { mangaTabId: 10, index: 0, prompt: 'A', batchId: 'batch-a' },
+        ]);
+        expect(state.pendingBatches.map(batch => batch.batchId))
+            .toEqual(['batch-b', 'batch-d']);
+        expect(state.isProcessing).toBe(true);
+
+        const logs = await waitFor(async () => {
+            const data = await storageMock.get(['translatorLog']);
+            return data.translatorLog || [];
+        });
+        expect(logs.some(entry =>
+            entry.action === 'BATCH_QUEUE_CANCELLED' &&
+            entry.extra?.batchId === 'batch-c'
+        )).toBe(true);
+    });
+
     test('BG-45: START_BATCH idempotente não duplica jobs e lote ocioso respeita maxConcurrentJobs', async () => {
         await storageMock.set({ maxConcurrentJobs: 3 });
 
