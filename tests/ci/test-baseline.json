@@ -1,0 +1,66 @@
+{
+  "jest": {
+    "minSuites": 104,
+    "minTests": 774,
+    "maxSkipped": 0,
+    "maxTodo": 0
+  },
+  "visual": {
+    "minTests": 224,
+    "maxSkipped": 0
+  },
+  "e2e": {
+    "minTests": 20,
+    "maxSkipped": 0
+  },
+  "smoke": {
+    "minFiles": 6
+  },
+  "coverage": {
+    "minInstrumentedFiles": 55,
+    "measuredBaseline": {
+      "statements": 79.44,
+      "branches": 73.05,
+      "functions": 81.47,
+      "lines": 79.44
+    },
+    "minimum": {
+      "statements": 78,
+      "branches": 71,
+      "functions": 80,
+      "lines": 78
+    },
+    "criticalMinimum": {
+      "extension/background.js": {
+        "statements": 57,
+        "branches": 67,
+        "functions": 67,
+        "lines": 57
+      },
+      "extension/content_manga.js": {
+        "statements": 72,
+        "branches": 68,
+        "functions": 71,
+        "lines": 72
+      },
+      "extension/content_gemini.js": {
+        "statements": 87,
+        "branches": 81,
+        "functions": 76,
+        "lines": 87
+      },
+      "extension/shared-ui.js": {
+        "statements": 86,
+        "branches": 69,
+        "functions": 98,
+        "lines": 86
+      },
+      "extension/gemini/job-runner.js": {
+        "statements": 87,
+        "branches": 64,
+        "functions": 80,
+        "lines": 87
+      }
+    }
+  }
+}
