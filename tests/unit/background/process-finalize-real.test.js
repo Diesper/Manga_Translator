@@ -462,6 +462,63 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         expect(stored.mt_state.activeJobsCount).toBe(0);
     });
 
+    test('BG-76b: STOP_BATCH durante tabs.create não permite job tardio ressuscitar o lote', async () => {
+        await storageMock.set({
+            maxConcurrentJobs: 1,
+            geminiBaseUrl: 'https://example.com/mock',
+            geminiExecutionMode: 'temp_chat',
+        });
+
+        const originalCreate = tabsMock.create.bind(tabsMock);
+        let releaseCreate = null;
+        jest.spyOn(tabsMock, 'create').mockImplementation(options =>
+            new Promise(resolve => {
+                releaseCreate = async () => resolve(await originalCreate(options));
+            })
+        );
+
+        const start = await dispatchToBackground(runtimeMock, {
+            action: 'START_BATCH',
+            batchId: 'batch-cancel-launch',
+            mangaTabId: 55,
+            prompt: 'Traduzir',
+            images: [{ index: 1 }],
+        }, { tab: { id: 55 } });
+
+        expect(start.response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: 'batch-cancel-launch',
+        }));
+        await waitFor(() => typeof releaseCreate === 'function');
+
+        const stop = await dispatchToBackground(runtimeMock, {
+            action: 'STOP_BATCH',
+            batchId: 'batch-cancel-launch',
+        });
+        expect(stop.response).toEqual({ ok: true });
+
+        await releaseCreate();
+        await flush(12);
+
+        await waitFor(async () => {
+            const state = backgroundModule.__getState();
+            const stored = await storageMock.get(null);
+            return state.activeJobsCount === 0 &&
+                state.jobIndex.length === 0 &&
+                tabsMock._tabs.size === 0 &&
+                !Object.keys(stored).some(key => key.startsWith('gemini_job_'));
+        });
+
+        const stored = await storageMock.get(null);
+        expect(backgroundModule.__getState()).toEqual(expect.objectContaining({
+            stopRequested: true,
+            activeJobsCount: 0,
+            jobIndex: [],
+        }));
+        expect(Object.keys(stored).filter(key => key.startsWith('wd_data_'))).toEqual([]);
+        expect(Object.keys(stored).filter(key => key.startsWith('gemini_job_'))).toEqual([]);
+    });
+
     test('BG-77: aba do mangá fechada falha staging e erro subsequente encerra o job sem falso sucesso', async () => {
         await storageMock.set({
             debugMode: false,
