@@ -26,6 +26,30 @@
         </label>
     </div>
     <div style="background:#242424; padding:18px; border-radius:10px; margin-bottom:16px;">
+        <h3>Interação na página</h3>
+        <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer; line-height:1.45; margin-bottom:12px;">
+            <input type="checkbox" id="floating-button-enabled" style="margin-top:3px; accent-color:#FF4444;">
+            <span>
+                Mostrar botão flutuante
+                <small style="display:block; color:#aaa; margin-top:4px;">Se o botão desaparecer sozinho em um site habilitado, a extensão registra o erro e tenta restaurá-lo.</small>
+            </span>
+        </label>
+        <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer; line-height:1.45; margin-bottom:12px;">
+            <input type="checkbox" id="click-to-translate-enabled" style="margin-top:3px; accent-color:#FF4444;">
+            <span>
+                Clique esquerdo para traduzir uma única imagem
+                <small style="display:block; color:#aaa; margin-top:4px;">Exibe uma ação sobre a imagem clicada e traduz apenas ela. Fica desligado por padrão para não interferir no leitor.</small>
+            </span>
+        </label>
+        <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer; line-height:1.45;">
+            <input type="checkbox" id="redo-confirm-enabled" style="margin-top:3px; accent-color:#FF4444;">
+            <span>
+                Confirmar antes de Refazer
+                <small style="display:block; color:#aaa; margin-top:4px;">A confirmação é interna da extensão e continua funcionando mesmo se o navegador bloquear diálogos JavaScript.</small>
+            </span>
+        </label>
+    </div>
+    <div style="background:#242424; padding:18px; border-radius:10px; margin-bottom:16px;">
         <h3>Modo de Execução do Gemini</h3>
         <p style="color:#aaa; font-size:13px; line-height:1.45; margin-top:0; margin-bottom:14px;">
             Escolha como o Gemini será aberto e gerenciado durante as traduções.
