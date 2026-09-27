@@ -378,9 +378,9 @@ class ChromeDownloadsMock {
   }
 
   _schedule(callback, _delay = 0) {
-    // O mock só precisa preservar o contrato assíncrono da API. Microtasks
-    // evitam timers reais vazando entre testes e funcionam com fake timers.
-    queueMicrotask(callback);
+    // Promise microtasks preservam assincronicidade sem criar handles de timer
+    // e continuam funcionando quando a suíte ativa fake timers.
+    Promise.resolve().then(callback);
     return null;
   }
 
@@ -399,6 +399,10 @@ class ChromeDownloadsMock {
     };
     this._downloads.set(id, download);
 
+    // O callback entrega o ID antes do evento de conclusão, como no Chrome.
+    // O consumidor consegue registrar onChanged/waitForDownload antes do evento.
+    if (callback) this._schedule(() => callback(id), 0);
+
     this._schedule(() => {
       download.state    = 'complete';
       download.exists   = true;
@@ -407,8 +411,6 @@ class ChromeDownloadsMock {
         fn({ id, state: { previous: 'in_progress', current: 'complete' } })
       );
     }, 10);
-
-    if (callback) this._schedule(() => callback(id), 0);
     return Promise.resolve(id);
   }
 
