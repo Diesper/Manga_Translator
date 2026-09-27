@@ -5,7 +5,7 @@ const baseline = require('./test-baseline.json');
 class PlaywrightGateReporter {
   constructor() {
     this.total = 0;
-    this.finalStatusById = new Map();
+    this.attemptsById = new Map();
   }
 
   onBegin(_config, suite) {
@@ -14,11 +14,34 @@ class PlaywrightGateReporter {
   }
 
   onTestEnd(test, result) {
-    this.finalStatusById.set(test.id, result.status);
+    const attempts = this.attemptsById.get(test.id) || [];
+    attempts.push({
+      status: result.status,
+      retry: Number(result.retry || 0),
+    });
+    this.attemptsById.set(test.id, attempts);
   }
 
   async onEnd(result) {
-    const skipped = [...this.finalStatusById.values()].filter((status) => status === 'skipped').length;
+    const entries = [...this.attemptsById.values()];
+    const finalStatuses = entries
+      .map((attempts) => attempts[attempts.length - 1])
+      .filter(Boolean);
+
+    const skipped = finalStatuses.filter((attempt) => attempt.status === 'skipped').length;
+    const flaky = entries.filter((attempts) => {
+      if (!attempts.length) return false;
+      const finalAttempt = attempts[attempts.length - 1];
+      if (finalAttempt.status !== 'passed') return false;
+
+      const retried = attempts.length > 1 || attempts.some((attempt) => attempt.retry > 0);
+      const hadNonPassingAttempt = attempts
+        .slice(0, -1)
+        .some((attempt) => attempt.status !== 'passed');
+
+      return retried && hadNonPassingAttempt;
+    }).length;
+
     const problems = [];
 
     if (this.total < baseline.e2e.minTests) {
@@ -27,8 +50,11 @@ class PlaywrightGateReporter {
     if (skipped > baseline.e2e.maxSkipped) {
       problems.push(skipped + ' E2E skipped; máximo permitido: ' + baseline.e2e.maxSkipped);
     }
-    if (this.finalStatusById.size < this.total && result.status === 'passed') {
-      problems.push('apenas ' + this.finalStatusById.size + '/' + this.total + ' testes produziram resultado final');
+    if (flaky > baseline.e2e.maxFlaky) {
+      problems.push(flaky + ' E2E flaky/retry; máximo permitido: ' + baseline.e2e.maxFlaky);
+    }
+    if (this.attemptsById.size < this.total && result.status === 'passed') {
+      problems.push('apenas ' + this.attemptsById.size + '/' + this.total + ' testes produziram resultado final');
     }
 
     if (problems.length) {
@@ -37,7 +63,11 @@ class PlaywrightGateReporter {
       return { status: 'failed' };
     }
 
-    console.log('Gate E2E aprovado: ' + this.total + ' teste(s), skipped=' + skipped + '.');
+    console.log(
+      'Gate E2E aprovado: ' + this.total +
+      ' teste(s), skipped=' + skipped +
+      ', flaky=' + flaky + '.'
+    );
     return undefined;
   }
 }
