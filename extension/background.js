@@ -951,58 +951,39 @@ async function stopBatch(request) {
     await ensureInitialized();
     const runtimeState = state();
     const targetBatchId = request.batchId || runtimeState.currentBatchId;
+    if (!targetBatchId) return {};
 
-    // Um lote que ainda está na fila não possui abas/jobs físicos. Removê-lo
-    // deve ser uma operação local e não pode afetar A nem os lotes anteriores.
-    let removedPending = null;
-    if (targetBatchId && Array.isArray(runtimeState.pendingBatches)) {
-        const pendingIndex = runtimeState.pendingBatches.findIndex(
-            batch => batch && batch.batchId === targetBatchId
-        );
-        if (pendingIndex >= 0) {
-            const nextPending = runtimeState.pendingBatches.slice();
-            [removedPending] = nextPending.splice(pendingIndex, 1);
-            runtimeState.pendingBatches = nextPending;
-            await syncState();
-
-            log('warn', 'bg', 'BATCH_QUEUE_CANCELLED',
-                'Lote removido da fila antes de iniciar; demais posições foram preservadas.', {
-                    batchId: String(targetBatchId).slice(0, 8),
-                    removedPosition: pendingIndex + 1,
-                    pendingCount: nextPending.length,
-                });
-
-            if (removedPending?.mangaTabId) {
-                chrome.tabs.sendMessage(removedPending.mangaTabId, {
-                    action: 'BATCH_COMPLETE',
-                    batchId: targetBatchId,
-                    hasErrors: true,
-                    cancelled: true,
-                }, () => { void chrome.runtime.lastError; });
-            }
-            return {};
-        }
+    // Lotes ainda não promovidos podem ser cancelados sem tocar no lote ativo.
+    const pending = Array.isArray(runtimeState.pendingBatches)
+        ? runtimeState.pendingBatches
+        : [];
+    const pendingIndex = pending.findIndex(batch => batch && batch.batchId === targetBatchId);
+    if (pendingIndex >= 0 && targetBatchId !== runtimeState.currentBatchId) {
+        const [removed] = pending.splice(pendingIndex, 1);
+        runtimeState.pendingBatches = pending;
+        await syncState();
+        log('info', 'bg', 'BATCH_QUEUE_CANCELLED',
+            'Lote pendente removido da fila FIFO sem interromper o lote ativo.', {
+                batchId: targetBatchId,
+                queuePosition: pendingIndex + 1,
+                pendingCount: pending.length,
+                mangaTabId: removed?.mangaTabId || null,
+            });
+        return {};
     }
 
-    const stopsCurrentBatch = !targetBatchId || targetBatchId === runtimeState.currentBatchId;
-    runtimeState.jobQueue = runtimeState.jobQueue.filter(
-        job => targetBatchId && job.batchId !== targetBatchId
-    );
+    const stopsCurrentBatch = targetBatchId === runtimeState.currentBatchId;
+    runtimeState.jobQueue = runtimeState.jobQueue.filter(job => job.batchId !== targetBatchId);
 
     if (stopsCurrentBatch) {
+        // stopRequested permanece true durante a limpeza para invalidar qualquer
+        // tabs.create ainda em voo. A promoção do próximo lote ocorre somente
+        // depois que os recursos conhecidos do lote atual foram removidos.
         runtimeState.stopRequested = true;
         runtimeState.isProcessing = false;
-        runtimeState.activeMangaTabId = null;
-        runtimeState.currentBatchId = null;
-        runtimeState.completionClaimedBatchId = null;
     }
 
-    log('warn', 'bg', 'BATCH_STOP',
-        `Batch parado (batch: ${(targetBatchId || '').slice(0, 8)})`, {
-            pendingCount: Array.isArray(runtimeState.pendingBatches)
-                ? runtimeState.pendingBatches.length
-                : 0,
-        });
+    log('warn', 'bg', 'BATCH_STOP', `Batch parado (batch: ${targetBatchId.slice(0, 8)})`);
 
     let entries = indexJobsOfBatch(targetBatchId);
     const keysToRemove = [];
@@ -1020,31 +1001,68 @@ async function stopBatch(request) {
 
     Object.keys(runtimeState.extractionTabs).map(Number).forEach(tabId => {
         const info = runtimeState.extractionTabs[tabId];
-        if (targetBatchId && info && info.batchId && info.batchId !== targetBatchId) return;
+        if (info && info.batchId && info.batchId !== targetBatchId) return;
         chrome.tabs.remove(tabId, () => { if (chrome.runtime.lastError) {} });
         delete runtimeState.extractionTabs[tabId];
     });
 
-    runtimeState.activeJobsCount = runtimeState.jobIndex.length;
-
     if (stopsCurrentBatch) {
-        runtimeState.completedJobs = 0;
-        runtimeState.totalJobs = 0;
-        const hasPending = Array.isArray(runtimeState.pendingBatches) &&
-            runtimeState.pendingBatches.length > 0;
+        let promoted = null;
+        const transition = snapshot => {
+            const nextPending = Array.isArray(snapshot.pendingBatches)
+                ? snapshot.pendingBatches.map(batch => ({
+                    ...batch,
+                    images: Array.isArray(batch?.images)
+                        ? batch.images.map(image => ({ ...image }))
+                        : [],
+                }))
+                : [];
 
-        // Sem próximo lote, manter stopRequested=true fecha a janela de corrida
-        // de tabs.create ainda em voo. Com fila, o próximo lote será promovido;
-        // qualquer lançamento atrasado do lote cancelado será rejeitado pelo
-        // currentBatchId diferente.
-        runtimeState.stopRequested = !hasPending;
-        await syncState();
-        if (hasPending) processNextJob();
-    } else {
-        await syncState();
-        if (runtimeState.isProcessing) processNextJob();
+            snapshot.jobIndex = (Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [])
+                .filter(entry => !entry || entry.batchId !== targetBatchId);
+            snapshot.jobQueue = (Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [])
+                .filter(job => !job || job.batchId !== targetBatchId);
+            snapshot.activeJobsCount = 0;
+            snapshot.activeMangaTabId = null;
+            snapshot.currentBatchId = null;
+            snapshot.completionClaimedBatchId = null;
+            snapshot.stopRequested = false;
+            snapshot.isProcessing = false;
+
+            if (nextPending.length > 0) {
+                promoted = nextPending.shift();
+                snapshot.pendingBatches = nextPending;
+                activateBatchSnapshot(snapshot, promoted);
+            } else {
+                snapshot.pendingBatches = nextPending;
+            }
+            return snapshot;
+        };
+
+        if (typeof runtimeState.mutate === 'function') await runtimeState.mutate(transition);
+        else {
+            transition(runtimeState);
+            await syncState();
+        }
+
+        if (promoted) {
+            log('info', 'bg', 'BATCH_PROMOTED',
+                'Próximo lote da fila FIFO foi promovido após cancelamento do lote ativo.', {
+                    previousBatchId: targetBatchId.slice(0, 8),
+                    batchId: String(promoted.batchId || '').slice(0, 8),
+                    pendingCount: runtimeState.pendingBatches.length,
+                    totalJobs: Array.isArray(promoted.images) ? promoted.images.length : 0,
+                });
+            sendProgress(promoted.mangaTabId, '▶️ INICIANDO LOTE DA FILA...');
+            await _refreshMaxCon();
+            processNextJob();
+        }
+        return {};
     }
 
+    runtimeState.activeJobsCount = indexJobsOfBatch(runtimeState.currentBatchId).length;
+    await syncState();
+    if (runtimeState.isProcessing) processNextJob();
     return {};
 }
 
