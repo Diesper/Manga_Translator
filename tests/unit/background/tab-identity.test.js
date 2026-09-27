@@ -270,7 +270,12 @@ describe('background/tab-identity.js', () => {
       migrateTabIdentity: (oldTabId, newTabId, options) => identity.migrateTabIdentity(oldTabId, newTabId, options),
     });
 
-    await expect(reconciler.reconcile()).resolves.toEqual({ alive: 1, dropped: 0, recovered: 0 });
+    await expect(reconciler.reconcile()).resolves.toEqual({
+      alive: 1,
+      dropped: 0,
+      recovered: 0,
+      foreign: 0,
+    });
     expect(state.jobIndex).toEqual([expect.objectContaining({ geminiTabId: 200, jobId: 'job-r' })]);
     expect((await storage.get('gemini_job_200')).gemini_job_200)
       .toEqual(expect.objectContaining({ geminiTabId: 200, jobId: 'job-r' }));
