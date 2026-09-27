@@ -132,8 +132,9 @@ Além do código de saída normal:
 - Playwright proíbe `test.only` na CI, rejeita testes `skipped` e uma queda silenciosa no inventário E2E;
 - o runner visual falha se houver teste pulado ou se o total cair abaixo do baseline;
 - Smoke falha se o conjunto esperado de arquivos não for descoberto;
-- a geração de cobertura é bloqueante para falhas de teste, enquanto apenas uploads externos (Codecov/artefatos) continuam tolerantes a indisponibilidade;
+- Coverage usa `tests/jest.coverage.config.js` com provider V8 sobre `extension/**/*.js`; `verify-coverage.js` exige 55/55 arquivos, LCOV/summary válidos, percentuais não-zero, thresholds globais e thresholds de arquivos críticos; apenas a publicação externa no Codecov continua independente do gate local;
 - `tests/ci/verify-ci-contract.js` testa a própria configuração da CI para impedir a reintrodução de `|| true`, jobs funcionais não bloqueantes ou dependências que façam o E2E ser pulado.
+- o runner Jest não usa mais `--forceExit`; o mock de downloads foi corrigido para não deixar timers/handles vivos.
 
 Também existe um teste específico de carregamento em modo estrito (`tests/unit/background/background-strict-load.test.js`) para detectar exceções fatais durante o boot do Service Worker antes do registro dos listeners.
 
