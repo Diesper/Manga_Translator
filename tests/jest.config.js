@@ -73,6 +73,11 @@ module.exports = {
             ],
         },
         {
+            displayName: 'manifest',
+            testEnvironment: 'node',
+            testMatch: ['<rootDir>/unit/manifest/**/*.test.js'],
+        },
+        {
             displayName: 'shared-ui',
             testEnvironment: 'jsdom',
             testMatch: ['<rootDir>/unit/shared-ui/**/*.test.js'],
