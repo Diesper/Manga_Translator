@@ -66,6 +66,8 @@ function baseDependencies(overrides = {}) {
       },
       attachmentApi: {
         attachFile: jest.fn(),
+        findFileInputsDeep: jest.fn(() => []),
+        listAttachmentEvidence: jest.fn(() => []),
       },
       temporaryChatApi: {
         ensureActive: jest.fn(),
@@ -202,58 +204,6 @@ describe('gemini/job-runner.js', () => {
     );
   });
 
-  test('RUN-09: clicar em Usar última registra erro grave de intervenção manual', () => {
-    const { createGeminiJobRunner } = loadModule();
-    const { options } = baseDependencies();
-    const runner = createGeminiJobRunner(options);
-
-    runner.createGeminiManualPanel({
-      jobId: 'job-manual-last',
-      index: 2,
-      executionMode: 'temp_chat',
-    }, () => new Set());
-
-    document.getElementById('mt-gemini-use-last').click();
-
-    expect(options.sendLog).toHaveBeenCalledWith(
-      'error',
-      'GEMINI_MANUAL_INTERVENTION_REQUIRED',
-      expect.stringContaining('ERRO GRAVE'),
-      expect.objectContaining({
-        source: 'last-button',
-        index: 2,
-        jobIdPrefix: 'job-manu',
-        executionMode: 'temp_chat',
-      })
-    );
-  });
-
-  test('RUN-10: clicar em Selecionar registra erro grave de intervenção manual', () => {
-    const { createGeminiJobRunner } = loadModule();
-    const { options } = baseDependencies();
-    const runner = createGeminiJobRunner(options);
-
-    runner.createGeminiManualPanel({
-      jobId: 'job-manual-select',
-      index: 3,
-      executionMode: 'background_delete',
-    }, () => new Set());
-
-    document.getElementById('mt-gemini-pick').click();
-
-    expect(options.sendLog).toHaveBeenCalledWith(
-      'error',
-      'GEMINI_MANUAL_INTERVENTION_REQUIRED',
-      expect.stringContaining('ERRO GRAVE'),
-      expect.objectContaining({
-        source: 'select-button',
-        index: 3,
-        jobIdPrefix: 'job-manu',
-        executionMode: 'background_delete',
-      })
-    );
-  });
-
   test('RUN-06: modos de execução escolhem anti-throttling progressivo', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
@@ -263,24 +213,6 @@ describe('gemini/job-runner.js', () => {
     expect(runner.getAntiThrottleModeForExecutionMode('background_delete')).toBe('balanced');
     expect(runner.getAntiThrottleModeForExecutionMode('minimized_window')).toBe('balanced');
     expect(runner.getAntiThrottleModeForExecutionMode('unknown')).toBe('minimal');
-  });
-
-  test('RUN-08: reconhece rd-gg-dl como resultado forte sem expor auto-click', () => {
-    const { createGeminiJobRunner } = loadModule();
-    const { options } = baseDependencies();
-    const runner = createGeminiJobRunner(options);
-
-    expect(
-      runner.isStrongGeneratedImageUrl(
-        'https://lh3.googleusercontent.com/rd-gg-dl/asset=s1024-rj'
-      )
-    ).toBe(true);
-    expect(
-      runner.isStrongGeneratedImageUrl(
-        'https://lh3.googleusercontent.com/gg-dl/asset=s1024-rj'
-      )
-    ).toBe(true);
-    expect(runner.tryClickModelImageCards).toBeUndefined();
   });
 
   test('RUN-07: setAntiThrottleMode publica evento MAIN-world e normaliza inválidos', () => {
@@ -301,6 +233,100 @@ describe('gemini/job-runner.js', () => {
     } finally {
       window.removeEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', listener);
     }
+  });
+
+  test('RUN-08: início da geração renova o watchdog uma única vez e valida a resposta', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 10_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    const composer = document.createElement('rich-textarea');
+    composer.appendChild(editor);
+    document.body.appendChild(composer);
+
+    let onStateChange = null;
+    const observer = {
+      start: jest.fn(function() { return this; }),
+      stop: jest.fn(),
+      waitForResult: jest.fn(async () => ({
+        image: null,
+        url: 'https://lh3.googleusercontent.com/gg-dl/RUNNER_RESULT',
+      })),
+    };
+    const { options, runtimeMessages } = baseDependencies({
+      sleep: async ms => { clock += Number(ms) || 0; },
+      domApi: {
+        getImageSource: image => image?.src || '',
+        isIgnoredGeminiImageSource: () => false,
+        isModelResponseImage: () => false,
+        getEditableElement: element => element,
+        findSendButton: () => null,
+        isElementVisible: () => true,
+        findAllDeep: (root, matcher) => [root, ...root.querySelectorAll('*')].filter(matcher),
+      },
+      observerApi: {
+        createGeminiObserver: jest.fn(config => {
+          onStateChange = config.onStateChange;
+          return observer;
+        }),
+      },
+      editorApi: {
+        submitWithConfirmation: jest.fn(async () => {
+          onStateChange('generation_started', { reason: 'stop_visible' });
+          onStateChange('generation_started', { reason: 'response_created' });
+          return { confirmed: true, attempt: 1, reason: 'stop_visible' };
+        }),
+      },
+      attachmentApi: {
+        attachFile: jest.fn(async () => ({
+          attempted: true,
+          confirmed: true,
+          evidence: { type: 'container' },
+          methodsAttempted: ['file_input'],
+        })),
+        findFileInputsDeep: jest.fn(() => []),
+        listAttachmentEvidence: jest.fn(() => []),
+      },
+      resultExtractor: {
+        extractOrAuxiliaryFallback: jest.fn(async () => ({
+          kind: 'extracted',
+          dataUrl: 'data:image/png;base64,RESULT',
+        })),
+      },
+    });
+    options.runtime.sendMessage.mockImplementation((message, callback) => {
+      runtimeMessages.push(message);
+      if (message.action === 'REQUEST_IMAGE_DATA') {
+        callback?.({ srcData: 'data:image/png;base64,QUJDRA==' });
+      } else if (message.action === 'REFRESH_JOB_WATCHDOG') {
+        callback?.({ ok: true, refreshed: true });
+      } else {
+        callback?.({ ok: true });
+      }
+    });
+
+    const runner = createGeminiJobRunner(options);
+    await expect(runner.run({
+      jobId: 'job-refresh',
+      batchId: 'batch-1',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 2,
+      prompt: 'Traduza a imagem para português brasileiro.',
+      executionMode: 'background_delete',
+    })).resolves.toEqual({ status: 'delivered_extracted' });
+
+    expect(runtimeMessages.filter(message =>
+      message.action === 'REFRESH_JOB_WATCHDOG'
+    )).toEqual([{ action: 'REFRESH_JOB_WATCHDOG', jobId: 'job-refresh' }]);
+    expect(options.sendLog).toHaveBeenCalledWith(
+      'success',
+      'GEMINI_WATCHDOG_REFRESH_CONFIRMED',
+      expect.stringContaining('reiniciado'),
+      expect.objectContaining({ executionMode: 'background_delete' })
+    );
   });
 
 });

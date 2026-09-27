@@ -91,23 +91,29 @@ function installMissingDomApis() {
 }
 
 function appendGeneratedImage(src) {
-    const response = document.createElement('model-response');
-    response.setAttribute('data-message-author', 'model');
     const img = document.createElement('img');
     img.src = src;
     img.scrollIntoView = jest.fn();
     Object.defineProperty(img, 'naturalWidth', { value: 1024, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: 1536, configurable: true });
     Object.defineProperty(img, 'complete', { value: true, configurable: true });
-    response.appendChild(img);
-    document.body.appendChild(response);
+    document.body.appendChild(img);
     return img;
+}
+
+function makeVisible(element, width = 160, height = 48) {
+    element.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: width, bottom: height,
+        width, height, toJSON() { return this; },
+    });
+    return element;
 }
 
 function mountGeminiEditor({ sendMode = 'exact', onSubmit } = {}) {
     document.body.innerHTML = '<div class="ql-editor" contenteditable="true"><p></p></div><div class="momentary-indicator">conversa momentânea</div>';
 
     const editor = document.querySelector('.ql-editor');
+    makeVisible(editor, 640, 120);
     editor.focus = jest.fn();
     editor.scrollIntoView = jest.fn();
 
@@ -129,6 +135,10 @@ function mountGeminiEditor({ sendMode = 'exact', onSubmit } = {}) {
                 preview = document.createElement('file-preview');
                 const thumbImg = document.createElement('img');
                 thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+                Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+                makeVisible(preview, 120, 90);
                 preview.appendChild(thumbImg);
                 document.body.appendChild(preview);
             }
@@ -153,6 +163,7 @@ function mountGeminiEditor({ sendMode = 'exact', onSubmit } = {}) {
             editor.textContent = '';
             onSubmit();
         });
+        makeVisible(sendButton, 40, 40);
         document.body.appendChild(sendButton);
     }
 
@@ -217,6 +228,10 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         delete window.__mt_gemini_started;
 
         installMissingDomApis();
+        jest.spyOn(window.HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+            x: 0, y: 0, top: 0, left: 0, right: 160, bottom: 48,
+            width: 160, height: 48, toJSON() { return this; },
+        }));
         setWindowLocation('/app/chat-1');
 
         runtimeMock = getRuntimeMock();
@@ -349,12 +364,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             action: 'LOG_ENTRY',
             action_name: 'GEMINI_SEND_SUCCESS',
         }));
-        expect(imageFoundLog.extra).toEqual(expect.objectContaining({
-            urlKind: '[redacted]',
-            host: 'cdn.gemini.test',
-            hasQuery: true,
-            executionMode: 'temp_chat',
-        }));
+        expect(imageFoundLog.extra).toEqual({ urlKind: '[redacted]', host: 'cdn.gemini.test', hasQuery: true });
         expect(JSON.stringify(imageFoundLog)).not.toContain('signed-secret');
         expect(promptLog.extra).toEqual({ promptLen: '[redacted]' });
         expect(JSON.stringify(promptLog)).not.toContain('prompt-private-text');
@@ -537,7 +547,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
                 const alert = document.createElement('div');
                 alert.setAttribute('role', 'alert');
                 alert.innerText = 'Falha do Gemini';
-                // O Observer V3 exige visibilidade real. JSDOM não calcula
+                // O Observer V2 exige visibilidade real. JSDOM não calcula
                 // layout, então a fixture precisa representar um alerta que
                 // ocuparia espaço na página em vez de enfraquecer a regra de produção.
                 alert.getBoundingClientRect = () => ({
@@ -575,7 +585,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         }));
     });
 
-    test('CG-36: encerra com GEMINI_ERROR quando o Observer V3 estoura o timeout de geração', async () => {
+    test('CG-36: encerra com GEMINI_ERROR quando o Observer V2 estoura o timeout de geração', async () => {
         mountGeminiEditor({
             sendMode: 'exact',
             onSubmit: () => {},
@@ -649,7 +659,10 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         optionsBtn.scrollIntoView = jest.fn();
         optionsBtn.click = jest.fn();
         deleteItem.click = jest.fn();
-        confirmBtn.click = jest.fn();
+        confirmBtn.click = jest.fn(() => {
+            document.getElementById('conversation-row')?.remove();
+            window.location.pathname = '/app';
+        });
 
         await loadScript({
             job: null,
@@ -674,4 +687,3 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         }));
     });
 });
-

@@ -419,6 +419,45 @@ describe('CM-65/CM-66/CM-67/CM-68/CM-69/CM-70/CM-71/CM-72/CM-73/CM-74/CM-82/CM-8
         }
     });
 
+    test('BATCH_COMPLETE com hasErrors suprime som de sucesso e sinaliza conclusão parcial', async () => {
+        installRuntimeResponder();
+        const originalAudioContext = Object.getOwnPropertyDescriptor(window, 'AudioContext');
+        const AudioContextMock = jest.fn();
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        try {
+            await loadContentScript({
+                hostname: 'localhost',
+                domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+            });
+            await dispatchToContent(runtimeMock, {
+                action: 'START_TRANSLATION_FROM_POPUP',
+                indices: [0],
+            });
+            await waitFor(() => sentMessages.some(message => message.action === 'START_BATCH'));
+
+            await dispatchToContent(runtimeMock, {
+                action: 'BATCH_COMPLETE',
+                hasErrors: true,
+            });
+
+            expect(AudioContextMock).not.toHaveBeenCalled();
+            expect(document.body.textContent).toContain('Concluído com erros');
+            expect(sentMessages).toContainEqual(expect.objectContaining({
+                action: 'LOG_ENTRY',
+                level: 'warn',
+                action_name: 'BATCH_COMPLETE',
+                detail: 'Lote encerrado com erros',
+            }));
+        } finally {
+            if (originalAudioContext) Object.defineProperty(window, 'AudioContext', originalAudioContext);
+            else delete window.AudioContext;
+        }
+    });
+
     test('registra a falha de retomada do áudio com a aba de origem', async () => {
         installRuntimeResponder({ onGetTabId: () => ({ tabId: 91 }) });
         const originalAudioContext = Object.getOwnPropertyDescriptor(window, 'AudioContext');

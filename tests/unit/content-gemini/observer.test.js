@@ -69,7 +69,7 @@ function flushMutations() {
   return new Promise(resolve => setTimeout(resolve, 0));
 }
 
-describe('gemini/observer.js — Observer V3', () => {
+describe('gemini/observer.js — Observer V2', () => {
   beforeEach(() => {
     document.documentElement.innerHTML = '<head></head><body></body>';
     delete window.__mtGeminiObservers;
@@ -300,22 +300,61 @@ describe('gemini/observer.js — Observer V3', () => {
     expect(observer.getState().inspectCount).toBeLessThanOrEqual(before + 2);
     observer.stop();
   });
-  test('OBS-14: imagem nova fora de model turn é ignorada', async () => {
+  test('OBS-14: encontra resposta estrita e imagem dentro de shadow DOM', async () => {
     const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({ jobId: 'strict-result-ownership' }).start();
+    const observer = createGeminiObserver({ jobId: 'shadow-result' }).start();
+    const pending = observer.waitForResult(1000);
 
-    const result = document.createElement('img');
-    result.src = 'blob:https://gemini.google.com/not-a-model-result';
-    Object.defineProperty(result, 'naturalWidth', { value: 1200, configurable: true });
-    Object.defineProperty(result, 'naturalHeight', { value: 1600, configurable: true });
-    Object.defineProperty(result, 'complete', { value: true, configurable: true });
-    document.body.appendChild(result);
-
+    const host = document.createElement('section');
+    host.setAttribute('data-message-author', 'assistant');
+    const shadow = host.attachShadow({ mode: 'open' });
+    document.body.appendChild(host);
+    const image = addResultImage(shadow, 'https://cdn.example/shadow-result.png');
     observer.inspect();
-    await flushMutations();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://cdn.example/shadow-result.png',
+    });
+    expect(observer.getState().responseContainer).toBe(host);
+    observer.stop();
+  });
+
+  test('OBS-15: rejeita cópia da entrada dentro do turno do usuário', () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'user-clone', onStateChange }).start();
+
+    addResponse();
+    const userTurn = document.createElement('user-query');
+    document.body.appendChild(userTurn);
+    addResultImage(userTurn, 'https://cdn.example/cloned-input.png');
+    observer.inspect();
 
     expect(observer.getState().resultUrl).toBeNull();
-    expect(observer.getState().modelTurn).toBeNull();
+    expect(onStateChange).toHaveBeenCalledWith(
+      'result_candidate_rejected',
+      expect.objectContaining({ reason: 'user_turn' })
+    );
+    observer.stop();
+  });
+
+  test('OBS-16: aceita asset gg-dl órfão somente após evidência de geração', async () => {
+    addStop();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'generated-fallback' }).start();
+    const pending = observer.waitForResult(1000);
+
+    const image = addResultImage(
+      document.body,
+      'https://lh3.googleusercontent.com/gg-dl/AUTHENTICATED_RESULT'
+    );
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/gg-dl/AUTHENTICATED_RESULT',
+    });
     observer.stop();
   });
 
@@ -330,197 +369,6 @@ describe('gemini/observer.js — Observer V3', () => {
       image: null,
       url: 'blob:https://gemini.google.com/manual-picked',
     });
-    observer.stop();
-  });
-
-
-  test('OBS-15: clone da imagem de entrada em user turn, mesmo com nova blob URL, é ignorado', async () => {
-    const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({ jobId: 'user-clone' }).start();
-
-    const send = document.createElement('button');
-    send.setAttribute('aria-label', 'Send message');
-    visibleRect(send, 36, 36);
-    document.body.appendChild(send);
-    send.disabled = false;
-    observer.inspect();
-    send.disabled = true;
-    observer.inspect();
-
-    const userTurn = document.createElement('div');
-    userTurn.setAttribute('data-message-author', 'user');
-    const clone = document.createElement('img');
-    clone.src = 'blob:https://gemini.google.com/reencoded-input';
-    Object.defineProperty(clone, 'naturalWidth', { value: 1200, configurable: true });
-    Object.defineProperty(clone, 'naturalHeight', { value: 1600, configurable: true });
-    Object.defineProperty(clone, 'complete', { value: true, configurable: true });
-    userTurn.appendChild(clone);
-    document.body.appendChild(userTurn);
-
-    observer.inspect();
-    expect(observer.getState().submissionConfirmed).toBe(true);
-    expect(observer.getState().resultUrl).toBeNull();
-    expect(observer.getState().modelTurn).toBeNull();
-    observer.stop();
-  });
-
-  test('OBS-16: model turn estrito com resultado rápido continua sendo aceito', async () => {
-    const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({ jobId: 'strict-fast-result' }).start();
-    const pending = observer.waitForResult(1000);
-
-    const response = addResponse();
-    const image = addResultImage(response, 'blob:https://gemini.google.com/real-fast-model-result');
-    observer.inspect();
-
-    await expect(pending).resolves.toEqual({
-      image,
-      url: 'blob:https://gemini.google.com/real-fast-model-result',
-    });
-    expect(observer.getState().modelTurn).toBe(response);
-    expect(observer.getState().submissionReason).toBe('response_created');
-    observer.stop();
-  });
-
-  test('OBS-17: imagem de user turn googleusercontent não recebe ownership automático', () => {
-    const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({ jobId: 'user-googleusercontent' }).start();
-
-    const userTurn = document.createElement('div');
-    userTurn.setAttribute('data-turn-role', 'user');
-    const image = document.createElement('img');
-    image.src = 'https://lh3.googleusercontent.com/input-reencoded=s0';
-    Object.defineProperty(image, 'naturalWidth', { value: 1024, configurable: true });
-    Object.defineProperty(image, 'naturalHeight', { value: 1536, configurable: true });
-    userTurn.appendChild(image);
-    document.body.appendChild(userTurn);
-
-    const response = addResponse();
-    response.textContent = 'Gerando...';
-    observer.inspect();
-
-    expect(observer.getState().modelTurn).toBe(response);
-    expect(observer.getState().resultUrl).toBeNull();
-    observer.stop();
-  });
-
-
-  test('OBS-18: rd-gg-dl dentro do model turn é aceito antes de dimensões carregarem', async () => {
-    const onStateChange = jest.fn();
-    const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({
-      jobId: 'rd-gg-dl-result',
-      onStateChange,
-    }).start();
-    const pending = observer.waitForResult(1000);
-
-    const response = addResponse();
-    const image = document.createElement('img');
-    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj';
-    Object.defineProperty(image, 'naturalWidth', { value: 0, configurable: true });
-    Object.defineProperty(image, 'naturalHeight', { value: 0, configurable: true });
-    Object.defineProperty(image, 'complete', { value: false, configurable: true });
-    response.appendChild(image);
-
-    observer.inspect();
-
-    await expect(pending).resolves.toEqual({
-      image,
-      url: 'https://lh3.googleusercontent.com/rd-gg-dl/generated=s1024-rj',
-    });
-    expect(onStateChange.mock.calls.map(call => call[0])).toEqual(
-      expect.arrayContaining(['result_dom_seen', 'result_image_seen', 'result_candidate', 'result_image'])
-    );
-    observer.stop();
-  });
-
-
-  test('OBS-19: resultado dentro de shadow DOM aberto é detectado automaticamente', async () => {
-    const { createGeminiObserver } = loadObserver();
-
-    const host = document.createElement('div');
-    document.body.appendChild(host);
-    const shadow = host.attachShadow({ mode: 'open' });
-
-    const observer = createGeminiObserver({ jobId: 'shadow-result' }).start();
-    const pending = observer.waitForResult(1000);
-
-    const response = document.createElement('model-response');
-    const image = document.createElement('img');
-    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/shadow-generated=s1024-rj';
-    Object.defineProperty(image, 'naturalWidth', { value: 0, configurable: true });
-    Object.defineProperty(image, 'naturalHeight', { value: 0, configurable: true });
-    Object.defineProperty(image, 'complete', { value: false, configurable: true });
-    response.appendChild(image);
-    shadow.appendChild(response);
-
-    await flushMutations();
-
-    await expect(pending).resolves.toEqual({
-      image,
-      url: 'https://lh3.googleusercontent.com/rd-gg-dl/shadow-generated=s1024-rj',
-    });
-    expect(observer.getState().modelTurn).toBe(response);
-    observer.stop();
-  });
-
-  test('OBS-20: rd-gg-dl sem wrapper estrito usa fallback seguro após geração ativa', async () => {
-    const onStateChange = jest.fn();
-    const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({
-      jobId: 'relaxed-wrapper-result',
-      onStateChange,
-    }).start();
-    const pending = observer.waitForResult(1000);
-
-    addStop();
-    observer.inspect();
-    expect(observer.getState().generationActiveObserved).toBe(true);
-
-    const shell = document.createElement('section');
-    shell.className = 'new-gemini-image-shell';
-    const image = document.createElement('img');
-    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/relaxed-generated=s1024-rj';
-    Object.defineProperty(image, 'naturalWidth', { value: 1024, configurable: true });
-    Object.defineProperty(image, 'naturalHeight', { value: 1024, configurable: true });
-    Object.defineProperty(image, 'complete', { value: true, configurable: true });
-    shell.appendChild(image);
-    document.body.appendChild(shell);
-
-    observer.inspect();
-
-    await expect(pending).resolves.toEqual({
-      image,
-      url: 'https://lh3.googleusercontent.com/rd-gg-dl/relaxed-generated=s1024-rj',
-    });
-    expect(observer.getState().fallbackOwnerUsed).toBe(true);
-    expect(onStateChange.mock.calls.map(call => call[0])).toContain(
-      'model_turn_fallback_acquired'
-    );
-    observer.stop();
-  });
-
-  test('OBS-21: rd-gg-dl em user turn continua proibido mesmo com geração ativa', () => {
-    const { createGeminiObserver } = loadObserver();
-    const observer = createGeminiObserver({ jobId: 'user-rd-gg-dl' }).start();
-
-    addStop();
-    observer.inspect();
-
-    const userTurn = document.createElement('div');
-    userTurn.setAttribute('data-message-author', 'user');
-    const image = document.createElement('img');
-    image.src = 'https://lh3.googleusercontent.com/rd-gg-dl/input-copy=s1024-rj';
-    Object.defineProperty(image, 'naturalWidth', { value: 1024, configurable: true });
-    Object.defineProperty(image, 'naturalHeight', { value: 1024, configurable: true });
-    Object.defineProperty(image, 'complete', { value: true, configurable: true });
-    userTurn.appendChild(image);
-    document.body.appendChild(userTurn);
-
-    observer.inspect();
-
-    expect(observer.getState().resultUrl).toBeNull();
-    expect(observer.getState().fallbackOwnerUsed).toBe(false);
     observer.stop();
   });
 

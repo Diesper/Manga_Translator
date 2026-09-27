@@ -92,6 +92,10 @@ function mountGeminiEditor({
     document.body.innerHTML = '<div class="ql-editor" contenteditable="true"><p></p></div><div class="momentary-indicator">conversa momentânea</div>';
 
     const editor = document.querySelector('.ql-editor');
+    editor.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 640, bottom: 120,
+        width: 640, height: 120, toJSON() { return this; },
+    });
     editor.focus = jest.fn();
     editor.scrollIntoView = jest.fn();
 
@@ -115,6 +119,13 @@ function mountGeminiEditor({
                 preview = document.createElement('file-preview');
                 const thumbImg = document.createElement('img');
                 thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+                Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+                preview.getBoundingClientRect = () => ({
+                    x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+                    width: 120, height: 90, toJSON() { return this; },
+                });
                 preview.appendChild(thumbImg);
                 document.body.appendChild(preview);
             }
@@ -132,6 +143,10 @@ function mountGeminiEditor({
         sendButton.click = jest.fn(() => {
             editor.textContent = '';
             onSubmit();
+        });
+        sendButton.getBoundingClientRect = () => ({
+            x: 0, y: 0, top: 0, left: 0, right: 40, bottom: 40,
+            width: 40, height: 40, toJSON() { return this; },
         });
         document.body.appendChild(sendButton);
     }
@@ -160,6 +175,10 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
     beforeEach(async () => {
         jest.resetModules();
         installDomApis();
+        jest.spyOn(window.HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+            x: 0, y: 0, top: 0, left: 0, right: 160, bottom: 48,
+            width: 160, height: 48, toJSON() { return this; },
+        }));
         setWindowLocation('/app/chat-1');
 
         runtimeMock = getRuntimeMock();
@@ -513,7 +532,10 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
                         const confirm = document.createElement('button');
                         confirm.id = 'confirm-delete';
                         confirm.textContent = 'Excluir';
-                        confirm.click = jest.fn();
+                        confirm.click = jest.fn(() => {
+                            document.getElementById('conversation-row')?.remove();
+                            window.location.pathname = '/app';
+                        });
                         dialog.appendChild(confirm);
                         document.body.appendChild(dialog);
                     }, 350);
@@ -597,7 +619,10 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         optionsBtn.scrollIntoView = jest.fn();
         optionsBtn.click = jest.fn();
         deleteItem.click = jest.fn();
-        confirmBtn.click = jest.fn();
+        confirmBtn.click = jest.fn(() => {
+            document.getElementById('conversation-row')?.remove();
+            window.location.pathname = '/app';
+        });
 
         await storageMock.set({ debugMode: false });
         installResponder();

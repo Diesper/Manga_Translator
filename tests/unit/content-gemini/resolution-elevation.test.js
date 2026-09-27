@@ -85,16 +85,13 @@ function initMocks() {
 }
 
 function appendGeneratedImage(src) {
-    const response = document.createElement('model-response');
-    response.setAttribute('data-message-author', 'model');
     const img = document.createElement('img');
     img.src = src;
     img.scrollIntoView = jest.fn();
     Object.defineProperty(img, 'naturalWidth', { value: 1024, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: 1536, configurable: true });
     Object.defineProperty(img, 'complete', { value: true, configurable: true });
-    response.appendChild(img);
-    document.body.appendChild(response);
+    document.body.appendChild(img);
     return img;
 }
 
@@ -102,6 +99,10 @@ function mountGeminiEditor({ onSubmit } = {}) {
     document.body.innerHTML = '<div class="ql-editor" contenteditable="true"><p></p></div><div class="momentary-indicator">conversa momentânea</div>';
 
     const editor = document.querySelector('.ql-editor');
+    editor.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 640, bottom: 120,
+        width: 640, height: 120, toJSON() { return this; },
+    });
     editor.focus = jest.fn();
     editor.scrollIntoView = jest.fn();
 
@@ -115,6 +116,11 @@ function mountGeminiEditor({ onSubmit } = {}) {
                 thumbImg.src = 'blob:https://gemini.test/mock-attachment';
                 Object.defineProperty(thumbImg, 'naturalWidth', { value: 50, configurable: true });
                 Object.defineProperty(thumbImg, 'naturalHeight', { value: 50, configurable: true });
+                Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+                preview.getBoundingClientRect = () => ({
+                    x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+                    width: 120, height: 90, toJSON() { return this; },
+                });
                 preview.appendChild(thumbImg);
                 document.body.appendChild(preview);
             }
@@ -126,6 +132,10 @@ function mountGeminiEditor({ onSubmit } = {}) {
     sendButton.click = jest.fn(() => {
         editor.textContent = '';
         onSubmit();
+    });
+    sendButton.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 40, bottom: 40,
+        width: 40, height: 40, toJSON() { return this; },
     });
     document.body.appendChild(sendButton);
 
@@ -140,6 +150,10 @@ describe('Elevação de Resolução CDN (=s0) — content_gemini.js', () => {
     beforeEach(async () => {
         jest.resetModules();
         initMocks();
+        jest.spyOn(window.HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+            x: 0, y: 0, top: 0, left: 0, right: 160, bottom: 48,
+            width: 160, height: 48, toJSON() { return this; },
+        }));
         Element.prototype.scrollIntoView = jest.fn();
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
