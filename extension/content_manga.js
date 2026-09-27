@@ -2347,21 +2347,6 @@ if (!window.__manga_translator_content_injected) {
                     }
 
                     if (resp && resp.batchId) _currentBatchId = resp.batchId;
-                    if (resp && resp.queued === true) {
-                        sendLog('info', resp.alreadyQueued ? 'BATCH_QUEUE_DUPLICATE_IGNORED' : 'BATCH_QUEUED',
-                            resp.alreadyQueued
-                                ? 'Lote desta página já estava na fila; posição FIFO preservada.'
-                                : 'Lote desta página foi aceito na fila FIFO do background.', {
-                                batchId: String(resp.batchId || '').slice(0, 8),
-                                activeBatchId: String(resp.activeBatchId || '').slice(0, 8),
-                                queuePosition: resp.queuePosition || null,
-                            });
-                        if (btn) {
-                            setBtnHTML(btn, `NA FILA (#${resp.queuePosition || '?'})...`, true);
-                            setTranslatorButtonBackground(btn, '#b36b00');
-                        }
-                        return;
-                    }
                     if (resp && resp.alreadyStarted === true) {
                         sendLog('info', 'BATCH_DUPLICATE_IGNORED',
                             'START_BATCH repetido foi tratado como retry idempotente.', {
@@ -2585,6 +2570,20 @@ if (!window.__manga_translator_content_injected) {
                 floatingButtonViewState.text = String(request.text || '');
                 floatingButtonViewState.showStop = true;
                 floatingButtonViewState.background = '#ff9800';
+                if (/INICIANDO LOTE DA FILA|ABRINDO GEMINI|EXTRAINDO IMAGEM|AGUARDANDO/i.test(String(request.text || ''))) {
+                    chrome.storage.local.get(['mt_popup_state'], (data) => {
+                        const current = data.mt_popup_state || {};
+                        chrome.storage.local.set({
+                            mt_popup_state: {
+                                ...current,
+                                status: 'processing',
+                                queuePosition: null,
+                                completed: false,
+                                updatedAt: Date.now(),
+                            }
+                        });
+                    });
+                }
                 if (buttonShouldExist()) ensureFloatingButtonHealth('progress_message');
                 const btn = document.getElementById('manga-translator-trigger');
                 if (btn) { setBtnHTML(btn, request.text, true); setTranslatorButtonBackground(btn, '#ff9800'); }
