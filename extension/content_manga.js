@@ -1069,8 +1069,12 @@ if (!window.__manga_translator_content_injected) {
             collapsibleContent.style.padding = '12px 15px';
 
             if (imgIndex !== null && imgIndex !== undefined) {
-                errorLine.style.display = 'flex'; btn.dataset.hasError = 'true'; 
+                errorLine.style.display = 'flex'; btn.dataset.hasError = 'true';
                 playErrorSound(); sendLog('error', 'BATCH_ERROR', `UI Error: ${errorMsg}`, { imgIndex });
+            } else if (isDebug) {
+                // Mensagens positivas do modo debug também precisam tornar a
+                // gaveta visível, inclusive após reconstrução do botão.
+                errorLine.style.display = 'flex';
             }
             btn.style.display = 'flex'; btn.style.opacity = '1';
             const staticPart = document.getElementById('manga-error-static-part');
