@@ -267,6 +267,26 @@ describe('content_gemini.js - RPA real do Gemini', () => {
     });
 
     afterEach(async () => {
+        // Alguns cenários encerram assim que observam a mensagem esperada, enquanto
+        // o fluxo assíncrono real ainda pode manter o Observer V2 vivo. Pare todos
+        // os observers registrados antes de desmontar o DOM para não deixar timers
+        // periódicos/waiters presos no worker Jest.
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
         delete window.__mt_gemini_started;
         delete globalThis.__MT_GEMINI_GENERATION_TIMEOUT_MS__;
         runtimeMock.sendMessage = originalSendMessage;
