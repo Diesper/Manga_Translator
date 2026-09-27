@@ -762,4 +762,93 @@ describe('background/jobs-lifecycle batch status', () => {
         expect(state.isProcessing).toBe(false);
     });
 
+
+    test('BATCH-STATUS-08: restart com current já concluído e isProcessing stale promove o próximo lote sem repetir A', async () => {
+        const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
+        global.chrome = {
+            runtime: { lastError: null },
+            tabs: { sendMessage },
+            storage: {
+                local: {
+                    get: jest.fn(async () => ({ maxConcurrentJobs: 1 })),
+                },
+            },
+        };
+
+        let mutationChain = Promise.resolve();
+        const state = {
+            stopRequested: false,
+            jobQueue: [],
+            activeJobsCount: 0,
+            activeMangaTabId: null,
+            currentBatchId: 'batch-a',
+            completionClaimedBatchId: 'batch-a',
+            completedJobs: 1,
+            totalJobs: 1,
+            // Flag residual típico de um snapshot interrompido no MV3.
+            isProcessing: true,
+            pendingBatches: [
+                {
+                    batchId: 'batch-b',
+                    mangaTabId: 202,
+                    prompt: 'B',
+                    images: [],
+                },
+            ],
+            jobIndex: [],
+            _cachedMaxCon: 1,
+        };
+        state.mutate = mutator => {
+            mutationChain = mutationChain.then(async () => {
+                const snapshot = {
+                    ...state,
+                    jobQueue: [...state.jobQueue],
+                    jobIndex: [...state.jobIndex],
+                    pendingBatches: state.pendingBatches.map(batch => ({
+                        ...batch,
+                        images: [...batch.images],
+                    })),
+                };
+                delete snapshot.mutate;
+                const next = await mutator(snapshot);
+                Object.assign(state, next);
+                return next;
+            });
+            return mutationChain;
+        };
+
+        const log = jest.fn();
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(),
+            indexJobsOfBatch: jest.fn(() => []),
+            delay: async () => {},
+            generateId: () => 'id',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await api.processNextJob();
+
+        const completedIds = sendMessage.mock.calls
+            .map(([, message]) => message)
+            .filter(message => message?.action === 'BATCH_COMPLETE')
+            .map(message => message.batchId);
+
+        expect(completedIds).toEqual(['batch-b']);
+        expect(log.mock.calls.filter(([, , action]) => action === 'BATCH_DONE'))
+            .toHaveLength(1);
+        expect(state.pendingBatches).toEqual([]);
+        expect(state.currentBatchId).toBe('batch-b');
+        expect(state.completionClaimedBatchId).toBe('batch-b');
+        expect(state.isProcessing).toBe(false);
+    });
+
 });
