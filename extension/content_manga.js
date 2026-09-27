@@ -867,6 +867,7 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function ensureFloatingButtonHealth(reason = 'health_check') {
+            if (!isActiveContentInstance()) return { ok: true, stale: true };
             if (!buttonShouldExist()) return { ok: true, expected: false };
 
             let btn = document.getElementById('manga-translator-trigger');
@@ -916,6 +917,7 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function startButtonGuard() {
+            if (!isActiveContentInstance()) return;
             if (!buttonGuardObserver && typeof MutationObserver === 'function' && document.documentElement) {
                 buttonGuardObserver = new MutationObserver(() => {
                     if (!buttonShouldExist()) return;
@@ -947,6 +949,7 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function setFloatingButtonEnabled(enabled, reason = 'storage') {
+            if (!isActiveContentInstance()) return;
             const next = enabled !== false;
             const changed = floatingButtonEnabled !== next;
             floatingButtonEnabled = next;
@@ -1078,6 +1081,7 @@ if (!window.__manga_translator_content_injected) {
         }
 
         chrome.storage.local.get(['enabledDomains', 'floatingButtonEnabled', 'clickToTranslateEnabled'], (data) => {
+            if (!isActiveContentInstance()) return;
             floatingButtonEnabled = data.floatingButtonEnabled !== false;
             clickToTranslateEnabled = data.clickToTranslateEnabled === true;
             if ((data.enabledDomains || []).includes(hostname)) {
@@ -1120,7 +1124,7 @@ if (!window.__manga_translator_content_injected) {
         });
 
         function createTranslatorButton() {
-            if (!buttonShouldExist()) return;
+            if (!isActiveContentInstance() || !buttonShouldExist()) return;
             if (document.getElementById('manga-translator-trigger')) return;
             if (!document.getElementById('manga-error-style')) {
                 const style = document.createElement('style'); style.id = 'manga-error-style';
@@ -1302,7 +1306,7 @@ if (!window.__manga_translator_content_injected) {
             restoreIntegratedErrorDrawer(btn);
 
             chrome.storage.local.get(['btnPos', 'debugMode'], (data) => {
-                if (!btn.isConnected || !buttonShouldExist()) return;
+                if (!isActiveContentInstance() || !btn.isConnected || !buttonShouldExist()) return;
                 if (data.btnPos) {
                     btn.style.bottom = '';
                     btn.style.right = '';
@@ -1364,6 +1368,18 @@ if (!window.__manga_translator_content_injected) {
         const applyImageReplacement = (img, translatedBase64, fromCache = false) => (
             domReplaceApi.applyImageReplacement(img, translatedBase64, fromCache, { sendLog })
         );
+
+        function getImageCleanUrl(img) {
+            if (!img) return null;
+            return domReplaceApi.getCleanUrl(
+                img.getAttribute('src')
+                || img.dataset.src
+                || img.dataset.lazySrc
+                || img.getAttribute('data-original')
+                || img.src
+                || ''
+            );
+        }
 
         function showSingleImageToast(message) {
             const old = document.getElementById('manga-single-image-toast');
@@ -1463,7 +1479,7 @@ if (!window.__manga_translator_content_injected) {
                     updateBtnStatus();
                     sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada por clique na imagem.', {
                         index: currentIndex,
-                        cleanUrl: candidate.cleanUrl,
+                        cleanUrl: getImageCleanUrl(img),
                         width: candidate.width,
                         height: candidate.height,
                     });
