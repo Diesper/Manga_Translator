@@ -59,7 +59,7 @@ class ChromeStorageMock {
 
   clear(callback) {
     this._store = {};
-    if (callback) setTimeout(callback, 0);
+    if (callback) this._schedule(callback, 0);
     return Promise.resolve();
   }
 
@@ -133,7 +133,7 @@ class ChromeTabsMock {
     if (queryInfo.active !== undefined) {
       results = results.filter(t => t.active === queryInfo.active);
     }
-    if (callback) setTimeout(() => callback(results), 0);
+    if (callback) this._schedule(() => callback(results), 0);
     return Promise.resolve(results);
   }
 
@@ -375,6 +375,23 @@ class ChromeDownloadsMock {
     this._downloads         = new Map();
     this._nextId            = 1;
     this._onChangedListeners = [];
+    this._timers            = new Set();
+  }
+
+  _schedule(callback, delay = 0) {
+    let timer = null;
+    timer = setTimeout(() => {
+      this._timers.delete(timer);
+      callback();
+    }, delay);
+    this._timers.add(timer);
+    if (timer && typeof timer.unref === 'function') timer.unref();
+    return timer;
+  }
+
+  clearTimers() {
+    for (const timer of this._timers) clearTimeout(timer);
+    this._timers.clear();
   }
 
   download(options, callback) {
@@ -388,7 +405,7 @@ class ChromeDownloadsMock {
     };
     this._downloads.set(id, download);
 
-    setTimeout(() => {
+    this._schedule(() => {
       download.state    = 'complete';
       download.exists   = true;
       download.filename = `/home/user/Downloads/${download.filename}`;
@@ -397,7 +414,7 @@ class ChromeDownloadsMock {
       );
     }, 10);
 
-    if (callback) setTimeout(() => callback(id), 0);
+    if (callback) this._schedule(() => callback(id), 0);
     return Promise.resolve(id);
   }
 
