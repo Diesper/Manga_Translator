@@ -384,6 +384,90 @@ describe('gemini/observer.js — Observer V2', () => {
     observer.stop();
   });
 
+  test('OBS-18: wrapper user ancestral não invalida model turn com autoria explícita', async () => {
+    const onStateChange = jest.fn();
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({
+      jobId: 'outer-user-wrapper',
+      onStateChange,
+    }).start();
+    const pending = observer.waitForResult(1000);
+
+    const outer = document.createElement('div');
+    outer.className = 'user-query-container';
+    const response = document.createElement('model-response');
+    response.setAttribute('data-message-author', 'model');
+    outer.appendChild(response);
+    document.body.appendChild(outer);
+
+    const image = addResultImage(
+      response,
+      'https://lh3.googleusercontent.com/gg-dl/outer-user-generated'
+    );
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/gg-dl/outer-user-generated',
+    });
+    expect(observer.getState().responseContainer).toBe(response);
+    expect(onStateChange.mock.calls.map(call => call[0])).toContain('result_candidate_accepted');
+    observer.stop();
+  });
+
+  test('OBS-19: wrapper estrito aninhado não invalida ownership do model turn novo', async () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'nested-model-wrapper' }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = addResponse();
+    const nested = document.createElement('div');
+    nested.className = 'model-response-text';
+    response.appendChild(nested);
+    const image = addResultImage(
+      nested,
+      'https://lh3.googleusercontent.com/rd-gg-dl/nested-generated'
+    );
+
+    observer.inspect();
+
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://lh3.googleusercontent.com/rd-gg-dl/nested-generated',
+    });
+    expect(response.contains(observer.getState().responseContainer)).toBe(true);
+    observer.stop();
+  });
+
+  test('OBS-20: imagem remota é reavaliada quando o evento load completa dimensões', async () => {
+    const { createGeminiObserver } = loadObserver();
+    const observer = createGeminiObserver({ jobId: 'result-load-reinspect' }).start();
+    const pending = observer.waitForResult(1000);
+
+    const response = addResponse();
+    const image = document.createElement('img');
+    image.src = 'https://cdn.example/delayed-result.png';
+    Object.defineProperty(image, 'naturalWidth', { value: 0, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 0, configurable: true });
+    Object.defineProperty(image, 'complete', { value: false, configurable: true });
+    response.appendChild(image);
+
+    observer.inspect();
+    expect(observer.getState().resultUrl).toBeNull();
+
+    Object.defineProperty(image, 'naturalWidth', { value: 1200, configurable: true });
+    Object.defineProperty(image, 'naturalHeight', { value: 1600, configurable: true });
+    Object.defineProperty(image, 'complete', { value: true, configurable: true });
+    image.dispatchEvent(new Event('load'));
+
+    await flushMutations();
+    await expect(pending).resolves.toEqual({
+      image,
+      url: 'https://cdn.example/delayed-result.png',
+    });
+    observer.stop();
+  });
+
   test('PR6: seleção manual resolve a mesma Promise de resultado', async () => {
     const { createGeminiObserver } = loadObserver();
     const observer = createGeminiObserver({ jobId: 'manual-result' }).start();
