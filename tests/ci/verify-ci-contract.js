@@ -150,6 +150,9 @@ if (!Number.isInteger(baseline.e2e && baseline.e2e.maxFlaky) || baseline.e2e.max
 if (!e2eReporter.includes('attemptsById') || !e2eReporter.includes('maxFlaky')) {
   problems.push('reporter E2E precisa preservar tentativas e bloquear flaky/retry');
 }
+if (!e2eReporter.includes('const failed =') || !e2eReporter.includes('status final não aprovado')) {
+  problems.push('reporter E2E precisa reprovar failed/timedOut/interrupted terminais');
+}
 
 if (problems.length) {
   console.error('Contrato da CI inválido:');
