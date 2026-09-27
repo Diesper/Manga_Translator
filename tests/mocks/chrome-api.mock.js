@@ -59,7 +59,7 @@ class ChromeStorageMock {
 
   clear(callback) {
     this._store = {};
-    if (callback) this._schedule(callback, 0);
+    if (callback) setTimeout(callback, 0);
     return Promise.resolve();
   }
 
@@ -133,7 +133,7 @@ class ChromeTabsMock {
     if (queryInfo.active !== undefined) {
       results = results.filter(t => t.active === queryInfo.active);
     }
-    if (callback) this._schedule(() => callback(results), 0);
+    if (callback) setTimeout(() => callback(results), 0);
     return Promise.resolve(results);
   }
 
@@ -425,7 +425,7 @@ class ChromeDownloadsMock {
       const regex = new RegExp(query.filenameRegex);
       results = results.filter(d => regex.test(d.filename));
     }
-    if (callback) setTimeout(() => callback(results), 0);
+    if (callback) this._schedule(() => callback(results), 0);
     return Promise.resolve(results);
   }
 
@@ -434,13 +434,13 @@ class ChromeDownloadsMock {
   removeFile(downloadId, callback) {
     const dl = this._downloads.get(downloadId);
     if (dl) dl.exists = false;
-    if (callback) setTimeout(callback, 0);
+    if (callback) this._schedule(callback, 0);
     return Promise.resolve();
   }
 
   erase(query, callback) {
     if (query.id) this._downloads.delete(query.id);
-    if (callback) setTimeout(callback, 0);
+    if (callback) this._schedule(callback, 0);
     return Promise.resolve();
   }
 
@@ -521,6 +521,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  downloadsMock?.clearTimers();
   jest.clearAllTimers();
   jest.clearAllMocks();
   if (global.chrome?.runtime) global.chrome.runtime.lastError = null;
