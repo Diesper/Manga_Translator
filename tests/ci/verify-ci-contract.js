@@ -8,7 +8,7 @@ const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml
 const playwright = fs.readFileSync(path.join(root, 'tests', 'playwright.config.js'), 'utf8');
 const coverageConfig = fs.readFileSync(path.join(root, 'tests', 'jest.coverage.config.js'), 'utf8');
 const coverageVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage.js'), 'utf8');
-const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage-selftest.js'), 'utf8');
+const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage-selftest.js'), 'utf8');\nconst e2eReporter = fs.readFileSync(path.join(root, 'tests', 'ci', 'playwright-gate-reporter.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
 
@@ -135,14 +135,14 @@ for (const [name, value] of [
   ['jest.minSuites', baseline.jest && baseline.jest.minSuites],
   ['jest.minTests', baseline.jest && baseline.jest.minTests],
   ['visual.minTests', baseline.visual && baseline.visual.minTests],
-  ['e2e.minTests', baseline.e2e && baseline.e2e.minTests],
+  ['e2e.minTests', baseline.e2e && baseline.e2e.minTests],\n  ['e2e.maxFlaky', baseline.e2e && baseline.e2e.maxFlaky],
   ['smoke.minFiles', baseline.smoke && baseline.smoke.minFiles],
   ['coverage.minInstrumentedFiles', baseline.coverage && baseline.coverage.minInstrumentedFiles],
 ]) {
   if (!Number.isInteger(value) || value <= 0) problems.push('baseline inválido: ' + name);
 }
 
-if (problems.length) {
+if (!e2eReporter.includes('attemptsById') || !e2eReporter.includes('maxFlaky')) {\n  problems.push('reporter E2E precisa preservar tentativas e bloquear flaky/retry');\n}\n\nif (problems.length) {
   console.error('Contrato da CI inválido:');
   for (const problem of problems) console.error('- ' + problem);
   process.exit(1);
