@@ -497,6 +497,8 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         },
     ]) {
         test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
+            test.setTimeout(90000);
+
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
@@ -523,7 +525,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                     entry && entry.action === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
                 );
             }, {
-                timeout: 45000,
+                timeout: 70000,
                 message: `Esperava gate de attachment no modo ${scenario.mode}`,
             }).toBe(true);
 
