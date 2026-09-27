@@ -516,11 +516,11 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         expect(manualLog.extra).toEqual(expect.objectContaining({ source: 'image-click' }));
     }, 12000);
 
-    test('CG-41: sucesso chama deleteCurrentConversation e confirma exclusao quando debugMode esta desligado', async () => {
+    test('CG-41: sucesso persiste e commita antes de qualquer exclusão da conversa', async () => {
         mountEditor();
         appendSendButton({
             onSubmit: () => {
-                setTimeout(() => appendImage('https://cdn.gemini.test/result-delete-after-success.png'), 1300);
+                setTimeout(() => appendImage('https://cdn.gemini.test/result-stage-before-delete.png'), 1300);
             },
         });
         document.body.insertAdjacentHTML('beforeend', `
@@ -537,10 +537,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         optionsButton.scrollIntoView = jest.fn();
         optionsButton.click = jest.fn();
         deleteItem.click = jest.fn();
-        confirmDelete.click = jest.fn(() => {
-            document.getElementById('conversation-row')?.remove();
-            window.location.pathname = '/app';
-        });
+        confirmDelete.click = jest.fn();
 
         await seedJob();
         await storageMock.set({ debugMode: false, geminiExecutionMode: 'minimized_window' });
@@ -548,18 +545,33 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             GET_TAB_ID: () => ({ tabId: 321 }),
             REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
             FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,UkVTVUxU' }),
+            GEMINI_IMAGE_EXTRACTED: () => ({ ok: true, staged: true, persisted: true }),
+            GEMINI_RESULT_COMMIT: () => ({ ok: true, committed: true }),
         });
 
         const mod = loadContentGeminiModule();
         mod.processGeminiJob();
 
-        await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_IMAGE_EXTRACTED'), { timeout: 12000 });
-        await waitFor(() => sentMessages.find(message =>
-            message.action === 'LOG_ENTRY' && message.action_name === 'DELETE_OK'
-        ), { timeout: 8000 });
+        const staged = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_IMAGE_EXTRACTED'
+        ), { timeout: 12000 });
+        const committed = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_RESULT_COMMIT'
+        ), { timeout: 4000 });
 
-        expect(optionsButton.click).toHaveBeenCalled();
-        expect(deleteItem.click).toHaveBeenCalled();
-        expect(confirmDelete.click).toHaveBeenCalled();
+        expect(staged).toEqual(expect.objectContaining({
+            jobId: 'job-321',
+            batchId: 'batch-test',
+        }));
+        expect(committed).toEqual(expect.objectContaining({
+            jobId: 'job-321',
+            batchId: 'batch-test',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'DELETE_OK'
+        )).toBe(false);
+        expect(optionsButton.click).not.toHaveBeenCalled();
+        expect(deleteItem.click).not.toHaveBeenCalled();
+        expect(confirmDelete.click).not.toHaveBeenCalled();
     }, 20000);
 });
