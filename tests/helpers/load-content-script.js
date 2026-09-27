@@ -129,7 +129,9 @@ async function loadContentScript({
     const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
     const startedAt = Date.now();
     while (Date.now() - startedAt < 250) {
-        if (!shouldCreateButton || document.getElementById('manga-translator-trigger')) break;
+        const button = document.getElementById('manga-translator-trigger');
+        if (!shouldCreateButton) break;
+        if (button && button.dataset.positionReady === 'true') break;
         await new Promise(r => setTimeout(r, 10));
     }
 
