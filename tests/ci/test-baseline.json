@@ -1,0 +1,19 @@
+{
+  "jest": {
+    "minSuites": 95,
+    "minTests": 700,
+    "maxSkipped": 0,
+    "maxTodo": 0
+  },
+  "visual": {
+    "minTests": 224,
+    "maxSkipped": 0
+  },
+  "e2e": {
+    "minTests": 20,
+    "maxSkipped": 0
+  },
+  "smoke": {
+    "minFiles": 6
+  }
+}

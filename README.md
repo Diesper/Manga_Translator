@@ -123,7 +123,17 @@ npm run test:e2e
 
 ### CI e regressões de Service Worker
 
-A pipeline em `.github/workflows/ci.yml` trata Jest e E2E como gates funcionais reais: falhas não são mascaradas por `|| true` ou `continue-on-error`. O job E2E em `main` roda mesmo quando o job anterior falha, para expor simultaneamente regressões do navegador.
+A pipeline em `.github/workflows/ci.yml` trata **Smoke, Visual, Jest, Coverage e E2E como gates funcionais independentes**. Uma falha em Jest não impede o Playwright de rodar, então uma única execução expõe regressões de várias camadas ao mesmo tempo.
+
+O job final **CI Gate** usa `if: always()` e exige que todos os jobs obrigatórios terminem como `success`. Estados `failure`, `cancelled` ou `skipped` em qualquer gate obrigatório tornam a CI vermelha.
+
+Além do código de saída normal:
+- Jest compara todos os arquivos `.test.js` existentes em `tests/unit` e `tests/integration` com o inventário realmente descoberto pelo runner, rejeita `skip`/`todo` e protege um baseline mínimo;
+- Playwright proíbe `test.only` na CI, rejeita testes `skipped` e uma queda silenciosa no inventário E2E;
+- o runner visual falha se houver teste pulado ou se o total cair abaixo do baseline;
+- Smoke falha se o conjunto esperado de arquivos não for descoberto;
+- a geração de cobertura é bloqueante para falhas de teste, enquanto apenas uploads externos (Codecov/artefatos) continuam tolerantes a indisponibilidade;
+- `tests/ci/verify-ci-contract.js` testa a própria configuração da CI para impedir a reintrodução de `|| true`, jobs funcionais não bloqueantes ou dependências que façam o E2E ser pulado.
 
 Também existe um teste específico de carregamento em modo estrito (`tests/unit/background/background-strict-load.test.js`) para detectar exceções fatais durante o boot do Service Worker antes do registro dos listeners.
 

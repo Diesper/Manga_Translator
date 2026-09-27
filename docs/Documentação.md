@@ -1702,6 +1702,34 @@ Execuções superseded da mesma branch/workflow podem ser canceladas.
 
 Isso evita gastar recursos validando commits que já foram substituídos.
 
+
+## 18.10 CI Gate e inventário obrigatório
+
+A CI atual não considera suficiente que "nenhum teste tenha falhado". Ela também
+precisa provar que as suítes obrigatórias foram realmente descobertas e executadas.
+
+Regras:
+
+- Smoke, Visual, Jest, Coverage e E2E executam em jobs independentes;
+- falha em Jest não pode impedir a execução do E2E;
+- o job final `CI Gate`, executado com `if: always()`, exige `success` de todos
+  os jobs obrigatórios e rejeita `failure`, `cancelled` e `skipped`;
+- Jest compara o inventário real de arquivos `.test.js` de `unit/` e
+  `integration/` contra os arquivos reportados pelo próprio Jest, além de rejeitar
+  `skip` e `todo`;
+- os runners Smoke, Visual e E2E possuem baseline mínimo explícito em
+  `tests/ci/test-baseline.json`;
+- Playwright usa `forbidOnly` em CI e um reporter próprio que transforma
+  inventário incompleto ou `skipped` em falha;
+- falhas do comando de cobertura são bloqueantes; somente serviços auxiliares
+  externos, como upload para Codecov, podem ser não bloqueantes;
+- `tests/ci/verify-ci-contract.js` testa o próprio workflow e impede regressões
+  estruturais como `npm run test:* || true`, `continue-on-error` no job
+  funcional ou dependência do E2E em Jest.
+
+Alterações intencionais que removam um volume relevante de testes precisam ajustar
+o baseline no mesmo PR, deixando a redução explícita e revisável.
+
 ---
 
 # 19. Falhas esperadas e diagnóstico

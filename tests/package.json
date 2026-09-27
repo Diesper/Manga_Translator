@@ -19,9 +19,10 @@
     "test:all": "node run-all-tests.js",
     "test:coverage": "jest --config jest.config.js --coverage --testPathPattern=\"(unit|integration)\"",
     "test:watch": "jest --config jest.config.js --watch --testPathPattern=unit",
-    "test:ci": "jest --config jest.config.js --ci --coverage --forceExit",
+    "test:ci": "node ci/run-jest-ci.js",
     "test:images": "node e2e/fixtures/create-test-images.js",
-    "mock:server": "node e2e/fixtures/gemini-mock-server.js"
+    "mock:server": "node e2e/fixtures/gemini-mock-server.js",
+    "test:coverage:ci": "node ci/run-jest-ci.js --coverage"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
