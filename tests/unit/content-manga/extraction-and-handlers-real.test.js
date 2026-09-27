@@ -36,12 +36,13 @@ async function waitFor(assertion, { timeout = 2000, interval = 10 } = {}) {
     throw new Error('Timeout aguardando condicao');
 }
 
-function setWindowLocation(hostname, pathname = '/chapter/1') {
+function setWindowLocation(hostname, pathname = '/chapter/1', hash = '') {
     Object.defineProperty(window, 'location', {
         value: {
             hostname,
-            href: `https://${hostname}${pathname}`,
+            href: `https://${hostname}${pathname}${hash}`,
             pathname,
+            hash,
             origin: `https://${hostname}`,
         },
         configurable: true,
@@ -128,9 +129,11 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
     async function loadExtractionScript({
         extractionResponse = { isExtractionTab: true, mangaTabId: 77, index: 3, geminiTabId: 999 },
         fetchFallbackResponse = { dataUrl: 'data:image/png;base64,RkFMTEJBQ0s=' },
+        hostname = 'lh3.googleusercontent.com',
+        hash = '',
         buildDom,
     } = {}) {
-        setWindowLocation('lh3.googleusercontent.com', '/proxy/result');
+        setWindowLocation(hostname, '/proxy/result', hash);
         if (typeof buildDom === 'function') buildDom();
 
         const sentMessages = [];
@@ -138,7 +141,10 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             sentMessages.push(message);
 
             if (message.action === 'CHECK_IF_EXTRACTION_TAB') {
-                if (callback) setTimeout(() => callback(extractionResponse), 0);
+                const response = typeof extractionResponse === 'function'
+                    ? extractionResponse(message)
+                    : extractionResponse;
+                if (callback) setTimeout(() => callback(response), 0);
                 return;
             }
 
@@ -202,6 +208,67 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
 
             expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(0);
             expect(sentMessages.filter(message => message.action === 'FETCH_IMAGE_AS_BASE64')).toHaveLength(0);
+        });
+
+        test('aba auxiliar marcada funciona em host não-Google', async () => {
+            const sentMessages = await loadExtractionScript({
+                hostname: '127.0.0.1',
+                hash: '#manga-translator-extraction',
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, {
+                        src: 'http://127.0.0.1:3999/gemini-result-image',
+                        complete: true,
+                        height: 900,
+                    });
+                    document.body.appendChild(img);
+                },
+            });
+
+            await waitFor(() => sentMessages.find(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+
+            expect(sentMessages).toContainEqual(expect.objectContaining({
+                action: 'IMAGE_READY_FROM_NEW_TAB',
+                mangaTabId: 77,
+                index: 3,
+                geminiTabId: 999,
+            }));
+        });
+
+        test('aba auxiliar marcada repete o lookup se o mapeamento ainda não foi persistido', async () => {
+            let checks = 0;
+            const sentMessages = await loadExtractionScript({
+                hostname: 'cdn.example',
+                hash: '#manga-translator-extraction',
+                extractionResponse: () => {
+                    checks++;
+                    if (checks < 3) return { isExtractionTab: false };
+                    return {
+                        isExtractionTab: true,
+                        mangaTabId: 77,
+                        index: 3,
+                        geminiTabId: 999,
+                        jobId: 'job-delayed',
+                        batchId: 'batch-delayed',
+                    };
+                },
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            await waitFor(() => sentMessages.find(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+
+            expect(checks).toBeGreaterThanOrEqual(3);
+            expect(sentMessages.filter(message => message.action === 'CHECK_IF_EXTRACTION_TAB').length)
+                .toBeGreaterThanOrEqual(3);
+            expect(sentMessages).toContainEqual(expect.objectContaining({
+                action: 'IMAGE_READY_FROM_NEW_TAB',
+                jobId: 'job-delayed',
+                batchId: 'batch-delayed',
+            }));
         });
 
         test('aguarda o evento load quando a imagem ainda esta carregando', async () => {
