@@ -248,12 +248,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - label: background-only
-            projects: background
-          - label: content-only
-            projects: content-scripts
-          - label: integration-only
-            projects: integration
+          - label: background-half-a
+            half: a
+          - label: background-half-b
+            half: b
     defaults:
       run:
         working-directory: tests
@@ -273,7 +271,17 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          npx jest --config jest.config.js --ci --selectProjects ${{ matrix.projects }} 2>&1 | tee /tmp/jest-group.log
+          mapfile -t files < <(find unit/background -type f -name "*.test.js" | sort)
+          count=${#files[@]}
+          mid=$(( (count + 1) / 2 ))
+          if [ "${{ matrix.half }}" = "a" ]; then
+            selected=("${files[@]:0:mid}")
+          else
+            selected=("${files[@]:mid}")
+          fi
+          printf 'Arquivos selecionados (%s/%s):\n' "${#selected[@]}" "$count"
+          printf '  %s\n' "${selected[@]}"
+          npx jest --config jest.config.js --ci --selectProjects background --runTestsByPath "${selected[@]}" 2>&1 | tee /tmp/jest-group.log
           status=${PIPESTATUS[0]}
           if grep -Fq "A worker process has failed to exit gracefully" /tmp/jest-group.log; then
             echo "::error::${{ matrix.label }} reproduziu worker forçado"
