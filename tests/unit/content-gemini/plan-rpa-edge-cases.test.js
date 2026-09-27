@@ -531,10 +531,13 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             <div id="delete-item" role="menuitem">Excluir</div>
             <button id="confirm-delete">Excluir</button>
         `);
-        document.getElementById('options-btn').scrollIntoView = jest.fn();
-        document.getElementById('options-btn').click = jest.fn();
-        document.getElementById('delete-item').click = jest.fn();
-        document.getElementById('confirm-delete').click = jest.fn(() => {
+        const optionsButton = document.getElementById('options-btn');
+        const deleteItem = document.getElementById('delete-item');
+        const confirmDelete = document.getElementById('confirm-delete');
+        optionsButton.scrollIntoView = jest.fn();
+        optionsButton.click = jest.fn();
+        deleteItem.click = jest.fn();
+        confirmDelete.click = jest.fn(() => {
             document.getElementById('conversation-row')?.remove();
             window.location.pathname = '/app';
         });
@@ -555,8 +558,8 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             message.action === 'LOG_ENTRY' && message.action_name === 'DELETE_OK'
         ), { timeout: 8000 });
 
-        expect(document.getElementById('options-btn').click).toHaveBeenCalled();
-        expect(document.getElementById('delete-item').click).toHaveBeenCalled();
-        expect(document.getElementById('confirm-delete').click).toHaveBeenCalled();
+        expect(optionsButton.click).toHaveBeenCalled();
+        expect(deleteItem.click).toHaveBeenCalled();
+        expect(confirmDelete.click).toHaveBeenCalled();
     }, 20000);
 });
