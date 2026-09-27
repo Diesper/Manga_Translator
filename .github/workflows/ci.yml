@@ -240,6 +240,49 @@ jobs:
           path: tests/test-results/
           retention-days: 7
 
+
+  open-handles-diagnostic:
+    name: Open Handles Diagnostic (${{ matrix.label }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: background-content
+            projects: background content-scripts
+          - label: content-integration
+            projects: content-scripts integration
+          - label: background-integration
+            projects: background integration
+          - label: small-projects
+            projects: gtc popup reader manifest shared-ui
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Instalar dependências
+        run: npm ci
+      - name: Rodar combinação e detectar worker forçado
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          npx jest --config jest.config.js --ci --selectProjects ${{ matrix.projects }} 2>&1 | tee /tmp/jest-group.log
+          status=${PIPESTATUS[0]}
+          if grep -Fq "A worker process has failed to exit gracefully" /tmp/jest-group.log; then
+            echo "::error::${{ matrix.label }} reproduziu worker forçado"
+            exit 2
+          fi
+          exit "$status"
+
   ci-gate:
     name: CI Gate
     if: ${{ always() }}
