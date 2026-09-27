@@ -55,9 +55,11 @@
           snapshot.currentBatchId &&
           snapshot.completionClaimedBatchId === snapshot.currentBatchId
         );
+        // currentBatchId + filas/índice são a fonte de verdade. Um
+        // isProcessing=true residual após suspensão do MV3 não pode congelar
+        // lotes persistidos que já não possuem trabalho ativo.
         const idle = !snapshot.stopRequested &&
           (!snapshot.currentBatchId || currentBatchAlreadyCompleted) &&
-          !snapshot.isProcessing &&
           queued.length === 0 &&
           Number(snapshot.activeJobsCount) === 0 &&
           indexed.length === 0;
