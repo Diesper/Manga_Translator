@@ -1,0 +1,33 @@
+name: PR46 Local Test Bundle
+
+on:
+  push:
+    branches:
+      - tmp/pr46-local-bundle
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Install test dependencies
+        working-directory: tests
+        run: npm ci
+      - name: Build portable bundle
+        run: |
+          mkdir -p local-bundle
+          cp -R extension tests scripts docs .github package.json README.md local-bundle/
+          rm -rf local-bundle/tests/coverage local-bundle/tests/test-results local-bundle/tests/.jest-cache*
+      - name: Upload portable bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr46-local-test-bundle-final
+          path: local-bundle/
+          include-hidden-files: true
+          retention-days: 1
+          compression-level: 6
