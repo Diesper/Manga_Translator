@@ -96,6 +96,10 @@ if (!playwright.includes('./ci/playwright-gate-reporter.js')) {
 if (pkg.scripts['test:ci'] !== 'node ci/run-jest-ci.js') {
   problems.push('tests/package.json#test:ci precisa usar o runner auditável');
 }
+const jestRunner = fs.readFileSync(path.join(root, 'tests', 'ci', 'run-jest-ci.js'), 'utf8');
+if (jestRunner.includes("'--forceExit'") || jestRunner.includes('"--forceExit"')) {
+  problems.push('run-jest-ci.js não pode mascarar open handles com --forceExit');
+}
 if (pkg.scripts['test:coverage'] !== 'node ci/run-jest-ci.js --coverage') {
   problems.push('tests/package.json#test:coverage precisa usar o runner auditável com cobertura');
 }
