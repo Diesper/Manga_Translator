@@ -226,7 +226,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
-    test('E2E FIFO N-lotes: A→B→C→D→E→F preserva resultados e ordem sem stale', async () => {
+    test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', async () => {
         test.setTimeout(180000);
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
@@ -236,7 +236,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
         });
 
-        const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
         const pages = [];
 
         for (const label of labels) {
@@ -301,7 +301,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             );
         }, {
             timeout: 15000,
-            message: 'Lote A deveria assumir o scheduler antes da fila B-F',
+            message: 'Lote A deveria assumir o scheduler antes da fila B-G',
         }).toBe(true);
 
         let stateData = await readStorage(backgroundWorker, ['mt_state']);
@@ -365,7 +365,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             };
         }, {
             timeout: 150000,
-            message: 'Todos os seis lotes deveriam drenar a fila FIFO completamente',
+            message: 'Todos os sete lotes deveriam drenar a fila FIFO completamente',
         }).toEqual({
             currentBatchId: batchIds[batchIds.length - 1],
             completedJobs: 1,
@@ -383,7 +383,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         const promotedLogs = logs.filter(entry => entry?.action === 'BATCH_PROMOTED');
         const doneLogs = logs.filter(entry => entry?.action === 'BATCH_DONE');
 
-        expect(queuedLogs.map(entry => entry.extra?.queuePosition)).toEqual([1, 2, 3, 4, 5]);
+        expect(queuedLogs.map(entry => entry.extra?.queuePosition)).toEqual([1, 2, 3, 4, 5, 6]);
         expect(promotedLogs.map(entry => entry.extra?.batchId)).toEqual(
             batchIds.slice(1).map(id => id.slice(0, 8))
         );
