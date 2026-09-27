@@ -108,7 +108,7 @@ if (pkg.scripts['test:coverage:infra'] !== 'node ci/verify-coverage-selftest.js'
 if (!coverageConfig.includes("coverageProvider: 'v8'")) {
   problems.push('jest.coverage.config.js precisa usar coverageProvider v8');
 }
-if (!coverageConfig.includes("<rootDir>/../extension/**/*.js")) {
+if (!coverageConfig.includes("<rootDir>/extension/**/*.js")) {
   problems.push('coverage precisa incluir a arquitetura atual extension/**/*.js');
 }
 for (const reporter of ['lcov', 'json-summary', 'text-summary']) {
