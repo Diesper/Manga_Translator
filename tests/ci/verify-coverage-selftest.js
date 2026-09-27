@@ -24,6 +24,7 @@ function createFixture({
   zero = false,
   omitCritical = false,
   threshold = 10,
+  criticalThreshold = null,
   actual = 75,
 } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mt-coverage-selftest-'));
@@ -59,6 +60,14 @@ function createFixture({
         functions: threshold,
         lines: threshold,
       },
+      criticalMinimum: criticalThreshold == null ? {} : {
+        [critical]: {
+          statements: criticalThreshold,
+          branches: criticalThreshold,
+          functions: criticalThreshold,
+          lines: criticalThreshold,
+        },
+      },
     },
   }, null, 2));
 
@@ -90,5 +99,6 @@ expectCase('lcov vazio', { emptyLcov: true }, false);
 expectCase('coverage 0%', { zero: true }, false);
 expectCase('arquivo crítico ausente', { omitCritical: true }, false);
 expectCase('threshold abaixo do mínimo', { threshold: 80, actual: 75 }, false);
+expectCase('threshold crítico abaixo do mínimo', { criticalThreshold: 80, actual: 75 }, false);
 
 console.log('✅ Self-test da infraestrutura de coverage aprovado.');
