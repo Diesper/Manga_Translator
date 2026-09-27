@@ -51,8 +51,20 @@
         return { ok: false, reason: 'job_identity_mismatch' };
       }
 
+      let auxiliaryUrl = url;
+      try {
+        const parsedAuxiliaryUrl = new URL(url);
+        if (parsedAuxiliaryUrl.protocol === 'http:' || parsedAuxiliaryUrl.protocol === 'https:') {
+          parsedAuxiliaryUrl.hash = 'manga-translator-extraction';
+          auxiliaryUrl = parsedAuxiliaryUrl.toString();
+        }
+      } catch (_error) {
+        // A validação anterior já garantiu uma URL aceita. Se URL() não puder
+        // normalizá-la (ex.: blob/data), mantenha o valor original.
+      }
+
       const newTab = await new Promise(resolve => {
-        chrome.tabs.create({ url, active: false }, resolve);
+        chrome.tabs.create({ url: auxiliaryUrl, active: false }, resolve);
       });
 
       context.state.extractionTabs[newTab.id] = {
