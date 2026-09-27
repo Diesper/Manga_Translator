@@ -26,6 +26,26 @@
       });
 
       if (!ownership.owns || !ownership.job) {
+        // O commit pode ter sido aplicado e a resposta IPC ter se perdido. A
+        // marca de finalização é o journal durável que torna o retry idempotente.
+        const markerTabId = ownership.tabId ?? senderTabId;
+        if (markerTabId !== null && markerTabId !== undefined && context.storage?.get) {
+          const markerKey = `gemini_finalized_${markerTabId}`;
+          const markerData = await context.storage.get([markerKey]);
+          const marker = markerData && markerData[markerKey];
+          if (marker &&
+              marker.expiresAt > Date.now() &&
+              marker.jobId === jobId &&
+              marker.fromError === false) {
+            context.log('info', 'bg', 'RESULT_COMMIT_ALREADY_FINALIZED',
+              'Retry de commit reconhecido por marcador durável; não há trabalho a repetir.', {
+                jobId: String(jobId || '').slice(0, 8),
+                batchId: String(batchId || '').slice(0, 8),
+              });
+            return { committed: true, alreadyCommitted: true };
+          }
+        }
+
         context.log('warn', 'bg', 'RESULT_COMMIT_REJECTED',
           'Commit de resultado rejeitado: job não pertence ao remetente ou não está mais ativo.', {
             jobId: String(jobId || '').slice(0, 8),
