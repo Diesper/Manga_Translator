@@ -248,25 +248,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - label: background-a1
-            files: >-
-              unit/background/jobs-reconciliation-batch-queue.test.js
-              unit/background/jobs-watchdog-ordering.test.js
-              unit/background/lifecycle-alarms-real.test.js
-          - label: background-a2
-            files: >-
-              unit/background/marker-anchor-real.test.js
-              unit/background/message-handlers-real.test.js
-              unit/background/open-existing-folder-action.test.js
-          - label: background-b1
-            files: >-
-              unit/background/open-manga-root-action.test.js
-              unit/background/plan-missing-handlers-real.test.js
-          - label: background-b2
-            files: >-
-              unit/background/process-finalize-real.test.js
-              unit/background/refresh-job-watchdog-action.test.js
-              unit/background/regex-escape.test.js
+          - label: jobs-reconciliation
+            files: unit/background/jobs-reconciliation-batch-queue.test.js
+          - label: jobs-watchdog
+            files: unit/background/jobs-watchdog-ordering.test.js
+          - label: lifecycle-alarms
+            files: unit/background/lifecycle-alarms-real.test.js
+          - label: marker-anchor
+            files: unit/background/marker-anchor-real.test.js
+          - label: message-handlers
+            files: unit/background/message-handlers-real.test.js
+          - label: open-existing-folder
+            files: unit/background/open-existing-folder-action.test.js
+          - label: process-finalize
+            files: unit/background/process-finalize-real.test.js
+          - label: refresh-watchdog
+            files: unit/background/refresh-job-watchdog-action.test.js
+          - label: regex-escape
+            files: unit/background/regex-escape.test.js
     defaults:
       run:
         working-directory: tests
