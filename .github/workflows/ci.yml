@@ -248,18 +248,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - label: background-b1a
+          - label: background-a1
             files: >-
               unit/background/jobs-reconciliation-batch-queue.test.js
               unit/background/jobs-watchdog-ordering.test.js
               unit/background/lifecycle-alarms-real.test.js
+          - label: background-a2
+            files: >-
               unit/background/marker-anchor-real.test.js
               unit/background/message-handlers-real.test.js
               unit/background/open-existing-folder-action.test.js
-          - label: background-b1b
+          - label: background-b1
             files: >-
               unit/background/open-manga-root-action.test.js
               unit/background/plan-missing-handlers-real.test.js
+          - label: background-b2
+            files: >-
               unit/background/process-finalize-real.test.js
               unit/background/refresh-job-watchdog-action.test.js
               unit/background/regex-escape.test.js
