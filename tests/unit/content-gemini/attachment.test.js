@@ -288,6 +288,52 @@ describe('gemini/attachment.js', () => {
     );
   });
 
+  test('ATT-09B: preview completo dentro do Shadow DOM do composer é confirmado', async () => {
+    const api = loadAttachment();
+
+    const composer = document.createElement('rich-textarea');
+    const composerShadow = composer.attachShadow({ mode: 'open' });
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    composerShadow.appendChild(editor);
+    document.body.appendChild(composer);
+
+    editor.addEventListener('paste', () => {
+      if (composerShadow.querySelector('file-preview')) return;
+
+      const preview = document.createElement('file-preview');
+      preview.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+        width: 120, height: 90, toJSON() { return this; },
+      });
+      const previewShadow = preview.attachShadow({ mode: 'open' });
+      const image = document.createElement('img');
+      image.src = 'blob:https://gemini.google.com/shadow-attachment';
+      Object.defineProperty(image, 'naturalWidth', { value: 800, configurable: true });
+      Object.defineProperty(image, 'naturalHeight', { value: 1100, configurable: true });
+      Object.defineProperty(image, 'complete', { value: true, configurable: true });
+      previewShadow.appendChild(image);
+      composerShadow.appendChild(preview);
+    });
+
+    const result = await api.attachFile({
+      file: file(),
+      editor,
+      editorRoot: composer,
+      root: document,
+      timeoutMs: 500,
+      retryAfterMs: 30,
+      maxDispatches: 3,
+    });
+
+    expect(result.confirmed).toBe(true);
+    expect(result.evidence).toEqual(expect.objectContaining({
+      type: 'container',
+      img: expect.any(HTMLImageElement),
+    }));
+    expect(result.evidence.img.src).toBe('blob:https://gemini.google.com/shadow-attachment');
+  });
+
   test('ATT-10: preview pendente bloqueia redisparo e só confirma após a imagem carregar', async () => {
     const api = loadAttachment();
     const editor = document.createElement('div');
