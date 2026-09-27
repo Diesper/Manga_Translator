@@ -147,15 +147,31 @@ describe('background.js - handlers onMessage reais', () => {
         await jest.advanceTimersByTimeAsync(1);
         const extractedResult = await extractedResultPromise;
 
-        expect(extractedResult.response).toEqual({ ok: true });
+        expect(extractedResult.response).toEqual({
+            ok: true,
+            staged: true,
+            persisted: true,
+        });
         expect(forwardedMessages).toContainEqual(expect.objectContaining({
             action: 'UPDATE_IMAGE',
             index: 7,
             newSrc: 'data:image/png;base64,FROM_GEMINI',
             expectAck: true,
         }));
+        expect(backgroundModule.__getState().activeJobsCount).toBe(1);
 
-        await jest.advanceTimersByTimeAsync(1501);
+        const directCommit = await dispatchToBackground(runtimeMock, {
+            action: 'GEMINI_RESULT_COMMIT',
+            mangaTabId: mangaTab.id,
+            index: 7,
+            jobId: 'job-direct',
+        }, { tab: { id: 3333 } });
+
+        expect(directCommit.response).toEqual({
+            ok: true,
+            committed: true,
+        });
+        await jest.advanceTimersByTimeAsync(601);
         await flushFakeTimerRounds(4);
         expect(backgroundModule.__getState().activeJobsCount).toBe(0);
 
@@ -183,7 +199,12 @@ describe('background.js - handlers onMessage reais', () => {
         await jest.advanceTimersByTimeAsync(1);
         const readyFromTab = await readyFromTabPromise;
 
-        expect(readyFromTab.response).toEqual({ ok: true });
+        expect(readyFromTab.response).toEqual({
+            ok: true,
+            staged: true,
+            persisted: true,
+            committed: true,
+        });
         expect(tabsMock._tabs.has(extractionTab.id)).toBe(false);
         expect(forwardedMessages).toContainEqual(expect.objectContaining({
             action: 'UPDATE_IMAGE',
@@ -192,7 +213,7 @@ describe('background.js - handlers onMessage reais', () => {
             expectAck: true,
         }));
 
-        await jest.advanceTimersByTimeAsync(1501);
+        await jest.advanceTimersByTimeAsync(601);
         await flushFakeTimerRounds(4);
         expect(backgroundModule.__getState().activeJobsCount).toBe(0);
 
