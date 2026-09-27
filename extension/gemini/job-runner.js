@@ -152,8 +152,44 @@
       return new FileImpl([bytes], filename, { type: mimeMatch[1] });
     }
 
+    function queryAllDeep(selector, base = root) {
+      if (!base || !selector) return [];
+      const searchRoot = base.body || base.documentElement || base;
+
+      if (typeof domApi.findAllDeep === 'function') {
+        try {
+          const matches = domApi.findAllDeep(searchRoot, element => {
+            if (!element || element.nodeType !== 1 || typeof element.matches !== 'function') {
+              return false;
+            }
+            try { return element.matches(selector); } catch (_e) { return false; }
+          });
+          if (matches.length) return matches;
+        } catch (_e) {}
+      }
+
+      try { return Array.from(base.querySelectorAll?.(selector) || []); } catch (_e) { return []; }
+    }
+
+    function queryFirstDeep(selector, base = root) {
+      const matches = queryAllDeep(selector, base);
+      return matches.length ? matches[0] : null;
+    }
+
+    function collectOpenShadowRoots(base = root) {
+      if (!base || typeof domApi.findAllDeep !== 'function') return [];
+      const searchRoot = base.body || base.documentElement || base;
+      try {
+        return domApi.findAllDeep(searchRoot, element => Boolean(element?.shadowRoot))
+          .map(element => element.shadowRoot)
+          .filter(Boolean);
+      } catch (_e) {
+        return [];
+      }
+    }
+
     function waitForElement(selector, timeout = 20_000) {
-      const existing = root.querySelector(selector);
+      const existing = queryFirstDeep(selector);
       if (existing) return Promise.resolve(existing);
 
       const MutationObserverImpl = scope.MutationObserver || pageWindow.MutationObserver;
@@ -165,6 +201,7 @@
         let timer = null;
         let observer = null;
         let settled = false;
+        const observedRoots = new WeakSet();
 
         const finish = element => {
           if (settled) return;
@@ -178,22 +215,31 @@
           resolve(element || null);
         };
 
+        const observeTarget = target => {
+          if (!observer || !target || observedRoots.has(target)) return;
+          try {
+            observer.observe(target, { childList: true, subtree: true });
+            observedRoots.add(target);
+          } catch (_e) {}
+        };
+
+        const observeDeepRoots = () => {
+          observeTarget(root.body || root.documentElement || root);
+          for (const shadowRoot of collectOpenShadowRoots()) observeTarget(shadowRoot);
+        };
+
         timer = scope.setTimeout(
-          () => finish(root.querySelector(selector)),
+          () => finish(queryFirstDeep(selector)),
           timeout
         );
 
         observer = new MutationObserverImpl(() => {
-          const element = root.querySelector(selector);
+          observeDeepRoots();
+          const element = queryFirstDeep(selector);
           if (element) finish(element);
         });
 
-        const observeRoot = root.body || root.documentElement;
-        if (!observeRoot) {
-          finish(null);
-          return;
-        }
-        observer.observe(observeRoot, { childList: true, subtree: true });
+        observeDeepRoots();
       });
     }
 
@@ -223,7 +269,7 @@
       ];
 
       for (const selector of selectors) {
-        const element = root.querySelector(selector);
+        const element = queryFirstDeep(selector);
         if (!element) continue;
         const target = element.closest?.('button, [role="button"]') || element;
         try {
@@ -331,7 +377,7 @@
         pageWindow.__mangaTranslatorManualPickHandler = null;
       }
 
-      root.querySelectorAll('[data-mt-gemini-pickable="true"]').forEach(image => {
+      queryAllDeep('[data-mt-gemini-pickable="true"]').forEach(image => {
         image.style.outline = '';
         image.style.outlineOffset = '';
         image.removeAttribute('data-mt-gemini-pickable');
@@ -341,6 +387,20 @@
     function createGeminiManualPanel(job, getIgnoreImages) {
       removeGeminiManualPanel();
       pageWindow.__mangaTranslatorManualGeminiResultUrl = '';
+
+      const logManualIntervention = source => {
+        sendLog(
+          'error',
+          'GEMINI_MANUAL_INTERVENTION_REQUIRED',
+          'ERRO GRAVE: a detecção automática falhou e o usuário precisou interagir manualmente com o resultado do Gemini.',
+          {
+            source,
+            index: job?.index,
+            executionMode: job?.executionMode,
+            jobIdPrefix: String(job?.jobId || '').slice(0, 8),
+          }
+        );
+      };
 
       const panel = root.createElement('div');
       panel.id = 'mt-gemini-assist';
@@ -381,6 +441,7 @@
       root.documentElement.appendChild(panel);
 
       panel.querySelector('#mt-gemini-use-last').addEventListener('click', () => {
+        logManualIntervention('last-button');
         const images = findGeneratedResultImages(getIgnoreImages());
         const candidate = images[images.length - 1];
         if (candidate) {
@@ -392,10 +453,11 @@
       });
 
       panel.querySelector('#mt-gemini-pick').addEventListener('click', () => {
+        logManualIntervention('pick-button');
         const status = panel.querySelector('#mt-gemini-assist-status');
         status.textContent = 'Clique diretamente na imagem correta gerada pelo Gemini.';
 
-        root.querySelectorAll('img').forEach(image => {
+        queryAllDeep('img').forEach(image => {
           if (!isManualSelectableImage(image, getIgnoreImages())) return;
           image.dataset.mtGeminiPickable = 'true';
           image.style.outline = '3px solid #FF4444';
@@ -411,7 +473,10 @@
         }
 
         pageWindow.__mangaTranslatorManualPickHandler = event => {
-          const image = event.target?.closest?.('img');
+          const composedImage = event.composedPath?.().find(node =>
+            String(node?.tagName || '').toUpperCase() === 'IMG'
+          );
+          const image = composedImage || event.target?.closest?.('img');
           if (!image || !isManualSelectableImage(image, getIgnoreImages())) return;
 
           event.preventDefault();
@@ -950,10 +1015,10 @@
         }
 
         const activeEditor =
-          root.querySelector('rich-textarea, .ql-editor, [contenteditable="true"]') ||
+          queryFirstDeep('rich-textarea, .ql-editor, [contenteditable="true"]') ||
           liveEditor;
         const activeEditable =
-          root.querySelector(
+          queryFirstDeep(
             'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
           ) ||
           domApi.getEditableElement(activeEditor) ||
@@ -984,7 +1049,7 @@
         await sleep(1000);
 
         const ignoreImages = new Set(
-          Array.from(root.querySelectorAll('img'))
+          queryAllDeep('img')
             .map(image => getImageSource(image))
             .filter(Boolean)
         );
@@ -994,13 +1059,19 @@
           root,
           editor: activeEditable,
           getEditor: () =>
-            root.querySelector(
+            queryFirstDeep(
               'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
             ) || activeEditable,
           ignoreImages,
           imageQuarantine,
           onStateChange: (type, detail) => {
             if (type === 'result_candidate_rejected' || type === 'result_candidate_accepted') {
+              const assistStatus = root.getElementById('mt-gemini-assist-status');
+              if (assistStatus) {
+                assistStatus.textContent = type === 'result_candidate_accepted'
+                  ? 'Imagem validada automaticamente. Extraindo resultado...'
+                  : 'Imagem encontrada no DOM, mas rejeitada pela validação automática. Aguardando resultado válido...';
+              }
               sendLog('info', type === 'result_candidate_rejected' ? 'GEMINI_RESULT_REJECTED' : 'GEMINI_RESULT_ACCEPTED',
                 type === 'result_candidate_rejected' ? 'Candidato descartado pelo contexto da imagem' : 'Resposta do modelo validada', {
                   executionMode, jobIdPrefix: String(job.jobId || '').slice(0, 8),
@@ -1054,7 +1125,7 @@
           submission = await editorApi.submitWithConfirmation({
             observer: activeObserver,
             getEditor: () =>
-              root.querySelector(
+              queryFirstDeep(
                 'rich-textarea [contenteditable="true"], .ql-editor[contenteditable="true"], [contenteditable="true"]'
               ) || activeEditable,
             getSendButton: () => domApi.findSendButton(root.body),
@@ -1349,7 +1420,7 @@
           delete pageWindow.__mangaTranslatorManualPickHandler;
         }
 
-        root.querySelectorAll('img').forEach(image => {
+        queryAllDeep('img').forEach(image => {
           if (image.style.outline?.includes('#FF4444')) {
             image.style.outline = '';
             image.style.outlineOffset = '';
