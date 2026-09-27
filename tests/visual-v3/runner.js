@@ -1,6 +1,7 @@
 'use strict';
 const RESET = '\x1b[0m', GREEN = '\x1b[32m', RED = '\x1b[31m';
 const YELLOW = '\x1b[33m', CYAN = '\x1b[36m', DIM = '\x1b[2m', BOLD = '\x1b[1m';
+const baseline = require('../ci/test-baseline.json');
 
 const results = { pass: 0, fail: 0, skip: 0, errors: [] };
 let _currentSuite = '(root)', _suiteDepth = 0;
@@ -139,8 +140,19 @@ function printSummary() {
         });
     }
     console.log(`  ${BOLD}Total:${RESET}   ${total}`);
+    const gateErrors = [];
+    if (total < baseline.visual.minTests) {
+        gateErrors.push(`apenas ${total} testes visuais executados; mínimo protegido: ${baseline.visual.minTests}`);
+    }
+    if (results.skip > baseline.visual.maxSkipped) {
+        gateErrors.push(`${results.skip} teste(s) visual(is) skipped; máximo permitido: ${baseline.visual.maxSkipped}`);
+    }
+    if (gateErrors.length) {
+        console.log(`  ${RED}${BOLD}Gate errors:${RESET}`);
+        gateErrors.forEach(error => console.log(`    ${RED}✖${RESET} ${error}`));
+    }
     console.log('─'.repeat(60));
-    return results.fail === 0;
+    return results.fail === 0 && gateErrors.length === 0;
 }
 
 function getAsyncQueue() { return _asyncQueue; }
