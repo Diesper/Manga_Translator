@@ -82,6 +82,14 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
                 });
             } else if (message.action === 'START_TRANSLATION_FROM_POPUP') {
                 sendResponse({ started: true });
+            } else if (message.action === 'GET_FLOATING_BUTTON_STATUS') {
+                sendResponse({
+                    success: true,
+                    translating: true,
+                    batchId: 'batch-popup-progress',
+                    batchStatus: 'processing',
+                    queuePosition: null,
+                });
             }
         });
 
