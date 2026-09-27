@@ -190,7 +190,10 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
 
         const logs = await waitFor(async () => {
             const data = await storageMock.get(['translatorLog']);
-            return data.translatorLog || [];
+            const entries = data.translatorLog || [];
+            const queuedCount = entries.filter(entry => entry.action === 'BATCH_QUEUED').length;
+            const hasDuplicate = entries.some(entry => entry.action === 'BATCH_QUEUE_DUPLICATE_IGNORED');
+            return queuedCount === 5 && hasDuplicate ? entries : null;
         });
         expect(logs.filter(entry => entry.action === 'BATCH_QUEUED')).toHaveLength(5);
         expect(logs.some(entry => entry.action === 'BATCH_QUEUE_DUPLICATE_IGNORED')).toBe(true);
@@ -198,15 +201,18 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
     });
 
     test('BG-44b: STOP_BATCH remove somente um lote pendente e mantém a ordem dos demais', async () => {
+        const liveA = await tabsMock.create({ url: 'https://gemini.google.com/app/a-live', active: false });
         backgroundModule.__setState({
             isProcessing: true,
             currentBatchId: 'batch-a',
             completedJobs: 0,
             totalJobs: 1,
-            activeJobsCount: 0,
+            activeJobsCount: 1,
             activeMangaTabId: 10,
-            jobQueue: [{ mangaTabId: 10, index: 0, prompt: 'A', batchId: 'batch-a' }],
-            jobIndex: [],
+            jobQueue: [],
+            jobIndex: [
+                { geminiTabId: liveA.id, jobId: 'job-a-live', batchId: 'batch-a', mangaTabId: 10, index: 0 },
+            ],
             pendingBatches: [
                 { batchId: 'batch-b', mangaTabId: 20, prompt: 'B', images: [{ index: 0 }] },
                 { batchId: 'batch-c', mangaTabId: 30, prompt: 'C', images: [{ index: 0 }] },
@@ -222,16 +228,22 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         expect(result.response).toEqual({ ok: true });
         const state = backgroundModule.__getState();
         expect(state.currentBatchId).toBe('batch-a');
-        expect(state.jobQueue).toEqual([
-            { mangaTabId: 10, index: 0, prompt: 'A', batchId: 'batch-a' },
+        expect(state.jobQueue).toEqual([]);
+        expect(state.jobIndex).toEqual([
+            expect.objectContaining({ geminiTabId: liveA.id, jobId: 'job-a-live', batchId: 'batch-a' }),
         ]);
+        expect(tabsMock._tabs.has(liveA.id)).toBe(true);
         expect(state.pendingBatches.map(batch => batch.batchId))
             .toEqual(['batch-b', 'batch-d']);
         expect(state.isProcessing).toBe(true);
 
         const logs = await waitFor(async () => {
             const data = await storageMock.get(['translatorLog']);
-            return data.translatorLog || [];
+            const entries = data.translatorLog || [];
+            return entries.some(entry =>
+                entry.action === 'BATCH_QUEUE_CANCELLED' &&
+                entry.extra?.batchId === 'batch-c'
+            ) ? entries : null;
         });
         expect(logs.some(entry =>
             entry.action === 'BATCH_QUEUE_CANCELLED' &&
@@ -240,7 +252,9 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
     });
 
     test('BG-45: START_BATCH idempotente não duplica jobs e lote ocioso respeita maxConcurrentJobs', async () => {
-        await storageMock.set({ maxConcurrentJobs: 3 });
+        // Fase 1 isola idempotência: com limite 1, o retry não pode ser
+        // confundido com o scheduler abrindo legitimamente o segundo job.
+        await storageMock.set({ maxConcurrentJobs: 1 });
 
         const existingTab = await tabsMock.create({ url: 'https://gemini.google.com/app/existing', active: false });
 
@@ -276,6 +290,8 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         expect(tabsMock._tabs.size).toBe(1);
         await new Promise(resolve => tabsMock.remove(existingTab.id, resolve));
 
+        // Fase 2 testa separadamente o preenchimento do limite de concorrência.
+        await storageMock.set({ maxConcurrentJobs: 3 });
         backgroundModule.__setState({
             isProcessing: false,
             currentBatchId: null,
