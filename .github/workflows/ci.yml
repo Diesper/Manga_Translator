@@ -260,6 +260,12 @@ jobs:
         run: npm ci
       - name: Diagnosticar handles do projeto content-scripts
         run: npx jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles
+      - name: Diagnosticar suíte completa com 1 worker
+        run: npx jest --config jest.config.js --ci --maxWorkers=1
+      - name: Diagnosticar suíte completa com 2 workers
+        run: npx jest --config jest.config.js --ci --maxWorkers=2
+      - name: Diagnosticar suíte completa com 4 workers
+        run: npx jest --config jest.config.js --ci --maxWorkers=4
 
   ci-gate:
     name: CI Gate
