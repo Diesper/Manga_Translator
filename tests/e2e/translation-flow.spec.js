@@ -41,10 +41,48 @@ function getExtensionPath(startDir) {
     return path.join(process.cwd(), 'extension');
 }
 
+let extensionId = null;
+
+function rememberExtensionId(worker) {
+    if (!worker) return worker;
+    try {
+        const parsed = new URL(worker.url());
+        if (parsed.protocol === 'chrome-extension:' && parsed.hostname) {
+            extensionId = parsed.hostname;
+        }
+    } catch (_error) {}
+    return worker;
+}
+
 async function getBackgroundWorker(context) {
     const existingWorker = context.serviceWorkers()[0];
-    if (existingWorker) return existingWorker;
-    return context.waitForEvent('serviceworker', { timeout: 15000 });
+    if (existingWorker) return rememberExtensionId(existingWorker);
+
+    if (!extensionId) {
+        return rememberExtensionId(
+            await context.waitForEvent('serviceworker', { timeout: 15000 })
+        );
+    }
+
+    let wakePage = null;
+    try {
+        const workerPromise = context.waitForEvent('serviceworker', { timeout: 15000 })
+            .catch(() => null);
+        wakePage = await context.newPage();
+        await wakePage.goto(`chrome-extension://${extensionId}/popup.html`, {
+            waitUntil: 'domcontentloaded',
+            timeout: 10000,
+        });
+        await wakePage.evaluate(() => new Promise(resolve => {
+            chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, () => resolve());
+        }));
+
+        const worker = context.serviceWorkers()[0] || await workerPromise;
+        if (!worker) throw new Error('Service Worker MV3 não acordou após mensagem da extensão');
+        return rememberExtensionId(worker);
+    } finally {
+        if (wakePage) await wakePage.close().catch(() => {});
+    }
 }
 
 async function resetExtensionState(backgroundWorker, overrides = {}) {
