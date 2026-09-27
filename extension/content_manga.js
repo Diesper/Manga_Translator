@@ -2285,7 +2285,39 @@ if (!window.__manga_translator_content_injected) {
                     prompt: result.customPrompt || result.defaultPrompt || "",
                     batchId: _currentBatchId
                 }, (resp) => {
-                    // O background é a autoridade final sobre exclusividade de lote.
+                    // O background serializa lotes globalmente. Se outro lote
+                    // estiver ativo, este permanece aceito em FIFO e esta aba
+                    // aguarda sua promoção sem interferir no lote anterior.
+                    if (resp && resp.queued === true) {
+                        if (resp.batchId) _currentBatchId = resp.batchId;
+                        const position = Number(resp.queuePosition) || 1;
+                        sendLog('info', resp.alreadyQueued ? 'BATCH_QUEUE_DUPLICATE_IGNORED' : 'BATCH_QUEUED',
+                            resp.alreadyQueued
+                                ? 'Lote já estava na fila; retry preservou a posição original.'
+                                : 'Lote aguardará sua vez sem substituir o lote ativo.', {
+                                batchId: String(resp.batchId || '').slice(0, 8),
+                                activeBatchId: String(resp.activeBatchId || '').slice(0, 8),
+                                queuePosition: position,
+                            });
+                        chrome.storage.local.set({
+                            mt_popup_state: {
+                                status: 'queued',
+                                total: totalToProcess,
+                                geminiTotal: geminiCount,
+                                cacheHits: instantCacheHits,
+                                completed: false,
+                                queuePosition: position,
+                                updatedAt: Date.now(),
+                            }
+                        });
+                        if (btn) {
+                            setBtnHTML(btn, `NA FILA (#${position})...`, true);
+                            setTranslatorButtonBackground(btn, '#ff9800');
+                        }
+                        return;
+                    }
+
+                    // Compatibilidade defensiva com versões antigas do background.
                     if (resp && resp.ok === false && resp.reason === 'batch_busy') {
                         sendLog('error', 'BATCH_OVERLAP_BLOCKED',
                             'Nova tradução não foi iniciada porque ainda existe um lote ativo.', {
