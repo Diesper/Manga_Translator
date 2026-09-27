@@ -157,9 +157,10 @@
       return 'unknown';
     }
 
-    function logExtractionStage(level, stage, url, attempt, error = null) {
+    function logExtractionStage(level, stage, url, attempt, error = null, logContext = {}) {
       const extra = {
         ...getUrlLogMetadata(url),
+        ...(logContext || {}),
         stage,
         attempt,
       };
@@ -204,13 +205,13 @@
       });
     }
 
-    async function extractImageInGeminiTab(image, url, attempt = 0) {
+    async function extractImageInGeminiTab(image, url, attempt = 0, logContext = {}) {
       try {
         const dataUrl = await imageElementToDataUrl(image);
-        logExtractionStage('info', 'canvas', url, attempt);
+        logExtractionStage('info', 'canvas', url, attempt, null, logContext);
         return dataUrl;
       } catch (canvasError) {
-        logExtractionStage('warn', 'canvas', url, attempt, canvasError);
+        logExtractionStage('warn', 'canvas', url, attempt, canvasError, logContext);
       }
 
       if (isGeneratedGeminiAsset(url)) {
@@ -218,36 +219,36 @@
         // da página fica como último recurso; canvas e retries são preservados.
         try {
           const dataUrl = await fetchGeminiImageThroughExtension(url);
-          logExtractionStage('info', 'service_worker_session', url, attempt);
+          logExtractionStage('info', 'service_worker_session', url, attempt, null, logContext);
           return dataUrl;
         } catch (serviceWorkerError) {
-          logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
+          logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError, logContext);
         }
 
         try {
           const dataUrl = await fetchImageThroughGeminiPage(url);
-          logExtractionStage('info', 'gemini_page_fetch_last_resort', url, attempt);
+          logExtractionStage('info', 'gemini_page_fetch_last_resort', url, attempt, null, logContext);
           return dataUrl;
         } catch (pageFetchError) {
-          logExtractionStage('warn', 'gemini_page_fetch_last_resort', url, attempt, pageFetchError);
+          logExtractionStage('warn', 'gemini_page_fetch_last_resort', url, attempt, pageFetchError, logContext);
           throw pageFetchError;
         }
       }
 
       try {
         const dataUrl = await fetchImageThroughGeminiPage(url);
-        logExtractionStage('info', 'gemini_page_fetch', url, attempt);
+        logExtractionStage('info', 'gemini_page_fetch', url, attempt, null, logContext);
         return dataUrl;
       } catch (pageFetchError) {
-        logExtractionStage('warn', 'gemini_page_fetch', url, attempt, pageFetchError);
+        logExtractionStage('warn', 'gemini_page_fetch', url, attempt, pageFetchError, logContext);
       }
 
       try {
         const dataUrl = await fetchGeminiImageThroughExtension(url);
-        logExtractionStage('info', 'service_worker_session', url, attempt);
+        logExtractionStage('info', 'service_worker_session', url, attempt, null, logContext);
         return dataUrl;
       } catch (serviceWorkerError) {
-        logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError);
+        logExtractionStage('warn', 'service_worker_session', url, attempt, serviceWorkerError, logContext);
         throw serviceWorkerError;
       }
     }
@@ -261,7 +262,7 @@
       } catch (_e) { return false; }
     }
 
-    async function extractResultImage(resultImageElement, resultUrl, executionMode, attempt = 0) {
+    async function extractResultImage(resultImageElement, resultUrl, executionMode, attempt = 0, logContext = {}) {
       const url = String(resultUrl || '');
 
       if (url.startsWith('data:image/')) {
@@ -275,7 +276,7 @@
       }
 
       if (executionMode === 'background_delete' || isGeneratedGeminiAsset(url)) {
-        return extractImageInGeminiTab(resultImageElement, url, attempt);
+        return extractImageInGeminiTab(resultImageElement, url, attempt, logContext);
       }
 
       // Preserva a rota histórica para URLs que não são assets gerados do Gemini.
@@ -287,7 +288,8 @@
       resultUrl,
       executionMode,
       maxAttempts = 4,
-      retryDelayMs = 1000
+      retryDelayMs = 1000,
+      logContext = {}
     ) {
       let lastError = null;
 
@@ -299,6 +301,7 @@
             'Repetindo toda a cadeia de extração por possível instabilidade.',
             {
               ...getUrlLogMetadata(resultUrl),
+              ...(logContext || {}),
               attempt,
             }
           );
@@ -310,7 +313,8 @@
             resultImageElement,
             resultUrl,
             executionMode,
-            attempt
+            attempt,
+            logContext
           );
         } catch (error) {
           lastError = error;
@@ -327,6 +331,7 @@
       maxAttempts = 4,
       retryDelayMs = 1000,
       onAuxiliaryFallback = null,
+      logContext = {},
     } = {}) {
       try {
         const dataUrl = await extractResultImageWithRetry(
@@ -334,7 +339,8 @@
           resultUrl,
           executionMode,
           maxAttempts,
-          retryDelayMs
+          retryDelayMs,
+          logContext
         );
         return {
           kind: 'extracted',
@@ -348,6 +354,7 @@
           'Todas as rotas sem aba auxiliar falharam; diagnóstico registrado.',
           {
             ...getUrlLogMetadata(resultUrl),
+            ...(logContext || {}),
             attempts: maxAttempts,
             finalErrorName: error && error.name ? error.name : 'Error',
             finalFailureKind: getExtractionFailureKind(error),
@@ -361,6 +368,7 @@
           'Último recurso: usando aba auxiliar. Este não é o comportamento padrão e deve ser investigado.',
           {
             ...getUrlLogMetadata(resultUrl),
+            ...(logContext || {}),
             reason: 'all_direct_paths_failed',
           }
         );
