@@ -11,7 +11,7 @@ const GEMINI_ATTACHMENT_PATH = path.resolve(__dirname, '../../../extension/gemin
 const GEMINI_TEMP_CHAT_PATH = path.resolve(__dirname, '../../../extension/gemini/temporary-chat.js');
 const GEMINI_RESULT_EXTRACTOR_PATH = path.resolve(__dirname, '../../../extension/gemini/result-extractor.js');
 const GEMINI_DELETION_PATH = path.resolve(__dirname, '../../../extension/gemini/deletion.js');
-const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/gemini/job-runner.js');
+const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/gemini/job-runner.js');\nconst COVERAGE_MODE = process.env.COVERAGE_MODE === '1';
 
 function setWindowLocation(pathname = '/app/chat-1') {
     Object.defineProperty(window, 'location', {
@@ -617,7 +617,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         });
 
         const timeoutError = await waitFor(() => collectActions(sentMessages, 'GEMINI_ERROR')
-            .find(message => message.error === 'Tempo limite (4 min)'), { timeout: 12000 });
+            .find(message => message.error === 'Tempo limite (4 min)'), { timeout: COVERAGE_MODE ? 30000 : 12000 });
 
         const timeoutLog = sentMessages.find(message =>
             message && message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_TIMEOUT'
