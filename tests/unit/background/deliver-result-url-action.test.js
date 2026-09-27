@@ -50,7 +50,7 @@ describe('background/actions/deliver-result-url.js', () => {
         }, { tab: { id: 17, url: 'https://gemini.google.com/app' } });
 
         expect(chrome.tabs.create).toHaveBeenCalledWith(
-            { url: 'https://cdn.example/result.png', active: false },
+            { url: 'https://cdn.example/result.png#manga-translator-extraction', active: false },
             expect.any(Function)
         );
         expect(state.extractionTabs[81]).toEqual({
