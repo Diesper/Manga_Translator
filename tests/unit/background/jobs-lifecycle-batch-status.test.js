@@ -851,4 +851,94 @@ describe('background/jobs-lifecycle batch status', () => {
         expect(state.isProcessing).toBe(false);
     });
 
+
+    test('BATCH-STATUS-09: erro tardio ao abrir job de A não decrementa slot de B já promovido', async () => {
+        const sendMessage = jest.fn((_tabId, _message, callback) => callback?.());
+        const state = {
+            stopRequested: false,
+            jobQueue: [
+                { mangaTabId: 101, index: 0, prompt: 'A', batchId: 'batch-a' },
+            ],
+            activeJobsCount: 0,
+            activeMangaTabId: 101,
+            currentBatchId: 'batch-a',
+            completionClaimedBatchId: null,
+            completedJobs: 0,
+            totalJobs: 1,
+            isProcessing: true,
+            pendingBatches: [],
+            jobIndex: [],
+            _cachedMaxCon: 1,
+        };
+
+        global.chrome = {
+            runtime: { lastError: null },
+            storage: {
+                local: {
+                    get: jest.fn(async () => ({
+                        geminiBaseUrl: 'https://gemini.google.com/app',
+                        geminiExecutionMode: 'temp_chat',
+                    })),
+                    set: jest.fn(async () => {}),
+                    remove: jest.fn(async () => {}),
+                },
+            },
+            tabs: {
+                create: jest.fn(async () => {
+                    // Simula STOP/promoção ocorrendo enquanto tabs.create de A
+                    // ainda está pendente. B já possui um slot ativo.
+                    state.currentBatchId = 'batch-b';
+                    state.activeMangaTabId = 202;
+                    state.activeJobsCount = 1;
+                    state.isProcessing = true;
+                    throw new Error('tabs.create falhou tarde para A');
+                }),
+                sendMessage,
+            },
+            windows: {},
+            alarms: {
+                create: jest.fn(),
+                clear: jest.fn(),
+            },
+        };
+
+        const log = jest.fn();
+        const api = loadLifecycle().createLifecycle({
+            state,
+            log,
+            syncState: jest.fn().mockResolvedValue(),
+            sendProgress: jest.fn(),
+            armWatchdog: jest.fn(),
+            clearWatchdog: jest.fn(),
+            indexAddJob: jest.fn(),
+            indexRemoveJob: jest.fn(),
+            indexJobsOfBatch: jest.fn(() => []),
+            delay: async () => {},
+            generateId: () => 'job-a-opening',
+            markFinalized: jest.fn(),
+            isFinalized: jest.fn(() => false),
+            finalizedMarkerTtlMinutes: 5,
+        });
+
+        await api.processNextJob();
+
+        expect(state.currentBatchId).toBe('batch-b');
+        expect(state.activeJobsCount).toBe(1);
+        expect(sendMessage).not.toHaveBeenCalledWith(
+            101,
+            expect.objectContaining({ action: 'SHOW_ERROR_INTEGRATED' }),
+            expect.any(Function)
+        );
+        expect(log).toHaveBeenCalledWith(
+            'warn',
+            'bg',
+            'JOB_ERROR_FOREIGN_BATCH_IGNORED',
+            expect.stringContaining('lote anterior'),
+            expect.objectContaining({
+                batchId: 'batch-a',
+                currentBatchId: 'batch-b',
+            })
+        );
+    });
+
 });
