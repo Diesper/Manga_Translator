@@ -2624,7 +2624,60 @@ if (!window.__manga_translator_content_injected) {
                     expected: buttonShouldExist(),
                     present: !!(btn && btn.isConnected),
                     translating: isTranslating,
+                    batchId: _currentBatchId,
                 });
+            } else if (request.action === 'STOP_TRANSLATION_FROM_POPUP') {
+                const ownedBatchId = _currentBatchId;
+                if (!isTranslating || !ownedBatchId) {
+                    sendResponse({ ok: false, reason: 'no_local_batch' });
+                    return;
+                }
+
+                chrome.runtime.sendMessage({
+                    action: 'STOP_BATCH',
+                    batchId: ownedBatchId,
+                }, (backgroundResponse) => {
+                    const error = chrome.runtime.lastError;
+                    if (error) {
+                        sendLog('error', 'BATCH_LOCAL_STOP_FAILED',
+                            'Falha ao cancelar o lote pertencente a esta página.', {
+                                batchId: String(ownedBatchId).slice(0, 8),
+                                error: error.message || 'runtime_error',
+                            });
+                        sendResponse({
+                            ok: false,
+                            reason: 'background_stop_failed',
+                            error: error.message || 'runtime_error',
+                        });
+                        return;
+                    }
+
+                    isTranslating = false;
+                    stopTranslationButtonWatchdog();
+                    _currentBatchId = null;
+                    totalToProcess = 0;
+                    processedCount = 0;
+                    batchHasErrors = false;
+                    _countedJobIndices.clear();
+                    chrome.storage.local.set({
+                        mt_popup_state: {
+                            status: 'cancelled',
+                            completed: false,
+                            updatedAt: Date.now(),
+                        }
+                    });
+                    updateBtnStatus();
+                    sendLog('info', 'BATCH_LOCAL_STOPPED',
+                        'Lote desta página cancelado sem afetar os demais lotes da fila.', {
+                            batchId: String(ownedBatchId).slice(0, 8),
+                        });
+                    sendResponse({
+                        ok: true,
+                        batchId: ownedBatchId,
+                        background: backgroundResponse || { ok: true },
+                    });
+                });
+                return true;
             } else if (request.action === 'START_TRANSLATION_FROM_POPUP') {
                 if (isTranslating) {
                     sendLog('warn', 'BATCH_LOCAL_REENTRY_BLOCKED',
