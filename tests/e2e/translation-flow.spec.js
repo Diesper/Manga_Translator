@@ -226,80 +226,105 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
-    test('E2E overlap: lote B não sobrescreve lote A e resultados de A continuam válidos', async () => {
+    test('E2E FIFO N-lotes: A→B→C→D→E→F preserva resultados e ordem sem stale', async () => {
+        test.setTimeout(150000);
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/',
         });
 
-        const page = await browserContext.newPage();
-        await page.goto('http://localhost:3999/manga-page.html');
-        await page.waitForLoadState('networkidle');
+        const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const batchIds = labels.map(label => `batch${label}-e2e-fifo`);
+        const pages = [];
 
-        await page.waitForFunction(() => {
-            const pages = Array.from(document.querySelectorAll('img')).filter(img =>
-                img.src && img.src.includes('page_')
-            );
-            return pages.length >= 2 &&
-                pages.every(img => img.naturalWidth >= 300 && img.naturalHeight >= 400);
-        }, { timeout: 15000 });
+        for (const label of labels) {
+            // eslint-disable-next-line no-await-in-loop
+            const page = await browserContext.newPage();
+            // eslint-disable-next-line no-await-in-loop
+            await page.goto(`http://localhost:3999/manga-page.html?fifo=${label}`);
+            // eslint-disable-next-line no-await-in-loop
+            await page.waitForLoadState('networkidle');
+            // eslint-disable-next-line no-await-in-loop
+            await page.waitForFunction(() => {
+                const image = document.querySelector('[data-testid="manga-image-0"]');
+                return image && image.naturalWidth >= 300 && image.naturalHeight >= 400;
+            }, { timeout: 15000 });
+            // Um job direto do background precisa do mesmo índice que o fluxo
+            // normal gravaria antes de REQUEST_IMAGE_DATA.
+            // eslint-disable-next-line no-await-in-loop
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+                const first = document.querySelector('[data-testid="manga-image-0"]');
+                if (first) first.dataset.mangaIndex = '0';
+            });
+            pages.push(page);
+        }
 
-        const mainContent = page.locator('#manga-main-content');
-        await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
-        await mainContent.click();
-
-        await expect.poll(async () => {
-            backgroundWorker = await getBackgroundWorker(browserContext);
-            const storage = await readStorage(backgroundWorker, ['mt_state']);
-            const state = storage.mt_state || {};
-            return Boolean(
-                state.isProcessing &&
-                state.currentBatchId &&
-                ((state.activeJobsCount || 0) > 0 ||
-                    (Array.isArray(state.jobQueue) && state.jobQueue.length > 0))
-            );
-        }, {
-            timeout: 15000,
-            message: 'Esperava lote A ativo antes de tentar o lote B',
-        }).toBe(true);
-
-        const activeBeforeOverlap = await readStorage(backgroundWorker, ['mt_state']);
-        const batchA = activeBeforeOverlap.mt_state.currentBatchId;
-
-        const mangaTabId = await backgroundWorker.evaluate(async () => {
+        const tabIds = await backgroundWorker.evaluate(async labelsToFind => {
             return new Promise(resolve => {
-                chrome.tabs.query({ url: 'http://localhost:3999/manga-page.html' }, tabs => {
-                    resolve(tabs && tabs[0] ? tabs[0].id : null);
+                chrome.tabs.query({}, tabs => {
+                    const result = {};
+                    labelsToFind.forEach(label => {
+                        const match = (tabs || []).find(tab =>
+                            String(tab.url || '').includes(`manga-page.html?fifo=${label}`)
+                        );
+                        result[label] = match ? match.id : null;
+                    });
+                    resolve(result);
                 });
             });
-        });
-        expect(mangaTabId).not.toBeNull();
+        }, labels);
+        labels.forEach(label => expect(tabIds[label]).not.toBeNull());
 
-        const overlapResponse = await backgroundWorker.evaluate(async ({ mangaTabId }) => {
-            return new Promise(resolve => {
-                chrome.runtime.sendMessage({
-                    action: 'START_BATCH',
-                    batchId: 'e2e-overlap-b',
-                    mangaTabId,
-                    images: [{ index: 0 }],
-                    prompt: 'Tentativa concorrente E2E.',
-                }, response => resolve(response || null));
+        const responses = [];
+        for (let index = 0; index < labels.length; index++) {
+            const label = labels[index];
+            // eslint-disable-next-line no-await-in-loop
+            const response = await backgroundWorker.evaluate(async request => {
+                return new Promise(resolve => {
+                    chrome.runtime.sendMessage(request, value => resolve(value || null));
+                });
+            }, {
+                action: 'START_BATCH',
+                batchId: batchIds[index],
+                mangaTabId: tabIds[label],
+                images: [{ index: 0 }],
+                prompt: `FIFO E2E lote ${label}`,
             });
-        }, { mangaTabId });
+            responses.push(response);
+        }
 
-        expect(overlapResponse).toEqual(expect.objectContaining({
-            ok: false,
-            reason: 'batch_busy',
-            activeBatchId: batchA,
+        expect(responses[0]).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: batchIds[0],
         }));
+        expect(responses[0].queued).not.toBe(true);
 
-        await expect.poll(async () => page.evaluate(() =>
-            document.querySelectorAll('img[data-translated="true"]').length
-        ), {
-            timeout: 60000,
-            message: 'O lote A deveria continuar e aplicar suas duas imagens apesar da tentativa B',
-        }).toBe(2);
+        for (let index = 1; index < responses.length; index++) {
+            expect(responses[index]).toEqual(expect.objectContaining({
+                ok: true,
+                queued: true,
+                batchId: batchIds[index],
+                activeBatchId: batchIds[0],
+                queuePosition: index,
+            }));
+        }
+
+        const queuedState = await readStorage(backgroundWorker, ['mt_state']);
+        expect((queuedState.mt_state.pendingBatches || []).map(batch => batch.batchId))
+            .toEqual(batchIds.slice(1));
+        expect(queuedState.mt_state.currentBatchId).toBe(batchIds[0]);
+
+        for (let index = 0; index < pages.length; index++) {
+            // eslint-disable-next-line no-await-in-loop
+            await expect.poll(async () => pages[index].evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            ), {
+                timeout: 120000,
+                message: `Lote ${labels[index]} deveria receber seu resultado sem ser invalidado pelos lotes seguintes`,
+            }).toBe(1);
+        }
 
         await expect.poll(async () => {
             backgroundWorker = await getBackgroundWorker(browserContext);
@@ -312,35 +337,49 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 activeJobsCount: state.activeJobsCount || 0,
                 isProcessing: !!state.isProcessing,
                 queueLength: Array.isArray(state.jobQueue) ? state.jobQueue.length : -1,
+                pendingIds: Array.isArray(state.pendingBatches)
+                    ? state.pendingBatches.map(batch => batch.batchId)
+                    : null,
                 jobIndexLength: Array.isArray(state.jobIndex) ? state.jobIndex.length : -1,
             };
         }, {
-            timeout: 30000,
-            message: 'Lote A deveria concluir sem contadores contaminados pelo lote B',
+            timeout: 120000,
+            message: 'Todos os seis lotes deveriam drenar a fila FIFO completamente',
         }).toEqual({
-            currentBatchId: batchA,
-            completedJobs: 2,
-            totalJobs: 2,
+            currentBatchId: batchIds[batchIds.length - 1],
+            completedJobs: 1,
+            totalJobs: 1,
             activeJobsCount: 0,
             isProcessing: false,
             queueLength: 0,
+            pendingIds: [],
             jobIndexLength: 0,
         });
 
         const storage = await readStorage(backgroundWorker, ['translatorLog']);
         const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
-        expect(logs.some(entry =>
-            entry && entry.action === 'BATCH_OVERLAP_BLOCKED'
-        )).toBe(true);
-        expect(logs.some(entry =>
-            entry && [
-                'RESULT_JOB_IDENTITY_MISMATCH',
-                'RESULT_COMMIT_REJECTED',
-                'STALE_UPDATE',
-            ].includes(entry.action)
-        )).toBe(false);
+        const queuedLogs = logs.filter(entry => entry?.action === 'BATCH_QUEUED');
+        const promotedLogs = logs.filter(entry => entry?.action === 'BATCH_PROMOTED');
+        const doneLogs = logs.filter(entry => entry?.action === 'BATCH_DONE');
 
-        await page.close();
+        expect(queuedLogs.map(entry => entry.extra?.queuePosition)).toEqual([1, 2, 3, 4, 5]);
+        expect(promotedLogs.map(entry => entry.extra?.batchId)).toEqual(
+            batchIds.slice(1).map(id => id.slice(0, 8))
+        );
+        expect(doneLogs.map(entry => entry.extra?.batchId)).toEqual(
+            batchIds.map(id => id.slice(0, 8))
+        );
+        expect(logs.some(entry => entry && [
+            'RESULT_JOB_IDENTITY_MISMATCH',
+            'RESULT_COMMIT_REJECTED',
+            'STALE_UPDATE',
+            'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
+        ].includes(entry.action))).toBe(false);
+
+        for (const page of pages) {
+            // eslint-disable-next-line no-await-in-loop
+            await page.close();
+        }
     });
 
     for (const scenario of [
