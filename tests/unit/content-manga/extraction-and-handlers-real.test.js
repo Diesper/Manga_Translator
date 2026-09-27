@@ -156,6 +156,11 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
                 return;
             }
 
+            if (message.action === 'IMAGE_READY_FROM_NEW_TAB') {
+                if (callback) setTimeout(() => callback({ ok: true, persisted: true }), 0);
+                return;
+            }
+
             if (callback) setTimeout(() => callback(undefined), 0);
         });
 

@@ -239,6 +239,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
     let originalFetch;
     let sentMessages;
     let consoleErrorSpy;
+    let processPromise;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -260,6 +261,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         runtimeMock._connectListeners = [];
         runtimeMock.lastError = null;
         sentMessages = [];
+        processPromise = null;
         consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
         document.documentElement.innerHTML = '<head></head><body></body>';
@@ -286,6 +288,10 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             }
         }
         delete window.__mtGeminiObservers;
+
+        // The runner can still be unwinding after the expected message. Wait
+        // for it before the next test replaces the shared runtime mock.
+        if (processPromise) await processPromise.catch(() => {});
 
         delete window.__mt_gemini_started;
         delete globalThis.__MT_GEMINI_GENERATION_TIMEOUT_MS__;
@@ -343,7 +349,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             require(GEMINI_DELETION_PATH);
             require(GEMINI_JOB_RUNNER_PATH);
             const contentGemini = require(CONTENT_GEMINI_PATH);
-            if (autoProcess) contentGemini.processGeminiJob();
+            if (autoProcess) processPromise = contentGemini.processGeminiJob();
         });
 
         await advance(0);

@@ -195,6 +195,21 @@ describe('gemini/job-runner.js', () => {
     expect(file.size).toBe(4);
   });
 
+  test('RUN-01B: dataURLtoFile rejeita formato inválido e APIs ausentes', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    expect(() => runner.dataURLtoFile('invalid', 'page.png'))
+      .toThrow('sem vírgula separadora');
+    expect(() => runner.dataURLtoFile('data:,QUJDRA==', 'page.png'))
+      .toThrow('MIME não encontrado');
+
+    const withoutFileApi = createGeminiJobRunner({ ...options, FileImpl: null });
+    expect(() => withoutFileApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
+      .toThrow('APIs de arquivo indisponíveis');
+  });
+
   test('RUN-02: recovery pendente encerra antes de abrir keepalive', async () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
@@ -336,6 +351,18 @@ describe('gemini/job-runner.js', () => {
     } finally {
       window.removeEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', listener);
     }
+  });
+
+  test('RUN-07A: setAntiThrottleMode preserva o modo sem um dispatcher de eventos', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner({
+      ...options,
+      pageWindow: {},
+    });
+
+    expect(runner.setAntiThrottleMode('balanced')).toBe('balanced');
+    expect(runner.setAntiThrottleMode('invalid')).toBe('minimal');
   });
 
   test('RUN-07B: qualquer uso do HUD manual é registrado como erro grave de automação', () => {

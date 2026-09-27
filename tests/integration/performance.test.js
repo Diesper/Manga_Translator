@@ -282,9 +282,9 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         await waitFor(() => document.querySelectorAll('#chapter-list .chapter-item').length === 200, {
             timeout: perfLimit(1000),
         });
+        const elapsedMs = performance.now() - startedAt;
         await flushAsyncTasks(8);
 
-        const elapsedMs = performance.now() - startedAt;
         const heapAfter = process.memoryUsage ? process.memoryUsage().heapUsed : heapBefore;
         const heapDeltaMb = (heapAfter - heapBefore) / MB;
 

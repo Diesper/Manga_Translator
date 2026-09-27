@@ -291,6 +291,9 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
 
         // Interrompe o lote logo após validar a seleção para não deixar timer de
         // watchdog ativo no restante da suíte.
+        await waitFor(() => sendSpy.mock.calls.some(([message]) =>
+            message && message.action === 'START_BATCH'
+        ));
         const main = context.getMainContent();
         if (main) main.click();
         await delay(20);
@@ -350,6 +353,10 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
             clickToTranslateEnabled: true,
             domImages: [{ src: 'https://reader.test/remove-before-confirm.png', width: 800, height: 1200 }],
         });
+
+        // A previous content-script instance can finish an asynchronous batch
+        // after this spy is installed. Only this click's messages are relevant.
+        sendSpy.mockClear();
 
         const img = document.querySelector('img');
         img.dispatchEvent(new MouseEvent('click', {
