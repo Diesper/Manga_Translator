@@ -71,6 +71,33 @@
       return true;
     }
 
+    async function recoverPersistedResult(entry) {
+      if (!entry || entry.geminiTabId === null || entry.geminiTabId === undefined) return false;
+      const canonicalTabId = await resolveCanonicalTabId(entry.geminiTabId);
+      const jobKey = `gemini_job_${canonicalTabId}`;
+      const data = await chrome.storage.local.get([jobKey]);
+      const job = data && data[jobKey];
+
+      if (!job || (job.resultPersisted !== true && job.state !== 'dom_applied' && job.state !== 'result_committed')) {
+        return false;
+      }
+
+      log('warn', 'bg', 'JOB_RECONCILE_PERSISTED_RESULT',
+        'Job reidratado já possui resultado persistido; pulando nova geração e finalizando com segurança.', {
+          jobId: String(job.jobId || entry.jobId || '').slice(0, 8),
+          batchId: String(job.batchId || entry.batchId || '').slice(0, 8),
+          geminiTabId: canonicalTabId,
+          state: job.state || null,
+        });
+
+      await finalizeJob(
+        canonicalTabId,
+        job.mangaTabId || entry.mangaTabId || null,
+        false
+      );
+      return true;
+    }
+
     async function updateJobState(geminiTabId, patch = {}) {
       if (geminiTabId === null || geminiTabId === undefined) return null;
       const canonicalTabId = await resolveCanonicalTabId(geminiTabId);
@@ -390,7 +417,7 @@
       return true;
     }
 
-    return { updateJobState, assertJobOwnership, refreshMaxConcurrency, processNextJob, finalizeJob, recoverPendingFinalization };
+    return { updateJobState, assertJobOwnership, refreshMaxConcurrency, processNextJob, finalizeJob, recoverPendingFinalization, recoverPersistedResult };
   }
   scope.MangaTranslatorJobsLifecycle = { createLifecycle };
 })(typeof self !== 'undefined' ? self : globalThis);
