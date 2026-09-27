@@ -53,7 +53,10 @@ if (coverageRequested) args.push('--coverage');
 const run = spawnSync(process.execPath, args, {
   cwd: testsRoot,
   stdio: 'inherit',
-  env: process.env,
+  env: {
+    ...process.env,
+    ...(coverageRequested ? { COVERAGE_MODE: '1' } : {}),
+  },
 });
 
 const problems = [];
