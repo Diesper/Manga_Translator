@@ -168,6 +168,8 @@ if (!window.__manga_translator_content_injected) {
     let isTranslating = false;
     let _countedJobIndices = new Set();
     let _currentBatchId = null;
+    let _localBatchStatus = 'idle';
+    let _localBatchQueuePosition = null;
     // Um contexto por página é importante: Chromium impõe um limite baixo de
     // AudioContexts simultâneos. Criar um a cada lote fazia o som parar depois
     // de algumas traduções e o catch abaixo escondia a causa.
@@ -1754,6 +1756,8 @@ if (!window.__manga_translator_content_injected) {
             }
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
+            _localBatchStatus = 'starting';
+            _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
                 ensureFloatingButtonHealth('translation_start');
                 startTranslationButtonWatchdog();
@@ -2264,7 +2268,7 @@ if (!window.__manga_translator_content_injected) {
                     sendLog('success', 'GTC_BATCH_HIT', `Lote completo via cache: ${instantCacheHits} imagem${instantCacheHits !== 1 ? 'ns' : ''} (0 para o Gemini)`, { instantCacheHits });
                     checkIfComplete(true);
                 } else {
-                    isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
+                    isTranslating = false; _localBatchStatus = 'idle'; _localBatchQueuePosition = null; stopTranslationButtonWatchdog(); updateBtnStatus();
                     const toast = document.createElement('div');
                     toast.textContent = '⚠️ Nenhuma página de mangá detectada ou selecionada.';
                     toast.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#b35000;color:#fff;padding:10px 20px;border-radius:8px;font-weight:bold;font-size:13px;font-family:sans-serif;z-index:2147483647;box-shadow:0 4px 16px rgba(0,0,0,0.4);pointer-events:none;opacity:1;transition:opacity 0.4s ease;`;
@@ -2299,6 +2303,8 @@ if (!window.__manga_translator_content_injected) {
                     if (resp && resp.queued === true) {
                         if (resp.batchId) _currentBatchId = resp.batchId;
                         const position = Number(resp.queuePosition) || 1;
+                        _localBatchStatus = 'queued';
+                        _localBatchQueuePosition = position;
                         sendLog('info', resp.alreadyQueued ? 'BATCH_QUEUE_DUPLICATE_IGNORED' : 'BATCH_QUEUED',
                             resp.alreadyQueued
                                 ? 'Lote já estava na fila; retry preservou a posição original.'
@@ -2334,6 +2340,8 @@ if (!window.__manga_translator_content_injected) {
                             });
                         isTranslating = false;
                         _currentBatchId = null;
+                        _localBatchStatus = 'idle';
+                        _localBatchQueuePosition = null;
                         totalToProcess = 0;
                         processedCount = 0;
                         _countedJobIndices.clear();
@@ -2347,6 +2355,8 @@ if (!window.__manga_translator_content_injected) {
                     }
 
                     if (resp && resp.batchId) _currentBatchId = resp.batchId;
+                    _localBatchStatus = 'processing';
+                    _localBatchQueuePosition = null;
                     if (resp && resp.alreadyStarted === true) {
                         sendLog('info', 'BATCH_DUPLICATE_IGNORED',
                             'START_BATCH repetido foi tratado como retry idempotente.', {
@@ -2423,6 +2433,8 @@ if (!window.__manga_translator_content_injected) {
             if ((processedCount >= totalToProcess && totalToProcess > 0) || force) {
                 isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
                 _currentBatchId = null;
+                _localBatchStatus = 'idle';
+                _localBatchQueuePosition = null;
                 if (!batchHasErrors) playSuccessSound();
                 sendLog(batchHasErrors ? 'warn' : 'success', 'BATCH_COMPLETE', batchHasErrors ? 'Lote encerrado com erros' : 'Lote de tradução concluído');
 
@@ -2571,6 +2583,8 @@ if (!window.__manga_translator_content_injected) {
                 floatingButtonViewState.showStop = true;
                 floatingButtonViewState.background = '#ff9800';
                 if (/INICIANDO LOTE DA FILA|ABRINDO GEMINI|EXTRAINDO IMAGEM|AGUARDANDO/i.test(String(request.text || ''))) {
+                    _localBatchStatus = 'processing';
+                    _localBatchQueuePosition = null;
                     chrome.storage.local.get(['mt_popup_state'], (data) => {
                         const current = data.mt_popup_state || {};
                         chrome.storage.local.set({
@@ -2625,6 +2639,8 @@ if (!window.__manga_translator_content_injected) {
                     present: !!(btn && btn.isConnected),
                     translating: isTranslating,
                     batchId: _currentBatchId,
+                    batchStatus: _localBatchStatus,
+                    queuePosition: _localBatchQueuePosition,
                 });
             } else if (request.action === 'STOP_TRANSLATION_FROM_POPUP') {
                 const ownedBatchId = _currentBatchId;
@@ -2655,6 +2671,8 @@ if (!window.__manga_translator_content_injected) {
                     isTranslating = false;
                     stopTranslationButtonWatchdog();
                     _currentBatchId = null;
+                    _localBatchStatus = 'idle';
+                    _localBatchQueuePosition = null;
                     totalToProcess = 0;
                     processedCount = 0;
                     batchHasErrors = false;
