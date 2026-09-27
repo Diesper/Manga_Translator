@@ -239,8 +239,6 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         },
     ]) {
         test(`Executa o lote em ${scenario.label} sem depender de ghost mousemove`, async () => {
-            test.setTimeout(120000);
-
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
                 geminiBaseUrl: scenario.baseUrl,
@@ -499,8 +497,6 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         },
     ]) {
         test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
-            test.setTimeout(90000);
-
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
@@ -543,8 +539,6 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         });
 
         test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, async () => {
-            test.setTimeout(90000);
-
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,

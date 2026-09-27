@@ -148,7 +148,7 @@
           if (actualWindow.state !== 'minimized') throw new Error('Janela não permaneceu minimizada');
           let tab = (window.tabs && window.tabs[0]) || null;
           if (!tab) tab = (await chrome.tabs.query({ windowId: window.id }))[0];
-          if (tab) return { tab, windowId: window.id };
+          if (tab) return { tab, windowId: window.id, dedicatedWindow: true };
         } catch (_error) {
           if (createdWindowId !== null) {
             try { await chrome.windows.remove(createdWindowId); } catch (_e) {}
@@ -157,7 +157,7 @@
         }
       }
       const tab = await chrome.tabs.create({ url, active: false });
-      return { tab, windowId: tab.windowId };
+      return { tab, windowId: tab.windowId, dedicatedWindow: false };
     }
 
     async function processNextJob() {
@@ -214,6 +214,7 @@
           canonicalTabId,
           replacementCount: canonicalTabId === openedTabId ? 0 : 1,
           windowId: opened.windowId,
+          dedicatedWindow: opened.dedicatedWindow === true,
           executionMode,
           state: 'opening',
           attempt: 1,
@@ -292,6 +293,13 @@
 
       if (data.debugMode === true) { processNextJob(); return true; }
       const executionMode = job.executionMode || data.geminiExecutionMode || 'temp_chat';
+      const closeGeminiSurface = tab => {
+        if (job.dedicatedWindow === true && tab?.windowId) {
+          chrome.windows.remove(tab.windowId, () => { void chrome.runtime.lastError; });
+          return;
+        }
+        chrome.tabs.remove(geminiTabId, () => { void chrome.runtime.lastError; });
+      };
       if (executionMode === 'temp_chat') {
         setTimeout(() => chrome.tabs.remove(geminiTabId, () => { void chrome.runtime.lastError; }), 600);
         processNextJob();
@@ -313,7 +321,7 @@
         const activeUrl = tab.url || '';
         if (fromError && !/\/app\/[^/?#]+/.test(activeUrl)) {
           log('info', 'bg', 'DELETE_SKIPPED_NO_CONVERSATION', 'Job falhou antes de criar conversa; não há ID para apagar', {});
-          chrome.windows.remove(tab.windowId, () => { void chrome.runtime.lastError; });
+          closeGeminiSurface(tab);
           processNextJob();
           return;
         }
@@ -328,8 +336,7 @@
             const urls = (next.deleting_urls || []).filter(url => url !== activeUrl);
             return chrome.storage.local.set({ deleting_urls: urls });
           }).catch(() => {});
-          if (tab.windowId) chrome.windows.remove(tab.windowId, () => { void chrome.runtime.lastError; });
-          else chrome.tabs.remove(geminiTabId, () => { void chrome.runtime.lastError; });
+          closeGeminiSurface(tab);
         }, 18_000);
       });
       return true;

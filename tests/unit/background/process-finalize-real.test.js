@@ -356,6 +356,38 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         }));
     });
 
+    test('BG-31b: fallback de janela minimizada fecha somente a aba do Gemini', async () => {
+        const removeWindow = jest.fn((_windowId, callback) => callback?.());
+        global.chrome.windows = { remove: removeWindow };
+
+        await storageMock.set({
+            debugMode: false,
+            geminiExecutionMode: 'minimized_window',
+            gemini_job_1850: {
+                geminiTabId: 1850,
+                executionMode: 'minimized_window',
+                dedicatedWindow: false,
+            },
+            wd_data_1850: { mangaTabId: 60, index: 5, geminiTabId: 1850 },
+        });
+        tabsMock._tabs.set(1850, {
+            id: 1850,
+            windowId: 73,
+            url: 'https://gemini.google.com/',
+            active: false,
+            status: 'complete',
+            title: '',
+        });
+        const removeTab = jest.spyOn(tabsMock, 'remove');
+
+        backgroundModule.__setState({ activeJobsCount: 1, completedJobs: 0 });
+        await backgroundModule.finalizeJob(1850, 60, true);
+        await flush(6);
+
+        expect(removeWindow).not.toHaveBeenCalled();
+        expect(removeTab).toHaveBeenCalledWith(1850, expect.any(Function));
+    });
+
     test('P0: marca durável impede dupla finalização após perda da proteção em memória', async () => {
         await storageMock.set({
             debugMode: true,
