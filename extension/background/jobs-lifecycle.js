@@ -187,6 +187,66 @@
       return { tab, windowId: tab.windowId, dedicatedWindow: false };
     }
 
+    function launchWasInvalidated(batchId) {
+      return Boolean(
+        state.stopRequested ||
+        (batchId && state.currentBatchId && batchId !== state.currentBatchId)
+      );
+    }
+
+    async function abortInvalidatedLaunch({
+      batchId,
+      jobId,
+      geminiTabId,
+      opened,
+      indexed = false,
+      phase = 'unknown',
+    }) {
+      if (!launchWasInvalidated(batchId)) return false;
+
+      if (indexed && (geminiTabId || geminiTabId === 0)) {
+        indexRemoveJob(geminiTabId);
+      }
+      if (geminiTabId || geminiTabId === 0) {
+        try { clearWatchdog(geminiTabId, jobId); } catch (_e) {}
+        try {
+          await chrome.storage.local.remove([
+            `gemini_job_${geminiTabId}`,
+            `wd_data_${geminiTabId}`,
+          ]);
+        } catch (_e) {}
+      }
+
+      const closeTab = tabId => {
+        if (tabId === null || tabId === undefined) return;
+        try {
+          chrome.tabs.remove(tabId, () => { void chrome.runtime.lastError; });
+        } catch (_e) {}
+      };
+      if (opened?.dedicatedWindow === true && opened.windowId !== null && opened.windowId !== undefined) {
+        try {
+          chrome.windows.remove(opened.windowId, () => { void chrome.runtime.lastError; });
+        } catch (_e) {
+          closeTab(geminiTabId);
+        }
+      } else {
+        closeTab(geminiTabId);
+      }
+
+      state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      await syncState();
+      log('warn', 'bg', 'JOB_START_ABORTED',
+        'Abertura de job cancelada porque o lote foi interrompido ou substituído durante o lançamento.', {
+          jobId: String(jobId || '').slice(0, 8),
+          batchId: String(batchId || '').slice(0, 8),
+          geminiTabId,
+          phase,
+          stopRequested: Boolean(state.stopRequested),
+          currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+        });
+      return true;
+    }
+
     async function processNextJob() {
       if (state.stopRequested || (state.jobQueue.length === 0 && state.activeJobsCount === 0)) {
         const stillOpen = !state.stopRequested ? indexJobsOfBatch(state.currentBatchId).length : 0;
@@ -274,6 +334,11 @@
         if (!opened.tab) throw new Error('Não foi possível obter a aba do Gemini');
         const openedTabId = opened.tab.id;
         let canonicalTabId = await resolveCanonicalTabId(openedTabId);
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: false, phase: 'after_tab_create',
+        })) return processNextJob();
+
         let record = {
           jobId, batchId, mangaTabId, index, prompt,
           geminiTabId: canonicalTabId,
@@ -290,6 +355,10 @@
         await chrome.storage.local.set({ [`gemini_job_${canonicalTabId}`]: record });
         indexAddJob({ geminiTabId: canonicalTabId, jobId, batchId, mangaTabId, index });
         await syncState();
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: true, phase: 'after_job_persist',
+        })) return processNextJob();
 
         // Fecha a corrida nas duas ordens:
         // 1) replacement antes da persistência -> alias já existe e migramos;
@@ -304,6 +373,11 @@
         }
 
         canonicalTabId = await resolveCanonicalTabId(openedTabId);
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: true, phase: 'after_tab_identity',
+        })) return processNextJob();
+
         log('info', 'bg', 'TAB_CREATED_FOR_JOB', 'Aba Gemini associada ao job', {
           oldTabId: openedTabId,
           newTabId: canonicalTabId,
@@ -311,6 +385,10 @@
           index,
         });
         await armWatchdog(mangaTabId, index, canonicalTabId, jobId);
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: true, phase: 'after_watchdog_arm',
+        })) return processNextJob();
         return processNextJob();
       } catch (error) {
         state.activeJobsCount = Math.max(0, state.activeJobsCount - 1);
