@@ -177,4 +177,54 @@ describe('background/actions/commit-result.js', () => {
             error: { code: 'INVALID_PAYLOAD', message: 'jobId é obrigatório' },
         });
     });
+
+    test('retry após commit já finalizado é reconhecido pelo journal durável', async () => {
+        const router = loadRouter();
+        const now = Date.now();
+        const log = jest.fn();
+        const finalizeJob = jest.fn();
+
+        const result = await dispatch(
+            router.createMessageRouter({
+                contextFactory: () => ({
+                    ensureInitialized: jest.fn().mockResolvedValue(),
+                    assertJobOwnership: (_sender, _jobId, callback) =>
+                        callback(false, 321, null),
+                    updateJobState: jest.fn(),
+                    finalizeJob,
+                    log,
+                    storage: {
+                        get: jest.fn().mockResolvedValue({
+                            gemini_finalized_321: {
+                                jobId: 'job-1',
+                                fromError: false,
+                                expiresAt: now + 60_000,
+                            },
+                        }),
+                    },
+                }),
+            }),
+            {
+                action: 'GEMINI_RESULT_COMMIT',
+                jobId: 'job-1',
+                batchId: 'batch-1',
+            },
+            { tab: { id: 321 } }
+        );
+
+        expect(result.response).toEqual({
+            ok: true,
+            committed: true,
+            alreadyCommitted: true,
+        });
+        expect(finalizeJob).not.toHaveBeenCalled();
+        expect(log).toHaveBeenCalledWith(
+            'info',
+            'bg',
+            'RESULT_COMMIT_ALREADY_FINALIZED',
+            expect.any(String),
+            expect.any(Object)
+        );
+    });
+
 });
