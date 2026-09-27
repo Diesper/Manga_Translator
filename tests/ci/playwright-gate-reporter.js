@@ -29,6 +29,9 @@ class PlaywrightGateReporter {
       .filter(Boolean);
 
     const skipped = finalStatuses.filter((attempt) => attempt.status === 'skipped').length;
+    const failed = finalStatuses.filter(
+      (attempt) => attempt.status !== 'passed' && attempt.status !== 'skipped'
+    ).length;
     const flaky = entries.filter((attempts) => {
       if (!attempts.length) return false;
       const finalAttempt = attempts[attempts.length - 1];
@@ -53,6 +56,9 @@ class PlaywrightGateReporter {
     if (flaky > baseline.e2e.maxFlaky) {
       problems.push(flaky + ' E2E flaky/retry; máximo permitido: ' + baseline.e2e.maxFlaky);
     }
+    if (failed > 0) {
+      problems.push(failed + ' E2E com status final não aprovado (failed/timedOut/interrupted)');
+    }
     if (this.attemptsById.size < this.total && result.status === 'passed') {
       problems.push('apenas ' + this.attemptsById.size + '/' + this.total + ' testes produziram resultado final');
     }
@@ -66,7 +72,8 @@ class PlaywrightGateReporter {
     console.log(
       'Gate E2E aprovado: ' + this.total +
       ' teste(s), skipped=' + skipped +
-      ', flaky=' + flaky + '.'
+      ', flaky=' + flaky +
+      ', failed=' + failed + '.'
     );
     return undefined;
   }
