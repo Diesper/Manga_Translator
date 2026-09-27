@@ -12,13 +12,13 @@ jobs:
       - name: Checkout exact branch
         uses: actions/checkout@v4
 
-      - name: Pack source
+      - name: Pack source outside checkout
         run: |
-          tar --exclude='.git' --exclude='node_modules' -czf pr45-source.tar.gz .
+          tar --exclude='.git' --exclude='node_modules' -czf "$RUNNER_TEMP/pr45-source.tar.gz" .
 
       - name: Upload source artifact
         uses: actions/upload-artifact@v4
         with:
           name: pr45-source
-          path: pr45-source.tar.gz
+          path: ${{ runner.temp }}/pr45-source.tar.gz
           retention-days: 1
