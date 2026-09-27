@@ -1079,7 +1079,38 @@ O botão **Restaurar padrão (300 × 400)** atualiza todos os controles e grava 
 valores padrão novamente. Ao fechar os ajustes, o popup consulta a página outra
 vez para atualizar a grade de imagens elegíveis.
 
-## 11.4 URL limpa
+## 11.4 Botão flutuante resiliente e tradução individual
+
+O botão `#manga-translator-trigger` possui ciclo de vida explícito. Em sites
+habilitados, quando `floatingButtonEnabled !== false`, o content script espera
+que o botão exista e permaneça visível.
+
+A proteção é feita em duas camadas:
+
+- um `MutationObserver` detecta remoção inesperada do nó;
+- durante lotes ativos, um watchdog periódico também valida existência,
+  visibilidade e posição.
+
+Quando uma anomalia é detectada, a extensão registra eventos como
+`FLOATING_BUTTON_MISSING`, `FLOATING_BUTTON_MISSING_DURING_TRANSLATION`,
+`FLOATING_BUTTON_HIDDEN`, `FLOATING_BUTTON_OFFSCREEN` e
+`FLOATING_BUTTON_RECOVERED`. A reconstrução preserva o estado visual corrente
+do lote, incluindo texto de progresso, STOP, cor e erro integrado. Posições
+persistidas em `btnPos` são limitadas ao viewport atual para evitar que uma
+mudança de monitor, resolução, zoom ou tamanho de janela deixe o botão fora da
+tela.
+
+O usuário pode ocultar o botão de forma intencional pela chave
+`floatingButtonEnabled`. Essa remoção não é tratada como erro. A chave
+`clickToTranslateEnabled`, desligada por padrão, ativa a tradução de uma única
+imagem por clique esquerdo. Quando ligada, uma imagem elegível abre uma ação
+própria da extensão. Na confirmação, o índice é recalculado contra o DOM atual e
+a elegibilidade é revalidada antes de chamar o mesmo pipeline
+`extractAndSendImages([index])`. A lista de imagens banidas do domínio é
+mantida sincronizada em memória; se ela mudar enquanto a ação está aberta, a
+ação é fechada.
+
+## 11.5 URL limpa
 
 URLs de CDN podem conter:
 
@@ -1090,21 +1121,21 @@ URLs de CDN podem conter:
 
 O clean URL é usado como identidade estável onde apropriado.
 
-## 11.5 Cache antes do Gemini
+## 11.6 Cache antes do Gemini
 
 O Gemini deve ser chamado somente após os estágios de cache aplicáveis.
 
 A ordem geral privilegia hits baratos/exatos antes de fallbacks perceptuais mais
 custosos.
 
-## 11.6 Cache hit e persistência
+## 11.7 Cache hit e persistência
 
 Um cache hit não é apenas uma substituição visual temporária.
 
 Ele precisa alimentar a persistência do capítulo/restore para sobreviver a
 reload.
 
-## 11.7 UPDATE_IMAGE
+## 11.8 UPDATE_IMAGE
 
 Quando o background entrega uma tradução:
 
@@ -1327,6 +1358,25 @@ de **Sites habilitados**, porque ambas governam quando uma tradução salva pode
 ser reaplicada. O filtro dimensional fica entre **Traduções em Paralelo** e
 **Modo Debug**, para separar os parâmetros de processamento dos diagnósticos.
 
+### Miniaturas da aba Traduzidas
+
+A aba **Traduzidas** mantém o agrupamento existente por site e capítulo e inclui
+uma faixa horizontal de miniaturas dentro de cada capítulo. O popup consulta
+`SM_PAGE_INDEX` para obter somente metadados e carrega o asset apenas quando a
+miniatura entra na área de visualização por `IntersectionObserver`, com limite
+de leituras concorrentes. Se o capítulo ainda for legado, tenta
+`SM_MIGRATE_CHAPTER` antes do fallback para `${chapterId}_images`. A falha de
+uma miniatura não interrompe a renderização do restante do capítulo.
+
+### Refazer sem diálogo nativo
+
+O comando **Refazer** não usa `window.confirm()`. A confirmação é um modal da
+própria extensão, portanto a opção do navegador **“Impedir que esta página crie
+caixas de diálogo adicionais”** não bloqueia a operação. A preferência
+`redoConfirmEnabled` controla se o modal deve aparecer; **Não perguntar
+novamente** grava `false`. A operação também possui trava por `cleanUrl` para
+impedir duas purgas concorrentes por duplo clique.
+
 ## 14.2 options.js
 
 A página de opções concentra:
@@ -1335,6 +1385,9 @@ A página de opções concentra:
 - restauração automática;
 - sites;
 - imagens específicas;
+- visibilidade do botão flutuante;
+- tradução individual por clique;
+- confirmação do comando Refazer;
 - modo do Gemini, usando a mesma chave <code>geminiExecutionMode</code> do popup;
 - limpeza de entradas salvas.
 

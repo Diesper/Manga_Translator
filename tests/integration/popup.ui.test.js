@@ -279,6 +279,7 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
 
         await storageMock.set({
             enabledDomains: [host],
+            redoConfirmEnabled: false,
             chapterList: [{
                 id: 'chap_popup_redo',
                 title: 'Capítulo Refazer',
@@ -497,4 +498,55 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         expect(parallel.compareDocumentPosition(filter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
         expect(filter.compareDocumentPosition(debug) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
+
+    test('configurações do popup restauram e persistem controles de interação', async () => {
+        const host = 'reader.test';
+        const tab = await createActiveTab(`https://${host}/chapter-interaction-settings`, 'Reader Test');
+        registerPopupTabHandler(tab.id, { images: [] });
+
+        await storageMock.set({
+            enabledDomains: [host],
+            floatingButtonEnabled: false,
+            clickToTranslateEnabled: true,
+            redoConfirmEnabled: false,
+        });
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup.html',
+            scriptPath: 'extension/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(8);
+
+        document.getElementById('btn-options').click();
+        await flushAsyncTasks(8);
+
+        const floating = document.getElementById('settings-floating-button-enabled');
+        const single = document.getElementById('settings-click-to-translate-enabled');
+        const redo = document.getElementById('settings-redo-confirm-enabled');
+
+        expect(floating.checked).toBe(false);
+        expect(single.checked).toBe(true);
+        expect(redo.checked).toBe(false);
+
+        floating.checked = true;
+        floating.dispatchEvent(new Event('change', { bubbles: true }));
+        single.checked = false;
+        single.dispatchEvent(new Event('change', { bubbles: true }));
+        redo.checked = true;
+        redo.dispatchEvent(new Event('change', { bubbles: true }));
+        await flushAsyncTasks(5);
+
+        const data = await storageMock.get([
+            'floatingButtonEnabled',
+            'clickToTranslateEnabled',
+            'redoConfirmEnabled',
+        ]);
+        expect(data).toEqual(expect.objectContaining({
+            floatingButtonEnabled: true,
+            clickToTranslateEnabled: false,
+            redoConfirmEnabled: true,
+        }));
+    });
+
 });

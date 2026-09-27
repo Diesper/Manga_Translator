@@ -48,8 +48,19 @@ async function loadContentScript({
     bannedImages = [],
     imageMinWidth,
     imageMinHeight,
+    floatingButtonEnabled,
+    clickToTranslateEnabled,
     domImages = [],
 } = {}) {
+    // Invalida explicitamente qualquer instância anterior ANTES de tocar no
+    // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
+    // listener antigo ainda pode reagir ao clear/set do teste seguinte e
+    // recriar um botão órfão antes da nova instância assumir.
+    window.__manga_translator_active_instance =
+        `__mt_test_reset_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const staleButton = document.getElementById('manga-translator-trigger');
+    if (staleButton) staleButton.remove();
+
     // 1. Configura window.location
     Object.defineProperty(window, 'location', {
         value: {
@@ -73,6 +84,8 @@ async function loadContentScript({
     };
     if (imageMinWidth !== undefined) storageInit.imageMinWidth = imageMinWidth;
     if (imageMinHeight !== undefined) storageInit.imageMinHeight = imageMinHeight;
+    if (floatingButtonEnabled !== undefined) storageInit.floatingButtonEnabled = floatingButtonEnabled;
+    if (clickToTranslateEnabled !== undefined) storageInit.clickToTranslateEnabled = clickToTranslateEnabled;
     await global.chrome.storage.local.set(storageInit);
 
     // 4. Constrói DOM com imagens de teste
@@ -122,10 +135,12 @@ async function loadContentScript({
     });
 
     // 9. Aguarda a inicialização assíncrona do content script de forma determinística
-    const shouldCreateButton = domains.includes(hostname);
+    const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
     const startedAt = Date.now();
     while (Date.now() - startedAt < 250) {
-        if (!shouldCreateButton || document.getElementById('manga-translator-trigger')) break;
+        const button = document.getElementById('manga-translator-trigger');
+        if (!shouldCreateButton) break;
+        if (button && button.dataset.positionReady === 'true') break;
         await new Promise(r => setTimeout(r, 10));
     }
 

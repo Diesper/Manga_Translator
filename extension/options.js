@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('status');
     const sitesList = document.getElementById('sites-list');
     const autoRestoreEnabledEl = document.getElementById('auto-restore-enabled');
+    const floatingButtonEnabledEl = document.getElementById('floating-button-enabled');
+    const clickToTranslateEnabledEl = document.getElementById('click-to-translate-enabled');
+    const redoConfirmEnabledEl = document.getElementById('redo-confirm-enabled');
     const btnRefreshAutoImages = document.getElementById('btn-refresh-auto-images');
     const btnClearAutoBlocks = document.getElementById('btn-clear-auto-blocks');
     const expandedOptionSites = new Set();
@@ -28,9 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const minRadioEl = document.getElementById('gemini-mode-minimized');
     const deleteRadioEl = document.getElementById('gemini-mode-delete');
 
-    chrome.storage.local.get(['customPrompt', 'defaultPrompt', 'autoRestoreEnabled', 'geminiExecutionMode'], (result) => {
+    chrome.storage.local.get([
+        'customPrompt',
+        'defaultPrompt',
+        'autoRestoreEnabled',
+        'geminiExecutionMode',
+        'floatingButtonEnabled',
+        'clickToTranslateEnabled',
+        'redoConfirmEnabled',
+    ], (result) => {
         promptEl.value = result.customPrompt || result.defaultPrompt || "";
         autoRestoreEnabledEl.checked = result.autoRestoreEnabled !== false;
+        if (floatingButtonEnabledEl) floatingButtonEnabledEl.checked = result.floatingButtonEnabled !== false;
+        if (clickToTranslateEnabledEl) clickToTranslateEnabledEl.checked = result.clickToTranslateEnabled === true;
+        if (redoConfirmEnabledEl) redoConfirmEnabledEl.checked = result.redoConfirmEnabled !== false;
         const mode = result.geminiExecutionMode || 'temp_chat';
         if (mode === 'minimized_window') {
             if (minRadioEl) minRadioEl.checked = true;
@@ -92,6 +106,43 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
     });
+
+    if (floatingButtonEnabledEl) {
+        floatingButtonEnabledEl.addEventListener('change', () => {
+            chrome.storage.local.set({ floatingButtonEnabled: floatingButtonEnabledEl.checked }, () => {
+                showStatus(
+                    floatingButtonEnabledEl.checked ? 'Botão flutuante ativado.' : 'Botão flutuante ocultado.',
+                    floatingButtonEnabledEl.checked ? '#4CAF50' : '#FF9800'
+                );
+            });
+        });
+    }
+
+    if (clickToTranslateEnabledEl) {
+        clickToTranslateEnabledEl.addEventListener('change', () => {
+            chrome.storage.local.set({ clickToTranslateEnabled: clickToTranslateEnabledEl.checked }, () => {
+                showStatus(
+                    clickToTranslateEnabledEl.checked
+                        ? 'Clique para traduzir uma imagem ativado.'
+                        : 'Clique para traduzir uma imagem desativado.',
+                    clickToTranslateEnabledEl.checked ? '#4CAF50' : '#FF9800'
+                );
+            });
+        });
+    }
+
+    if (redoConfirmEnabledEl) {
+        redoConfirmEnabledEl.addEventListener('change', () => {
+            chrome.storage.local.set({ redoConfirmEnabled: redoConfirmEnabledEl.checked }, () => {
+                showStatus(
+                    redoConfirmEnabledEl.checked
+                        ? 'Confirmação de Refazer ativada.'
+                        : 'Refazer será executado sem confirmação.',
+                    redoConfirmEnabledEl.checked ? '#4CAF50' : '#FF9800'
+                );
+            });
+        });
+    }
 
     function showGeminiModeStatus(msg, color = '#4CAF50') {
         if (!geminiModeStatusEl) return;

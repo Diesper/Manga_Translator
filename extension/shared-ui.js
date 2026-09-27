@@ -126,11 +126,140 @@ function sendRuntimeMessageSafe(message, callback) {
     }
 }
 
-function deleteSavedTranslationForEntry(entry, ui = {}) {
-    if (!entry || !entry.cleanUrl) return;
-    if (!confirm(`Apagar a tradução salva desta imagem?\n\nDepois disso, selecione/traduza a imagem novamente para gerar a versão correta.`)) return;
+const redoRequestInFlight = new Set();
 
-    (async () => {
+function requestRedoConfirmation(entry, ui = {}) {
+    return new Promise((resolve) => {
+        if (ui.skipConfirmation === true) {
+            resolve(true);
+            return;
+        }
+
+        chrome.storage.local.get(['redoConfirmEnabled'], (data) => {
+            if (data.redoConfirmEnabled === false) {
+                resolve(true);
+                return;
+            }
+
+            // Não usamos window.confirm(): o Chromium pode bloqueá-lo quando o
+            // usuário marca "Impedir que esta página crie caixas de diálogo
+            // adicionais", tornando Cancelar e diálogo bloqueado indistinguíveis.
+            if (typeof document === 'undefined' || !document.body) {
+                resolve(true);
+                return;
+            }
+
+            const previous = document.getElementById('mt-redo-confirm-overlay');
+            if (previous) previous.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'mt-redo-confirm-overlay';
+            overlay.setAttribute('role', 'presentation');
+            overlay.style.cssText = [
+                'position:fixed',
+                'inset:0',
+                'z-index:2147483647',
+                'background:rgba(0,0,0,.72)',
+                'display:flex',
+                'align-items:center',
+                'justify-content:center',
+                'padding:20px',
+                'box-sizing:border-box',
+            ].join(';');
+
+            const dialog = document.createElement('div');
+            dialog.id = 'mt-redo-confirm-dialog';
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
+            dialog.setAttribute('aria-labelledby', 'mt-redo-confirm-title');
+            dialog.style.cssText = [
+                'width:min(420px,100%)',
+                'background:#191919',
+                'border:1px solid #3a3a3a',
+                'border-radius:10px',
+                'box-shadow:0 18px 60px rgba(0,0,0,.65)',
+                'padding:18px',
+                'box-sizing:border-box',
+                'font-family:sans-serif',
+                'color:#eee',
+            ].join(';');
+
+            const title = document.createElement('div');
+            title.id = 'mt-redo-confirm-title';
+            title.textContent = 'Refazer tradução';
+            title.style.cssText = 'font-size:16px;font-weight:800;margin-bottom:9px;color:#fff';
+
+            const message = document.createElement('div');
+            message.textContent = 'Apagar a tradução salva desta imagem? Depois disso, selecione/traduza a imagem novamente para gerar a versão correta.';
+            message.style.cssText = 'font-size:13px;line-height:1.5;color:#bbb;margin-bottom:14px';
+
+            const neverAskLabel = document.createElement('label');
+            neverAskLabel.style.cssText = 'display:flex;align-items:center;gap:8px;color:#aaa;font-size:12px;cursor:pointer;margin-bottom:16px';
+            const neverAsk = document.createElement('input');
+            neverAsk.id = 'mt-redo-confirm-never-ask';
+            neverAsk.type = 'checkbox';
+            neverAsk.style.accentColor = '#FF4444';
+            neverAskLabel.append(neverAsk, document.createTextNode('Não perguntar novamente'));
+
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex;justify-content:flex-end;gap:8px';
+            const cancel = document.createElement('button');
+            cancel.id = 'mt-redo-confirm-cancel';
+            cancel.type = 'button';
+            cancel.textContent = 'Cancelar';
+            cancel.style.cssText = 'border:1px solid #444;background:#252525;color:#ddd;border-radius:6px;padding:8px 12px;font-weight:700;cursor:pointer';
+            const confirmButton = document.createElement('button');
+            confirmButton.id = 'mt-redo-confirm-accept';
+            confirmButton.type = 'button';
+            confirmButton.textContent = 'Apagar e refazer';
+            confirmButton.style.cssText = 'border:0;background:#1a5fa8;color:#fff;border-radius:6px;padding:8px 12px;font-weight:800;cursor:pointer';
+
+            actions.append(cancel, confirmButton);
+            dialog.append(title, message, neverAskLabel, actions);
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            let settled = false;
+            const finish = (result) => {
+                if (settled) return;
+                settled = true;
+                document.removeEventListener('keydown', onKeydown, true);
+                overlay.remove();
+                resolve(result);
+            };
+            const onKeydown = (event) => {
+                if (event.key === 'Escape') finish(false);
+            };
+
+            cancel.addEventListener('click', () => finish(false));
+            confirmButton.addEventListener('click', () => {
+                if (!neverAsk.checked) {
+                    finish(true);
+                    return;
+                }
+                chrome.storage.local.set({ redoConfirmEnabled: false }, () => finish(true));
+            });
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) finish(false);
+            });
+            document.addEventListener('keydown', onKeydown, true);
+            setTimeout(() => {
+                try { confirmButton.focus(); } catch (_error) {}
+            }, 0);
+        });
+    });
+}
+
+async function deleteSavedTranslationForEntry(entry, ui = {}) {
+    if (!entry || !entry.cleanUrl) return false;
+    const requestKey = String(entry.cleanUrl);
+    if (redoRequestInFlight.has(requestKey)) return false;
+    redoRequestInFlight.add(requestKey);
+
+    try {
+        const confirmed = await requestRedoConfirmation(entry, ui);
+        if (!confirmed) return false;
+
         const smResult = await smRequest({ action: 'SM_DELETE_CLEAN_URL', cleanUrl: entry.cleanUrl });
 
         const initData = await new Promise(r => chrome.storage.local.get(['chapterList', 'autoRestoreBlockedImages'], r));
@@ -178,27 +307,32 @@ function deleteSavedTranslationForEntry(entry, ui = {}) {
             await new Promise(r => chrome.storage.local.set(updates, r));
         }
 
-        sendRuntimeMessageSafe({
-            action: 'GTC_DELETE_BY_CLEAN_URL',
-            cleanUrl: entry.cleanUrl,
-        }, (_response, error) => {
-            if (typeof ui.refresh === 'function') ui.refresh();
-            
-            const smOk = smResult && smResult.ok;
-            const msg = error
-                    ? 'Tradução local apagada. Cache global não respondeu.'
-                    : (smOk
-                        ? 'Tradução apagada. Agora você pode refazer essa imagem.'
-                        : 'Tradução apagada do storage local. Armazenamento novo não respondeu.');
-            const color = error || !smOk ? '#FF9800' : '#4CAF50';
-            
-            if (typeof ui.showStatus === 'function') ui.showStatus(msg, color);
+        const gtcResult = await new Promise(resolve => {
+            sendRuntimeMessageSafe({
+                action: 'GTC_DELETE_BY_CLEAN_URL',
+                cleanUrl: entry.cleanUrl,
+            }, (response, error) => resolve({ response, error }));
         });
-    })().catch(() => {
+
+        if (typeof ui.refresh === 'function') ui.refresh();
+
+        const smOk = smResult && smResult.ok;
+        const msg = gtcResult.error
+            ? 'Tradução local apagada. Cache global não respondeu.'
+            : (smOk
+                ? 'Tradução apagada. Agora você pode refazer essa imagem.'
+                : 'Tradução apagada do storage local. Armazenamento novo não respondeu.');
+        const color = gtcResult.error || !smOk ? '#FF9800' : '#4CAF50';
+        if (typeof ui.showStatus === 'function') ui.showStatus(msg, color);
+        return true;
+    } catch (_error) {
         if (typeof ui.showStatus === 'function') {
             ui.showStatus('Falha ao apagar a tradução salva.', '#FF9800');
         }
-    });
+        return false;
+    } finally {
+        redoRequestInFlight.delete(requestKey);
+    }
 }
 
 Object.assign(scope, {
@@ -210,6 +344,7 @@ Object.assign(scope, {
     loadRestoreEntries,
     removeIndexFromStoredCollection,
     sendRuntimeMessageSafe,
+    requestRedoConfirmation,
     deleteSavedTranslationForEntry,
 });
 })(globalThis);
