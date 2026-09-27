@@ -31,9 +31,21 @@ function relativeToRepo(repoRoot, file) {
 
 function parseLcovFiles(lcovText, repoRoot) {
   const files = [];
+  const testsRoot = path.join(repoRoot, 'tests');
   for (const line of String(lcovText || '').split(/\r?\n/)) {
     if (!line.startsWith('SF:')) continue;
-    files.push(relativeToRepo(repoRoot, line.slice(3).trim()));
+    const raw = line.slice(3).trim();
+    if (path.isAbsolute(raw)) {
+      files.push(relativeToRepo(repoRoot, raw));
+      continue;
+    }
+
+    // O LCOV do Jest é emitido relativamente ao diretório de execução (tests/),
+    // por isso SF:../extension/foo.js precisa resolver para <repo>/extension/foo.js.
+    const fromTests = path.resolve(testsRoot, raw);
+    const fromRepo = path.resolve(repoRoot, raw);
+    const resolved = fs.existsSync(fromTests) ? fromTests : fromRepo;
+    files.push(relativeToRepo(repoRoot, resolved));
   }
   return [...new Set(files)].sort();
 }
@@ -141,6 +153,28 @@ function verifyCoverage({
       problems.push(
         metric + '=' + metrics[metric] + '% abaixo do baseline mínimo de ' + Number(threshold) + '%'
       );
+    }
+  }
+
+  const criticalMinimum = baseline.coverage?.criticalMinimum || {};
+  for (const [criticalFile, thresholds] of Object.entries(criticalMinimum)) {
+    const summaryKey = Object.keys(summary).find(
+      (key) => key !== 'total' && relativeToRepo(repoRoot, key) === criticalFile
+    );
+    if (!summaryKey) {
+      problems.push('não foi possível aplicar threshold ao arquivo crítico ausente: ' + criticalFile);
+      continue;
+    }
+    for (const [metric, threshold] of Object.entries(thresholds || {})) {
+      const pct = Number(summary[summaryKey]?.[metric]?.pct);
+      if (!Number.isFinite(pct)) {
+        problems.push(criticalFile + ': percentual inválido para ' + metric);
+      } else if (pct < Number(threshold)) {
+        problems.push(
+          criticalFile + ': ' + metric + '=' + pct +
+          '% abaixo do baseline crítico de ' + Number(threshold) + '%'
+        );
+      }
     }
   }
 
