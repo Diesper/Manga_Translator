@@ -757,6 +757,8 @@ if (!window.__manga_translator_content_injected) {
         let _restoreDebounceTimer = null;
         let floatingButtonEnabled = true;
         let clickToTranslateEnabled = false;
+        const bannedImagesStorageKey = `bannedImages_${hostname}`;
+        let bannedImagesForHost = [];
         let buttonGuardObserver = null;
         let translationButtonHealthTimer = null;
         let lastIntegratedErrorState = null;
@@ -1084,10 +1086,13 @@ if (!window.__manga_translator_content_injected) {
             if (icon) icon.innerText = '▼'; btn.dataset.collapsed = 'false';
         }
 
-        chrome.storage.local.get(['enabledDomains', 'floatingButtonEnabled', 'clickToTranslateEnabled'], (data) => {
+        chrome.storage.local.get(['enabledDomains', 'floatingButtonEnabled', 'clickToTranslateEnabled', bannedImagesStorageKey], (data) => {
             if (!isActiveContentInstance()) return;
             floatingButtonEnabled = data.floatingButtonEnabled !== false;
             clickToTranslateEnabled = data.clickToTranslateEnabled === true;
+            bannedImagesForHost = Array.isArray(data[bannedImagesStorageKey])
+                ? data[bannedImagesStorageKey].slice()
+                : [];
             if ((data.enabledDomains || []).includes(hostname)) {
                 isPageEnabled = true;
                 if (floatingButtonEnabled) createTranslatorButton();
@@ -1122,6 +1127,14 @@ if (!window.__manga_translator_content_injected) {
             if (changes.clickToTranslateEnabled) {
                 clickToTranslateEnabled = changes.clickToTranslateEnabled.newValue === true;
                 if (!clickToTranslateEnabled && typeof singleImagePromptCleanup === 'function') {
+                    singleImagePromptCleanup();
+                }
+            }
+
+            if (changes[bannedImagesStorageKey]) {
+                const nextBanned = changes[bannedImagesStorageKey].newValue;
+                bannedImagesForHost = Array.isArray(nextBanned) ? nextBanned.slice() : [];
+                if (typeof singleImagePromptCleanup === 'function') {
                     singleImagePromptCleanup();
                 }
             }
@@ -1468,29 +1481,26 @@ if (!window.__manga_translator_content_injected) {
                     return;
                 }
 
-                chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
-                    const banned = data[`bannedImages_${hostname}`] || [];
-                    const candidate = getScanEligibleImages(banned, imageMinDimensions)
-                        .find(item => item.element === img || item.index === currentIndex);
-                    if (!candidate) {
-                        cleanup();
-                        showSingleImageToast('Esta imagem não está elegível para tradução.');
-                        sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada ficou inelegível antes da confirmação.', { index: currentIndex, hostname });
-                        return;
-                    }
-
-                    selectedImagesIndices = new Set([currentIndex]);
-                    updateBtnStatus();
-                    sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada por clique na imagem.', {
-                        index: currentIndex,
-                        cleanUrl: getImageCleanUrl(img),
-                        width: candidate.width,
-                        height: candidate.height,
-                    });
+                const candidate = getScanEligibleImages(bannedImagesForHost, imageMinDimensions)
+                    .find(item => item.index === currentIndex);
+                if (!candidate) {
                     cleanup();
-                    unlockNotificationAudio();
-                    extractAndSendImages([currentIndex]);
+                    showSingleImageToast('Esta imagem não está elegível para tradução.');
+                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada ficou inelegível antes da confirmação.', { index: currentIndex, hostname });
+                    return;
+                }
+
+                selectedImagesIndices = new Set([currentIndex]);
+                updateBtnStatus();
+                sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada por clique na imagem.', {
+                    index: currentIndex,
+                    cleanUrl: getImageCleanUrl(img),
+                    width: candidate.width,
+                    height: candidate.height,
                 });
+                cleanup();
+                unlockNotificationAudio();
+                extractAndSendImages([currentIndex]);
             });
 
             document.addEventListener('keydown', onKeydown, true);
@@ -1514,17 +1524,14 @@ if (!window.__manga_translator_content_injected) {
                 return;
             }
 
-            chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
-                const banned = data[`bannedImages_${hostname}`] || [];
-                const index = Array.from(document.querySelectorAll('img')).indexOf(img);
-                const candidate = getScanEligibleImages(banned, imageMinDimensions)
-                    .find(item => item.element === img || item.index === index);
-                if (!candidate) {
-                    showSingleImageToast('Esta imagem não está elegível para tradução.');
-                    return;
-                }
-                showSingleImagePrompt(img, event.clientX, event.clientY);
-            });
+            const index = Array.from(document.querySelectorAll('img')).indexOf(img);
+            const candidate = getScanEligibleImages(bannedImagesForHost, imageMinDimensions)
+                .find(item => item.index === index);
+            if (!candidate) {
+                showSingleImageToast('Esta imagem não está elegível para tradução.');
+                return;
+            }
+            showSingleImagePrompt(img, event.clientX, event.clientY);
         }, true);
 
         // ── applyAutoRestore ─────────────────────────────────────────────────
