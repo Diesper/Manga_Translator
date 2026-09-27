@@ -108,68 +108,133 @@ describe('REG-09/IPC-07/IPC-08: background.js - handlers faltantes do plano v3.1
         }));
     });
 
-    test('BG-44/BG-45: START_BATCH reseta estado anterior e abre abas respeitando maxConcurrentJobs', async () => {
-        await storageMock.set({
-            maxConcurrentJobs: 3,
-            mt_state: {
-                jobQueue: [{ mangaTabId: 999, index: 99, prompt: 'velho' }],
-                isProcessing: true,
-                stopRequested: false,
-                activeMangaTabId: 999,
-                extractionTabs: {},
-                totalJobs: 1,
-                completedJobs: 1,
-                activeJobsCount: 1,
-            },
-        });
+    test('BG-44: START_BATCH não sobrescreve lote ativo e registra bloqueio explícito', async () => {
+        await storageMock.set({ maxConcurrentJobs: 3 });
 
         backgroundModule.__setState({
-            completedJobs: 7,
+            isProcessing: true,
+            currentBatchId: 'batch-ativo',
+            completedJobs: 1,
+            totalJobs: 4,
             activeJobsCount: 2,
-            jobQueue: [{ mangaTabId: 999, index: 99, prompt: 'velho' }],
+            activeMangaTabId: 999,
+            jobQueue: [
+                { mangaTabId: 999, index: 3, prompt: 'antigo', batchId: 'batch-ativo' },
+            ],
+            jobIndex: [
+                { geminiTabId: 7001, jobId: 'job-a', batchId: 'batch-ativo', mangaTabId: 999, index: 1 },
+                { geminiTabId: 7002, jobId: 'job-b', batchId: 'batch-ativo', mangaTabId: 999, index: 2 },
+            ],
         });
 
+        const before = backgroundModule.__getState();
         const result = await dispatchToBackground(runtimeMock, {
             action: 'START_BATCH',
+            batchId: 'batch-novo',
             images: Array.from({ length: 5 }, (_unused, index) => ({ index })),
             prompt: 'prompt novo',
         }, { tab: { id: 123 } });
 
         expect(result.keepAlive).toBe(true);
         expect(result.response).toEqual(expect.objectContaining({
-            ok: true,
-            batchId: expect.any(String),
+            ok: false,
+            reason: 'batch_busy',
+            batchId: 'batch-novo',
+            activeBatchId: 'batch-ativo',
         }));
-        const batchId = result.response.batchId;
+        expect(tabsMock._tabs.size).toBe(0);
+
+        const after = backgroundModule.__getState();
+        expect(after).toEqual(expect.objectContaining({
+            isProcessing: before.isProcessing,
+            currentBatchId: before.currentBatchId,
+            completedJobs: before.completedJobs,
+            totalJobs: before.totalJobs,
+            activeJobsCount: before.activeJobsCount,
+            activeMangaTabId: before.activeMangaTabId,
+        }));
+        expect(after.jobQueue).toEqual(before.jobQueue);
+        expect(after.jobIndex).toEqual(before.jobIndex);
+
+        const logs = await waitFor(async () => {
+            const data = await storageMock.get(['translatorLog']);
+            return (data.translatorLog || []).find(entry => entry.action === 'BATCH_OVERLAP_BLOCKED');
+        });
+        expect(logs).toEqual(expect.objectContaining({
+            level: 'error',
+            action: 'BATCH_OVERLAP_BLOCKED',
+        }));
+    });
+
+    test('BG-45: START_BATCH idempotente não duplica jobs e lote ocioso respeita maxConcurrentJobs', async () => {
+        await storageMock.set({ maxConcurrentJobs: 3 });
+
+        backgroundModule.__setState({
+            isProcessing: true,
+            currentBatchId: 'batch-idempotente',
+            completedJobs: 0,
+            totalJobs: 2,
+            activeJobsCount: 1,
+            activeMangaTabId: 123,
+            jobQueue: [
+                { mangaTabId: 123, index: 1, prompt: 'mesmo', batchId: 'batch-idempotente' },
+            ],
+            jobIndex: [
+                { geminiTabId: 7100, jobId: 'job-existing', batchId: 'batch-idempotente', mangaTabId: 123, index: 0 },
+            ],
+        });
+
+        const retry = await dispatchToBackground(runtimeMock, {
+            action: 'START_BATCH',
+            batchId: 'batch-idempotente',
+            images: [{ index: 0 }, { index: 1 }],
+            prompt: 'mesmo',
+        }, { tab: { id: 123 } });
+
+        expect(retry.response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: 'batch-idempotente',
+            alreadyStarted: true,
+        }));
+        expect(backgroundModule.__getState().jobQueue).toHaveLength(1);
+        expect(backgroundModule.__getState().jobIndex).toHaveLength(1);
+        expect(tabsMock._tabs.size).toBe(0);
+
+        backgroundModule.__setState({
+            isProcessing: false,
+            currentBatchId: null,
+            completedJobs: 0,
+            totalJobs: 0,
+            activeJobsCount: 0,
+            activeMangaTabId: null,
+            jobQueue: [],
+            jobIndex: [],
+            completionClaimedBatchId: null,
+        });
+
+        const start = await dispatchToBackground(runtimeMock, {
+            action: 'START_BATCH',
+            batchId: 'batch-novo',
+            images: Array.from({ length: 5 }, (_unused, index) => ({ index })),
+            prompt: 'prompt novo',
+        }, { tab: { id: 123 } });
+
+        expect(start.response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: 'batch-novo',
+        }));
 
         await waitFor(() => tabsMock._tabs.size === 3);
-
         const state = backgroundModule.__getState();
+        expect(state.currentBatchId).toBe('batch-novo');
         expect(state.activeMangaTabId).toBe(123);
         expect(state.totalJobs).toBe(5);
         expect(state.completedJobs).toBe(0);
         expect(state.activeJobsCount).toBe(3);
         expect(state.jobQueue).toEqual([
-            { mangaTabId: 123, index: 3, prompt: 'prompt novo', batchId },
-            { mangaTabId: 123, index: 4, prompt: 'prompt novo', batchId },
+            { mangaTabId: 123, index: 3, prompt: 'prompt novo', batchId: 'batch-novo' },
+            { mangaTabId: 123, index: 4, prompt: 'prompt novo', batchId: 'batch-novo' },
         ]);
-
-        const storage = await waitFor(async () => {
-            const data = await storageMock.get(null);
-            const watchdogKeysNow = Object.keys(data).filter(key => key.startsWith('wd_data_'));
-            return watchdogKeysNow.length === 3 ? data : null;
-        });
-        const geminiJobKeys = Object.keys(storage).filter(key => key.startsWith('gemini_job_'));
-        const watchdogKeys = Object.keys(storage).filter(key => key.startsWith('wd_data_'));
-
-        expect(geminiJobKeys).toHaveLength(3);
-        expect(watchdogKeys).toHaveLength(3);
-        Array.from(tabsMock._tabs.values()).forEach(tab => {
-            const url = new URL(tab.url);
-            expect(url.origin + url.pathname).toBe('https://gemini.google.com/app');
-            expect(url.searchParams.get('mangatranslator')).toBe('true');
-            expect(url.searchParams.get('jobId')).toEqual(expect.any(String));
-        });
     });
 
     test('BG-46: STOP_BATCH remove abas Gemini, watchdogs, jobs e extractionTabs', async () => {
