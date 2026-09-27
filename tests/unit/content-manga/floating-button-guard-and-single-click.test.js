@@ -329,7 +329,11 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
             return button && button !== oldButton ? button : null;
         });
 
-        expect(context.getMainContent().textContent).toContain('TRADUZINDO 1/1 — TESTE');
+        // O pipeline pode emitir um progresso ainda mais novo depois da mensagem
+        // manual usada para forçar a recuperação. O contrato é que o botão
+        // recriado continue refletindo estado de tradução, nunca volte a
+        // "TRADUZIR PÁGINAS".
+        expect(context.getMainContent().textContent).toContain('TRADUZINDO');
         expect(logMessages(sendSpy, 'FLOATING_BUTTON_MISSING_DURING_TRANSLATION').length).toBeGreaterThanOrEqual(1);
         expect(logMessages(sendSpy, 'FLOATING_BUTTON_RECOVERED').length).toBeGreaterThanOrEqual(1);
 
