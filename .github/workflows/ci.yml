@@ -248,10 +248,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - label: background-half-a
-            half: a
-          - label: background-half-b
-            half: b
+          - label: background-b1
+            files: >-
+              unit/background/jobs-reconciliation-batch-queue.test.js
+              unit/background/jobs-watchdog-ordering.test.js
+              unit/background/lifecycle-alarms-real.test.js
+              unit/background/marker-anchor-real.test.js
+              unit/background/message-handlers-real.test.js
+              unit/background/open-existing-folder-action.test.js
+              unit/background/open-manga-root-action.test.js
+              unit/background/plan-missing-handlers-real.test.js
+              unit/background/process-finalize-real.test.js
+              unit/background/refresh-job-watchdog-action.test.js
+              unit/background/regex-escape.test.js
+          - label: background-b2
+            files: >-
+              unit/background/report-error-action.test.js
+              unit/background/request-image-data-action.test.js
+              unit/background/routed-actions-legacy.test.js
+              unit/background/router.test.js
+              unit/background/startup-recovery.test.js
+              unit/background/state-api.test.js
+              unit/background/tab-identity.test.js
+              unit/background/tab-replacement-observability.test.js
+              unit/background/test_bg59.test.js
+              unit/background/version-sync.test.js
     defaults:
       run:
         working-directory: tests
@@ -271,15 +292,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          mapfile -t files < <(find unit/background -type f -name "*.test.js" | sort)
-          count=${#files[@]}
-          mid=$(( (count + 1) / 2 ))
-          if [ "${{ matrix.half }}" = "a" ]; then
-            selected=("${files[@]:0:mid}")
-          else
-            selected=("${files[@]:mid}")
-          fi
-          printf 'Arquivos selecionados (%s/%s):\n' "${#selected[@]}" "$count"
+          read -r -a selected <<< "${{ matrix.files }}"
+          printf 'Arquivos selecionados (%s):\n' "${#selected[@]}"
           printf '  %s\n' "${selected[@]}"
           npx jest --config jest.config.js --ci --selectProjects background --runTestsByPath "${selected[@]}" 2>&1 | tee /tmp/jest-group.log
           status=${PIPESTATUS[0]}
