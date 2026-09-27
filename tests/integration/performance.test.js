@@ -21,13 +21,13 @@ if (typeof globalThis.structuredClone !== 'function') {
 
 const ROOT = path.join(__dirname, '..', '..');
 const BACKGROUND_PATH = path.join(ROOT, 'extension', 'background.js');
-const MB = 1024 * 1024;
+const MB = 1024 * 1024;\nconst COVERAGE_MODE = process.env.COVERAGE_MODE === '1';\nconst perfLimit = ms => COVERAGE_MODE ? Math.ceil(ms * 10) : ms;
 
 function delay(ms = 0) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function waitFor(assertion, { timeout = 2500, interval = 5 } = {}) {
+async function waitFor(assertion, { timeout = perfLimit(2500), interval = 5 } = {}) {
     const startedAt = performance.now();
     while (performance.now() - startedAt < timeout) {
         const result = await assertion();
@@ -167,13 +167,13 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         }
 
         await waitFor(async () => (await getTranslatorLog(storageMock)).length === 500, {
-            timeout: 1000,
+            timeout: perfLimit(1000),
         });
 
         const elapsedMs = performance.now() - startedAt;
         const logSetCalls = setSpy.mock.calls.filter(([items]) => items && items.translatorLog);
 
-        expect(elapsedMs).toBeLessThanOrEqual(200);
+        expect(elapsedMs).toBeLessThanOrEqual(perfLimit(200));
         expect(await getTranslatorLog(storageMock)).toHaveLength(500);
         expect(logSetCalls.length).toBeLessThanOrEqual(10);
     });
@@ -217,7 +217,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         const result = await repo.getMany(createHundredHashes());
         const elapsedMs = performance.now() - startedAt;
 
-        expect(elapsedMs).toBeLessThanOrEqual(500);
+        expect(elapsedMs).toBeLessThanOrEqual(perfLimit(500));
         expect(Object.keys(result)).toHaveLength(15);
         expect(result['page-0']).toContain('data:image/png;base64,');
         expect(result['page-99']).toBeUndefined();
@@ -233,7 +233,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
 
         const result = await repo.getMany(entries.map(entry => entry.hash));
 
-        expect(elapsedMs).toBeLessThanOrEqual(300);
+        expect(elapsedMs).toBeLessThanOrEqual(perfLimit(300));
         expect(Object.keys(result)).toHaveLength(15);
         entries.forEach(entry => {
             expect(result[entry.hash]).toBe(entry.translatedDataUrl);
@@ -278,7 +278,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         document.querySelector('[data-target="translated-tab"]').click();
 
         await waitFor(() => document.querySelectorAll('#chapter-list .chapter-item').length === 200, {
-            timeout: 1000,
+            timeout: perfLimit(1000),
         });
         await flushAsyncTasks(8);
 
@@ -286,7 +286,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         const heapAfter = process.memoryUsage ? process.memoryUsage().heapUsed : heapBefore;
         const heapDeltaMb = (heapAfter - heapBefore) / MB;
 
-        expect(elapsedMs).toBeLessThanOrEqual(1000);
+        expect(elapsedMs).toBeLessThanOrEqual(perfLimit(1000));
         expect(document.querySelectorAll('#chapter-list .site-folder')).toHaveLength(1);
         expect(document.querySelectorAll('#chapter-list .chapter-item')).toHaveLength(200);
         expect(document.querySelector('#chapter-list .chapter-item').textContent).toMatch(/15\s+p.g\./);
@@ -384,7 +384,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         const elapsedMs = performance.now() - startedAt;
 
         const result = await repo.getMany(entries.map(entry => entry.hash));
-        expect(elapsedMs).toBeLessThanOrEqual(2000);
+        expect(elapsedMs).toBeLessThanOrEqual(perfLimit(2000));
         expect(Object.keys(result)).toHaveLength(15);
 
         entries.forEach(entry => {
