@@ -688,7 +688,32 @@ if (!window.__manga_translator_content_injected) {
                     const deliverImage = (src) => {
                         if (imageDelivered) return;
                         imageDelivered = true;
-                        chrome.runtime.sendMessage({ action: 'IMAGE_READY_FROM_NEW_TAB', mangaTabId: response.mangaTabId, index: response.index, src, geminiTabId: response.geminiTabId, jobId: response.jobId, batchId: response.batchId });
+                        chrome.runtime.sendMessage({
+                            action: 'IMAGE_READY_FROM_NEW_TAB',
+                            mangaTabId: response.mangaTabId,
+                            index: response.index,
+                            src,
+                            geminiTabId: response.geminiTabId,
+                            jobId: response.jobId,
+                            batchId: response.batchId,
+                        }, (ack) => {
+                            if (ack && ack.ok === true && ack.persisted !== false) {
+                                sendLog('success', 'AUXILIARY_RESULT_ACK',
+                                    'Resultado auxiliar persistido e confirmado pelo background.', {
+                                        jobId: String(response.jobId || '').slice(0, 8),
+                                        batchId: String(response.batchId || '').slice(0, 8),
+                                    });
+                                return;
+                            }
+
+                            imageDelivered = false;
+                            sendLog('error', 'AUXILIARY_RESULT_ACK_FAILED',
+                                'Background não confirmou a persistência do resultado auxiliar; tentando novamente.', {
+                                    jobId: String(response.jobId || '').slice(0, 8),
+                                    reason: ack?.reason || ack?.error?.code || 'no_ack',
+                                });
+                            scheduleRetry();
+                        });
                     };
                     const scheduleRetry = () => {
                         if (imageDelivered) return;
@@ -1777,8 +1802,35 @@ if (!window.__manga_translator_content_injected) {
                     prompt: result.customPrompt || result.defaultPrompt || "",
                     batchId: _currentBatchId
                 }, (resp) => {
-                    // Background may return a different batchId if it overrides
+                    // O background é a autoridade final sobre exclusividade de lote.
+                    if (resp && resp.ok === false && resp.reason === 'batch_busy') {
+                        sendLog('error', 'BATCH_OVERLAP_BLOCKED',
+                            'Nova tradução não foi iniciada porque ainda existe um lote ativo.', {
+                                incomingBatchId: String(_currentBatchId || '').slice(0, 8),
+                                activeBatchId: String(resp.activeBatchId || '').slice(0, 8),
+                            });
+                        isTranslating = false;
+                        _currentBatchId = null;
+                        totalToProcess = 0;
+                        processedCount = 0;
+                        _countedJobIndices.clear();
+                        updateBtnStatus();
+                        showIntegratedError(
+                            'Já existe uma tradução em andamento. Aguarde o lote atual terminar antes de iniciar outro.',
+                            null,
+                            false
+                        );
+                        return;
+                    }
+
+                    // Background may return a different batchId if it overrides.
                     if (resp && resp.batchId) _currentBatchId = resp.batchId;
+                    if (resp && resp.alreadyStarted === true) {
+                        sendLog('info', 'BATCH_DUPLICATE_IGNORED',
+                            'START_BATCH repetido foi tratado como retry idempotente.', {
+                                batchId: String(resp.batchId || '').slice(0, 8),
+                            });
+                    }
                     if(btn) setBtnHTML(btn, `TRADUZINDO (${instantCacheHits}✓ + 0/${geminiCount})...`, true);
                 });
             });
