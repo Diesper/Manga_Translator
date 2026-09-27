@@ -10,6 +10,7 @@
     'START_BATCH': 'start-batch',
     'STOP_BATCH': 'stop-batch',
     'GEMINI_IMAGE_EXTRACTED': 'deliver-result',
+    'GEMINI_RESULT_COMMIT': 'commit-result',
     'GEMINI_RESULT_URL': 'deliver-result-url',
     'IMAGE_READY_FROM_NEW_TAB': 'deliver-result-from-tab',
     'GEMINI_ERROR': 'report-error',
