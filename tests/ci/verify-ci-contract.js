@@ -10,6 +10,8 @@ const coverageConfig = fs.readFileSync(path.join(root, 'tests', 'jest.coverage.c
 const coverageVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage.js'), 'utf8');
 const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage-selftest.js'), 'utf8');
 const e2eReporter = fs.readFileSync(path.join(root, 'tests', 'ci', 'playwright-gate-reporter.js'), 'utf8');
+const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'e2e-shard-plan.json'), 'utf8'));
+const e2ePlanVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-e2e-shard-plan.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
 
@@ -64,8 +66,22 @@ if (!/^    needs:\s*$/m.test(e2e) || !e2e.includes('- e2e-shard')) {
 if (!e2e.includes('merge-reports') || !e2e.includes('playwright-merge.config.js')) {
   problems.push('e2e: gate agregado precisa mesclar blob reports antes de validar inventário');
 }
-if (!e2eShard.includes('--shard=') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
-  problems.push('e2e-shard: precisa executar Playwright com sharding e blob reporter');
+for (const group of ['fifo', 'attachment', 'medium-a', 'medium-b', 'fast']) {
+  if (!e2eShard.includes(group)) {
+    problems.push('e2e-shard: grupo explícito ausente da matriz: ' + group);
+  }
+}
+if (!e2eShard.includes('test:e2e:group') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
+  problems.push('e2e-shard: precisa executar grupos explícitos com blob reporter');
+}
+if (e2eShard.includes('--shard=')) {
+  problems.push('e2e-shard: não deve voltar ao sharding automático por contagem');
+}
+if (!e2e.includes('test:e2e:plan')) {
+  problems.push('e2e: precisa verificar cobertura exata dos grupos antes do merge');
+}
+if (!e2e.includes('wc -l)" -eq 5')) {
+  problems.push('e2e: precisa exigir exatamente 5 blob reports');
 }
 
 if (/npm run test:[^\n]*\|\|\s*true/.test(workflow)) {
@@ -110,6 +126,42 @@ if (!playwright.includes('retries: isCi ? 0')) {
 }
 if (!playwright.includes('./ci/playwright-gate-reporter.js')) {
   problems.push('Playwright precisa carregar o reporter de gate em CI');
+}
+if (pkg.scripts['test:e2e:group'] !== 'node ci/run-e2e-group.js') {
+  problems.push('tests/package.json#test:e2e:group precisa usar o runner de grupos explícitos');
+}
+if (pkg.scripts['test:e2e:plan'] !== 'node ci/verify-e2e-shard-plan.js') {
+  problems.push('tests/package.json#test:e2e:plan precisa verificar o inventário dos shards');
+}
+if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
+  problems.push('e2e-shard-plan.json precisa conter exatamente 5 grupos nesta fase');
+} else {
+  const expected = new Map([
+    ['fifo', 1],
+    ['attachment', 3],
+    ['medium-a', 4],
+    ['medium-b', 4],
+    ['fast', 9],
+  ]);
+  let total = 0;
+  for (const group of e2ePlan.groups) {
+    total += Number(group.expectedTests || 0);
+    if (!expected.has(group.id)) {
+      problems.push('e2e-shard-plan.json contém grupo inesperado: ' + group.id);
+      continue;
+    }
+    if (group.expectedTests !== expected.get(group.id)) {
+      problems.push('e2e-shard-plan.json contagem inválida para ' + group.id);
+    }
+  }
+  if (total !== baseline.e2e.minTests) {
+    problems.push('e2e-shard-plan.json precisa cobrir exatamente o baseline atual de E2E');
+  }
+}
+for (const invariant of ['cobertura exata sem omissões ou duplicatas', 'teste duplicado entre grupos', 'Testes sem grupo']) {
+  if (!e2ePlanVerifier.includes(invariant)) {
+    problems.push('verify-e2e-shard-plan.js não protege invariável: ' + invariant);
+  }
 }
 if (pkg.scripts['test:ci'] !== 'node ci/run-jest-ci.js') {
   problems.push('tests/package.json#test:ci precisa usar o runner auditável');
