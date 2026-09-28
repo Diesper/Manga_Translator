@@ -193,6 +193,8 @@ let browserContext;
 let backgroundWorker;
 
 test.describe('E2E-23/E2E-24/E2E-25: E2E - cache e persistencia do content_manga', () => {
+    // Este arquivo reutiliza um persistent context no beforeAll; preserve ordem.
+    test.describe.configure({ mode: 'serial' });
     test.beforeAll(async () => {
         const pathToExtension = getExtensionPath(__dirname);
         const userDataDir = path.join(os.tmpdir(), `pw-manga-cache-${Date.now()}`);
