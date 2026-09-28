@@ -54,13 +54,9 @@ describe('background.js - lifecycle e alarms reais', () => {
     });
 
     afterEach(async () => {
-        // O watchdog real chama finalizeJob(), que pode agendar fechamento em
-        // 600 ms. Esse timer pertence ao caso e não pode sobreviver ao teardown.
-        cancelBackgroundDelayTimers();
-
-        // onStartup dispara processNextJob() sem await. Bloqueie novos launches e
-        // drene a cadeia assíncrona antes de limpar alarms; caso contrário o
-        // fluxo pode armar um watchdog DEPOIS de clearAll() e manter o worker vivo.
+        // onStartup dispara processNextJob() sem await. Primeiro bloqueie novos
+        // launches e drene a cadeia assíncrona; só então cancele os timers que
+        // finalizeJob() possa ter criado durante essa drenagem.
         if (backgroundModule?.__setState) {
             backgroundModule.__setState({
                 stopRequested: true,
@@ -69,11 +65,18 @@ describe('background.js - lifecycle e alarms reais', () => {
             });
         }
         await flush(12);
+        cancelBackgroundDelayTimers();
+
         await alarmsMock.clearAll();
         await flush(4);
         await alarmsMock.clearAll();
         tabsMock._tabs.clear();
         await storageMock.clear();
+
+        // O tracker continua ativo após o primeiro cancelamento. Se qualquer
+        // callback tardio tiver criado outro timer de 600 ms/4 s/18 s durante
+        // a limpeza final, elimine-o antes de restaurar os mocks.
+        cancelBackgroundDelayTimers();
         jest.useRealTimers();
         jest.restoreAllMocks();
     });
