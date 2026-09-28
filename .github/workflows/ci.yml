@@ -252,7 +252,6 @@ jobs:
     name: Jest Worker Diagnostic (${{ matrix.case }})
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -309,7 +308,6 @@ jobs:
     name: Focused Project Leak (${{ matrix.case }})
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -358,7 +356,6 @@ jobs:
     name: Background Leak Bisection
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
-    continue-on-error: true
     defaults:
       run:
         working-directory: tests
