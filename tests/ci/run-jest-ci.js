@@ -122,7 +122,9 @@ if (run.status !== 0) problems.push('Jest terminou com código ' + String(run.st
 if (problems.length) {
   console.error('\nGate de inventário do Jest falhou:');
   for (const problem of problems) console.error('- ' + problem);
-  process.exit(1);
+  // stderr pode ser um pipe assíncrono no GitHub Actions. process.exit()
+  // descartaria o fim do relatório, inclusive o aviso que motivou a falha.
+  process.exitCode = 1;
+} else {
+  console.log('Gate de inventário do Jest aprovado usando ' + jestConfig + '.');
 }
-
-console.log('Gate de inventário do Jest aprovado usando ' + jestConfig + '.');

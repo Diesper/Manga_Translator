@@ -265,6 +265,26 @@ class ChromeRuntimeMock {
     this._startupListeners = [];
     this.lastError         = null;
     this.id                = 'test-extension-id';
+    this._pendingMessageTimers = new Set();
+  }
+
+  _scheduleMessageCallback(callback, delay) {
+    const timer = setTimeout(() => {
+      this._pendingMessageTimers.delete(timer);
+      callback();
+    }, delay);
+    this._pendingMessageTimers.add(timer);
+    return timer;
+  }
+
+  _clearMessageTimer(timer) {
+    clearTimeout(timer);
+    this._pendingMessageTimers.delete(timer);
+  }
+
+  clearMessageTimers() {
+    for (const timer of this._pendingMessageTimers) clearTimeout(timer);
+    this._pendingMessageTimers.clear();
   }
 
   sendMessage(message, callback) {
@@ -273,12 +293,12 @@ class ChromeRuntimeMock {
     let responseTimeoutId = null;
     const sendResponse = (response) => {
       if (responseTimeoutId) {
-        clearTimeout(responseTimeoutId);
+        this._clearMessageTimer(responseTimeoutId);
         responseTimeoutId = null;
       }
       if (!responded) {
         responded = true;
-        if (callback) setTimeout(() => callback(response), 0);
+        if (callback) this._scheduleMessageCallback(() => callback(response), 0);
       }
     };
     const sender = { id: this.id, tab: null };
@@ -290,12 +310,12 @@ class ChromeRuntimeMock {
     if (!responded && callback) {
       if (this._messageListeners.length === 0) {
         this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
-        setTimeout(() => {
+        this._scheduleMessageCallback(() => {
           callback(undefined);
           this.lastError = null;
         }, 0);
       } else {
-        responseTimeoutId = setTimeout(() => {
+        responseTimeoutId = this._scheduleMessageCallback(() => {
           this.lastError = { message: 'The message channel closed before a response was received.' };
           callback(undefined);
           this.lastError = null;
@@ -520,6 +540,7 @@ afterEach(() => {
   // O último caso da suíte também pode criar alarmes de vários minutos.
   // Limpá-los apenas no beforeEach seguinte deixa o worker Jest vivo.
   alarmsMock?.clearAll();
+  runtimeMock?.clearMessageTimers();
   downloadsMock?.clearTimers();
   jest.clearAllTimers();
   jest.clearAllMocks();
