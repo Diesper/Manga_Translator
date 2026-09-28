@@ -22,6 +22,8 @@ const requiredFiles = [
   'tests/playwright.config.js',
   'tests/run-all-tests.js',
   'tests/run-e2e.js',
+  'scripts/run-e2e-root.js',
+  'tests/ci/setup-playwright.js',
   'tests/smoke/run-smoke.js',
   'extension/manifest.json',
 ];
@@ -65,7 +67,7 @@ if (rootPackage && testsPackage && testsLock) {
     'test:integration': 'npm --prefix tests run test:integration',
     'test:smoke': 'npm --prefix tests run test:smoke',
     'test:visual': 'npm --prefix tests run test:visual-v3',
-    'test:e2e': 'npm --prefix tests run test:e2e',
+    'test:e2e': 'node scripts/run-e2e-root.js',
     'test:coverage:generate': 'npm --prefix tests run test:coverage',
     'test:coverage:verify': 'npm --prefix tests run test:coverage:verify',
   };
@@ -117,9 +119,9 @@ if (rootPackage && testsPackage && testsLock) {
     }
   }
 
-  if (testsPackage.scripts?.['test:e2e:setup'] !== 'playwright install chromium') {
+  if (testsPackage.scripts?.['test:e2e:setup'] !== 'node ci/setup-playwright.js') {
     problems.push(
-      'tests/package.json#scripts.test:e2e:setup deve manter a instalação do Chromium como fonte única'
+      'tests/package.json#scripts.test:e2e:setup deve delegar ao setup Playwright centralizado'
     );
   }
 
