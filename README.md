@@ -89,56 +89,87 @@ O CI também executa `version:check` e falha se os metadados divergirem.
 
 ## 🧪 Executando os Testes
 
-O projeto conta com suíte abrangente de testes unitários, de integração, visuais, smoke e E2E.
+A **raiz do repositório é a interface oficial para humanos, CI auxiliares e agentes**. Não é necessário descobrir ou entrar manualmente em `tests/`.
 
-Os testes de popup e content script também cobrem o filtro dimensional: valores
-personalizados, atualização imediata após alteração no armazenamento,
-sincronização entre campos/sliders/prévia e o reset para o padrão.
+As dependências de teste continuam pertencendo ao pacote `tests/` e são instaladas de forma reprodutível usando `tests/package-lock.json`. A raiz apenas delega para essa implementação, evitando uma segunda configuração de Jest ou Playwright.
 
-> A pipeline atual trata Jest, smoke/visual, validação de sintaxe/Manifest V3, cobertura e Playwright E2E como gates reais. Os cenários E2E incluem o fluxo padrão e os modos `minimized_window` e `background_delete`.
+### Preparação inicial
 
-### Testes de Fumaça (Smoke Tests)
-Validação ultrarrápida do ciclo de vida, transações IndexedDB e isolamento de lote:
-```powershell
-# No Windows:
-.\run-smoke.bat
-# ou
-powershell -ExecutionPolicy Bypass -File .\run-smoke.ps1
+Depois de clonar o repositório, na raiz:
+
+```bash
+npm run setup
 ```
 
-### Testes Unitários e Integração (Jest)
+Esse comando executa a instalação determinística do pacote de testes com `npm ci` e instala o Chromium esperado pelo Playwright.
+
+Comandos de preparação mais específicos:
+
 ```bash
-npm test
-# ou diretamente dentro da pasta tests:
-cd tests
+npm run setup:deps   # somente npm ci em tests/
+npm run setup:e2e    # somente instalação do Chromium do Playwright
+```
+
+> No GitHub Actions Linux, o E2E continua usando a preparação própria da CI com dependências de sistema e `xvfb-run`. O comando local da raiz não substitui a configuração especializada da CI.
+
+### Interface padronizada da raiz
+
+```bash
 npm run test:unit
+npm run test:integration
+npm run test:smoke
+npm run test:visual
+npm run test:e2e
+npm run test:coverage
+npm run test:all
 ```
 
-### Testes E2E (Playwright)
-Fluxos reais de ponta a ponta no Chromium com a extensão carregada (tradução real, botão de parada, cache GTC, persistência no IndexedDB, auto-restauração no reload e leitor offline):
-```bash
-cd tests
-npm run test:e2e
+Significado dos comandos:
+
+- `test:unit`: executa somente `tests/unit/` pelo Jest oficial de `tests/package.json`;
+- `test:integration`: executa somente `tests/integration/`;
+- `test:smoke`: executa o runner oficial `tests/smoke/run-smoke.js`;
+- `test:visual`: executa a suíte perceptual `tests/visual-v3/`;
+- `test:e2e`: executa `tests/run-e2e.js`, que por sua vez chama o Playwright com `tests/playwright.config.js`;
+- `test:coverage`: gera coverage pelo runner auditável da CI e depois executa o verificador de integridade/thresholds;
+- `test:all`: executa Smoke → Jest com inventário CI → Visual → Coverage → E2E, sem mascarar falhas.
+
+A cadeia E2E oficial permanece:
+
+```text
+raiz: npm run test:e2e
+        ↓
+npm --prefix tests run test:e2e
+        ↓
+tests/run-e2e.js
+        ↓
+tests/playwright.config.js
+        ↓
+Playwright + extensão real + servidor mock
 ```
+
+### Compatibilidade com comandos antigos
+
+Os runners existentes não foram removidos. `npm test` e `npm run test:fast` continuam executando o agregador histórico de Jest + Visual por meio do pacote `tests/`. Os wrappers Windows `run.bat`, `run.ps1`, `run-smoke.*` e `test-all.*` também foram preservados.
+
+A diferença é que os nomes específicos da raiz agora têm semântica exata: `test:unit` não inclui integração e `test:e2e` não executa Jest/Visual antes do Playwright.
 
 ### CI e regressões de Service Worker
 
 A pipeline em `.github/workflows/ci.yml` trata **Smoke, Visual, Jest, Coverage e E2E como gates funcionais independentes**. Uma falha em Jest não impede o Playwright de rodar, então uma única execução expõe regressões de várias camadas ao mesmo tempo.
 
-O job final **CI Gate** usa `if: always()` e exige que todos os jobs obrigatórios terminem como `success`. Estados `failure`, `cancelled` ou `skipped` em qualquer gate obrigatório tornam a CI vermelha.
+O job final **CI Gate** exige sucesso dos gates obrigatórios. Os diagnósticos pesados de worker/leak continuam obrigatórios em `push` para `main` e em execução manual, conforme o contrato atual da CI.
 
 Além do código de saída normal:
 - Jest compara todos os arquivos `.test.js` existentes em `tests/unit` e `tests/integration` com o inventário realmente descoberto pelo runner, rejeita `skip`/`todo` e protege um baseline mínimo;
 - Playwright proíbe `test.only` na CI, rejeita testes `skipped` e uma queda silenciosa no inventário E2E;
 - o runner visual falha se houver teste pulado ou se o total cair abaixo do baseline;
 - Smoke falha se o conjunto esperado de arquivos não for descoberto;
-- Coverage usa `tests/jest.coverage.config.js` com provider V8 sobre `extension/**/*.js`; `verify-coverage.js` exige 56/56 arquivos, LCOV/summary válidos, percentuais não-zero, thresholds globais e thresholds de arquivos críticos; apenas a publicação externa no Codecov continua independente do gate local;
-- `tests/ci/verify-ci-contract.js` testa a própria configuração da CI para impedir a reintrodução de `|| true`, jobs funcionais não bloqueantes ou dependências que façam o E2E ser pulado.
-- o runner Jest não usa mais `--forceExit`; o mock de downloads foi corrigido para não deixar timers/handles vivos.
+- Coverage usa `tests/jest.coverage.config.js` com provider V8 sobre `extension/**/*.js`; `verify-coverage.js` exige inventário completo, LCOV/summary válidos, percentuais não-zero e thresholds;
+- `tests/ci/verify-ci-contract.js` protege a configuração da CI;
+- `tests/ci/verify-root-interface.js` protege a nova interface da raiz e impede que os wrappers deixem de delegar para o pacote `tests/`.
 
-Também existe um teste específico de carregamento em modo estrito (`tests/unit/background/background-strict-load.test.js`) para detectar exceções fatais durante o boot do Service Worker antes do registro dos listeners.
-
-As regressões de ACK da aba auxiliar, isolamento entre testes assíncronos e medição de performance do PR #47 estão descritas em [`docs/REGRESSOES_PR47.md`](docs/REGRESSOES_PR47.md). O baseline Jest protege no mínimo 836 testes; a execução completa e a cobertura são responsabilidade dos jobs do GitHub Actions.
+A auditoria estrutural completa e as decisões de compatibilidade estão documentadas em [`ESTRUTURA_FORA_DO_PADRAO.md`](ESTRUTURA_FORA_DO_PADRAO.md).
 
 ---
 
