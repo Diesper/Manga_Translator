@@ -86,6 +86,9 @@ for (const group of plan.groups) {
   if (!group.id || !group.tag || !Number.isInteger(group.expectedTests) || group.expectedTests <= 0) {
     fail('grupo inválido no plano: ' + JSON.stringify(group));
   }
+  if (!Number.isInteger(group.workers) || group.workers <= 0) {
+    fail('workers inválido no plano para ' + group.id + ': ' + group.workers);
+  }
   if (!String(group.tag).startsWith('@')) fail('tag precisa começar com @: ' + group.tag);
   if (ids.has(group.id)) fail('grupo duplicado: ' + group.id);
   if (tags.has(group.tag)) fail('tag duplicada: ' + group.tag);
@@ -120,7 +123,8 @@ for (const group of plan.groups) {
 
   console.log(
     '[E2E/PLAN] ' + group.id +
-    ': ' + keys.length + ' teste(s), ~' + group.estimatedSeconds + 's'
+    ': ' + keys.length + ' teste(s), workers=' + group.workers +
+    ', ~' + group.estimatedSeconds + 's'
   );
 
   sum += keys.length;
