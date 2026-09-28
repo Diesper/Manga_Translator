@@ -306,6 +306,7 @@ jobs:
 
   focused-project-leak-diagnostic:
     name: Focused Project Leak (${{ matrix.case }})
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
@@ -355,6 +356,7 @@ jobs:
 
   background-leak-bisection:
     name: Background Leak Bisection
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     continue-on-error: true
     defaults:
