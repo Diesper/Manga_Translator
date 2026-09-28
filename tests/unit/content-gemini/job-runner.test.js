@@ -715,4 +715,38 @@ describe('gemini/job-runner.js', () => {
       message.action === 'GEMINI_RESULT_COMMIT'
     )).toHaveLength(3);
   });
+
+  test('RUN-COV-01: tryClickModelImageCards retorna false quando não há candidato de resposta', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    expect(runner.tryClickModelImageCards()).toBe(false);
+  });
+
+  test('RUN-COV-02: tryClickModelImageCards ignora clique que lança e tenta o próximo candidato', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+
+    const response = document.createElement('model-response');
+    const brokenButton = document.createElement('button');
+    brokenButton.setAttribute('aria-label', 'image result');
+    brokenButton.click = jest.fn(() => {
+      throw new Error('stale element');
+    });
+
+    const fallbackCard = document.createElement('div');
+    fallbackCard.className = 'image-card';
+    fallbackCard.click = jest.fn();
+
+    response.appendChild(brokenButton);
+    response.appendChild(fallbackCard);
+    document.body.appendChild(response);
+
+    const runner = createGeminiJobRunner(options);
+    expect(runner.tryClickModelImageCards()).toBe(true);
+    expect(brokenButton.click).toHaveBeenCalled();
+    expect(fallbackCard.click).toHaveBeenCalledTimes(1);
+  });
+
 });
