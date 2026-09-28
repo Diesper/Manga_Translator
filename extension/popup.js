@@ -1410,8 +1410,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 element: settingsRedoConfirmEnabled,
                 key: 'redoConfirmEnabled',
                 defaultValue: true,
-                onText: 'Confirmação de Refazer ativada.',
-                offText: 'Refazer será executado sem confirmação.',
+                onText: 'Confirmação ao refazer imagem ativada.',
+                offText: 'Refazer a imagem será executado sem confirmação.',
             },
         ].filter(item => item.element);
 
