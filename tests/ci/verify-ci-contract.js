@@ -98,6 +98,12 @@ if (pkg.scripts['test:ci'] !== 'node ci/run-jest-ci.js') {
   problems.push('tests/package.json#test:ci precisa usar o runner auditável');
 }
 const jestRunner = fs.readFileSync(path.join(root, 'tests', 'ci', 'run-jest-ci.js'), 'utf8');
+if (!jestRunner.includes('hasForcedWorkerExit(jestStderr)')) {
+  problems.push('run-jest-ci.js precisa reprovar o aviso de worker forçado');
+}
+if (!workflow.includes('node tests/ci/verify-jest-worker-warning-selftest.js')) {
+  problems.push('CI Contract precisa testar a detecção de worker forçado');
+}
 if (jestRunner.includes("'--forceExit'") || jestRunner.includes('"--forceExit"')) {
   problems.push('run-jest-ci.js não pode mascarar open handles com --forceExit');
 }

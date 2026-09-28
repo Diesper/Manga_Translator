@@ -59,6 +59,9 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
     });
 
     afterEach(async () => {
+        const cancel = document.getElementById('manga-single-image-cancel');
+        if (cancel) cancel.click();
+        window.dispatchEvent(new Event('pagehide'));
         jest.restoreAllMocks();
         await storageMock.clear();
         delete window.__manga_translator_content_injected;

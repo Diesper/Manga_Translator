@@ -6,6 +6,7 @@ const {
     getAlarmsMock,
 } = require('../../mocks/chrome-api.mock.js');
 const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
+const { trackBackgroundDelayTimers } = require('../../helpers/track-background-delay-timers.js');
 const {
     BACKGROUND_PATH,
     flush,
@@ -20,6 +21,7 @@ describe('background.js - handlers onMessage reais', () => {
     let downloadsMock;
     let alarmsMock;
     let backgroundModule;
+    let cancelBackgroundDelayTimers;
 
     async function flushFakeTimerRounds(rounds = 6, stepMs = 1) {
         for (let index = 0; index < rounds; index++) {
@@ -31,6 +33,7 @@ describe('background.js - handlers onMessage reais', () => {
     beforeEach(async () => {
         jest.resetModules();
         jest.useRealTimers();
+        cancelBackgroundDelayTimers = trackBackgroundDelayTimers();
 
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
@@ -59,6 +62,7 @@ describe('background.js - handlers onMessage reais', () => {
     });
 
     afterEach(async () => {
+        cancelBackgroundDelayTimers();
         alarmsMock.clearAll();
         tabsMock._tabs.clear();
         downloadsMock._downloads.clear();

@@ -31,6 +31,20 @@ O caso `PERF-05` em `tests/integration/performance.test.js` mede até a apariç�
 
 ## Verificação direcionada
 
+### Lifecycle e worker: verificação local
+
+A extração auxiliar agora registra os timers de mapeamento, busca da imagem e retry, o interval de polling e os listeners `load`/`error`. O cleanup é idempotente e ocorre após ACK persistido, falha terminal ou `pagehide`; callbacks tardios verificam se a instância continua ativa. O prazo de segurança de 20 segundos encerra a espera e registra falha, sem deixar listeners presos. Quatro novos casos no arquivo de extração verificam ACK, retry interrompido, mapeamento interrompido e limpeza no prazo de segurança. O inventário mínimo passou para 840 testes.
+
+O mock de `chrome.alarms` limpa os alarmes também no `afterEach`. As suítes reais de finalização e handlers cancelam, no teardown, os timers de fechamento diferido que iniciaram. O prompt de clique individual cancela a instalação adiada do listener externo e descarta seus listeners no `pagehide`. O teardown do teste de clique dispara o descarte antes de restaurar mocks. O teardown de RPA já espera `processPromise` e interrompe observers; a execução paralela ainda precisa confirmar se restou algum recurso fora desses fluxos.
+
+`tests/ci/run-jest-ci.js` agora captura o stderr do Jest e reprova o warning `A worker process has failed to exit gracefully and has been force exited`, mesmo quando o Jest retorna zero. O contrato de CI exige o self-test desse detector. Isso torna o vazamento observável no job completo, mas **não demonstra, sem executar a suíte paralela, que o vazamento foi eliminado**.
+
+O ruleset ativo da `main` (ID `23791606`) foi atualizado no GitHub: os checks antigos `Smoke + Visual + Unit Tests (20.x)` e `(22.x)` foram removidos e `CI Gate` foi incluído. Permaneceram `JS Syntax Check`, `Manifest Validation`, `E2E Tests (Playwright)` e `Code Coverage`, com `strict_required_status_checks_policy: true` e as regras de deleção, non-fast-forward e pull request. O snapshot anterior está em `pr47-ruleset-main-before.json` no diretório temporário local do operador. A resposta da API confirma a lista nova; o estado de merge do PR deve ser conferido após o próximo push e execução de CI.
+
+Com autorização posterior, os arquivos alterados de extração (25 testes), clique individual (15), finalização do background (11) e handlers do background (6) passaram isoladamente no Node 20. Os gates de contrato, worker, coverage e reporter E2E passaram; os 6 smoke e 224 testes visuais também passaram. O Jest completo em paralelo passou localmente no Node 20 com 107 suítes, 840 testes, skipped=0 e TODO=0, **sem o warning de worker forçado**. O próprio `run-jest-ci.js` teria retornado erro se o warning tivesse aparecido no stderr.
+
+A cobertura real, o Playwright E2E e a matriz Linux Node 20/22 permanecem para o GitHub Actions depois do push, conforme a orientação do usuário. O diagnóstico serial `--detectOpenHandles --runInBand` havia passado no commit anterior; ele não substitui a confirmação paralela. O incidente só fica plenamente verificado quando os dois jobs paralelos do CI terminarem sem warning e o `CI Gate` ficar verde.
+
 Dentro de `tests/`, cada arquivo pode ser executado isoladamente com Jest:
 
 ```bash

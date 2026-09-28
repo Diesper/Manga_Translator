@@ -83,6 +83,8 @@ jobs:
         run: node tests/ci/verify-coverage-selftest.js
       - name: Testar gate E2E contra retries/flaky
         run: node tests/ci/playwright-gate-reporter-selftest.js
+      - name: Testar detecção de worker Jest forçado
+        run: node tests/ci/verify-jest-worker-warning-selftest.js
 
   smoke:
     name: Smoke Tests

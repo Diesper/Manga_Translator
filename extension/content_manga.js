@@ -701,27 +701,60 @@ if (!window.__manga_translator_content_injected) {
     if (isExtractionCandidate) {
         const MAX_MAPPING_CHECKS = isMarkedExtractionTab ? 20 : 1;
         let mappingChecks = 0;
+        let extractionFinished = false;
+        const extractionTimeouts = new Set();
+        const extractionIntervals = new Set();
+        let stopImageWaiters = null;
+
+        const finishExtraction = () => {
+            if (extractionFinished) return;
+            extractionFinished = true;
+            for (const timer of extractionTimeouts) clearTimeout(timer);
+            extractionTimeouts.clear();
+            for (const interval of extractionIntervals) clearInterval(interval);
+            extractionIntervals.clear();
+            if (stopImageWaiters) stopImageWaiters();
+            window.removeEventListener('pagehide', finishExtraction);
+        };
+        const extractionIsActive = () => {
+            if (!isActiveContentInstance()) finishExtraction();
+            return !extractionFinished;
+        };
+        const extractionTimeout = (callback, delay) => {
+            if (!extractionIsActive()) return;
+            const timer = setTimeout(() => {
+                extractionTimeouts.delete(timer);
+                if (extractionIsActive()) callback();
+            }, delay);
+            extractionTimeouts.add(timer);
+        };
+        window.addEventListener('pagehide', finishExtraction, { once: true });
 
         const checkExtractionMapping = () => {
+            if (!extractionIsActive()) return;
             mappingChecks++;
             chrome.runtime.sendMessage({ action: 'CHECK_IF_EXTRACTION_TAB' }, (response) => {
+                if (!extractionIsActive()) return;
                 if (!response || !response.isExtractionTab) {
                     if (mappingChecks < MAX_MAPPING_CHECKS) {
-                        setTimeout(checkExtractionMapping, 100);
+                        extractionTimeout(checkExtractionMapping, 100);
+                    } else {
+                        finishExtraction();
                     }
                     return;
                 }
                 const MAX_ATTEMPTS = 60; let attempts = 0;
                 const extractAndSend = () => {
-                    attempts++; if (attempts > MAX_ATTEMPTS) return;
+                    if (!extractionIsActive()) return;
+                    attempts++; if (attempts > MAX_ATTEMPTS) { finishExtraction(); return; }
                     const img = document.querySelector('img');
-                    if (!img) { setTimeout(extractAndSend, 500); return; }
+                    if (!img) { extractionTimeout(extractAndSend, 500); return; }
                     
                     const MAX_EXTRACTION_PASSES = 3;
                     let extractionPass = 0;
                     let imageDelivered = false;
                     const deliverImage = (src) => {
-                        if (imageDelivered) return;
+                        if (!extractionIsActive() || imageDelivered) return;
                         imageDelivered = true;
                         chrome.runtime.sendMessage({
                             action: 'IMAGE_READY_FROM_NEW_TAB',
@@ -732,12 +765,14 @@ if (!window.__manga_translator_content_injected) {
                             jobId: response.jobId,
                             batchId: response.batchId,
                         }, (ack) => {
+                            if (!extractionIsActive()) return;
                             if (ack && ack.ok === true && ack.persisted !== false) {
                                 sendLog('success', 'AUXILIARY_RESULT_ACK',
                                     'Resultado auxiliar persistido e confirmado pelo background.', {
                                         jobId: String(response.jobId || '').slice(0, 8),
                                         batchId: String(response.batchId || '').slice(0, 8),
                                     });
+                                finishExtraction();
                                 return;
                             }
 
@@ -751,16 +786,17 @@ if (!window.__manga_translator_content_injected) {
                         });
                     };
                     const scheduleRetry = () => {
-                        if (imageDelivered) return;
+                        if (!extractionIsActive() || imageDelivered) return;
                         if (extractionPass >= MAX_EXTRACTION_PASSES) {
                             sendLog('warn', 'AUXILIARY_EXTRACT_FAILED', 'Aba auxiliar esgotou as tentativas de extração.', { attempts: extractionPass });
+                            finishExtraction();
                             return;
                         }
                         sendLog('warn', 'AUXILIARY_EXTRACT_RETRY', 'Aba auxiliar repetirá a cadeia canvas e fetch.', { nextAttempt: extractionPass + 1 });
-                        setTimeout(sendImage, 700);
+                        extractionTimeout(sendImage, 700);
                     };
                     const sendImage = () => {
-                        if (imageDelivered) return;
+                        if (!extractionIsActive() || imageDelivered) return;
                         extractionPass++;
                         try {
                             const canvas = document.createElement('canvas');
@@ -769,6 +805,7 @@ if (!window.__manga_translator_content_injected) {
                             deliverImage(canvas.toDataURL('image/png'));
                         } catch (e) {
                             chrome.runtime.sendMessage({ action: 'FETCH_IMAGE_AS_BASE64', url: img.src }, (resp) => {
+                                if (!extractionIsActive()) return;
                                 if (resp && resp.dataUrl) deliverImage(resp.dataUrl);
                                 else scheduleRetry();
                             });
@@ -783,35 +820,42 @@ if (!window.__manga_translator_content_injected) {
                         const stopLoadWaiters = () => {
                             if (pollLoaded !== null) {
                                 clearInterval(pollLoaded);
+                                extractionIntervals.delete(pollLoaded);
                                 pollLoaded = null;
                             }
                             if (pollSafetyTimeout !== null) {
                                 clearTimeout(pollSafetyTimeout);
+                                extractionTimeouts.delete(pollSafetyTimeout);
                                 pollSafetyTimeout = null;
                             }
                             img.removeEventListener('load', onImageSettled);
                             img.removeEventListener('error', onImageSettled);
+                            if (stopImageWaiters === stopLoadWaiters) stopImageWaiters = null;
                         };
 
                         const onImageSettled = () => {
                             stopLoadWaiters();
-                            sendImage();
+                            if (extractionIsActive()) sendImage();
                         };
 
+                        stopImageWaiters = stopLoadWaiters;
                         img.addEventListener('load', onImageSettled, { once: true });
                         img.addEventListener('error', onImageSettled, { once: true });
 
                         pollLoaded = setInterval(() => {
+                            if (!extractionIsActive()) return;
                             if (img.naturalHeight > 0) onImageSettled();
                         }, 100);
+                        extractionIntervals.add(pollLoaded);
 
                         pollSafetyTimeout = setTimeout(() => {
-                            if (pollLoaded !== null) {
-                                clearInterval(pollLoaded);
-                                pollLoaded = null;
+                            stopLoadWaiters();
+                            if (extractionIsActive()) {
+                                sendLog('warn', 'AUXILIARY_EXTRACT_FAILED', 'Imagem auxiliar não carregou antes do prazo de segurança.', { attempts: extractionPass });
+                                finishExtraction();
                             }
-                            pollSafetyTimeout = null;
                         }, 20000);
+                        extractionTimeouts.add(pollSafetyTimeout);
                     }
                 };
                 extractAndSend();
@@ -1560,7 +1604,12 @@ if (!window.__manga_translator_content_injected) {
             panel.style.left = `${left}px`;
             panel.style.top = `${top}px`;
 
+            let outsideListenerTimer = null;
             const cleanup = () => {
+                if (outsideListenerTimer !== null) {
+                    clearTimeout(outsideListenerTimer);
+                    outsideListenerTimer = null;
+                }
                 document.removeEventListener('keydown', onKeydown, true);
                 document.removeEventListener('pointerdown', onOutside, true);
                 panel.remove();
@@ -1617,10 +1666,15 @@ if (!window.__manga_translator_content_injected) {
             });
 
             document.addEventListener('keydown', onKeydown, true);
-            setTimeout(() => document.addEventListener('pointerdown', onOutside, true), 0);
+            outsideListenerTimer = setTimeout(() => {
+                outsideListenerTimer = null;
+                if (singleImagePromptCleanup === cleanup && isActiveContentInstance()) {
+                    document.addEventListener('pointerdown', onOutside, true);
+                }
+            }, 0);
         }
 
-        document.addEventListener('click', (event) => {
+        const onSingleImageClick = (event) => {
             // Listeners de uma injeção anterior continuam registrados no
             // document até a navegação destruir o contexto. Eles não podem
             // interceptar cliques depois que outra instância assumiu.
@@ -1649,7 +1703,25 @@ if (!window.__manga_translator_content_injected) {
             }
 
             showSingleImagePrompt(img, event.clientX, event.clientY);
-        }, true);
+        };
+        document.addEventListener('click', onSingleImageClick, true);
+
+        let readerDisposed = false;
+        window.addEventListener('pagehide', (event) => {
+            // Uma página no back-forward cache pode voltar sem reinjetar o script.
+            if (event.persisted || readerDisposed || !isActiveContentInstance()) return;
+            readerDisposed = true;
+            closeSingleImagePrompt();
+            document.removeEventListener('click', onSingleImageClick, true);
+            if (buttonGuardObserver) buttonGuardObserver.disconnect();
+            buttonGuardObserver = null;
+            stopTranslationButtonWatchdog();
+            if (_closeInterval) clearInterval(_closeInterval);
+            _closeInterval = null;
+            if (_restoreDebounceTimer) clearTimeout(_restoreDebounceTimer);
+            _restoreDebounceTimer = null;
+            disconnectAutoRestorer();
+        });
 
         // ── applyAutoRestore ─────────────────────────────────────────────────
         // O mapa agora guarda { assetId, index }. Primeiro descobrimos QUAIS

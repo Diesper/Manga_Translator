@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const baseline = require('./test-baseline.json');
+const { hasForcedWorkerExit } = require('./jest-worker-warning');
 
 const testsRoot = path.resolve(__dirname, '..');
 const resultDir = path.join(testsRoot, '.ci-results');
@@ -56,14 +57,22 @@ if (coverageRequested) {
 
 const run = spawnSync(process.execPath, args, {
   cwd: testsRoot,
-  stdio: 'inherit',
+  // Jest escreve o aviso no stderr mesmo quando retorna status 0.
+  stdio: ['inherit', 'inherit', 'pipe'],
+  encoding: 'utf8',
+  maxBuffer: 32 * 1024 * 1024,
   env: {
     ...process.env,
     ...(coverageRequested ? { COVERAGE_MODE: '1' } : {}),
   },
 });
+const jestStderr = run.stderr || '';
+if (jestStderr) process.stderr.write(jestStderr);
 
 const problems = [];
+if (hasForcedWorkerExit(jestStderr)) {
+  problems.push('Um worker Jest precisou ser encerrado à força; corrigir os recursos pendentes.');
+}
 if (!fs.existsSync(resultFile)) {
   problems.push('Jest não produziu o arquivo JSON de resultados.');
 } else {

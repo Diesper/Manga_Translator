@@ -517,6 +517,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // O último caso da suíte também pode criar alarmes de vários minutos.
+  // Limpá-los apenas no beforeEach seguinte deixa o worker Jest vivo.
+  alarmsMock?.clearAll();
   downloadsMock?.clearTimers();
   jest.clearAllTimers();
   jest.clearAllMocks();

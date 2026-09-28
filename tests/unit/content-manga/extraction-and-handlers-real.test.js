@@ -113,6 +113,7 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
     });
 
     afterEach(async () => {
+        window.dispatchEvent(new Event('pagehide'));
         runtimeMock.sendMessage = originalRuntimeSendMessage;
         Object.defineProperty(window.HTMLCanvasElement.prototype, 'getContext', {
             value: originalGetContext,
@@ -223,6 +224,74 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             expect(deliveries()).toHaveLength(2);
             expect(acknowledgements).toBe(2);
             expect(deliveries()[1]).toEqual(deliveries()[0]);
+        });
+
+        test('cleanup remove o listener de descarte após ACK persistido', async () => {
+            const removeListener = jest.spyOn(window, 'removeEventListener');
+            const sentMessages = await loadExtractionScript({
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+            await waitFor(() => sentMessages.some(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+            await waitFor(() => removeListener.mock.calls.some(([type]) => type === 'pagehide'));
+            window.dispatchEvent(new Event('pagehide'));
+            await delay(750);
+            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(1);
+        });
+
+        test('descarte cancela retry agendado por ACK negativo', async () => {
+            const sentMessages = await loadExtractionScript({
+                deliveryResponse: { ok: false, persisted: false },
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+            await waitFor(() => sentMessages.some(message => message.action === 'LOG_ENTRY' &&
+                message.action_name === 'AUXILIARY_EXTRACT_RETRY'));
+            window.dispatchEvent(new Event('pagehide'));
+            await delay(750);
+            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(1);
+        });
+
+        test('descarte cancela a nova consulta de mapeamento da aba marcada', async () => {
+            const sentMessages = await loadExtractionScript({
+                hostname: 'cdn.example',
+                hash: '#manga-translator-extraction',
+                extractionResponse: { isExtractionTab: false },
+            });
+            expect(sentMessages.filter(message => message.action === 'CHECK_IF_EXTRACTION_TAB')).toHaveLength(1);
+            window.dispatchEvent(new Event('pagehide'));
+            await delay(150);
+            expect(sentMessages.filter(message => message.action === 'CHECK_IF_EXTRACTION_TAB')).toHaveLength(1);
+        });
+
+        test('prazo de segurança remove polling e listeners da imagem incompleta', async () => {
+            let img;
+            const scheduleTimer = jest.spyOn(global, 'setTimeout');
+            const clearPolling = jest.spyOn(global, 'clearInterval');
+            const sentMessages = await loadExtractionScript({
+                buildDom: () => {
+                    img = document.createElement('img');
+                    defineImageState(img, { src: null, complete: false, height: 0 });
+                    document.body.appendChild(img);
+                },
+            });
+            const removeImageListener = jest.spyOn(img, 'removeEventListener');
+            const safety = scheduleTimer.mock.calls.find(([, delayMs]) => delayMs === 20000);
+            expect(safety).toBeDefined();
+            safety[0]();
+            await delay(0);
+            expect(clearPolling).toHaveBeenCalled();
+            expect(removeImageListener.mock.calls.filter(([type]) => type === 'load')).toHaveLength(1);
+            expect(removeImageListener.mock.calls.filter(([type]) => type === 'error')).toHaveLength(1);
+            img.dispatchEvent(new Event('load'));
+            await delay(0);
+            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(0);
         });
 
         test('envia IMAGE_READY_FROM_NEW_TAB imediatamente quando a imagem ja esta carregada', async () => {
