@@ -10,8 +10,8 @@
 > etapas de refatoração.
 >
 > **Data da consolidação:** 26/09/2026.
-> **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente, integrada ao runtime.
-> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para a rodada validada e seus limites.
+> **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente + hardening automatizado do PR #47.
+> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para separar a evidência manual histórica da validação automatizada atual.
 >
 > **Escopo da auditoria:** manifesto, Service Worker, módulos de background,
 > content scripts, cache perceptual, IndexedDB, persistência de capítulos,
@@ -67,7 +67,7 @@ Isso significa:
 
 ## 1.1 O que significa "v6.5"
 
-A v6.5 é a versão desta documentação técnica consolidada. Ela descreve o estado arquitetural presente no PR 13 após a refatoração Gemini RPA V2.
+A v6.5 é o marco desta documentação técnica consolidada. A consolidação começou no PR 13 após a refatoração Gemini RPA V2 e foi atualizada para incorporar o estado funcional/hardening do PR #47.
 
 O marco v6.5 também torna o versionamento do produto automático: `package.json` contém a versão SemVer canônica, enquanto `manifest.json` e os metadados de teste são sincronizados por `scripts/sync-version.js`.
 
@@ -104,21 +104,25 @@ quando o respectivo schema mudar.
 
 ## 2.2 Baseline funcional conhecido
 
-O baseline automatizado histórico registrado é o [GitHub Actions run #663](https://github.com/Diesper/Manga_Translator/actions/runs/36270638017), no commit `446f003bec10b71252a67daca6ed87e530c28cd1`. Esse resultado não valida automaticamente a revisão funcional deste PR:
+O baseline operacional atual é definido por `tests/ci/test-baseline.json` e pelos gates descritos na seção 18:
 
-- **98/98 suítes Jest**;
-- **716/716 testes Jest**;
-- **22/22 testes E2E Playwright**;
-- **Version Integrity aprovado**;
-- sintaxe JavaScript aprovada;
-- Manifest V3 aprovado;
-- smoke tests aprovados;
-- testes visuais/perceptuais aprovados;
-- pipeline sem mascaramento das falhas funcionais.
+- **108 suítes Jest**;
+- **mínimo de 848 testes Jest**;
+- **0 skipped e 0 TODO**;
+- execução completa em **Node 20 e Node 22**;
+- **21 testes E2E Playwright**, com skipped=0, flaky=0 e failed=0;
+- **224 testes visuais/perceptuais**;
+- **6 smoke files**;
+- **56 arquivos instrumentados** no coverage;
+- `CI Gate` obrigatório.
 
-A revisão funcional 2 foi aprovada manualmente em 21 traduções: sete temporárias, sete minimizadas e sete normais, em quatro lotes completos. Houve 21 renovações de watchdog confirmadas e 14 exclusões verificadas. Nenhum teste local foi executado nesta publicação; o CI do GitHub permanece habilitado. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+O PR #47 também protege o warning de worker forçado como falha real, mantém thresholds críticos de coverage e valida a matriz `tests/ci/regression-matrix.json`.
 
-O marco v6.5 mantém versionamento centralizado; esta revisão não altera versão de produto, schema de banco ou permissões.
+A revisão funcional 2 continua sendo a evidência manual disponível: 21 traduções (sete temporárias, sete minimizadas e sete normais) em quatro lotes completos, com 21 renovações de watchdog e 14 exclusões verificadas. Essa evidência é anterior a parte do hardening posterior e não substitui os testes automatizados. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+
+Para rastreabilidade histórica, o run #663 no commit `446f003` havia aprovado 98 suítes / 716 testes Jest e 22 E2E. Esses números não são mais o baseline atual.
+
+O marco v6.5 mantém versionamento centralizado; o PR #47 não altera por si só a versão do produto nem exige mudança dos schemas persistidos.
 
 ## 2.3 O que não deve mais ser considerado estado atual
 

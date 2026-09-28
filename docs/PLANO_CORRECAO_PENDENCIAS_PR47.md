@@ -106,8 +106,8 @@ No run #1327, depois da correção:
 
 No run final #1355:
 
-- Node 20: **108/108 suítes, 847/847 testes**, skipped=0, TODO=0, gate Jest aprovado;
-- Node 22: **108/108 suítes, 847/847 testes**, skipped=0, TODO=0, gate Jest aprovado;
+- evidência do run #1355 antes da regressão explícita do timer: Node 20 e Node 22 com **108/108 suítes, 847/847 testes**, skipped=0, TODO=0;
+- baseline atual após `REG-WORKER-4S`: **108 suítes / mínimo de 848 testes**;
 - nenhum `A worker process has failed to exit gracefully`;
 - nenhum `--forceExit`;
 - nenhuma conversão da suíte para `--runInBand`.
@@ -121,7 +121,7 @@ Foram adicionadas regressões para guardas de dependência e caminhos de `tryCli
 - `job-runner.js`: **285/434 branches = 65,67%**;
 - global: Statements **79,52%**, Branches **71,68%**, Functions **82,71%**, Lines **79,52%**;
 - 56/56 arquivos de coverage esperados;
-- **847/847 testes** no job de coverage;
+- **847/847 testes** no job de coverage daquele run; o baseline atual posterior exige 848;
 - `Coverage Integrity`: aprovado.
 
 ### E2E

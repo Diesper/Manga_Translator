@@ -117,7 +117,7 @@ Resultado no run #1355:
 - coverage global: **79,52% statements, 71,68% branches, 82,71% functions, 79,52% lines**;
 - Coverage Integrity aprovado.
 
-O inventário Jest final protegido é **108 suítes / 847 testes**.
+Naquele run #1355, o inventário era **108 suítes / 847 testes**. A regressão explícita `REG-WORKER-4S` adicionada depois eleva o baseline protegido atual para **108 suítes / 848 testes**.
 
 ## Evidência E2E e CI final
 
