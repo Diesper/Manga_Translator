@@ -31,6 +31,9 @@ const requiredJobs = [
   'unit-and-integration',
   'coverage',
   'e2e',
+  'jest-worker-diagnostic',
+  'focused-project-leak-diagnostic',
+  'background-leak-bisection',
   'ci-gate',
 ];
 
@@ -60,9 +63,42 @@ for (const diagnosticJob of [
   const block = jobBlock(diagnosticJob);
   if (!block) {
     problems.push('job de diagnóstico ausente: ' + diagnosticJob);
-  } else if (!block.includes("github.event_name == 'workflow_dispatch'")) {
-    problems.push(diagnosticJob + ': diagnóstico pesado deve rodar somente por workflow_dispatch');
+    continue;
   }
+
+  for (const requiredCondition of [
+    "github.event_name == 'workflow_dispatch'",
+    "github.event_name == 'push'",
+    "github.ref == 'refs/heads/main'",
+  ]) {
+    if (!block.includes(requiredCondition)) {
+      problems.push(
+        diagnosticJob + ': precisa executar em workflow_dispatch e em todo push da main; ausente: ' +
+        requiredCondition
+      );
+    }
+  }
+
+  if (/^    continue-on-error:\s*true\s*$/m.test(block)) {
+    problems.push(diagnosticJob + ': não pode mascarar falha com continue-on-error no job');
+  }
+
+  const lines = block.split(/\r?\n/);
+  const diagnosticRun = lines.findIndex((line) =>
+    /run:\s+npm run test:diagnose-(?:workers|background-leak)/.test(line)
+  );
+  if (diagnosticRun < 0) {
+    problems.push(diagnosticJob + ': comando de diagnóstico obrigatório ausente');
+  } else {
+    const nearby = lines.slice(Math.max(0, diagnosticRun - 3), diagnosticRun).join('\n');
+    if (/continue-on-error:\s*true/.test(nearby)) {
+      problems.push(diagnosticJob + ': passo de diagnóstico não pode usar continue-on-error');
+    }
+  }
+}
+
+if (!/cancel-in-progress:\s*\$\{\{\s*github\.ref\s*!=\s*'refs\/heads\/main'\s*\}\}/.test(workflow)) {
+  problems.push('concurrency: execuções da main não podem ser canceladas por um merge posterior');
 }
 
 if (regressionMatrix) {
@@ -148,6 +184,21 @@ for (const dependency of requiredJobs.filter((job) => job !== 'ci-gate')) {
   }
 }
 
+for (const marker of [
+  'FULL_DIAGNOSTICS_REQUIRED',
+  'JEST_WORKER_DIAGNOSTIC',
+  'FOCUSED_PROJECT_LEAK',
+  'BACKGROUND_LEAK_BISECTION',
+  'if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then',
+  'check "Jest Worker Diagnostic" "$JEST_WORKER_DIAGNOSTIC"',
+  'check "Focused Project Leak" "$FOCUSED_PROJECT_LEAK"',
+  'check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"',
+]) {
+  if (!gate.includes(marker)) {
+    problems.push('ci-gate: proteção pós-merge incompleta, marcador ausente: ' + marker);
+  }
+}
+
 if (!playwright.includes('forbidOnly: !!process.env.CI')) {
   problems.push('Playwright precisa proibir test.only em CI');
 }
@@ -226,4 +277,4 @@ if (problems.length) {
   process.exit(1);
 }
 
-console.log('Contrato da CI validado: jobs independentes, gates obrigatórios e inventários protegidos.');
+console.log('Contrato da CI validado: gates obrigatórios, regressões e verificação completa pós-merge da main protegidos.');

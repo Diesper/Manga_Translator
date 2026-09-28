@@ -131,7 +131,7 @@ Run #1355:
 - E2E gate aprovado;
 - CI Gate aprovado com todos os gates obrigatórios em `success`.
 
-Os diagnósticos caros de leak continuam disponíveis por `workflow_dispatch`, enquanto o gate permanente do Jest completo permanece obrigatório.
+Os diagnósticos caros de leak continuam disponíveis por `workflow_dispatch` e, após o hardening pós-merge, também passam a executar obrigatoriamente em todo `push` da `main`. Nessa execução eles são bloqueantes e participam do `CI Gate`; o gate permanente do Jest completo continua obrigatório em todos os eventos normais.
 
 
 ## Matriz obrigatória de regressões — atualização final
@@ -184,3 +184,19 @@ O helper de testes agora expõe apenas para regressão:
 Isso evita esperar quatro segundos reais e torna a causa-raiz diretamente observável.
 
 O baseline Jest passa de 847 para **848 testes**, mantendo **108 suítes**, skipped=0 e TODO=0.
+
+
+## Garantia pós-merge da main
+
+Após o PR #47, a política de CI foi endurecida para que um commit integrado à `main` não termine com os diagnósticos de leak como `skipped`.
+
+Todo `push` para `refs/heads/main` executa:
+
+- a matriz completa de `Jest Worker Diagnostic`;
+- a matriz completa de `Focused Project Leak`;
+- `Background Leak Bisection`;
+- todos os gates funcionais já existentes.
+
+Os diagnósticos deixam de ser `continue-on-error` e o `CI Gate` exige `success` deles na `main`. Além disso, uma nova execução da `main` não cancela a anterior, garantindo uma rodada completa por commit integrado.
+
+`verify-ci-contract.js` contém regressões estruturais que falham se essa política for removida ou enfraquecida.

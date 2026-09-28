@@ -2,7 +2,9 @@ name: MangaTranslator CI
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # PRs/branches podem cancelar runs substituídos; a main nunca cancela uma
+  # verificação pós-merge, garantindo uma execução completa por commit integrado.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 on:
   push:
@@ -248,7 +250,7 @@ jobs:
 
   jest-worker-diagnostic:
     name: Jest Worker Diagnostic (${{ matrix.case }})
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
@@ -289,7 +291,6 @@ jobs:
       - name: Instalar dependências
         run: npm ci
       - name: Executar diagnóstico ${{ matrix.case }}
-        continue-on-error: true
         run: npm run test:diagnose-workers -- --case=${{ matrix.case }}
       - name: Publicar diagnóstico ${{ matrix.case }}
         if: always()
@@ -306,7 +307,7 @@ jobs:
 
   focused-project-leak-diagnostic:
     name: Focused Project Leak (${{ matrix.case }})
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
@@ -339,7 +340,6 @@ jobs:
       - name: Instalar dependências
         run: npm ci
       - name: Executar ${{ matrix.case }}
-        continue-on-error: true
         run: npm run test:diagnose-workers -- --case=${{ matrix.case }}
       - name: Publicar diagnóstico ${{ matrix.case }}
         if: always()
@@ -356,7 +356,7 @@ jobs:
 
   background-leak-bisection:
     name: Background Leak Bisection
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
     continue-on-error: true
     defaults:
@@ -374,7 +374,6 @@ jobs:
       - name: Instalar dependências
         run: npm ci
       - name: Reduzir conjunto de testes de background que mantém worker vivo
-        continue-on-error: true
         run: npm run test:diagnose-background-leak
         env:
           # Evidência do run #1289: w2 limpo; w3 reproduz worker forçado.
@@ -407,6 +406,9 @@ jobs:
       - unit-and-integration
       - coverage
       - e2e
+      - jest-worker-diagnostic
+      - focused-project-leak-diagnostic
+      - background-leak-bisection
     steps:
       - name: Exigir execução e sucesso de todos os gates
         env:
@@ -419,6 +421,10 @@ jobs:
           UNIT_INTEGRATION: ${{ needs.unit-and-integration.result }}
           COVERAGE: ${{ needs.coverage.result }}
           E2E: ${{ needs.e2e.result }}
+          FULL_DIAGNOSTICS_REQUIRED: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+          JEST_WORKER_DIAGNOSTIC: ${{ needs.jest-worker-diagnostic.result }}
+          FOCUSED_PROJECT_LEAK: ${{ needs.focused-project-leak-diagnostic.result }}
+          BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
         run: |
           failed=0
           check() {
@@ -440,4 +446,14 @@ jobs:
           check "Unit + Integration" "$UNIT_INTEGRATION"
           check "Code Coverage" "$COVERAGE"
           check "E2E Tests" "$E2E"
+
+          if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
+            echo "🔒 Verificação completa pós-merge/manual: diagnósticos pesados são obrigatórios."
+            check "Jest Worker Diagnostic" "$JEST_WORKER_DIAGNOSTIC"
+            check "Focused Project Leak" "$FOCUSED_PROJECT_LEAK"
+            check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"
+          else
+            echo "ℹ️ Diagnósticos pesados não são obrigatórios neste evento; serão obrigatórios em push para main."
+          fi
+
           exit "$failed"

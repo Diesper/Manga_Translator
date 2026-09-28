@@ -1800,17 +1800,31 @@ A matriz cobre, entre outros:
 
 Assim, apagar silenciosamente um desses testes também reprova `CI Contract`, mesmo que outro teste seja adicionado para manter a contagem total.
 
-## 18.11 Diagnósticos pesados
+## 18.11 Verificação completa pós-merge da `main`
 
-`Jest Worker Diagnostic`, `Focused Project Leak` e `Background Leak Bisection` foram preservados, mas rodam somente por `workflow_dispatch`.
+`Jest Worker Diagnostic`, `Focused Project Leak` e `Background Leak Bisection` possuem duas formas de execução:
 
-Eles são ferramentas de investigação, não gates funcionais cotidianos. A proteção permanente contra worker leak continua no `Unit + Integration`.
+- `workflow_dispatch`, para investigação manual;
+- **todo `push` para `refs/heads/main`**, incluindo o commit produzido por merge de PR.
+
+Em PRs comuns eles podem permanecer `skipped` para não multiplicar o custo de cada atualização da branch. Depois do merge, porém, a execução da `main` precisa executar todas as matrizes e a bisection.
+
+Na `main` esses jobs são **bloqueantes**:
+
+- não usam `continue-on-error` no job;
+- o passo que executa o diagnóstico também não usa `continue-on-error`;
+- `CI Gate` depende dos três;
+- `CI Gate` exige resultado `success` dos três em push da `main`.
+
+Portanto um worker leak, uma falha de project/combo ou uma reprodução no bisection torna a execução pós-merge vermelha mesmo que os testes funcionais comuns tenham passado.
 
 ## 18.12 Concurrency do CI
 
-Execuções superseded da mesma branch/workflow podem ser canceladas.
+Runs substituídos de PRs e branches de trabalho podem continuar sendo cancelados para economizar recursos.
 
-Isso evita gastar recursos validando commits que já foram substituídos.
+A `main` é diferente: `cancel-in-progress` é desativado para `refs/heads/main`. Se dois merges acontecerem em sequência, a verificação do primeiro não é cancelada pelo segundo; cada commit integrado mantém sua própria execução completa.
+
+O `CI Contract` protege tanto a condição de execução dos diagnósticos quanto esta regra de concurrency.
 
 ---
 
