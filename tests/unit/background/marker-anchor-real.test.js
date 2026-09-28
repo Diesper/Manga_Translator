@@ -6,6 +6,7 @@ const {
     getDownloadsMock,
 } = require('../../mocks/chrome-api.mock.js');
 const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
+const { trackBackgroundDelayTimers } = require('../../helpers/track-background-delay-timers.js');
 const {
     BACKGROUND_PATH,
     flush,
@@ -18,6 +19,7 @@ describe('background.js - handleMarkerAndShow real', () => {
     let alarmsMock;
     let downloadsMock;
     let backgroundModule;
+    let cancelBackgroundDelayTimers;
 
     async function flushFakeTimerRounds(rounds = 6, stepMs = 1) {
         for (let index = 0; index < rounds; index++) {
@@ -29,6 +31,7 @@ describe('background.js - handleMarkerAndShow real', () => {
     beforeEach(async () => {
         jest.resetModules();
         jest.useRealTimers();
+        cancelBackgroundDelayTimers = trackBackgroundDelayTimers();
 
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
@@ -57,6 +60,10 @@ describe('background.js - handleMarkerAndShow real', () => {
     });
 
     afterEach(async () => {
+        // handleMarkerAndShow agenda a remoção do arquivo-âncora em 4 s.
+        // Esse timer pertence ao caso que criou a âncora e não pode sobreviver
+        // quando esta suíte termina como a última de um worker Jest.
+        cancelBackgroundDelayTimers();
         alarmsMock.clearAll();
         tabsMock._tabs.clear();
         downloadsMock._downloads.clear();
