@@ -328,6 +328,20 @@ jobs:
         env:
           # Evidência do run #1289: w2 limpo; w3 reproduz worker forçado.
           MT_BACKGROUND_LEAK_WORKERS: "3"
+          # Artifact do run #1297: estes 11 arquivos vazam em conjunto;
+          # os primeiros 6 e os últimos 5 ficam limpos separadamente.
+          MT_BACKGROUND_LEAK_SEED: >-
+            unit/background/jobs-lifecycle-batch-status.test.js,
+            unit/background/jobs-reconciliation-batch-queue.test.js,
+            unit/background/jobs-watchdog-ordering.test.js,
+            unit/background/lifecycle-alarms-real.test.js,
+            unit/background/marker-anchor-real.test.js,
+            unit/background/message-handlers-real.test.js,
+            unit/background/open-existing-folder-action.test.js,
+            unit/background/open-manga-root-action.test.js,
+            unit/background/plan-missing-handlers-real.test.js,
+            unit/background/process-finalize-real.test.js,
+            unit/background/refresh-job-watchdog-action.test.js
       - name: Publicar bisection do leak de background
         if: always()
         uses: actions/upload-artifact@v4
