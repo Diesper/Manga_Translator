@@ -5,11 +5,13 @@ const {
 const {
     getStorageMock,
     getTabsMock,
+    getRuntimeMock,
 } = require('../mocks/chrome-api.mock.js');
 
 describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU-10/PU-11/PU-12/PU-13/PU-14/PU-15/PU-16/PU-17/PU-18/PU-19/PU-20/PU-21/PU-22/PU-23/PU-23b/PU-24/PU-25/PU-26/PU-27/PU-28/PU-29/PU-30/PU-31/PU-32/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-43/PU-44/PU-45/PU-46/PU-47/PU-48/PU-49/PU-49b/PU-50/PU-51/PU-52/PU-53/PU-54/PU-55/PU-56/PU-57/PU-58/PU-59/PU-60/PU-61/PU-62/PU-63/PU-64/PU-65/PU-66/PU-67/PU-68/PU-69/PU-70/PU-71/PU-72/PU-73/PU-74/PU-75/PU-76/PU-77/PU-78/PU-79/PU-80/PU-81: popup.js + popup.html - integracao real', () => {
     let storageMock;
     let tabsMock;
+    let runtimeMock;
 
     async function createActiveTab(url, title = 'Manga Page') {
         const tab = await tabsMock.create({ url, active: true });
@@ -20,6 +22,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
     function registerPopupTabHandler(tabId, {
         images = [],
         onEnablePage = null,
+        onStartTranslation = null,
+        onStopTranslation = null,
     } = {}) {
         tabsMock._registerMessageHandler(tabId, (message, _sender, sendResponse) => {
             if (message.action === 'GET_PAGE_IMAGES') {
@@ -31,6 +35,12 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
                 sendResponse({ success: true });
             } else if (message.action === 'HIGHLIGHT_IMAGE') {
                 sendResponse({ success: true });
+            } else if (message.action === 'START_TRANSLATION_FROM_POPUP') {
+                if (onStartTranslation) onStartTranslation(message);
+                sendResponse({ ok: true });
+            } else if (message.action === 'STOP_TRANSLATION_FROM_POPUP') {
+                if (onStopTranslation) onStopTranslation(message);
+                sendResponse({ ok: true, batchId: 'batch-owned-by-active-tab' });
             }
         });
     }
@@ -39,6 +49,9 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         jest.resetModules();
         storageMock = getStorageMock();
         tabsMock = getTabsMock();
+        runtimeMock = getRuntimeMock();
+        runtimeMock._messageListeners = [];
+        runtimeMock.lastError = null;
         await storageMock.clear();
         document.documentElement.innerHTML = '<html><head></head><body></body></html>';
     });
@@ -75,6 +88,51 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         expect(document.getElementById('btn-translate').textContent).toBe('Traduzir 2 Páginas');
         expect(document.getElementById('translating-dot').classList.contains('visible')).toBe(true);
         expect(document.getElementById('translating-label').classList.contains('visible')).toBe(true);
+    });
+
+    test('botão Parar cancela o lote da aba atual e nunca envia STOP_BATCH global', async () => {
+        const tab = await createActiveTab('https://reader.test/chapter-owned-stop', 'Reader Test');
+        const startMessages = [];
+        const stopMessages = [];
+        registerPopupTabHandler(tab.id, {
+            images: [{ index: 0, src: 'https://reader.test/p1.png', width: 800, height: 1200 }],
+            onStartTranslation: message => startMessages.push(message),
+            onStopTranslation: message => stopMessages.push(message),
+        });
+
+        await storageMock.set({
+            enabledDomains: ['reader.test'],
+            mt_state: {
+                activeJobsCount: 1,
+                completedJobs: 0,
+                totalJobs: 1,
+                isProcessing: true,
+                jobQueue: [],
+            },
+        });
+
+        const runtimeSpy = jest.spyOn(runtimeMock, 'sendMessage');
+        const closeSpy = jest.spyOn(window, 'close').mockImplementation(() => {});
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup.html',
+            scriptPath: 'extension/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(8);
+
+        document.getElementById('btn-translate').click();
+        await flushAsyncTasks(8);
+        expect(startMessages).toHaveLength(1);
+
+        document.getElementById('btn-progress-stop').click();
+        await flushAsyncTasks(8);
+
+        expect(stopMessages).toEqual([{ action: 'STOP_TRANSLATION_FROM_POPUP' }]);
+        expect(runtimeSpy.mock.calls.some(([message]) =>
+            message && message.action === 'STOP_BATCH'
+        )).toBe(false);
+        expect(closeSpy).toHaveBeenCalled();
     });
 
     test('abre o painel de configuracoes e renderiza os sites habilitados sem crash', async () => {

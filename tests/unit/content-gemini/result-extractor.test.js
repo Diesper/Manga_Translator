@@ -444,4 +444,47 @@ describe('gemini/result-extractor.js', () => {
 
     expect(events).toEqual(['sw-background']);
   });
+
+  test('EXT-13: logs de extração carregam jobId/batchId/index em estágios, retry e diagnóstico', async () => {
+    const { createResultExtractor } = loadModule();
+    const events = [];
+    const logs = [];
+    const extractor = createResultExtractor({
+      runtime: createRuntime(events, () => ({ error: 'SW indisponível' })),
+      pageDocument: createCanvasDocument(events, { fail: true }),
+      pageWindow: createPageWindow(events, { error: 'MAIN indisponível' }),
+      CustomEventImpl: TestCustomEvent,
+      sleep: async () => {},
+      sendLog: (level, action, detail, extra) => logs.push({ level, action, detail, extra }),
+      getUrlLogMetadata: () => ({ host: 'example.test' }),
+    });
+
+    await expect(extractor.extractOrAuxiliaryFallback({
+      resultImageElement: createImage(),
+      resultUrl: 'https://example.test/result.png',
+      executionMode: 'background_delete',
+      maxAttempts: 2,
+      retryDelayMs: 0,
+      logContext: {
+        jobIdPrefix: 'job12345',
+        batchIdPrefix: 'batch678',
+        index: 7,
+      },
+      onAuxiliaryFallback: async () => ({ delivered: true }),
+    })).resolves.toEqual(expect.objectContaining({ kind: 'auxiliary' }));
+
+    const correlated = logs.filter(entry =>
+      ['GEMINI_EXTRACT_STAGE', 'GEMINI_EXTRACT_RETRY_ALL', 'GEMINI_EXTRACT_DIAGNOSTIC', 'GEMINI_AUXILIARY_FALLBACK']
+        .includes(entry.action)
+    );
+    expect(correlated.length).toBeGreaterThan(0);
+    correlated.forEach(entry => {
+      expect(entry.extra).toEqual(expect.objectContaining({
+        jobIdPrefix: 'job12345',
+        batchIdPrefix: 'batch678',
+        index: 7,
+      }));
+    });
+  });
+
 });

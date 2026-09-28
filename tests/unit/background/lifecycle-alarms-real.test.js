@@ -6,6 +6,7 @@ const {
     getDownloadsMock,
 } = require('../../mocks/chrome-api.mock.js');
 const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
+const { trackBackgroundDelayTimers } = require('../../helpers/track-background-delay-timers.js');
 const {
     BACKGROUND_PATH,
     flush,
@@ -19,10 +20,12 @@ describe('background.js - lifecycle e alarms reais', () => {
     let alarmsMock;
     let downloadsMock;
     let backgroundModule;
+    let cancelBackgroundDelayTimers;
 
     beforeEach(async () => {
         jest.resetModules();
         jest.useRealTimers();
+        cancelBackgroundDelayTimers = trackBackgroundDelayTimers();
 
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
@@ -51,9 +54,29 @@ describe('background.js - lifecycle e alarms reais', () => {
     });
 
     afterEach(async () => {
-        alarmsMock.clearAll();
+        // onStartup dispara processNextJob() sem await. Primeiro bloqueie novos
+        // launches e drene a cadeia assíncrona; só então cancele os timers que
+        // finalizeJob() possa ter criado durante essa drenagem.
+        if (backgroundModule?.__setState) {
+            backgroundModule.__setState({
+                stopRequested: true,
+                jobQueue: [],
+                pendingBatches: [],
+            });
+        }
+        await flush(12);
+        cancelBackgroundDelayTimers();
+
+        await alarmsMock.clearAll();
+        await flush(4);
+        await alarmsMock.clearAll();
         tabsMock._tabs.clear();
         await storageMock.clear();
+
+        // O tracker continua ativo após o primeiro cancelamento. Se qualquer
+        // callback tardio tiver criado outro timer de 600 ms/4 s/18 s durante
+        // a limpeza final, elimine-o antes de restaurar os mocks.
+        cancelBackgroundDelayTimers();
         jest.useRealTimers();
         jest.restoreAllMocks();
     });
@@ -94,6 +117,40 @@ describe('background.js - lifecycle e alarms reais', () => {
         expect(createSpy).not.toHaveBeenCalled();
     });
 
+    test('BG-69b: onStartup não ressuscita lote cujo completionClaimedBatchId já foi persistido', async () => {
+        const createSpy = jest.spyOn(tabsMock, 'create');
+        await storageMock.set({
+            mt_state: {
+                jobQueue: [],
+                isProcessing: false,
+                stopRequested: false,
+                activeMangaTabId: null,
+                currentBatchId: 'batch-done',
+                completionClaimedBatchId: 'batch-done',
+                extractionTabs: {},
+                totalJobs: 2,
+                completedJobs: 2,
+                activeJobsCount: 0,
+                jobIndex: [],
+                pendingBatches: [],
+            },
+        });
+
+        await runtimeMock._simulateStartup();
+        await flush(8);
+
+        const data = await storageMock.get(['mt_state']);
+        expect(data.mt_state).toEqual(expect.objectContaining({
+            currentBatchId: 'batch-done',
+            completionClaimedBatchId: 'batch-done',
+            isProcessing: false,
+            activeJobsCount: 0,
+            jobQueue: [],
+            pendingBatches: [],
+        }));
+        expect(createSpy).not.toHaveBeenCalled();
+    });
+
     test('REG-13/BG-70/BG-71: onStartup recupera fila, zera extractionTabs e reinicia processamento sem ficar preso', async () => {
         await storageMock.set({
             geminiBaseUrl: 'http://127.0.0.1:3999/app',
@@ -119,7 +176,13 @@ describe('background.js - lifecycle e alarms reais', () => {
 
         await waitFor(async () => {
             const data = await storageMock.get(['mt_state', 'translatorLog']);
-            return (data.mt_state && Array.isArray(data.translatorLog) && tabsMock._tabs.size === 1) ? data : null;
+            const alarms = await alarmsMock.getAll();
+            const state = data.mt_state || {};
+            const launchFinished = Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'));
+            return (data.mt_state && Array.isArray(data.translatorLog) &&
+                tabsMock._tabs.size === 1 && launchFinished) ? data : null;
         });
 
         const data = await storageMock.get(['mt_state', 'translatorLog']);
@@ -138,6 +201,111 @@ describe('background.js - lifecycle e alarms reais', () => {
             expect.objectContaining({ action: 'STARTUP_RECOVERY' }),
         ]));
         expect(tabsMock._tabs.size).toBe(1);
+    });
+
+    test('BG-69c: startup promove B quando snapshot persistido contém A já concluído + B/C pendentes', async () => {
+        await storageMock.set({
+            geminiBaseUrl: 'http://127.0.0.1:3999/app',
+            maxConcurrentJobs: 1,
+            mt_state: {
+                jobQueue: [],
+                isProcessing: false,
+                stopRequested: false,
+                activeMangaTabId: null,
+                currentBatchId: 'batch-a',
+                completionClaimedBatchId: 'batch-a',
+                extractionTabs: {},
+                totalJobs: 1,
+                completedJobs: 1,
+                activeJobsCount: 0,
+                jobIndex: [],
+                pendingBatches: [
+                    { batchId: 'batch-b', mangaTabId: 21, prompt: 'B', images: [{ index: 0 }] },
+                    { batchId: 'batch-c', mangaTabId: 31, prompt: 'C', images: [{ index: 1 }] },
+                ],
+            },
+        });
+
+        await runtimeMock._simulateStartup();
+
+        await waitFor(async () => {
+            const data = await storageMock.get(['mt_state']);
+            const alarms = await alarmsMock.getAll();
+            const state = data.mt_state || {};
+            const launchFinished = Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'));
+            return state.currentBatchId === 'batch-b' &&
+                tabsMock._tabs.size === 1 && launchFinished
+                ? state
+                : null;
+        });
+
+        const data = await storageMock.get(['mt_state', 'translatorLog']);
+        expect(data.mt_state.currentBatchId).toBe('batch-b');
+        expect(data.mt_state.completionClaimedBatchId).toBeNull();
+        expect(data.mt_state.pendingBatches.map(batch => batch.batchId)).toEqual(['batch-c']);
+        expect(data.mt_state.activeMangaTabId).toBe(21);
+        expect(data.mt_state.activeJobsCount).toBe(1);
+        expect(data.translatorLog).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                action: 'BATCH_PROMOTED',
+                extra: expect.objectContaining({ batchId: 'batch-b' }),
+            }),
+        ]));
+    });
+
+    test('BG-71b: onStartup promove o primeiro de vários pendingBatches persistidos em FIFO', async () => {
+        await storageMock.set({
+            geminiBaseUrl: 'http://127.0.0.1:3999/app',
+            maxConcurrentJobs: 1,
+            mt_state: {
+                jobQueue: [],
+                isProcessing: false,
+                stopRequested: false,
+                activeMangaTabId: null,
+                currentBatchId: null,
+                extractionTabs: {},
+                totalJobs: 0,
+                completedJobs: 0,
+                activeJobsCount: 0,
+                jobIndex: [],
+                pendingBatches: [
+                    { batchId: 'batch-b', mangaTabId: 21, prompt: 'B', images: [{ index: 0 }] },
+                    { batchId: 'batch-c', mangaTabId: 31, prompt: 'C', images: [{ index: 1 }] },
+                    { batchId: 'batch-d', mangaTabId: 41, prompt: 'D', images: [{ index: 2 }] },
+                ],
+            },
+        });
+
+        await runtimeMock._simulateStartup();
+
+        await waitFor(async () => {
+            const data = await storageMock.get(['mt_state']);
+            const alarms = await alarmsMock.getAll();
+            const state = data.mt_state || {};
+            const launchFinished = Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'));
+            return state.currentBatchId === 'batch-b' &&
+                tabsMock._tabs.size === 1 && launchFinished
+                ? state
+                : null;
+        });
+
+        const data = await storageMock.get(['mt_state', 'translatorLog']);
+        expect(data.mt_state.currentBatchId).toBe('batch-b');
+        expect(data.mt_state.pendingBatches.map(batch => batch.batchId))
+            .toEqual(['batch-c', 'batch-d']);
+        expect(data.mt_state.activeMangaTabId).toBe(21);
+        expect(data.mt_state.totalJobs).toBe(1);
+        expect(data.mt_state.activeJobsCount).toBe(1);
+        expect(data.translatorLog).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                action: 'BATCH_PROMOTED',
+                extra: expect.objectContaining({ batchId: 'batch-b' }),
+            }),
+        ]));
     });
 
     test('BG-72: onConnect registra listener de disconnect para porta keep-alive', async () => {
@@ -162,7 +330,16 @@ describe('background.js - lifecycle e alarms reais', () => {
         alarmsMock.create('nextJobAlarm', { delayInMinutes: 1 });
         alarmsMock._fire('nextJobAlarm');
 
-        await waitFor(() => (tabsMock._tabs.size === 1 ? true : null));
+        await waitFor(async () => {
+            const alarms = await alarmsMock.getAll();
+            const state = backgroundModule.__getState();
+            return tabsMock._tabs.size === 1 &&
+                Array.isArray(state.jobIndex) &&
+                state.jobIndex.length === 1 &&
+                alarms.some(alarm => String(alarm.name || '').startsWith('watchdog_'))
+                ? true
+                : null;
+        });
         expect(tabsMock._tabs.size).toBe(1);
     });
 

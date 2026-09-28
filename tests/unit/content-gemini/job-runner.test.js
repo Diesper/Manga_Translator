@@ -157,6 +157,9 @@ function successfulPipelineDependencies({ inputDataUrl, resultDataUrl, advanceCl
     runtimeMessages.push(message);
     if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: inputDataUrl });
     else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+    else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: true, staged: true, persisted: true });
+    else if (message.action === 'GEMINI_RESULT_COMMIT') callback?.({ ok: true, committed: true });
+    else if (message.action === 'GEMINI_RESULT_URL') callback?.({ ok: true, extractionRegistered: true });
     else callback?.({ ok: true });
   });
 
@@ -176,6 +179,25 @@ describe('gemini/job-runner.js', () => {
     document.documentElement.innerHTML = '<head></head><body></body>';
   });
 
+  test('RUN-00: rejeita dependências obrigatórias ausentes com erro explícito', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+
+    expect(() => createGeminiJobRunner({ ...options, root: null }))
+      .toThrow('JobRunner requer document/window/runtime/storage');
+
+    expect(() => createGeminiJobRunner({
+      ...options,
+      domApi: null,
+      // Evita que o default de imageQuarantine falhe antes da guarda do runner.
+      imageQuarantine: {},
+    }))
+      .toThrow('JobRunner requer módulos Gemini DOM/Observer/Editor/Attachment/TemporaryChat');
+
+    expect(() => createGeminiJobRunner({ ...options, resultExtractor: null }))
+      .toThrow('JobRunner requer resultExtractor e deletionController');
+  });
+
   test('RUN-01: dataURLtoFile valida e converte PNG', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
@@ -190,6 +212,21 @@ describe('gemini/job-runner.js', () => {
     expect(file.type).toBe('image/png');
     expect(file.name).toBe('page.png');
     expect(file.size).toBe(4);
+  });
+
+  test('RUN-01B: dataURLtoFile rejeita formato inválido e APIs ausentes', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    expect(() => runner.dataURLtoFile('invalid', 'page.png'))
+      .toThrow('sem vírgula separadora');
+    expect(() => runner.dataURLtoFile('data:,QUJDRA==', 'page.png'))
+      .toThrow('MIME não encontrado');
+
+    const withoutFileApi = createGeminiJobRunner({ ...options, FileImpl: null });
+    expect(() => withoutFileApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
+      .toThrow('APIs de arquivo indisponíveis');
   });
 
   test('RUN-02: recovery pendente encerra antes de abrir keepalive', async () => {
@@ -335,6 +372,18 @@ describe('gemini/job-runner.js', () => {
     }
   });
 
+  test('RUN-07A: setAntiThrottleMode preserva o modo sem um dispatcher de eventos', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner({
+      ...options,
+      pageWindow: {},
+    });
+
+    expect(runner.setAntiThrottleMode('balanced')).toBe('balanced');
+    expect(runner.setAntiThrottleMode('invalid')).toBe('minimal');
+  });
+
   test('RUN-07B: qualquer uso do HUD manual é registrado como erro grave de automação', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
@@ -436,6 +485,10 @@ describe('gemini/job-runner.js', () => {
         callback?.({ srcData: 'data:image/png;base64,QUJDRA==' });
       } else if (message.action === 'REFRESH_JOB_WATCHDOG') {
         callback?.({ ok: true, refreshed: true });
+      } else if (message.action === 'GEMINI_IMAGE_EXTRACTED') {
+        callback?.({ ok: true, staged: true, persisted: true });
+      } else if (message.action === 'GEMINI_RESULT_COMMIT') {
+        callback?.({ ok: true, committed: true });
       } else {
         callback?.({ ok: true });
       }
@@ -537,6 +590,168 @@ describe('gemini/job-runner.js', () => {
       action: 'GEMINI_IMAGE_EXTRACTED',
       src: translated,
     }));
+  });
+
+
+  test('RUN-12: resultado direto é persistido antes do commit e não usa deleção-before-delivery', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 40_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const input = 'data:image/png;base64,SU5QVVQ=';
+    const translated = 'data:image/png;base64,VFJBTlNMQVRFRA==';
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: input,
+      resultDataUrl: translated,
+      advanceClock: ms => { clock += ms; },
+    });
+
+    await expect(createGeminiJobRunner(options).run({
+      jobId: 'job-order',
+      batchId: 'batch-order',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 3,
+      prompt: 'Traduza.',
+      executionMode: 'background_delete',
+    })).resolves.toEqual({ status: 'delivered_extracted' });
+
+    const stageIndex = runtimeMessages.findIndex(message =>
+      message.action === 'GEMINI_IMAGE_EXTRACTED'
+    );
+    const commitIndex = runtimeMessages.findIndex(message =>
+      message.action === 'GEMINI_RESULT_COMMIT'
+    );
+
+    expect(stageIndex).toBeGreaterThanOrEqual(0);
+    expect(commitIndex).toBeGreaterThan(stageIndex);
+    expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();
+    expect(options.resultExtractor.extractOrAuxiliaryFallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        logContext: {
+          jobIdPrefix: 'job-orde',
+          batchIdPrefix: 'batch-or',
+          index: 3,
+        },
+      })
+    );
+    expect(options.sendLog).toHaveBeenCalledWith(
+      'success',
+      'GEMINI_RESULT_STAGED',
+      expect.stringContaining('persistido'),
+      expect.objectContaining({ jobIdPrefix: expect.any(String) })
+    );
+  });
+
+  test('RUN-13: falha de staging nunca envia commit e preserva diagnóstico', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 50_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
+      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',
+      advanceClock: ms => { clock += ms; },
+    });
+
+    options.runtime.sendMessage.mockImplementation((message, callback) => {
+      runtimeMessages.push(message);
+      if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: 'data:image/png;base64,SU5QVVQ=' });
+      else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+      else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: false, reason: 'persist_failed' });
+      else callback?.({ ok: true });
+    });
+
+    const result = await createGeminiJobRunner(options).run({
+      jobId: 'job-stage-fail',
+      batchId: 'batch-stage-fail',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 4,
+      prompt: 'Traduza.',
+      executionMode: 'background_delete',
+    });
+
+    expect(result.status).toBe('error');
+    expect(result.error.code).toBe('RESULT_STAGE_FAILED');
+    expect(runtimeMessages).not.toContainEqual(expect.objectContaining({
+      action: 'GEMINI_RESULT_COMMIT',
+    }));
+    expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();
+  });
+
+  test('RUN-14: commit pós-persistência tenta novamente sem reenviar a imagem', async () => {
+    const { createGeminiJobRunner } = loadModule();
+    let clock = 60_000;
+    jest.spyOn(Date, 'now').mockImplementation(() => clock);
+    const { options, runtimeMessages } = successfulPipelineDependencies({
+      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
+      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',
+      advanceClock: ms => { clock += ms; },
+    });
+
+    let commitAttempts = 0;
+    options.runtime.sendMessage.mockImplementation((message, callback) => {
+      runtimeMessages.push(message);
+      if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: 'data:image/png;base64,SU5QVVQ=' });
+      else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
+      else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: true, staged: true, persisted: true });
+      else if (message.action === 'GEMINI_RESULT_COMMIT') {
+        commitAttempts += 1;
+        callback?.(commitAttempts < 3
+          ? { ok: false, reason: 'worker_wakeup' }
+          : { ok: true, committed: true });
+      } else callback?.({ ok: true });
+    });
+
+    await expect(createGeminiJobRunner(options).run({
+      jobId: 'job-commit-retry',
+      batchId: 'batch-commit-retry',
+      geminiTabId: 321,
+      mangaTabId: 77,
+      index: 5,
+      prompt: 'Traduza.',
+      executionMode: 'background_delete',
+    })).resolves.toEqual({ status: 'delivered_extracted' });
+
+    expect(commitAttempts).toBe(3);
+    expect(runtimeMessages.filter(message =>
+      message.action === 'GEMINI_IMAGE_EXTRACTED'
+    )).toHaveLength(1);
+    expect(runtimeMessages.filter(message =>
+      message.action === 'GEMINI_RESULT_COMMIT'
+    )).toHaveLength(3);
+  });
+
+  test('RUN-COV-01: tryClickModelImageCards retorna false quando não há candidato de resposta', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+    const runner = createGeminiJobRunner(options);
+
+    expect(runner.tryClickModelImageCards()).toBe(false);
+  });
+
+  test('RUN-COV-02: tryClickModelImageCards ignora clique que lança e tenta o próximo candidato', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+
+    const response = document.createElement('model-response');
+    const brokenButton = document.createElement('button');
+    brokenButton.setAttribute('aria-label', 'image result');
+    brokenButton.click = jest.fn(() => {
+      throw new Error('stale element');
+    });
+
+    const fallbackCard = document.createElement('div');
+    fallbackCard.className = 'image-card';
+    fallbackCard.click = jest.fn();
+
+    response.appendChild(brokenButton);
+    response.appendChild(fallbackCard);
+    document.body.appendChild(response);
+
+    const runner = createGeminiJobRunner(options);
+    expect(runner.tryClickModelImageCards()).toBe(true);
+    expect(brokenButton.click).toHaveBeenCalled();
+    expect(fallbackCard.click).toHaveBeenCalledTimes(1);
   });
 
 });

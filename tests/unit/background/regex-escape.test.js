@@ -8,6 +8,7 @@
 
 const path = require('path');
 const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
+const { trackBackgroundDelayTimers } = require('../../helpers/track-background-delay-timers.js');
 const { getDownloadsMock, getRuntimeMock } = require('../../mocks/chrome-api.mock.js');
 
 function getBackgroundListener(runtimeMock) {
@@ -30,8 +31,10 @@ function dispatchToBackground(runtimeMock, request, sender = { tab: null }) {
 describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no background.js (BUG #14)', () => {
     let downloadsMock;
     let runtimeMock;
+    let cancelBackgroundDelayTimers;
 
     beforeEach(() => {
+        cancelBackgroundDelayTimers = trackBackgroundDelayTimers();
         downloadsMock = getDownloadsMock();
         downloadsMock._downloads.clear();
         downloadsMock._downloads.set(1, {
@@ -47,6 +50,10 @@ describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no backgrou
     });
 
     afterEach(() => {
+        // Os casos sem pasta existente caem em handleMarkerAndShow(), que cria
+        // _anchor.png e agenda removeFile/erase para 4 s depois. Esse timer
+        // pertence ao caso atual e não pode sobreviver ao worker Jest.
+        cancelBackgroundDelayTimers();
         jest.restoreAllMocks();
     });
 

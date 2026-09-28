@@ -16,11 +16,88 @@
     const markerKey = tabId => `gemini_finalized_${tabId}`;
     const markerAlarm = tabId => `finalization_marker_${tabId}`;
 
+    function clonePendingBatches(value) {
+      return Array.isArray(value)
+        ? value.map(batch => ({
+            ...batch,
+            images: Array.isArray(batch?.images)
+              ? batch.images.map(image => ({ ...image }))
+              : [],
+          }))
+        : [];
+    }
+
+    function activateBatchSnapshot(snapshot, batch) {
+      snapshot.currentBatchId = batch.batchId;
+      snapshot.stopRequested = false;
+      snapshot.jobQueue = (Array.isArray(batch.images) ? batch.images : []).map(image => ({
+        mangaTabId: batch.mangaTabId,
+        index: image.index,
+        prompt: batch.prompt || '',
+        batchId: batch.batchId,
+      }));
+      snapshot.completedJobs = 0;
+      snapshot.activeJobsCount = 0;
+      snapshot.totalJobs = snapshot.jobQueue.length;
+      snapshot.activeMangaTabId = batch.mangaTabId || null;
+      snapshot.isProcessing = true;
+      snapshot.completionClaimedBatchId = null;
+      return snapshot;
+    }
+
+    async function promotePendingBatchIfIdle() {
+      let promoted = null;
+      const transition = snapshot => {
+        const pending = clonePendingBatches(snapshot.pendingBatches);
+        const indexed = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
+        const queued = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
+        const currentBatchAlreadyCompleted = Boolean(
+          snapshot.currentBatchId &&
+          snapshot.completionClaimedBatchId === snapshot.currentBatchId
+        );
+        // currentBatchId + filas/índice são a fonte de verdade. Um
+        // isProcessing=true residual após suspensão do MV3 não pode congelar
+        // lotes persistidos que já não possuem trabalho ativo.
+        const idle = !snapshot.stopRequested &&
+          (!snapshot.currentBatchId || currentBatchAlreadyCompleted) &&
+          queued.length === 0 &&
+          Number(snapshot.activeJobsCount) === 0 &&
+          indexed.length === 0;
+
+        if (!idle || pending.length === 0) return snapshot;
+
+        promoted = pending.shift();
+        snapshot.pendingBatches = pending;
+        activateBatchSnapshot(snapshot, promoted);
+        return snapshot;
+      };
+
+      if (typeof state.mutate === 'function') {
+        await state.mutate(transition);
+      } else {
+        transition(state);
+        await syncState();
+      }
+
+      if (promoted) {
+        log('info', 'bg', 'BATCH_PROMOTED',
+          'Próximo lote da fila FIFO foi promovido para execução.', {
+            batchId: String(promoted.batchId || '').slice(0, 8),
+            pendingCount: Array.isArray(state.pendingBatches) ? state.pendingBatches.length : 0,
+            totalJobs: Array.isArray(promoted.images) ? promoted.images.length : 0,
+          });
+        sendProgress(promoted.mangaTabId, '▶️ INICIANDO LOTE DA FILA...');
+      }
+
+      return promoted;
+    }
+
     // chrome.storage não oferece transação entre a marca e o snapshot. O índice
     // persistido funciona como journal: enquanto accountingApplied é falso, o
     // job fica no índice. Se o worker cair nesse intervalo, a reconciliação o
     // encontra e aplica a transição exatamente uma vez.
     async function applyFinalizationAccounting(geminiTabId, job, marker, { recovery = false } = {}) {
+      let skippedForeignBatchAccounting = false;
       const transition = snapshot => {
         const indexed = Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : [];
         const belongsToJob = entry => entry && entry.geminiTabId === geminiTabId &&
@@ -30,13 +107,30 @@
         // contabilidade foi salvo antes da suspensão; repetir seria duplicar.
         if (recovery && !wasIndexed) return snapshot;
         snapshot.jobIndex = indexed.filter(entry => !belongsToJob(entry));
-        if (!marker.fromError) snapshot.completedJobs = (Number(snapshot.completedJobs) || 0) + 1;
-        snapshot.activeJobsCount = Math.max(0, (Number(snapshot.activeJobsCount) || 0) - 1);
+
+        const jobBatchId = job.batchId || null;
+        const belongsToCurrentBatch = !jobBatchId ||
+          jobBatchId === snapshot.currentBatchId;
+
+        if (belongsToCurrentBatch) {
+          if (!marker.fromError) snapshot.completedJobs = (Number(snapshot.completedJobs) || 0) + 1;
+          snapshot.activeJobsCount = Math.max(0, (Number(snapshot.activeJobsCount) || 0) - 1);
+        } else {
+          skippedForeignBatchAccounting = true;
+        }
         return snapshot;
       };
 
       if (typeof state.mutate === 'function') {
         await state.mutate(transition);
+        if (skippedForeignBatchAccounting) {
+          log('warn', 'bg', 'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
+            'Finalização tardia removeu o job, mas não alterou os contadores do lote atual.', {
+              jobId: String(job.jobId || '').slice(0, 8),
+              jobBatchId: String(job.batchId || '').slice(0, 8),
+              currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+            });
+        }
         return;
       }
 
@@ -45,8 +139,18 @@
         (!job.jobId || !entry.jobId || entry.jobId === job.jobId));
       if (recovery && !wasIndexed) return;
       indexRemoveJob(geminiTabId);
-      if (!marker.fromError) state.completedJobs = (Number(state.completedJobs) || 0) + 1;
-      state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      const belongsToCurrentBatch = !job.batchId || job.batchId === state.currentBatchId;
+      if (belongsToCurrentBatch) {
+        if (!marker.fromError) state.completedJobs = (Number(state.completedJobs) || 0) + 1;
+        state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      } else {
+        log('warn', 'bg', 'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
+          'Finalização tardia removeu o job, mas não alterou os contadores do lote atual.', {
+            jobId: String(job.jobId || '').slice(0, 8),
+            jobBatchId: String(job.batchId || '').slice(0, 8),
+            currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+          });
+      }
       await syncState();
     }
 
@@ -71,6 +175,33 @@
       return true;
     }
 
+    async function recoverPersistedResult(entry) {
+      if (!entry || entry.geminiTabId === null || entry.geminiTabId === undefined) return false;
+      const canonicalTabId = await resolveCanonicalTabId(entry.geminiTabId);
+      const jobKey = `gemini_job_${canonicalTabId}`;
+      const data = await chrome.storage.local.get([jobKey]);
+      const job = data && data[jobKey];
+
+      if (!job || (job.resultPersisted !== true && job.state !== 'dom_applied' && job.state !== 'result_committed')) {
+        return false;
+      }
+
+      log('warn', 'bg', 'JOB_RECONCILE_PERSISTED_RESULT',
+        'Job reidratado já possui resultado persistido; pulando nova geração e finalizando com segurança.', {
+          jobId: String(job.jobId || entry.jobId || '').slice(0, 8),
+          batchId: String(job.batchId || entry.batchId || '').slice(0, 8),
+          geminiTabId: canonicalTabId,
+          state: job.state || null,
+        });
+
+      await finalizeJob(
+        canonicalTabId,
+        job.mangaTabId || entry.mangaTabId || null,
+        false
+      );
+      return true;
+    }
+
     async function updateJobState(geminiTabId, patch = {}) {
       if (geminiTabId === null || geminiTabId === undefined) return null;
       const canonicalTabId = await resolveCanonicalTabId(geminiTabId);
@@ -85,20 +216,20 @@
 
     async function assertJobOwnership(sender, jobId) {
       const senderTabId = sender && sender.tab ? sender.tab.id : null;
-      if (!jobId || senderTabId === null) return { owns: false, tabId: senderTabId };
+      if (!jobId || senderTabId === null) return { owns: false, tabId: senderTabId, job: null };
 
       // Caminho comum sem replacement: uma leitura apenas, preservando a
       // latência original. Só consultamos aliases se a chave física não existe.
       let tabId = senderTabId;
       let data = await chrome.storage.local.get([`gemini_job_${tabId}`]);
       let job = data && data[`gemini_job_${tabId}`];
-      if (job) return { owns: job.jobId === jobId, tabId };
+      if (job) return { owns: job.jobId === jobId, tabId, job };
 
       tabId = await resolveCanonicalTabId(senderTabId);
       if (tabId !== senderTabId) {
         data = await chrome.storage.local.get([`gemini_job_${tabId}`]);
         job = data && data[`gemini_job_${tabId}`];
-        if (job) return { owns: job.jobId === jobId, tabId };
+        if (job) return { owns: job.jobId === jobId, tabId, job };
       }
 
       // Durante a pequena janela entre TAB_REPLACED e o término do rekey, o
@@ -112,7 +243,7 @@
           job = data && data[`gemini_job_${tabId}`];
         }
       }
-      return { owns: Boolean(job && job.jobId === jobId), tabId };
+      return { owns: Boolean(job && job.jobId === jobId), tabId, job: job || null };
     }
 
     function buildGeminiJobUrl(baseUrl, jobIndex, jobId) {
@@ -139,16 +270,49 @@
       if (executionMode === 'minimized_window') {
         let createdWindowId = null;
         try {
+          // IMPORTANTE: chrome.windows.create() já recebe state=minimized.
+          // Não bloqueie a persistência do job em windows.update/get: o
+          // content script pode chegar a CLAIM_GEMINI_JOB imediatamente e a
+          // janela minimizada é justamente o caso mais sujeito a scheduling
+          // lento. O estado físico é verificado somente DEPOIS de gemini_job_*
+          // + jobIndex estarem duráveis.
           const window = await chrome.windows.create({ url, focused: false, state: 'minimized' });
           createdWindowId = window.id;
-          await chrome.windows.update(window.id, { state: 'minimized', focused: false });
-          const actualWindow = await chrome.windows.get(window.id);
-          log(actualWindow.state === 'minimized' ? 'info' : 'warn', 'bg', 'GEMINI_WINDOW_STATE',
-            'Estado físico da janela do job', { state: actualWindow.state, focused: actualWindow.focused });
-          if (actualWindow.state !== 'minimized') throw new Error('Janela não permaneceu minimizada');
           let tab = (window.tabs && window.tabs[0]) || null;
           if (!tab) tab = (await chrome.tabs.query({ windowId: window.id }))[0];
-          if (tab) return { tab, windowId: window.id, dedicatedWindow: true };
+          if (tab) {
+            return {
+              tab,
+              windowId: window.id,
+              dedicatedWindow: true,
+              ensureWindowState: async () => {
+                try {
+                  await chrome.windows.update(window.id, { state: 'minimized', focused: false });
+                  const actualWindow = await chrome.windows.get(window.id);
+                  log(actualWindow.state === 'minimized' ? 'info' : 'warn', 'bg', 'GEMINI_WINDOW_STATE',
+                    'Estado físico da janela do job', {
+                      state: actualWindow.state,
+                      focused: actualWindow.focused,
+                    });
+                  if (actualWindow.state !== 'minimized') {
+                    log('warn', 'bg', 'GEMINI_WINDOW_MINIMIZE_DEGRADED',
+                      'Job preservado, mas a janela não confirmou estado minimizado após persistência.', {
+                        windowId: window.id,
+                        state: actualWindow.state,
+                      });
+                  }
+                } catch (error) {
+                  // Neste ponto o job já pode ter sido reivindicado. Nunca
+                  // destrua a superfície só porque a verificação física falhou.
+                  log('warn', 'bg', 'GEMINI_WINDOW_MINIMIZE_DEGRADED',
+                    'Job preservado; falhou apenas a confirmação do estado minimizado.', {
+                      windowId: window.id,
+                      error: error && error.message ? error.message : 'window_state_error',
+                    });
+                }
+              },
+            };
+          }
         } catch (_error) {
           if (createdWindowId !== null) {
             try { await chrome.windows.remove(createdWindowId); } catch (_e) {}
@@ -157,10 +321,111 @@
         }
       }
       const tab = await chrome.tabs.create({ url, active: false });
-      return { tab, windowId: tab.windowId, dedicatedWindow: false };
+      return { tab, windowId: tab.windowId, dedicatedWindow: false, ensureWindowState: null };
+    }
+
+    // Tombstone apenas em memória: uma Promise de tabs/windows não sobrevive
+    // ao restart do Service Worker, então não há motivo para persistir isso.
+    // Ele serve para distinguir "currentBatchId=null porque A foi cancelado"
+    // de "currentBatchId=null em um fixture/recovery ainda válido".
+    const invalidatedLaunchBatchIds = new Set();
+
+    function invalidateBatchLaunches(batchId) {
+      if (!batchId) return false;
+      invalidatedLaunchBatchIds.add(batchId);
+      // Evita crescimento ilimitado durante uma sessão muito longa do worker.
+      while (invalidatedLaunchBatchIds.size > 128) {
+        const oldest = invalidatedLaunchBatchIds.values().next().value;
+        invalidatedLaunchBatchIds.delete(oldest);
+      }
+      return true;
+    }
+
+    function allowBatchLaunches(batchId) {
+      if (!batchId) return false;
+      return invalidatedLaunchBatchIds.delete(batchId);
+    }
+
+    function launchWasInvalidated(batchId) {
+      return Boolean(
+        state.stopRequested ||
+        (batchId && invalidatedLaunchBatchIds.has(batchId)) ||
+        (batchId && state.completionClaimedBatchId === batchId) ||
+        (batchId && state.currentBatchId && batchId !== state.currentBatchId)
+      );
+    }
+
+    async function abortInvalidatedLaunch({
+      batchId,
+      jobId,
+      geminiTabId,
+      opened,
+      indexed = false,
+      phase = 'unknown',
+    }) {
+      if (!launchWasInvalidated(batchId)) return false;
+
+      if (indexed && (geminiTabId || geminiTabId === 0)) {
+        indexRemoveJob(geminiTabId);
+      }
+      if (geminiTabId || geminiTabId === 0) {
+        try { clearWatchdog(geminiTabId, jobId); } catch (_e) {}
+        try {
+          await chrome.storage.local.remove([
+            `gemini_job_${geminiTabId}`,
+            `wd_data_${geminiTabId}`,
+          ]);
+        } catch (_e) {}
+      }
+
+      const closeTab = tabId => {
+        if (tabId === null || tabId === undefined) return;
+        try {
+          chrome.tabs.remove(tabId, () => { void chrome.runtime.lastError; });
+        } catch (_e) {}
+      };
+      if (opened?.dedicatedWindow === true && opened.windowId !== null && opened.windowId !== undefined) {
+        try {
+          chrome.windows.remove(opened.windowId, () => { void chrome.runtime.lastError; });
+        } catch (_e) {
+          closeTab(geminiTabId);
+        }
+      } else {
+        closeTab(geminiTabId);
+      }
+
+      if (!batchId || !state.currentBatchId || state.currentBatchId === batchId) {
+        state.activeJobsCount = Math.max(0, (Number(state.activeJobsCount) || 0) - 1);
+      }
+      await syncState();
+      log('warn', 'bg', 'JOB_START_ABORTED',
+        'Abertura de job cancelada porque o lote foi interrompido ou substituído durante o lançamento.', {
+          jobId: String(jobId || '').slice(0, 8),
+          batchId: String(batchId || '').slice(0, 8),
+          geminiTabId,
+          phase,
+          stopRequested: Boolean(state.stopRequested),
+          currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+        });
+      return true;
     }
 
     async function processNextJob() {
+      const currentBatchAlreadyCompleted = Boolean(
+        state.currentBatchId &&
+        state.completionClaimedBatchId === state.currentBatchId
+      );
+      if (!state.stopRequested &&
+          (!state.currentBatchId || currentBatchAlreadyCompleted) &&
+          state.jobQueue.length === 0 && state.activeJobsCount === 0 &&
+          Array.isArray(state.pendingBatches) && state.pendingBatches.length > 0) {
+        const promoted = await promotePendingBatchIfIdle();
+        if (promoted) {
+          await refreshMaxConcurrency();
+          return processNextJob();
+        }
+      }
+
       if (state.stopRequested || (state.jobQueue.length === 0 && state.activeJobsCount === 0)) {
         const stillOpen = !state.stopRequested ? indexJobsOfBatch(state.currentBatchId).length : 0;
         if (stillOpen > 0) {
@@ -168,22 +433,85 @@
           await syncState();
           return;
         }
+
         if (!state.stopRequested && state.jobQueue.length === 0 && state.activeJobsCount === 0) {
-          const completed = Number(state.completedJobs) || 0;
-          const total = Number(state.totalJobs) || 0;
-          const hasErrors = completed < total;
-          if (state.activeMangaTabId) {
-            chrome.tabs.sendMessage(state.activeMangaTabId, {
-              action: 'BATCH_COMPLETE', batchId: state.currentBatchId, hasErrors,
-            }, () => { void chrome.runtime.lastError; });
+          let completion = null;
+          let promotedAfterCompletion = null;
+
+          const claimCompletion = snapshot => {
+            const batchId = snapshot.currentBatchId || null;
+            const queued = Array.isArray(snapshot.jobQueue) ? snapshot.jobQueue : [];
+            if (!batchId || snapshot.stopRequested || queued.length > 0 ||
+                Number(snapshot.activeJobsCount) > 0 ||
+                snapshot.completionClaimedBatchId === batchId) {
+              return snapshot;
+            }
+
+            const completed = Number(snapshot.completedJobs) || 0;
+            const total = Number(snapshot.totalJobs) || 0;
+            completion = {
+              batchId,
+              mangaTabId: snapshot.activeMangaTabId || null,
+              completed,
+              total,
+              hasErrors: completed < total,
+            };
+            snapshot.completionClaimedBatchId = batchId;
+
+            const pending = clonePendingBatches(snapshot.pendingBatches);
+            if (pending.length > 0) {
+              promotedAfterCompletion = pending.shift();
+              snapshot.pendingBatches = pending;
+              activateBatchSnapshot(snapshot, promotedAfterCompletion);
+            } else {
+              snapshot.isProcessing = false;
+              snapshot.activeMangaTabId = null;
+            }
+            return snapshot;
+          };
+
+          if (typeof state.mutate === 'function') {
+            await state.mutate(claimCompletion);
+          } else {
+            claimCompletion(state);
+            await syncState();
           }
-          log(hasErrors ? 'warn' : 'success', 'bg', 'BATCH_DONE',
-            hasErrors ? 'Lote encerrado com falhas; traduções não concluídas.' : 'Lote finalizado com sucesso!',
-            { completed, total, hasErrors });
-          state.isProcessing = false;
-          state.activeMangaTabId = null;
+
+          if (completion) {
+            if (completion.mangaTabId) {
+              chrome.tabs.sendMessage(completion.mangaTabId, {
+                action: 'BATCH_COMPLETE',
+                batchId: completion.batchId,
+                hasErrors: completion.hasErrors,
+              }, () => { void chrome.runtime.lastError; });
+            }
+            log(completion.hasErrors ? 'warn' : 'success', 'bg', 'BATCH_DONE',
+              completion.hasErrors
+                ? 'Lote encerrado com falhas; traduções não concluídas.'
+                : 'Lote finalizado com sucesso!',
+              {
+                batchId: String(completion.batchId).slice(0, 8),
+                completed: completion.completed,
+                total: completion.total,
+                hasErrors: completion.hasErrors,
+              });
+          }
+
+          if (promotedAfterCompletion) {
+            log('info', 'bg', 'BATCH_PROMOTED',
+              'Próximo lote da fila FIFO foi promovido após a conclusão do lote anterior.', {
+                previousBatchId: String(completion?.batchId || '').slice(0, 8),
+                batchId: String(promotedAfterCompletion.batchId || '').slice(0, 8),
+                pendingCount: Array.isArray(state.pendingBatches) ? state.pendingBatches.length : 0,
+                totalJobs: Array.isArray(promotedAfterCompletion.images)
+                  ? promotedAfterCompletion.images.length
+                  : 0,
+              });
+            sendProgress(promotedAfterCompletion.mangaTabId, '▶️ INICIANDO LOTE DA FILA...');
+            await refreshMaxConcurrency();
+            return processNextJob();
+          }
         }
-        await syncState();
         return;
       }
       if (state.stopRequested || state.jobQueue.length === 0 || state.activeJobsCount >= state._cachedMaxCon) return;
@@ -208,6 +536,11 @@
         if (!opened.tab) throw new Error('Não foi possível obter a aba do Gemini');
         const openedTabId = opened.tab.id;
         let canonicalTabId = await resolveCanonicalTabId(openedTabId);
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: false, phase: 'after_tab_create',
+        })) return processNextJob();
+
         let record = {
           jobId, batchId, mangaTabId, index, prompt,
           geminiTabId: canonicalTabId,
@@ -224,6 +557,17 @@
         await chrome.storage.local.set({ [`gemini_job_${canonicalTabId}`]: record });
         indexAddJob({ geminiTabId: canonicalTabId, jobId, batchId, mangaTabId, index });
         await syncState();
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: true, phase: 'after_job_persist',
+        })) return processNextJob();
+
+        // A confirmação física da janela minimizada vem DEPOIS da persistência
+        // do job. Assim o content script nunca precisa esperar update/get de
+        // window para conseguir reivindicar seu job.
+        if (typeof opened.ensureWindowState === 'function') {
+          await opened.ensureWindowState();
+        }
 
         // Fecha a corrida nas duas ordens:
         // 1) replacement antes da persistência -> alias já existe e migramos;
@@ -238,6 +582,11 @@
         }
 
         canonicalTabId = await resolveCanonicalTabId(openedTabId);
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: true, phase: 'after_tab_identity',
+        })) return processNextJob();
+
         log('info', 'bg', 'TAB_CREATED_FOR_JOB', 'Aba Gemini associada ao job', {
           oldTabId: openedTabId,
           newTabId: canonicalTabId,
@@ -245,12 +594,42 @@
           index,
         });
         await armWatchdog(mangaTabId, index, canonicalTabId, jobId);
+        if (await abortInvalidatedLaunch({
+          batchId, jobId, geminiTabId: canonicalTabId, opened,
+          indexed: true, phase: 'after_watchdog_arm',
+        })) return processNextJob();
         return processNextJob();
       } catch (error) {
-        state.activeJobsCount = Math.max(0, state.activeJobsCount - 1);
         const message = error && error.message ? error.message : 'Falha ao abrir Gemini';
-        log('error', 'bg', 'JOB_ERROR', 'Erro ao abrir Gemini', { index, error: message });
-        chrome.tabs.sendMessage(mangaTabId, { action: 'SHOW_ERROR_INTEGRATED', errorMsg: `Erro ao abrir: ${message}`, imgIndex: index, isDebug: false }, () => { void chrome.runtime.lastError; });
+        const belongsToCurrentBatch = !state.currentBatchId || state.currentBatchId === batchId;
+
+        if (belongsToCurrentBatch) {
+          state.activeJobsCount = Math.max(0, state.activeJobsCount - 1);
+          log('error', 'bg', 'JOB_ERROR', 'Erro ao abrir Gemini', {
+            index,
+            error: message,
+            batchId: String(batchId || '').slice(0, 8),
+          });
+          chrome.tabs.sendMessage(mangaTabId, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: `Erro ao abrir: ${message}`,
+            imgIndex: index,
+            isDebug: false,
+            batchId,
+          }, () => { void chrome.runtime.lastError; });
+        } else {
+          // A/B/C/... podem trocar de posição enquanto uma API de tabs/windows
+          // ainda está pendente. Um erro tardio de A não pertence à contabilidade
+          // de B e não pode consumir/devolver slots do lote promovido.
+          log('warn', 'bg', 'JOB_ERROR_FOREIGN_BATCH_IGNORED',
+            'Falha tardia de abertura pertence a lote anterior; contadores do lote atual foram preservados.', {
+              index,
+              error: message,
+              batchId: String(batchId || '').slice(0, 8),
+              currentBatchId: String(state.currentBatchId || '').slice(0, 8),
+            });
+        }
+
         await syncState();
         return processNextJob();
       }
@@ -311,13 +690,14 @@
           processNextJob();
           return;
         }
-        if (executionMode !== 'minimized_window') {
+        const shouldDeleteConversation = executionMode === 'minimized_window' || executionMode === 'background_delete';
+        if (!shouldDeleteConversation) {
           chrome.tabs.remove(geminiTabId, () => { void chrome.runtime.lastError; });
           processNextJob();
           return;
         }
-        // Mantém o prazo de limpeza do modo minimizado: o Gemini recebe a
-        // oportunidade de apagar a conversa antes de a janela desaparecer.
+        // Resultado já foi persistido no leitor. Agora a conversa pode ser
+        // excluída sem risco de perder os bytes traduzidos.
         const activeUrl = tab.url || '';
         if (fromError && !/\/app\/[^/?#]+/.test(activeUrl)) {
           log('info', 'bg', 'DELETE_SKIPPED_NO_CONVERSATION', 'Job falhou antes de criar conversa; não há ID para apagar', {});
@@ -329,7 +709,15 @@
         const deletingUrls = Array.isArray(stored.deleting_urls) ? stored.deleting_urls : [];
         if (activeUrl && !deletingUrls.includes(activeUrl)) deletingUrls.push(activeUrl);
         await chrome.storage.local.set({ deleting_urls: deletingUrls });
-        chrome.tabs.sendMessage(geminiTabId, { action: 'DELETE_CONVERSATION' }, () => { void chrome.runtime.lastError; });
+        chrome.tabs.sendMessage(geminiTabId, { action: 'DELETE_CONVERSATION' }, response => {
+          const deleteError = chrome.runtime.lastError;
+          log(deleteError || response?.ok === false ? 'warn' : 'success', 'bg',
+            deleteError || response?.ok === false ? 'POST_PERSIST_DELETE_DEFERRED' : 'POST_PERSIST_DELETE_OK',
+            deleteError || response?.ok === false
+              ? 'Resultado já persistido; exclusão da conversa não confirmou imediatamente.'
+              : 'Conversa excluída depois da persistência confirmada do resultado.',
+            { jobId: String(job.jobId || '').slice(0, 8), batchId: String(job.batchId || '').slice(0, 8) });
+        });
         processNextJob();
         setTimeout(() => {
           chrome.storage.local.get(['deleting_urls']).then(next => {
@@ -342,7 +730,17 @@
       return true;
     }
 
-    return { updateJobState, assertJobOwnership, refreshMaxConcurrency, processNextJob, finalizeJob, recoverPendingFinalization };
+    return {
+      updateJobState,
+      assertJobOwnership,
+      refreshMaxConcurrency,
+      processNextJob,
+      finalizeJob,
+      recoverPendingFinalization,
+      recoverPersistedResult,
+      invalidateBatchLaunches,
+      allowBatchLaunches,
+    };
   }
   scope.MangaTranslatorJobsLifecycle = { createLifecycle };
 })(typeof self !== 'undefined' ? self : globalThis);

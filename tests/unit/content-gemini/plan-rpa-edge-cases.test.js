@@ -206,6 +206,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     let storageMock;
     let originalSendMessage;
     let sentMessages;
+    let processPromises;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -220,6 +221,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         storageMock = getStorageMock();
         originalSendMessage = runtimeMock.sendMessage;
         sentMessages = [];
+        processPromises = [];
 
         runtimeMock._messageListeners = [];
         runtimeMock._connectListeners = [];
@@ -230,6 +232,29 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     });
 
     afterEach(async () => {
+        // Os testes observam mensagens intermediárias do runner; isso não garante
+        // que processGeminiJob() já tenha alcançado seu finally. Pare observers
+        // antes de desmontar o DOM e aguarde todos os runners iniciados pelo caso.
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
+        if (processPromises.length) {
+            await Promise.allSettled(processPromises);
+        }
+
         runtimeMock.sendMessage = originalSendMessage;
         jest.useRealTimers();
         jest.restoreAllMocks();
@@ -270,7 +295,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         setTimeout(() => {
             storageMock.set({
@@ -300,7 +325,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const notFoundLog = await waitFor(() => sentMessages.find(message =>
             message.action === 'LOG_ENTRY' && message.action_name === 'JOB_NOT_FOUND'
@@ -323,7 +348,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const error = await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_ERROR'));
         expect(error).toEqual(expect.objectContaining({
@@ -343,7 +368,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const error = await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_ERROR'));
         expect(error.error).toContain('Editor do Gemini está desabilitado');
@@ -360,7 +385,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         for (let i = 0; i < 60; i += 1) {
             // eslint-disable-next-line no-await-in-loop
@@ -374,6 +399,24 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             level: 'error',
             action_name: 'GEMINI_ATTACHMENT_NOT_CONFIRMED',
         }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_STARTED',
+            level: 'info',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_REJECTED',
+            level: 'error',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'SUBMIT_BLOCKED_ATTACHMENT',
+            level: 'error',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'ATTACHMENT_CONFIRMED'
+        )).toBe(false);
         expect(sentMessages).toContainEqual(expect.objectContaining({
             action: 'GEMINI_ERROR',
             error: expect.stringContaining('Anexo não confirmado'),
@@ -402,11 +445,25 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_IMAGE_EXTRACTED'));
 
         expect(submitted).toBe(true);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_STARTED',
+            level: 'info',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_CONFIRMED',
+            level: 'success',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' &&
+            ['ATTACHMENT_REJECTED', 'SUBMIT_BLOCKED_ATTACHMENT'].includes(message.action_name)
+        )).toBe(false);
         expect(disabledButton.click).not.toHaveBeenCalled();
         expect(hiddenButton.click).not.toHaveBeenCalled();
         expect(validButton.click).toHaveBeenCalled();
@@ -433,7 +490,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const fetch = await waitFor(() => sentMessages.find(message =>
             message.action === 'FETCH_IMAGE_AS_BASE64'
@@ -462,7 +519,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const fetch = await waitFor(() => sentMessages.find(message =>
             message.action === 'FETCH_IMAGE_AS_BASE64'
@@ -498,7 +555,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const panel = await waitFor(() => document.getElementById('mt-gemini-assist'));
         await waitFor(() => manualImage);
@@ -516,11 +573,11 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         expect(manualLog.extra).toEqual(expect.objectContaining({ source: 'image-click' }));
     }, 12000);
 
-    test('CG-41: sucesso chama deleteCurrentConversation e confirma exclusao quando debugMode esta desligado', async () => {
+    test('CG-41: sucesso persiste e commita antes de qualquer exclusão da conversa', async () => {
         mountEditor();
         appendSendButton({
             onSubmit: () => {
-                setTimeout(() => appendImage('https://cdn.gemini.test/result-delete-after-success.png'), 1300);
+                setTimeout(() => appendImage('https://cdn.gemini.test/result-stage-before-delete.png'), 1300);
             },
         });
         document.body.insertAdjacentHTML('beforeend', `
@@ -537,10 +594,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         optionsButton.scrollIntoView = jest.fn();
         optionsButton.click = jest.fn();
         deleteItem.click = jest.fn();
-        confirmDelete.click = jest.fn(() => {
-            document.getElementById('conversation-row')?.remove();
-            window.location.pathname = '/app';
-        });
+        confirmDelete.click = jest.fn();
 
         await seedJob();
         await storageMock.set({ debugMode: false, geminiExecutionMode: 'minimized_window' });
@@ -548,18 +602,33 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
             GET_TAB_ID: () => ({ tabId: 321 }),
             REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
             FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,UkVTVUxU' }),
+            GEMINI_IMAGE_EXTRACTED: () => ({ ok: true, staged: true, persisted: true }),
+            GEMINI_RESULT_COMMIT: () => ({ ok: true, committed: true }),
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
-        await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_IMAGE_EXTRACTED'), { timeout: 12000 });
-        await waitFor(() => sentMessages.find(message =>
+        const staged = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_IMAGE_EXTRACTED'
+        ), { timeout: 12000 });
+        const committed = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_RESULT_COMMIT'
+        ), { timeout: 4000 });
+
+        expect(staged).toEqual(expect.objectContaining({
+            jobId: 'job-321',
+            batchId: 'batch-test',
+        }));
+        expect(committed).toEqual(expect.objectContaining({
+            jobId: 'job-321',
+            batchId: 'batch-test',
+        }));
+        expect(sentMessages.some(message =>
             message.action === 'LOG_ENTRY' && message.action_name === 'DELETE_OK'
-        ), { timeout: 8000 });
-
-        expect(optionsButton.click).toHaveBeenCalled();
-        expect(deleteItem.click).toHaveBeenCalled();
-        expect(confirmDelete.click).toHaveBeenCalled();
+        )).toBe(false);
+        expect(optionsButton.click).not.toHaveBeenCalled();
+        expect(deleteItem.click).not.toHaveBeenCalled();
+        expect(confirmDelete.click).not.toHaveBeenCalled();
     }, 20000);
 });

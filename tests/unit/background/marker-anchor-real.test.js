@@ -6,6 +6,7 @@ const {
     getDownloadsMock,
 } = require('../../mocks/chrome-api.mock.js');
 const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
+const { trackBackgroundDelayTimers } = require('../../helpers/track-background-delay-timers.js');
 const {
     BACKGROUND_PATH,
     flush,
@@ -18,6 +19,7 @@ describe('background.js - handleMarkerAndShow real', () => {
     let alarmsMock;
     let downloadsMock;
     let backgroundModule;
+    let cancelBackgroundDelayTimers;
 
     async function flushFakeTimerRounds(rounds = 6, stepMs = 1) {
         for (let index = 0; index < rounds; index++) {
@@ -29,6 +31,7 @@ describe('background.js - handleMarkerAndShow real', () => {
     beforeEach(async () => {
         jest.resetModules();
         jest.useRealTimers();
+        cancelBackgroundDelayTimers = trackBackgroundDelayTimers();
 
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
@@ -57,6 +60,10 @@ describe('background.js - handleMarkerAndShow real', () => {
     });
 
     afterEach(async () => {
+        // handleMarkerAndShow agenda a remoção do arquivo-âncora em 4 s.
+        // Esse timer pertence ao caso que criou a âncora e não pode sobreviver
+        // quando esta suíte termina como a última de um worker Jest.
+        cancelBackgroundDelayTimers();
         alarmsMock.clearAll();
         tabsMock._tabs.clear();
         downloadsMock._downloads.clear();
@@ -119,6 +126,24 @@ describe('background.js - handleMarkerAndShow real', () => {
 
         expect(removeFileSpy).toHaveBeenCalled();
         expect(eraseSpy).toHaveBeenCalled();
+    });
+
+    test('REG-WORKER-4S: teardown possui e cancela o timer de 4s do arquivo-âncora', async () => {
+        jest.spyOn(downloadsMock, 'search').mockImplementation((query, callback) => {
+            if (callback) callback([]);
+            return Promise.resolve([]);
+        });
+
+        const sendResponse = jest.fn();
+        backgroundModule.handleMarkerAndShow('Worker_Leak_Regression', sendResponse);
+        await flush(12);
+
+        expect(sendResponse).toHaveBeenCalledWith({ ok: true });
+        expect(cancelBackgroundDelayTimers.getPendingDelays()).toContain(4_000);
+
+        const cancelledDelays = cancelBackgroundDelayTimers();
+        expect(cancelledDelays).toContain(4_000);
+        expect(cancelBackgroundDelayTimers.getPendingCount()).toBe(0);
     });
 
     test('BG-42: falha ao criar âncora responde erro sem crash', async () => {

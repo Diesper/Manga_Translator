@@ -64,11 +64,11 @@ Na rodada aqui documentada foram cinco arquivos existentes e um novo em relaçã
 
 ## 5. Publicação e conferência
 
-A base da pasta <code>extension/</code> corresponde à versão aprovada. As duas melhorias aqui descritas foram feitas no histórico local da revisão 2; a quarentena posterior ainda aguarda CI e nova validação manual. A base main de destino já contém parte desse mecanismo. O PR preserva o contrato de versão 6.5.0/Manifest 6.5, os workflows e os componentes comuns.
+A base da pasta <code>extension/</code> corresponde à versão aprovada. As duas melhorias aqui descritas foram feitas no histórico local da revisão 2. A quarentena e o hardening posterior do PR #47 já passaram pelos gates automatizados; a evidência manual desta revisão continua anterior a essas mudanças e não deve ser usada para afirmar que as exercitou. O PR preserva o contrato de versão 6.5.0/Manifest 6.5 e os componentes comuns.
 
 Os exports brutos e backups permanecem locais. [VALIDACAO_REVISAO_2.json](VALIDACAO_REVISAO_2.json) apresenta apenas o resumo das evidências manuais. A comparação de conteúdo confere todos os 58 arquivos da extensão aprovada, descontando quebras de linha.
 
-Não foram executados testes locais. O mantenedor autorizou o CI do GitHub, que permanece habilitado; aprovação manual não substitui nem presume resultado dos checks deste PR.
+A validação automatizada final é feita pelo GitHub Actions. O contrato atual exige Node 20/22, Jest sem worker forçado, coverage V8, E2E sem skipped/flaky e CI Gate. Aprovação manual continua não substituindo esses checks.
 
 ## 6. Manutenção e futuras verificações manuais
 
@@ -84,7 +84,7 @@ Nos logs da nova revisão, procure:
 - `GEMINI_EXTRACT_STAGE` com `stage:service_worker_session`: extração autenticada; após falha do canvas, deve aparecer antes de eventual `gemini_page_fetch_last_resort` no caminho de asset reconhecido.
 - `DELETE_OK` e `BATCH_DONE` com `hasErrors:false`: preservação da limpeza e conclusão.
 
-Eventos de extração ainda não carregam prefixo da tarefa. Em lotes paralelos, a ordem global pode intercalar canvas/SW/page de imagens distintas; não atribua esses eventos a uma imagem apenas pela posição no texto. A renovação possui prefixo, permitindo conferir a tarefa correspondente.
+Os eventos de extração agora carregam `jobIdPrefix`, `batchIdPrefix` e `index`. Em lotes paralelos, use esses campos para correlacionar canvas/SW/page com a tarefa correta; a proximidade textual deixa de ser necessária para atribuir uma falha ou sucesso a uma imagem.
 
 Não é necessário provocar um timeout para testar o funcionamento normal. Se ocorrer uma geração lenta naturalmente, seus logs ajudarão a avaliar a margem. Um eventual `GEMINI_WATCHDOG_REFRESH_FAILED` deve ser enviado junto dos eventos anteriores; ele não significa sozinho que a tradução falhou.
 
@@ -101,3 +101,20 @@ Há 14 DELETE_OK nos modos normal/minimizado e sete reconhecimentos de exclusão
 Os registros sustentam funcionamento e renovação do prazo nas execuções observadas. Não demonstram um teste de expiração após cinco minutos nem permitem quantificar ganho de velocidade contra a revisão 1. Os exports normal/minimizado têm 500 eventos cada, compatíveis com o limite do logger; ausência de evento não deve ser generalizada para histórico fora da janela exportada. A qualidade visual é confirmada pelo usuário, não por esses eventos técnicos.
 
 Consulte VALIDACAO_REVISAO_2.json e DOCUMENTACAO_VERSAO_FUNCIONAL.md para as fontes e o estado atual consolidado.
+
+
+## 8. Fechamento no PR #47
+
+A revisão de extração passou a conviver com um lifecycle explícito da aba auxiliar:
+
+- ACK persistido encerra retries;
+- ACK negativo permite retry controlado;
+- `pagehide` cancela retry e lookup pendentes;
+- o prazo de segurança remove polling e listeners `load`/`error`;
+- callbacks tardios não podem iniciar nova entrega depois do descarte.
+
+Esses contratos têm regressões dedicadas em `tests/unit/content-manga/extraction-and-handlers-real.test.js` e são registrados em `tests/ci/regression-matrix.json`.
+
+Durante a finalização do mesmo PR também foi eliminado um worker leak de Jest provocado por timer de 4 s do arquivo-âncora. A regressão `REG-WORKER-4S` protege o ownership/cancelamento desse timer, enquanto o runner da CI reprova qualquer reaparecimento do warning de worker forçado.
+
+O baseline automatizado atual exige 108 suítes / 848 testes Jest, 21 E2E, 224 visuais, 6 smoke e 56 arquivos de coverage. Consulte `Documentação.md` e `REGRESSOES_PR47.md` para o contrato consolidado.

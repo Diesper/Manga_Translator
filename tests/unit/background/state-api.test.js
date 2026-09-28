@@ -37,6 +37,9 @@ describe('background/state.js - API de estado serializada', () => {
             totalJobs: 3,
             completedJobs: 1,
             activeJobsCount: 1,
+            pendingBatches: [
+                { batchId: 'batch-next', mangaTabId: 10, prompt: 'next', images: [{ index: 0 }] },
+            ],
             jobIndex: [{ geminiTabId: 44, jobId: 'job-44' }],
         });
 
@@ -47,6 +50,9 @@ describe('background/state.js - API de estado serializada', () => {
         expect(state.currentBatchId).toBe('batch-9');
         expect(state.extractionTabs[44]).toEqual({ mangaTabId: 9, index: 2 });
         expect(state.jobIndex).toEqual([{ geminiTabId: 44, jobId: 'job-44' }]);
+        expect(state.pendingBatches).toEqual([
+            { batchId: 'batch-next', mangaTabId: 10, prompt: 'next', images: [{ index: 0 }] },
+        ]);
     });
 
     test('restore normaliza o estado persistido e mantém a API compatível', async () => {
@@ -61,6 +67,10 @@ describe('background/state.js - API de estado serializada', () => {
                 totalJobs: 2,
                 completedJobs: 1,
                 activeJobsCount: 1,
+                pendingBatches: [
+                    { batchId: 'batch-b', mangaTabId: 4, prompt: 'B', images: [{ index: 0 }] },
+                    { batchId: 'batch-c', mangaTabId: 5, prompt: 'C', images: [{ index: 1 }] },
+                ],
                 jobIndex: [{ geminiTabId: 18, jobId: 'job-18' }],
             },
         });
@@ -73,6 +83,7 @@ describe('background/state.js - API de estado serializada', () => {
             totalJobs: 2,
         }));
         expect(state.jobQueue).toEqual([{ mangaTabId: 3, index: 1 }]);
+        expect(state.pendingBatches.map(batch => batch.batchId)).toEqual(['batch-b', 'batch-c']);
         expect(state.get()).toEqual(restored);
     });
 
@@ -85,4 +96,20 @@ describe('background/state.js - API de estado serializada', () => {
             activeJobsCount: 1,
         }));
     });
+
+    test('pendingBatches é clonado no snapshot e não pode ser mutado por referência externa', () => {
+        const source = [
+            { batchId: 'batch-x', mangaTabId: 7, prompt: 'X', images: [{ index: 1 }] },
+        ];
+        state.patch({ pendingBatches: source });
+
+        const snapshot = state.get();
+        snapshot.pendingBatches[0].images[0].index = 99;
+        snapshot.pendingBatches.push({ batchId: 'batch-y', images: [] });
+
+        expect(state.pendingBatches).toEqual([
+            { batchId: 'batch-x', mangaTabId: 7, prompt: 'X', images: [{ index: 1 }] },
+        ]);
+    });
+
 });

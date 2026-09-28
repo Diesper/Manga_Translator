@@ -10,8 +10,8 @@
 > etapas de refatoração.
 >
 > **Data da consolidação:** 26/09/2026.
-> **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente, integrada ao runtime.
-> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para a rodada validada e seus limites.
+> **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente + hardening automatizado do PR #47.
+> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para separar a evidência manual histórica da validação automatizada atual.
 >
 > **Escopo da auditoria:** manifesto, Service Worker, módulos de background,
 > content scripts, cache perceptual, IndexedDB, persistência de capítulos,
@@ -67,7 +67,7 @@ Isso significa:
 
 ## 1.1 O que significa "v6.5"
 
-A v6.5 é a versão desta documentação técnica consolidada. Ela descreve o estado arquitetural presente no PR 13 após a refatoração Gemini RPA V2.
+A v6.5 é o marco desta documentação técnica consolidada. A consolidação começou no PR 13 após a refatoração Gemini RPA V2 e foi atualizada para incorporar o estado funcional/hardening do PR #47.
 
 O marco v6.5 também torna o versionamento do produto automático: `package.json` contém a versão SemVer canônica, enquanto `manifest.json` e os metadados de teste são sincronizados por `scripts/sync-version.js`.
 
@@ -104,21 +104,25 @@ quando o respectivo schema mudar.
 
 ## 2.2 Baseline funcional conhecido
 
-O baseline automatizado histórico registrado é o [GitHub Actions run #663](https://github.com/Diesper/Manga_Translator/actions/runs/36270638017), no commit `446f003bec10b71252a67daca6ed87e530c28cd1`. Esse resultado não valida automaticamente a revisão funcional deste PR:
+O baseline operacional atual é definido por `tests/ci/test-baseline.json` e pelos gates descritos na seção 18:
 
-- **98/98 suítes Jest**;
-- **716/716 testes Jest**;
-- **22/22 testes E2E Playwright**;
-- **Version Integrity aprovado**;
-- sintaxe JavaScript aprovada;
-- Manifest V3 aprovado;
-- smoke tests aprovados;
-- testes visuais/perceptuais aprovados;
-- pipeline sem mascaramento das falhas funcionais.
+- **108 suítes Jest**;
+- **mínimo de 848 testes Jest**;
+- **0 skipped e 0 TODO**;
+- execução completa em **Node 20 e Node 22**;
+- **21 testes E2E Playwright**, com skipped=0, flaky=0 e failed=0;
+- **224 testes visuais/perceptuais**;
+- **6 smoke files**;
+- **56 arquivos instrumentados** no coverage;
+- `CI Gate` obrigatório.
 
-A revisão funcional 2 foi aprovada manualmente em 21 traduções: sete temporárias, sete minimizadas e sete normais, em quatro lotes completos. Houve 21 renovações de watchdog confirmadas e 14 exclusões verificadas. Nenhum teste local foi executado nesta publicação; o CI do GitHub permanece habilitado. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+O PR #47 também protege o warning de worker forçado como falha real, mantém thresholds críticos de coverage e valida a matriz `tests/ci/regression-matrix.json`.
 
-O marco v6.5 mantém versionamento centralizado; esta revisão não altera versão de produto, schema de banco ou permissões.
+A revisão funcional 2 continua sendo a evidência manual disponível: 21 traduções (sete temporárias, sete minimizadas e sete normais) em quatro lotes completos, com 21 renovações de watchdog e 14 exclusões verificadas. Essa evidência é anterior a parte do hardening posterior e não substitui os testes automatizados. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+
+Para rastreabilidade histórica, o run #663 no commit `446f003` havia aprovado 98 suítes / 716 testes Jest e 22 E2E. Esses números não são mais o baseline atual.
+
+O marco v6.5 mantém versionamento centralizado; o PR #47 não altera por si só a versão do produto nem exige mudança dos schemas persistidos.
 
 ## 2.3 O que não deve mais ser considerado estado atual
 
@@ -405,6 +409,7 @@ O snapshot retornado por <code>state.get()</code> contém:
 | <code>stopRequested</code> | cancelamento solicitado |
 | <code>activeMangaTabId</code> | aba de origem do lote |
 | <code>currentBatchId</code> | identidade do lote corrente |
+| <code>pendingBatches</code> | fila FIFO durável dos lotes aceitos enquanto outro lote está ativo |
 | <code>extractionTabs</code> | abas auxiliares de extração |
 | <code>totalJobs</code> | total do lote |
 | <code>completedJobs</code> | concluídos com sucesso |
@@ -564,11 +569,15 @@ Para um hit válido:
 
 Para misses:
 
-1. <code>content_manga.js</code> envia START_BATCH;
-2. o background cria <code>batchId</code>;
-3. lê <code>maxConcurrentJobs</code>;
-4. popula a fila;
-5. abre jobs até o limite de concorrência.
+1. <code>content_manga.js</code> envia START_BATCH com um <code>batchId</code> próprio;
+2. se não existe lote ativo, o background promove esse lote imediatamente;
+3. se já existe A ativo, B/C/D/E/F/G/... são aceitos em <code>pendingBatches</code> e preservados em ordem FIFO;
+4. o lote ativo mantém seus próprios <code>jobQueue</code>, contadores e resultados; a chegada de lotes posteriores não reescreve seu estado;
+5. ao terminar ou ser cancelado o lote corrente, somente o primeiro lote pendente é promovido de forma atômica;
+6. o lote promovido lê <code>maxConcurrentJobs</code> e abre jobs até o limite de concorrência;
+7. retries de START_BATCH com o mesmo <code>batchId</code> são idempotentes e não duplicam nem mudam a posição na fila.
+
+A fila é persistida em <code>mt_state.pendingBatches</code>, portanto sobrevive à suspensão/recriação do Service Worker MV3. Cada lote pendente conserva <code>batchId</code>, aba de mangá, prompt e índices de imagens.
 
 ## 7.4 Fase 4 — abertura do Gemini
 
@@ -1266,7 +1275,7 @@ encaminhada ao mesmo Observer ativo; não cria um pipeline paralelo.
 
 ## 12.10 Conclusão de lote
 
-`BATCH_COMPLETE` propaga `hasErrors`, calculado quando completedJobs é menor que totalJobs. A página preserva o estado de falha e não toca áudio de sucesso para lote com erros. Esta revisão utiliza o indicador existente, sem adicionar contador persistente failedJobs.
+`BATCH_COMPLETE` propaga `hasErrors`, calculado quando completedJobs é menor que totalJobs. A página preserva o estado de falha e não toca áudio de sucesso para lote com erros. A conclusão é reivindicada uma única vez por `batchId`. Se houver lotes pendentes, a mesma transição persistida retira o primeiro item de `pendingBatches` e o promove; isso impede uma janela em que dois chamadores poderiam promover lotes diferentes. Esta revisão utiliza o indicador existente, sem adicionar contador persistente failedJobs.
 
 ## 12.11 Privacidade de logs
 
@@ -1511,6 +1520,13 @@ A validação é feita por <code>assertJobOwnership()</code>.
 O batchId impede que resultado de lote anterior seja aplicado como se
 pertencesse ao lote atual.
 
+A exclusividade agora é por identidade de job/lote e não por uma variável global
+que é sobrescrita a cada START_BATCH. Um job de A que ainda está vivo continua
+válido enquanto B/C/D/... aguardam em <code>pendingBatches</code>. Quando outro
+lote já foi promovido, uma finalização atrasada de lote anterior pode limpar seu
+próprio journal/índice, mas não pode incrementar/decrementar os contadores do
+novo lote.
+
 Abas auxiliares de extração também carregam jobId e batchId.
 
 ## 16.3 Fetch de imagem
@@ -1633,70 +1649,164 @@ Os eventos relevantes de diagnóstico são:
 
 A suíte atual possui:
 
-- testes unitários;
-- testes de integração;
+- Jest unitário e de integração em múltiplos projects;
 - smoke tests;
-- testes visuais/perceptuais;
-- E2E Playwright.
+- 224 testes visuais/perceptuais;
+- E2E Playwright real da extensão;
+- self-tests da infraestrutura de coverage, reporter E2E e detector de worker;
+- uma matriz de regressões críticas validada pelo próprio `CI Contract`.
 
-## 18.2 Baseline
+## 18.2 Baseline obrigatório
 
-Baseline funcional conhecido:
+O arquivo `tests/ci/test-baseline.json` é contrato, não estatística informativa.
 
-| Camada | Resultado de referência |
+| Camada | Piso atual |
 |---|---:|
-| Jest | 81/81 suítes |
-| Jest | 574/574 testes |
-| E2E | 8/8 |
-| Sintaxe JS | aprovado |
-| Manifest | aprovado |
-| Smoke | aprovado |
-| Visual/perceptual | aprovado |
+| Jest | 108 suítes |
+| Jest | 848 testes |
+| Jest skipped | 0 |
+| Jest TODO | 0 |
+| E2E | 21 testes |
+| E2E skipped | 0 |
+| E2E flaky/retry recuperado | 0 |
+| Visual/perceptual | 224 testes |
+| Smoke | 6 arquivos |
+| Coverage | 56 arquivos instrumentados |
+
+Reduzir esses números para fazer a pipeline passar é regressão de CI e exige justificativa explícita, revisão da matriz e atualização da documentação.
 
 ## 18.3 Node
 
-O CI executa a camada unit/integration em:
+O gate `Unit + Integration` executa a mesma suíte em:
 
 - Node 20;
 - Node 22.
+
+Ambos usam `tests/ci/run-jest-ci.js`, que preserva o código de saída do Jest e também inspeciona stderr.
 
 ## 18.4 Sintaxe
 
 O job de sintaxe percorre recursivamente:
 
-- <code>extension/**/*.js</code>.
+- `extension/**/*.js`;
+- todos os `tests/**/*.js`, incluindo infraestrutura de CI.
 
-Isso impede que arquivos extraídos para subpastas escapem da validação.
+Isso impede que módulos extraídos ou scripts auxiliares escapem da validação.
 
-## 18.5 Manifest
+## 18.5 Manifest e versão
 
-O CI valida:
+A pipeline valida:
 
-- campos obrigatórios;
-- manifest_version igual a 3.
+- campos obrigatórios do Manifest;
+- `manifest_version === 3`;
+- integridade da fonte única de versão via `version:check`.
 
-## 18.6 Jest é gate real
+## 18.6 Jest é gate real e worker leak também
 
 Falha de Jest não é mascarada por:
 
-- <code>|| true</code>;
-- <code>continue-on-error</code> funcional.
+- `|| true`;
+- `continue-on-error` nos jobs funcionais;
+- `--forceExit`;
+- serialização permanente para esconder open handles.
+
+Além do status normal, `run-jest-ci.js` reprova explicitamente:
+
+`A worker process has failed to exit gracefully and has been force exited`
+
+O self-test `verify-jest-worker-warning-selftest.js` prova que o warning é detectado e que uma falha Jest comum não é confundida com ele.
+
+A regressão que motivou essa proteção foi um timer real de 4 s do fallback de `handleMarkerAndShow()`. O caso `REG-WORKER-4S` prova ownership e cancelamento desse recurso no teardown.
 
 ## 18.7 E2E
 
-Em <code>main</code>, E2E roda mesmo se uma dependência anterior falhar, para que
-o estado do navegador continue visível na mesma pipeline.
+O E2E executa independentemente dos outros jobs funcionais para manter diagnóstico útil mesmo quando outro gate falha.
 
-A falha do próprio E2E continua sendo falha real.
+O reporter de gate exige:
+
+- pelo menos 21 testes descobertos;
+- zero skipped;
+- zero flaky;
+- zero retry recuperando `failed` ou `timedOut`;
+- zero status terminal `failed`, `timedOut` ou `interrupted`.
+
+Portanto `failed -> passed` não é considerado verde.
+
+Os cenários críticos incluem FIFO multi-lote, `minimized_window`, `background_delete`, attachment gate, ownership do resultado, resposta rápida e aba Gemini manual inerte.
 
 ## 18.8 Cobertura
 
-Cobertura é observabilidade.
+Coverage é gate local real. O job executa Jest/V8 e depois `verify-coverage.js`.
 
-Problemas de publicação/serviço de cobertura não devem transformar sozinhos uma
-execução funcionalmente correta em regressão do produto.
+Pisos globais:
 
-## 18.9 Concurrency do CI
+- statements: 78%;
+- branches: 71%;
+- functions: 80%;
+- lines: 78%.
+
+Arquivos críticos têm pisos próprios. Entre eles, `extension/gemini/job-runner.js` exige no mínimo 87% statements, 64% branches, 80% functions e 87% lines.
+
+O verificador reprova, entre outros:
+
+- `lcov.info` vazio/ausente;
+- coverage 0%;
+- arquivo crítico ausente;
+- threshold global abaixo do piso;
+- threshold crítico abaixo do piso.
+
+Falha externa do Codecov é reportada separadamente; nunca substitui o gate local.
+
+## 18.9 CI Gate e ruleset
+
+`CI Gate` usa `if: always()` e só passa quando todos os gates obrigatórios concluíram com `success`:
+
+- Version Integrity;
+- JS Syntax Check;
+- Manifest Validation;
+- CI Contract;
+- Smoke Tests;
+- Visual Tests;
+- Unit + Integration;
+- Code Coverage;
+- E2E Tests.
+
+O ruleset ativo da `main` exige os contextos reais, incluindo `CI Gate`, com strict status checks.
+
+## 18.10 Matriz de regressões obrigatórias
+
+`tests/ci/regression-matrix.json` é a lista machine-readable dos bugs críticos que precisam conservar teste.
+
+O `CI Contract` valida para cada entrada:
+
+1. ID único;
+2. arquivo existente;
+3. marcadores obrigatórios do teste presentes;
+4. tamanho mínimo da matriz.
+
+A matriz cobre, entre outros:
+
+- cleanup ACK/retry/pagehide da extração auxiliar;
+- callbacks/timers pendentes dos mocks Chrome;
+- teardown do runner Gemini;
+- clique individual e `START_BATCH` stale;
+- timer de 4 s do arquivo-âncora;
+- regex de pasta;
+- worker warning;
+- flaky/retry do Playwright;
+- coverage crítico;
+- guardas e fallback do JobRunner;
+- cenários E2E essenciais.
+
+Assim, apagar silenciosamente um desses testes também reprova `CI Contract`, mesmo que outro teste seja adicionado para manter a contagem total.
+
+## 18.11 Diagnósticos pesados
+
+`Jest Worker Diagnostic`, `Focused Project Leak` e `Background Leak Bisection` foram preservados, mas rodam somente por `workflow_dispatch`.
+
+Eles são ferramentas de investigação, não gates funcionais cotidianos. A proteção permanente contra worker leak continua no `Unit + Integration`.
+
+## 18.12 Concurrency do CI
 
 Execuções superseded da mesma branch/workflow podem ser canceladas.
 
@@ -1993,8 +2103,35 @@ A PR #36 evoluiu a automação sem alterar o contrato de versionamento v6.5:
 - telemetria registra execution mode e fases de recovery sem alterar routing;
 - `package.json = 6.5.0`, Manifest `6.5`, `version:sync`, `version:check` e `publish.yml` permaneceram intactos.
 
-O baseline pós-estabilização é o run #663: 98/98 suítes Jest, 716/716 testes
-Jest e 22/22 E2E Playwright aprovados.
+O baseline pós-estabilização daquele marco foi o run #663: 98/98 suítes Jest, 716/716 testes
+Jest e 22/22 E2E Playwright aprovados. Esses números são históricos e foram substituídos pelo baseline atual da seção 18.
+
+## 21.10 PR #47 — fila durável, staging/commit e endurecimento definitivo da CI
+
+O PR #47 integra as correções funcionais de lote com os gates estritos de CI e passa a ser o marco operacional mais recente desta documentação.
+
+As mudanças funcionais incluem:
+
+- estado durável único em `background/state.js`;
+- fila FIFO de batches pendentes e promoção atômica;
+- proteção contra finalização tardia de lote antigo;
+- staging do resultado antes da liberação definitiva do job;
+- commit explícito após persistência;
+- rotas de `deliver-result`, `deliver-result-url` e `deliver-result-from-tab` preservando identidade de job/batch;
+- reconciliação de jobs e batches após suspensão do Service Worker;
+- finalização idempotente e marcadores duráveis;
+- correções de `minimized_window` e `background_delete`;
+- cleanup da extração auxiliar em ACK, retry, timeout e `pagehide`;
+- teardown explícito de recursos assíncronos em testes/mocks;
+- detecção obrigatória de worker Jest forçado;
+- E2E sem skipped/flaky/retry recuperado;
+- coverage V8 com thresholds globais e críticos;
+- `CI Gate` agregado e ruleset da `main` alinhado aos checks reais;
+- diagnósticos caros de leak disponíveis somente sob demanda.
+
+A causa-raiz final do worker leak foi um timer de 4 s do arquivo `_anchor.png` que podia sobreviver ao teardown. O teste `REG-WORKER-4S` e a matriz `tests/ci/regression-matrix.json` tornam esse e os demais incidentes críticos regressões obrigatórias.
+
+O baseline vigente passa a ser 108 suítes / 848 testes Jest, 21 E2E, 224 visuais, 6 smoke e 56 arquivos instrumentados de coverage, com skipped/TODO/flaky iguais a zero.
 
 ---
 
@@ -2353,11 +2490,16 @@ Store:
 13. **Gemini manual não deve ser automatizado sem job válido.**
 14. **inject.js precisa continuar isolado às abas controladas.**
 15. **Falha de módulo obrigatório deve ser visível no boot.**
-16. **Compatibilidade antiga só permanece com consumidor/dado justificável.**
-17. **Logs detalhados do Gemini não ficam ativos fora de debug.**
-18. **CI funcional não pode mascarar Jest/E2E.**
-19. **Mudança de contrato exige teste correspondente.**
-20. **README deve apontar somente para a documentação canônica atual.**
+16. **START_BATCH de B/C/D/... nunca pode sobrescrever estado, jobs ou contadores de A.**
+17. **pendingBatches deve preservar FIFO e sobreviver ao restart do Service Worker.**
+18. **Promoção de lote deve ser atômica e ocorrer no máximo uma vez por posição da fila.**
+19. **STOP_BATCH com batchId pendente deve remover somente esse lote, sem cancelar o lote ativo.**
+20. **Finalização tardia de lote antigo não pode alterar contadores do lote atualmente promovido.**
+21. **Compatibilidade antiga só permanece com consumidor/dado justificável.**
+22. **Logs detalhados do Gemini não ficam ativos fora de debug.**
+23. **CI funcional não pode mascarar Jest/E2E.**
+24. **Mudança de contrato exige teste correspondente e entrada na matriz quando for regressão crítica.**
+25. **README deve apontar somente para a documentação canônica atual.**
 
 ---
 

@@ -12,6 +12,7 @@ const GEMINI_TEMP_CHAT_PATH = path.resolve(__dirname, '../../../extension/gemini
 const GEMINI_RESULT_EXTRACTOR_PATH = path.resolve(__dirname, '../../../extension/gemini/result-extractor.js');
 const GEMINI_DELETION_PATH = path.resolve(__dirname, '../../../extension/gemini/deletion.js');
 const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/gemini/job-runner.js');
+const COVERAGE_MODE = process.env.COVERAGE_MODE === '1';
 
 function setWindowLocation(pathname = '/app/chat-1') {
     Object.defineProperty(window, 'location', {
@@ -238,6 +239,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
     let originalFetch;
     let sentMessages;
     let consoleErrorSpy;
+    let processPromise;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -259,6 +261,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         runtimeMock._connectListeners = [];
         runtimeMock.lastError = null;
         sentMessages = [];
+        processPromise = null;
         consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
         document.documentElement.innerHTML = '<head></head><body></body>';
@@ -266,6 +269,30 @@ describe('content_gemini.js - RPA real do Gemini', () => {
     });
 
     afterEach(async () => {
+        // Alguns cenários encerram assim que observam a mensagem esperada, enquanto
+        // o fluxo assíncrono real ainda pode manter o Observer V2 vivo. Pare todos
+        // os observers registrados antes de desmontar o DOM para não deixar timers
+        // periódicos/waiters presos no worker Jest.
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
+        // The runner can still be unwinding after the expected message. Wait
+        // for it before the next test replaces the shared runtime mock.
+        if (processPromise) await processPromise.catch(() => {});
+
         delete window.__mt_gemini_started;
         delete globalThis.__MT_GEMINI_GENERATION_TIMEOUT_MS__;
         runtimeMock.sendMessage = originalSendMessage;
@@ -285,6 +312,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         },
         storage = {},
         responders = {},
+        autoProcess = true,
     } = {}) {
         setWindowLocation(pathname);
 
@@ -321,7 +349,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             require(GEMINI_DELETION_PATH);
             require(GEMINI_JOB_RUNNER_PATH);
             const contentGemini = require(CONTENT_GEMINI_PATH);
-            contentGemini.processGeminiJob();
+            if (autoProcess) processPromise = contentGemini.processGeminiJob();
         });
 
         await advance(0);
@@ -617,7 +645,9 @@ describe('content_gemini.js - RPA real do Gemini', () => {
         });
 
         const timeoutError = await waitFor(() => collectActions(sentMessages, 'GEMINI_ERROR')
-            .find(message => message.error === 'Tempo limite (4 min)'), { timeout: 12000 });
+            .find(message => message.error === 'Tempo limite (4 min)'), { timeout: COVERAGE_MODE ? 30000 : 12000 });
+        expect(processPromise).toBeInstanceOf(Promise);
+        expect(await processPromise).toEqual(expect.objectContaining({ status: 'result_timeout' }));
 
         const timeoutLog = sentMessages.find(message =>
             message && message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_TIMEOUT'
@@ -633,6 +663,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
             action: 'LOG_ENTRY',
             action_name: 'GEMINI_TIMEOUT',
         }));
+        expect(collectActions(sentMessages, 'GEMINI_ERROR')).toEqual([timeoutError]);
     });
 
     test('CG-43/CG-52/CG-53: handler DELETE_CONVERSATION responde ok em modo debug', async () => {
@@ -640,6 +671,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
 
         await loadScript({
             job: null,
+            autoProcess: false,
             storage: { debugMode: true },
             responders: {
                 GET_TAB_ID: () => undefined,
@@ -683,6 +715,7 @@ describe('content_gemini.js - RPA real do Gemini', () => {
 
         await loadScript({
             job: null,
+            autoProcess: false,
             responders: {
                 GET_TAB_ID: () => undefined,
             },
