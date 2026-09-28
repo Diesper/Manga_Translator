@@ -206,13 +206,12 @@ jobs:
           retention-days: 30
 
   e2e-shard:
-    name: E2E Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    name: E2E Shard (${{ matrix.group }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2]
-        shardTotal: [2]
+        group: [fifo, attachment, medium-a, medium-b, fast]
     defaults:
       run:
         working-directory: tests
@@ -231,8 +230,8 @@ jobs:
         run: npx playwright install chromium --with-deps --no-shell
       - name: Criar imagens de teste
         run: npm run test:images
-      - name: Rodar shard E2E
-        run: xvfb-run --auto-servernum -- npm run test:e2e -- --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - name: Rodar grupo E2E ${{ matrix.group }}
+        run: xvfb-run --auto-servernum -- npm run test:e2e:group -- "${{ matrix.group }}"
         env:
           CI: true
           MANGA_E2E_BROWSER_MODE: stealth
@@ -242,7 +241,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ always() && !cancelled() }}
         with:
-          name: blob-report-${{ matrix.shardIndex }}-${{ github.sha }}
+          name: blob-report-${{ matrix.group }}-${{ github.sha }}
           path: tests/blob-report/
           retention-days: 1
           if-no-files-found: warn
@@ -251,7 +250,7 @@ jobs:
         if: failure()
         continue-on-error: true
         with:
-          name: playwright-failure-shard-${{ matrix.shardIndex }}-${{ github.sha }}
+          name: playwright-failure-shard-${{ matrix.group }}-${{ github.sha }}
           path: tests/test-results/
           retention-days: 7
           if-no-files-found: ignore
@@ -276,6 +275,8 @@ jobs:
           cache-dependency-path: tests/package-lock.json
       - name: Instalar dependências para merge dos relatórios
         run: npm ci
+      - name: Verificar cobertura exata do plano de 5 shards
+        run: npm run test:e2e:plan
       - name: Baixar blob reports dos shards
         uses: actions/download-artifact@v4
         with:
@@ -286,7 +287,7 @@ jobs:
         run: |
           echo "Blob reports recebidos:"
           find all-blob-reports -maxdepth 1 -type f -name '*.zip' -print
-          test "$(find all-blob-reports -maxdepth 1 -type f -name '*.zip' | wc -l)" -ge 2
+          test "$(find all-blob-reports -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 5
       - name: Mesclar shards e aplicar gate global E2E
         run: npx playwright merge-reports --config=ci/playwright-merge.config.js ./all-blob-reports
         env:
