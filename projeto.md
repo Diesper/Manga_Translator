@@ -978,3 +978,765 @@ Ao final, o E2E deve ser:
 A otimização não deve fazer “menos teste”.
 
 Ela deve fazer **o mesmo teste com menos tempo desperdiçado esperando o relógio**.
+
+
+---
+
+# 15. Matriz detalhada de paralelização dos 21 E2E
+
+Esta seção detalha quais testes do PR #47 podem rodar simultaneamente **com o código atual**, quais precisam permanecer seriais e quais só devem ser paralelizados após mudar o isolamento.
+
+## 15.1. Estado atual relevante
+
+O Playwright atual já usa **2 workers** no runner observado, mas o paralelismo efetivo é ruim porque:
+
+- arquivos diferentes podem rodar simultaneamente;
+- testes dentro do mesmo arquivo continuam em ordem por padrão;
+- `translation-flow.spec.js` contém **14 dos 21 testes**;
+- esses 14 testes ficam presos ao mesmo fluxo serial;
+- `reader-offline.spec.js` termina muito cedo;
+- `cache-and-storage.spec.js` termina muito antes do `translation-flow`;
+- portanto um worker fica ocioso enquanto o outro continua executando o arquivo mais pesado.
+
+O problema principal é **granularidade de agendamento**, não falta absoluta de workers.
+
+---
+
+## 15.2. Grupo A — seguros para paralelizar imediatamente
+
+Os 14 testes de `translation-flow.spec.js` já criam um `chromium.launchPersistentContext()` novo no `beforeEach`.
+
+Cada teste recebe:
+
+- `userDataDir` único;
+- `chrome.storage.local` próprio;
+- IndexedDB próprio do perfil;
+- service worker próprio;
+- abas próprias;
+- estado JS da extensão isolado;
+- DOM próprio.
+
+O mock HTTP compartilhado na porta 3999 não mantém uma sessão global do teste. Os estados importantes do mock, como:
+
+- `attachmentSeen`;
+- `attachmentAttempts`;
+- `running`;
+
+existem dentro do JavaScript de **cada página**, não como estado global no processo do servidor.
+
+Por isso estes cenários são logicamente independentes entre si.
+
+### Matriz
+
+| Teste | Paralelizar? | Peso aproximado | Observação |
+|---|---|---:|---|
+| fluxo ponta a ponta básico | **SIM** | ~19s | contexto próprio |
+| FIFO A→G | **SIM, com cautela de recursos** | ~85s | muitas páginas/abas; ideal junto de teste leve |
+| minimized_window | **SIM** | ~14s | contexto próprio |
+| background_delete | **SIM** | ~15s | contexto próprio |
+| resposta rápida | **SIM** | ~9s | excelente candidato |
+| shadow DOM | **SIM** | ~10s | excelente candidato |
+| submit ignorado | **SIM** | ~17s | independente |
+| attachment gate / temp_chat | **SIM** | ~25s | grande ganho se paralelo |
+| attachment gate / minimized | **SIM** | ~23s | grande ganho se paralelo |
+| attachment gate / background_delete | **SIM** | ~24s | grande ganho se paralelo |
+| result ownership / temp_chat | **SIM** | ~10s | independente |
+| result ownership / minimized | **SIM** | ~9s | independente |
+| result ownership / background_delete | **SIM** | ~9s | independente |
+| Gemini manual | **SIM**, mantendo contexto exclusivo | ~3s | adiciona listener no SW; não reutilizar seu contexto |
+
+### Primeira implementação recomendada
+
+Adicionar somente ao describe do `translation-flow.spec.js`:
+
+```js
+test.describe.configure({ mode: 'parallel' });
+```
+
+e fixar no CI inicialmente:
+
+```js
+workers: process.env.CI ? 2 : undefined
+```
+
+Isso permite que Playwright distribua os 14 testes entre os dois workers, mantendo `cache-and-storage` e `reader-offline` com o comportamento atual.
+
+---
+
+# 16. Testes que NÃO devem ser paralelizados internamente ainda
+
+## 16.1. `cache-and-storage.spec.js`
+
+Os quatro testes deste arquivo compartilham um único persistent context criado em `beforeAll`.
+
+O `beforeEach` limpa storage, mas todos continuam usando:
+
+- o mesmo browser profile;
+- o mesmo service worker;
+- o mesmo `chrome.storage.local`;
+- o mesmo IndexedDB;
+- a mesma extensão carregada.
+
+Portanto:
+
+> **o arquivo pode rodar simultaneamente com outros arquivos, mas seus quatro testes não devem rodar simultaneamente entre si na arquitetura atual.**
+
+Testes:
+
+1. salva páginas no storage;
+2. host espelho usa GTC;
+3. reload reaplica restoreMap;
+4. debug mode mantém abas Gemini.
+
+Para paralelizá-los internamente seria necessário trocar `beforeAll` por contexto exclusivo por teste ou construir fixture de isolamento equivalente.
+
+### Recomendação
+
+**Não fazer isso agora.**
+
+Esse arquivo já economiza inicialização do browser reutilizando um contexto e não é o maior gargalo.
+
+---
+
+## 16.2. `reader-offline.spec.js`
+
+Também usa persistent context compartilhado em `beforeAll`.
+
+Os testes mexem em:
+
+- `chapterList`;
+- chaves de imagens por capítulo;
+- localStorage do reader;
+- storage da extensão.
+
+Apesar de cada teste usar chapter IDs diferentes em vários pontos, o reset global e o contexto compartilhado tornam paralelismo interno desnecessariamente arriscado.
+
+### Recomendação
+
+Manter os três testes seriais dentro do arquivo.
+
+O arquivo inteiro já é muito rápido; não vale trocar isolamento por ganho de poucos segundos.
+
+---
+
+# 17. Estimativa do ganho apenas com melhor agendamento
+
+A medição anterior permite estimar aproximadamente:
+
+```text
+translation-flow ≈ 274 s de trabalho serial
+cache-and-storage ≈ 80 s
+reader-offline ≈ 4 s
+```
+
+Esses valores não são um benchmark formal por teste; são uma reconstrução das timestamps do run #1233 e servem para dimensionar o problema.
+
+## Com 2 workers
+
+Distribuição teórica aproximada do trabalho:
+
+```text
+worker 1 ≈ 179 s
+worker 2 ≈ 179 s
+```
+
+Portanto o critical path pode cair de ~4m40s para aproximadamente **3 minutos de execução**, antes de otimizar o mock.
+
+## Com 3 workers
+
+Distribuição teórica aproximada:
+
+```text
+~120 s por worker
+```
+
+Possível wall-clock próximo de **2 minutos**, mais overhead.
+
+## Com 4 workers
+
+Distribuição teórica:
+
+```text
+~90–92 s no worker mais carregado
+```
+
+Mas esta configuração tem risco maior de:
+
+- contenção de CPU;
+- contenção de memória;
+- Chromium mais lento por processo;
+- timing diferente do service worker MV3;
+- flakiness induzida pelo runner.
+
+Por isso a sequência correta é:
+
+```text
+2 workers -> medir 5 execuções
+3 workers -> medir 5 execuções
+4 workers -> medir 5 execuções
+```
+
+e escolher pelo **pior caso estável**, não pelo melhor run isolado.
+
+---
+
+# 18. Estratégia de divisão de arquivos
+
+Mesmo que `mode: 'parallel'` funcione, dividir o arquivo grande melhora manutenção, sharding e diagnóstico.
+
+Estrutura recomendada:
+
+```text
+tests/e2e/
+  translation-core.spec.js
+  translation-fifo.spec.js
+  translation-execution-modes.spec.js
+  translation-attachment-gate.spec.js
+  translation-result-ownership.spec.js
+  translation-manual.spec.js
+  cache-and-storage.spec.js
+  reader-offline.spec.js
+```
+
+## Distribuição sugerida
+
+### `translation-core.spec.js`
+
+- fluxo ponta a ponta;
+- resposta rápida;
+- shadow DOM;
+- submit ignorado.
+
+### `translation-fifo.spec.js`
+
+- FIFO A→G sozinho.
+
+Motivo: é o cenário mais pesado e deve ser livre para ocupar um worker enquanto outros workers drenam testes menores.
+
+### `translation-execution-modes.spec.js`
+
+- minimized_window;
+- background_delete.
+
+### `translation-attachment-gate.spec.js`
+
+- temp_chat;
+- minimized_window;
+- background_delete.
+
+Configurar este describe como paralelo.
+
+Os três timeouts de ~20s deixam de somar ~72s de parede e passam a poder ocorrer simultaneamente.
+
+### `translation-result-ownership.spec.js`
+
+- temp_chat;
+- minimized_window;
+- background_delete.
+
+Também pode ser paralelo.
+
+### `translation-manual.spec.js`
+
+- teste de Gemini manual.
+
+Mantê-lo isolado porque ele instala um listener `chrome.runtime.onConnect.addListener` no service worker. Hoje o listener é anônimo e não é removido no final do teste.
+
+---
+
+# 19. Reutilização de browser/context — análise específica do PR #47
+
+## 19.1. Restrição importante de extensões
+
+Os E2E carregam uma extensão Manifest V3.
+
+Isso exige persistent context para o modelo usado pelo Playwright/Chromium.
+
+Um `launchPersistentContext` representa o único contexto daquele processo do browser; ao fechar esse contexto, o browser correspondente também fecha.
+
+Isso significa que não existe a mesma otimização simples de:
+
+```text
+1 browser
+  -> newContext teste A
+  -> newContext teste B
+  -> newContext teste C
+```
+
+usada em aplicações web normais, porque o carregamento da extensão depende do perfil persistente.
+
+A otimização possível é:
+
+> **reutilizar o mesmo persistent context entre vários testes do mesmo worker.**
+
+Mas isso reduz isolamento.
+
+---
+
+## 19.2. Onde reutilização já existe
+
+### cache-and-storage
+
+Já reutiliza um persistent context para quatro testes.
+
+Resultado: esse arquivo é um bom laboratório para medir reaproveitamento.
+
+### reader-offline
+
+Também reutiliza um persistent context.
+
+---
+
+## 19.3. Onde NÃO reutilizar primeiro
+
+`translation-flow` possui efeitos mais profundos:
+
+- cria e remove abas Gemini;
+- cria batches;
+- usa scheduler;
+- usa alarms/timers;
+- altera debug mode;
+- trabalha com recovery;
+- exercita service worker;
+- cria listeners;
+- manipula IndexedDB e storage;
+- pode deixar operações assíncronas pendentes.
+
+Por isso paralelizar mantendo **um contexto por teste** é muito mais seguro do que reutilizar contexto nesta primeira fase.
+
+---
+
+## 19.4. Caso especialmente perigoso: teste Gemini manual
+
+O teste manual executa:
+
+```js
+chrome.runtime.onConnect.addListener(port => {
+    ...
+});
+```
+
+Esse listener é instalado no service worker e não é removido explicitamente.
+
+Em contexto descartável isso não importa.
+
+Em contexto reutilizado ele pode sobreviver ao teste e modificar o comportamento dos seguintes.
+
+Portanto qualquer projeto de reuse precisa fazer uma destas coisas:
+
+1. manter o teste manual em contexto exclusivo; ou
+2. transformar o listener em função nomeada e removê-lo no cleanup.
+
+A opção 1 é mais segura.
+
+---
+
+# 20. Protocolo obrigatório antes de reutilizar persistent context
+
+Criar primeiro um helper de cleanup capaz de provar que o contexto voltou a um estado conhecido.
+
+Checklist:
+
+- fechar páginas de mangá restantes;
+- fechar abas Gemini restantes;
+- zerar `chrome.storage.local`;
+- limpar GTC;
+- limpar StorageManager IndexedDB;
+- limpar restore maps;
+- limpar `pendingBatches`;
+- zerar `jobQueue`;
+- zerar `jobIndex`;
+- garantir `activeJobsCount = 0`;
+- garantir `isProcessing = false`;
+- remover alarms criados pelos testes;
+- confirmar que não há `deleting_urls`;
+- confirmar ausência de jobs persistidos;
+- garantir debugMode padrão;
+- garantir execução mode padrão;
+- verificar que nenhuma página extra ficou aberta.
+
+Depois do cleanup executar uma asserção de invariantes.
+
+Se qualquer invariante falhar, destruir o contexto e iniciar outro.
+
+---
+
+# 21. Estratégia híbrida de reuse recomendada
+
+Não reutilizar tudo.
+
+## Pool A — contexto descartável
+
+Usar contexto novo por teste para:
+
+- FIFO;
+- attachment failure;
+- minimized_window;
+- background_delete;
+- Gemini manual;
+- testes que mexem em recovery/lifecycle.
+
+## Pool B — contexto reutilizável por worker
+
+Candidatos posteriores:
+
+- resposta rápida;
+- shadow DOM;
+- fluxo básico;
+- alguns result-ownership após provar cleanup.
+
+Mesmo nesses casos, primeiro medir o custo real de abrir Chromium.
+
+Se paralelismo e mock rápido já levarem o E2E para a meta, **não assumir o risco de reuse**.
+
+---
+
+# 22. Cache do Chromium — prioridade real
+
+O package-lock atual usa Playwright **1.59.1**.
+
+O browser do Playwright fica em Linux normalmente em:
+
+```text
+~/.cache/ms-playwright
+```
+
+Entretanto a própria documentação do Playwright não recomenda cachear os browsers como otimização padrão de CI: restaurar centenas de MB pode levar tempo comparável ao download, e dependências de sistema continuam sendo outra etapa.
+
+No run medido, a instalação do Playwright/browsers ficou em aproximadamente **23 segundos**.
+
+Comparação:
+
+```text
+browser/setup ≈ 23s
+testes Playwright ≈ 280s
+```
+
+Logo, hoje o retorno esperado de atacar o browser cache é muito menor do que paralelizar os testes.
+
+## Experimento correto
+
+Criar dois runs comparáveis:
+
+### A — atual
+
+```bash
+npx playwright install chromium --with-deps
+```
+
+### B — browser cache
+
+Cache:
+
+```text
+~/.cache/ms-playwright
+```
+
+chave contendo pelo menos:
+
+```text
+Linux + Playwright 1.59.1
+```
+
+Medir:
+
+- cache miss;
+- cache hit;
+- restore duration;
+- install duration;
+- tamanho transferido;
+- job total.
+
+Só manter o cache se a mediana melhorar de verdade.
+
+---
+
+# 23. Experimento mais interessante que cache puro: `--no-shell`
+
+Os testes usam Chromium com o novo headless/headed-via-Xvfb e extensão MV3.
+
+A documentação atual do Playwright permite evitar baixar o headless shell quando ele não é usado:
+
+```bash
+npx playwright install --with-deps --no-shell chromium
+```
+
+Isso deve ser testado separadamente.
+
+Critério:
+
+- extensão carrega normalmente;
+- todos os 21 E2E passam;
+- download/setup fica menor.
+
+Não combinar cache + no-shell na primeira medição, senão não saberemos qual mudança produziu o ganho.
+
+---
+
+# 24. Sharding — quando passar para múltiplos runners
+
+Sharding só deve entrar depois que o paralelismo interno estiver estável.
+
+Hoje o comando seria conceitualmente:
+
+```bash
+npx playwright test --shard=1/2
+npx playwright test --shard=2/2
+```
+
+em jobs GitHub independentes.
+
+Isso adiciona CPU real porque cada shard recebe outro runner.
+
+---
+
+# 25. Problema do reporter atual com sharding
+
+O reporter do PR #47 exige que a execução descubra pelo menos 21 testes.
+
+Um shard naturalmente vê apenas uma parte dos 21.
+
+Logo:
+
+> simplesmente adicionar `--shard=1/2` fará o gate atual interpretar cada shard como inventário incompleto.
+
+O baseline **não deve ser reduzido** para resolver isso.
+
+---
+
+# 26. Arquitetura correta do gate com shards
+
+Usar Blob Reporter nos shards.
+
+## Cada shard
+
+Executa:
+
+```text
+Playwright
+  -> line reporter
+  -> blob reporter
+```
+
+e publica o blob como artifact.
+
+Não aplica o mínimo global de 21 naquele shard.
+
+Cada shard ainda deve falhar imediatamente se um teste final falhar.
+
+## Job agregador
+
+1. baixa blobs dos shards;
+2. executa `playwright merge-reports`;
+3. roda o reporter/gate customizado sobre o relatório agregado;
+4. verifica:
+   - total >= 21;
+   - skipped = 0;
+   - flaky = 0;
+   - failed = 0;
+   - todas as tentativas first-pass.
+
+O Playwright chama a mesma API de reporter ao produzir relatório mesclado, então o gate atual pode ser adaptado para validar o conjunto completo no merge.
+
+---
+
+# 27. Quantidade de shards recomendada
+
+## Primeiro teste: 2 shards
+
+Com cada shard usando 2 workers:
+
+```text
+2 runners × 2 workers = até 4 testes simultâneos
+```
+
+Isso já é agressivo o bastante para esta suíte.
+
+Não começar com 3 ou 4 shards.
+
+### Motivos
+
+- Chromium MV3 é pesado;
+- cada runner paga setup;
+- mais artifacts;
+- mais complexidade no gate;
+- o workflow já possui muitos outros jobs simultâneos;
+- limite de concorrência da conta/repositório pode gerar fila.
+
+Se o segundo shard ficar esperando runner, o ganho de wall-clock desaparece.
+
+---
+
+# 28. Sharding e balanceamento
+
+Sem `fullyParallel`, Playwright distribui principalmente por arquivo.
+
+Por isso a divisão proposta em vários arquivos é importante antes do sharding.
+
+Uma distribuição razoável fica naturalmente próxima de:
+
+```text
+Shard A:
+  FIFO
+  alguns core/result tests
+
+Shard B:
+  attachment gates
+  cache/storage
+  execution modes
+  reader
+```
+
+Se `translation-flow` permanecer como um arquivo monolítico, um shard pode ficar com quase todo o trabalho pesado e o outro terminar cedo.
+
+Portanto:
+
+> **dividir o arquivo pesado vem antes do sharding.**
+
+---
+
+# 29. Por que não ativar `fullyParallel: true` global agora
+
+Globalmente isso afetaria também:
+
+- `cache-and-storage.spec.js`;
+- `reader-offline.spec.js`.
+
+Esses arquivos compartilham persistent context.
+
+A configuração global poderia quebrar o pressuposto de estado serial.
+
+A opção segura é uma destas:
+
+1. `test.describe.configure({ mode: 'parallel' })` somente nos grupos independentes; ou
+2. projetos Playwright separados, com `fullyParallel` apenas no projeto de translation.
+
+A opção 1 é mais simples para o PR #47.
+
+---
+
+# 30. Plano de implementação recomendado para paralelismo
+
+## Etapa P1 — sem alterar semântica
+
+- fixar 2 workers;
+- `mode: parallel` apenas no translation-flow;
+- retries=0 no CI;
+- executar 5 vezes.
+
+### Aprovar se
+
+- 21/21;
+- 0 retry;
+- 0 flaky;
+- nenhum novo timeout;
+- mediana claramente menor.
+
+---
+
+## Etapa P2 — dividir translation-flow
+
+Criar os seis arquivos descritos anteriormente.
+
+Extrair helpers comuns.
+
+Executar 5 vezes com 2 workers.
+
+---
+
+## Etapa P3 — testar 3 workers
+
+Executar 5 vezes.
+
+Comparar:
+
+- mediana;
+- p95;
+- CPU/estabilidade;
+- teste mais lento;
+- falhas.
+
+Se 3 workers não forem claramente melhores, permanecer em 2.
+
+---
+
+## Etapa P4 — mock determinístico
+
+- FIFO barrier;
+- reduzir delay artificial de resultado;
+- remover networkidle desnecessário.
+
+Executar novamente 5 vezes.
+
+---
+
+## Etapa P5 — avaliar 4 workers
+
+Somente depois do mock estar determinístico.
+
+---
+
+## Etapa P6 — cache/no-shell
+
+Benchmark separado.
+
+---
+
+## Etapa P7 — reuse experimental
+
+Somente se ainda existir ganho material possível.
+
+---
+
+## Etapa P8 — 2 shards
+
+Implementar blobs + merge + gate agregado.
+
+---
+
+# 31. Ordem por retorno esperado
+
+| Mudança | Ganho potencial | Risco | Prioridade |
+|---|---:|---:|---:|
+| paralelizar translation-flow em 2 workers | **muito alto** | baixo/médio | **1** |
+| dividir arquivo pesado | alto | baixo | **2** |
+| attachment gates simultâneos | alto | baixo | **3** |
+| FIFO barrier | alto | médio | **4** |
+| mock result delay menor | alto | médio | **5** |
+| 3 workers | médio/alto | médio | **6** |
+| remover networkidle/sleeps de teste | médio | baixo | **7** |
+| `--no-shell` | pequeno/médio | baixo | **8** |
+| cache ms-playwright | pequeno | baixo | **9** |
+| reuse de persistent context | pequeno/médio | **alto** | **10** |
+| sharding 2 runners | alto wall-clock | médio/alto | **11**, depois da suíte estar bem dividida |
+
+---
+
+# 32. Decisão recomendada para o PR #47
+
+A próxima mudança técnica não deve ser browser cache nem reuse.
+
+O primeiro experimento deve ser:
+
+```text
+translation-flow => parallel
+CI workers => 2 explícitos
+cache/storage => serial interno
+reader => serial interno
+contexto novo => continuar por teste em translation
+```
+
+Isso ataca diretamente o maior desperdício observado sem alterar a lógica da extensão e sem enfraquecer isolamento.
+
+Depois que essa versão estiver comprovadamente estável, avançar para:
+
+```text
+split de arquivos
+-> 3 workers
+-> FIFO barrier/mock rápido
+-> no-shell/cache
+-> reuse
+-> sharding com blob merge
+```
+
+Essa sequência maximiza ganho por risco e mantém o princípio do PR #47: **first-pass real, nenhum skipped e nenhum flaky mascarado**.
