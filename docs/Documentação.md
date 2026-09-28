@@ -1369,7 +1369,10 @@ O popup concentra:
 
 As opções de **Substituição automática** incluem a permissão global e a lista
 de **Sites habilitados**, porque ambas governam quando uma tradução salva pode
-ser reaplicada. O filtro dimensional fica entre **Traduções em Paralelo** e
+ser reaplicada. A preferência `redoConfirmEnabled` também fica visualmente
+dentro desse conjunto, com o rótulo **“Confirmar ao apertar o botão de refazer a
+imagem”**, pois ela controla diretamente a ação **Refazer** das imagens salvas
+mostradas por site. O filtro dimensional fica entre **Traduções em Paralelo** e
 **Modo Debug**, para separar os parâmetros de processamento dos diagnósticos.
 
 ### Miniaturas da aba Traduzidas
