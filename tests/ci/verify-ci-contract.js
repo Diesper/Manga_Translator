@@ -10,6 +10,9 @@ const coverageConfig = fs.readFileSync(path.join(root, 'tests', 'jest.coverage.c
 const coverageVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage.js'), 'utf8');
 const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage-selftest.js'), 'utf8');
 const e2eReporter = fs.readFileSync(path.join(root, 'tests', 'ci', 'playwright-gate-reporter.js'), 'utf8');
+const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'e2e-shard-plan.json'), 'utf8'));
+const e2ePlanVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-e2e-shard-plan.js'), 'utf8');
+const e2eGroupRunner = fs.readFileSync(path.join(root, 'tests', 'ci', 'run-e2e-group.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
 const regressionMatrixPath = path.join(root, 'tests', 'ci', 'regression-matrix.json');
@@ -30,6 +33,7 @@ const requiredJobs = [
   'visual',
   'unit-and-integration',
   'coverage',
+  'e2e-shard',
   'e2e',
   'jest-worker-diagnostic',
   'focused-project-leak-diagnostic',
@@ -141,16 +145,46 @@ if (regressionMatrix) {
   }
 }
 
-for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e']) {
+for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e-shard', 'e2e']) {
   const block = jobBlock(job);
   if (/^    continue-on-error:\s*true\s*$/m.test(block)) {
     problems.push(job + ': job funcional não pode usar continue-on-error: true');
   }
 }
 
+const e2eShard = jobBlock('e2e-shard');
 const e2e = jobBlock('e2e');
-if (/^    needs:/m.test(e2e)) {
-  problems.push('e2e: precisa executar independentemente e não depender do sucesso de outro job funcional');
+if (/^    needs:/m.test(e2eShard)) {
+  problems.push('e2e-shard: precisa executar independentemente de outros jobs funcionais');
+}
+if (!/^    needs:\s*$/m.test(e2e) || !e2e.includes('- e2e-shard')) {
+  problems.push('e2e: gate agregado precisa depender dos shards');
+}
+if (!e2e.includes('merge-reports') || !e2e.includes('playwright-merge.config.js')) {
+  problems.push('e2e: gate agregado precisa mesclar blob reports antes de validar inventário');
+}
+for (const group of ['fifo', 'attachment', 'medium-a', 'medium-b', 'fast']) {
+  if (!e2eShard.includes(group)) {
+    problems.push('e2e-shard: grupo explícito ausente da matriz: ' + group);
+  }
+}
+if (!e2eShard.includes('test:e2e:group') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
+  problems.push('e2e-shard: precisa executar grupos explícitos com blob reporter');
+}
+if (/MANGA_E2E_WORKERS:\s*['"]?\d+/.test(e2eShard)) {
+  problems.push('e2e-shard: workers não podem ficar hardcoded no workflow; use e2e-shard-plan.json');
+}
+if (!e2eGroupRunner.includes('MANGA_E2E_WORKERS: String(group.workers)')) {
+  problems.push('run-e2e-group.js precisa aplicar workers do plano como fonte única de verdade');
+}
+if (e2eShard.includes('--shard=')) {
+  problems.push('e2e-shard: não deve voltar ao sharding automático por contagem');
+}
+if (!e2e.includes('test:e2e:plan')) {
+  problems.push('e2e: precisa verificar cobertura exata dos grupos antes do merge');
+}
+if (!e2e.includes('wc -l)" -eq 5')) {
+  problems.push('e2e: precisa exigir exatamente 5 blob reports');
 }
 
 if (/npm run test:[^\n]*\|\|\s*true/.test(workflow)) {
@@ -199,11 +233,58 @@ for (const marker of [
   }
 }
 
-if (!playwright.includes('forbidOnly: !!process.env.CI')) {
+if (!playwright.includes('forbidOnly: isCi')) {
   problems.push('Playwright precisa proibir test.only em CI');
+}
+if (!playwright.includes('fullyParallel: true')) {
+  problems.push('Playwright precisa habilitar distribuição por teste para balancear shards');
+}
+if (!playwright.includes('retries: isCi ? 0')) {
+  problems.push('Playwright CI precisa usar retries=0 para não mascarar flakiness nem desperdiçar tempo');
 }
 if (!playwright.includes('./ci/playwright-gate-reporter.js')) {
   problems.push('Playwright precisa carregar o reporter de gate em CI');
+}
+if (pkg.scripts['test:e2e:group'] !== 'node ci/run-e2e-group.js') {
+  problems.push('tests/package.json#test:e2e:group precisa usar o runner de grupos explícitos');
+}
+if (pkg.scripts['test:e2e:plan'] !== 'node ci/verify-e2e-shard-plan.js') {
+  problems.push('tests/package.json#test:e2e:plan precisa verificar o inventário dos shards');
+}
+if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
+  problems.push('e2e-shard-plan.json precisa conter exatamente 5 grupos nesta fase');
+} else {
+  const expected = new Map([
+    ['fifo', { tests: 1, workers: 1 }],
+    ['attachment', { tests: 3, workers: 3 }],
+    ['medium-a', { tests: 4, workers: 2 }],
+    ['medium-b', { tests: 4, workers: 2 }],
+    ['fast', { tests: 9, workers: 3 }],
+  ]);
+  let total = 0;
+  for (const group of e2ePlan.groups) {
+    total += Number(group.expectedTests || 0);
+    if (!expected.has(group.id)) {
+      problems.push('e2e-shard-plan.json contém grupo inesperado: ' + group.id);
+      continue;
+    }
+    const expectedGroup = expected.get(group.id);
+    if (group.expectedTests !== expectedGroup.tests) {
+      problems.push('e2e-shard-plan.json contagem inválida para ' + group.id);
+    }
+    if (group.workers !== expectedGroup.workers) {
+      problems.push('e2e-shard-plan.json workers inválidos para ' + group.id +
+        ': esperado=' + expectedGroup.workers + ', atual=' + group.workers);
+    }
+  }
+  if (total !== baseline.e2e.minTests) {
+    problems.push('e2e-shard-plan.json precisa cobrir exatamente o baseline atual de E2E');
+  }
+}
+for (const invariant of ['cobertura exata sem omissões ou duplicatas', 'teste duplicado entre grupos', 'Testes sem grupo']) {
+  if (!e2ePlanVerifier.includes(invariant)) {
+    problems.push('verify-e2e-shard-plan.js não protege invariável: ' + invariant);
+  }
 }
 if (pkg.scripts['test:ci'] !== 'node ci/run-jest-ci.js') {
   problems.push('tests/package.json#test:ci precisa usar o runner auditável');
