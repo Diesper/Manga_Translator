@@ -1,401 +1,80 @@
-name: MangaTranslator CI
+name: PR48 Temporary Benchmark - Cache A
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: pr48-benchmark-${{ github.ref }}
   cancel-in-progress: true
 
 on:
   push:
-  pull_request:
 
 jobs:
-  version-integrity:
-    name: Version Integrity
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - name: Verificar fonte única de versão
-        run: npm run version:check
-
-  syntax-check:
-    name: JS Syntax Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - name: Verificar sintaxe de todos os arquivos JS da extensão
-        run: |
-          echo "Verificando sintaxe dos arquivos da extensão..."
-          node --check scripts/sync-version.js
-          find extension -name "*.js" -type f | sort | while read f; do
-            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
-          done
-      - name: Verificar sintaxe dos arquivos de teste e CI
-        run: |
-          echo "Verificando sintaxe dos testes..."
-          find tests -type f -name "*.js" | sort | while read f; do
-            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
-          done
-
-  manifest-validation:
-    name: Manifest Validation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Validar manifest.json
-        run: |
-          node -e "
-            const fs = require('fs');
-            const manifest = JSON.parse(fs.readFileSync('extension/manifest.json', 'utf8'));
-            const required = ['manifest_version', 'name', 'version', 'permissions'];
-            required.forEach(field => {
-              if (!manifest[field]) { console.error('Falta campo: ' + field); process.exit(1); }
-            });
-            if (manifest.manifest_version !== 3) {
-              console.error('manifest_version deve ser 3'); process.exit(1);
-            }
-            console.log('✅ manifest.json válido:', manifest.name, 'v' + manifest.version);
-          "
-
-  ci-contract:
-    name: CI Contract
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - name: Validar contrato da própria CI
-        run: node tests/ci/verify-ci-contract.js
-      - name: Testar verificador de coverage
-        run: node tests/ci/verify-coverage-selftest.js
-      - name: Testar gate E2E contra retries/flaky
-        run: node tests/ci/playwright-gate-reporter-selftest.js
-
-  smoke:
-    name: Smoke Tests
+  benchmark:
+    name: "[TEST ONLY] Cache A"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: tests
     steps:
-      - name: Checkout código
+      - name: Checkout benchmark branch
         uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências
-        run: npm ci
-      - name: Rodar testes de fumaça
-        run: npm run test:smoke
 
-  visual:
-    name: Visual Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências
-        run: npm ci
-      - name: Rodar testes visuais perceptuais
-        run: npm run test:visual-v3
-
-  unit-and-integration:
-    name: Unit + Integration (${{ matrix.node-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [20.x, 22.x]
-    defaults:
-      run:
-        working-directory: tests
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências
-        run: npm ci
-      - name: Rodar Jest com verificação de inventário
-        run: npm run test:ci
-
-  coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências
-        run: npm ci
-      - name: Gerar coverage com Jest/V8
-        run: npm run test:coverage
-      - name: Verificar integridade e thresholds do coverage
-        run: npm run test:coverage:verify
-      - name: Detectar configuração do Codecov
-        id: codecov
+      - name: Confirm frozen PR48 base
         shell: bash
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          if [ -n "$CODECOV_TOKEN" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-            echo "Codecov upload: ENABLED"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Codecov upload: SKIPPED — CODECOV_TOKEN not configured"
-          fi
-      - name: Upload cobertura para Codecov
-        id: codecov-upload
-        if: steps.codecov.outputs.enabled == 'true'
-        uses: codecov/codecov-action@v4
-        continue-on-error: true
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./tests/coverage/lcov.info
-          flags: unittests
-          name: manga-translator-coverage
-          fail_ci_if_error: true
-      - name: Reportar falha externa do Codecov
-        if: steps.codecov.outputs.enabled == 'true' && steps.codecov-upload.outcome == 'failure'
-        run: echo "::warning::Codecov upload FAILED — o gate local de coverage já passou, mas o dashboard externo não foi atualizado."
-      - name: Salvar relatório HTML de cobertura
-        uses: actions/upload-artifact@v4
-        if: always()
-        continue-on-error: true
-        with:
-          name: coverage-report-${{ github.sha }}
-          path: tests/coverage/
-          retention-days: 30
+          echo "Frozen PR48 base: ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032"
+          echo "Benchmark branch: ${GITHUB_REF_NAME}"
+          echo "Benchmark group: Cache A"
+          echo "Expected tests: 2"
+          echo "Grep: salva as paginas traduzidas|segunda traducao em host espelho"
+          git merge-base --is-ancestor ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032 HEAD
 
-  e2e-shard:
-    name: E2E Shard (${{ matrix.group }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        group: [fifo, attachment, medium-a, medium-b, fast]
-    defaults:
-      run:
-        working-directory: tests
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
+      - name: Configure Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
           cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências
+
+      - name: Install dependencies
         run: npm ci
-      - name: Instalar Chromium sem headless shell redundante
+
+      - name: Install Chromium
         run: npx playwright install chromium --with-deps --no-shell
-      - name: Criar imagens de teste
+
+      - name: Create E2E fixtures
         run: npm run test:images
-      - name: Rodar grupo E2E ${{ matrix.group }}
-        run: xvfb-run --auto-servernum -- npm run test:e2e:group -- "${{ matrix.group }}"
+
+      - name: Run benchmark group
+        shell: bash
         env:
           CI: true
           MANGA_E2E_BROWSER_MODE: stealth
           MANGA_E2E_SHARD: '1'
           MANGA_E2E_WORKERS: '1'
-      - name: Upload blob report do shard
+          MANGA_E2E_RETRIES: '0'
+        run: |
+          set -o pipefail
+          echo "BENCHMARK_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          xvfb-run --auto-servernum -- npm run test:e2e -- --grep "salva as paginas traduzidas|segunda traducao em host espelho"
+          status=$?
+          echo "BENCHMARK_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          exit "$status"
+
+      - name: Upload benchmark blob
         uses: actions/upload-artifact@v4
         if: ${{ always() && !cancelled() }}
         with:
-          name: blob-report-${{ matrix.group }}-${{ github.sha }}
+          name: pr48-benchmark-pr48-benchmark-cache-a-${{ github.sha }}
           path: tests/blob-report/
-          retention-days: 1
+          retention-days: 7
           if-no-files-found: warn
-      - name: Upload artefatos de falha do shard
+
+      - name: Upload failure artifacts
         uses: actions/upload-artifact@v4
         if: failure()
         continue-on-error: true
         with:
-          name: playwright-failure-shard-${{ matrix.group }}-${{ github.sha }}
+          name: pr48-benchmark-failure-pr48-benchmark-cache-a-${{ github.sha }}
           path: tests/test-results/
           retention-days: 7
           if-no-files-found: ignore
-
-  e2e:
-    name: E2E Tests (Playwright)
-    if: ${{ always() }}
-    needs:
-      - e2e-shard
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências para merge dos relatórios
-        run: npm ci
-      - name: Verificar cobertura exata do plano de 5 shards
-        run: npm run test:e2e:plan
-      - name: Baixar blob reports dos shards
-        uses: actions/download-artifact@v4
-        with:
-          path: tests/all-blob-reports
-          pattern: blob-report-*-${{ github.sha }}
-          merge-multiple: true
-      - name: Conferir inventário de blobs
-        run: |
-          echo "Blob reports recebidos:"
-          find all-blob-reports -maxdepth 1 -type f -name '*.zip' -print
-          test "$(find all-blob-reports -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 5
-      - name: Mesclar shards e aplicar gate global E2E
-        run: npx playwright merge-reports --config=ci/playwright-merge.config.js ./all-blob-reports
-        env:
-          CI: true
-
-  open-handles-diagnostic:
-    name: Open Handles Diagnostic (${{ matrix.label }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - label: jobs-reconciliation
-            files: unit/background/jobs-reconciliation-batch-queue.test.js
-          - label: jobs-watchdog
-            files: unit/background/jobs-watchdog-ordering.test.js
-          - label: lifecycle-alarms
-            files: unit/background/lifecycle-alarms-real.test.js
-          - label: marker-anchor
-            files: unit/background/marker-anchor-real.test.js
-          - label: message-handlers
-            files: unit/background/message-handlers-real.test.js
-          - label: open-existing-folder
-            files: unit/background/open-existing-folder-action.test.js
-          - label: process-finalize
-            files: unit/background/process-finalize-real.test.js
-          - label: refresh-watchdog
-            files: unit/background/refresh-job-watchdog-action.test.js
-          - label: regex-escape
-            files: unit/background/regex-escape.test.js
-    defaults:
-      run:
-        working-directory: tests
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-      - name: Instalar dependências
-        run: npm ci
-      - name: Rodar combinação e detectar worker forçado
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          read -r -a selected <<< "${{ matrix.files }}"
-          printf 'Arquivos selecionados (%s):\n' "${#selected[@]}"
-          printf '  %s\n' "${selected[@]}"
-          npx jest --config jest.config.js --ci --selectProjects background --runTestsByPath "${selected[@]}" 2>&1 | tee /tmp/jest-group.log
-          status=${PIPESTATUS[0]}
-          if grep -Fq "A worker process has failed to exit gracefully" /tmp/jest-group.log; then
-            echo "::error::${{ matrix.label }} reproduziu worker forçado"
-            exit 2
-          fi
-          exit "$status"
-
-  ci-gate:
-    name: CI Gate
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    needs:
-      - version-integrity
-      - syntax-check
-      - manifest-validation
-      - ci-contract
-      - smoke
-      - visual
-      - unit-and-integration
-      - coverage
-      - e2e-shard
-      - e2e
-    steps:
-      - name: Exigir execução e sucesso de todos os gates
-        env:
-          VERSION_INTEGRITY: ${{ needs.version-integrity.result }}
-          SYNTAX_CHECK: ${{ needs.syntax-check.result }}
-          MANIFEST_VALIDATION: ${{ needs.manifest-validation.result }}
-          CI_CONTRACT: ${{ needs.ci-contract.result }}
-          SMOKE: ${{ needs.smoke.result }}
-          VISUAL: ${{ needs.visual.result }}
-          UNIT_INTEGRATION: ${{ needs.unit-and-integration.result }}
-          COVERAGE: ${{ needs.coverage.result }}
-          E2E_SHARDS: ${{ needs.e2e-shard.result }}
-          E2E: ${{ needs.e2e.result }}
-        run: |
-          failed=0
-          check() {
-            name="$1"
-            result="$2"
-            if [ "$result" != "success" ]; then
-              echo "::error::$name terminou como '$result'; CI Gate exige 'success'."
-              failed=1
-            else
-              echo "✅ $name = success"
-            fi
-          }
-          check "Version Integrity" "$VERSION_INTEGRITY"
-          check "JS Syntax Check" "$SYNTAX_CHECK"
-          check "Manifest Validation" "$MANIFEST_VALIDATION"
-          check "CI Contract" "$CI_CONTRACT"
-          check "Smoke Tests" "$SMOKE"
-          check "Visual Tests" "$VISUAL"
-          check "Unit + Integration" "$UNIT_INTEGRATION"
-          check "Code Coverage" "$COVERAGE"
-          check "E2E Shards" "$E2E_SHARDS"
-          check "E2E Tests" "$E2E"
-          exit "$failed"
