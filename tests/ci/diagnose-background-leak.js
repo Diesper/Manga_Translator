@@ -26,7 +26,17 @@ function listTests(dir) {
     .sort();
 }
 
-const allFiles = listTests(backgroundRoot);
+const discoveredFiles = listTests(backgroundRoot);
+const requestedSeed = String(process.env.MT_BACKGROUND_LEAK_SEED || '')
+  .split(',')
+  .map(value => value.trim())
+  .filter(Boolean);
+const unknownSeedFiles = requestedSeed.filter(file => !discoveredFiles.includes(file));
+if (unknownSeedFiles.length) {
+  console.error('[background-leak] seed contém arquivos desconhecidos: ' + unknownSeedFiles.join(', '));
+  process.exit(64);
+}
+const allFiles = requestedSeed.length ? requestedSeed : discoveredFiles;
 const records = [];
 let sequence = 0;
 
@@ -150,6 +160,40 @@ function partition(items, count) {
 function complement(items, chunk) {
   const excluded = new Set(chunk);
   return items.filter((item) => !excluded.has(item));
+}
+
+function tryCrossInteractionNarrowing({ left, right, workers, iteration }) {
+  // Quando left e right ficam limpos isoladamente mas left+right vaza,
+  // existe interação entre os grupos. Primeiro procure um único arquivo de
+  // left que, junto com todo right, preserve o leak. Depois faça o inverso.
+  // Isso reduz muito mais rápido do que aumentar cegamente a granularidade.
+  for (let i = 0; i < left.length; i += 1) {
+    const combined = [left[i], ...right];
+    const result = probe({
+      label: 'cross-i' + String(iteration) + '-left' + String(i + 1),
+      files: combined,
+      workers,
+      repeats: 2,
+    });
+    if (result.leak) {
+      return { files: combined, side: 'left', pivot: left[i] };
+    }
+  }
+
+  for (let i = 0; i < right.length; i += 1) {
+    const combined = [...left, right[i]];
+    const result = probe({
+      label: 'cross-i' + String(iteration) + '-right' + String(i + 1),
+      files: combined,
+      workers,
+      repeats: 2,
+    });
+    if (result.leak) {
+      return { files: combined, side: 'right', pivot: right[i] };
+    }
+  }
+
+  return null;
 }
 
 console.log('[background-leak] node=' + process.version +
@@ -304,6 +348,27 @@ while (candidate.length > 1 && (sequence - probeStartSequence) < maxProbes) {
     }
   }
   if (reduced) continue;
+
+  // Caso clássico de interação: com granularidade 2, nenhum lado sozinho
+  // reproduz e nenhum complemento reproduz, mas o conjunto completo sim.
+  // Tente preservar um lado inteiro e reduzir o outro a um pivô.
+  if (chunks.length === 2) {
+    const cross = tryCrossInteractionNarrowing({
+      left: chunks[0],
+      right: chunks[1],
+      workers: selectedWorkers,
+      iteration,
+    });
+    if (cross && cross.files.length < candidate.length) {
+      candidate = cross.files;
+      granularity = 2;
+      console.log(
+        '[background-leak] reduzido por interação (' + cross.side + ') para ' +
+        String(candidate.length) + ' arquivo(s); pivot=' + cross.pivot
+      );
+      continue;
+    }
+  }
 
   if (granularity >= candidate.length) break;
   granularity = Math.min(candidate.length, granularity * 2);
