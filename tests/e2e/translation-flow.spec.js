@@ -360,12 +360,20 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
 
     test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', { tag: '@e2e-fifo' }, async () => {
         test.setTimeout(180000);
+        const barrierId = `fifo-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const barrierBaseUrl =
+            `http://127.0.0.1:3999/__test/attachment-barrier/${encodeURIComponent(barrierId)}`;
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
-            // Mantém A ativo tempo suficiente para B-G entrarem na fila por
-            // seus content scripts reais, sem depender de corrida de milissegundos.
-            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
+            // A primeira tentativa de attachment é bloqueada por uma barreira
+            // explícita. O teste só a libera depois de provar que B-G entraram
+            // na fila. Assim não existe mais dependência de um sleep de 2500 ms.
+            // As latências artificiais de geração/download também são removidas
+            // somente deste teste; os defaults permanecem nos demais E2E.
+            geminiBaseUrl:
+                `http://127.0.0.1:3999/gemini/?attachmentBarrierId=${encodeURIComponent(barrierId)}` +
+                '&generationDelayMs=0&resultImageDelayMs=0',
         });
 
         const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
@@ -436,6 +444,18 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             message: 'Lote A deveria assumir o scheduler antes da fila B-G',
         }).toBe(true);
 
+        await expect.poll(async () => {
+            const response = await fetch(`${barrierBaseUrl}/status`);
+            if (!response.ok) return false;
+            const barrier = await response.json();
+            return barrier.arrivals === 1 &&
+                barrier.waiting === 1 &&
+                barrier.released === false;
+        }, {
+            timeout: 15000,
+            message: 'Lote A deveria alcançar a barreira de attachment antes de enfileirar B-G',
+        }).toBe(true);
+
         let stateData = await readStorage(backgroundWorker, ['mt_state']);
         const batchIds = [stateData.mt_state.currentBatchId];
 
@@ -468,6 +488,18 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             .toEqual(batchIds.slice(1));
         expect(stateData.mt_state.pendingBatches.map(batch => batch.mangaTabId))
             .toEqual(labels.slice(1).map(label => tabIds[label]));
+
+        const releaseResponse = await fetch(`${barrierBaseUrl}/release`, {
+            method: 'POST',
+        });
+        expect(releaseResponse.ok).toBe(true);
+        const releasedBarrier = await releaseResponse.json();
+        expect(releasedBarrier).toEqual(expect.objectContaining({
+            ok: true,
+            arrivals: 1,
+            waiting: 0,
+            released: true,
+        }));
 
         for (let index = 0; index < pages.length; index++) {
             // eslint-disable-next-line no-await-in-loop
