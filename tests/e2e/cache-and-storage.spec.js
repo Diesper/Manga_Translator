@@ -193,6 +193,8 @@ let browserContext;
 let backgroundWorker;
 
 test.describe('E2E-23/E2E-24/E2E-25: E2E - cache e persistencia do content_manga', () => {
+    // Este arquivo reutiliza um persistent context no beforeAll; preserve ordem.
+    test.describe.configure({ mode: 'serial' });
     test.beforeAll(async () => {
         const pathToExtension = getExtensionPath(__dirname);
         const userDataDir = path.join(os.tmpdir(), `pw-manga-cache-${Date.now()}`);
@@ -224,7 +226,7 @@ test.describe('E2E-23/E2E-24/E2E-25: E2E - cache e persistencia do content_manga
         await resetExtensionState(backgroundWorker);
     });
 
-    test('salva as paginas traduzidas no storage do capitulo real', async () => {
+    test('salva as paginas traduzidas no storage do capitulo real', { tag: '@e2e-medium-a' }, async () => {
         const page = await browserContext.newPage();
 
         await page.goto('http://localhost:3999/manga-page.html');
@@ -267,7 +269,7 @@ test.describe('E2E-23/E2E-24/E2E-25: E2E - cache e persistencia do content_manga
         await page.close();
     });
 
-    test('segunda traducao em host espelho usa o GTC sem abrir novas abas Gemini', async () => {
+    test('segunda traducao em host espelho usa o GTC sem abrir novas abas Gemini', { tag: '@e2e-medium-a' }, async () => {
         const firstPage = await browserContext.newPage();
 
         await firstPage.goto('http://localhost:3999/manga-page.html');
@@ -309,7 +311,7 @@ test.describe('E2E-23/E2E-24/E2E-25: E2E - cache e persistencia do content_manga
         await mirrorPage.close();
     });
 
-    test('reload da mesma pagina reaplica restoreMap sem abrir novas abas Gemini', async () => {
+    test('reload da mesma pagina reaplica restoreMap sem abrir novas abas Gemini', { tag: '@e2e-medium-b' }, async () => {
         const page = await browserContext.newPage();
 
         await page.goto('http://localhost:3999/manga-page.html');
@@ -342,7 +344,7 @@ test.describe('E2E-23/E2E-24/E2E-25: E2E - cache e persistencia do content_manga
         await page.close();
     });
 
-    test('debug mode mantem abas Gemini abertas apos traduzir', async () => {
+    test('debug mode mantem abas Gemini abertas apos traduzir', { tag: '@e2e-medium-b' }, async () => {
         const page = await browserContext.newPage();
 
         try {
