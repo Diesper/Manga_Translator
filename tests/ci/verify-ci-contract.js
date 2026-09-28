@@ -12,6 +12,7 @@ const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-
 const e2eReporter = fs.readFileSync(path.join(root, 'tests', 'ci', 'playwright-gate-reporter.js'), 'utf8');
 const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'e2e-shard-plan.json'), 'utf8'));
 const e2ePlanVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-e2e-shard-plan.js'), 'utf8');
+const e2eGroupRunner = fs.readFileSync(path.join(root, 'tests', 'ci', 'run-e2e-group.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
 
@@ -73,6 +74,12 @@ for (const group of ['fifo', 'attachment', 'medium-a', 'medium-b', 'fast']) {
 }
 if (!e2eShard.includes('test:e2e:group') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
   problems.push('e2e-shard: precisa executar grupos explícitos com blob reporter');
+}
+if (/MANGA_E2E_WORKERS:\s*['"]?\d+/.test(e2eShard)) {
+  problems.push('e2e-shard: workers não podem ficar hardcoded no workflow; use e2e-shard-plan.json');
+}
+if (!e2eGroupRunner.includes('MANGA_E2E_WORKERS: String(group.workers)')) {
+  problems.push('run-e2e-group.js precisa aplicar workers do plano como fonte única de verdade');
 }
 if (e2eShard.includes('--shard=')) {
   problems.push('e2e-shard: não deve voltar ao sharding automático por contagem');
@@ -137,11 +144,11 @@ if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
   problems.push('e2e-shard-plan.json precisa conter exatamente 5 grupos nesta fase');
 } else {
   const expected = new Map([
-    ['fifo', 1],
-    ['attachment', 3],
-    ['medium-a', 4],
-    ['medium-b', 4],
-    ['fast', 9],
+    ['fifo', { tests: 1, workers: 1 }],
+    ['attachment', { tests: 3, workers: 3 }],
+    ['medium-a', { tests: 4, workers: 2 }],
+    ['medium-b', { tests: 4, workers: 2 }],
+    ['fast', { tests: 9, workers: 3 }],
   ]);
   let total = 0;
   for (const group of e2ePlan.groups) {
@@ -150,8 +157,13 @@ if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
       problems.push('e2e-shard-plan.json contém grupo inesperado: ' + group.id);
       continue;
     }
-    if (group.expectedTests !== expected.get(group.id)) {
+    const expectedGroup = expected.get(group.id);
+    if (group.expectedTests !== expectedGroup.tests) {
       problems.push('e2e-shard-plan.json contagem inválida para ' + group.id);
+    }
+    if (group.workers !== expectedGroup.workers) {
+      problems.push('e2e-shard-plan.json workers inválidos para ' + group.id +
+        ': esperado=' + expectedGroup.workers + ', atual=' + group.workers);
     }
   }
   if (total !== baseline.e2e.minTests) {
