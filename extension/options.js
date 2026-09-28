@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chrome.storage.local.set({ redoConfirmEnabled: redoConfirmEnabledEl.checked }, () => {
                 showStatus(
                     redoConfirmEnabledEl.checked
-                        ? 'Confirmação de Refazer ativada.'
-                        : 'Refazer será executado sem confirmação.',
+                        ? 'Confirmação ao refazer imagem ativada.'
+                        : 'Refazer a imagem será executado sem confirmação.',
                     redoConfirmEnabledEl.checked ? '#4CAF50' : '#FF9800'
                 );
             });
