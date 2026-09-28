@@ -306,6 +306,9 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
 
         expect(single.closest('label').textContent).toContain('Clique direito para traduzir uma única imagem');
         expect(single.closest('label').textContent).toContain('Traduzir esta imagem');
+        expect(redo.closest('label').textContent).toContain('Confirmar ao apertar o botão de refazer a imagem');
+        const redoPanel = redo.closest('div[style*="background:#242424"]');
+        expect(redoPanel?.querySelector('h3')?.textContent).toContain('Sites Permitidos');
         expect(floating.checked).toBe(false);
         expect(single.checked).toBe(true);
         expect(redo.checked).toBe(false);
