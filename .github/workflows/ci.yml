@@ -360,6 +360,7 @@ jobs:
       - visual
       - unit-and-integration
       - coverage
+      - e2e-shard
       - e2e
     steps:
       - name: Exigir execução e sucesso de todos os gates
@@ -372,6 +373,7 @@ jobs:
           VISUAL: ${{ needs.visual.result }}
           UNIT_INTEGRATION: ${{ needs.unit-and-integration.result }}
           COVERAGE: ${{ needs.coverage.result }}
+          E2E_SHARDS: ${{ needs.e2e-shard.result }}
           E2E: ${{ needs.e2e.result }}
         run: |
           failed=0
@@ -393,5 +395,6 @@ jobs:
           check "Visual Tests" "$VISUAL"
           check "Unit + Integration" "$UNIT_INTEGRATION"
           check "Code Coverage" "$COVERAGE"
+          check "E2E Shards" "$E2E_SHARDS"
           check "E2E Tests" "$E2E"
           exit "$failed"
