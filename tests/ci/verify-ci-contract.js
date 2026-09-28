@@ -23,6 +23,7 @@ const requiredJobs = [
   'visual',
   'unit-and-integration',
   'coverage',
+  'e2e-shard',
   'e2e',
   'ci-gate',
 ];
@@ -45,16 +46,26 @@ for (const job of requiredJobs) {
   if (!jobBlock(job)) problems.push('job obrigatório ausente: ' + job);
 }
 
-for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e']) {
+for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e-shard', 'e2e']) {
   const block = jobBlock(job);
   if (/^    continue-on-error:\s*true\s*$/m.test(block)) {
     problems.push(job + ': job funcional não pode usar continue-on-error: true');
   }
 }
 
+const e2eShard = jobBlock('e2e-shard');
 const e2e = jobBlock('e2e');
-if (/^    needs:/m.test(e2e)) {
-  problems.push('e2e: precisa executar independentemente e não depender do sucesso de outro job funcional');
+if (/^    needs:/m.test(e2eShard)) {
+  problems.push('e2e-shard: precisa executar independentemente de outros jobs funcionais');
+}
+if (!/^    needs:\s*$/m.test(e2e) || !e2e.includes('- e2e-shard')) {
+  problems.push('e2e: gate agregado precisa depender dos shards');
+}
+if (!e2e.includes('merge-reports') || !e2e.includes('playwright-merge.config.js')) {
+  problems.push('e2e: gate agregado precisa mesclar blob reports antes de validar inventário');
+}
+if (!e2eShard.includes('--shard=') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
+  problems.push('e2e-shard: precisa executar Playwright com sharding e blob reporter');
 }
 
 if (/npm run test:[^\n]*\|\|\s*true/.test(workflow)) {
@@ -88,8 +99,14 @@ for (const dependency of requiredJobs.filter((job) => job !== 'ci-gate')) {
   }
 }
 
-if (!playwright.includes('forbidOnly: !!process.env.CI')) {
+if (!playwright.includes('forbidOnly: isCi')) {
   problems.push('Playwright precisa proibir test.only em CI');
+}
+if (!playwright.includes('fullyParallel: true')) {
+  problems.push('Playwright precisa habilitar distribuição por teste para balancear shards');
+}
+if (!playwright.includes('retries: isCi ? 0')) {
+  problems.push('Playwright CI precisa usar retries=0 para não mascarar flakiness nem desperdiçar tempo');
 }
 if (!playwright.includes('./ci/playwright-gate-reporter.js')) {
   problems.push('Playwright precisa carregar o reporter de gate em CI');
