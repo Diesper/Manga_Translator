@@ -35,6 +35,28 @@ const fs   = require('fs');
 const PORT     = 3999;
 const FIXTURES = __dirname;
 
+// Barreiras temporizadas por estado para testes FIFO. Cada ID é único por teste.
+// O primeiro attachment fica bloqueado até o teste liberar explicitamente;
+// attachments posteriores com o mesmo ID passam imediatamente.
+const ATTACHMENT_BARRIERS = new Map();
+
+function getAttachmentBarrier(id) {
+    if (!ATTACHMENT_BARRIERS.has(id)) {
+        ATTACHMENT_BARRIERS.set(id, {
+            arrivals: 0,
+            released: false,
+            waiters: new Set(),
+        });
+    }
+    return ATTACHMENT_BARRIERS.get(id);
+}
+
+function sendJson(res, payload, statusCode = 200) {
+    if (res.writableEnded) return;
+    res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify(payload));
+}
+
 function buildGeminiMockHtml() {
     return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -186,6 +208,15 @@ function buildGeminiMockHtml() {
       const sendButton = document.getElementById('send-button');
       const currentUrl = new URL(window.location.href);
       const jobIndex = currentUrl.searchParams.get('jobIndex') || '0';
+      const attachmentBarrierId = currentUrl.searchParams.get('attachmentBarrierId') || '';
+      const generationDelayParam = currentUrl.searchParams.get('generationDelayMs');
+      const generationDelayMs = generationDelayParam === null
+        ? 1200
+        : Math.max(0, Number(generationDelayParam) || 0);
+      const resultImageDelayParam = currentUrl.searchParams.get('resultImageDelayMs');
+      const resultImageDelayMs = resultImageDelayParam === null
+        ? 2000
+        : Math.max(0, Number(resultImageDelayParam) || 0);
       const fastResult = currentUrl.searchParams.get('fastResult') === '1';
       const ignoreSubmit = currentUrl.searchParams.get('ignoreSubmit') === '1';
       const attachmentFails = currentUrl.searchParams.get('attachmentFails') === '1';
@@ -244,13 +275,36 @@ function buildGeminiMockHtml() {
           return;
         }
 
-        if (attachmentDelayMs > 0) {
-          status.textContent = 'Attachment atrasado pelo mock';
-          setTimeout(() => commitPreview(event), attachmentDelayMs);
+        const commitAfterOptionalDelay = () => {
+          if (attachmentDelayMs > 0) {
+            status.textContent = 'Attachment atrasado pelo mock';
+            setTimeout(() => commitPreview(event), attachmentDelayMs);
+            return;
+          }
+          commitPreview(event);
+        };
+
+        if (attachmentBarrierId) {
+          status.textContent = 'Attachment aguardando barreira do teste';
+          fetch(
+            '/__test/attachment-barrier/' +
+              encodeURIComponent(attachmentBarrierId) +
+              '/arrive',
+            { method: 'POST' }
+          )
+            .then(response => {
+              if (!response.ok) throw new Error('barrier_arrive_failed');
+              return response.json();
+            })
+            .then(() => commitAfterOptionalDelay())
+            .catch(() => {
+              status.textContent = 'Barreira indisponível; seguindo sem atraso';
+              commitAfterOptionalDelay();
+            });
           return;
         }
 
-        commitPreview(event);
+        commitAfterOptionalDelay();
       }
 
       function appendInputClone() {
@@ -301,6 +355,8 @@ function buildGeminiMockHtml() {
         img.src =
           '/gemini-result-image?jobIndex=' +
           encodeURIComponent(jobIndex) +
+          '&delayMs=' +
+          encodeURIComponent(resultImageDelayMs) +
           '&t=' +
           Date.now();
 
@@ -360,7 +416,13 @@ function buildGeminiMockHtml() {
         stopBtn.textContent = 'Stop';
         sendButton.parentNode.appendChild(stopBtn);
 
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        if (generationDelayMs > 0) {
+          await new Promise(resolve => setTimeout(resolve, generationDelayMs));
+        } else {
+          // Mantém uma virada de task para que MutationObserver veja o estado
+          // "gerando" sem impor latência artificial de parede ao teste.
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
 
         stopBtn.remove();
         sendButton.disabled = false;
@@ -616,6 +678,59 @@ const server = http.createServer((req, res) => {
     const requestUrl = new URL(req.url, `http://${req.headers.host}`);
     const url = requestUrl.pathname;
 
+    const barrierMatch = url.match(/^\/__test\/attachment-barrier\/([^/]+)\/(arrive|status|release)$/);
+    if (barrierMatch) {
+        const barrierId = decodeURIComponent(barrierMatch[1]);
+        const action = barrierMatch[2];
+        const barrier = getAttachmentBarrier(barrierId);
+
+        if (action === 'status' && req.method === 'GET') {
+            sendJson(res, {
+                ok: true,
+                arrivals: barrier.arrivals,
+                waiting: barrier.waiters.size,
+                released: barrier.released,
+            });
+            return;
+        }
+
+        if (action === 'release' && req.method === 'POST') {
+            barrier.released = true;
+            for (const waiter of barrier.waiters) {
+                sendJson(waiter, { ok: true, released: true });
+            }
+            barrier.waiters.clear();
+            sendJson(res, {
+                ok: true,
+                arrivals: barrier.arrivals,
+                waiting: 0,
+                released: true,
+            });
+            return;
+        }
+
+        if (action === 'arrive' && req.method === 'POST') {
+            barrier.arrivals += 1;
+            if (barrier.arrivals === 1 && !barrier.released) {
+                barrier.waiters.add(res);
+                req.on('close', () => {
+                    if (!res.writableEnded) barrier.waiters.delete(res);
+                });
+                return;
+            }
+            sendJson(res, {
+                ok: true,
+                arrivals: barrier.arrivals,
+                waiting: barrier.waiters.size,
+                released: barrier.released,
+            });
+            return;
+        }
+
+        sendJson(res, { ok: false, error: 'invalid_barrier_request' }, 405);
+        return;
+    }
+
     // Health check — usado pelo playwright.config.js para aguardar o servidor
     if (url === '/health') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -630,10 +745,14 @@ const server = http.createServer((req, res) => {
             ? `translated_result_${jobIndex}.png`
             : 'translated_result_default.png';
         const buf = PNG_IMAGES.get(translatedKey) || PNG_IMAGES.get('translated_result_default.png');
-        setTimeout(() => {
+        const delayParam = requestUrl.searchParams.get('delayMs');
+        const delayMs = delayParam === null ? 2000 : Math.max(0, Number(delayParam) || 0);
+        const sendImage = () => {
             res.writeHead(200, { 'Content-Type': 'image/png' });
             res.end(buf);
-        }, 2000);
+        };
+        if (delayMs > 0) setTimeout(sendImage, delayMs);
+        else sendImage();
         return;
     }
 
