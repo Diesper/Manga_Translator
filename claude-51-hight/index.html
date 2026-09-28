@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditoria Técnica Completa — Manga Translator (extensão MV3)</title>
+<style>
+  :root{--red:#e3a4a4;--line:#d6e2ee;--paper:#fffdf7;--ink:#1f2430;--muted:#5b6270;--accent:#b8322a;
+    --crit:#8e1b1b;--high:#c62828;--med:#d97706;--low:#1d5fa8;--ok:#2e7d32;--hypo:#6a1b9a;--gray:#616161;
+    --code:#f3efe4;--th:#f1ebdc;--stripe:#faf6ec;--box:#fffbee}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:16px;scroll-behavior:smooth}
+  body{font-family:"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);line-height:1.65;background:var(--paper);
+    background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 30px,var(--line) 30px,var(--line) 31px);}
+  .margin{position:fixed;top:0;bottom:0;left:44px;width:3px;background:var(--red);opacity:.6;z-index:5}
+  @media(max-width:700px){.margin{left:10px}}
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 24px 80px 72px}
+  @media(max-width:700px){.wrap{padding:18px 12px 60px 26px}}
+  header{border-bottom:3px solid var(--accent);padding-bottom:14px;margin-bottom:26px}
+  h1{font-size:1.9rem;color:var(--accent);line-height:1.2}
+  .sub{color:var(--muted);margin-top:4px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:.83rem}
+  .meta span{background:#efe9d9;padding:2px 10px;border-radius:4px}
+  nav{background:var(--box);border:1px solid #e6dfc9;border-radius:6px;padding:14px 18px;margin-bottom:30px}
+  nav b{color:var(--accent)}
+  nav ol{columns:2;column-gap:28px;padding-left:22px;margin-top:6px;font-size:.88rem}
+  @media(max-width:700px){nav ol{columns:1}}
+  nav a{color:#2b3a4a;text-decoration:none;border-bottom:1px dotted #999}
+  nav a:hover{color:var(--accent)}
+  section{margin-bottom:46px}
+  h2{font-size:1.35rem;color:var(--accent);border-left:5px solid var(--accent);padding-left:10px;margin-bottom:14px}
+  h3{font-size:1.08rem;color:#2b3a4a;margin:20px 0 8px}
+  h4{font-size:.98rem;color:#3b4a5a;margin:14px 0 6px}
+  p{margin-bottom:9px}
+  ul,ol{margin:0 0 12px 22px}
+  li{margin-bottom:3px}
+  code{font-family:Consolas,Menlo,monospace;font-size:.85em;background:var(--code);padding:1px 5px;border-radius:3px}
+  pre{background:var(--code);border:1px solid #e2dccb;border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.5;margin:8px 0 14px}
+  pre code{background:none;padding:0;font-size:1em}
+  .badge{display:inline-block;color:#fff;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:3px;line-height:1.7;vertical-align:middle;white-space:nowrap}
+  .b-crit{background:var(--crit)}.b-high{background:var(--high)}.b-med{background:var(--med)}.b-low{background:var(--low)}
+  .b-bug{background:#a4262c}.b-risk{background:#c25a00}.b-gap{background:#7a4a00}.b-gapp{background:#a06a1a}.b-imp{background:var(--ok)}.b-hypo{background:var(--hypo)}
+  .b-sec{background:#4a148c}.b-arch{background:#37474f}.b-dead{background:var(--gray)}.b-na{background:#455a64}
+  .b-ca{background:#1b5e20}.b-cm{background:#827717}.b-cb{background:#8d6e63}
+  .f{border-left:4px solid #bbb;background:var(--box);padding:10px 14px;margin:10px 0 14px;border-radius:0 6px 6px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .f.bug{border-color:#a4262c}.f.risk{border-color:#c25a00}.f.gap{border-color:#7a4a00}.f.imp{border-color:var(--ok)}.f.hypo{border-color:var(--hypo)}.f.sec{border-color:#4a148c}.f.dead{border-color:var(--gray)}
+  .fh{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:4px}
+  .ft{font-weight:700}
+  .ev{font-family:Consolas,Menlo,monospace;font-size:.8rem;color:#444;background:#f7f3e8;padding:2px 6px;border-radius:3px;display:inline-block;margin:2px 0}
+  .kv{font-size:.9rem}.kv b{color:#333}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:8px}
+  thead th{background:var(--th);text-align:left;padding:7px 9px;border-bottom:2px solid #d8d0bd;white-space:nowrap}
+  tbody td{padding:6px 9px;border-bottom:1px solid #ebe5d6;vertical-align:top}
+  tbody tr:nth-child(even){background:var(--stripe)}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:18px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+  .st{background:#fff;border:1px solid #e2dccb;border-radius:6px;padding:10px;text-align:center}
+  .st .n{font-size:1.6rem;font-weight:800;color:var(--accent)}.st .l{font-size:.75rem;color:var(--muted)}
+  .box{background:var(--box);border:1px solid #e6dfc9;border-radius:8px;padding:16px 20px;margin:10px 0 16px}
+  .warn{background:#fff4e5;border:1px solid #f0c98a;border-radius:6px;padding:12px 16px;margin:10px 0}
+  .concl{background:linear-gradient(135deg,#fbf6e8,#fff9ec);border:2px solid var(--accent);border-radius:8px;padding:20px 22px}
+  footer{margin-top:50px;border-top:2px solid #e2dccb;padding-top:16px;font-size:.8rem;color:#888;text-align:center}
+  .small{font-size:.83rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="margin"></div>
+<div class="wrap">
+
+<header>
+  <h1>Auditoria Técnica Completa — Manga Translator</h1>
+  <p class="sub">Extensão Chromium Manifest V3 de tradução de mangás via Google Gemini · repositório <code>github.com/Diesper/Manga_Translator</code> · branch <code>main</code> (árvore <code>8d470f4</code>)</p>
+  <div class="meta">
+    <span>Versão auditada: 6.5.0 (package.json) / 6.5 (manifest)</span>
+    <span>Método: inspeção estática do código-fonte</span>
+    <span>Foco: extensão como sistema (produção &gt; testes)</span>
+    <span>Licença: MIT</span>
+  </div>
+</header>
+
+<nav>
+  <b>Índice</b>
+  <ol>
+    <li><a href="#metodo">Método, agentes e retificações</a></li>
+    <li><a href="#resumo">Resumo executivo</a></li>
+    <li><a href="#bugs">Principais bugs e erros</a></li>
+    <li><a href="#gargalos">Principais gargalos</a></li>
+    <li><a href="#impacto">Melhorias de maior impacto</a></li>
+    <li><a href="#quick">Quick wins</a></li>
+    <li><a href="#estrutura">Estrutura do repositório</a></li>
+    <li><a href="#arquivos">Arquivos analisados / não analisados</a></li>
+    <li><a href="#arquitetura">Arquitetura atual</a></li>
+    <li><a href="#fluxos">Fluxos críticos</a></li>
+    <li><a href="#bg">Auditoria do background / service worker</a></li>
+    <li><a href="#cs">Auditoria dos content scripts</a></li>
+    <li><a href="#gemini">Auditoria da automação Gemini</a></li>
+    <li><a href="#msg">Auditoria de mensageria</a></li>
+    <li><a href="#storage">Auditoria de armazenamento</a></li>
+    <li><a href="#dom">Auditoria de DOM</a></li>
+    <li><a href="#cpu">Auditoria de processamento (CPU)</a></li>
+    <li><a href="#rede">Auditoria de rede</a></li>
+    <li><a href="#mem">Auditoria de memória</a></li>
+    <li><a href="#async">Auditoria assíncrona e de concorrência</a></li>
+    <li><a href="#ui">Popup, Options e Reader</a></li>
+    <li><a href="#deps">Dependências, bundle e carregamento</a></li>
+    <li><a href="#sec">Segurança</a></li>
+    <li><a href="#dead">Código morto e redundante</a></li>
+    <li><a href="#tabela">Tabela principal de problemas</a></li>
+    <li><a href="#otim">Tabela de otimizações</a></li>
+    <li><a href="#codigo">Recomendações de código</a></li>
+    <li><a href="#estrutural">Melhorias estruturais</a></li>
+    <li><a href="#testes">Testes relevantes</a></li>
+    <li><a href="#cmds">Resultados dos comandos</a></li>
+    <li><a href="#ci">Auditoria do CI/CD</a></li>
+    <li><a href="#plano">Plano de otimização</a></li>
+    <li><a href="#limites">Limitações</a></li>
+    <li><a href="#conclusoes">Conclusões da Auditoria</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<section id="metodo">
+  <h2>0. Método, agentes e retificações</h2>
+  <div class="warn">
+    <p><b>Execução multiagente — declaração honesta.</b> O ambiente desta auditoria oferece apenas ferramentas de leitura web (<code>web_fetch</code>/<code>web_search</code>) e de arquivos locais. <b>Não existe ferramenta para instanciar subagentes nem para selecionar modelos</b>; portanto não foi possível delegar trabalho a "Claude Opus", "GPT" ou "Gemini" em nenhuma configuração. A divisão sugerida (Bugs · Desempenho · Arquitetura/APIs · Recursos/memória/DOM/rede · Refatorações) foi aplicada como <b>cinco passadas de revisão sequenciais e independentes, feitas pelo mesmo modelo</b>, cada uma com checklist próprio; os achados de cada passada foram depois confrontados entre si e com o código antes de entrar neste documento. A afirmação feita numa resposta anterior desta conversa de que "5 agentes foram executados" estava <b>incorreta</b> e fica aqui retificada.</p>
+    <p><b>Retificações de conteúdo em relação ao relatório anterior:</b></p>
+    <ul>
+      <li>O item antes descrito como "race condition em <code>mutate()</code>/<code>patch()</code>" foi reexaminado. O defeito estrutural real está na <b>ordem de captura do snapshot entre <code>syncState()</code> e <code>mutate()</code></b> (ver <a href="#B1">B1</a>), não em <code>patch()</code>.</li>
+      <li>O "leak de memória no reader" foi rebaixado para <b>retenção limitada e provável</b> (ver <a href="#B10">B10</a>): a análise mostra retenção apenas das imagens que estavam em busca no momento do scroll, não crescimento ilimitado.</li>
+      <li>Nenhum comando do projeto foi executado (não há shell). Todos os comandos aparecem como <span class="badge b-na">Não executado</span>.</li>
+    </ul>
+  </div>
+  <p><b>Sobre números de linha.</b> A ferramenta de leitura devolveu alguns arquivos com quebras de linha preservadas (ex.: <code>state.js</code>, <code>router.js</code>, <code>jobs-watchdog.js</code>, <code>jobs-dom-ack.js</code>, <code>tab-identity.js</code>, <code>cm-auto-restore.js</code>, <code>content_gemini.js</code>, actions) e outros com o espaço em branco colapsado (ex.: <code>background.js</code>, <code>content_manga.js</code>, <code>storage-manager.js</code>, <code>popup.js</code>, <code>reader.js</code>, <code>job-runner.js</code>). Para os primeiros, as referências <code>arquivo:linha</code> resultam de contagem manual sobre o texto bruto (margem ±2 linhas). Para os segundos, a evidência é citada por <b>símbolo/função</b> e por trecho literal, para não inventar números de linha.</p>
+  <p><b>Convenções de classificação.</b> Tipo: <span class="badge b-bug">Bug confirmado</span> <span class="badge b-risk">Risco provável</span> <span class="badge b-gap">Gargalo confirmado</span> <span class="badge b-gapp">Gargalo provável</span> <span class="badge b-arch">Problema arquitetural</span> <span class="badge b-sec">Segurança</span> <span class="badge b-imp">Melhoria</span> <span class="badge b-hypo">Hipótese</span> <span class="badge b-dead">Código morto</span>. Severidade: <span class="badge b-crit">Crítico</span> <span class="badge b-high">Alto</span> <span class="badge b-med">Médio</span> <span class="badge b-low">Baixo</span>. Confiança: <span class="badge b-ca">Confiança alta</span> <span class="badge b-cm">Confiança média</span> <span class="badge b-cb">Confiança baixa</span>. Sempre com texto, nunca apenas cor.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="resumo">
+  <h2>1. Resumo executivo</h2>
+  <div class="box">
+    <div class="stats">
+      <div class="st"><div class="n">56</div><div class="l">arquivos JS de produção (declarados pelo gate de cobertura)</div></div>
+      <div class="st"><div class="n">33</div><div class="l">arquivos de produção lidos integral ou majoritariamente</div></div>
+      <div class="st"><div class="n">1</div><div class="l">bug estrutural de alta severidade (persistência de estado)</div></div>
+      <div class="st"><div class="n">6</div><div class="l">bugs/riscos confirmados adicionais</div></div>
+      <div class="st"><div class="n">4</div><div class="l">gargalos confirmados de alto impacto</div></div>
+      <div class="st"><div class="n">9</div><div class="l">focos de código duplicado/morto</div></div>
+      <div class="st"><div class="n">0</div><div class="l">dependências de runtime (vanilla JS)</div></div>
+      <div class="st"><div class="n">0</div><div class="l">comandos executados (sem shell)</div></div>
+    </div>
+  </div>
+
+  <h3>Principais conclusões</h3>
+  <ol>
+    <li><b>O projeto é arquitetonicamente maduro para MV3</b>: estado durável com journal, reconciliação após suspensão, identidade canônica de abas, watchdog por <code>chrome.alarms</code>, ACK durável antes de finalizar, roteador de mensagens com validação de payload e origem, persistência transacional em IndexedDB com assets separados. Isto é raro em extensões open-source.</li>
+    <li><b>O ponto mais grave está na camada de persistência de estado</b> (<code>background/state.js</code>): <code>syncState()</code> captura o snapshot no momento da chamada e o grava mais tarde na fila, enquanto <code>mutate()</code> captura dentro da fila. Uma <code>syncState()</code> enfileirada atrás de um <code>mutate()</code> grava um estado <b>anterior</b> à mutação, regredindo o <code>mt_state</code> persistido. Correção de uma linha (<a href="#B1">B1</a>).</li>
+    <li><b>O maior custo sistêmico não está no Gemini, e sim em toda página que o usuário visita</b>: seis content scripts (~130 KB não minificados) são injetados em <code>&lt;all_urls&gt;</code> mesmo em domínios não habilitados, e cada carga faz IPC + leituras de storage (<a href="#G1">G1</a>).</li>
+    <li><b>A imagem traduzida (data URL de vários MB) cruza o IPC 3 a 4 vezes e é armazenada duas vezes</b> (Blob no storage-manager + string base64 no cache GTC) (<a href="#G3">G3</a>). É a maior oportunidade estrutural de redução de CPU, memória e disco.</li>
+    <li><b>O sistema de log é um gargalo confirmado de I/O</b>: cada entrada faz leitura+reescrita de até 500 registros em <code>chrome.storage.local</code>; um único job Gemini emite dezenas de entradas (<a href="#G2">G2</a>).</li>
+    <li><b>Há duplicação real</b> (não cosmética): <code>getCleanUrl</code>, <code>generateImageFingerprint</code>, SHA-256 puro, <code>generateId</code>, decodificadores de data URL, tratamento de alarme watchdog e reconciliação legada existem em 2–4 cópias (<a href="#dead">§23</a>).</li>
+    <li><b>Segurança</b>: sem XSS/eval confirmados; dois pontos de fragilidade objetivos — classificação de origem por <em>substring</em> da URL do remetente (<a href="#B6">B6</a>) e host de teste <code>http://127.0.0.1/*</code> recebendo os scripts de automação Gemini no manifest de produção (<a href="#B7">B7</a>).</li>
+    <li><b>Testes</b>: a suíte é extensa (baseline de 836 testes Jest, 5 shards E2E, smoke, visual, contrato de CI), mas <b>não há evidência</b> de teste que cubra a ordem <code>syncState</code>×<code>mutate</code> nem a re-execução do auto-restore durante uma passada em andamento; testes específicos são propostos em <a href="#testes">§27</a>.</li>
+  </ol>
+  <h3>Limitações importantes (detalhe em §31)</h3>
+  <ul>
+    <li>Análise 100 % estática; nenhum benchmark, nenhuma execução de Jest/Playwright; comportamento de suspensão do SW e do keep-alive só é confirmável em runtime.</li>
+    <li>Trechos centrais de <code>background.js</code>, <code>content_manga.js</code>, <code>jobs-lifecycle.js</code>, <code>gtc-indexeddb.js</code> e <code>gtc-fingerprint.js</code> vieram truncados pela ferramenta; conclusões sobre esses trechos são marcadas com confiança média ou "evidência insuficiente".</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="bugs">
+  <h2>2. Principais bugs e erros</h2>
+
+  <article class="f bug" id="B1">
+    <div class="fh"><span class="badge b-high">Alto</span><span class="badge b-bug">Bug confirmado (estrutural)</span><span class="badge b-ca">Confiança alta</span><span class="ft">B1 — <code>syncState()</code> pode gravar um snapshot anterior ao último <code>mutate()</code></span></div>
+    <div class="ev">extension/background/state.js:90-95 (syncState) · state.js:100-111 (mutate)</div>
+    <p><b>Evidência (literal):</b></p>
+<pre><code>function syncState() {
+    const snapshot = get();                       // ← capturado AGORA
+    const write = () => chrome.storage.local.set({ mt_state: snapshot }).then(() => snapshot);
+    _persistenceChain = _persistenceChain.then(write, write);   // ← gravado DEPOIS
+    return _persistenceChain;
+}
+function mutate(mutator) {
+    const run = async () => {
+        const result = await mutator(get());      // ← capturado só quando chega a vez na fila
+        if (result && typeof result === 'object') patch(result);
+        const snapshot = get();
+        await chrome.storage.local.set({ mt_state: snapshot });
+        return snapshot;
+    };
+    _persistenceChain = _persistenceChain.then(run, run);
+    return _persistenceChain;
+}</code></pre>
+    <p><b>Problema:</b> as duas primitivas compartilham a mesma fila, mas com semânticas de captura opostas. Sequência: (1) handler A chama <code>mutate(mA)</code> — fica pendente atrás de uma gravação em curso; (2) handler B chama <code>syncState()</code> — o snapshot é capturado <em>sem</em> mA; (3) a fila executa mA e grava o estado novo; (4) a fila executa <code>write</code> e grava o snapshot velho. O estado em memória fica correto, mas <code>mt_state</code> persistido regride.</p>
+    <p><b>Quando acontece:</b> com concorrência real de handlers — <code>applyFinalizationAccounting</code> (usa <code>mutate</code>) ao mesmo tempo que <code>stopBatch</code>, <code>reconcileAndContinue</code>, <code>ensureInitialized</code> ou o fluxo de <code>processNextJob</code> (usam <code>syncState</code>). A janela se abre sempre que há gravação em curso na fila, o que é frequente com <code>maxConcurrentJobs &gt; 1</code>.</p>
+    <p><b>Consequência:</b> após uma suspensão do Service Worker, a reidratação lê contadores/índice desatualizados: job já finalizado reaparece no <code>jobIndex</code> (reconciliação descarta ou recupera de novo), <code>activeJobsCount</code> incorreto, lote promovido perdido. Os mecanismos de reconciliação mascaram parte do dano, o que explica por que não é percebido como falha visível.</p>
+    <p><b>Correção recomendada (1 linha):</b> capturar o snapshot dentro do closure: <code>const write = () =&gt; chrome.storage.local.set({ mt_state: get() })</code>. Ver <a href="#R1">R1</a>.</p>
+  </article>
+
+  <article class="f risk" id="B2">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-risk">Risco provável</span><span class="badge b-cm">Confiança média</span><span class="ft">B2 — Dois paradigmas de mutação de estado coexistem (atribuição direta vs. <code>mutate()</code>)</span></div>
+    <div class="ev">extension/background.js — stopBatch(), ensureInitialized(), listener chrome.runtime.onStartup · jobs-reconciliation.js — reconcile()</div>
+    <p><b>Evidência:</b> <code>runtimeState.jobQueue = runtimeState.jobQueue.filter(...)</code>, <code>runtimeState.stopRequested = true; runtimeState.isProcessing = false;</code> (stopBatch), <code>state().extractionTabs = {}</code> (onStartup), <code>state.jobIndex = alive; state.activeJobsCount = alive.length;</code> (reconcile). Em <code>stopBatch</code> essas atribuições ocorrem <em>antes</em> de <code>await chrome.storage.local.remove(keysToRemove)</code> e só são persistidas pelo <code>mutate(transition)</code> posterior.</p>
+    <p><b>Consequência:</b> janela de não-persistência entre a mutação direta e a gravação; combinado com B1, o snapshot capturado por uma <code>syncState()</code> concorrente pode conter metade de uma transição. Confiança média porque a cauda de <code>state.js</code> (definição dos accessors do objeto exportado) veio truncada.</p>
+    <p><b>Correção:</b> tornar <code>mutate()</code> a única via de escrita e converter as atribuições diretas em transições; enquanto isso não ocorre, R1 elimina a regressão de snapshot.</p>
+  </article>
+
+  <article class="f bug" id="B4">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-bug">Bug confirmado</span><span class="badge b-ca">Confiança alta</span><span class="ft">B4 — Auto-restore descarta mutações recebidas enquanto uma passada está em andamento</span></div>
+    <div class="ev">extension/cm-auto-restore.js:43-46 (apply) · :≈99-104 (MutationObserver + debounce 150 ms)</div>
+<pre><code>async function apply() {
+    if (!isActive()) { disconnect(); return; }
+    if (isTranslating() || !config.enabled || ... || running) return;   // ← retorno seco
+    running = true;
+    try { ... for (const { img, cleanUrl } of pending) { ... await resolveAsset(...) ... } }
+    finally { running = false; }
+}</code></pre>
+    <p><b>Problema:</b> <code>apply()</code> é longa (um <code>await</code> de IPC <code>SM_GET_ASSET</code> por imagem). Mutações que chegam durante a execução disparam o debounce → <code>apply()</code> → <code>return</code> por <code>running === true</code>. Não há flag "reexecutar ao terminar". Imagens inseridas por lazy-load nesse intervalo só serão restauradas quando ocorrer <em>outra</em> mutação futura.</p>
+    <p><b>Consequência:</b> páginas parcialmente restauradas após F5 em sites com carregamento incremental; sintoma intermitente, difícil de reproduzir.</p>
+    <p><b>Correção:</b> <code>let rerun = false;</code> — em vez de retornar, marcar <code>rerun = true</code>; no <code>finally</code>, se <code>rerun</code>, agendar nova passada. Ver <a href="#R3">R3</a>.</p>
+  </article>
+
+  <article class="f risk" id="B5">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-risk">Risco provável</span><span class="badge b-cm">Confiança média</span><span class="ft">B5 — Canal fechado sem resposta é tratado como sucesso no caminho legado de entrega</span></div>
+    <div class="ev">extension/background/jobs-dom-ack.js:62-70</div>
+<pre><code>if (error) {
+  const legacyNoAck = /message channel closed/i.test(error.message || '');
+  const legacyAccepted = legacyNoAck && finalizeOnAck;
+  void settle(legacyAccepted, ...)</code></pre>
+    <p><b>Problema:</b> quando <code>finalizeOnAck === true</code> (chamadas a <code>deliverResultToManga</code> sem o flag, isto é, fora de <code>deliver-result.js</code> que passa <code>finalizeOnAck:false</code>), "message channel closed" — típico de aba descarregada ou content script substituído — é convertido em <code>ok = true</code>, marcando <code>resultPersisted:true</code> sem nenhuma persistência ter ocorrido.</p>
+    <p><b>Consequência:</b> job finalizado como sucesso com página não gravada. O caminho principal (staging via <code>GEMINI_IMAGE_EXTRACTED</code>) está protegido; o risco se concentra em <code>recoverPersistedResult</code>/entregas legadas. Confiança média porque <code>jobs-lifecycle.js</code> veio truncado onde essas chamadas ocorrem.</p>
+    <p><b>Correção:</b> remover a exceção <code>legacyNoAck</code> ou torná-la <code>ok=false, reason='legacy_no_ack'</code> com re-entrega na reconciliação.</p>
+  </article>
+
+  <article class="f sec" id="B6">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-sec">Segurança / fragilidade</span><span class="badge b-ca">Confiança alta (na fragilidade)</span><span class="badge b-cb">Confiança baixa (na explorabilidade)</span><span class="ft">B6 — Origem do remetente classificada por <em>substring</em> da URL</span></div>
+    <div class="ev">extension/background/router.js:47-58</div>
+<pre><code>if (sender.tab.url.includes('gemini.google.com') ||
+    sender.tab.url.includes('127.0.0.1')) {
+  return 'gemini';
+}</code></pre>
+    <p><b>Problema:</b> <code>https://example.com/?ref=gemini.google.com</code> ou <code>https://gemini.google.com.evil.tld/</code> são classificados como origem <code>gemini</code>, habilitando ações com <code>allowedSources: ['gemini']</code> (<code>claim-gemini-job</code>). A mesma extensão já faz a verificação correta em outro lugar: <code>fetch-image-base64.js</code> usa <code>/^https:\/\/gemini\.google\.com\//i</code>.</p>
+    <p><b>Explorabilidade:</b> baixa — páginas web não podem enviar mensagens à extensão (não há <code>externally_connectable</code>); só os próprios content scripts enviam. Mas o content script de mangá roda em <code>&lt;all_urls&gt;</code>, e a classificação frágil reduz a defesa em profundidade.</p>
+    <p><b>Correção:</b> <code>new URL(sender.tab.url).hostname === 'gemini.google.com'</code>; remover <code>127.0.0.1</code> de produção (ver B7).</p>
+  </article>
+
+  <article class="f sec" id="B7">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-sec">Configuração de produção</span><span class="badge b-ca">Confiança alta</span><span class="ft">B7 — Host de teste <code>http://127.0.0.1/*</code> recebe os scripts de automação Gemini e o <code>inject.js</code> (MAIN world)</span></div>
+    <div class="ev">extension/manifest.json — content_scripts[1] e content_scripts[2] ("matches": ["https://gemini.google.com/*", "http://127.0.0.1/*"])</div>
+    <p><b>Consequência:</b> qualquer servidor local do usuário (dev server, painel de roteador exposto em 127.0.0.1, etc.) recebe 11 scripts da extensão, incluindo <code>inject.js</code> que sobrescreve <code>requestAnimationFrame</code>, <code>visibilityState</code> e <code>hasFocus</code> na página. O guard <code>isTranslatorTab</code> de <code>inject.js</code> mitiga (só ativa se a URL contém "mangatranslator" ou há flag em <code>sessionStorage</code>), mas os content scripts do mundo isolado ainda são avaliados. É artefato do harness E2E (<code>gemini-mock-server.js</code>) embarcado no manifest publicado.</p>
+    <p><b>Correção:</b> gerar o manifest de teste no CI (copiar <code>extension/</code> para pasta temporária e adicionar o host) em vez de o manter no manifest de produção.</p>
+  </article>
+
+  <article class="f risk" id="B8">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-risk">Risco provável</span><span class="badge b-ca">Confiança alta</span><span class="ft">B8 — <code>calculate-visual-fingerprint</code> faz <code>fetch</code> sem timeout, sem limite de tamanho e sem checagem de Content-Type</span></div>
+    <div class="ev">extension/background/actions/calculate-visual-fingerprint.js:27-30 · comparar com fetch-image-base64.js:5-6 e :66-84</div>
+<pre><code>const resp = await fetch(url, { credentials: 'omit', cache: 'no-store' });
+if (!resp.ok) throw new Error(`HTTP ${resp.status} ao buscar imagem`);
+const blob = await resp.blob();
+bitmap = await createImageBitmap(blob);</code></pre>
+    <p><b>Problema:</b> a ação irmã (<code>fetch-image-base64</code>) tem <code>AbortController</code> de 30 s, limite de 50 MB e exige <code>content-type: image/*</code>. Esta não tem nada disso e é chamada uma vez por imagem CORS-bloqueada, potencialmente dezenas por página. Um CDN lento segura a Promise da ação (e o listener <code>return true</code>) indefinidamente; um recurso enorme é totalmente baixado antes de falhar em <code>createImageBitmap</code>.</p>
+    <p><b>Correção:</b> reutilizar o mesmo helper de fetch endurecido das duas ações (ver <a href="#R4">R4</a>).</p>
+  </article>
+
+  <article class="f bug" id="B11">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-bug">Bug confirmado (qualidade de identificadores)</span><span class="badge b-ca">Confiança alta</span><span class="ft">B11 — Quatro implementações de <code>generateId()</code> com fallbacks de força diferente</span></div>
+    <div class="ev">background.js — generateId() · background/state.js:67-74 · gtc-fingerprint.js — generateId() · content_manga.js — generateContentId()</div>
+    <p><code>gtc-fingerprint.js</code> produz UUID v4 correto via <code>getRandomValues</code>; <code>background.js</code> e <code>state.js</code> caem em <code>Date.now().toString(36) + Math.random()</code> quando <code>crypto.randomUUID</code> não existe. Em Service Worker moderno <code>randomUUID</code> existe, então o impacto prático é baixo; o problema é de manutenção e de contrato (IDs de batch/job/asset com formatos distintos conforme o contexto). Ver <a href="#R7">R7</a>.</p>
+  </article>
+
+  <article class="f risk" id="B13">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-risk">Risco provável</span><span class="badge b-cm">Confiança média</span><span class="ft">B13 — <code>chapterList</code> em <code>chrome.storage.local</code> cresce sem poda e é relido a cada página persistida</span></div>
+    <div class="ev">extension/cm-chapter.js — getOrCreateChapterIdImpl() (push em chapterList) · persistTranslatedPage() (storageGetAsync(['chapterList']) por página)</div>
+    <p>Cada URL de capítulo nova adiciona um objeto <code>{id,url,title,timestamp}</code>. Não foi encontrada rotina de poda (a exclusão manual pelo popup existe, mas é ato do usuário). Como <code>getOrCreateChapterIdImpl</code> faz <code>list.find</code> com <code>canonicalTitle()</code> (várias regex) por item, e <code>persistTranslatedPage</code> relê a lista inteira por página só para devolver <code>chapter.title</code>, o custo cresce linearmente com o histórico do usuário. Confiança média: não localizei poda em nenhum arquivo lido, mas <code>popup.js</code> veio truncado no meio.</p>
+  </article>
+
+  <article class="f risk" id="B9">
+    <div class="fh"><span class="badge b-low">Baixo</span><span class="badge b-hypo">Hipótese (exige runtime)</span><span class="badge b-cm">Confiança média</span><span class="ft">B9 — O keep-alive por <code>Port</code> provavelmente não mantém o Service Worker vivo</span></div>
+    <div class="ev">extension/content_gemini.js:32-99 · background.js — chrome.runtime.onConnect listener</div>
+    <p>O port <code>gemini-keep-alive</code> é aberto uma vez e <b>nenhuma mensagem trafega por ele</b>; após desconexão há <b>uma única</b> tentativa de reconexão (<code>keepAliveReconnectAttempted</code>). Na política de ciclo de vida do MV3 (Chrome ≥ 114), o que estende a vida do worker é o <em>tráfego</em> de mensagens no port (ou eventos da extensão), não a mera conexão. Portanto o efeito real é: um evento <code>onConnect</code> no início do job e outro após a primeira queda. O sistema tolera a morte do worker (estado durável), então isto não é um bug funcional, mas o mecanismo é provavelmente inerte e dá falsa sensação de garantia. <b>Evidência insuficiente para concluir sem observação em runtime.</b></p>
+  </article>
+
+  <article class="f risk" id="B10">
+    <div class="fh"><span class="badge b-low">Baixo</span><span class="badge b-risk">Risco provável (retenção limitada)</span><span class="badge b-ca">Confiança alta</span><span class="ft">B10 — Reader: páginas que terminam de carregar já fora da janela permanecem carregadas</span></div>
+    <div class="ev">extension/reader.js — loadObserver / unloadObserver</div>
+    <p><code>unloadObserver</code> ignora imagens com <code>dataset.pendingSrc</code> (valor <code>'loading'</code>). Se a página sai da janela de 500 % durante o <code>await loadPageDataUrl()</code>, o observer de descarga já disparou (e foi ignorado) e não disparará de novo até nova interseção; o <code>src</code> é então atribuído e fica residente. Retenção limitada ao número de páginas em busca simultânea durante scroll rápido — não é ilimitada.</p>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<section id="gargalos">
+  <h2>3. Principais gargalos</h2>
+
+  <article class="f gap" id="G1">
+    <div class="fh"><span class="badge b-high">Alto</span><span class="badge b-gap">Gargalo confirmado</span><span class="badge b-ca">Confiança alta</span><span class="ft">G1 — Seis content scripts injetados em toda página da web, habilitada ou não</span></div>
+    <div class="ev">extension/manifest.json — content_scripts[0] ("matches": ["&lt;all_urls&gt;"], js: gtc-fingerprint.js, cm-gtc-client.js, cm-dom-replace.js, cm-chapter.js, cm-auto-restore.js, content_manga.js) · content_manga.js — topo do IIFE</div>
+    <p><b>Custo por página visitada</b> (comprovável pela estrutura): parse+avaliação de ~130 KB de JS não minificado (só <code>content_manga.js</code> tem ~80 KB); um <code>chrome.runtime.sendMessage({action:'GET_TAB_ID'})</code> (acorda o Service Worker se estiver suspenso!); um <code>chrome.storage.local.get(['imageMinWidth','imageMinHeight'])</code>; registro de <code>chrome.storage.onChanged</code>; construção de <code>chapterManager</code> e <code>autoRestorer</code>. Tudo isto ocorre <b>antes</b> de saber se o domínio está em <code>enabledDomains</code>.</p>
+    <p><b>Efeito colateral relevante:</b> o <code>GET_TAB_ID</code> em cada aba nova impede o Service Worker de dormir enquanto o usuário navega, aumentando consumo de CPU/memória do navegador como um todo.</p>
+    <p><b>Melhoria:</b> (a) manter no manifest apenas um <em>loader</em> de ~1 KB que lê <code>enabledDomains</code> e só então pede ao background a injeção via <code>chrome.scripting.executeScript</code> (a permissão <code>scripting</code> já existe); ou (b) melhor ainda, usar <code>chrome.scripting.registerContentScripts()</code> com <code>matches</code> = domínios habilitados, atualizado quando o usuário habilita/revoga um site no popup/options. Ver <a href="#E1">E1</a>.</p>
+  </article>
+
+  <article class="f gap" id="G2">
+    <div class="fh"><span class="badge b-high">Alto</span><span class="badge b-gap">Gargalo confirmado</span><span class="badge b-ca">Confiança alta</span><span class="ft">G2 — Cada entrada de log faz read-modify-write de até 500 registros em <code>chrome.storage.local</code></span></div>
+    <div class="ev">extension/background.js — log(), _flushLog() · background/actions/log-entry.js (allowedSources any, sem limite de tamanho) · content_manga.js — sendLog/sendAudioLog · gemini/job-runner.js — ~25 chamadas sendLog por job</div>
+<pre><code>const data = await chrome.storage.local.get(['translatorLog']);
+const entries = data.translatorLog || [];
+entries.push(...batch);
+if (entries.length > 500) entries.splice(0, entries.length - 500);
+await chrome.storage.local.set({ translatorLog: entries });</code></pre>
+    <p><b>Análise de custo:</b> cada flush desserializa e reserializa O(500) objetos (cada um com <code>extra</code> arbitrário). O batching interno (<code>_logQueue.splice</code>) só agrupa entradas que chegam <em>durante</em> um flush em curso; em regime normal cada <code>log()</code> vira um ciclo get+set. Um job Gemini emite ~25 logs (ATTACHMENT_*, GEMINI_STEP_*, GEMINI_EXTRACT_STAGE por tentativa, etc.); o módulo de áudio emite 3–5 por lote; o content script emite por imagem. Em um lote de 20 páginas com 2 jobs paralelos são centenas de ciclos de storage disputando a mesma fila de I/O de <code>mt_state</code>, <code>wd_data_*</code>, <code>gemini_job_*</code>.</p>
+    <p><b>Agravante no popup:</b> <code>popup.js</code> registra <code>chrome.storage.onChanged</code> em <code>translatorLog</code> e chama <code>renderLogs()</code> → relê os 500 registros e reconstrói até 500 nós com <code>innerHTML</code> a cada gravação enquanto a aba de logs está aberta (<a href="#G7">G7</a>).</p>
+    <p><b>Melhoria:</b> buffer em memória + flush por tempo (ex. 1–2 s) e por tamanho; nível mínimo persistido configurável (gravar <code>info</code> só com <code>debugMode</code>); <code>chrome.storage.session</code> para o buffer quente. Ver <a href="#R2">R2</a>.</p>
+  </article>
+
+  <article class="f gap" id="G3">
+    <div class="fh"><span class="badge b-high">Alto</span><span class="badge b-gap">Gargalo confirmado</span><span class="badge b-arch">Problema arquitetural</span><span class="badge b-ca">Confiança alta</span><span class="ft">G3 — A imagem traduzida atravessa o IPC 3–4 vezes como data URL e é armazenada em duplicidade</span></div>
+    <div class="ev">gemini/job-runner.js — stageAndCommitResult (GEMINI_IMAGE_EXTRACTED, src) · jobs-dom-ack.js:54-61 (UPDATE_IMAGE, newSrc) · content_manga.js — handler UPDATE_IMAGE → persistTranslatedPage (SM_SAVE_PAGE, dataUrl) e saveGlobalTranslationCacheEntry (GTC_SAVE, translatedDataUrl) · storage-manager.js — dataUrlToBlob (loop charCodeAt) · gtc-indexeddb.js — entry.translatedDataUrl</div>
+    <p><b>Caminho atual de um resultado de ~2–6 MB (PNG base64):</b></p>
+    <ol>
+      <li>Aba Gemini → SW: <code>GEMINI_IMAGE_EXTRACTED { src }</code> (clonagem estrutural 1)</li>
+      <li>SW → aba do mangá: <code>UPDATE_IMAGE { newSrc }</code> (clonagem 2)</li>
+      <li>Aba do mangá → SW: <code>SM_SAVE_PAGE { dataUrl }</code> (clonagem 3) → <code>atob</code> + loop JS byte a byte → Blob → IndexedDB</li>
+      <li>Aba do mangá → SW: <code>GTC_SAVE … translatedDataUrl</code> (clonagem 4) → gravado <b>como string base64</b> em outro banco IndexedDB</li>
+    </ol>
+    <p><b>Custos comprováveis:</b> 4 cópias transitórias do payload em memória de processos diferentes; 1 decodificação base64 em JS por página; <b>2 cópias persistentes</b> por página (Blob no <code>manga_translator_data</code> + string base64 ≈ 1,33× maior no <code>manga_translator_gtc</code>) ⇒ ≈ 2,3× o tamanho real em disco. Para 500 páginas de 3 MB reais: ≈ 3,5 GB em vez de 1,5 GB.</p>
+    <p><b>Melhoria estrutural (ver <a href="#E2">E2</a>):</b> o SW já detém o payload no passo 1 e é o dono do storage-manager: persistir primeiro no SW (precisa do <code>chapterId</code>, que pode viajar no <code>START_BATCH</code>), depois entregar à aba <code>{ assetId, newSrc }</code>; o GTC passa a referenciar <code>assetId</code> (ou a gravar Blob). Isso elimina os passos 3 e 4, metade da memória transitória e ~57 % do disco, e torna a persistência independente de a aba do mangá estar viva (hoje o caso "imagem não está no DOM" ainda exige o content script para gravar).</p>
+  </article>
+
+  <article class="f gap" id="G4">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-gapp">Gargalo provável</span><span class="badge b-ca">Confiança alta (na estrutura)</span><span class="ft">G4 — Travessias completas do DOM (incluindo shadow roots) repetidas em alta frequência na aba Gemini</span></div>
+    <div class="ev">gemini/dom.js:≈66-88 (findAllDeep — walk recursivo de todo o documento) · gemini/job-runner.js — selectLiveComposer() chamado a cada 250 ms em waitForStableComposer(); attachmentSnapshot() chamado dentro de cada sendLog de anexo (3 findAllDeep por chamada); waitForElement() faz observeDeepRoots() + queryFirstDeep() a cada lote de mutações · gemini/observer.js — safeQueryAll via findAllDeep</div>
+    <p><b>Complexidade:</b> cada <code>findAllDeep</code> é O(N) sobre todos os nós do documento; <code>selectLiveComposer</code> faz um walk e depois sobe até 5 níveis; <code>attachmentSnapshot</code> faz <b>três</b> walks (inputs, imageInputs, previews) e é invocado em cada <code>onAttempt</code> e em cada log de contexto. Em <code>waitForElement</code>, a callback do <code>MutationObserver</code> faz dois walks completos <em>por lote de mutações</em>, num app Angular que muta continuamente durante a geração (streaming de tokens, spinners) — O(N × mutações).</p>
+    <p><b>Impacto:</b> restrito à aba Gemini (não afeta o site de mangá), mas concorre com a própria renderização do Gemini e alonga o caminho crítico de cada job.</p>
+    <p><b>Melhoria provável:</b> memoizar o composer estável após <code>waitForStableComposer</code>; coalescer as inspeções de <code>waitForElement</code> num único <code>requestAnimationFrame</code>/microtask por lote; restringir a raiz dos walks ao container da conversa quando conhecido. Exige benchmark para quantificar.</p>
+  </article>
+
+  <article class="f gap" id="G5">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-gap">Gargalo confirmado</span><span class="badge b-ca">Confiança alta</span><span class="ft">G5 — Pipeline de fingerprint: 5 canvases + 5 <code>getImageData</code> + DCT + Haar + SHA-256 por imagem, em duas cópias de código</span></div>
+    <div class="ev">content_manga.js — generateImageFingerprint() · cm-gtc-client.js:≈52-108 (cópia) · background/actions/calculate-visual-fingerprint.js (versão SW, 5 OffscreenCanvas + fetch sem cache)</div>
+    <p>Por imagem elegível: canvas 8×8, 9×8, 32×32, 32×32 (crop) e 48×48, cada um com <code>drawImage</code> (decodificação/reamostragem pela GPU/CPU) e <code>getImageData</code> (readback síncrono). Depois DCT-II 32×32 separável (O(32³) ≈ 32 k multiplicações), Haar 2D, hashes regionais e SHA-256. Roda na <b>thread principal da página hospedeira</b>. Para 60 páginas é perceptível (dezenas a centenas de ms de bloqueio). Quando CORS bloqueia, o SW <em>refaz o download</em> da imagem (<code>cache:'no-store'</code>) que o navegador já tem em cache.</p>
+    <p><b>Melhorias:</b> (a) <code>cache: 'default'</code> ou <code>'force-cache'</code> no fetch do SW (a imagem acabou de ser exibida); (b) cortar em fatias por <code>requestIdleCallback</code>/<code>await</code> entre imagens para não bloquear a UI; (c) eliminar a cópia duplicada; (d) <span class="badge b-hypo">Hipótese</span> memoizar fingerprints por <code>(cleanUrl, naturalWidth, naturalHeight)</code> durante a sessão — só vale se rescans (popup <code>GET_PAGE_IMAGES</code>) recalcularem; o trecho que decide isso veio truncado — <b>evidência insuficiente</b>.</p>
+  </article>
+
+  <article class="f gap" id="G6">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-gap">Gargalo confirmado</span><span class="badge b-ca">Confiança alta</span><span class="ft">G6 — <code>resolveCanonicalTabId</code> vai ao storage a cada chamada, em vários pontos quentes, mesmo quando não há alias</span></div>
+    <div class="ev">tab-identity.js:48-77 (storage.get por hop, linha 66) · jobs-watchdog.js:17 e :34 (2× por arm) · claim-gemini-job.js (2×) · jobs-reconciliation.js (1× por entrada) · jobs-watchdog.js handleAlarm (1×)</div>
+    <p>Aliases só existem após <code>tabs.onReplaced</code> (evento raro). No caso comum a função faz um <code>chrome.storage.local.get</code> para receber <code>undefined</code>. Somando armar watchdog (2), claim (2), finalização e reconciliação, são 5–7 leituras assíncronas por job apenas para "não fazer nada". Todas as escritas de alias passam por <code>persistAlias</code> no mesmo módulo, então um <code>Map</code> em memória com <em>write-through</em> e carga preguiçosa do índice <code>gemini_tab_alias_index</code> no primeiro uso após wake elimina quase todas as leituras sem perder durabilidade.</p>
+  </article>
+
+  <article class="f gap" id="G7">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-gap">Gargalo confirmado (UI da extensão)</span><span class="badge b-ca">Confiança alta</span><span class="ft">G7 — Popup/Options refazem consultas e o DOM inteiro a cada interação</span></div>
+    <div class="ev">popup.js — renderSettingsSites() (settingsSites.innerHTML = '' + loadRestoreEntries(chapterList) a cada toggle/bloqueio) · popup.js — renderLogs()/updateLogView() (500 nós via innerHTML por gravação de log) · options.js — renderSites() (mesmo padrão) · popup.js — smChapterImages() (await sequencial página a página)</div>
+    <p>Expandir uma pasta de site dispara <code>SM_LIST_RESTORE</code> para todos os capítulos e reconstrói todos os nós. A aba de logs reconstrói a lista completa em cada mudança de <code>translatorLog</code>, que durante um lote muda várias vezes por segundo (ver G2). <code>smChapterImages</code> busca as páginas uma a uma (<code>await</code> em série) para download/exportação.</p>
+  </article>
+
+  <article class="f gap" id="G8">
+    <div class="fh"><span class="badge b-med">Médio</span><span class="badge b-gapp">Gargalo provável</span><span class="badge b-cm">Confiança média</span><span class="ft">G8 — Boot do Service Worker: 33 <code>importScripts</code> síncronos de fontes não minificadas a cada despertar</span></div>
+    <div class="ev">background.js — bloco importScripts (7 módulos core + 23 actions + 3 libs)</div>
+    <p>Não há etapa de build; os arquivos são servidos com comentários extensos. Em MV3 o worker é acordado por cada mensagem/alarme (e por G1, por cada aba nova); cada despertar reavalia todo o código. <code>importScripts</code> tardio não é permitido em SW, então a única alavanca é reduzir o volume (concatenação/minificação em build). Benefício exige medição (<span class="badge b-hypo">Hipótese</span>); a estrutura, porém, é objetivamente pesada.</p>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<section id="impacto">
+  <h2>4. Melhorias de maior impacto</h2>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Mudança</th><th>Ganho de desempenho</th><th>Ganho de robustez</th><th>Redução de complexidade</th><th>Esforço</th><th>Risco de regressão</th></tr></thead>
+    <tbody>
+      <tr><td>M1</td><td>Corrigir captura de snapshot em <code>syncState()</code> (<a href="#R1">R1</a>)</td><td>—</td><td><b>Alto</b>: elimina regressão de <code>mt_state</code></td><td>—</td><td>Pequeno (1 linha)</td><td>Baixo (testes de estado existentes cobrem a API)</td></tr>
+      <tr><td>M2</td><td>Injeção condicional de content scripts por domínio habilitado (<a href="#E1">E1</a>)</td><td><b>Alto</b>: zero custo em sites não habilitados; SW dorme mais</td><td>Médio: menor superfície em páginas arbitrárias</td><td>Baixa</td><td>Médio</td><td>Médio (fluxo "habilitar → recarregar" já existe no popup)</td></tr>
+      <tr><td>M3</td><td>Persistir resultado no SW antes de entregar; GTC referencia asset (<a href="#E2">E2</a>)</td><td><b>Alto</b>: −2 hops IPC de MB, −1 decode base64 em JS, −57 % disco</td><td><b>Alto</b>: persistência independe da aba estar viva</td><td>Média: remove <code>SM_SAVE_PAGE</code> do content script</td><td>Grande</td><td>Médio-alto (toca esquema GTC; exige migração)</td></tr>
+      <tr><td>M4</td><td>Log com buffer e flush temporizado; nível mínimo por <code>debugMode</code> (<a href="#R2">R2</a>)</td><td><b>Alto</b>: elimina centenas de RMW por lote</td><td>Médio: menos contenção com <code>mt_state</code></td><td>Baixa</td><td>Pequeno</td><td>Baixo (perda de até 1–2 s de log se o SW morrer)</td></tr>
+      <tr><td>M5</td><td>Cache em memória de aliases em <code>tab-identity</code> (<a href="#R5">R5</a>)</td><td>Médio: −5–7 leituras de storage por job</td><td>—</td><td>—</td><td>Pequeno</td><td>Baixo</td></tr>
+      <tr><td>M6</td><td>Reexecução pendente no auto-restore (<a href="#R3">R3</a>)</td><td>—</td><td>Médio: elimina restaurações perdidas</td><td>—</td><td>Pequeno</td><td>Baixo</td></tr>
+      <tr><td>M7</td><td>Unificar helpers duplicados (<code>getCleanUrl</code>, fingerprint, SHA-256, dataURL→bytes, <code>generateId</code>) e remover código morto (<a href="#dead">§23</a>)</td><td>Baixo direto; −~20 KB por página</td><td>Médio: uma única fonte de verdade</td><td><b>Alta</b></td><td>Médio</td><td>Baixo com a cobertura existente</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="quick">
+  <h2>5. Quick wins</h2>
+  <ul>
+    <li><b>Q1</b> — <code>state.js:92</code>: <code>const write = () =&gt; chrome.storage.local.set({ mt_state: get() })</code>. (B1)</li>
+    <li><b>Q2</b> — <code>router.js:50-51</code>: trocar <code>includes()</code> por comparação de <code>hostname</code>. (B6)</li>
+    <li><b>Q3</b> — <code>calculate-visual-fingerprint.js:27</code>: adicionar <code>AbortController</code> (30 s), checar <code>content-type</code>, limitar bytes; usar <code>cache: 'default'</code>. (B8, G5)</li>
+    <li><b>Q4</b> — <code>cm-auto-restore.js:45</code>: flag <code>rerun</code>. (B4)</li>
+    <li><b>Q5</b> — <code>background.js</code> listener <code>onAlarm</code>: remover o bloco legado <code>if (alarm.name.startsWith('watchdog_'))</code> após <code>jobsWatchdog.handleAlarm</code> (inalcançável). (D8)</li>
+    <li><b>Q6</b> — <code>cm-dom-replace.js</code> <code>getScanEligibleImages</code>: <code>banned</code> → <code>new Set(banned)</code> antes do loop (O(n·b) → O(n)).</li>
+    <li><b>Q7</b> — <code>cm-chapter.js</code> <code>persistTranslatedPage</code>: cachear o objeto <code>chapter</code> junto com <code>chapterIdPromise</code> em vez de reler <code>chapterList</code> por página. (B13)</li>
+    <li><b>Q8</b> — <code>background.js</code> <code>downloadImagesAndShow</code> / <code>export-all.js</code>: um único listener <code>downloads.onChanged</code> com <code>Map&lt;id, resolver&gt;</code> e limite de 3–4 downloads simultâneos (hoje N listeners × N eventos).</li>
+    <li><b>Q9</b> — <code>manifest.json</code>: retirar <code>http://127.0.0.1/*</code>; o CI gera o manifest de teste. (B7)</li>
+    <li><b>Q10</b> — <code>content_manga.js</code> handler <code>UPDATE_IMAGE</code>/<code>REQUEST_IMAGE_DATA</code>: <code>document.querySelector('img[data-manga-index="…"]')</code> em vez de <code>querySelectorAll('img')</code> + loop.</li>
+    <li><b>Q11</b> — <code>reader.js</code>: remover <code>const loadedUrls = new Map()</code> (nunca usado) e um dos dois mecanismos de contador (IntersectionObserver com 21 thresholds <em>ou</em> scroll + <code>getBoundingClientRect</code> em todas as páginas).</li>
+    <li><b>Q12</b> — <code>popup.js</code>: remover referências a <code>window.logPoller</code> (nunca criado) e debouncear <code>renderLogs()</code> (≥ 500 ms).</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="estrutura">
+  <h2>6. Estrutura do repositório</h2>
+<pre><code>.
+├── .github/workflows/         ci.yml (18 KB) · publish.yml · recover-cancelled-ci.yml
+├── docs/                      Documentação.md (80 KB) + 11 documentos de revisão/planos
+├── extension/                 ← pasta carregada no navegador (sem build)
+│   ├── manifest.json          MV3 · version 6.5
+│   ├── background.js          bootstrap do SW (54 KB) · importScripts de 33 módulos
+│   ├── background/            router · state · tab-identity · jobs-watchdog · jobs-reconciliation
+│   │   │                      · jobs-dom-ack · jobs-lifecycle
+│   │   └── actions/           23 ações registradas no router (start-batch, stop-batch, deliver-result,
+│   │                          commit-result, deliver-result-url, deliver-result-from-tab, report-error,
+│   │                          fetch-image-base64, calculate-visual-fingerprint, download-*, export-all,
+│   │                          open-*, claim-gemini-job, relay-progress, log-entry, get-tab-id, …)
+│   ├── content_manga.js       content script do site de mangá (~80 KB)
+│   ├── cm-gtc-client.js · cm-dom-replace.js · cm-chapter.js · cm-auto-restore.js
+│   ├── gtc-fingerprint.js     SHA-256 / dHash / wHash / pHash / regionais
+│   ├── gtc-indexeddb.js       cache global de traduções (IndexedDB v4)
+│   ├── storage-manager.js     páginas/assets/restore (IndexedDB v1) — só no SW
+│   ├── inject.js              MAIN world na aba Gemini (anti-throttling, pontes)
+│   ├── content_gemini.js      bootstrap/claim/keep-alive do worker Gemini
+│   ├── gemini/                selectors · dom · image-quarantine · observer · editor · attachment
+│   │                          · temporary-chat · result-extractor · deletion · job-runner
+│   ├── popup.html/.js · options.html/.js · reader.html/.js
+├── scripts/sync-version.js
+├── tests/                     jest (unit/integration) · smoke · visual-v3 · e2e (Playwright) · ci/*
+├── package.json               v6.5.0 · scripts de teste · sem dependências
+└── tests/package.json         devDependencies: jest, jest-environment-jsdom, @playwright/test, fake-indexeddb</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section id="arquivos">
+  <h2>7. Arquivos analisados e não analisados</h2>
+  <h3>7.1 Analisados (produção)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Arquivo</th><th>Papel</th><th>Cobertura da leitura</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td>extension/manifest.json</td><td>Manifesto</td><td>Integral</td><td>host_permissions e matches de content scripts vieram com <code>&lt;all_urls&gt;</code> colapsado pela ferramenta; confirmado pelo README e pelos matches restantes</td></tr>
+      <tr><td>extension/background.js</td><td>Bootstrap SW</td><td>≈85 % (trecho central truncado)</td><td>deliverResultToManga/updateJobState-facade parcialmente inferidos</td></tr>
+      <tr><td>background/state.js</td><td>Estado durável</td><td>≈80 % (cauda truncada)</td><td>Accessors do objeto exportado não vistos</td></tr>
+      <tr><td>background/router.js</td><td>Roteador</td><td>Integral</td><td></td></tr>
+      <tr><td>background/tab-identity.js</td><td>Alias de abas</td><td>≈70 %</td><td>performMigration truncada</td></tr>
+      <tr><td>background/jobs-watchdog.js</td><td>Watchdog</td><td>Integral</td><td></td></tr>
+      <tr><td>background/jobs-reconciliation.js</td><td>Reconciliação</td><td>Integral</td><td></td></tr>
+      <tr><td>background/jobs-dom-ack.js</td><td>ACK durável</td><td>Integral</td><td></td></tr>
+      <tr><td>background/jobs-lifecycle.js</td><td>Ciclo de vida</td><td>≈45 %</td><td>processNextJob/finalizeJob/openGeminiTab não vistos</td></tr>
+      <tr><td>actions/fetch-image-base64.js · calculate-visual-fingerprint.js · deliver-result.js · commit-result.js · log-entry.js · claim-gemini-job.js · export-all.js · request-image-data.js</td><td>Ações</td><td>Integral</td><td>8 de 23 ações</td></tr>
+      <tr><td>extension/content_manga.js</td><td>Content script</td><td>≈65 % (miolo truncado ~14 k tokens)</td><td>extractAndSendImages, scanner e botão flutuante parcialmente não vistos</td></tr>
+      <tr><td>cm-gtc-client.js · cm-dom-replace.js · cm-chapter.js · cm-auto-restore.js</td><td>Módulos do content script</td><td>Integral / quase integral</td><td>cm-gtc-client cauda truncada</td></tr>
+      <tr><td>gtc-fingerprint.js</td><td>Hashing</td><td>≈40 %</td><td>SHA-256 fallback, generateId, dHash vistos; wHash/pHash/match não</td></tr>
+      <tr><td>gtc-indexeddb.js</td><td>Cache GTC</td><td>≈45 %</td><td>Repositório em memória visto; repositório IndexedDB/handler não</td></tr>
+      <tr><td>storage-manager.js</td><td>Persistência</td><td>≈95 %</td><td>Um trecho de dataUrlToBlob colapsado</td></tr>
+      <tr><td>inject.js</td><td>MAIN world</td><td>≈90 %</td><td></td></tr>
+      <tr><td>content_gemini.js</td><td>Bootstrap Gemini</td><td>≈60 %</td><td>Handlers de mensagem finais não vistos</td></tr>
+      <tr><td>gemini/job-runner.js</td><td>Orquestração</td><td>≈85 %</td><td>Início de run() truncado</td></tr>
+      <tr><td>gemini/dom.js · observer.js · editor.js · image-quarantine.js · result-extractor.js · deletion.js</td><td>Módulos Gemini</td><td>50–100 %</td><td>observer/result-extractor/deletion truncados na cauda</td></tr>
+      <tr><td>popup.js · options.js · reader.js</td><td>UI</td><td>≈75 % / 95 % / 90 %</td><td>popup.js miolo truncado</td></tr>
+      <tr><td>.github/workflows/ci.yml</td><td>CI</td><td>≈90 %</td><td>Job final ci-gate não visto (descrito no README)</td></tr>
+      <tr><td>package.json · tests/package.json</td><td>Metadados</td><td>Integral</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <h3>7.2 Não analisados e motivo</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Arquivo(s)</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td>gemini/selectors.js, gemini/attachment.js, gemini/temporary-chat.js</td><td>Orçamento de chamadas; são tabelas de seletores e interação de UI, de menor risco sistêmico. Efeitos são observáveis indiretamente por job-runner.js.</td></tr>
+      <tr><td>15 ações restantes em background/actions/ (start-batch, stop-batch, download-*, open-*, deliver-result-url, deliver-result-from-tab, report-error, relay-progress, get-tab-id, set-debug-mode, force-send-activation, refresh-job-watchdog, check-extraction-tab)</td><td>Orçamento; várias são fachadas finas sobre funções de background.js já lidas (startBatch, stopBatch, downloadImagesAndShow, handleMarkerAndShow).</td></tr>
+      <tr><td>popup.html, options.html, reader.html</td><td>Foco em JavaScript; a CSP padrão de MV3 impede scripts inline, logo a lógica está nos .js lidos.</td></tr>
+      <tr><td>tests/** (exceto package.json), scripts/sync-version.js, docs/**</td><td>Testes não são o foco; lidos apenas via descrição do README/ci.yml.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="arquitetura">
+  <h2>8. Arquitetura atual</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Contexto</th><th>Arquivos</th><th>Responsabilidade</th><th>Estado que detém</th></tr></thead>
+    <tbody>
+      <tr><td>Service Worker</td><td>background.js + background/** + gtc-*.js + storage-manager.js</td><td>Fila FIFO de lotes, abertura de abas/janelas Gemini, watchdog, entrega/ACK, persistência de páginas (IndexedDB), cache GTC (IndexedDB), downloads, logs</td><td><code>mt_state</code> (chrome.storage.local), <code>gemini_job_*</code>, <code>wd_data_*</code>, <code>gemini_finalized_*</code>, aliases/journals, 2 bancos IndexedDB</td></tr>
+      <tr><td>Content script — site de mangá (<code>&lt;all_urls&gt;</code>)</td><td>content_manga.js + cm-*.js + gtc-fingerprint.js</td><td>Scanner de imagens, fingerprint, consulta GTC, botão flutuante, aplicação de resultado, persistência (via SM_*), auto-restore, áudio</td><td>Instância ativa, seleção, <code>_currentBatchId</code>, <code>restoreMap</code>, cache de 12 assets</td></tr>
+      <tr><td>Content script — Gemini (isolado)</td><td>content_gemini.js + gemini/**</td><td>Claim do job, anexo, prompt, submit, observação, extração, quarentena, exclusão, keep-alive</td><td>Observer por job, flags de keep-alive</td></tr>
+      <tr><td>MAIN world — Gemini</td><td>inject.js</td><td>Anti-throttling (rAF/idle/visibility), ponte de prompt (Quill), fetch autenticado, envio de fallback</td><td>Modo anti-throttle em sessionStorage</td></tr>
+      <tr><td>Popup / Options / Reader</td><td>popup.js · options.js · reader.js</td><td>Habilitar sites, selecionar imagens, ajustes, logs, listas de traduzidas, leitor com virtualização</td><td>UI apenas; lê storage/SM via mensagens</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Pontos fortes objetivos:</b> injeção de dependências explícita em todos os módulos Gemini e de background (testáveis sem mocks globais); roteador com <code>validate()</code> por ação; ACK durável antes de finalizar (substituiu um <code>setTimeout(1500)</code>, documentado no código); storage-manager com registro por página e assets referenciados; reader virtualizado.</p>
+  <p><b>Fraquezas estruturais:</b> <code>background.js</code> ainda concentra ~1 400 linhas com funções de download, marcador de pasta, log e handler de alarme inline; duas camadas de dispatch de mensagens (router e cadeia manual) — o router aceita <code>gtcHandler/smHandler</code> mas <code>background.js</code> não os passa (caminho morto, D9); dois paradigmas de mutação de estado (B2); helpers utilitários replicados por contexto em vez de um módulo <code>shared/</code> carregado em todos.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="fluxos">
+  <h2>9. Fluxos críticos</h2>
+
+  <h3>9.1 Carga de qualquer página (custo pago sempre)</h3>
+<pre><code>document_idle
+→ avalia gtc-fingerprint.js, cm-gtc-client.js, cm-dom-replace.js, cm-chapter.js, cm-auto-restore.js, content_manga.js (~130 KB)
+→ sendMessage GET_TAB_ID          (acorda o SW; 1 round-trip)
+→ storage.get imageMin*           (1 leitura)
+→ storage.onChanged listener      (permanente)
+→ createChapterManager / createAutoRestorer
+→ (só então) verificação de enabledDomains → ENABLE_PAGE / botão / auto-restore</code></pre>
+  <p><b>Onde o tempo vai:</b> parse/avaliação de JS e o despertar do SW. <b>Eliminável</b> em sites não habilitados (E1).</p>
+
+  <h3>9.2 Clique em "Traduzir" até o primeiro job</h3>
+<pre><code>getScanEligibleImages (querySelectorAll('img') + getComputedStyle por candidato + getCleanUrl por imagem)
+→ generateImageFingerprint × N   (5 canvases, DCT/Haar/SHA-256; CORS → CALCULATE_VISUAL_FINGERPRINT no SW com novo download)
+→ GTC_QUERY_MANY (sha256) → miss → GTC_QUERY_BY_DHASH → GTC_QUERY_BY_PERCEPTUAL (wHash/pHash) → crop
+→ cache hits aplicados (applyImageReplacement: cloneNode + replace) + persistTranslatedPage por hit
+→ storage.get customPrompt/defaultPrompt
+→ START_BATCH { images:[{index}], prompt, batchId }
+→ SW: mutate (fila) → _refreshMaxCon (storage.get) → processNextJob</code></pre>
+  <p><b>Pontos de espera:</b> 3–4 round-trips de consulta ao GTC em série (poderiam ser uma única mensagem com todos os hashes); N fingerprints na thread principal. <b>Cache:</b> já existe (GTC). <b>Batching:</b> consultas já são "many"; falta unificar as 3–4 fases numa só.</p>
+
+  <h3>9.3 Um job Gemini (caminho crítico principal)</h3>
+<pre><code>SW processNextJob → tabs.create / windows.create (?jobId=)  → gemini_job_&lt;tab&gt;, wd_data_&lt;tab&gt;, alarm watchdog_&lt;jobId&gt;
+Gemini CS: claimGeminiJob (poll CLAIM_GEMINI_JOB até 5 s; 2× resolveCanonicalTabId + 1–2 storage.get no SW)
+→ REQUEST_IMAGE_DATA → SW → manga CS: canvas full-res → toDataURL (re-encode JPEG/PNG) → SW → Gemini CS (job.srcData, MB)
+→ dataURLtoFile (atob loop) → attachFile (até 20 s, 3 dispatches) → prompt (Quill/paste/eventos) → submit (observer confirma)
+→ espera geração (≤ 4 min; progresso a cada 5 s → GEMINI_PROGRESS → PROGRESS → storage RMW de mt_popup_state se regex casa)
+→ extração (canvas → SW sessão → MAIN fetch → retry) → quarentena (2× decode base64 + 2× SHA-256 de MB)
+→ GEMINI_IMAGE_EXTRACTED {src} → SW deliver-result → UPDATE_IMAGE {newSrc} → manga CS aplica + SM_SAVE_PAGE + GTC_SAVE → ACK
+→ GEMINI_RESULT_COMMIT → finalizeJob → deleteConversation (modo) → tabs.remove → processNextJob</code></pre>
+  <p><b>Trabalho duplicado:</b> imagem de origem re-encodada por canvas em vez de bytes originais (perda de qualidade e CPU; <span class="badge b-hypo">Hipótese</span> de melhoria — depende de CORS/cookies); payload de resultado 4× no IPC (G3); ~25 logs → ~25 RMW no storage (G2); 5–7 leituras de alias (G6). <b>Paralelização:</b> já existe por <code>maxConcurrentJobs</code>; aumentar não ajuda porque o gargalo é a geração no Gemini (minutos) e o limite do serviço.</p>
+
+  <h3>9.4 Reload da página (auto-restore)</h3>
+<pre><code>ENABLE_PAGE / init → loadConfig (storage.get) → getOrCreateChapterId (storage.get chapterList + regex por item)
+→ SM_MIGRATE_CHAPTER (idempotente; lê flag + 3 chaves legadas) → SM_RESTORE_INDEX
+→ apply(): querySelectorAll('img:not([data-translated])') + getCleanUrl por img → SM_GET_ASSET por imagem (cache LRU 12)
+→ MutationObserver(body, subtree, attributes[src,data-src,data-lazy]) → debounce 150 ms → apply()</code></pre>
+  <p><b>Riscos:</b> B4 (mutações durante passada); cada <code>apply()</code> reanalisa todas as imagens da página; a substituição via <code>cloneNode</code> gera mutações que reagendam <code>apply()</code> (uma passada extra por lote — aceitável).</p>
+
+  <h3>9.5 Reader offline</h3>
+<pre><code>storage.get chapterList + &lt;id&gt;_images (legado) → SM_MIGRATE_CHAPTER → SM_PAGE_INDEX
+→ wrappers para todas as páginas → IntersectionObserver (21 thresholds) + loadObserver (200 %) + unloadObserver (500 %) + scroll handler
+→ SM_GET_PAGE por página visível (Blob → FileReader → data URL → mensagem → img.src)</code></pre>
+  <p>Bem virtualizado; redundância no contador (Q11) e retenção limitada (B10).</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="bg">
+  <h2>10. Auditoria do background / service worker</h2>
+  <h3>10.1 Inicialização e reidratação</h3>
+  <ul>
+    <li><code>ensureInitialized()</code> só restaura do storage se não houver "trabalho residente" em memória — correto para evitar sobrescrever um lote vivo com snapshot velho. Porém depende de B1 estar corrigido para que o snapshot seja confiável.</li>
+    <li><code>onStartup</code> zera <code>extractionTabs</code>, reconcilia e loga <code>STARTUP_RECOVERY</code>. <code>onInstalled</code> não foi visto (truncado) — <b>evidência insuficiente</b> sobre a criação do menu de contexto em atualização.</li>
+    <li><code>ensureInitialized</code> dispara <code>recoverPendingMigrations().then(cleanupExpiredAliases)</code> sem <code>await</code> — intencional e documentado; erros são logados. OK.</li>
+  </ul>
+  <h3>10.2 Listeners e alarmes</h3>
+  <ul>
+    <li><span class="badge b-dead">Código morto</span> No listener <code>chrome.alarms.onAlarm</code>, após <code>if (jobsWatchdog.handleAlarm(alarm)) return;</code> segue um bloco <code>if (alarm.name.startsWith('watchdog_')) { … }</code> de ~40 linhas que replica a lógica; como <code>handleAlarm</code> retorna <code>true</code> para <em>todo</em> nome iniciado por <code>watchdog_</code> (jobs-watchdog.js:56-57), o bloco é inalcançável. Risco: manutenção divergente (o bloco morto não resolve alias canônico; o vivo resolve).</li>
+    <li><code>finalization_marker_*</code>: alarme por aba para remover a marca após 10 min; <code>_markFinalized</code> também usa <code>setTimeout</code> de 30 s em memória. Dupla camada coerente com MV3.</li>
+    <li><code>chrome.runtime.onConnect</code> apenas registra um <code>onDisconnect</code> vazio — ver B9.</li>
+  </ul>
+  <h3>10.3 Roteador</h3>
+  <ul>
+    <li>Ações síncronas (<code>meta.async:false</code>) respondem e retornam <code>false</code>; assíncronas retornam <code>true</code>. Correto.</li>
+    <li><code>routeRegisteredAction</code> em <code>background.js</code> reconstrói <code>legacyResponseActions</code> (um <code>Set</code>) a <b>cada mensagem</b>; deveria ser constante de módulo. Custo trivial, mas é trabalho repetido no caminho de toda mensagem.</li>
+    <li><code>contextFactory</code> é invocado por mensagem e monta um objeto com ~15 closures; <code>createContext</code> cria outros 3 closures de storage. Alocação por mensagem; trivial individualmente, mas há centenas de mensagens por lote (progresso a cada 5 s por job, logs, etc.).</li>
+    <li>Compatibilidade: <code>sendResponseCompat</code> remove <code>ok</code> para 5 ações legadas — padrão de transição documentado; candidata a limpeza.</li>
+  </ul>
+  <h3>10.4 Downloads</h3>
+  <ul>
+    <li><code>waitForDownload</code> adiciona um listener <code>downloads.onChanged</code> por download com timer de 10 min; <code>downloadImagesAndShow</code> e <code>export-all</code> disparam todos os downloads de uma vez → N listeners ativos, cada um invocado para cada evento de cada download: O(N²) invocações e N downloads concorrentes sem limite (Q8).</li>
+    <li><code>handleMarkerAndShow</code> baixa um PNG 1×1 (<code>_anchor.png</code>) para poder abrir a pasta e o apaga 4 s depois — workaround criativo da ausência de API; documentar como tal. Regex <code>MangaTranslator(?:\\|/)…</code> montada com <code>safeTitle</code> sem escape de metacaracteres: se o título sanitizado contiver apenas <code>[a-z0-9_]</code> (como no content script) está seguro; caso contrário a busca falha silenciosamente. <span class="badge b-cm">Confiança média</span>.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="cs">
+  <h2>11. Auditoria dos content scripts (site de mangá)</h2>
+  <ul>
+    <li><b>Custo de inicialização:</b> ver G1. Além disso o IIFE de <code>content_manga.js</code> lança <code>throw new Error('cm-dom-replace.js deve ser carregado antes…')</code> se um módulo faltar — isto derruba o script inteiro na página, mas o guard <code>__manga_translator_content_injected</code> já foi setado como <code>true</code> antes do throw, impedindo reinjeção posterior naquela página. <span class="badge b-risk">Risco provável</span> <span class="badge b-low">Baixo</span>.</li>
+    <li><b>Listeners:</b> pelo menos três <code>chrome.storage.onChanged</code> independentes (dimensões mínimas em content_manga.js; <code>debugMode</code> em content_gemini.js — outro contexto; <code>onStorageChanged</code> do autoRestorer). No mangá são dois no mesmo contexto — consolidável, impacto baixo.</li>
+    <li><b>Scanner:</b> <code>getScanEligibleImages</code> agrupa por <code>cleanUrl</code> (Map) — O(n); <code>banned.includes</code> — O(n·b) (Q6); <code>isBackdropOrBlurredImage</code> chama <code>getComputedStyle</code> e sobe até 5 ancestrais por imagem — O(n) com layout forçado potencial se houver escrita de estilo intercalada (o scanner é só leitura; OK).</li>
+    <li><b>Aplicação de resultado:</b> <code>applyImageReplacement</code> remove <code>&lt;source&gt;</code> de <code>&lt;picture&gt;</code>, limpa atributos de lazy-load, clona o nó, força <code>z-index/filter/opacity !important</code> — robusto contra sites com blur/backdrop (Reddit). Cada substituição é 1 <code>getComputedStyle</code> + 1 <code>replaceChild</code>; para cache hits em massa é aceitável.</li>
+    <li><b>Toasts:</b> <code>toast.innerHTML = \`✅ ${batchHasErrors ? '…' : '…'}\`</code> — apenas strings estáticas; sem risco.</li>
+    <li><b>Áudio:</b> um único <code>AudioContext</code> por página (comentário explica o limite do Chromium) — correto; mas cada etapa emite <code>sendAudioLog</code> → G2.</li>
+    <li><b>PROGRESS:</b> para cada mensagem cuja regex casa (<code>INICIANDO LOTE|ABRINDO GEMINI|EXTRAINDO|AGUARDANDO</code>) faz <code>storage.get(mt_popup_state)</code> + <code>set</code> — RMW no storage por mensagem de progresso; <code>_localBatchStatus</code> já está em memória, então basta gravar quando o status <em>muda</em>.</li>
+    <li><b>Instância ativa:</b> <code>isActiveContentInstance()</code> protege contra dupla injeção (ex.: reinjeção manual pelo popup); bom.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="gemini">
+  <h2>12. Auditoria da automação Gemini</h2>
+  <ul>
+    <li><b>Observer:</b> registro por <code>jobId</code> em <code>window.__mtGeminiObservers</code> com <code>stop()</code> do anterior — evita observers órfãos. <code>timers</code> rastreados em <code>Set</code> e limpos. Bom design de ciclo de vida.</li>
+    <li><b>Composer:</b> <code>waitForStableComposer</code> exige 750 ms de estabilidade e mínimo 1,5 s — soma ≥ 1,5 s fixos ao início de cada job, mais <code>sleep(1000)</code> após anexo e <code>sleep(1000)</code> após prompt: ≥ 3,5 s de espera fixa por job independentemente da UI. <span class="badge b-imp">Melhoria</span>: substituir as duas <code>sleep(1000)</code> por confirmações observáveis (o observer já existe).</li>
+    <li><b>Scroll assist:</b> <code>setInterval</code> de 2 s que faz <code>scrollTo</code> + <code>querySelectorAll('img')</code> + <code>scrollIntoView</code> durante toda a geração (até 4 min) — 120 consultas globais e 120 rolagens suaves por job; provavelmente desnecessário com <code>loading=eager</code> forçado. <span class="badge b-gapp">Gargalo provável</span>.</li>
+    <li><b>Progress timer:</b> a cada 5 s envia <code>GEMINI_PROGRESS</code> → SW <code>relay-progress</code> → <code>tabs.sendMessage PROGRESS</code> → content script possivelmente RMW no storage. Até 48 ciclos por job. Reduzir para 10–15 s ou atualizar só o texto local sem storage.</li>
+    <li><b>Quarentena:</b> <code>decodeDataUrl</code> converte base64 em <code>Uint8Array</code> via loop <code>charCodeAt</code> por byte para entrada <em>e</em> candidato (MBs cada) e depois <code>crypto.subtle.digest</code>; <code>await (await fetch(dataUrl)).arrayBuffer()</code> faz a decodificação nativamente. <span class="badge b-hypo">Hipótese de ganho</span> — exige benchmark; a estrutura (loop JS por byte) é objetivamente mais lenta que o decoder nativo.</li>
+    <li><b>Extração:</b> cadeia canvas → SW com sessão → MAIN fetch → retries (4 × 1 s) → aba auxiliar. Bem ordenada; cada estágio loga <code>GEMINI_EXTRACT_STAGE</code> (G2).</li>
+    <li><b>Exclusão:</b> <code>deleteOrScheduleRecovery</code> com journal por aba — robusto. <code>waitForElementToSettle</code> reinicia a janela (<code>sample = -1</code>) sem recursão — correto.</li>
+    <li><b>Painel manual:</b> <code>panel.innerHTML</code> é markup estático; a descrição usa <code>textContent</code>. Sem risco de injeção.</li>
+    <li><b>inject.js:</b> substitui <code>requestAnimationFrame</code>/<code>requestIdleCallback</code>/<code>visibilityState</code>/<code>hasFocus</code> permanentemente na aba (só se <code>isTranslatorTab</code>); o loop <code>scheduleRafFlush</code> roda para sempre a 250 ms mesmo sem job. As implementações evitam dupla execução de callbacks (mapa consultado nos dois caminhos). Modo <code>legacy</code> dispara <code>focus</code> sintético a cada 1 s. <span class="badge b-imp">Melhoria</span>: pausar o loop quando não há job (o content script já sabe quando abre/fecha keep-alive) e restaurar as APIs originais ao final.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="msg">
+  <h2>13. Auditoria de mensageria</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Mensagem</th><th>De → Para</th><th>Payload</th><th>Frequência</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td>GET_TAB_ID</td><td>manga CS → SW</td><td>vazio</td><td>1 por página carregada (qualquer site)</td><td>Acorda o SW; só usado para telemetria de áudio (G1)</td></tr>
+      <tr><td>LOG_ENTRY</td><td>todos → SW</td><td>até KB (extra livre)</td><td>dezenas por job</td><td>Sem limite de tamanho; vira RMW de storage (G2)</td></tr>
+      <tr><td>GTC_QUERY_MANY / BY_DHASH / BY_PERCEPTUAL / CROP</td><td>manga CS → SW</td><td>listas de hashes</td><td>3–4 round-trips por lote</td><td>Unificável em uma consulta</td></tr>
+      <tr><td>START_BATCH / STOP_BATCH</td><td>manga CS → SW</td><td>índices + prompt</td><td>1 por lote</td><td>Leve; idempotente por batchId — bom</td></tr>
+      <tr><td>REQUEST_IMAGE_DATA</td><td>Gemini CS → SW → manga CS</td><td>data URL (MB)</td><td>1 por job (com retries)</td><td>Re-encode por canvas; SW apenas repassa</td></tr>
+      <tr><td>GEMINI_PROGRESS → PROGRESS</td><td>Gemini CS → SW → manga CS</td><td>texto</td><td>a cada 5 s por job</td><td>Pode gerar RMW de <code>mt_popup_state</code></td></tr>
+      <tr><td>GEMINI_IMAGE_EXTRACTED → UPDATE_IMAGE → SM_SAVE_PAGE + GTC_SAVE</td><td>Gemini → SW → manga → SW</td><td>data URL (MB) ×4</td><td>1 por job</td><td>G3</td></tr>
+      <tr><td>GEMINI_RESULT_COMMIT</td><td>Gemini CS → SW</td><td>ids</td><td>1 por job (com retries)</td><td>Idempotente via marcador durável — bom</td></tr>
+      <tr><td>CLAIM_GEMINI_JOB</td><td>Gemini CS → SW</td><td>jobId</td><td>poll até 5 s</td><td>Aceitável; poderia ser respondido por <code>tabs.sendMessage</code> quando a aba carrega</td></tr>
+      <tr><td>SM_* / GTC_*</td><td>popup/options/reader/CS → SW</td><td>metadados ou data URL</td><td>variada</td><td>Handlers síncronos com <code>return true</code>; corretos</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Validação/tipagem:</b> ações via router têm <code>validate()</code> (bom); handlers <code>SM_*</code>/<code>GTC_*</code> confiam no payload. <b>Timeouts:</b> <code>UPDATE_IMAGE</code> tem 30 s; <code>REQUEST_IMAGE_DATA</code> depende do timeout da aba; <code>CALCULATE_VISUAL_FINGERPRINT</code> não tem (B8). <b>Respostas não tratadas:</b> padrão <code>() =&gt; { if (chrome.runtime.lastError) {} }</code> é usado consistentemente para silenciar "no receiver" — aceitável, mas engole falhas reais de entrega de <code>PROGRESS</code>/<code>SHOW_ERROR_INTEGRATED</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="storage">
+  <h2>14. Auditoria de armazenamento</h2>
+  <h3>14.1 chrome.storage.local</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Chave</th><th>Escritor</th><th>Padrão</th><th>Problema</th></tr></thead>
+    <tbody>
+      <tr><td>mt_state</td><td>state.js</td><td>snapshot completo por transição</td><td>B1/B2; pequeno (sem imagens) — bom</td></tr>
+      <tr><td>translatorLog</td><td>background.js</td><td>RMW de 500 entradas por log</td><td>G2</td></tr>
+      <tr><td>chapterList</td><td>cm-chapter.js</td><td>lista global; relida por página; sem poda</td><td>B13</td></tr>
+      <tr><td>mt_popup_state</td><td>content_manga.js</td><td>RMW por progresso casado por regex</td><td>escrita em alta frequência evitável</td></tr>
+      <tr><td>gemini_tab_alias_*/index, gemini_tab_migration_*</td><td>tab-identity.js</td><td>get+set por operação de índice (addIndexValue/removeIndexValue)</td><td>G6; RMW não atômico do índice</td></tr>
+      <tr><td>wd_data_*, gemini_job_*, gemini_finalized_*, gemini_delete_recovery_*</td><td>watchdog/lifecycle/deletion</td><td>por job</td><td>OK; limpeza na reconciliação</td></tr>
+      <tr><td>&lt;chapterId&gt;_images / _restoreMap / _restoreMeta (legado)</td><td>cm-chapter.js (fallback), migração</td><td>base64 no storage.local</td><td>Ainda escrito quando <code>SM_SAVE_PAGE</code> não devolve assetId (<code>else if (meta.cleanUrl)</code>) — caminho legado vivo</td></tr>
+      <tr><td>gtc_&lt;hash&gt; (legado v1)</td><td>—</td><td>fallback de leitura</td><td>Sem migração/poda visível — <b>evidência insuficiente</b></td></tr>
+    </tbody>
+  </table></div>
+  <h3>14.2 IndexedDB</h3>
+  <ul>
+    <li><b>manga_translator_data (storage-manager):</b> <code>savePageResult</code> grava asset + página + restore + capítulo em uma transação e apaga assets substituídos na mesma transação — correto e atômico. <code>enqueueChapterOp</code> serializa por capítulo. <code>getChaptersStats</code> abre uma transação e faz <code>getAll</code> por capítulo em série — poderia usar <code>Promise.all</code> dentro da mesma transação. <code>stats()</code> faz <code>getAll</code> de <b>todos os assets com blobs</b> só para somar <code>size</code> — carrega todo o acervo em memória; usar cursor ou índice de tamanho. <span class="badge b-gap">Gargalo confirmado</span> <span class="badge b-low">Baixo</span> (só quando chamado).</li>
+    <li><b>Órfãos:</b> se a transação abortar entre <code>put</code> do novo asset e <code>delete</code> do antigo, a atomicidade protege; órfãos só surgem por bugs externos. Não há GC; <span class="badge b-imp">Melhoria</span> de baixa prioridade.</li>
+    <li><b>manga_translator_gtc:</b> guarda <code>translatedDataUrl</code> como string (G3). O repositório em memória faz <code>for (const [, entry] of store)</code> com loops aninhados <code>wHashSet × pHashSet</code> por entrada: O(E × W × P) — no fallback em memória apenas; o repositório IndexedDB não foi visto (<b>evidência insuficiente</b> sobre a complexidade do lookup perceptual real; se for varredura completa da store, é O(E) por consulta com Hamming de 256 bits por entrada — aceitável até dezenas de milhares de entradas).</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="dom">
+  <h2>15. Auditoria de DOM</h2>
+  <ul>
+    <li><b>Site de mangá:</b> consultas globais <code>querySelectorAll('img')</code> em: scanner, <code>UPDATE_IMAGE</code>, <code>REQUEST_IMAGE_DATA</code>, <code>HIGHLIGHT_IMAGE</code>, <code>apply()</code> do auto-restore. Todas O(n) com filtro por <code>dataset.mangaIndex</code> — substituir por seletor de atributo (Q10). Sem layout thrashing evidente: leituras (<code>getComputedStyle</code>, <code>getBoundingClientRect</code>) não se alternam com escritas dentro do mesmo loop, exceto em <code>HIGHLIGHT_IMAGE</code> (escreve estilos e depois lê <code>getBoundingClientRect</code> do mesmo elemento — 1 reflow forçado por highlight; aceitável).</li>
+    <li><b>MutationObserver do auto-restore:</b> <code>body</code>, <code>subtree</code>, <code>childList</code>, <code>attributes</code> com filtro — amplo mas debounced (150 ms). Cada disparo reanalisa todas as imagens (O(n)); em sites com scroll infinito isso ocorre continuamente. Melhoria: processar apenas <code>addedNodes</code>/alvos das mutações em vez de rescan global.</li>
+    <li><b>Aba Gemini:</b> G4 (walks completos com shadow DOM) e scroll assist a cada 2 s.</li>
+    <li><b>Reader:</b> criação de todos os wrappers de uma vez (O(n) nós leves) — aceitável; o scroll handler faz <code>getBoundingClientRect</code> em <b>todas</b> as páginas por frame (Q11).</li>
+    <li><b>Popup:</b> reconstrução total de listas com <code>innerHTML</code> (G7); miniaturas com <code>IntersectionObserver</code> e limite de 4 cargas concorrentes — bom.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="cpu">
+  <h2>16. Auditoria de processamento (CPU)</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Operação</th><th>Onde</th><th>Complexidade / custo</th><th>Frequência</th><th>Avaliação</th></tr></thead>
+    <tbody>
+      <tr><td>Fingerprint multi-hash</td><td>manga CS (thread principal)</td><td>5 drawImage + 5 readbacks + DCT 32×32 (O(32³)) + Haar + SHA-256</td><td>por imagem elegível</td><td><span class="badge b-gap">Gargalo confirmado</span> G5</td></tr>
+      <tr><td>SHA-256 puro-JS</td><td>gtc-fingerprint / image-quarantine</td><td>O(bytes) em JS</td><td>só sem <code>crypto.subtle</code></td><td>Fallback raramente atingido; duplicado (D3)</td></tr>
+      <tr><td>Base64 → bytes em loop JS</td><td>storage-manager.dataUrlToBlob, job-runner.dataURLtoFile, image-quarantine.decodeDataUrl</td><td>O(bytes), 3 implementações</td><td>por página / por job</td><td><span class="badge b-hypo">Hipótese</span>: <code>fetch(dataUrl)</code> nativo é mais rápido; medir</td></tr>
+      <tr><td>Re-encode da imagem de origem</td><td>manga CS REQUEST_IMAGE_DATA</td><td>drawImage full-res + toDataURL (encode PNG/JPEG)</td><td>por job</td><td>Necessário sem bytes originais; perda de qualidade em JPEG</td></tr>
+      <tr><td>Serialização de log</td><td>SW</td><td>O(500) JSON por flush</td><td>por log</td><td><span class="badge b-gap">Gargalo confirmado</span> G2</td></tr>
+      <tr><td>Deep DOM walks</td><td>Gemini CS</td><td>O(N nós) por chamada</td><td>4 Hz + por mutação</td><td><span class="badge b-gapp">Gargalo provável</span> G4</td></tr>
+      <tr><td>canonicalTitle regex ×5 por capítulo</td><td>cm-chapter</td><td>O(L × regex) por item da lista</td><td>1× por URL (cache)</td><td>Baixo; cresce com B13</td></tr>
+      <tr><td>Router: Set legacyResponseActions</td><td>SW</td><td>alocação por mensagem</td><td>por mensagem</td><td>Trivial; mover para constante</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="rede">
+  <h2>17. Auditoria de rede</h2>
+  <ul>
+    <li><b>Downloads duplicados:</b> <code>calculate-visual-fingerprint</code> baixa novamente (<code>cache:'no-store'</code>) uma imagem que a página acabou de exibir; <code>fetch-image-base64</code> idem. Usar <code>cache:'default'</code> aproveita o HTTP cache do navegador quando a política de origem permite. <span class="badge b-imp">Melhoria</span> de baixo risco.</li>
+    <li><b>Timeouts/cancelamento:</b> presentes em <code>fetch-image-base64</code> (30 s, <code>AbortController</code>) e <code>fetchImageThroughGeminiPage</code> (20 s); ausentes em <code>calculate-visual-fingerprint</code> (B8) e em <code>inject.js MANGA_TRANSLATOR_FETCH_IMAGE</code> (o timeout está do lado do chamador, mas o <code>fetch</code> no MAIN world não é abortado — continua baixando após o timeout).</li>
+    <li><b>Retry:</b> extração com 4 tentativas × 1 s e cadeia de estágios; <code>requestImageData</code> com tentativas; commit com retries; sem backoff exponencial — os intervalos são curtos e fixos, mas o número é pequeno (sem "retry storm").</li>
+    <li><b>Deduplicação:</b> não há dedupe de <code>CALCULATE_VISUAL_FINGERPRINT</code> para a mesma URL dentro de um lote (imagens repetidas na página com a mesma URL já são agrupadas pelo scanner, então o impacto é baixo).</li>
+    <li><b>Payloads:</b> ver G3.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="mem">
+  <h2>18. Auditoria de memória</h2>
+  <ul>
+    <li><b>Export/download em massa:</b> <code>popup.smChapterImages</code> carrega <b>todas</b> as páginas do capítulo como data URLs num objeto e as envia numa única mensagem (<code>EXPORT_ALL_AND_SHOW { allDownloads }</code> / <code>DOWNLOAD_CHAPTER_AND_SHOW</code>); para 200 páginas × 3 MB base64 ≈ 800 MB no popup + cópia no SW. <span class="badge b-gap">Gargalo confirmado</span> <span class="badge b-high">Alto</span> (no caminho de exportação). O SW não pode usar <code>URL.createObjectURL</code>, o que explica o uso de data URLs; alternativa: o SW percorre o índice e faz <code>downloads.download</code> página a página (data URL gerada sob demanda a partir do Blob) com concorrência limitada, sem passar pelo popup.</li>
+    <li><b><code>storage-manager.stats()</code>:</b> <code>getAll</code> de todos os assets (Blobs) para somar tamanho — carrega o acervo inteiro. Usar cursor com <code>openKeyCursor</code> + campo <code>size</code> lido por registro, ou manter um contador agregado.</li>
+    <li><b>Cache de assets no content script:</b> LRU de 12 data URLs (≈ 12 × 3 MB) — limitado; bom.</li>
+    <li><b>Listeners/observers:</b> observers do Gemini são parados no <code>finally</code>; auto-restore desconecta em <code>DISABLE_PAGE</code>; <code>waitForDownload</code> remove o listener ao concluir/expirar. <code>content_manga</code> registra <code>chrome.storage.onChanged</code> permanentes (esperado). Não foram encontrados listeners acumulativos por lote. <code>inject.js</code> mantém um <code>setTimeout</code> recursivo perpétuo (250 ms) — não é vazamento, mas é trabalho ocioso permanente na aba Gemini.</li>
+    <li><b>Timers:</b> <code>_markFinalized</code> usa <code>setTimeout</code> 30 s com <code>unref</code> quando disponível; <code>DOM_ACK</code> 30 s limpo em <code>settle</code>; progress timer limpo em <code>finally</code>. OK.</li>
+    <li><b>Reader:</b> B10 (retenção limitada).</li>
+    <li><b>Logs:</b> cap de 500 entradas evita crescimento; mas <code>extra</code> pode conter arrays (ex.: <code>dropped: [ids]</code>) — limitado por natureza.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="async">
+  <h2>19. Auditoria assíncrona e de concorrência</h2>
+  <ul>
+    <li><b>B1</b> é o achado central desta categoria.</li>
+    <li><b>Cascatas de <code>await</code> evitáveis:</b> <code>jobs-reconciliation.reconcile</code> (por entrada: alias → migração → 2 recoveries → tabExists, em série; o índice é pequeno, ≤ concorrência — baixo impacto); <code>getChaptersStats</code> (série dentro da transação); <code>smChapterImages</code> (série); <code>loadRestoreEntries</code> em popup/options (não visto — evidência insuficiente).</li>
+    <li><b>Promises sem <code>await</code> intencionais e documentadas:</b> <code>saveGlobalTranslationCacheEntry(...).catch(()=&gt;{})</code> (para não atrasar o ACK), <code>recoverPendingMigrations()</code>, <code>deletionController.deleteCurrentConversation().catch(()=&gt;{})</code>. Aceitáveis.</li>
+    <li><b>Concorrência sem limite:</b> downloads (Q8); fingerprints são sequenciais? — o trecho de <code>extractAndSendImages</code> veio truncado: <b>evidência insuficiente</b> para afirmar se os N fingerprints são <code>Promise.all</code> (pico de memória de canvases) ou em série.</li>
+    <li><b>Idempotência:</b> START_BATCH por batchId, COMMIT por marcador durável, migração legada por flag, exclusão por journal — consistentemente boa.</li>
+    <li><b>Polling:</b> claim (5 s), menu de exclusão (100 ms/2 s), botão de confirmar (200 ms/5 s), composer estável (250 ms/12 s) — todos limitados; substituíveis por observação de mutações, mas com ganho marginal.</li>
+    <li><b>Starvation:</b> a fila FIFO de lotes promove o próximo só quando <code>idle</code> (sem jobs indexados). Se um job de um lote antigo ficar preso até o watchdog (5 min), o próximo lote espera — comportamento correto, mas o usuário vê "NA FILA" por até 5 min. Poderia promover quando <code>activeJobsCount &lt; maxCon</code>, se a semântica de "um lote por vez" não for requisito.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="ui">
+  <h2>20. Popup, Options e Reader</h2>
+  <ul>
+    <li><b>Prompt padrão duplicado</b> literalmente em <code>popup.js</code> e <code>options.js</code> (mesma string de ~500 caracteres), com <code>typeof DEFAULT_HD_PROMPT !== 'undefined'</code> — não localizei onde <code>DEFAULT_HD_PROMPT</code> seria definido nesses contextos (<span class="badge b-cm">Confiança média</span>: provável código morto do <code>typeof</code>). Mover para <code>shared/prompt.js</code>.</li>
+    <li><b>Radios de modo de execução e toggles</b> implementados duas vezes (popup e options) com strings de status diferentes ("Conversa Temporária" vs "Conversa Temporária (Segundo Plano)").</li>
+    <li><b>Popup resize:</b> handlers <code>mousemove</code> globais com <code>requestAnimationFrame</code> — bom; grava <code>popupSize</code> só no <code>mouseup</code> — bom.</li>
+    <li><b>popup <code>sendMessageToTab</code>:</b> em <code>lastError</code> para <code>START_TRANSLATION_FROM_POPUP</code> devolve <code>{ ok: true }</code> — mascara falha de injeção como sucesso. <span class="badge b-risk">Risco provável</span> <span class="badge b-low">Baixo</span> (UX enganosa).</li>
+    <li><b>Reader:</b> virtualização real com pré-carga 200 % e descarga 500 %; teclado; largura persistida em <code>localStorage</code> (página da extensão — OK). Q11 e B10.</li>
+    <li><b>Options:</b> <code>renderSites</code> faz dois <code>storage.get</code> encadeados (base + siteMeta_*) e <code>loadRestoreEntries</code> — reconstrução total por interação (G7).</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="deps">
+  <h2>21. Dependências, bundle e carregamento</h2>
+  <ul>
+    <li><b>Runtime:</b> nenhuma dependência externa; nenhuma CDN; nenhum <code>eval</code>. Positivo para segurança e revisão de loja.</li>
+    <li><b>Desenvolvimento (tests/package.json):</b> <code>jest ^29.7</code>, <code>jest-environment-jsdom</code>, <code>@playwright/test ^1.44</code>, <code>fake-indexeddb ^6.2.5</code> — impacto apenas em build/CI.</li>
+    <li><b>Bundle:</b> inexistente. Consequências: (a) 33 <code>importScripts</code> por despertar do SW (G8); (b) ~130 KB por página em <code>&lt;all_urls&gt;</code> (G1); (c) comentários longos e código morto embarcados. Um passo mínimo de build (esbuild/terser, sem bundling de módulos) que gere <code>dist/</code> minificado reduziria bytes analisados sem alterar a arquitetura; o CI já possui <code>syntax-check</code> e <code>version:sync</code> que poderiam operar sobre <code>dist/</code>. <span class="badge b-hypo">Hipótese quanto ao ganho</span>; a redução de bytes é comprovável.</li>
+    <li><b>Carregamento prematuro:</b> ações de download/exportação/pasta (~6 módulos) são importadas em todo despertar mas usadas raramente; MV3 não permite <code>importScripts</code> tardio, então a alavanca é minificação, não lazy load.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="sec">
+  <h2>22. Segurança</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th>Situação</th><th>Classificação</th></tr></thead>
+    <tbody>
+      <tr><td>XSS / innerHTML</td><td>Usos de <code>innerHTML</code>: SVG estático (setBtnHTML), toasts estáticos, painel Gemini estático, <code>popup renderLogs/info</code> com <code>escapeHTML</code>, <code>showReloadRequired(reason)</code> com strings internas. Nenhum dado de página externa chega a <code>innerHTML</code> sem escape.</td><td><span class="badge b-ok" style="background:#2e7d32">Sem vulnerabilidade confirmada</span></td></tr>
+      <tr><td>eval / Function / execução dinâmica</td><td>Não encontrados.</td><td>OK</td></tr>
+      <tr><td>CSP</td><td>Não declarada → padrão MV3 (<code>script-src 'self'</code>).</td><td>OK</td></tr>
+      <tr><td>Validação de origem</td><td><code>identifySource</code> por substring (B6); ações críticas protegidas por ownership de job (deliver/commit) e por <code>allowedSources</code>; <code>deliver-result</code>, <code>commit-result</code>, <code>log-entry</code>, <code>request-image-data</code>, <code>export-all</code>, <code>calculate-visual-fingerprint</code> aceitam <code>any</code>.</td><td><span class="badge b-med">Médio</span> fragilidade; <span class="badge b-low">Baixo</span> explorabilidade</td></tr>
+      <tr><td>Permissões</td><td><code>tabs, scripting, storage, unlimitedStorage, downloads, windows, alarms, contextMenus</code> + <code>host_permissions &lt;all_urls&gt;</code>. Todas usadas. <code>&lt;all_urls&gt;</code> é necessário para "qualquer site" mas pode virar <code>optional_host_permissions</code> concedidas por site (E1), reduzindo alerta de instalação e risco.</td><td><span class="badge b-imp">Melhoria</span></td></tr>
+      <tr><td>Host de teste em produção</td><td><code>http://127.0.0.1/*</code> (B7).</td><td><span class="badge b-med">Médio</span></td></tr>
+      <tr><td>SSRF via SW</td><td><code>fetch-image-base64</code>/<code>calculate-visual-fingerprint</code> buscam qualquer URL http(s) pedida por content script; páginas web não podem acionar. Risco limitado ao próprio código.</td><td><span class="badge b-low">Baixo</span></td></tr>
+      <tr><td>Dados sensíveis em logs</td><td><code>content_gemini.sanitizeLogExtra</code> redige URLs/hashes/base64. <code>content_manga.sendLog</code> <b>não</b> redige: grava <code>pageHost</code>, URLs limpas em alguns eventos; <code>calculate-visual-fingerprint</code> loga <code>url.slice(0,80)</code>. Ficam em <code>translatorLog</code> (500 entradas) e no export de log.</td><td><span class="badge b-low">Baixo</span> (privacidade local)</td></tr>
+      <tr><td>Secrets/tokens</td><td>Não há API key; usa sessão do usuário no Gemini via UI. Nada armazenado.</td><td>OK</td></tr>
+      <tr><td>Injeção de prompt</td><td>Prompt definido pelo próprio usuário; enviado ao Gemini. Sem terceiros.</td><td>N/A</td></tr>
+      <tr><td>MAIN world</td><td><code>inject.js</code> expõe <code>window.__mangaTranslatorAntiThrottle</code> e escuta eventos customizados; a página Gemini poderia dispará-los, mas sem ganho de privilégio (mesma origem).</td><td>OK</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="dead">
+  <h2>23. Código morto e redundante</h2>
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Item</th><th>Evidência</th><th>Classificação</th></tr></thead>
+    <tbody>
+      <tr><td>D1</td><td><code>getCleanUrl</code> idêntico em dois módulos</td><td>cm-gtc-client.js:≈27-50 · cm-dom-replace.js:7-39</td><td><span class="badge b-dead">Duplicado — confirmado</span></td></tr>
+      <tr><td>D2</td><td><code>generateImageFingerprint</code> + <code>queryGlobalTranslationCache</code> reimplementados em <code>content_manga.js</code>; <code>cm-gtc-client.js</code> é injetado em toda página mas <code>content_manga.js</code> usa a própria cópia</td><td>content_manga.js — generateImageFingerprint(), queryGlobalTranslationCache() · cm-gtc-client.js</td><td><span class="badge b-dead">Duplicado — confirmado</span>; não uso em produção — <span class="badge b-cm">provável</span> (miolo truncado)</td></tr>
+      <tr><td>D3</td><td>SHA-256 puro-JS em duas cópias (~60 linhas cada)</td><td>gtc-fingerprint.js — sha256Fallback · image-quarantine.js — sha256BytesFallback</td><td><span class="badge b-dead">Duplicado — confirmado</span></td></tr>
+      <tr><td>D4</td><td><code>generateId</code> ×4; <code>tabExists</code> ×2; <code>_finalizedTabs/_markFinalized</code> ×2; <code>reconcileJobs</code> legado em state.js vs jobs-reconciliation.js</td><td>background.js · state.js:67-80, ≈134-160 · gtc-fingerprint.js · content_manga.js</td><td><span class="badge b-dead">Duplicado — confirmado</span>; uso do reconcile de state.js — <span class="badge b-cm">provável morto</span></td></tr>
+      <tr><td>D5</td><td>Prompt padrão literal em popup.js e options.js; <code>typeof DEFAULT_HD_PROMPT</code> sem definição localizada</td><td>popup.js — sBtnRestore · options.js — btn-restore</td><td><span class="badge b-dead">Duplicado — confirmado</span>; typeof — <span class="badge b-cm">provável morto</span></td></tr>
+      <tr><td>D6</td><td>Três decodificadores data URL → bytes</td><td>storage-manager.dataUrlToBlob · job-runner.dataURLtoFile · image-quarantine.decodeDataUrl</td><td><span class="badge b-dead">Duplicado — confirmado</span></td></tr>
+      <tr><td>D7</td><td><code>window.logPoller</code> limpo em 4 lugares, nunca criado; <code>loadedUrls</code> no reader</td><td>popup.js · reader.js</td><td><span class="badge b-dead">Morto — confirmado</span></td></tr>
+      <tr><td>D8</td><td>Bloco legado de watchdog no <code>onAlarm</code> inalcançável</td><td>background.js — onAlarm, após jobsWatchdog.handleAlarm · jobs-watchdog.js:56-57</td><td><span class="badge b-dead">Morto — confirmado</span></td></tr>
+      <tr><td>D9</td><td>Router aceita <code>gtcHandler/smHandler</code> mas <code>background.js</code> chama <code>createMessageRouter({ contextFactory })</code> apenas; dispatch GTC_/SM_ do router nunca executa</td><td>router.js — createMessageRouter passos 1-2 · background.js — routeRegisteredAction</td><td><span class="badge b-dead">Morto — confirmado</span></td></tr>
+      <tr><td>D10</td><td>Fallback inline de SHA-256 em <code>generateImageFingerprint</code> ("gtc-fingerprint.js não carregou") — impossível pelo manifest (carrega antes)</td><td>content_manga.js — generateImageFingerprint</td><td><span class="badge b-cm">Provável morto</span></td></tr>
+      <tr><td>D11</td><td>Compat: <code>resp.reason === 'batch_busy'</code> tratado no content script para "versões antigas do background"</td><td>content_manga.js — callback START_BATCH</td><td><span class="badge b-cm">Provável morto</span> (mesmo pacote)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="tabela">
+  <h2>24. Tabela principal de problemas</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Prioridade</th><th>Tipo</th><th>Arquivo/linha</th><th>Problema</th><th>Impacto</th><th>Confiança</th><th>Correção</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-high">Alto</span></td><td>Bug confirmado</td><td>state.js:90-95 / 100-111</td><td>B1 syncState grava snapshot anterior a mutate pendente</td><td>estabilidade, funcionalidade</td><td>Alta</td><td>R1</td></tr>
+      <tr><td><span class="badge b-high">Alto</span></td><td>Gargalo confirmado</td><td>manifest.json content_scripts[0]; content_manga.js topo</td><td>G1 130 KB + IPC em toda página</td><td>desempenho, CPU, UX global</td><td>Alta</td><td>E1</td></tr>
+      <tr><td><span class="badge b-high">Alto</span></td><td>Gargalo confirmado / arquitetural</td><td>job-runner → jobs-dom-ack:54-61 → content_manga UPDATE_IMAGE → SM_SAVE_PAGE/GTC_SAVE</td><td>G3 payload MB ×4 no IPC; disco ×2,3</td><td>memória, CPU, disco</td><td>Alta</td><td>E2</td></tr>
+      <tr><td><span class="badge b-high">Alto</span></td><td>Gargalo confirmado</td><td>background.js log/_flushLog; log-entry.js</td><td>G2 RMW de 500 entradas por log</td><td>desempenho, I/O</td><td>Alta</td><td>R2</td></tr>
+      <tr><td><span class="badge b-high">Alto</span></td><td>Gargalo confirmado</td><td>popup.js smChapterImages; export-all.js</td><td>Exportação carrega todas as páginas no popup e numa mensagem</td><td>memória</td><td>Alta</td><td>E4</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Bug confirmado</td><td>cm-auto-restore.js:45</td><td>B4 mutações descartadas durante apply()</td><td>funcionalidade</td><td>Alta</td><td>R3</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Risco provável</td><td>jobs-dom-ack.js:62-70</td><td>B5 canal fechado = sucesso (legado)</td><td>funcionalidade, dados</td><td>Média</td><td>remover exceção</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Segurança</td><td>router.js:47-58</td><td>B6 origem por substring</td><td>segurança</td><td>Alta/Baixa</td><td>Q2</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Configuração</td><td>manifest.json content_scripts[1..2]</td><td>B7 127.0.0.1 em produção</td><td>segurança, UX</td><td>Alta</td><td>Q9</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Risco provável</td><td>calculate-visual-fingerprint.js:27-30</td><td>B8 fetch sem timeout/limite/tipo</td><td>estabilidade, rede</td><td>Alta</td><td>R4</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Risco provável</td><td>background.js stopBatch/onStartup; reconcile</td><td>B2 mutação direta fora de mutate()</td><td>estabilidade</td><td>Média</td><td>E3</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Gargalo provável</td><td>gemini/dom.js:66-88; job-runner selectLiveComposer/attachmentSnapshot/waitForElement</td><td>G4 walks completos do DOM repetidos</td><td>CPU (aba Gemini), latência</td><td>Alta (estrutura)</td><td>memoizar/coalescer</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Gargalo confirmado</td><td>content_manga generateImageFingerprint; calculate-visual-fingerprint</td><td>G5 5 canvases/imagem na thread principal; re-download</td><td>CPU, UX</td><td>Alta</td><td>Q3 + fatiamento</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Gargalo confirmado</td><td>tab-identity.js:48-77 e chamadores</td><td>G6 storage.get por resolução de alias</td><td>I/O, latência</td><td>Alta</td><td>R5</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Gargalo confirmado</td><td>popup.js renderSettingsSites/renderLogs; options.js renderSites</td><td>G7 rebuild total + refetch por interação</td><td>UX, CPU</td><td>Alta</td><td>debounce + render incremental</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Bug confirmado</td><td>4 arquivos</td><td>B11 generateId divergente</td><td>manutenção, corretude de IDs</td><td>Alta</td><td>R7</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Risco provável</td><td>cm-chapter.js getOrCreateChapterIdImpl/persistTranslatedPage</td><td>B13 chapterList sem poda; relido por página</td><td>desempenho, storage</td><td>Média</td><td>Q7 + poda</td></tr>
+      <tr><td><span class="badge b-med">Médio</span></td><td>Gargalo provável</td><td>background.js importScripts ×33</td><td>G8 boot do SW sem minificação</td><td>latência de despertar</td><td>Média</td><td>build mínimo</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Hipótese</td><td>content_gemini.js:32-99</td><td>B9 keep-alive provavelmente inerte</td><td>estabilidade (neutro)</td><td>Média</td><td>verificar em runtime; postMessage periódico ou remover</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Risco provável</td><td>reader.js unloadObserver</td><td>B10 retenção limitada</td><td>memória</td><td>Alta</td><td>resetar pendingSrc ao sair</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Gargalo confirmado</td><td>background.js downloadImagesAndShow; export-all.js</td><td>N listeners × N eventos; sem limite de concorrência</td><td>CPU, UX</td><td>Alta</td><td>Q8</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Gargalo confirmado</td><td>storage-manager.stats()</td><td>getAll de todos os blobs para somar tamanho</td><td>memória</td><td>Alta</td><td>cursor/contador</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Risco provável</td><td>popup.js sendMessageToTab</td><td>START_TRANSLATION_FROM_POPUP: lastError → {ok:true}</td><td>UX</td><td>Alta</td><td>propagar erro</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Risco provável</td><td>content_manga.js IIFE</td><td>throw após setar guard impede reinjeção</td><td>estabilidade</td><td>Alta</td><td>setar guard após validações</td></tr>
+      <tr><td><span class="badge b-low">Baixo</span></td><td>Código morto</td><td>D7, D8, D9, D10, D11</td><td>ver §23</td><td>manutenção, bytes</td><td>Alta/Média</td><td>remover</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="otim">
+  <h2>25. Tabela de otimizações</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Área</th><th>Situação atual</th><th>Gargalo</th><th>Melhoria proposta</th><th>Benefício esperado</th><th>Risco</th><th>Esforço</th></tr></thead>
+    <tbody>
+      <tr><td>Injeção de content scripts</td><td>6 arquivos em &lt;all_urls&gt;</td><td>G1</td><td>registerContentScripts por domínio habilitado (ou loader + executeScript)</td><td>Zero custo em sites não habilitados; SW dorme; menor superfície</td><td>Médio (fluxo de habilitar)</td><td>Médio</td></tr>
+      <tr><td>Persistência de estado</td><td>syncState captura cedo</td><td>B1</td><td>capturar get() no closure</td><td>Elimina regressão de estado</td><td>Baixo</td><td>Pequeno</td></tr>
+      <tr><td>Logs</td><td>RMW por entrada</td><td>G2</td><td>buffer + flush 1–2 s + nível mínimo</td><td>−90 % operações de storage por lote (estimativa estrutural)</td><td>Baixo</td><td>Pequeno</td></tr>
+      <tr><td>Entrega de resultado</td><td>data URL ×4 hops; SM + GTC duplicados</td><td>G3</td><td>persistir no SW; GTC referencia assetId</td><td>−2 hops de MB, −57 % disco, persistência sem depender da aba</td><td>Médio-alto (migração)</td><td>Grande</td></tr>
+      <tr><td>Alias de abas</td><td>storage.get por resolução</td><td>G6</td><td>Map em memória write-through</td><td>−5–7 leituras por job</td><td>Baixo</td><td>Pequeno</td></tr>
+      <tr><td>Fingerprint</td><td>5 canvases na thread principal; SW re-baixa</td><td>G5</td><td>cache:'default'; yield entre imagens; deduplicar código</td><td>Menos jank; menos rede</td><td>Baixo</td><td>Pequeno-Médio</td></tr>
+      <tr><td>Consulta GTC</td><td>3–4 round-trips em série</td><td>fluxo 9.2</td><td>uma mensagem GTC_LOOKUP com todos os hashes</td><td>−2–3 round-trips por lote</td><td>Baixo</td><td>Médio</td></tr>
+      <tr><td>DOM Gemini</td><td>findAllDeep 4 Hz + por mutação</td><td>G4</td><td>memoizar composer; coalescer inspeções</td><td>Menos CPU na aba Gemini; job mais rápido</td><td>Médio (seletores frágeis)</td><td>Médio</td></tr>
+      <tr><td>Esperas fixas no job</td><td>≥ 3,5 s de sleep por job</td><td>fluxo 9.3</td><td>trocar sleeps por confirmação do observer</td><td>−2–3 s por job</td><td>Médio</td><td>Médio</td></tr>
+      <tr><td>Progresso</td><td>5 s + RMW de mt_popup_state</td><td>fluxo 9.3</td><td>10–15 s; gravar só em mudança de status</td><td>Menos mensagens e storage</td><td>Baixo</td><td>Pequeno</td></tr>
+      <tr><td>Downloads</td><td>N listeners, N concorrentes</td><td>Q8</td><td>1 listener + fila com limite</td><td>O(N) em vez de O(N²); menos pressão no downloads API</td><td>Baixo</td><td>Pequeno</td></tr>
+      <tr><td>Exportação</td><td>popup carrega tudo</td><td>§18</td><td>SW exporta a partir do IndexedDB, página a página</td><td>Memória O(1) por página</td><td>Médio</td><td>Médio</td></tr>
+      <tr><td>Auto-restore</td><td>rescan global por mutação; sem rerun</td><td>B4, §15</td><td>flag rerun; processar só nós adicionados</td><td>Corretude + menos CPU em scroll infinito</td><td>Baixo</td><td>Pequeno-Médio</td></tr>
+      <tr><td>Popup/Options</td><td>rebuild total; refetch</td><td>G7</td><td>cache de entradas + render incremental; debounce de logs</td><td>UI responsiva durante lotes</td><td>Baixo</td><td>Médio</td></tr>
+      <tr><td>Bundle</td><td>sem build</td><td>G8, G1</td><td>minificação para dist/</td><td>Menos bytes por despertar/página</td><td>Baixo</td><td>Médio</td></tr>
+      <tr><td>Decodificação base64</td><td>3 loops JS</td><td>§16</td><td>helper único com fetch(dataUrl)</td><td>Hipótese: decoder nativo mais rápido</td><td>Baixo</td><td>Pequeno</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="codigo">
+  <h2>26. Recomendações de código</h2>
+
+  <article id="R1">
+    <h3>R1 — Corrigir captura de snapshot em <code>syncState()</code> (B1)</h3>
+    <h4>Código atual — background/state.js:90-95</h4>
+<pre><code>function syncState() {
+    const snapshot = get();
+    const write = () => chrome.storage.local.set({ mt_state: snapshot }).then(() => snapshot);
+    _persistenceChain = _persistenceChain.then(write, write);
+    return _persistenceChain;
+}</code></pre>
+    <h4>Código sugerido</h4>
+<pre><code>function syncState() {
+    const write = () => {
+        const snapshot = get();               // captura no momento da gravação
+        return chrome.storage.local.set({ mt_state: snapshot }).then(() => snapshot);
+    };
+    _persistenceChain = _persistenceChain.then(write, write);
+    return _persistenceChain;
+}</code></pre>
+    <p><b>Razão:</b> alinha a semântica com <code>mutate()</code>: o que é gravado é sempre o estado mais recente no instante em que a fila chega à operação. Elimina a regressão do snapshot. <b>Trade-off:</b> uma <code>syncState()</code> passa a persistir também mutações diretas feitas depois da chamada — que é o comportamento desejado (B2). Nenhuma API muda.</p>
+  </article>
+
+  <article id="R2">
+    <h3>R2 — Log com buffer e flush temporizado (G2)</h3>
+    <h4>Código atual — background.js</h4>
+<pre><code>function log(level, source, action, detail, extra = {}) {
+    _logQueue.push({ id: `${Date.now()}_${Math.random()}`, ts: Date.now(), level: level || 'info', source: source || 'bg', action: action || 'UNKNOWN', detail: detail || '', extra: extra || {} });
+    if (!_logFlushing) _flushLog();
+}</code></pre>
+    <h4>Código sugerido</h4>
+<pre><code>const LOG_FLUSH_MS = 1500, LOG_FLUSH_MAX = 40, LOG_CAP = 500;
+let _logQueue = [], _logTimer = null, _logFlushing = false, _persistInfo = false;
+chrome.storage.local.get(['debugMode'], d => { _persistInfo = d.debugMode === true; });
+chrome.storage.onChanged.addListener((c, a) => { if (a === 'local' && c.debugMode) _persistInfo = c.debugMode.newValue === true; });
+
+function log(level, source, action, detail, extra = {}) {
+    level = level || 'info';
+    if (level === 'info' && !_persistInfo) return;          // info só em debug
+    _logQueue.push({ id: generateId(), ts: Date.now(), level, source: source || 'bg',
+                     action: action || 'UNKNOWN', detail: String(detail || '').slice(0, 300), extra: extra || {} });
+    if (_logQueue.length >= LOG_FLUSH_MAX) return void _flushLog();
+    if (_logTimer === null) _logTimer = setTimeout(_flushLog, LOG_FLUSH_MS);
+}
+async function _flushLog() {
+    if (_logTimer !== null) { clearTimeout(_logTimer); _logTimer = null; }
+    if (_logFlushing || _logQueue.length === 0) return;
+    _logFlushing = true;
+    try {
+        const batch = _logQueue.splice(0, _logQueue.length);
+        const { translatorLog = [] } = await chrome.storage.local.get(['translatorLog']);
+        const entries = translatorLog.concat(batch);
+        if (entries.length > LOG_CAP) entries.splice(0, entries.length - LOG_CAP);
+        await chrome.storage.local.set({ translatorLog: entries });
+    } catch (_e) {} finally {
+        _logFlushing = false;
+        if (_logQueue.length) _logTimer = setTimeout(_flushLog, LOG_FLUSH_MS);
+    }
+}</code></pre>
+    <p><b>Razão:</b> converte N gravações em ⌈N/40⌉ ou uma a cada 1,5 s; remove logs <code>info</code> do caminho persistente fora de depuração; limita <code>detail</code>. <b>Trade-off:</b> até 1,5 s de log podem se perder se o SW morrer abruptamente (erros/warn continuam sendo gravados; pode-se forçar flush imediato para <code>level==='error'</code>). O painel de logs do popup deixa de mostrar <code>info</code> sem debug — comportamento a documentar.</p>
+  </article>
+
+  <article id="R3">
+    <h3>R3 — Reexecução pendente no auto-restore (B4)</h3>
+    <h4>Código atual — cm-auto-restore.js:43-46</h4>
+<pre><code>async function apply() {
+    if (!isActive()) { disconnect(); return; }
+    if (isTranslating() || !config.enabled || config.disabledSites.includes(hostname) || !Object.keys(restoreMap).length || running) return;
+    running = true;
+    try { ... } finally { running = false; }
+}</code></pre>
+    <h4>Código sugerido</h4>
+<pre><code>let rerun = false;
+async function apply() {
+    if (!isActive()) { disconnect(); return; }
+    if (isTranslating() || !config.enabled || config.disabledSites.includes(hostname) || !Object.keys(restoreMap).length) return;
+    if (running) { rerun = true; return; }
+    running = true;
+    try { ... } finally {
+        running = false;
+        if (rerun) { rerun = false; debounceTimer = setTimeout(apply, 150); }
+    }
+}</code></pre>
+    <p><b>Razão:</b> garante que mutações chegadas durante a passada produzam exatamente uma nova passada. <b>Trade-off:</b> nenhum relevante; custo de uma passada extra apenas quando houve mutação real.</p>
+  </article>
+
+  <article id="R4">
+    <h3>R4 — Helper único de fetch endurecido (B8, §17)</h3>
+<pre><code>// background/fetch-image.js (novo, importado antes das actions)
+async function fetchImageBlob(url, { credentials = 'omit', cache = 'default', timeoutMs = 30_000, maxBytes = 50 * 1024 * 1024 } = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const resp = await fetch(url, { signal: controller.signal, credentials, cache });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const type = resp.headers.get('content-type') || '';
+        if (!type.startsWith('image/')) throw new Error(`Content-Type inválido: ${type}`);
+        const len = Number(resp.headers.get('content-length'));
+        if (Number.isFinite(len) && len > maxBytes) throw new Error('Imagem muito grande');
+        const blob = await resp.blob();
+        if (blob.size > maxBytes) throw new Error('Imagem muito grande');
+        return blob;
+    } finally { clearTimeout(timer); }
+}
+// calculate-visual-fingerprint.js
+const blob = await fetchImageBlob(url);          // em vez de fetch(url, { credentials:'omit', cache:'no-store' })</code></pre>
+    <p><b>Razão:</b> mesma política nas duas ações; timeout e limite evitam Promises penduradas e downloads gigantes; <code>cache:'default'</code> reaproveita o HTTP cache (a imagem acabou de ser exibida). <b>Trade-off:</b> <code>cache:'default'</code> pode servir versão cacheada obsoleta — irrelevante para fingerprint da imagem já exibida.</p>
+  </article>
+
+  <article id="R5">
+    <h3>R5 — Cache em memória de aliases (G6)</h3>
+<pre><code>// tab-identity.js — dentro de createTabIdentity
+const aliasCache = new Map();          // tabId -> alias | null
+let aliasIndexLoaded = false;
+async function loadAliasIndexOnce() {
+    if (aliasIndexLoaded) return;
+    aliasIndexLoaded = true;
+    const idx = await chrome.storage.local.get([ALIAS_INDEX_KEY]);
+    const ids = Array.isArray(idx[ALIAS_INDEX_KEY]) ? idx[ALIAS_INDEX_KEY] : [];
+    if (!ids.length) return;
+    const data = await chrome.storage.local.get(ids.map(aliasKey));
+    ids.forEach(id => aliasCache.set(id, data[aliasKey(id)] || null));
+}
+async function getAlias(tabId) {
+    await loadAliasIndexOnce();
+    if (aliasCache.has(tabId)) return aliasCache.get(tabId);
+    const data = await chrome.storage.local.get([aliasKey(tabId)]);
+    const alias = data[aliasKey(tabId)] || null;
+    aliasCache.set(tabId, alias);
+    return alias;
+}
+// persistAlias: após storage.set → aliasCache.set(oldTabId, alias)
+// cleanupExpiredAliases / remoção: aliasCache.delete(tabId)
+// resolveCanonicalTabId: const alias = await getAlias(current);</code></pre>
+    <p><b>Razão:</b> no caso comum (índice vazio) todas as resoluções passam a custar zero I/O após uma leitura por despertar. <b>Trade-off:</b> se outro contexto escrevesse aliases haveria inconsistência — não é o caso (único escritor).</p>
+  </article>
+
+  <article id="R6">
+    <h3>R6 — Um listener de downloads e concorrência limitada (Q8)</h3>
+<pre><code>const _downloadWaiters = new Map();     // id -> { resolve, reject, timer }
+chrome.downloads.onChanged.addListener(delta => {
+    const w = _downloadWaiters.get(delta.id); if (!w) return;
+    const s = delta.state && delta.state.current;
+    if (s === 'complete' || s === 'interrupted') {
+        clearTimeout(w.timer); _downloadWaiters.delete(delta.id);
+        s === 'complete' ? w.resolve(delta.id) : w.reject(new Error(`Download ${delta.id} interrupted`));
+    }
+});
+function waitForDownloadP(id, timeoutMs = 600_000) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => { _downloadWaiters.delete(id); reject(new Error('Temp timeout (10min)')); }, timeoutMs);
+        _downloadWaiters.set(id, { resolve, reject, timer });
+    });
+}
+async function runLimited(items, limit, worker) {
+    const it = items[Symbol.iterator]();
+    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+        for (let n = it.next(); !n.done; n = it.next()) await worker(n.value);
+    }));
+}</code></pre>
+    <p><b>Razão:</b> O(N) em vez de O(N²) invocações; 3–4 downloads simultâneos evitam saturar a API de downloads e o disco. <b>Trade-off:</b> exportações grandes demoram um pouco mais em relógio, mas sem picos.</p>
+  </article>
+
+  <article id="R7">
+    <h3>R7 — Módulo compartilhado de utilitários (B11, D1, D3, D6)</h3>
+<pre><code>// extension/shared/util.js — carregado por importScripts no SW e como primeiro content script
+(function (scope) {
+  function generateId(prefix = '') {
+    const c = scope.crypto;
+    if (c && typeof c.randomUUID === 'function') return prefix + c.randomUUID();
+    if (c && typeof c.getRandomValues === 'function') {
+      const b = c.getRandomValues(new Uint8Array(16)); b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+      const h = Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+      return `${prefix}${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+    }
+    return `${prefix}${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
+  }
+  async function dataUrlToBytes(dataUrl) {        // decoder nativo; substitui 3 loops JS
+    const r = await fetch(dataUrl); return new Uint8Array(await r.arrayBuffer());
+  }
+  scope.MangaTranslatorShared = { generateId, dataUrlToBytes /* , getCleanUrl, sha256Hex, ... */ };
+})(typeof self !== 'undefined' ? self : globalThis);</code></pre>
+    <p><b>Razão:</b> uma única definição por utilitário; remove ~150 linhas duplicadas e um arquivo inteiro provavelmente não usado (<code>cm-gtc-client.js</code>) do conjunto injetado em toda página. <b>Trade-off:</b> ordem de carregamento no manifest e nos <code>importScripts</code> precisa ser mantida; testes que carregam módulos isoladamente devem incluir o shared.</p>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<section id="estrutural">
+  <h2>27. Melhorias estruturais</h2>
+
+  <article id="E1">
+    <h3>E1 — Injeção de content scripts sob demanda (G1)</h3>
+    <p><b>Proposta:</b> remover o grupo <code>&lt;all_urls&gt;</code> do manifest. No background, manter um registro dinâmico:</p>
+<pre><code>async function syncRegisteredContentScripts() {
+    const { enabledDomains = [] } = await chrome.storage.local.get(['enabledDomains']);
+    const matches = enabledDomains.map(h => `*://${h}/*`);
+    const existing = await chrome.scripting.getRegisteredContentScripts({ ids: ['manga-main'] });
+    const def = { id: 'manga-main', matches, runAt: 'document_idle', persistAcrossSessions: true,
+                  js: ['shared/util.js','gtc-fingerprint.js','cm-dom-replace.js','cm-chapter.js','cm-auto-restore.js','content_manga.js'] };
+    if (!matches.length) { if (existing.length) await chrome.scripting.unregisterContentScripts({ ids: ['manga-main'] }); return; }
+    existing.length ? await chrome.scripting.updateContentScripts([def]) : await chrome.scripting.registerContentScripts([def]);
+}
+chrome.runtime.onInstalled.addListener(syncRegisteredContentScripts);
+chrome.storage.onChanged.addListener((c, a) => { if (a === 'local' && c.enabledDomains) syncRegisteredContentScripts(); });</code></pre>
+    <p>Combinar com <code>optional_host_permissions: ["&lt;all_urls&gt;"]</code> e <code>chrome.permissions.request({ origins: [...] })</code> no clique "Habilitar site" (gesto do usuário disponível no popup). O botão de habilitar já dispara <code>ENABLE_PAGE</code>; após registrar, injetar imediatamente na aba atual com <code>chrome.scripting.executeScript</code> (o popup já possui fallback de recarga). <b>Benefícios:</b> zero custo em sites não habilitados; SW não é acordado por navegação comum; alerta de instalação mais brando; melhor aceitação em loja. <b>Riscos:</b> hosts com subdomínios variáveis (usar <code>*://*.host/*</code>); testes E2E precisam habilitar o host do mock antes de navegar.</p>
+  </article>
+
+  <article id="E2">
+    <h3>E2 — Persistir no Service Worker antes da entrega; GTC por referência (G3)</h3>
+    <p><b>Fluxo proposto:</b></p>
+<pre><code>START_BATCH { images, prompt, batchId, chapterId }            // content script já conhece chapterId (getOrCreateChapterId)
+GEMINI_IMAGE_EXTRACTED { src } → SW:
+    blob   = await (await fetch(src)).blob()                        // decoder nativo
+    saved  = await sm.savePageResult(chapterId, index, blob, originalUrl, cleanUrl, meta)   // já aceita Blob
+    await gtc.save({ sha256, ..., assetId: saved.assetId })          // referência, não cópia
+    UPDATE_IMAGE { index, newSrc: src, assetId }                     // aba aplica e responde ACK (sem SM_SAVE_PAGE)
+GTC_QUERY_* → resposta traz assetId; aba pede SM_GET_ASSET (cache LRU existente) apenas para hits</code></pre>
+    <p><b>Benefícios comprováveis:</b> elimina 2 dos 4 hops de MB; elimina o loop <code>atob</code> em JS; reduz disco de ≈2,33× para ≈1× do tamanho real; a persistência deixa de depender de a aba do mangá estar viva (o caso <code>UPDATE_IMAGE_NO_DOM</code> e o <code>legacyNoAck</code> B5 perdem relevância). <b>Riscos/esforço:</b> migração do esquema GTC (v4 → v5 com <code>assetId</code>; entradas antigas com <code>translatedDataUrl</code> continuam legíveis); <code>deleteByCleanUrl</code>/"Refazer" precisam invalidar GTC por assetId; testes de integração do fluxo de entrega precisam ser reescritos. Manter <code>UPDATE_IMAGE</code> com <code>newSrc</code> para não mudar o contrato da aba.</p>
+  </article>
+
+  <article id="E3">
+    <h3>E3 — Um único paradigma de mutação de estado (B2)</h3>
+    <p>Expor apenas <code>get()</code>, <code>mutate()</code> e leituras derivadas; remover accessors de escrita direta do objeto <code>MangaTranslatorState</code>; converter <code>stopBatch</code>, <code>onStartup</code>, <code>reconcile</code> em transições. Enquanto a migração ocorre, R1 protege a persistência. Benefício: todo estado persistido é resultado de uma transição atômica; facilita testes de propriedade (invariantes de contadores).</p>
+  </article>
+
+  <article id="E4">
+    <h3>E4 — Exportação executada pelo Service Worker a partir do IndexedDB (§18)</h3>
+    <p>Substituir <code>EXPORT_ALL_AND_SHOW { allDownloads: [{url:dataUrl,...}] }</code> por <code>EXPORT_CHAPTERS { chapterIds }</code>; o SW itera <code>getChapterPageIndex</code>, gera a data URL de uma página por vez (<code>blobToDataUrl</code>) e a entrega ao <code>downloads.download</code> com concorrência 3 (R6). Memória passa de O(total) para O(concorrência). O popup só exibe progresso.</p>
+  </article>
+
+  <article id="E5">
+    <h3>E5 — Build mínimo (G8, G1)</h3>
+    <p>Adicionar <code>scripts/build.js</code> (esbuild <code>--minify</code> arquivo a arquivo, sem bundling, preservando os nomes usados pelo manifest) gerando <code>dist/extension</code>; CI roda <code>syntax-check</code>, <code>version:check</code> e E2E sobre <code>dist</code>; <code>publish.yml</code> empacota <code>dist</code>. Sem alteração de arquitetura; reduz bytes avaliados por despertar e por página. Ganho de tempo é hipótese até medição, mas a redução de bytes (~50–60 % em código comentado) é determinística.</p>
+  </article>
+
+  <article id="E6">
+    <h3>E6 — Consulta GTC unificada e fingerprint fatiado (G5, fluxo 9.2)</h3>
+    <p>Uma ação <code>GTC_LOOKUP { items:[{sha256,dHash,wHash,pHash,wHashCrop,pHashCrop,w,h}] }</code> que executa no SW a cascata sha256 → dHash → perceptual → crop e devolve o melhor match por item, substituindo 3–4 round-trips. No content script, calcular fingerprints com <code>await new Promise(r =&gt; requestIdleCallback(r))</code> a cada 3–5 imagens para não bloquear a UI da página hospedeira.</p>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<section id="testes">
+  <h2>28. Testes relevantes</h2>
+  <p>A suíte (README + ci.yml): Jest unit/integration com baseline ≥ 836 testes e verificação de inventário; smoke; visual-v3; Playwright em 5 shards com reporter que rejeita <code>test.only</code>/skipped; cobertura V8 exigindo 56/56 arquivos; <code>verify-ci-contract.js</code>. Isto oferece boa proteção para refatorações R7/E5 e para o contrato de mensagens. Não foram lidos os testes individuais, portanto <b>não há evidência</b> de cobertura específica para B1, B4, B6, B8. Testes propostos:</p>
+  <h4>T1 — Ordem syncState × mutate (reproduz B1)</h4>
+<pre><code>// tests/unit/background/state-ordering.test.js
+test('syncState enfileirada atrás de mutate não regride o snapshot', async () => {
+  const writes = [];
+  global.chrome = { storage: { local: { set: jest.fn(async v => { writes.push(JSON.parse(JSON.stringify(v.mt_state))); }),
+                                        get: jest.fn(async () => ({})) } } };
+  require('../../../extension/background/state.js');
+  const state = self.MangaTranslatorState;
+  const p1 = state.mutate(s => ({ ...s, completedJobs: 5 }));
+  const p2 = state.syncState();                 // capturado antes do mutate no código atual
+  await Promise.all([p1, p2]);
+  expect(writes.at(-1).completedJobs).toBe(5);  // falha no código atual (grava 0)
+});</code></pre>
+  <h4>T2 — Auto-restore reexecuta após mutação durante a passada (B4)</h4>
+<pre><code>test('mutação recebida durante apply() gera nova passada', async () => {
+  let release; const resolveAsset = jest.fn(() => new Promise(r => { release = r; }));
+  const restorer = api.createAutoRestorer({ ...deps, resolveAsset });
+  restorer.setEntry('https://x/a.jpg', { assetId: 'a', index: 0 });
+  document.body.innerHTML = '&lt;img src="https://x/a.jpg"&gt;';
+  const first = restorer.apply();
+  document.body.appendChild(Object.assign(document.createElement('img'), { src: 'https://x/a.jpg' }));
+  await restorer.apply();            // no código atual retorna por `running`
+  release('data:image/png;base64,AA=='); await first;
+  await new Promise(r => setTimeout(r, 200));
+  expect(document.querySelectorAll('img[data-translated="true"]').length).toBe(2);
+});</code></pre>
+  <h4>T3 — identifySource por hostname (B6)</h4>
+<pre><code>test.each([
+  ['https://gemini.google.com/app/x', 'gemini'],
+  ['https://evil.tld/?r=gemini.google.com', 'content'],
+  ['https://gemini.google.com.evil.tld/', 'content'],
+])('%s → %s', (url, expected) => {
+  expect(router.identifySource({ tab: { url } })).toBe(expected);
+});</code></pre>
+  <h4>T4 — calculate-visual-fingerprint aborta por timeout (B8)</h4>
+<pre><code>test('fetch pendurado é abortado', async () => {
+  jest.useFakeTimers();
+  global.fetch = jest.fn((_u, { signal }) => new Promise((_, rej) => signal.addEventListener('abort', () => rej(new DOMException('aborted','AbortError')))));
+  const p = action.execute({ url: 'https://cdn/x.png' }, { log: jest.fn() });
+  jest.advanceTimersByTime(30_001);
+  await expect(p).resolves.toMatchObject({ ok: false });
+});</code></pre>
+  <h4>T5 — Manifest de produção não contém hosts de teste (B7)</h4>
+<pre><code>test('manifest não injeta em 127.0.0.1', () => {
+  const m = require('../../extension/manifest.json');
+  const all = m.content_scripts.flatMap(cs => cs.matches);
+  expect(all.some(x => x.includes('127.0.0.1') || x.includes('localhost'))).toBe(false);
+});</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section id="cmds">
+  <h2>29. Resultados dos comandos executados</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Comando</th><th>Resultado</th><th>Exit code</th><th>Observações</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm ci</code> (tests/)</td><td><span class="badge b-na">Não executado — limitação do ambiente</span></td><td>—</td><td>Sem shell disponível</td></tr>
+      <tr><td><code>npm run version:check</code></td><td><span class="badge b-na">Não executado — limitação do ambiente</span></td><td>—</td><td>Verificação manual: package.json 6.5.0 ↔ manifest 6.5 ↔ tests/package.json 6.5.0 são coerentes com a regra descrita no README</td></tr>
+      <tr><td><code>find extension -name "*.js" | xargs node --check</code></td><td><span class="badge b-na">Não executado — limitação do ambiente</span></td><td>—</td><td>O CI executa este passo (job syntax-check)</td></tr>
+      <tr><td><code>npm test</code> / <code>npm run test:ci</code></td><td><span class="badge b-na">Não executado — limitação do ambiente</span></td><td>—</td><td></td></tr>
+      <tr><td><code>npm run test:smoke</code> · <code>test:visual-v3</code> · <code>test:e2e</code></td><td><span class="badge b-na">Não executado — limitação do ambiente</span></td><td>—</td><td>E2E exige Chromium + xvfb + mock server</td></tr>
+      <tr><td><code>npm run test:coverage:verify</code></td><td><span class="badge b-na">Não executado — limitação do ambiente</span></td><td>—</td><td>Números de cobertura não são reproduzidos aqui</td></tr>
+      <tr><td>lint / typecheck</td><td><span class="badge b-na">Não executado</span></td><td>—</td><td>O projeto não define ESLint/TypeScript</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<section id="ci">
+  <h2>30. Auditoria do CI/CD</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Job</th><th>O que faz</th><th>Avaliação</th></tr></thead>
+    <tbody>
+      <tr><td>version-integrity</td><td><code>npm run version:check</code></td><td>Bom: fonte única de versão</td></tr>
+      <tr><td>syntax-check</td><td><code>node --check</code> em extension/**, tests/**</td><td>Bom; substituto parcial de lint</td></tr>
+      <tr><td>manifest-validation</td><td>Campos obrigatórios + MV3</td><td>Fraco: não valida <code>matches</code>, permissões nem hosts de teste (B7) — adicionar T5</td></tr>
+      <tr><td>ci-contract</td><td>verify-ci-contract + selftests de coverage/E2E/jest-workers</td><td>Excelente: metatestes contra degradação da CI</td></tr>
+      <tr><td>smoke / visual</td><td>Runners Node próprios com baseline</td><td>Bom</td></tr>
+      <tr><td>unit-and-integration</td><td>Jest em Node 20/22 com inventário</td><td>Bom; <code>fail-fast:false</code></td></tr>
+      <tr><td>coverage</td><td>V8 + verify + Codecov opcional</td><td>Bom; upload externo não bloqueia (correto)</td></tr>
+      <tr><td>e2e-shard ×5</td><td>Playwright com xvfb, modo stealth, blob reports</td><td>Bom; instala Chromium a cada shard (sem cache de browsers — custo de CI, não de produto)</td></tr>
+      <tr><td>ci-gate</td><td><code>if: always()</code> exigindo success</td><td>Bom (não visto no trecho; descrito no README e protegido pelo ci-contract)</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Lacunas:</b> sem lint (ESLint com regras para extensões detectaria D7/D9 e <code>innerHTML</code>); sem etapa de build/minificação (E5); sem verificação de tamanho de bundle; manifest de teste igual ao de produção (B7). <b>Concorrência:</b> <code>cancel-in-progress</code> apenas fora de <code>main</code> — decisão correta e comentada.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="plano">
+  <h2>31. Plano de otimização</h2>
+<pre><code>Fase 1 — Corrigir bugs e falhas críticas (1–2 dias)
+  R1 syncState (B1) · R3 rerun auto-restore (B4) · R4 fetch endurecido (B8) · Q2 identifySource (B6)
+  Q9 manifest sem 127.0.0.1 (B7) + T5 · revisar legacyNoAck (B5) · T1–T4
+
+Fase 2 — Eliminar trabalho redundante (2–4 dias)
+  R2 logs com buffer (G2) · R5 cache de aliases (G6) · Q7 chapter cache (B13) · Q8/R6 downloads
+  Q6, Q10, Q11, Q12 · remover D7, D8, D9, D10, D11 · R7 shared/util (D1, D3, D4, D6, B11)
+  Progresso 10–15 s e gravação só em mudança de status
+
+Fase 3 — Otimizar o caminho crítico (1–2 semanas)
+  E1 injeção sob demanda (G1) · E6 GTC_LOOKUP unificado + fingerprint fatiado (G5)
+  Substituir sleeps fixos por confirmação do observer; memoizar composer; coalescer waitForElement (G4)
+  cache:'default' nos fetches de imagem
+
+Fase 4 — Memória e lifecycle (1 semana)
+  E4 exportação pelo SW · stats() por cursor · B10 reader · pausar loop do inject.js sem job
+  Verificar keep-alive em runtime (B9) e decidir: postMessage periódico ou remoção
+
+Fase 5 — Refatorações estruturais (2–3 semanas)
+  E2 persistência no SW + GTC por assetId (G3, com migração v5) · E3 mutate() único · E5 build mínimo
+  Extrair de background.js: downloads, marcador de pasta, log, handler de alarme
+
+Fase 6 — Benchmarks e validação
+  Medir: tempo de avaliação dos content scripts por página (antes/depois E1); operações de storage por lote
+  (antes/depois R2/R5); memória do SW durante entrega (antes/depois E2); tempo médio por job (após G4/sleeps);
+  tamanho do IndexedDB por 100 páginas (antes/depois E2). Só então promover as hipóteses a fatos.</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section id="limites">
+  <h2>32. Limitações</h2>
+  <ul>
+    <li><b>Sem execução:</b> nenhum comando, teste, benchmark ou carregamento da extensão foi realizado. Todos os custos são derivados da estrutura do código; onde o ganho depende de medição, está marcado como hipótese.</li>
+    <li><b>Sem subagentes/modelos alternativos:</b> as cinco especializações foram passadas sequenciais do mesmo modelo (ver §0).</li>
+    <li><b>Truncamentos:</b> trechos centrais de <code>background.js</code> (deliverResultToManga, onInstalled, menu de contexto), <code>content_manga.js</code> (scanner, extractAndSendImages, botão flutuante), <code>jobs-lifecycle.js</code> (processNextJob, finalizeJob, abertura de abas), <code>gtc-indexeddb.js</code> (repositório IndexedDB real e handler), <code>gtc-fingerprint.js</code> (wHash/pHash/match), <code>state.js</code> (API exportada), <code>popup.js</code> (miolo), <code>observer.js</code>/<code>result-extractor.js</code>/<code>deletion.js</code> (caudas) não foram lidos. Conclusões que dependem deles estão marcadas com confiança média ou "evidência insuficiente".</li>
+    <li><b>Arquivos não lidos:</b> §7.2.</li>
+    <li><b>Comportamentos só verificáveis em runtime:</b> suspensão real do SW e efeito do keep-alive (B9); frequência prática da janela de B1; comportamento do Gemini real (seletores, temporização); política de cache HTTP dos CDNs.</li>
+    <li><b>Números de linha:</b> contagem manual sobre o texto bruto quando as quebras de linha foram preservadas (±2); por símbolo nos demais.</li>
+    <li><b>Manifest:</b> o valor <code>&lt;all_urls&gt;</code> chegou colapsado pela ferramenta; foi inferido pelo README e pela estrutura restante.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="conclusoes">
+  <h2>33. Conclusões da Auditoria</h2>
+  <div class="concl">
+    <h3>Sustentado por evidência</h3>
+    <ol>
+      <li><b>Existe um defeito estrutural na persistência de estado</b> (<code>state.js:90-95</code> vs <code>100-111</code>): <code>syncState()</code> pode gravar um snapshot anterior a um <code>mutate()</code> pendente. A correção é de uma linha (R1) e deve ser a primeira ação.</li>
+      <li><b>O custo mais amplo da extensão é pago fora do seu caso de uso</b>: seis content scripts (~130 KB) e um despertar do Service Worker por página visitada em qualquer site (manifest <code>&lt;all_urls&gt;</code>, <code>GET_TAB_ID</code> no boot). A injeção dinâmica por domínio habilitado (E1) remove esse custo sem perder funcionalidade.</li>
+      <li><b>O resultado traduzido é transportado e armazenado em duplicidade</b>: 3–4 travessias de IPC como data URL e duas cópias persistentes (Blob + string base64). A persistência no Service Worker com GTC por referência (E2) é a maior otimização de memória e disco disponível.</li>
+      <li><b>O log é o maior consumidor de operações de storage</b> (RMW de 500 entradas por evento; dezenas de eventos por job). Buffer + flush temporizado (R2) resolve com risco baixo.</li>
+      <li><b>Há quatro bugs/riscos médios confirmados</b> com correções pequenas: reexecução do auto-restore (B4), fetch sem timeout/limite no fingerprint do SW (B8), classificação de origem por substring (B6) e host de teste no manifest de produção (B7).</li>
+      <li><b>A duplicação é real e mensurável</b>: <code>getCleanUrl</code>, fingerprint completo, SHA-256 puro, três decodificadores de data URL, quatro <code>generateId</code>, um bloco de watchdog inalcançável, um caminho de dispatch do router nunca usado, e um módulo (<code>cm-gtc-client.js</code>) injetado em toda página com forte indício de não uso.</li>
+      <li><b>A arquitetura MV3 é sólida</b>: estado durável com journal, reconciliação, identidade canônica de abas, watchdog por alarmes, ACK antes de finalizar, commit idempotente, storage transacional, reader virtualizado, injeção de dependências e roteador com validação. As melhorias propostas são incrementais e compatíveis com essa base.</li>
+      <li><b>Segurança:</b> sem XSS, eval ou vazamento de segredo confirmados; sem dependências de runtime; CSP padrão. Os pontos B6/B7 são de endurecimento, não de exploração ativa.</li>
+      <li><b>CI/CD é acima da média</b> (gates independentes, contrato de CI testado, inventário de testes, sharding), com lacunas em lint, build e validação de hosts do manifest.</li>
+    </ol>
+    <h3>Evidência insuficiente para concluir</h3>
+    <ul>
+      <li>Se o keep-alive por port tem algum efeito prático no ciclo de vida do SW (B9) — exige observação em runtime.</li>
+      <li>Se fingerprints são recalculados em rescans do popup e se são computados em paralelo ou em série (trecho de <code>content_manga.js</code> truncado).</li>
+      <li>A complexidade real do lookup perceptual no repositório IndexedDB do GTC (código não lido; só a versão em memória foi vista).</li>
+      <li>Se <code>cm-gtc-client.js</code> é referenciado por algum caminho de produção (forte indício de não uso; miolo de <code>content_manga.js</code> não lido).</li>
+      <li>Ganhos absolutos de tempo de E5 (minificação), de G4 (walks do DOM) e da troca dos loops base64 por <code>fetch(dataUrl)</code> — exigem benchmark.</li>
+      <li>Frequência com que a janela de B1 se materializa em uso real — a estrutura garante a possibilidade; a taxa depende de concorrência e timing.</li>
+    </ul>
+    <h3>Ordem recomendada</h3>
+    <p>R1 → Q2/Q9/R4/R3 → R2/R5/R7 e remoção de código morto → E1 e E6 → E4 e memória → E2/E3/E5 → benchmarks. Cada fase é independente o suficiente para ser mesclada isoladamente sob a suíte de testes existente, acrescida dos testes T1–T5.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Auditoria técnica — Manga Translator 6.5.0 · documento autossuficiente (HTML + CSS inline, sem JavaScript, sem recursos externos) · nada de relevante existe fora deste arquivo.</p>
+</footer>
+
+</div>
+</body>
+</html>

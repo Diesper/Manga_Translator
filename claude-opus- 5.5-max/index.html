@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoria técnica — Manga_Translator (extensão Chromium MV3)</title>
+<style>
+:root{--paper:#fdfcf6;--card:#fffef9;--ink:#1c262c;--ink2:#394850;--ink3:#5f6e77;--rule:#d7e0e5;--margin:#e2a097;--teal:#0b6260;--tealbg:#e0eeec;--crit:#9b1d16;--critbg:#fae2de;--high:#854700;--highbg:#fbe9d0;--med:#1f4670;--medbg:#e2eaf5;--low:#46545c;--lowbg:#eaeef0;--hyp:#583c85;--hypbg:#ebe5f5}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background-color:var(--paper);font:16px/1.7 Charter,"Iowan Old Style","Palatino Linotype",Georgia,Cambria,"Times New Roman",serif;background-image:linear-gradient(90deg,transparent 58px,var(--margin) 58px,var(--margin) 59px,transparent 59px),repeating-linear-gradient(180deg,transparent 0,transparent 26px,var(--rule) 26px,var(--rule) 27px)}
+.wrap{max-width:1060px;margin:0 auto;padding:30px 24px 70px 82px}
+a{color:var(--teal)}
+header .eyebrow{font:600 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin:0}
+h1{font-size:2.05rem;line-height:1.15;margin:.25em 0 .4em}
+h2{font-size:1.5rem;line-height:1.2;margin:2.4em 0 .6em;padding-top:.7em;border-top:2px solid var(--ink)}
+h3{font-size:1.12rem;margin:1.8em 0 .45em}
+h4{font-size:1rem;margin:1.3em 0 .35em}
+p,li{max-width:78ch}
+.meta{color:var(--ink2)}
+nav.toc{background:var(--card);border:1px solid var(--rule);padding:14px 18px;margin:1.4em 0}
+nav.toc ol{columns:3 220px;margin:.4em 0 0;padding-left:1.3em;font-size:14.5px}
+nav.toc li{margin:.1em 0;break-inside:avoid}
+code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#efede2;padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+pre{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--teal);padding:12px 14px;overflow-x:auto;line-height:1.5;margin:.8em 0 1.2em}
+pre code{background:none;padding:0;font-size:12.6px;overflow-wrap:normal}
+.tw{overflow-x:auto;margin:.8em 0 1.5em;border:1px solid var(--rule);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{border:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#f2f0e5;font:700 11.5px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2)}
+tbody tr:nth-child(even){background:#fbfaf3}
+.b{display:inline-block;font:700 10.5px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:0 6px;border:1px solid;border-radius:3px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;margin:1px 2px 1px 0}
+.crit{color:var(--crit);background:var(--critbg);border-color:#e3aaa2}
+.high{color:var(--high);background:var(--highbg);border-color:#e8c38c}
+.med{color:var(--med);background:var(--medbg);border-color:#aac0dc}
+.low{color:var(--low);background:var(--lowbg);border-color:#c5cfd4}
+.ok{color:var(--teal);background:var(--tealbg);border-color:#9fcac5}
+.hyp{color:var(--hyp);background:var(--hypbg);border-color:#c5b5de}
+.box{border:1px solid var(--rule);border-left:4px solid var(--teal);background:var(--card);padding:12px 16px;margin:1.1em 0}
+.box.warn{border-left-color:var(--high)}.box.bad{border-left-color:var(--crit)}.box.info{border-left-color:var(--med)}
+.box>p:first-child,.box>h3:first-child,.box>h4:first-child{margin-top:0}
+.box>*:last-child{margin-bottom:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin:1em 0}
+.kpi{background:var(--card);border:1px solid var(--rule);padding:10px 12px}
+.kpi strong{display:block;font-size:1.5rem;line-height:1.1}
+.kpi span{font-size:13.5px;color:var(--ink2)}
+.small{font-size:14px;color:var(--ink2)}
+.ev{font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink2)}
+.totop{position:fixed;right:14px;bottom:14px;background:var(--ink);color:var(--paper);text-decoration:none;font:700 12px ui-monospace,Menlo,monospace;padding:7px 10px;border-radius:3px;opacity:.85}
+footer{margin-top:3em;border-top:1px solid var(--rule);padding-top:1em;font-size:14px;color:var(--ink3)}
+@media (max-width:720px){body{background-image:linear-gradient(90deg,transparent 22px,var(--margin) 22px,var(--margin) 23px,transparent 23px),repeating-linear-gradient(180deg,transparent 0,transparent 26px,var(--rule) 26px,var(--rule) 27px)}.wrap{padding:18px 14px 50px 34px}h1{font-size:1.6rem}h2{font-size:1.28rem}}
+@media print{.totop,nav.toc{display:none}body{background:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header id="topo">
+<p class="eyebrow">Auditoria técnica · extensão como sistema · código de produção</p>
+<h1>Manga_Translator — auditoria completa da extensão Chromium MV3</h1>
+<p class="meta">Repositório <code>github.com/Diesper/Manga_Translator</code> · commit <code>8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32</code> (branch <code>main</code>) · JavaScript sem bundler · 56 arquivos JS de produção (19.038 linhas medidas nesta sessão) + <code>manifest.json</code> + 3 páginas HTML. Referências no formato <code>arquivo:linha</code> relativas a <code>extension/</code> salvo indicação contrária.</p>
+</header>
+
+<nav class="toc" aria-label="Índice">
+<strong>Índice</strong>
+<ol>
+<li><a href="#execucao">Execução multiagente e proveniência</a></li>
+<li><a href="#resumo">Resumo executivo</a></li>
+<li><a href="#bugs">Principais bugs e erros</a></li>
+<li><a href="#gargalos">Principais gargalos</a></li>
+<li><a href="#conclusoes-principais">Principais conclusões</a></li>
+<li><a href="#impacto">Melhorias de maior impacto</a></li>
+<li><a href="#quickwins">Quick wins</a></li>
+<li><a href="#estrutura">Estrutura e arquivos analisados</a></li>
+<li><a href="#arquitetura">Arquitetura atual</a></li>
+<li><a href="#fluxos">Fluxos críticos</a></li>
+<li><a href="#arquivos">Auditoria arquivo por arquivo</a></li>
+<li><a href="#background">Background / service worker</a></li>
+<li><a href="#content">Content scripts</a></li>
+<li><a href="#mensageria">Mensageria</a></li>
+<li><a href="#armazenamento">Armazenamento</a></li>
+<li><a href="#dom">DOM</a></li>
+<li><a href="#processamento">Processamento (CPU)</a></li>
+<li><a href="#rede">Rede</a></li>
+<li><a href="#memoria">Memória</a></li>
+<li><a href="#async">Assincronismo e lifecycle</a></li>
+<li><a href="#deps">Dependências</a></li>
+<li><a href="#bundle">Bundle e carregamento</a></li>
+<li><a href="#seguranca">Segurança</a></li>
+<li><a href="#morto">Código morto e redundante</a></li>
+<li><a href="#tabela-problemas">Tabela principal de problemas</a></li>
+<li><a href="#tabela-otimizacoes">Tabela de otimizações</a></li>
+<li><a href="#codigo">Recomendações de código</a></li>
+<li><a href="#estruturais">Melhorias estruturais</a></li>
+<li><a href="#testes">Testes relevantes</a></li>
+<li><a href="#comandos">Resultados dos comandos</a></li>
+<li><a href="#ci">CI/CD</a></li>
+<li><a href="#plano">Plano de otimização</a></li>
+<li><a href="#limitacoes">Limitações</a></li>
+<li><a href="#conclusoes">Conclusões da Auditoria</a></li>
+</ol>
+</nav>
+
+<main>
+
+<section id="execucao">
+<h2>1. Execução multiagente e proveniência</h2>
+<div class="box warn">
+<p><span class="b high">Não executado</span> <strong>Delegação a agentes não estava disponível.</strong> As ferramentas desta sessão (shell, leitura/edição de arquivos, busca web, mídia, geração de imagem) não incluem criação de agentes/subagentes nem seleção de modelo. Nenhum modelo adicional (Claude Opus, GPT, Gemini ou outro) foi invocado. Afirmar o contrário seria inventar disponibilidade.</p>
+<p>Para preservar a especialização pedida, o modelo principal (Claude, da Anthropic) fez <strong>cinco passes separados</strong>, cada um com escopo e checklist próprios. Nenhum passe tem independência real de revisor. Toda descoberta abaixo foi conferida diretamente no código (<code>arquivo:linha</code>) ou por execução.</p>
+</div>
+<div class="tw"><table>
+<thead><tr><th>Passe</th><th>Escopo</th><th>Técnica usada</th><th>Achados que originou</th></tr></thead>
+<tbody>
+<tr><td>1 — Bugs e robustez</td><td>Lógica, estados, corridas, init/cleanup, erros silenciosos</td><td>Leitura de funções de estado + execução do <code>cm-chapter.js</code> real em <code>vm</code></td><td>B-01, B-02, B-03, B-04, B-06, B-07</td></tr>
+<tr><td>2 — Desempenho</td><td>Laços, trabalho repetido, esperas fixas, varreduras</td><td>Busca por <code>openCursor</code>, <code>sleep</code>, observers, timers; leitura dos laços</td><td>G-01, G-02, G-05, G-07, G-08</td></tr>
+<tr><td>3 — Arquitetura e APIs</td><td>Manifest, mensageria, storage, lifecycle, bootstrap</td><td>Mapeamento de <code>importScripts</code>, listeners de <code>storage.onChanged</code> e rotas de imagem</td><td>G-03, G-04, G-10, B-03, B-11</td></tr>
+<tr><td>4 — Recursos, DOM, rede, memória</td><td>Base64, canvases, observers, IPC, previews</td><td>Rastreio de payloads e conversões ponta a ponta</td><td>G-04, G-09, G-11, G-12, G-13</td></tr>
+<tr><td>5 — Refatorações de alto impacto</td><td>Relação ganho/risco/esforço</td><td>Medições (esbuild, V8) e síntese dos passes 1–4</td><td>Seções 6, 7, 28 e 33</td></tr>
+</tbody></table></div>
+<div class="box info">
+<h4>Correções em relação aos relatórios anteriores desta conversa</h4>
+<ul>
+<li>O observer do Gemini <strong>não</strong> tem debounce de 150 ms. Ele agenda a inspeção por <code>queueMicrotask</code> a cada lote de mutações (<code>gemini/observer.js:451-459</code>). O debounce de 150 ms fica em <code>cm-auto-restore.js:101-105</code>.</li>
+<li>A minificação reduz 61% dos bytes, mas a compilação medida no V8/Node cai só 0,62 ms. Ela <strong>não</strong> é o maior ganho de desempenho, como foi dito antes.</li>
+<li><code>background/log.js</code> não é um segundo escritor concorrente: é um módulo <strong>órfão</strong>, e isso causa o bug B-03.</li>
+<li>Resultados de teste citados como "desta sessão" foram reexecutados agora. O coverage e o E2E vêm da sessão anterior (mesmo commit) e estão identificados assim.</li>
+</ul>
+</div>
+</section>
+
+<section id="resumo">
+<h2>2. Resumo executivo</h2>
+<div class="kpis">
+<div class="kpi"><strong>60</strong><span>arquivos de produção relevantes (56 JS + manifest + 3 HTML)</span></div>
+<div class="kpi"><strong>60 / 9</strong><span>varridos por padrões automatizados / lidos integral ou quase integralmente</span></div>
+<div class="kpi"><strong>3</strong><span>bugs comprovados executando o código real (B-01, B-02; B-04 na sessão anterior)</span></div>
+<div class="kpi"><strong>13</strong><span>gargalos (G-01 a G-13): 8 confirmados pela estrutura do código</span></div>
+<div class="kpi"><strong>18.205 B</strong><span>de código morto em <code>content_manga.js:322-677</code>, parseado em toda página</span></div>
+<div class="kpi"><strong>851 / 851</strong><span>testes Jest verdes nesta sessão; nenhum cobre B-01 nem B-02</span></div>
+</div>
+<p><strong>Principais problemas.</strong> A identidade de capítulo (<code>cm-chapter.js</code>) funde capítulos diferentes quando o título é não latino ou vazio. Nesses casos, uma página traduzida sobrescreve outra de outro capítulo, sem aviso (B-01). A mesma rotina perde entradas de <code>chapterList</code> quando duas abas criam capítulos juntas (B-02). Os logs de erro do roteador e da reconciliação são descartados silenciosamente porque o módulo que os receberia nunca é carregado (B-03).</p>
+<p><strong>Maiores gargalos.</strong></p>
+<ul>
+<li><strong>G-01:</strong> nos cache misses, o cache perceptual varre o banco inteiro desserializando cada tradução salva em base64, até três vezes por lote. O custo cresce sem limite com o uso, porque não há evicção.</li>
+<li><strong>G-02:</strong> na aba do Gemini, cada lote de mutações do DOM dispara uma inspeção que percorre o documento inteiro e força layout.</li>
+<li><strong>G-03:</strong> toda gravação em <code>chrome.storage.local</code> (log de até 500 entradas, snapshot completo de estado) é difundida com valor antigo e novo para listeners registrados em <strong>todas as abas de todos os sites</strong>.</li>
+<li><strong>G-05:</strong> há 2,2 s de esperas fixas por imagem (3,7 s no modo de conversa temporária).</li>
+</ul>
+<p><strong>Principais riscos.</strong> Exportar um capítulo grande pelo popup envia todas as páginas em base64 numa única mensagem, sujeita ao limite de 64 MiB do Chromium (B-05). A origem de teste <code>http://127.0.0.1/*</code> está no manifest de produção (B-11).</p>
+<p><strong>Maior oportunidade.</strong> Separar hashes e payload no cache perceptual (G-01) e limitar a frequência de inspeção do observer (G-02). Depois, persistir resultados no background em vez de fazer a imagem ir e voltar pelo IPC (G-04).</p>
+<p><strong>Limitações importantes.</strong> Sem agentes. Não houve benchmark em navegador real, então as magnitudes de G-01, G-02 e G-03 dependem de medição. Coverage e E2E não foram reexecutados nesta sessão.</p>
+</section>
+
+<section id="bugs">
+<h2>3. Principais bugs e erros</h2>
+<div class="tw"><table>
+<thead><tr><th>ID</th><th>Classificação</th><th>Local</th><th>Problema e consequência</th><th>Correção recomendada</th></tr></thead>
+<tbody>
+<tr><td><strong>B-01</strong></td><td><span class="b crit">Crítico</span><span class="b crit">Bug confirmado</span><span class="b ok">Confiança alta</span></td><td class="ev">cm-chapter.js:95, :100, :106<br>storage-manager.js:170-238</td><td>O fallback por título normaliza com <code>/[^a-z0-9]/gi → '_'</code>. Títulos não latinos viram só underscores e dígitos: <code>나루토 1화</code> e <code>원피스 1화</code> geram a mesma chave. Página sem título usa <code>'Capítulo sem título'</code> para todas. <strong>Executado:</strong> as duas séries retornaram o mesmo <code>chap_1</code>, e a URL do capítulo 1 foi sobrescrita. Como a página é indexada por <code>[chapterId, pageIndex]</code> e o asset anterior é apagado, a série B <strong>sobrescreve as traduções</strong> da série A.</td><td>Normalizar com <code>\p{L}\p{N}</code> (Unicode) e nunca reaproveitar capítulo quando o título é vazio (código na seção 28, R-01). Teste T-1.</td></tr>
+<tr><td><strong>B-02</strong></td><td><span class="b high">Alto</span><span class="b crit">Bug confirmado</span><span class="b ok">Confiança alta</span></td><td class="ev">cm-chapter.js:84-111<br>(get → push → set)</td><td>Leitura-modificação-escrita de <code>chapterList</code> em cada content script, sem coordenação entre abas. <strong>Executado:</strong> duas abas em paralelo deixaram 1 entrada em vez de 2. As páginas do capítulo perdido ficam no IndexedDB sem entrada na lista (órfãs, invisíveis no popup e no leitor).</td><td>Um único escritor de <code>chapterList</code> no background, com fila (R-02).</td></tr>
+<tr><td><strong>B-03</strong></td><td><span class="b med">Médio</span><span class="b crit">Bug confirmado</span><span class="b ok">Confiança alta</span></td><td class="ev">background/router.js:61, :79<br>background/state.js:184-185<br>background.js:47-105</td><td>Roteador e estado registram logs via <code>self.MangaTranslatorLog</code>, definido só em <code>background/log.js</code>, que não está em nenhum <code>importScripts</code>. Resultado: <code>ACTION_ERROR</code> (router.js:140, :152), <code>SOURCE_DENIED</code> (:113), <code>ACTION_NOT_FOUND</code> (:103) e <code>JOB_RECONCILE_DROP</code> viram no-op. Exceções de ações nunca aparecem no log.</td><td>Publicar o logger existente: <code>self.MangaTranslatorLog = { log, _flushLog }</code> em background.js (R-03) e remover o módulo órfão.</td></tr>
+<tr><td><strong>B-04</strong></td><td><span class="b med">Médio</span><span class="b crit">Bug confirmado</span><span class="b ok">Confiança alta</span></td><td class="ev">cm-chapter.js:5-14 vs tests/helpers/extracted-functions.js:18-38</td><td>O <code>canonicalTitle</code> de produção não tem as regex de prefixo (<code>Cap 5:</code>) e de sufixo de site que 29 testes validam numa cópia. A deduplicação documentada (BUG #12) não existe no build. Comprovado executando o arquivo real na sessão anterior; reconferido estaticamente nesta sessão.</td><td>Portar as regex para produção e fazer os testes importarem a função real.</td></tr>
+<tr><td><strong>B-05</strong></td><td><span class="b med">Médio</span><span class="b high">Risco provável</span><span class="b med">Confiança média</span></td><td class="ev">popup.js:210-223, :1049, :1205, :1251<br>background/actions/download-chapter.js:11-15</td><td>Para abrir ou exportar a pasta, o popup busca <strong>sequencialmente</strong> todas as páginas em base64 e reenvia todas numa única mensagem (<code>images: imgs</code>). O Chromium rejeita mensagens acima de 64 MiB (<code>extensions/renderer/messaging_util.cc</code>). Um capítulo com ~40 páginas de ~1,7 MB em base64 ultrapassa o limite. Depende do tamanho real das imagens: requer teste.</td><td>Exportar no background a partir do storage-manager, enviando só <code>chapterId</code> (R-07).</td></tr>
+<tr><td><strong>B-06</strong></td><td><span class="b low">Baixo</span><span class="b high">Risco provável</span><span class="b med">Confiança média</span></td><td class="ev">background.js:370-406 (377, 383, 395)<br>background.js:658-664</td><td><code>ensureInitialized</code> não tem promessa compartilhada. Chamadas concorrentes (mensagem + alarme, ou <code>onStartup</code>) executam <code>restoreState</code> e <code>reconcileJobs</code> em paralelo. O <code>catch (_e) {}</code> engole erros de reconciliação. O impacto é mitigado porque a reconciliação é idempotente por atribuição (<code>jobs-reconciliation.js:92-93</code>) e a reserva de slot é síncrona (<code>jobs-lifecycle.js:517-521</code>).</td><td>Single-flight <code>_initPromise</code> usado por mensagens, alarmes e <code>onStartup</code>; registrar o erro no lugar do <code>catch</code> vazio (R-12).</td></tr>
+<tr><td><strong>B-07</strong></td><td><span class="b low">Baixo</span><span class="b hyp">Hipótese</span><span class="b low">Confiança baixa</span></td><td class="ev">storage-manager.js:350-380 vs :175, :385</td><td><code>deleteByCleanUrl</code> não passa pela fila por capítulo (<code>enqueueChapterOp</code>) e lê/escreve em transações separadas. Concorrendo com <code>savePageResult</code>, pode deixar asset órfão. Não reproduzido.</td><td>Serializar pela mesma fila, ou fazer a leitura dentro da transação <code>readwrite</code>.</td></tr>
+<tr><td><strong>B-11</strong></td><td><span class="b med">Médio</span><span class="b high">Risco provável</span><span class="b ok">Confiança alta</span></td><td class="ev">manifest.json:46, :57</td><td>A origem do fixture E2E <code>http://127.0.0.1/*</code> está publicada. <code>inject.js</code> (MAIN world, <code>document_start</code>) e os 11 scripts do Gemini entram em qualquer servidor local do usuário.</td><td>Gerar um manifest de teste separado; remover a origem do build publicado.</td></tr>
+</tbody></table></div>
+<p class="small">Itens de segurança defensiva (S-1 a S-6) estão na seção 23. Os códigos G-xx estão na seção 4.</p>
+</section>
+
+<section id="gargalos">
+<h2>4. Principais gargalos</h2>
+<div class="tw"><table>
+<thead><tr><th>ID</th><th>Classificação</th><th>Local</th><th>Por que ocorre / frequência</th><th>Custo provável</th></tr></thead>
+<tbody>
+<tr><td><strong>G-01</strong></td><td><span class="b crit">Alto</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">gtc-indexeddb.js:222-243 (registro), :536, :678, :819 (<code>store.openCursor()</code>)<br>content_manga.js:2043, :2081, :2107</td><td>Cada registro do cache guarda <code>translatedDataUrl</code> (imagem traduzida em base64) inline, ao lado dos hashes. Na fase 2 das consultas perceptuais, cada entrada sem acerto por índice dispara uma varredura por cursor sem faixa de chaves, e <code>cursor.value</code> desserializa o registro inteiro. Por lote, os modos <code>strict</code>, <code>crop</code> e <code>relaxed</code> são três chamadas IPC sequenciais. Para páginas nunca traduzidas (o caso comum), todas caem na varredura. Não há evicção: só há remoção por URL e <code>clear()</code>.</td><td>Até 3 × (bytes totais do cache) lidos e desserializados no service worker por lote. Cresce com cada tradução salva. A magnitude exige benchmark.</td></tr>
+<tr><td><strong>G-02</strong></td><td><span class="b high">Alto</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">gemini/observer.js:400-402, :404-415, :433-459, :422-431<br>gemini/dom.js:11-36, :66-89</td><td>O MutationObserver usa <code>subtree + characterData + attributes(style, class, …)</code>. Cada lote de mutações agenda <code>inspect()</code> na microtask seguinte, sem throttle. Cada <code>inspect()</code> chama <code>observeShadowRoots()</code>, que percorre o documento inteiro, inclusive nós de texto (<code>findAllDeep</code>), e roda <code>isElementVisible</code> (<code>getComputedStyle</code> + <code>getBoundingClientRect</code> + <code>offsetWidth</code> + <code>getClientRects</code>). Há ainda uma inspeção periódica a cada 1.250 ms.</td><td>O(nós do DOM) + layout forçado por lote de mutações, durante toda a geração, em cada aba de job.</td></tr>
+<tr><td><strong>G-03</strong></td><td><span class="b high">Médio-Alto</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">background.js:418-422<br>background/state.js:90-94, :106<br>content_manga.js:103, :1226 · content_gemini.js:171</td><td>O log regrava o array inteiro (até 500 entradas) a cada flush, e o estado regrava o snapshot completo <code>mt_state</code>. <code>chrome.storage.onChanged</code> entrega <code>oldValue</code> e <code>newValue</code> a cada contexto com listener. O <code>content_manga.js</code> registra dois listeners <strong>incondicionalmente</strong> (antes do gate de domínio), em todas as abas de todos os sites. Fontes de escrita: 57 pontos de <code>sendLog</code> no RPA e cerca de 50 de <code>log</code> no background; <code>syncState</code>/<code>mutate</code> 22 vezes em background.js e jobs-lifecycle.js.</td><td>Cada gravação é clonada e entregue a N abas. Evidência insuficiente para quantificar sem tracing.</td></tr>
+<tr><td><strong>G-04</strong></td><td><span class="b high">Médio</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">background/jobs-dom-ack.js:55<br>content_manga.js:2595, :2610<br>cm-chapter.js (<code>persistTranslatedPage</code>)</td><td>A imagem traduzida atravessa o IPC em base64 quatro vezes: Gemini → background → aba do mangá (<code>UPDATE_IMAGE</code>) → background (<code>SM_SAVE_PAGE</code>) → background (<code>GTC_SAVE</code>). É gravada duas vezes, em formatos diferentes (Blob no storage-manager e string no cache perceptual).</td><td>2 travessias evitáveis por página + armazenamento duplicado.</td></tr>
+<tr><td><strong>G-05</strong></td><td><span class="b high">Médio-Alto</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">gemini/job-runner.js:929, :1003, :1039, :1056<br>background/jobs-lifecycle.js:264-265</td><td>Há <code>sleep</code> fixos depois de etapas já confirmadas: 1.000 ms após anexo confirmado, 200 ms após o prompt, 1.000 ms após o prompt confirmado no DOM, e mais 1.500 ms em conversa temporária. A concorrência padrão é 1 (<code>maxConcurrentJobs || 1</code>).</td><td>≥ 2,2 s/imagem (3,7 s no modo temporário). Com concorrência 1: 30 páginas somam 66–111 s só de espera fixa.</td></tr>
+<tr><td><strong>G-06</strong></td><td><span class="b med">Médio</span><span class="b hyp">Hipótese</span></td><td class="ev">background/jobs-lifecycle.js:279, :323</td><td>Cada imagem abre uma aba ou janela nova do Gemini, carregando a SPA completa.</td><td>Carga completa por imagem. Reuso de aba exige benchmark e tem trade-off de isolamento.</td></tr>
+<tr><td><strong>G-07</strong></td><td><span class="b low">Baixo-Médio</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">background.js:798-817 (812, 816), :828</td><td><code>waitForDownload</code> adiciona um listener de <code>downloads.onChanged</code> por download, e todos os downloads do capítulo são disparados de uma vez. Cada evento é entregue aos N listeners; ficam também N timers de 600 s.</td><td>O(N × eventos) em vez de O(eventos).</td></tr>
+<tr><td><strong>G-08</strong></td><td><span class="b med">Médio</span><span class="b high">Gargalo provável</span></td><td class="ev">cm-gtc-client.js:52-100 (getContext em 63, 68, 73, 82, 91)</td><td>O fingerprint faz 5 <code>drawImage</code> a partir da imagem em resolução cheia e 5 <code>getImageData</code>, na thread principal da página hospedeira, com <code>getContext('2d')</code> sem <code>willReadFrequently</code>.</td><td>5 reamostragens e leituras de canvas por imagem selecionada.</td></tr>
+<tr><td><strong>G-09</strong></td><td><span class="b med">Médio</span><span class="b crit">Gargalo confirmado</span></td><td class="ev">popup.js:301-308, :210-223 · reader.js:159-165 · options.js:186-189</td><td>Miniaturas, exportação, leitor e previews pedem ao service worker a página inteira como dataUrl (Blob → base64 via FileReader → JSON). As páginas da extensão têm a mesma origem do IndexedDB e poderiam ler o Blob localmente.</td><td>Base64 com +33% de tamanho, em dobro no IPC e decodificado no popup em resolução cheia.</td></tr>
+<tr><td><strong>G-10</strong></td><td><span class="b low">Baixo</span><span class="b crit">Custo medido</span></td><td class="ev">manifest.json:29-42</td><td>235.976 B de JS são injetados em <strong>todas</strong> as páginas. Minificado: 91.876 B (−61%). Compilação de <code>content_manga.js</code> no V8/Node: 1,86 ms → 1,24 ms. O custo maior está em listeners e broadcasts (G-03), não no parse.</td><td>Pequeno por página; relevante pela escala (toda navegação).</td></tr>
+<tr><td><strong>G-11</strong></td><td><span class="b low">Baixo-Médio</span><span class="b crit">Redundância confirmada</span></td><td class="ev">background.js:915-921 (prompt em cada job)</td><td>O prompt do lote (padrão: 625 caracteres, 636 bytes) é copiado em cada item de <code>jobQueue</code>, que vai inteiro para <code>mt_state</code> a cada <code>syncState</code>.</td><td>636 B × N por gravação, multiplicado pelo broadcast de G-03.</td></tr>
+<tr><td><strong>G-12</strong></td><td><span class="b low">Baixo</span><span class="b crit">Confirmado</span></td><td class="ev">storage-manager.js:291, :327-328, :486</td><td><code>await</code> sequencial por capítulo; <code>rows.concat</code> em laço (cópia quadrática); <code>stats()</code> carrega todos os registros de assets para somar <code>size</code>.</td><td>Baixo; cresce com o acervo.</td></tr>
+<tr><td><strong>G-13</strong></td><td><span class="b low">Baixo</span><span class="b high">Gargalo provável</span></td><td class="ev">background/actions/fetch-image-base64.js:70-74 (<code>cache: 'no-store'</code>)<br>content_manga.js:2851</td><td>No caminho CORS, a imagem original é buscada pelo service worker com <code>no-store</code>, ignorando o cache HTTP. O fallback do fingerprint (<code>CALCULATE_VISUAL_FINGERPRINT</code>) também busca a mesma URL; as opções de cache desse segundo fetch não foram verificadas.</td><td>Downloads repetidos da mesma imagem em sites sem CORS.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="conclusoes-principais">
+<h2>5. Principais conclusões</h2>
+<ol>
+<li><strong>A arquitetura de base é sólida:</strong> router com registry de ações, estado durável com reconciliação idempotente, storage-manager transacional com dono único e quarentena do resultado. Os problemas estão em pontos específicos, não na concepção.</li>
+<li><strong>Há perda de dados silenciosa comprovada</strong> na identidade de capítulo (B-01, B-02). É o item de maior prioridade, e nenhum dos 851 testes cobre esses cenários.</li>
+<li><strong>O desempenho degrada com o uso:</strong> o cache perceptual fica mais lento a cada tradução salva (G-01), porque varre registros que carregam as imagens inteiras e não tem evicção.</li>
+<li><strong>Por imagem, o custo dominante é de espera e de DOM,</strong> não de rede: esperas fixas (G-05), inspeção sem throttle com varredura completa do DOM (G-02) e carga de uma SPA completa por job (G-06, hipótese).</li>
+<li><strong>A extensão pesa sobre toda a navegação:</strong> em qualquer aba, mesmo em sites não habilitados, dois listeners recebem cada gravação de log e de estado com valores antigo e novo (G-03).</li>
+<li><strong>A mesma imagem trafega de ida e volta:</strong> resultados traduzidos, exportações, miniaturas e leitor transportam imagens em base64 por IPC, mesmo com os Blobs já no background (G-04, G-09, B-05).</li>
+<li><strong>A observabilidade tem um furo:</strong> erros de ações e descartes da reconciliação nunca chegam ao log (B-03), o que dificulta diagnosticar exatamente os fluxos mais frágeis.</li>
+</ol>
+</section>
+
+<section id="impacto">
+<h2>6. Melhorias de maior impacto</h2>
+<div class="tw"><table>
+<thead><tr><th>#</th><th>Mudança</th><th>Resolve</th><th>Ganho esperado</th><th>Risco</th><th>Esforço</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Corrigir a chave de título (Unicode, sem fallback para título vazio) + escritor único de <code>chapterList</code></td><td>B-01, B-02</td><td>Elimina a sobrescrita de traduções e capítulos órfãos</td><td>Baixo; capítulos já fundidos exigem migração opcional</td><td>Pequeno + Médio</td></tr>
+<tr><td>2</td><td>Varredura perceptual só por chaves de índice (<code>openKeyCursor</code>); depois, payload em store separado + evicção LRU pelo índice <code>updatedAt</code> já existente</td><td>G-01</td><td>Custo da fase 2 passa de O(bytes do cache) para O(entradas × hash)</td><td>Médio; é preciso preservar o critério de aspect ratio e de melhor candidato</td><td>Médio → Grande</td></tr>
+<tr><td>3</td><td>Throttle de <code>inspect()</code> (~100 ms com chamada final garantida) + varredura de shadow roots só quando surgem nós novos</td><td>G-02</td><td>Menos travessias completas e menos layouts forçados por segundo de geração</td><td>Médio; o E2E de "resposta rápida" deve continuar passando</td><td>Pequeno</td></tr>
+<tr><td>4</td><td>Log com flush agrupado (~400 ms), ou log fora de <code>storage.local</code></td><td>G-03, B-03</td><td>Menos gravações de 500 entradas e menos broadcasts a todas as abas</td><td>Baixo; até 400 ms de log podem se perder se o worker morrer</td><td>Pequeno</td></tr>
+<tr><td>5</td><td>Substituir <code>sleep</code> fixos por esperas condicionadas às próprias confirmações, com o mesmo teto</td><td>G-05</td><td>Até 2,2–3,7 s a menos por imagem</td><td>Médio; exige E2E nos três modos de execução</td><td>Pequeno</td></tr>
+<tr><td>6</td><td>Persistir e exportar no background (sem ida e volta de base64)</td><td>G-04, B-05, G-09</td><td>2 travessias a menos por página; sem risco do limite de 64 MiB</td><td>Médio; exige contrato novo no <code>START_BATCH</code></td><td>Médio</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="quickwins">
+<h2>7. Quick wins</h2>
+<div class="tw"><table>
+<thead><tr><th>Mudança</th><th>Arquivo</th><th>Benefício</th><th>Risco</th></tr></thead>
+<tbody>
+<tr><td>Publicar <code>self.MangaTranslatorLog = { log, _flushLog }</code></td><td class="ev">background.js (após :408-426)</td><td>Recupera os logs perdidos de B-03</td><td>Nulo</td></tr>
+<tr><td>Apagar as 9 funções sobrescritas</td><td class="ev">content_manga.js:322-677</td><td>−18.205 B por página; menos confusão de manutenção</td><td>Nulo (são reatribuídas em :685-693)</td></tr>
+<tr><td><code>escapeHTML(url)</code> nas duas interpolações</td><td class="ev">popup.js:658, :930</td><td>Fecha HTML injection latente</td><td>Nulo</td></tr>
+<tr><td>Um único listener de downloads com <code>Map</code></td><td class="ev">background.js:798-817</td><td>O(eventos) e listener registrado no topo</td><td>Baixo</td></tr>
+<tr><td>Prompt só no descritor do lote</td><td class="ev">background.js:915-921</td><td><code>mt_state</code> 636 B × N menor por gravação</td><td>Baixo (processNextJob lê o prompt pelo <code>batchId</code>)</td></tr>
+<tr><td><code>getAll</code> em paralelo em vez de <code>await</code> em série; <code>push(...)</code> em vez de <code>concat</code></td><td class="ev">storage-manager.js:291, :327-328</td><td>Menos latência no popup</td><td>Nulo</td></tr>
+<tr><td>Remover <code>http://127.0.0.1/*</code> do manifest publicado</td><td class="ev">manifest.json:46, :57</td><td>Menor superfície</td><td>Baixo (o E2E passa a usar manifest de teste)</td></tr>
+<tr><td><code>getContext('2d', { willReadFrequently: true })</code></td><td class="ev">cm-gtc-client.js:63-91</td><td>Evita readback de GPU em <code>getImageData</code></td><td><span class="b hyp">Hipótese</span> Pode alterar bits da reamostragem; validar com a suíte visual e amostras reais</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="estrutura">
+<h2>8. Estrutura do repositório e arquivos analisados</h2>
+<div class="tw"><table>
+<thead><tr><th>Classe</th><th>Conteúdo</th><th>Tratamento</th></tr></thead>
+<tbody>
+<tr><td>Produção</td><td><code>extension/</code>: background.js + <code>background/</code> (router, state, tab-identity, jobs-*, log, 23 ações), content_manga.js + <code>cm-*.js</code>, content_gemini.js + <code>gemini/*.js</code> (10), gtc-fingerprint.js, gtc-indexeddb.js, storage-manager.js, inject.js, popup/options/reader (JS + HTML), shared-ui.js, manifest.json</td><td>Foco da auditoria</td></tr>
+<tr><td>Testes</td><td><code>tests/</code>: 109 suítes Jest, 3 specs Playwright (21 testes), 6 smoke, visual-v3 (224), helpers e mocks</td><td>Usados para verificar proteção contra regressão</td></tr>
+<tr><td>CI / build</td><td><code>.github/workflows/</code> (ci, publish, recover-cancelled-ci), <code>tests/ci/*</code>, <code>scripts/sync-version.js</code>. Não há bundler, lint nem typecheck.</td><td>Seção 31</td></tr>
+<tr><td>Documentação</td><td>README, projeto.md, status.md, <code>docs/*.md</code></td><td>Não usada como evidência</td></tr>
+<tr><td>Irrelevante</td><td>PNGs de fixture, <code>tests/node_modules</code>, lockfile</td><td>Excluído</td></tr>
+</tbody></table></div>
+<h3>Profundidade de leitura (transparência)</h3>
+<ul>
+<li><strong>Integral ou quase integral (9):</strong> <code>manifest.json</code>, <code>background.js</code> (trecho ~505-600 parcial), <code>background/router.js</code>, <code>background/log.js</code>, <code>storage-manager.js</code>, <code>cm-chapter.js</code>, <code>inject.js</code>, <code>background/actions/fetch-image-base64.js</code>, <code>background/actions/request-image-data.js</code>.</li>
+<li><strong>Leitura dirigida das funções críticas:</strong> <code>content_manga.js</code>, <code>cm-gtc-client.js</code>, <code>cm-auto-restore.js</code>, <code>gtc-indexeddb.js</code>, <code>gemini/observer.js</code>, <code>gemini/dom.js</code>, <code>gemini/job-runner.js</code>, <code>gemini/temporary-chat.js</code>, <code>gemini/deletion.js</code>, <code>content_gemini.js</code>, <code>background/state.js</code>, <code>background/jobs-lifecycle.js</code>, <code>background/jobs-reconciliation.js</code>, <code>popup.js</code>, <code>reader.js</code>, <code>options.js</code>, <code>download-image.js</code>, <code>download-chapter.js</code>.</li>
+<li><strong>Varredura automatizada (todos os 56 JS):</strong> timers, observers, <code>storage.*</code>, mensagens, <code>innerHTML</code>, <code>eval</code>, laços com <code>await</code>, <code>getContext</code>, <code>openCursor</code>, <code>sleep</code>; mais mapa de coverage por função (sessão anterior).</li>
+<li><strong>Não lidos linha a linha nesta sessão:</strong> <code>gemini/attachment.js</code>, <code>editor.js</code>, <code>result-extractor.js</code>, <code>image-quarantine.js</code>, <code>selectors.js</code>, <code>background/tab-identity.js</code>, <code>jobs-watchdog.js</code>, <code>cm-dom-replace.js</code>, <code>gtc-fingerprint.js</code>, <code>shared-ui.js</code> e 18 ações pequenas. A varredura não apontou problema neles. <span class="b low">Evidência insuficiente</span> para afirmar ausência de defeitos.</li>
+</ul>
+</section>
+
+<section id="arquitetura">
+<h2>9. Arquitetura atual</h2>
+<pre><code>┌──────────── toda página (&lt;all_urls&gt;, 6 scripts, 235.976 B) ────────────┐
+│ gtc-fingerprint → cm-gtc-client → cm-dom-replace → cm-chapter →          │
+│ cm-auto-restore → content_manga   (2 listeners storage.onChanged sempre)│
+└───────────────┬───────────────────────────────────────────────────────────┘
+                │ runtime.sendMessage (JSON, limite 64 MiB)
+┌───────────────▼──────────── service worker (background.js) ─────────────┐
+│ importScripts: router, state(mt_state), tab-identity, jobs-*, 23 ações,  │
+│ gtc-fingerprint, gtc-indexeddb (cache perceptual), storage-manager (IDB) │
+│ log local em storage.local (translatorLog ≤ 500)   alarms · downloads    │
+└───────┬─────────────────────────────────────────────┬────────────────────┘
+        │ tabs/windows.create por job                 │ tabs.sendMessage
+┌───────▼──── aba Gemini (gemini.google.com) ────┐   ┌▼── popup / options / reader ──┐
+│ inject.js (MAIN, document_start)               │   │ pedem imagens como dataUrl    │
+│ 11 scripts: observer, job-runner, attachment…  │   │ via SM_* (mesma origem do IDB) │
+└────────────────────────────────────────────────┘   └────────────────────────────────┘</code></pre>
+<p>O estado de lote é durável (<code>mt_state</code> em <code>chrome.storage.local</code>, <code>state.js:83-110</code>) e é reconciliado após o reinício do worker. As páginas traduzidas vivem no IndexedDB <code>manga_translator_data</code> (storage-manager). O cache perceptual global fica num segundo IndexedDB (gtc-indexeddb), com payload próprio em base64.</p>
+</section>
+
+<section id="fluxos">
+<h2>10. Fluxos críticos</h2>
+<h3>F1 — Qualquer página carregada (inclusive sites não habilitados)</h3>
+<pre><code>content scripts (235.976 B) parseados e executados
+→ content_manga.js:100-109  storage.get(dimensões) + onChanged #1 (incondicional)
+→ content_manga.js:1211     storage.get(enabledDomains, …)
+→ content_manga.js:1226     onChanged #2 (incondicional)
+→ domínio não habilitado: nenhum trabalho útil, mas os 2 listeners recebem TODA
+  gravação de translatorLog / mt_state / gemini_job_* com oldValue+newValue  [G-03]</code></pre>
+<h3>F2 — Início de lote (página habilitada)</h3>
+<pre><code>clique → extractAndSendImages (content_manga.js:1841)
+→ Promise.all(fingerprints) (:1902) → 5 canvases por imagem na thread da página [G-08]
+→ GTC_QUERY_MANY (SHA-256, lote) → GTC_QUERY_BY_DHASH (índice, lote)
+→ perceptual 'strict' (:2043) → 'crop' (:2081) → 'relaxed' (:2107)  ← sequenciais
+     cada um: índice exato + openCursor() lendo translatedDataUrl de TODO registro [G-01]
+→ START_BATCH (mt_state com prompt copiado por job) [G-11]</code></pre>
+<h3>F3 — Um job por imagem (caminho crítico de latência)</h3>
+<pre><code>processNextJob: slot síncrono (jobs-lifecycle.js:517-521) → syncState (:526)
+→ windows.create/tabs.create (:279/:323): SPA completa do Gemini [G-06]
+→ content_gemini claim: polling de 500 ms (content_gemini.js:286-326)
+→ REQUEST_IMAGE_DATA: Gemini → SW → aba do mangá (canvas.toDataURL na página,
+  content_manga.js:2830-2851) → SW → Gemini   (até 5 tentativas × 1 s, job-runner.js:622-631)
+→ anexo confirmado → sleep 1000 (:1003) → prompt → sleep 200 (:1039)
+  → confirmado → sleep 1000 (:1056)   [+1500 em conversa temporária (:929)]   [G-05]
+→ geração: inspect() por lote de mutações, travessia completa + layout [G-02]
+→ extração + quarentena SHA-256 → commit ao SW (base64)
+→ SW → mangá UPDATE_IMAGE (jobs-dom-ack.js:55) → SM_SAVE_PAGE (:2610) + GTC_SAVE (:2595)
+  = 4 travessias da mesma imagem, 2 gravações [G-04]
+→ exclusão da conversa (sleeps de 250–800 ms, deletion.js:261-355) → fecha aba</code></pre>
+<h3>F4 — Exportar ou abrir pasta pelo popup</h3>
+<pre><code>smChapterImages: for…of await SM_GET_PAGE (popup.js:210-223)  ← sequencial, SW faz Blob→base64
+→ capítulo inteiro em memória no popup
+→ 1 mensagem com todas as imagens (OPEN_CHAPTER_FOLDER, images: imgs) [B-05: limite 64 MiB]
+→ downloadImagesAndShow: N downloads + N listeners (background.js:798-868) [G-07]</code></pre>
+</section>
+
+<section id="arquivos">
+<h2>11. Auditoria arquivo por arquivo</h2>
+<div class="tw"><table>
+<thead><tr><th>Arquivo</th><th>Responsabilidade</th><th>Achados / verificado</th></tr></thead>
+<tbody>
+<tr><td class="ev">manifest.json</td><td>MV3, 8 permissões, <code>&lt;all_urls&gt;</code>, 3 blocos de content scripts</td><td>B-11 (127.0.0.1); G-10; <code>scripting</code> tem um único uso (popup.js:437, com fallback em :439); sem <code>minimum_chrome_version</code> apesar de <code>world: MAIN</code> (:51); sem <code>web_accessible_resources</code> nem <code>externally_connectable</code> (positivo)</td></tr>
+<tr><td class="ev">background.js (1251)</td><td>Bootstrap do SW, lote, downloads, menu, handlers SM/GTC, log</td><td>B-03, B-06, G-03 (:418-422), G-07, G-11; <code>throw</code> em falha de <code>importScripts</code> (:47-105, positivo); ramo <code>require</code> de teste com <code>catch</code> vazio (:106-145)</td></tr>
+<tr><td class="ev">background/router.js (168)</td><td>Registry, origem, validação, execução</td><td>B-03 (:61, :79); S-2 (:50-51); validação em :97-126 (positivo)</td></tr>
+<tr><td class="ev">background/state.js (267)</td><td>Estado durável <code>mt_state</code></td><td>Snapshot completo por <code>syncState</code> (:90-94) e <code>mutate</code> (:106) → G-03; <code>_persistenceChain</code> serializa gravações (positivo); log guardado em :184 → B-03</td></tr>
+<tr><td class="ev">background/log.js (30)</td><td>Logger extraído</td><td>D-02: nunca carregado</td></tr>
+<tr><td class="ev">background/jobs-lifecycle.js (746)</td><td>Lançamento e finalização de jobs</td><td>Slot atômico (:517-521, positivo); aba/janela por job (:279, :323) → G-06; concorrência padrão 1 (:264-265)</td></tr>
+<tr><td class="ev">background/jobs-reconciliation.js (111)</td><td>Reidratação após reinício do SW</td><td>Idempotente por atribuição (:92-93, positivo)</td></tr>
+<tr><td class="ev">background/jobs-dom-ack.js (89)</td><td>Entrega com ACK</td><td><code>UPDATE_IMAGE</code> com dataUrl completo (:55) → G-04</td></tr>
+<tr><td class="ev">background/actions/*.js (23)</td><td>Uma ação IPC por arquivo</td><td>download-image sem <code>validate</code> (S-3); request-image-data repassa para qualquer <code>mangaTabId</code> (origem <code>any</code>); fetch-image-base64 com validação e timeout de 30 s (positivo) e <code>no-store</code> (G-13)</td></tr>
+<tr><td class="ev">content_manga.js (2862)</td><td>UI flutuante, seleção, lote, aplicação, restore</td><td>D-01 (:322-677); G-03 (:103, :1226); G-04 (:2595, :2610); canvas.toDataURL em resolução cheia na página (:2848); varreduras <code>indexOf</code> em :1546, :1623 (baixo); guarda do botão barata, só filhos diretos (:1046-1052, positivo)</td></tr>
+<tr><td class="ev">cm-gtc-client.js (161)</td><td>Fingerprint e consultas ao cache</td><td>G-08; cascata de 5 consultas por lote, 3 delas com varredura (G-01)</td></tr>
+<tr><td class="ev">cm-chapter.js (154)</td><td>Identidade e persistência de capítulo</td><td>B-01, B-02, B-04; D-03 (ramo legado); cache de assets limitado a 12 (positivo)</td></tr>
+<tr><td class="ev">cm-auto-restore.js (123)</td><td>Restauração automática</td><td>MO com debounce final de 150 ms (:101-105). <span class="b hyp">Hipótese:</span> starvation em páginas com mutação contínua</td></tr>
+<tr><td class="ev">gtc-indexeddb.js (1168)</td><td>Cache perceptual global</td><td>G-01; conexão cacheada com reset em erro (positivo); sem evicção</td></tr>
+<tr><td class="ev">storage-manager.js (516)</td><td>Páginas e assets transacionais</td><td>Desenho correto (Blob único, transação atômica, fila por capítulo); B-07; G-12</td></tr>
+<tr><td class="ev">content_gemini.js (461)</td><td>Bootstrap do RPA</td><td>Claim por polling de 500 ms (:286-326); listener <code>onChanged</code> (:171) → G-03; <code>sanitizeLogExtra</code> redige URL/token (:98-136, positivo)</td></tr>
+<tr><td class="ev">gemini/observer.js (587)</td><td>Detecção de estado e resultado</td><td>G-02</td></tr>
+<tr><td class="ev">gemini/dom.js (370)</td><td>Utilitários de DOM profundo</td><td><code>findAllDeep</code> visita todos os nós, inclusive texto (:66-89); <code>isElementVisible</code> força layout (:11-36)</td></tr>
+<tr><td class="ev">gemini/job-runner.js (1471)</td><td>Orquestração do job no Gemini</td><td>G-05; <code>requestImageData</code> com 5 × 1 s (:622-631); commit com backoff 250 × tentativa (:792)</td></tr>
+<tr><td class="ev">gemini/deletion.js · temporary-chat.js</td><td>Exclusão segura; conversa temporária</td><td>Sequências de <code>sleep</code> de 250–800 ms (deletion.js:274-355); polling do ID do chat até 8 s (:261); temporary-chat.js:183/190/194</td></tr>
+<tr><td class="ev">inject.js (472)</td><td>MAIN world: anti-throttling, ponte CustomEvent</td><td>Guarda por marcador (:3-12); ponte <code>FETCH_IMAGE</code> com <code>credentials: 'include'</code> sem allowlist (:367-371) → S-5; 0% de coverage (sessão anterior)</td></tr>
+<tr><td class="ev">popup.js (2020)</td><td>UI principal</td><td>B-05; G-09 (:301-308); S-1 (:658, :930); polling de 800 ms (:732, :825); <code>renderLogs</code> reconstrói até 500 linhas (:1897)</td></tr>
+<tr><td class="ev">reader.js (259) · options.js (420)</td><td>Leitor offline; opções</td><td>Leitor com lazy load e unload por IntersectionObserver (:209-253, positivo), mas imagens como base64 via IPC (:159-165); options prefere <code>legacyDataUrl</code> (:178, :186)</td></tr>
+<tr><td class="ev">gtc-fingerprint.js · shared-ui.js</td><td>Hashes perceptuais; utilitários de UI</td><td>Tabela DCT lazy em Float32Array (positivo); <code>escapeHTML</code> cobre <code>&amp; &lt; &gt; ' "</code> (shared-ui.js:8-16, positivo)</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="background">
+<h2>12. Background / service worker</h2>
+<ul>
+<li><strong>Bootstrap:</strong> <code>importScripts</code> de 30 módulos com <code>throw</code> em falha (background.js:47-105). A lista não inclui <code>background/log.js</code>, o que causa B-03.</li>
+<li><strong>Dependência de memória e reinício:</strong> o estado é reidratado de <code>mt_state</code> e reconciliado com <code>chrome.tabs.get</code>. O <code>_finalizedTabs</code> em memória (30 s) tem um marcador durável como fallback (positivo). Os listeners de download são registrados dinamicamente (background.js:812) e se perdem se o worker reiniciar durante uma exportação longa. <span class="b hyp">Hipótese</span> A ocorrência depende do tempo de vida do SW: confirmar em runtime.</li>
+<li><strong>Inicialização:</strong> B-06. O <code>onStartup</code> faz restore, migra identidades e zera <code>extractionTabs</code> (background.js:658-667) por um caminho paralelo ao <code>ensureInitialized</code>.</li>
+<li><strong>Persistência:</strong> cada <code>syncState</code> grava o snapshot inteiro (state.js:90-94). As gravações são serializadas por <code>_persistenceChain</code>, sem corrupção por intercalação (positivo), mas cada uma é difundida (G-03).</li>
+<li><strong>Trabalho no contexto errado:</strong> a persistência do resultado traduzido começa na aba do mangá (G-04), embora o SW já tenha a imagem no commit.</li>
+</ul>
+</section>
+
+<section id="content">
+<h2>13. Content scripts</h2>
+<ul>
+<li><strong>Escala:</strong> 6 scripts em toda página (G-10). O gate de domínio é assíncrono (content_manga.js:1211-1224). Antes dele, já estão registrados dois <code>storage.onChanged</code> e um <code>runtime.onMessage</code> (:2545).</li>
+<li><strong>Observers na página hospedeira:</strong> a guarda do botão observa só os filhos diretos de <code>documentElement</code> (barata, :1046-1052). O auto-restore usa subtree com filtro de atributos e debounce de 150 ms (cm-auto-restore.js:101-105).</li>
+<li><strong>Processamento de imagens na página:</strong> fingerprint com 5 canvases (G-08) e <code>canvas.toDataURL</code> em resolução cheia a cada <code>REQUEST_IMAGE_DATA</code> (content_manga.js:2848). Ambos rodam na thread principal da página do usuário.</li>
+<li><strong>Aba Gemini:</strong> G-02 domina. O claim do job usa polling de 500 ms (content_gemini.js:286-326). <code>inject.js</code> sai cedo sem marcador (inject.js:7-11, positivo).</li>
+</ul>
+</section>
+
+<section id="mensageria">
+<h2>14. Mensageria</h2>
+<div class="tw"><table>
+<thead><tr><th>Fluxo</th><th>Payload</th><th>Observação</th></tr></thead>
+<tbody>
+<tr><td>Gemini → SW → mangá → SW → Gemini (<code>REQUEST_IMAGE_DATA</code>)</td><td>Imagem original em base64 (2 saltos na volta)</td><td>O SW só repassa (request-image-data.js). Sem validação de <code>mangaTabId</code> e origem <code>any</code></td></tr>
+<tr><td>Gemini → SW (commit) → mangá (<code>UPDATE_IMAGE</code>) → SW (<code>SM_SAVE_PAGE</code>, <code>GTC_SAVE</code>)</td><td>Imagem traduzida em base64 × 4</td><td>G-04</td></tr>
+<tr><td>Popup → SW <code>SM_GET_PAGE</code>/<code>SM_GET_ASSET</code> → popup → SW <code>OPEN_CHAPTER_FOLDER</code></td><td>Capítulo inteiro em base64, depois numa única mensagem</td><td>B-05, G-09</td></tr>
+<tr><td>Content → SW <code>GTC_QUERY_PERCEPTUAL_V2</code> × 3</td><td>Hashes (pequeno)</td><td>Round trips sequenciais; custo no SW (G-01)</td></tr>
+<tr><td><code>LOG_ENTRY</code> (57 pontos no RPA)</td><td>Pequeno</td><td>Cada um pode gerar uma gravação de 500 entradas + broadcast (G-03)</td></tr>
+<tr><td>Popup → aba <code>GET_FLOATING_BUTTON_STATUS</code></td><td>Pequeno, a cada 800 ms</td><td>Aceitável; um mecanismo push reduziria o tráfego (hipótese)</td></tr>
+</tbody></table></div>
+<p>Validação: o router rejeita ação desconhecida, origem não permitida e payload inválido antes de executar (router.js:97-126). Só 3 de 23 ações restringem origem (S-6). Os erros das ações voltam na resposta, mas não são logados (B-03).</p>
+</section>
+
+<section id="armazenamento">
+<h2>15. Armazenamento</h2>
+<div class="tw"><table>
+<thead><tr><th>Área</th><th>Dados</th><th>Padrão de escrita</th><th>Problema</th></tr></thead>
+<tbody>
+<tr><td><code>storage.local</code> <code>translatorLog</code></td><td>Até 500 entradas</td><td>get + push + set do array inteiro por flush (background.js:418-422)</td><td>G-03; <code>catch (e) {}</code> descarta o lote em caso de erro</td></tr>
+<tr><td><code>storage.local</code> <code>mt_state</code></td><td>Fila, índice de jobs, lotes pendentes</td><td>Snapshot completo por transição (state.js:90-94, :106)</td><td>G-03, G-11</td></tr>
+<tr><td><code>storage.local</code> <code>chapterList</code></td><td>Metadados de capítulos</td><td>Leitura-modificação-escrita por aba (cm-chapter.js:84-111)</td><td>B-01, B-02</td></tr>
+<tr><td><code>storage.local</code> <code>gemini_job_*</code>, <code>wd_data_*</code>, marcadores</td><td>Registros por job</td><td>Várias gravações por job (jobs-lifecycle.js, tab-identity.js)</td><td>Broadcast (G-03)</td></tr>
+<tr><td>IndexedDB <code>manga_translator_data</code></td><td>Páginas (Blob) + restore + assets</td><td>Transação atômica e fila por capítulo (storage-manager.js:170-238)</td><td>Bom desenho; B-07, G-12</td></tr>
+<tr><td>IndexedDB do GTC</td><td>Hashes + <code>translatedDataUrl</code> inline</td><td><code>put</code> por tradução; nunca evictado</td><td>G-01; duplica a imagem já salva como Blob (G-04)</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="dom">
+<h2>16. DOM</h2>
+<ul>
+<li><strong>G-02 (aba Gemini):</strong> travessia completa e layout forçado a cada lote de mutações. É o ponto de DOM mais caro encontrado.</li>
+<li><strong>Popup:</strong> <code>renderLogs</code> apaga e recria até 500 linhas a cada mudança de <code>translatorLog</code> enquanto o painel está aberto (popup.js:1855-1859, :1897). Renderizar por diff de IDs evitaria isso.</li>
+<li><strong>Página hospedeira:</strong> <code>Array.from(document.querySelectorAll('img')).indexOf(img)</code> em :1546 e no ramo de erro em :1623, disparados por ação do usuário (baixo). A leitura <code>offsetWidth</code> seguida de escrita de estilo em :927-930 ocorre só no posicionamento do botão.</li>
+</ul>
+</section>
+
+<section id="processamento">
+<h2>17. Processamento (CPU)</h2>
+<ul>
+<li><strong>SW, G-01:</strong> desserialização de todas as strings base64 do cache em cada varredura; para cada registro, pares query × entrada de hashes (<code>normWHashes × normPHashes</code>, gtc-indexeddb.js:~550).</li>
+<li><strong>Página, G-08:</strong> 5 reamostragens por imagem. Uma única reamostragem intermediária reduziria o custo, mas altera os bits dos hashes e quebraria correspondências já gravadas. <span class="b hyp">Hipótese</span> Não recomendado sem migração do cache.</li>
+<li><strong>SW:</strong> <code>dataUrlToBlob</code> faz <code>atob</code> + laço byte a byte (storage-manager.js:114-135). É O(n) e aceitável; <code>fetch(dataUrl).blob()</code> é nativo e seria alternativa se medido.</li>
+<li><strong>Algoritmos:</strong> <code>listRestoreEntries</code> copia arrays de forma quadrática (<code>concat</code> em laço, storage-manager.js:327-328), O(k²) → O(k) com <code>push</code>. A entrega de eventos de download é O(N·E) → O(E) (G-07).</li>
+</ul>
+</section>
+
+<section id="rede">
+<h2>18. Rede</h2>
+<ul>
+<li>Cada job carrega a SPA completa do Gemini (G-06). É o maior volume de rede por imagem.</li>
+<li><code>fetch-image-base64</code> tem timeout de 30 s com <code>AbortController</code> e <code>finally</code> (positivo), mas usa <code>cache: 'no-store'</code> (G-13). O limite de 50 MB é checado depois de <code>response.blob()</code>, com a imagem já baixada.</li>
+<li>A ponte da página tem timeout de 20 s (<code>result-extractor.js:53</code>, positivo).</li>
+<li>Retentativas são limitadas (5 × 1 s em <code>requestImageData</code>; backoff linear no commit). Não há retry storm.</li>
+<li><span class="b low">Evidência insuficiente</span> sobre as opções de cache do fetch em <code>calculate-visual-fingerprint.js</code>.</li>
+</ul>
+</section>
+
+<section id="memoria">
+<h2>19. Memória</h2>
+<ul>
+<li><strong>Picos no SW:</strong> as varreduras de G-01 materializam todas as traduções do cache como strings JS.</li>
+<li><strong>Popup:</strong> <code>smChapterImages</code> guarda o capítulo inteiro em base64 (popup.js:210-223); as miniaturas usam imagens em tamanho integral (:301-308).</li>
+<li><strong>Limitados corretamente (positivo):</strong> cache de assets do capítulo (12 itens), leitor com unload fora da viewport, índice de restore sem blobs.</li>
+<li><strong>Timers:</strong> N timers de 600 s por exportação (G-07). O observer do Gemini rastreia seus timers em <code>state.timers</code> e os limpa (observer.js:422-431).</li>
+</ul>
+</section>
+
+<section id="async">
+<h2>20. Assincronismo e lifecycle</h2>
+<ul>
+<li>B-06: inicialização sem single-flight; <code>catch (_e) {}</code> em background.js:395.</li>
+<li>B-02: gravação sem <code>await</code> no fallback de título (<code>chrome.storage.local.set({ chapterList: list })</code> no ramo de reaproveitamento em cm-chapter.js) e leitura-modificação-escrita entre abas.</li>
+<li>G-12: <code>await</code> sequencial dentro de uma transação por capítulo (storage-manager.js:291). As requisições poderiam ser emitidas juntas.</li>
+<li>Correto (positivo): reserva de slot sem <code>await</code> entre checagem e incremento (jobs-lifecycle.js:517-521); fila de persistência do estado; fila por capítulo no storage-manager.</li>
+<li>Operações que continuam após perder relevância: <code>stopBatch</code> invalida lançamentos em voo (background.js:1110-1118, positivo).</li>
+</ul>
+</section>
+
+<section id="deps">
+<h2>21. Dependências</h2>
+<p><strong>Runtime:</strong> nenhuma dependência de terceiros. A extensão é JavaScript puro, e o <code>package.json</code> raiz não declara dependências. Não há biblioteca pesada no caminho crítico.</p>
+<p><strong>Apenas desenvolvimento:</strong> <code>jest@29</code>, <code>jest-environment-jsdom</code>, <code>fake-indexeddb</code>, <code>@playwright/test</code>. O <code>npm ci</code> reporta dependências transitivas obsoletas (inflight, glob@7, abab, domexception), sem impacto em runtime. O <code>esbuild</code> foi instalado em <code>/tmp/probe</code> só para medição; não faz parte do repositório.</p>
+</section>
+
+<section id="bundle">
+<h2>22. Bundle e carregamento</h2>
+<div class="tw"><table>
+<thead><tr><th>Arquivo (bloco &lt;all_urls&gt;)</th><th>Cru (B)</th><th>Minificado (B)</th><th>Redução</th></tr></thead>
+<tbody>
+<tr><td>gtc-fingerprint.js</td><td>37.517</td><td>8.848</td><td>76%</td></tr>
+<tr><td>cm-gtc-client.js</td><td>11.928</td><td>6.430</td><td>46%</td></tr>
+<tr><td>cm-dom-replace.js</td><td>10.223</td><td>5.297</td><td>48%</td></tr>
+<tr><td>cm-chapter.js</td><td>7.984</td><td>3.543</td><td>56%</td></tr>
+<tr><td>cm-auto-restore.js</td><td>7.668</td><td>3.555</td><td>54%</td></tr>
+<tr><td>content_manga.js</td><td>160.656</td><td>64.203</td><td>60%</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>235.976</strong> (gzip 54.655)</td><td><strong>91.876</strong> (gzip 32.000)</td><td><strong>61%</strong></td></tr>
+</tbody></table></div>
+<p>Compilação de <code>content_manga.js</code> em V8/Node v20.20.2 (melhor de 30 execuções): 1,86 ms crua contra 1,24 ms minificada. Isso é uma aproximação: o Chrome também usa cache de código. Conclusão: minificar é barato e útil, mas o ganho de CPU por página é pequeno. <strong>O maior ganho de carregamento</strong> seria não injetar o bloco em sites não habilitados, via registro dinâmico (E-3). Isso também eliminaria os listeners de G-03 nessas abas, mas exige manter a permissão <code>scripting</code>, que hoje é candidata a remoção. A decisão é de arquitetura.</p>
+</section>
+
+<section id="seguranca">
+<h2>23. Segurança</h2>
+<div class="tw"><table>
+<thead><tr><th>ID</th><th>Classificação</th><th>Local</th><th>Descrição</th></tr></thead>
+<tbody>
+<tr><td>S-1</td><td><span class="b low">Baixo</span><span class="b high">Risco latente</span></td><td class="ev">popup.js:658, :930</td><td>URL interpolada em <code>innerHTML</code> sem <code>escapeHTML</code>. Hoje as URLs vêm de <code>img.src</code> normalizado, que percent-codifica aspas.</td></tr>
+<tr><td>S-2</td><td><span class="b low">Baixo</span><span class="b high">Defesa em profundidade</span></td><td class="ev">background/router.js:50-51</td><td><code>includes('gemini.google.com')</code> classifica como Gemini URLs que só contêm a substring. Páginas web não acessam o runtime diretamente: o risco depende de um contexto da extensão comprometido.</td></tr>
+<tr><td>S-3</td><td><span class="b med">Médio</span><span class="b high">Validação ausente</span></td><td class="ev">background/actions/download-image.js:5-29</td><td>Sem <code>validate()</code>: URL e nome de arquivo livres, com <code>saveAs: false</code>.</td></tr>
+<tr><td>S-4</td><td><span class="b med">Médio</span></td><td class="ev">manifest.json:46, :57</td><td>B-11.</td></tr>
+<tr><td>S-5</td><td><span class="b low">Baixo</span><span class="b hyp">Hipótese</span></td><td class="ev">inject.js:367-371</td><td>A ponte <code>MANGA_TRANSLATOR_FETCH_IMAGE</code> busca <code>detail.url</code> com credenciais, sem allowlist. A página já tem sessão própria, então isso não prova escalada. Revisar correlação de <code>requestId</code>.</td></tr>
+<tr><td>S-6</td><td><span class="b low">Baixo</span></td><td class="ev">background/actions/*.js</td><td>20 de 23 ações aceitam origem <code>any</code>.</td></tr>
+<tr><td>—</td><td><span class="b ok">Verificado</span></td><td class="ev">extension/</td><td>Sem <code>eval</code>/<code>new Function</code>; sem chaves de API embutidas; sem <code>externally_connectable</code> nem <code>web_accessible_resources</code>; redação de dados sensíveis nos logs do RPA (content_gemini.js:98-136); validação de protocolo e host em fetch-image-base64 (:8-38).</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="morto">
+<h2>24. Código morto e redundante</h2>
+<div class="tw"><table>
+<thead><tr><th>ID</th><th>Estado</th><th>Local</th><th>Descrição</th></tr></thead>
+<tbody>
+<tr><td>D-01</td><td><span class="b crit">Confirmado</span></td><td class="ev">content_manga.js:322-677 (18.205 B)</td><td>9 funções de cache e fingerprint reatribuídas às versões de <code>cm-gtc-client</code> em :685-693, portanto nunca executadas. Parseadas em toda página. A regra <code>no-func-assign</code> do ESLint detectaria isso.</td></tr>
+<tr><td>D-02</td><td><span class="b crit">Confirmado</span></td><td class="ev">background/log.js</td><td>Módulo órfão, não carregado por nenhum contexto de produção. Causa B-03.</td></tr>
+<tr><td>D-03</td><td><span class="b high">Provável</span></td><td class="ev">cm-chapter.js (ramo <code>else if (meta.cleanUrl)</code> de <code>persistTranslatedPage</code>)</td><td>Só roda se <code>SM_SAVE_PAGE</code> responder <code>ok</code> sem <code>assetId</code>, mas <code>savePageResult</code> sempre retorna <code>assetId</code>. Se alcançado, regravaria mapas legados com todas as imagens em <code>storage.local</code>.</td></tr>
+<tr><td>D-04</td><td><span class="b crit">Confirmado</span></td><td class="ev">tests/helpers/extracted-functions.js</td><td>Cópias de funções de produção usadas por testes (B-04).</td></tr>
+<tr><td>R-dup</td><td><span class="b crit">Confirmado</span></td><td class="ev">GTC + storage-manager</td><td>A mesma imagem traduzida é armazenada duas vezes (G-04).</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="tabela-problemas">
+<h2>25. Tabela principal de problemas</h2>
+<div class="tw"><table>
+<thead><tr><th>Prioridade</th><th>Tipo</th><th>Arquivo/linha</th><th>Problema</th><th>Impacto</th><th>Confiança</th><th>Correção</th></tr></thead>
+<tbody>
+<tr><td><span class="b crit">Crítico</span></td><td>Bug confirmado</td><td class="ev">cm-chapter.js:95</td><td>Colisão de capítulo (não latino / sem título)</td><td>Funcionalidade, perda de dados</td><td>Alta</td><td>R-01</td></tr>
+<tr><td><span class="b crit">Alto</span></td><td>Gargalo confirmado</td><td class="ev">gtc-indexeddb.js:536, :678, :819</td><td>Varredura que desserializa todo o cache, ×3 por lote</td><td>CPU, memória, latência</td><td>Alta (estrutura)</td><td>R-04, E-2</td></tr>
+<tr><td><span class="b high">Alto</span></td><td>Bug confirmado</td><td class="ev">cm-chapter.js:84-111</td><td>Perda de atualização de <code>chapterList</code> entre abas</td><td>Dados órfãos</td><td>Alta</td><td>R-02</td></tr>
+<tr><td><span class="b high">Alto</span></td><td>Gargalo confirmado</td><td class="ev">gemini/observer.js:404-459</td><td><code>inspect</code> por lote de mutações com travessia completa e layout</td><td>CPU na aba Gemini</td><td>Alta (estrutura)</td><td>R-05</td></tr>
+<tr><td><span class="b high">Médio-Alto</span></td><td>Gargalo confirmado</td><td class="ev">background.js:418-422 · content_manga.js:103, :1226</td><td>Broadcast de log e estado a todas as abas</td><td>CPU e memória em toda navegação</td><td>Alta (estrutura); magnitude não medida</td><td>R-06, E-3</td></tr>
+<tr><td><span class="b high">Médio-Alto</span></td><td>Gargalo confirmado</td><td class="ev">gemini/job-runner.js:929, :1003, :1039, :1056</td><td>Esperas fixas após confirmações</td><td>Latência por imagem</td><td>Alta</td><td>R-08</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Bug confirmado</td><td class="ev">background/router.js:61, :79</td><td>Logs de erro descartados</td><td>Estabilidade, diagnóstico</td><td>Alta</td><td>R-03</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Bug confirmado</td><td class="ev">cm-chapter.js:5-14</td><td><code>canonicalTitle</code> sem a normalização documentada</td><td>Deduplicação</td><td>Alta</td><td>Portar regex</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Gargalo confirmado</td><td class="ev">jobs-dom-ack.js:55 · content_manga.js:2595, :2610</td><td>4 travessias base64, 2 gravações</td><td>IPC, memória</td><td>Alta</td><td>E-1</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Risco provável</td><td class="ev">popup.js:210-223, :1049</td><td>Exportação numa única mensagem acima de 64 MiB</td><td>Funcionalidade</td><td>Média</td><td>R-07</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Risco provável</td><td class="ev">manifest.json:46, :57</td><td>127.0.0.1 em produção</td><td>Segurança</td><td>Alta</td><td>Manifest de teste</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Problema de segurança</td><td class="ev">download-image.js:5-29</td><td>Sem validação de URL e nome</td><td>Segurança</td><td>Alta</td><td><code>validate()</code></td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Gargalo confirmado</td><td class="ev">popup.js:301-308 · reader.js:159-165</td><td>Imagens integrais em base64 via IPC</td><td>Memória, latência de UI</td><td>Alta</td><td>E-4</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Gargalo provável</td><td class="ev">cm-gtc-client.js:52-100</td><td>5 reamostragens por imagem na página</td><td>CPU da página</td><td>Média</td><td><code>willReadFrequently</code> (validar)</td></tr>
+<tr><td><span class="b med">Médio</span></td><td>Hipótese</td><td class="ev">jobs-lifecycle.js:279, :323</td><td>SPA do Gemini por imagem</td><td>Latência, rede</td><td>Baixa</td><td>E-6 (benchmark)</td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Risco provável</td><td class="ev">background.js:370-406</td><td>Init sem single-flight</td><td>Estabilidade</td><td>Média</td><td>R-12</td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Gargalo confirmado</td><td class="ev">background.js:798-828</td><td>N listeners de download</td><td>CPU no SW</td><td>Alta</td><td>R-09</td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Melhoria</td><td class="ev">content_manga.js:322-677</td><td>Código morto</td><td>Carregamento, manutenção</td><td>Alta</td><td>Apagar</td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Redundância</td><td class="ev">background.js:915-921</td><td>Prompt copiado por job</td><td>Storage, broadcast</td><td>Alta</td><td>Prompt no lote</td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Risco latente</td><td class="ev">popup.js:658, :930</td><td><code>innerHTML</code> sem escape</td><td>Segurança</td><td>Alta</td><td><code>escapeHTML</code></td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Hipótese</td><td class="ev">storage-manager.js:350-380</td><td><code>deleteByCleanUrl</code> fora da fila</td><td>Asset órfão</td><td>Baixa</td><td>Serializar</td></tr>
+<tr><td><span class="b low">Baixo</span></td><td>Melhoria</td><td class="ev">storage-manager.js:291, :327, :486</td><td>Laços sequenciais e quadráticos</td><td>Latência</td><td>Alta</td><td>Paralelizar / <code>push</code></td></tr>
+</tbody></table></div>
+</section>
+
+<section id="tabela-otimizacoes">
+<h2>26. Tabela de otimizações</h2>
+<div class="tw"><table>
+<thead><tr><th>Área</th><th>Situação atual</th><th>Gargalo</th><th>Melhoria proposta</th><th>Benefício esperado</th><th>Risco</th><th>Esforço</th></tr></thead>
+<tbody>
+<tr><td>Cache perceptual</td><td>Registro com hashes + base64; varredura por cursor</td><td>G-01</td><td>Varredura só de chaves (<code>openKeyCursor</code>); payload separado; LRU por <code>updatedAt</code></td><td>Custo proporcional ao nº de entradas, não aos bytes <span class="b ok">comprovável pela estrutura</span></td><td>Médio</td><td>Médio/Grande</td></tr>
+<tr><td>Observer do Gemini</td><td>Microtask por lote + travessia completa</td><td>G-02</td><td>Throttle de ~100 ms com chamada final; shadow roots só com <code>addedNodes</code></td><td>Menos travessias e layouts <span class="b high">provável</span></td><td>Médio</td><td>Pequeno</td></tr>
+<tr><td>Log</td><td>Flush imediato de 500 entradas</td><td>G-03</td><td>Flush agrupado; ou <code>storage.session</code>/IndexedDB</td><td>Menos gravações e broadcasts <span class="b ok">comprovável</span></td><td>Baixo</td><td>Pequeno</td></tr>
+<tr><td>Estado</td><td>Snapshot completo com prompt × N</td><td>G-03, G-11</td><td>Prompt por lote; chaves por lote</td><td>Gravações menores</td><td>Baixo</td><td>Pequeno/Médio</td></tr>
+<tr><td>RPA</td><td>2,2–3,7 s de <code>sleep</code> fixo</td><td>G-05</td><td>Esperas condicionadas com teto</td><td>Até 2,2–3,7 s/imagem <span class="b high">provável</span></td><td>Médio</td><td>Pequeno</td></tr>
+<tr><td>Resultado traduzido</td><td>4 travessias, 2 gravações</td><td>G-04</td><td>Persistir no SW no commit; GTC referencia o asset</td><td>−2 travessias por página; −1 cópia</td><td>Médio</td><td>Médio</td></tr>
+<tr><td>Exportação</td><td>Popup busca e reenvia tudo</td><td>B-05, G-07</td><td>Ação no SW + listener único</td><td>Sem limite de 64 MiB; memória O(1 página)</td><td>Baixo/Médio</td><td>Médio</td></tr>
+<tr><td>UI de páginas da extensão</td><td>dataUrl via IPC</td><td>G-09</td><td>Leitura local do IDB + object URLs; miniaturas geradas ao salvar</td><td>Menos memória e latência</td><td>Médio</td><td>Médio</td></tr>
+<tr><td>Injeção</td><td>6 scripts em toda página</td><td>G-10, G-03</td><td>Registro dinâmico só em domínios habilitados</td><td>Zero custo em sites não habilitados</td><td>Médio (mantém <code>scripting</code>)</td><td>Médio</td></tr>
+<tr><td>Payload</td><td>Código cru, com código morto</td><td>G-10, D-01</td><td>Remover D-01; minificar no pacote</td><td>−61% bytes; −0,6 ms de compilação (medido)</td><td>Baixo</td><td>Pequeno</td></tr>
+<tr><td>Jobs</td><td>Aba nova por imagem</td><td>G-06</td><td>Pool de abas</td><td><span class="b hyp">Hipótese</span> exige benchmark</td><td>Alto (isolamento)</td><td>Grande</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="codigo">
+<h2>27. Recomendações de código</h2>
+
+<h3>R-01 — Chave de título Unicode e sem fallback para título vazio (B-01)</h3>
+<p class="ev">cm-chapter.js:93-102 (trecho atual, reformatado para leitura; lógica inalterada)</p>
+<pre><code>chapter = list.find((item) =&gt; {
+    if (!item.url) return false;
+    try {
+        return new URL(item.url).hostname === hostname
+            &amp;&amp; canonicalTitle(item.title || '').replace(/[^a-z0-9]/gi, '_')
+               === canonicalTitle(document.title || 'Capítulo sem título').replace(/[^a-z0-9]/gi, '_');
+    } catch (_error) { return false; }
+});</code></pre>
+<p><strong>Sugerido:</strong></p>
+<pre><code>function titleKey(value) {
+    // \p{L}\p{N}: preserva letras e dígitos de qualquer alfabeto
+    return canonicalTitle(value).normalize('NFKC').replace(/[^\p{L}\p{N}]+/gu, '_');
+}
+const rawTitle = (document.title || '').trim();
+// Sem título não existe identidade confiável: nunca reaproveitar capítulo.
+chapter = rawTitle ? list.find((item) =&gt; {
+    if (!item.url || !item.title) return false;
+    try {
+        return new URL(item.url).hostname === hostname
+            &amp;&amp; titleKey(item.title) === titleKey(rawTitle);
+    } catch (_error) { return false; }
+}) : null;</code></pre>
+<p><strong>Razão:</strong> elimina a colisão demonstrada e mantém a deduplicação de títulos latinos. <strong>Trade-offs:</strong> capítulos já fundidos continuam fundidos (uma migração pode separá-los por URL). Séries homônimas no mesmo host ainda podem se unir; considerar comparar também o primeiro segmento do path.</p>
+
+<h3>R-02 — Escritor único de <code>chapterList</code> no background (B-02)</h3>
+<pre><code>// background.js — fila única para chapterList (mesmo padrão do storage-manager)
+let chapterListQueue = Promise.resolve();
+function withChapterList(mutator) {
+    const run = async () =&gt; {
+        const { chapterList = [] } = await chrome.storage.local.get('chapterList');
+        const result = mutator(chapterList);          // mutação síncrona, sem await
+        await chrome.storage.local.set({ chapterList });
+        return result;
+    };
+    const next = chapterListQueue.then(run, run);
+    chapterListQueue = next.catch(() =&gt; {});
+    return next;
+}
+// content script: sendRuntimeMessageAsync({ action: 'GET_OR_CREATE_CHAPTER', url, title, hostname })
+// popup (renomear/apagar) usa o mesmo caminho.</code></pre>
+<p><strong>Razão:</strong> leitura-modificação-escrita entre contextos só é segura com um único escritor. <strong>Trade-off:</strong> +1 round trip na primeira página de cada capítulo (já memorizado por <code>chapterIdPromise</code>).</p>
+
+<h3>R-03 — Publicar o logger existente (B-03)</h3>
+<pre><code>// background.js, logo após function log()/_flushLog() (linhas 408-426)
+self.MangaTranslatorLog = { log, _flushLog };
+// e remover extension/background/log.js (órfão) — nunca manter os dois.</code></pre>
+<p><strong>Razão:</strong> router.js:79 lê o logger ao criar o router, o que acontece de forma preguiçosa, depois do topo do arquivo. router.js:61 e state.js:184 leem a cada chamada. <strong>Trade-off:</strong> mais gravações de log; combinar com R-06.</p>
+
+<h3>R-04 — Varredura perceptual só por chaves de índice (G-01, sem migração de schema)</h3>
+<pre><code>// gtc-indexeddb.js — substitui a fase 2 que hoje faz store.openCursor() e lê cursor.value
+function iterateKeys(index, visit) {
+    return new Promise((resolve, reject) =&gt; {
+        const req = index.openKeyCursor();          // NÃO desserializa o registro (sem translatedDataUrl)
+        req.onsuccess = () =&gt; {
+            const c = req.result;
+            if (!c) return resolve();
+            visit(c.key, c.primaryKey);
+            c.continue();
+        };
+        req.onerror = () =&gt; reject(req.error);
+    });
+}
+async function collectHashPairs(store, wIndexName, pIndexName) {
+    const pairs = new Map();                        // primaryKey -&gt; { w, p }
+    await iterateKeys(store.index(wIndexName), (w, pk) =&gt; pairs.set(pk, { w, p: null }));
+    await iterateKeys(store.index(pIndexName), (p, pk) =&gt; { const e = pairs.get(pk); if (e) e.p = p; });
+    return pairs;
+}
+// Hamming só sobre as chaves → candidatos dentro do limiar → store.get(pk) apenas deles,
+// e SÓ ENTÃO aplicar _isAspectCompatible / regionais e escolher o melhor.</code></pre>
+<p><strong>Razão:</strong> <span class="b ok">comprovável pela estrutura</span> deixa de ler os bytes das imagens de cada registro. <strong>Trade-offs:</strong> hoje o filtro de aspect ratio é aplicado antes da escolha; para manter o mesmo resultado, é preciso coletar todos os candidatos no limiar antes de filtrar. A solução definitiva é E-2: store de payload separado e evicção LRU pelo índice <code>updatedAt</code> (gtc-indexeddb.js:321).</p>
+
+<h3>R-05 — Throttle do <code>inspect()</code> e varredura incremental de shadow roots (G-02)</h3>
+<p class="ev">Atual: gemini/observer.js:451-459 (microtask por lote) e :404-415 (travessia completa por <code>inspect</code>)</p>
+<pre><code>const INSPECT_MIN_INTERVAL_MS = 100;
+let lastInspectAt = 0;
+function scheduleInspect(records) {
+    if (records &amp;&amp; records.some(r =&gt; r.addedNodes &amp;&amp; r.addedNodes.length)) state.shadowScanDirty = true;
+    if (state.cleanedUp || state.done || state.inspectionScheduled) return;
+    state.inspectionScheduled = true;
+    const wait = Math.max(0, INSPECT_MIN_INTERVAL_MS - (Date.now() - lastInspectAt));
+    const timer = setTimeoutFn(() =&gt; {
+        state.timers.delete(timer);
+        state.inspectionScheduled = false;
+        lastInspectAt = Date.now();
+        if (!state.cleanedUp &amp;&amp; !state.done) inspect();   // chamada final sempre ocorre
+    }, wait);
+    state.timers.add(timer);
+}
+// em inspect(): if (state.shadowScanDirty) { observeShadowRoots(); state.shadowScanDirty = false; }</code></pre>
+<p><strong>Razão:</strong> limita as travessias completas e layouts forçados a ≤ 10/s e só procura shadow roots quando surgem nós. <strong>Trade-off:</strong> até 100 ms a mais na detecção. O E2E "resultado no mesmo instante lógico do submit não é perdido" precisa continuar passando.</p>
+
+<h3>R-06 — Flush de log agrupado (G-03)</h3>
+<pre><code>// background.js:408-412 — hoje: cada log() chama _flushLog() imediatamente
+const LOG_FLUSH_DELAY_MS = 400;
+let _logTimer = null;
+function log(level, source, action, detail, extra = {}) {
+    _logQueue.push({ id: `${Date.now()}_${Math.random()}`, ts: Date.now(), level: level || 'info',
+        source: source || 'bg', action: action || 'UNKNOWN', detail: detail || '', extra: extra || {} });
+    if (!_logTimer &amp;&amp; !_logFlushing) {
+        _logTimer = setTimeout(() =&gt; { _logTimer = null; _flushLog(); }, LOG_FLUSH_DELAY_MS);
+    }
+}</code></pre>
+<p><strong>Razão:</strong> uma rajada de <code>LOG_ENTRY</code> vira uma única regravação de 500 entradas e um único broadcast. <strong>Trade-offs:</strong> até 400 ms de log perdidos se o worker morrer abruptamente. Alternativa mais forte: <code>chrome.storage.session</code>, que por padrão não é exposto a content scripts, mas perde o log ao reiniciar o navegador.</p>
+
+<h3>R-07 — Exportação no background (B-05, G-09)</h3>
+<pre><code>// nova ação (esboço): o popup envia só { action: 'EXPORT_CHAPTER', chapterId, safeTitle }
+async execute({ chapterId, safeTitle }) {
+    const sm = self.MangaTranslatorStorageManager;
+    const pages = await sm.getChapterPageIndex(chapterId);           // só metadados
+    for (const page of pages) {                                       // memória O(1 página)
+        const dataUrl = await sm.getPageDataUrl(chapterId, page.pageIndex);
+        const name = `MangaTranslator/${safeTitle}/pagina_${String(page.pageIndex).padStart(3, '0')}.png`;
+        await downloadAndWait(dataUrl, name);                         // usa o listener único de R-09
+    }
+    return { exported: pages.length };
+}</code></pre>
+<p><strong>Razão:</strong> elimina duas travessias por página e o acúmulo do capítulo no popup, e não chega perto de 64 MiB. <strong>Trade-off:</strong> exportações longas dependem do worker vivo; validar em runtime.</p>
+
+<h3>R-08 — Esperas condicionadas no RPA (G-05)</h3>
+<pre><code>async function waitUntil(predicate, { timeoutMs = 1000, stepMs = 50 } = {}) {
+    const started = Date.now();
+    while (Date.now() - started &lt; timeoutMs) {
+        if (predicate()) return true;
+        await sleep(stepMs);
+    }
+    return predicate();
+}
+// job-runner.js:1003 — antes: await sleep(1000);
+// depois (funções de gemini/dom.js: isControlEnabled :38, findSendButton :244):
+await waitUntil(() =&gt; dom.isControlEnabled(dom.findSendButton(document)), { timeoutMs: 1000 });</code></pre>
+<p><strong>Razão:</strong> o mesmo teto de tempo, mas termina assim que a condição que a pausa aproximava é satisfeita. <strong>Trade-off:</strong> a UI do Gemini pode precisar de estabilização além do botão habilitado. Medir com E2E nos modos padrão, <code>minimized_window</code> e <code>background_delete</code> antes de remover os tetos.</p>
+
+<h3>R-09 — Um único listener de downloads (G-07)</h3>
+<pre><code>const downloadWaiters = new Map();                   // id -&gt; { onComplete, onError, timer }
+chrome.downloads.onChanged.addListener((delta) =&gt; {  // registrado uma vez, no topo do SW
+    const w = downloadWaiters.get(delta.id);
+    if (!w || !delta.state) return;
+    const s = delta.state.current;
+    if (s !== 'complete' &amp;&amp; s !== 'interrupted') return;
+    clearTimeout(w.timer);
+    downloadWaiters.delete(delta.id);
+    if (s === 'complete') w.onComplete(delta.id);
+    else if (w.onError) w.onError(new Error(`Download ${delta.id} interrupted`));
+});
+function waitForDownload(id, onComplete, onError) {
+    const timer = setTimeout(() =&gt; {
+        downloadWaiters.delete(id);
+        if (onError) onError(new Error('Temp timeout (10min)'));
+    }, 600_000);
+    downloadWaiters.set(id, { onComplete, onError, timer });
+}</code></pre>
+<p><strong>Razão:</strong> O(eventos), e o listener registrado no topo acorda o SW. <strong>Trade-off:</strong> o <code>Map</code> em memória some se o worker reiniciar, como já acontece hoje com os listeners.</p>
+
+<h3>R-10 — Escape no popup (S-1)</h3>
+<pre><code>// popup.js:930 — antes
+card.innerHTML = `&lt;img src="${url}" loading="lazy"&gt;&lt;div class="check"&gt;✓&lt;/div&gt;`;
+// depois
+card.innerHTML = `&lt;img src="${escapeHTML(url)}" loading="lazy"&gt;&lt;div class="check"&gt;✓&lt;/div&gt;`;
+// idem popup.js:658 com escapeHTML(img.src)</code></pre>
+
+<h3>R-11 — Prompt por lote (G-11)</h3>
+<pre><code>// background.js:915-921 — hoje cada job recebe prompt: batch.prompt
+snapshot.jobQueue = images.map(image =&gt; ({ mangaTabId: batch.mangaTabId, index: image.index, batchId: batch.batchId }));
+snapshot.batchPrompts = { ...(snapshot.batchPrompts || {}), [batch.batchId]: batch.prompt || '' };
+// processNextJob: const prompt = state.batchPrompts[job.batchId] ?? job.prompt ?? '';  // compatível com snapshots antigos</code></pre>
+
+<h3>R-12 — Inicialização única (B-06)</h3>
+<pre><code>let _initPromise = null;
+function ensureInitialized() {
+    if (state()._initialized) return Promise.resolve();
+    if (!_initPromise) {
+        _initPromise = initializeOnce().finally(() =&gt; { _initPromise = null; });
+    }
+    return _initPromise;
+}
+// initializeOnce = corpo atual de ensureInitialized, trocando catch (_e) {} por log('error', …).
+// onStartup chama initializeOnce({ startup: true }) pelo MESMO _initPromise.</code></pre>
+</section>
+
+<section id="estruturais">
+<h2>28. Melhorias estruturais</h2>
+<ul>
+<li><strong>E-1 — Persistência no commit:</strong> o content script envia <code>chapterId</code>, <code>cleanUrl</code> e hashes por imagem no <code>START_BATCH</code>. O SW grava no storage-manager e no GTC ao receber o commit e entrega à aba só para exibição. Remove <code>SM_SAVE_PAGE</code> e <code>GTC_SAVE</code> do content script.</li>
+<li><strong>E-2 — Cache perceptual em duas stores:</strong> <code>entries</code> (hashes, dimensões, <code>updatedAt</code>, <code>assetRef</code>) e payload referenciando o asset do storage-manager, sem segunda cópia. Evicção LRU por contagem ou bytes via índice <code>updatedAt</code>. Para cache grande, indexação multi-segmento do hash (Hamming limitado) evita a varredura linear.</li>
+<li><strong>E-3 — Injeção sob demanda:</strong> <code>chrome.scripting.registerContentScripts</code> só para <code>enabledDomains</code> (mais as origens de extração). O popup injeta sob demanda para listar imagens em sites não habilitados. Mantém a permissão <code>scripting</code> e zera parse, listeners e broadcasts nas demais abas.</li>
+<li><strong>E-4 — Páginas da extensão como leitoras do IndexedDB:</strong> popup, opções e leitor carregam <code>storage-manager.js</code> (mesma origem <code>chrome-extension://</code>, como o próprio cabeçalho do módulo prevê) e usam <code>URL.createObjectURL</code>. O SW continua o único escritor. Miniaturas pequenas geradas ao salvar.</li>
+<li><strong>E-5 — Estado por lote:</strong> separar <code>mt_state</code> em chaves por lote reduz o tamanho de cada gravação e o volume difundido.</li>
+<li><strong>E-6 — Pool de abas do Gemini:</strong> <span class="b hyp">Hipótese</span> reusar a aba entre jobs pode economizar a carga da SPA. Trade-off: isolamento entre jobs, conversa temporária e limites do serviço. Só adotar com benchmark e com a quarentena preservada.</li>
+<li><strong>E-7 — Qualidade estática:</strong> adicionar ESLint ao CI com <code>no-func-assign</code>, <code>no-unused-vars</code> e checagem do grafo de módulos. Teria detectado D-01 e D-02.</li>
+</ul>
+<div class="box"><p><strong>Invariantes a preservar em qualquer mudança:</strong></p>
+<ul>
+<li>ordem dos 6 scripts do bloco 0 (manifest.json:34-40);</li>
+<li>storage-manager como escritor único, no background;</li>
+<li>quarentena SHA-256 e estrutural do resultado;</li>
+<li><code>return true</code> em ações assíncronas do router (router.js:146-156);</li>
+<li>serialização das gravações de estado (<code>_persistenceChain</code>);</li>
+<li>idempotência da reconciliação.</li>
+</ul></div>
+</section>
+
+<section id="testes">
+<h2>29. Testes relevantes</h2>
+<ul>
+<li><strong>Proteção existente:</strong> a suíte cobre bem o lote e a reconciliação, o router e as ações, a extração e a quarentena, e o cache perceptual em pequena escala (visual: consulta com 10 candidatos em &lt; 200 ms). O smoke-04 protege a exclusão no storage-manager (sessão anterior: uma mutação ali passou pelos 851 testes Jest e só o smoke detectou).</li>
+<li><strong>Lacunas ligadas aos achados:</strong> os 3 testes que exercitam <code>getOrCreateChapterId</code> (chapter-id-cache, chapter-id-rejection, chapter-dedup) não usam título vazio nem não latino. O único arquivo de teste com caracteres não latinos é <code>unit/gtc/fingerprint.test.js</code>, sem relação com capítulo. Nenhum teste cobre G-01 com payload realista, a frequência de <code>inspect()</code> (G-02) ou o log do router (B-03). <code>inject.js</code> tinha 0% de coverage (sessão anterior).</li>
+<li><strong>Segurança para otimizar:</strong> R-05 e R-08 mexem no caminho crítico. O E2E real (Chromium com a extensão carregada) é a rede de proteção e deve rodar completo (5 shards) antes e depois.</li>
+</ul>
+<h3>T-1 — Regressão de identidade de capítulo (reproduz B-01 e B-02; falha hoje)</h3>
+<p class="ev">tests/unit/content-manga/chapter-identity.test.js — baseado na sonda executada nesta sessão</p>
+<pre><code>const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const SRC = fs.readFileSync(path.resolve(__dirname, '../../../extension/cm-chapter.js'), 'utf8');
+
+function visit(url, title, store, seq) {
+    const ctx = { console, URL, Date, Math, Object, Array, String, Promise, Error, JSON };
+    ctx.window = { location: { href: url } };
+    ctx.document = { title };
+    ctx.chrome = { runtime: { lastError: null }, storage: { local: {
+        get: (keys, cb) =&gt; { const r = {}; [].concat(keys).forEach(k =&gt; { if (k in store) r[k] = JSON.parse(JSON.stringify(store[k])); }); setTimeout(() =&gt; cb(r), 0); },
+        set: (items, cb) =&gt; { Object.assign(store, JSON.parse(JSON.stringify(items))); setTimeout(() =&gt; cb &amp;&amp; cb(), 0); },
+    } } };
+    ctx.self = ctx; ctx.globalThis = ctx;
+    vm.createContext(ctx);
+    vm.runInContext(SRC, ctx);                         // executa o arquivo REAL
+    return ctx.MangaTranslatorChapter.createChapterManager({
+        hostname: new URL(url).hostname,
+        generateId: prefix =&gt; `${prefix}${++seq.n}`,
+        sendRuntimeMessageAsync: async () =&gt; ({ ok: true }),
+    }).getOrCreateChapterId();
+}
+
+describe('cm-chapter — identidade de capítulo', () =&gt; {
+    test('séries diferentes com títulos não latinos não compartilham capítulo', async () =&gt; {
+        const store = {}, seq = { n: 0 };
+        const a = await visit('https://agregador.example/naruto/1', '나루토 1화', store, seq);
+        const b = await visit('https://agregador.example/onepiece/1', '원피스 1화', store, seq);
+        expect(a).not.toBe(b);                              // hoje: chap_1 === chap_1
+    });
+    test('páginas sem &lt;title&gt; não colapsam num único capítulo', async () =&gt; {
+        const store = {}, seq = { n: 0 };
+        const a = await visit('https://leitor.example/a/cap-10', '', store, seq);
+        const b = await visit('https://leitor.example/b/cap-99', '', store, seq);
+        expect(a).not.toBe(b);
+    });
+    test('duas abas criando capítulos em paralelo não perdem entradas', async () =&gt; {
+        const store = {}, seq = { n: 0 };
+        await Promise.all([
+            visit('https://s.example/a/1', 'Alpha 1', store, seq),
+            visit('https://s.example/b/1', 'Beta 1', store, seq),
+        ]);
+        expect(store.chapterList).toHaveLength(2);          // hoje: 1 (adaptar ao contrato de R-02)
+    });
+});</code></pre>
+<p><strong>Outros testes a criar:</strong></p>
+<ul>
+<li><strong>T-2:</strong> uma ação que lança exceção deve gerar entrada <code>ACTION_ERROR</code> em <code>translatorLog</code> (B-03).</li>
+<li><strong>T-3 (benchmark GTC):</strong> latência de <code>GTC_QUERY_PERCEPTUAL_V2</code> com 200/1.000 entradas de 1 MB, antes e depois de R-04. O custo deve deixar de escalar com o tamanho do payload.</li>
+<li><strong>T-4:</strong> contagem de <code>inspectCount</code> numa rajada de 1.000 mutações de texto; deve ficar limitada pelo throttle (G-02).</li>
+<li><strong>T-5:</strong> exportação de capítulo sintético com mais de 64 MiB pelo caminho novo (B-05).</li>
+</ul>
+</section>
+
+<section id="comandos">
+<h2>30. Resultados dos comandos executados</h2>
+<div class="tw"><table>
+<thead><tr><th>Comando</th><th>Resultado</th><th>Exit code</th><th>Observações</th></tr></thead>
+<tbody>
+<tr><td><code>git clone --depth 50 …Manga_Translator</code></td><td>HEAD <code>8d470f4</code></td><td>0</td><td>Nesta sessão</td></tr>
+<tr><td><code>cd tests &amp;&amp; npm ci</code></td><td>Dependências instaladas</td><td>0</td><td>Nesta sessão</td></tr>
+<tr><td><code>npx jest --config jest.config.js --silent --ci</code></td><td>109 suítes, 851 testes aprovados, 0 falhas, 192,3 s</td><td>Não capturado</td><td>Rodou em background; resumo lido do log</td></tr>
+<tr><td><code>node smoke/run-smoke.js</code></td><td>6 de 6 aprovados</td><td>0</td><td>Nesta sessão</td></tr>
+<tr><td><code>node visual-v3/run-all.js</code></td><td>224 de 224 aprovados</td><td>0</td><td>Nesta sessão</td></tr>
+<tr><td><code>node scripts/sync-version.js --check</code></td><td>package 6.5.0 / manifest 6.5</td><td>0</td><td>Nesta sessão</td></tr>
+<tr><td><code>node ci/verify-ci-contract.js</code>, <code>verify-coverage-selftest.js</code>, <code>playwright-gate-reporter-selftest.js</code>, <code>verify-jest-worker-warning-selftest.js</code>, <code>verify-e2e-shard-plan.js</code></td><td>Todos aprovados; plano E2E com 5 grupos e 21 testes</td><td>0 (cada)</td><td>Nesta sessão</td></tr>
+<tr><td><code>node /tmp/probe/chapter-collision.js</code> (cm-chapter.js real em <code>vm</code>)</td><td>Não latino: mesmo <code>chap_1</code>; sem título: mesmo <code>chap_1</code>; controle latino: distintos; corrida entre 2 abas: 1 entrada</td><td>0</td><td>Prova de B-01 e B-02</td></tr>
+<tr><td><code>esbuild.transformSync({minify:true})</code> + <code>zlib.gzipSync</code></td><td>235.976 → 91.876 B (−61%); gzip 54.655 → 32.000</td><td>0</td><td>esbuild 0.23, só para medição</td></tr>
+<tr><td><code>new vm.Script(content_manga.js)</code> × 30</td><td>1,86 ms crua / 1,24 ms minificada</td><td>0</td><td>V8 do Node v20.20.2; aproximação do Chrome</td></tr>
+<tr><td>Coverage (<code>jest.coverage.config.js</code>)</td><td>79,57% statements · 71,53% branches · 83,04% functions</td><td>—</td><td><span class="b low">Não executado nesta sessão</span> sessão anterior, mesmo commit</td></tr>
+<tr><td>Playwright E2E</td><td>Grupo <code>@e2e-fast</code>: 9 aprovados</td><td>—</td><td><span class="b low">Não executado nesta sessão</span> sessão anterior; 12 testes de 4 shards nunca executados</td></tr>
+<tr><td>Lint / typecheck / build</td><td>Inexistentes no projeto</td><td>—</td><td><span class="b low">Não executado</span> não há script</td></tr>
+<tr><td>Benchmarks em Chrome real (G-01, G-02, G-03)</td><td>—</td><td>—</td><td><span class="b low">Não executado</span> limitação do ambiente</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="ci">
+<h2>31. CI/CD</h2>
+<ul>
+<li>15 jobs e um gate final que exige 13 deles. Não há <code>|| true</code> em etapas de teste; o único <code>continue-on-error</code> é o upload ao Codecov, posterior ao gate local. O inventário mínimo (108 suítes, 848 testes, 0 skips) é imposto por <code>tests/ci/run-jest-ci.js</code>.</li>
+<li>Os 5 shards E2E carregam a extensão real; o gate conta os artefatos e rejeita testes flaky.</li>
+<li><strong>Lacunas:</strong> não há lint nem typecheck (D-01 e D-02 passaram). Não há gate de desempenho nem de tamanho de payload. O coverage não mede 75 testes que carregam <code>background.js</code> via <code>new Function</code> (sessão anterior). Os diagnósticos de vazamento de worker só rodam na <code>main</code>.</li>
+</ul>
+</section>
+
+<section id="plano">
+<h2>32. Plano de otimização</h2>
+<ol>
+<li><strong>Fase 1 — Integridade de dados:</strong> R-01, R-02, B-04 (regex) e R-03. Testes T-1 e T-2. Pequeno a médio esforço, maior redução de risco.</li>
+<li><strong>Fase 2 — Gargalos que crescem com o uso:</strong> R-04, depois E-2 (evicção); R-06 e R-11 para reduzir gravações e broadcasts. Validar com T-3.</li>
+<li><strong>Fase 3 — Caminho crítico por imagem:</strong> R-05 e R-08 atrás do E2E completo nos três modos. Medir tempo por imagem e <code>inspectCount</code> (T-4).</li>
+<li><strong>Fase 4 — IPC e memória:</strong> E-1 (persistência no commit), R-07 e R-09 (exportação), E-4 (páginas da extensão lendo o IDB).</li>
+<li><strong>Fase 5 — Lifecycle e robustez:</strong> R-12; serializar <code>deleteByCleanUrl</code> (B-07); remover D-01, D-02 e D-03.</li>
+<li><strong>Fase 6 — Superfície e carregamento:</strong> decidir entre E-3 (registro dinâmico, mantém <code>scripting</code>) e remover <code>scripting</code>; tirar <code>127.0.0.1</code> do manifest; <code>validate()</code> em download-image; minificar o pacote; ESLint no CI (E-7).</li>
+<li><strong>Fase 7 — Benchmarks e validação:</strong> tempo por imagem (mediana e p95) com concorrência 1 e 2; latência de consulta do GTC por tamanho de cache; eventos <code>storage.onChanged</code> por aba por minuto; memória do SW e do popup; E2E completo em todos os shards.</li>
+</ol>
+</section>
+
+<section id="limitacoes">
+<h2>33. Limitações</h2>
+<ul>
+<li><strong>Sem agentes ou modelos auxiliares:</strong> as ferramentas não permitem. Os cinco passes foram do mesmo modelo principal, sem independência real de revisão.</li>
+<li><strong>Leitura:</strong> 9 arquivos foram lidos integralmente ou quase. Os demais tiveram leitura dirigida e varredura por padrões. Arquivos listados na seção 8 não foram lidos linha a linha: <span class="b low">evidência insuficiente</span> para afirmar ausência de defeitos neles.</li>
+<li><strong>Runtime:</strong> não houve execução da extensão no Chrome nesta sessão. Estas magnitudes exigem medição:
+<ul>
+<li>custo real de G-01, G-02 e G-03;</li>
+<li>tempo de vida do SW em exportações longas;</li>
+<li>efeito de <code>willReadFrequently</code> nos hashes;</li>
+<li>benefício de reuso de aba (G-06).</li>
+</ul></li>
+<li><strong>B-05:</strong> o limite de 64 MiB está confirmado no código do Chromium, mas a ultrapassagem depende do tamanho real das páginas, que não foi medido.</li>
+<li><strong>Proveniência:</strong> coverage e E2E vêm da sessão anterior (mesmo commit). O exit code do Jest não foi capturado (execução em background). O GitHub Actions nunca foi executado nem consultado.</li>
+<li><strong>Medições:</strong> a compilação foi medida no V8 do Node, não no Chrome, e o esbuild foi usado só para estimar o tamanho do pacote.</li>
+</ul>
+</section>
+
+<section id="conclusoes">
+<h2>34. Conclusões da Auditoria</h2>
+<ol>
+<li><strong>Existe perda de dados silenciosa comprovada.</strong> Executando o <code>cm-chapter.js</code> real, títulos não latinos com o mesmo número e páginas sem título colidem no mesmo capítulo (B-01), e a criação concorrente em duas abas perde entradas (B-02). Pela chave <code>[chapterId, pageIndex]</code> do storage-manager, isso sobrescreve traduções. Nenhum teste atual cobre os cenários.</li>
+<li><strong>Existem gargalos confirmados pela estrutura do código.</strong>
+<ul>
+<li>O cache perceptual lê o payload de todas as entradas a cada busca sem acerto, até três vezes por lote, e nunca é podado (G-01).</li>
+<li>A aba do Gemini inspeciona o DOM inteiro a cada lote de mutações, forçando layout (G-02).</li>
+<li>Gravações de log e estado são difundidas a todas as abas abertas (G-03).</li>
+<li>Cada imagem carrega 2,2–3,7 s de espera fixa (G-05).</li>
+</ul>
+<span class="b low">Evidência insuficiente para concluir</span> a magnitude em milissegundos de G-01, G-02 e G-03 sem benchmark em navegador.</li>
+<li><strong>Há trabalho redundante mensurável.</strong> A imagem traduzida atravessa o IPC quatro vezes e é gravada duas vezes (G-04). A exportação faz as páginas irem e voltarem ao background (B-05, G-09). 18.205 bytes de código morto são parseados em toda página (D-01). O prompt é copiado em cada job persistido (G-11).</li>
+<li><strong>A observabilidade tem um furo confirmado:</strong> erros de ações e descartes de reconciliação não chegam ao log (B-03). A correção é de uma linha.</li>
+<li><strong>Minificar é útil, mas não é o principal ganho de desempenho:</strong> −61% de bytes, porém só −0,62 ms de compilação medida. O custo maior das páginas não habilitadas está nos listeners e broadcasts, que só o registro dinâmico elimina (E-3), a custo de manter <code>scripting</code>.</li>
+<li><strong>A base é sólida para otimizar com segurança:</strong> 851 testes Jest, 224 visuais e 6 smoke passaram nesta sessão, e há E2E com a extensão real no CI. A ordem recomendada é integridade de dados, depois gargalos que crescem com o uso, e por fim o caminho crítico por imagem.</li>
+<li><strong>Sobre a execução multiagente:</strong> não foi possível. <span class="b low">Evidência insuficiente para concluir</span> se revisores independentes com outros modelos chegariam a achados adicionais.</li>
+</ol>
+</section>
+
+</main>
+
+<footer>
+<p>Auditoria técnica do repositório Diesper/Manga_Translator · commit 8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32 · documento autossuficiente, sem dependências externas, legível sem JavaScript. Resultados marcados como "desta sessão" foram executados nesta sessão; os demais estão identificados com a proveniência.</p>
+<p><a href="#topo">Voltar ao topo</a></p>
+</footer>
+
+</div>
+<a class="totop" href="#topo">↑ Índice</a>
+</body>
+</html>

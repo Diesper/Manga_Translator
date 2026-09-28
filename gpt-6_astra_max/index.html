@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f2">
+  <meta name="description" content="Auditoria estatica rastreavel do Manga Translator: codigo, testes, persistencia, seguranca e CI/CD, com evidencias e limites explicitos.">
+  <title>Manga Translator | Caderno de Auditoria</title>
+  <script>document.documentElement.classList.add('js');</script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" defer></script>
+  <style>
+    :root{--paper:#fcfbf7;--sidebar:#f3f2ec;--ink:#303730;--muted:#777b72;--line:#dfE2d9;--accent:#b65c48;--accent-light:#f6eae3;--green:#506a54;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;--serif:Georgia,"Times New Roman",serif;--side:252px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:98px}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.8;-webkit-font-smoothing:antialiased}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}button{cursor:pointer}a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:4px}::selection{background:#efe1ab;color:#243427}svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}button{border:0}p{margin:0 0 16px}strong{font-weight:600}h1,h2,h3,h4{color:var(--ink)}h1,h2,h3,h4,p,pre,figure{max-width:100%}h2,h3,h4{margin:0}code,kbd{font-family:var(--mono)}:not(pre)>code{font-size:.88em;background:#eeeee7;padding:2px 5px;border-radius:3px;overflow-wrap:anywhere}pre{margin:0;white-space:pre;overflow:auto;tab-size:2}pre code{font:12px/1.85 var(--mono)}[hidden]{display:none!important}.js-only{display:none!important}.js .js-only{display:inline-flex!important}.skip-link{position:fixed;top:-80px;left:20px;background:var(--ink);color:white;padding:10px 20px;z-index:100}.skip-link:focus{top:12px}.muted{color:var(--muted)}.mono{font-family:var(--mono)}.small{font-size:12px}.text-link{color:var(--accent);border-bottom:1px solid #dcb5a7;padding-bottom:2px}.text-link:hover{border-bottom-color:var(--accent)}
+    .sidebar{position:fixed;inset:0 auto 0 0;width:var(--side);z-index:30;background:var(--sidebar);border-right:1px solid #e0e0d7;display:flex;flex-direction:column;padding:27px 22px 20px}.brand{display:flex;align-items:center;gap:11px}.brand-icon{width:30px;height:34px;stroke-width:1.2;color:var(--ink)}.brand-name{font:29px/1 var(--serif);letter-spacing:-1px}.brand-dot{color:var(--accent)}.brand-sub{font-size:8px;letter-spacing:1.9px;margin:11px 0 30px 42px;color:#85877d;text-transform:uppercase}.search-trigger{background:#fcfbf7;border:1px solid #dfdfd5;border-radius:5px;padding:9px 10px;align-items:center;gap:9px;width:100%;color:#808278;font-size:11px;line-height:20px}.search-trigger svg{width:15px}.search-trigger kbd{font-size:9px;background:#eeeee6;padding:0 5px;border:1px solid #e0e0d7;border-radius:3px;margin-left:auto;white-space:nowrap}.nav-label{font-size:9px;color:#929487;letter-spacing:1.7px;margin:29px 9px 12px}.report-nav{overflow:auto;scrollbar-width:thin;flex:1;min-height:0}.report-nav a{display:flex;align-items:center;gap:13px;min-height:33px;padding:5px 10px;font-size:11.6px;color:#697064;border-radius:3px;border-left:2px solid transparent;transition:background .2s,color .2s,border-color .2s}.report-nav a:hover{background:#eaeae1;color:#303730}.report-nav a.active{color:var(--accent);background:#eee7de;border-left-color:var(--accent);font-weight:600}.nav-num{font-family:var(--mono);font-size:9px;opacity:.65;min-width:15px}.nav-separator{height:12px}.sidebar-footer{margin-top:16px;padding:17px 10px 0;border-top:1px solid #dcdfd4}.repo-name{display:flex;gap:9px;align-items:center;font-size:10px;font-weight:600}.repo-name svg{width:14px;height:14px}.repo-path{font-size:9px;margin:5px 0 15px;color:#8a8d80}.reading-label{display:flex;justify-content:space-between;font-size:9px;color:#8a8d80}.reading-track{height:2px;background:#dbded2;margin-top:7px}.reading-track i{display:block;width:0;height:100%;background:var(--accent);transition:width .15s}.sidebar-bottom{font-size:9px;color:#96998c;margin-top:13px;display:flex;gap:6px;align-items:center}.tiny-dot{height:5px;width:5px;border-radius:50%;background:#74886b;display:inline-block}
+    .topbar{position:fixed;top:0;left:var(--side);right:0;height:67px;z-index:20;border-bottom:1px solid #e3e5dc;background:rgba(252,251,247,.96);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 43px}.breadcrumb{display:flex;align-items:center;gap:12px;font-size:10px;color:#96998d}.breadcrumb svg{width:13px;height:13px}.breadcrumb .current{color:#50584e}.top-actions{display:flex;align-items:center;gap:20px}.repo-link{display:flex;align-items:center;gap:7px;font-size:10px;color:#61695c}.repo-link svg{width:14px;height:14px}.export-button{align-items:center;gap:7px;background:transparent;border:1px solid #d6dbcf;border-radius:4px;padding:7px 11px;font-size:10px;font-weight:500;color:#465341;transition:background .2s}.export-button:hover{background:#ecefe4}.export-button svg{width:14px;height:14px}.menu-button{display:none!important;background:none;padding:5px;color:var(--ink)}.mobile-backdrop{display:none}
+    main{position:relative;margin-left:var(--side);padding:67px 66px 0 84px;min-height:100vh;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,rgba(153,173,182,.105) 35px,rgba(153,173,182,.105) 36px);background-position:0 9px}main:before{content:"";position:absolute;top:67px;bottom:0;left:42px;width:1px;background:#ddb3a785;pointer-events:none}.document{max-width:920px;margin:0 auto}.hero{padding:57px 0 39px;animation:arrive .7s ease both}.eyebrow{font:9px/1.7 var(--mono);letter-spacing:1.6px;color:#838877;text-transform:uppercase;display:flex;align-items:center;gap:9px}.eyebrow .dash{height:1px;width:25px;background:#9b9e90}.hero-top{display:flex;align-items:center;justify-content:space-between;gap:15px}.folio{font:10px var(--mono);color:#959887}.hero h1{font:normal clamp(43px,4.7vw,66px)/1.15 var(--serif);letter-spacing:-2.8px;margin:24px 0 6px}.hero-subtitle{font:italic 23px/1.5 var(--serif);color:#707764;margin-bottom:19px}.hero-description{font-size:13px;line-height:1.9;color:#7a7e71;max-width:540px;margin:0}.hero-meta{display:flex;align-items:center;flex-wrap:wrap;gap:12px 23px;margin-top:23px;font-size:9px;color:#848978}.hero-meta span{display:flex;align-items:center;gap:7px}.hero-meta svg{width:12px;height:12px}.hero-meta code{background:none;padding:0;font-size:9px;color:#727966}.hero-actions{display:flex;gap:22px;align-items:center;margin-top:28px}.primary-button{background:#3b493b;color:#fffef7;padding:10px 16px;display:inline-flex;align-items:center;gap:14px;font-size:10px;border-radius:3px;transition:background .2s,transform .2s}.primary-button:hover{background:#273827;transform:translateY(-2px)}.primary-button svg{width:13px;height:13px}.secondary-link{display:inline-flex;align-items:center;gap:8px;font-size:10px;color:#747c69}.secondary-link:hover{color:var(--accent)}.secondary-link svg{width:12px;height:12px}
+    .report-section{position:relative;padding:35px 0 43px;border-top:1px solid #d4d9cc;scroll-margin-top:92px}.section-topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}.section-kicker{display:flex;align-items:center;gap:10px;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#6d7562;font-weight:600}.section-kicker .section-number{font:9px var(--mono);color:var(--accent)}.section-aside{font:9px var(--mono);color:#999c8d}.report-section h2{font:normal 30px/1.3 var(--serif);letter-spacing:-.65px;margin-bottom:20px}.section-intro{font-size:13px;color:#737a6b;max-width:710px;margin-bottom:24px}.report-section h3{font:600 15px/1.5 "Segoe UI",Arial,sans-serif;margin:26px 0 12px}.report-section h4{font-size:12px;margin:22px 0 9px}.prose{max-width:775px;font-size:13px;line-height:1.95;color:#636d5c}.prose strong{color:#3c4939}.summary-lead{max-width:770px;color:#66705f;font-size:13px;line-height:1.95}.summary-lead strong{color:#414e3b}.scope-note{padding:0 0 0 16px;border-left:2px solid #c59b7e;margin:25px 0;color:#7f806b;font-size:11px;line-height:1.85;max-width:780px}.scope-note strong{color:#666b56;font-weight:600}.summary-points{margin:24px 0 0;padding:0;list-style:none}.summary-points li{border-top:1px solid #e0e4d8}.summary-points a{display:flex;gap:13px;align-items:center;padding:12px 0;color:#5a6552;font-size:11px;transition:color .2s}.summary-points a:hover{color:var(--accent)}.summary-points .point-num{font:10px var(--mono);color:#a2a68f}.summary-points .point-arrow{margin-left:auto;width:14px;height:14px;color:#8e947f}.summary-points strong{font-weight:600}.summary-bottom{font-size:10px;color:#8a8f7c;display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:19px}
+    .badge{display:inline-block;font:9px/1.8 "Segoe UI",Arial,sans-serif;letter-spacing:.1px;padding:1px 6px;border:1px solid #d9ded0;border-radius:3px;color:#65715b;background:#f0f2e9;white-space:nowrap;vertical-align:middle}.badge.high{background:#f6e9e2;color:#a65240;border-color:#eddbd0}.badge.medium{background:#f4efdf;color:#96773e;border-color:#e9dfc2}.badge.low{background:#ecf0e8;color:#657654;border-color:#d8e2d0}.badge.neutral{background:#eeeee8;color:#818573;border-color:#e1e2d7}.badge.confirmed{background:none;border-color:#ccd8c4;color:#627756}.badge.risk{background:#f5eddf;color:#947748;border-color:#e8dcc5}.badge.untested{background:none;color:#8b8a7e;border-color:#dadbd0}.legend{font-size:11px;color:#858a79;margin:12px 0 23px}.filter-bar{display:flex;align-items:center;gap:20px;border-bottom:1px solid var(--line);margin:22px 0 0;flex-wrap:wrap}.filter-tabs{display:flex;gap:21px}.filter-tab{background:none;color:#8a907e;font-size:10px;padding:11px 0;border-bottom:2px solid transparent;margin-bottom:-1px}.filter-tab[aria-pressed=true]{color:var(--accent);border-bottom-color:var(--accent)}.filter-tab span{font:9px var(--mono);margin-left:5px;color:#a3a790}.disclosure-toggle{margin-left:auto;background:none;color:#838b78;font-size:10px;gap:6px;align-items:center}.disclosure-toggle svg{width:13px;height:13px}.finding{border-bottom:1px solid var(--line);scroll-margin-top:96px}.finding summary{list-style:none;cursor:pointer;padding:22px 0;display:grid;grid-template-columns:37px 1fr 16px;gap:10px;align-items:start}.finding summary::-webkit-details-marker{display:none}.finding-id{font:10px var(--mono);color:#a3a58f;padding-top:4px}.finding-title{font-size:13px;font-weight:600;line-height:1.7}.finding-meta{display:flex;gap:7px;align-items:center;margin-top:8px;flex-wrap:wrap}.finding-ref{display:block;font:10px/1.8 var(--mono);color:#8d917f;margin-top:8px;overflow-wrap:anywhere}.finding-chevron{width:15px;height:15px;margin-top:5px;transition:transform .22s;color:#8b917d}.finding[open] .finding-chevron{transform:rotate(180deg)}.finding[open] .finding-body{animation:unfold .25s ease}.finding-body{padding:0 27px 26px 47px;font-size:12px;line-height:1.95;color:#697360}.finding-body p{margin:0 0 14px}.finding-body strong{color:#485740}.finding-body .evidence{font-size:10px;line-height:1.9;margin-top:14px}.evidence code,.source-ref{font:10px/1.8 var(--mono);background:none;padding:0;color:#8e7059;overflow-wrap:anywhere}.source-ref:hover{text-decoration:underline}.source-ref svg{width:11px;height:11px;vertical-align:middle}.code-sample{margin:18px 0;border:1px solid #d9ded2;border-radius:4px;overflow:hidden;background:#f3f4ed}.code-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 13px;background:#edf0e5;border-bottom:1px solid #d9ded2;color:#7d846e;font:9px/1.8 var(--mono);overflow-wrap:anywhere}.code-toolbar .copy-button{align-items:center;gap:5px;color:#79846b;font:9px "Segoe UI",Arial,sans-serif;background:none;padding:3px;white-space:nowrap;flex-shrink:0}.copy-button svg{width:12px;height:12px}.code-sample pre{padding:16px 18px;background:#f6f7f0;color:#4e5d47;font-size:11px;line-height:1.8}.code-sample pre code{font-size:11px}.code-sample.dark{border-color:#354233}.code-sample.dark .code-toolbar{background:#344032;border-color:#43503f;color:#b3bba7}.code-sample.dark pre{background:#2e382d;color:#e1e6d5}.code-sample.dark .copy-button{color:#bdc6b2}.evidence-label{font:9px var(--mono);letter-spacing:.4px;text-transform:uppercase;color:#949782}.finding-actions{display:flex;gap:20px;font-size:10px;margin-top:17px}.finding-actions a{color:#a16045}.finding-actions a:hover{text-decoration:underline}
+    .table-wrap{overflow:auto;margin:19px 0 22px;border-top:1px solid #d7ddce;border-bottom:1px solid #d7ddce;scrollbar-width:thin}table{width:100%;border-collapse:collapse;min-width:620px;text-align:left;font-size:11px;line-height:1.8}th{font-size:9px;letter-spacing:.6px;color:#747e65;text-transform:uppercase;font-weight:600;padding:11px 13px;background:#eff1e8;border-bottom:1px solid #d6ddcc}td{padding:12px 13px;border-bottom:1px solid #e1e5d9;vertical-align:top;color:#68735c}tr:last-child td{border-bottom:0}td strong{color:#4a593e}td code{font-size:10px!important;background:none!important;padding:0!important;word-break:normal;overflow-wrap:anywhere}caption{text-align:left;font-size:10px;color:#8b917e;padding-bottom:9px}table .col-small{width:75px}table .status-col{width:105px}.inventory-table{min-width:680px}.inventory-table td:first-child{width:51%;font-family:var(--mono);font-size:10px}.inventory-table .group-row td{padding:10px 13px;background:#f0f1e8;font:600 10px var(--mono);color:#657753}.inventory-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px}.inventory-search{flex:1;min-width:180px;max-width:330px;display:flex;gap:9px;align-items:center;border:1px solid #d8dece;border-radius:4px;background:var(--paper);padding:7px 10px}.inventory-search svg{width:13px;color:#959c86}.inventory-search input{border:0;outline:0;background:none;min-width:0;width:100%;font-size:11px;color:#556348}.inventory-tools select{border:1px solid #d8dece;border-radius:4px;padding:7px 9px;background:var(--paper);font-size:10px;color:#788368}.inventory-count{font:9px var(--mono);color:#92997f;margin-left:auto}.repository-tree{font:11px/2 var(--mono);padding:19px 22px;margin:22px 0;background:#f0f2e8;border-left:2px solid #c7cfb9;color:#667458;overflow:auto}.architecture-flow{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid #d9dfcf;border-bottom:1px solid #d9dfcf;padding:22px 0;margin:22px 0;flex-wrap:wrap}.architecture-flow span{font-size:10px;line-height:1.7;color:#768564}.architecture-flow strong{display:block;font:15px var(--serif);color:#485b3a;margin-bottom:4px}.architecture-flow svg{width:17px;color:#a1aa90}.plain-list{padding-left:20px;margin:15px 0 23px;color:#6d785f;font-size:12px}.plain-list li{padding-left:4px;margin-bottom:10px}.plain-list li::marker{color:#acaf96}.insight{border-left:2px solid #869771;padding:3px 0 3px 17px;margin:23px 0;font:italic 18px/1.7 var(--serif);color:#657556;max-width:730px}.mini-heading{font:9px var(--mono);letter-spacing:1px;text-transform:uppercase;color:#8a9679;margin:25px 0 10px}.test-code{border-bottom:1px solid #dce2d1;margin:18px 0}.test-code>summary{cursor:pointer;display:flex;gap:10px;align-items:center;font-size:12px;color:#566a43;padding:13px 0;list-style:none}.test-code>summary::-webkit-details-marker{display:none}.test-code>summary svg{width:13px}.test-code[open]>summary svg{transform:rotate(90deg)}.test-code>summary .badge{margin-left:auto}.test-note{font-size:11px;color:#8a9677}.checklist{list-style:none;padding:0;margin:20px 0}.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:12px;padding:11px 0;border-bottom:1px solid #e0e5d6;color:#687b55}.checklist li .checkbox{width:13px;height:13px;border:1px solid #a9b399;flex-shrink:0;margin-top:4px}.conclusion-statement{font:normal 28px/1.5 var(--serif);color:#475e36;max-width:710px;margin:20px 0 26px}.footer{border-top:1px solid #cdd6c0;padding:28px 0 30px;color:#8a9878;font-size:10px;display:flex;justify-content:space-between;gap:20px;align-items:center}.footer-mark{display:flex;gap:8px;align-items:center}.footer svg{width:17px;height:20px}.footer a{font-size:10px;color:#6b7d57;display:flex;gap:6px;align-items:center}.footer a svg{width:12px;height:12px}
+    dialog{background:var(--paper);color:var(--ink);border:1px solid #d9dfcd;border-radius:7px;box-shadow:0 24px 80px #26301f30;padding:0;width:min(650px,calc(100% - 32px));max-height:80vh;margin:12vh auto auto}dialog::backdrop{background:#25302050;backdrop-filter:blur(3px)}.search-head{display:flex;align-items:center;padding:20px;border-bottom:1px solid #dce1d2;gap:12px}.search-head input{background:none;border:0;outline:none;flex:1;min-width:0;font-size:14px;color:var(--ink)}.search-head button{background:#ecefe5;border:1px solid #dce1d2;color:#7b886b;font:10px var(--mono);padding:3px 6px;border-radius:3px}.search-results{padding:8px;max-height:52vh;overflow:auto}.search-result{display:block;padding:12px 14px;border-radius:4px}.search-result:hover,.search-result:focus{background:#edf0e4}.search-result strong{font-size:12px;display:block}.search-result small{display:block;font-size:10px;color:#8c987b;margin-top:4px;overflow-wrap:anywhere}.search-status{padding:13px 21px;font-size:10px;color:#8d987d;border-top:1px solid #e0e6d5}.toast{position:fixed;bottom:24px;right:26px;z-index:80;background:#3b4b30;color:#f6f9ed;padding:11px 18px;border-radius:4px;font-size:12px;box-shadow:0 4px 18px #27322220;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .2s,transform .2s}.toast.visible{opacity:1;transform:none}.empty-result{padding:22px 16px;text-align:center;color:#899779;font-size:12px}.print-button{background:none;color:#70845b;font-size:10px;align-items:center;gap:6px}.print-button svg{width:13px;height:13px}
+    @keyframes arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes unfold{from{opacity:.25;transform:translateY(-5px)}to{opacity:1;transform:none}}
+    .js .filter-bar.js-only,.js .inventory-tools.js-only{display:flex!important}.js .menu-button.js-only{display:none!important}
+    .prose,.summary-lead,.section-intro{font-size:14px}.hero-description{font-size:14px}.finding-body{font-size:13px}.scope-note{font-size:12px}.finding-ref{color:#737b68}.evidence code,.source-ref{color:#86634d}table{font-size:12px}td code{font-size:11px!important}.inventory-table td:first-child{font-size:11px}.badge{font-size:10px}.code-sample pre code{font-size:12px}.table-wrap tr[id]{scroll-margin-top:110px}
+    @media(min-width:1550px){main{padding-left:110px;padding-right:100px}.topbar{padding-right:65px;padding-left:65px}main:before{left:57px}}
+    @media(max-width:1150px){:root{--side:225px}.sidebar{padding-left:17px;padding-right:17px}.report-nav a{font-size:11px;gap:9px}.topbar{padding:0 29px}main{padding-left:62px;padding-right:34px}main:before{left:29px}.hero h1{font-size:52px}.breadcrumb{gap:8px}.top-actions{gap:12px}.finding-body{padding-right:0}}
+    @media(max-width:900px){:root{--side:0px}.sidebar{position:static;width:auto;height:auto;padding:24px}.sidebar .report-nav{display:grid;grid-template-columns:1fr 1fr}.sidebar-footer{display:none}.js .sidebar{position:fixed;top:67px;bottom:0;width:270px;transform:translateX(-100%);transition:transform .25s;box-shadow:10px 0 30px #26301f10}.js .sidebar .report-nav{display:block}.js .sidebar .sidebar-footer{display:block}.js .menu-open .sidebar{transform:translateX(0)}.js .menu-open .mobile-backdrop{display:block;position:fixed;inset:67px 0 0;background:#26301f45;z-index:25;border:0}.topbar{position:sticky;left:0;padding:0 23px;gap:12px}.js .menu-button{display:inline-flex!important}.breadcrumb{margin-right:auto}.breadcrumb .breadcrumb-home{display:none}.top-actions{gap:14px}.top-actions .repo-link span{display:none}main{margin-left:0;padding-top:0;padding-left:60px;padding-right:34px}main:before{top:0;left:28px}.hero{padding-top:42px}.hero h1{font-size:55px}.report-section{scroll-margin-top:90px}.finding{scroll-margin-top:90px}.nav-label{margin-top:23px}}
+    @media(max-width:900px){.js .menu-button.js-only{display:inline-flex!important}body.menu-open{overflow:hidden}}
+    @media(max-width:540px){body{font-size:13px}.topbar{padding:0 16px;height:61px}.breadcrumb{font-size:9px;gap:6px}.breadcrumb .crumb-parent{display:none}.top-actions{gap:12px}.export-button{font-size:9px;padding:6px 8px}.js .sidebar{top:61px}.js .menu-open .mobile-backdrop{top:61px}main{padding:0 22px 0 36px}main:before{left:18px}.hero{padding:32px 0}.hero h1{font-size:43px;letter-spacing:-2px;line-height:1.12;margin-top:23px}.hero-subtitle{font-size:20px;line-height:1.5}.hero-description{font-size:12px}.hero-meta{font-size:8px;gap:9px 15px}.hero-meta code{font-size:8px}.hero-actions{gap:16px;flex-wrap:wrap;margin-top:22px}.primary-button{font-size:10px;padding:10px 13px}.secondary-link{font-size:10px}.eyebrow{font-size:8px;letter-spacing:1px}.folio{font-size:8px}.report-section{padding:30px 0}.report-section h2{font-size:27px;letter-spacing:-.65px}.section-aside{font-size:8px}.section-kicker{font-size:8px;gap:7px}.summary-lead{font-size:12px}.scope-note{font-size:10.5px}.summary-points a{align-items:flex-start;line-height:1.8;font-size:10px;gap:10px}.summary-points .badge{display:none}.summary-points .point-arrow{margin-top:4px}.summary-bottom{font-size:9px;align-items:start}.finding summary{grid-template-columns:28px 1fr 13px;gap:7px}.finding-id{font-size:8px}.finding-title{font-size:12px}.finding-body{padding-left:0;font-size:12px}.finding-ref{font-size:9px}.filter-tabs{gap:17px}.filter-bar{gap:8px}.filter-tab{font-size:9px}.disclosure-toggle{font-size:9px}.code-sample pre{padding:13px;font-size:10px}.code-sample pre code{font-size:10px}.code-toolbar{font-size:8px}.architecture-flow{display:grid;grid-template-columns:1fr 16px 1fr}.architecture-flow svg:nth-of-type(2){display:none}.architecture-flow span{font-size:9px}.architecture-flow strong{font-size:13px}.table-wrap{margin-right:0}table{font-size:10px}.footer{align-items:start;font-size:9px}.footer a{font-size:9px}.conclusion-statement{font-size:24px}.test-code>summary{flex-wrap:wrap;font-size:11px}.test-code>summary .badge{margin-left:0}.hero-meta span:last-child{width:100%}.inventory-count{margin-left:0}.toast{right:16px;left:16px;text-align:center}.brand-sub{margin-bottom:20px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+    @media print{@page{margin:17mm 16mm}html{scroll-padding:0}body{font-size:10pt;background:white;color:#222}.sidebar,.topbar,.hero-actions,.filter-bar,.inventory-tools,.js-only,.mobile-backdrop,dialog,.toast,.skip-link,.js .js-only,.js .filter-bar.js-only,.js .inventory-tools.js-only{display:none!important}main{margin:0;padding:0;background:none}main:before{display:none}.document{max-width:none}.hero{padding:0 0 22px}.hero h1{font-size:36pt}.report-section{padding:25px 0;break-before:auto}.report-section h2{font-size:22pt;break-after:avoid}.finding{break-inside:avoid}.finding-body{padding-right:0}.table-wrap{overflow:visible}table{min-width:0;font-size:8pt}thead{display:table-header-group}tr{break-inside:avoid}pre{white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere}.code-sample.dark pre,.code-sample.dark .code-toolbar{background:#f4f4f0;color:#333}.code-sample{break-inside:auto}.footer a{display:none}.hero-meta{font-size:8pt}.badge{font-size:7pt}.source-ref{color:#555}.report-section p{orphans:3;widows:3}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o relat&oacute;rio</a>
+  <aside class="sidebar" id="sidebar" aria-label="Navega&ccedil;&atilde;o do caderno">
+    <a class="brand" href="#inicio" aria-label="Caderno, in&iacute;cio"><svg class="brand-icon" viewBox="0 0 30 34" aria-hidden="true"><path d="M7 3h19v28H7zM10 3v28M3 8h7M3 14h7M3 20h7M3 26h7M15 11h7M15 16h7M15 21h4"/></svg><span class="brand-name">caderno<span class="brand-dot">.</span></span></a>
+    <div class="brand-sub">Engenharia em perspectiva</div>
+    <button class="search-trigger js-only" id="open-search" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><span>Buscar no relat&oacute;rio</span><kbd>Ctrl K</kbd></button>
+    <div class="nav-label">NESTE RELAT&Oacute;RIO</div>
+    <nav class="report-nav" aria-label="Se&ccedil;&otilde;es da auditoria">
+      <a class="active" href="#resumo" aria-current="location"><span class="nav-num">01</span>Resumo executivo</a>
+      <a href="#problemas"><span class="nav-num">02</span>Principais achados</a>
+      <a href="#repositorio"><span class="nav-num">03</span>Reposit&oacute;rio e arquivos</a>
+      <a href="#producao"><span class="nav-num">04</span>C&oacute;digo de produ&ccedil;&atilde;o</a>
+      <a href="#extensao"><span class="nav-num">05</span>Auditoria da extens&atilde;o</a>
+      <a href="#seguranca"><span class="nav-num">06</span>Seguran&ccedil;a</a>
+      <a href="#testes"><span class="nav-num">07</span>Qualidade dos testes</a>
+      <a href="#cobertura"><span class="nav-num">08</span>Cobertura e lacunas</a>
+      <a href="#matriz"><span class="nav-num">09</span>Matriz c&oacute;digo &harr; testes</a>
+      <a href="#recomendacoes"><span class="nav-num">10</span>Plano de corre&ccedil;&atilde;o</a>
+      <a href="#ci"><span class="nav-num">11</span>CI/CD</a>
+      <a href="#execucao"><span class="nav-num">12</span>Registro de execu&ccedil;&atilde;o</a>
+      <a href="#limitacoes"><span class="nav-num">13</span>Escopo e limita&ccedil;&otilde;es</a>
+      <a href="#conclusoes"><span class="nav-num">14</span>Conclus&otilde;es finais</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="repo-name" href="https://github.com/Diesper/Manga_Translator" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H5v16h14V4h-3M9 2h6v5H9zM9 12h6M9 16h4"/></svg>Manga_Translator</a>
+      <div class="repo-path">Diesper / vers&atilde;o 6.5.0</div>
+      <div class="reading-label"><span>Progresso de leitura</span><span id="read-percent">0%</span></div>
+      <div class="reading-track" aria-hidden="true"><i id="read-bar"></i></div>
+      <div class="sidebar-bottom"><i class="tiny-dot"></i>Relat&oacute;rio independente &middot; PT-BR</div>
+    </div>
+  </aside>
+  <button class="mobile-backdrop" id="mobile-backdrop" type="button" aria-label="Fechar navega&ccedil;&atilde;o"></button>
+  <header class="topbar">
+    <button class="menu-button js-only" id="menu-button" type="button" aria-label="Abrir navega&ccedil;&atilde;o" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="breadcrumb"><svg class="breadcrumb-home" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h12l4 4v14H4zM15 3v5h5M8 12h8M8 16h6"/></svg><span class="crumb-parent">Auditorias</span><span class="crumb-parent">/</span><span class="current">Manga Translator</span></div>
+    <div class="top-actions"><a class="repo-link" href="https://github.com/Diesper/Manga_Translator/tree/8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32" target="_blank" rel="noopener noreferrer"><span>Ver reposit&oacute;rio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4 10 14M10 5H4v15h15v-6"/></svg></a><button class="export-button js-only" id="export-html" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>Exportar relat&oacute;rio</button></div>
+  </header>
+  <main id="conteudo">
+    <div class="document">
+      <header class="hero" id="inicio">
+        <div class="hero-top"><div class="eyebrow"><span class="dash"></span>Caderno de auditoria t&eacute;cnica</div><span class="folio">RELAT&Oacute;RIO N&ordm; 001</span></div>
+        <h1>Manga Translator<span style="color:var(--accent)">.</span></h1>
+        <p class="hero-subtitle">Entre o c&oacute;digo e a confian&ccedil;a.</p>
+        <p class="hero-description">Uma leitura cr&iacute;tica do c&oacute;digo, dos testes e das garantias da extens&atilde;o. Evid&ecirc;ncias rastre&aacute;veis, riscos contextualizados e um caminho concreto para corrigir.</p>
+        <div class="hero-meta"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h10l6 7-8 8-8-8z"/><circle cx="8" cy="9" r="1"/></svg>Vers&atilde;o 6.5.0</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="6" r="2"/><path d="M6 7v10m0-3h6c5 0 6-3 6-6"/></svg><code>8d470f4ac173</code></span><span><i class="tiny-dot"></i>Revis&atilde;o est&aacute;tica &middot; execu&ccedil;&atilde;o n&atilde;o realizada</span></div>
+        <div class="hero-actions"><a class="primary-button" href="#problemas">Ver principais achados<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></a><a class="secondary-link" href="#limitacoes">Entender o escopo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></div>
+      </header>
+
+      <section class="report-section" id="resumo" aria-labelledby="resumo-title">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">01</span>Resumo executivo</div><span class="section-aside">A leitura em 1 minuto</span></div>
+        <h2 id="resumo-title">Boa arquitetura. Garantias ainda incompletas.</h2>
+        <p class="summary-lead">O projeto tem mecanismos relevantes de confiabilidade: persist&ecirc;ncia transacional, identidade de jobs, staging antes do commit e gates de CI. Mas <strong>uma su&iacute;te extensa n&atilde;o elimina contratos quebrados</strong>: a migra&ccedil;&atilde;o pode descartar dados n&atilde;o migrados, a limpeza de assets pode deixar refer&ecirc;ncias inv&aacute;lidas e um ACK incompleto pode ser interpretado como persist&ecirc;ncia confirmada.</p>
+        <aside class="scope-note"><strong>O que este relat&oacute;rio comprova.</strong> Os achados s&atilde;o sustentados por inspe&ccedil;&atilde;o est&aacute;tica do snapshot indicado. Os 56 arquivos JavaScript da extens&atilde;o foram inventariados e tiveram leitura integral ou parcial, discriminada abaixo. Houve truncamento de arquivos grandes e amostragem de testes. <strong>N&atilde;o foi poss&iacute;vel concluir uma auditoria integral, linha por linha, nem executar as su&iacute;tes.</strong> N&atilde;o h&aacute; aprova&ccedil;&atilde;o de release ou cobertura medida nesta sess&atilde;o.</aside>
+        <ol class="summary-points">
+          <li><a href="#mt-01"><span class="point-num">01</span><span><strong>Preservar os dados vem primeiro.</strong> Migra&ccedil;&atilde;o e integridade referencial precisam de corre&ccedil;&atilde;o.</span><span class="badge high">Alto</span><svg class="point-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></li>
+          <li><a href="#testes"><span class="point-num">02</span><span><strong>Parte dos testes verifica c&oacute;pias.</strong> O verde dessas su&iacute;tes n&atilde;o protege a implementa&ccedil;&atilde;o real.</span><span class="badge medium">Aten&ccedil;&atilde;o</span><svg class="point-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></li>
+          <li><a href="#cobertura"><span class="point-num">03</span><span><strong>Baseline n&atilde;o &eacute; medi&ccedil;&atilde;o atual.</strong> Percentuais e totais do reposit&oacute;rio n&atilde;o foram reproduzidos.</span><span class="badge neutral">N&atilde;o executado</span><svg class="point-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></a></li>
+        </ol>
+        <div class="summary-bottom"><span>9 bugs por inspe&ccedil;&atilde;o &middot; 5 riscos adicionais &middot; nenhum cr&iacute;tico demonstrado</span><a class="text-link" href="#conclusoes">Ler as conclus&otilde;es</a></div>
+      </section>
+
+      <section class="report-section" id="problemas" aria-labelledby="problemas-title">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">02</span>Principais achados</div><span class="section-aside">Comportamento, causa e evid&ecirc;ncia</span></div>
+        <h2 id="problemas-title">Os bugs que merecem aten&ccedil;&atilde;o.</h2>
+        <p class="section-intro">Cada item separa o que o c&oacute;digo faz, em qual condi&ccedil;&atilde;o falha e como corrigir. &ldquo;Bug confirmado&rdquo; significa contradi&ccedil;&atilde;o demonstr&aacute;vel por leitura e contraexemplo, <strong>n&atilde;o reprodu&ccedil;&atilde;o executada</strong>. A gravidade considera o impacto potencial.</p>
+        <div class="filter-bar js-only"><div class="filter-tabs" role="group" aria-label="Filtrar bugs por gravidade"><button class="filter-tab" data-severity="all" aria-pressed="true" type="button">Todos<span>9</span></button><button class="filter-tab" data-severity="high" aria-pressed="false" type="button">Alto<span>6</span></button><button class="filter-tab" data-severity="medium" aria-pressed="false" type="button">M&eacute;dio<span>3</span></button></div><button class="disclosure-toggle" id="toggle-findings" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6-5 6 5m-12 6 6 5 6-5"/></svg><span>Recolher detalhes</span></button></div>
+        <p id="finding-filter-status" class="small muted" role="status" hidden></p>
+
+        <details class="finding" id="mt-01" data-level="high" open>
+          <summary><span class="finding-id">MT-01</span><div><div class="finding-title">Migra&ccedil;&atilde;o parcial apaga o legado e impede nova tentativa</div><div class="finding-meta"><span class="badge high">Alto</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Integridade de dados</span></div><span class="finding-ref">extension/storage-manager.js:415-479</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> Cada grava&ccedil;&atilde;o malsucedida &eacute; absorvida por um <code>catch</code>. Ao final, a flag de migra&ccedil;&atilde;o &eacute; sempre gravada. Se apenas uma p&aacute;gina tiver sido migrada, todas as cole&ccedil;&otilde;es legadas do cap&iacute;tulo s&atilde;o removidas, inclusive as p&aacute;ginas que falharam.</p><p><strong>Contraexemplo.</strong> A grava&ccedil;&atilde;o da p&aacute;gina 0 funciona; a da p&aacute;gina 1 falha por quota ou erro transacional. <code>migrated === 1</code> autoriza a remo&ccedil;&atilde;o de ambas. Se todas falharem, o legado permanece, mas a flag <code>true</code> bloqueia a migra&ccedil;&atilde;o seguinte. O fallback de restores tamb&eacute;m usa exist&ecirc;ncia em <code>images</code>, n&atilde;o sucesso da migra&ccedil;&atilde;o, para pular uma p&aacute;gina.</p>
+          <div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; storage-manager.js:473-479</span><button class="copy-button js-only" type="button" aria-label="Copiar evid&ecirc;ncia MT-01">Copiar</button></div><pre><code>await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));
+if (migrated > 0) {
+    await new Promise(resolve => chrome.storage.local.remove(
+        [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], resolve));
+}
+
+return { migrated, skipped: false };</code></pre></div>
+          <p><strong>Corre&ccedil;&atilde;o.</strong> Registrar sucesso e falha por entrada, preservar o legado enquanto houver pend&ecirc;ncias e confirmar a migra&ccedil;&atilde;o somente ap&oacute;s verificar todos os registros. Preferir journal retom&aacute;vel a uma flag bin&aacute;ria.</p><p class="evidence"><span class="evidence-label">Teste existente</span><br><code>tests/smoke/smoke-04-storage-manager.js:99-116</code><br>Verifica o caminho feliz e idempot&ecirc;ncia; n&atilde;o injeta falha parcial.</p><div class="finding-actions"><a href="https://github.com/Diesper/Manga_Translator/blob/8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32/extension/storage-manager.js#L415-L479" target="_blank" rel="noopener noreferrer">Abrir evid&ecirc;ncia</a><a href="#novo-storage">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-02" data-level="high" open>
+          <summary><span class="finding-id">MT-02</span><div><div class="finding-title">Limpeza de assets deixa p&aacute;ginas apontando para um blob removido</div><div class="finding-meta"><span class="badge high">Alto</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Persist&ecirc;ncia</span></div><span class="finding-ref">extension/storage-manager.js:189-235, 253-259</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> O asset anterior da p&aacute;gina e o asset anterior de <code>[chapterId, cleanUrl]</code> entram em <code>obsolete</code>. Ambos s&atilde;o apagados sem verificar se outra p&aacute;gina ou entrada de restore ainda os referencia.</p><p><strong>Contraexemplo.</strong> Salvar p&aacute;gina 0 com URL U cria asset A. Salvar p&aacute;gina 1 com a mesma URL U cria B, substitui o restore e apaga A. A p&aacute;gina 0 continua apontando para A; <code>getPageAsset</code> passa a retornar <code>null</code>. Outra variante &eacute; sobrescrever um mesmo &iacute;ndice com uma URL diferente: o restore antigo pode permanecer pendurado.</p><div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; storage-manager.js:190-196</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>const obsolete = new Set();
+const previousPage = await _idbGet(pageStore, [chapterId, index]);
+if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);
+if (cleanUrl) {
+    const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);
+    if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);
+}</code></pre></div><p><strong>Corre&ccedil;&atilde;o.</strong> Definir explicitamente se URLs repetidas compartilham uma p&aacute;gina ou preservam ambas. Atualizar todas as refer&ecirc;ncias na mesma transa&ccedil;&atilde;o e remover um blob apenas quando sua contagem de refer&ecirc;ncias for zero. Atomicidade, sozinha, n&atilde;o garante integridade referencial.</p><p class="evidence"><span class="evidence-label">Teste existente</span><br><code>tests/smoke/smoke-04-storage-manager.js:52-80</code><br>Cobre substitui&ccedil;&atilde;o do mesmo &iacute;ndice com a mesma URL; n&atilde;o cobre troca de &iacute;ndice/URL.</p><div class="finding-actions"><a href="https://github.com/Diesper/Manga_Translator/blob/8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32/extension/storage-manager.js#L189-L235" target="_blank" rel="noopener noreferrer">Abrir evid&ecirc;ncia</a><a href="#novo-storage">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-03" data-level="high" open>
+          <summary><span class="finding-id">MT-03</span><div><div class="finding-title">ACK incompleto &eacute; promovido a confirma&ccedil;&atilde;o de persist&ecirc;ncia</div><div class="finding-meta"><span class="badge high">Alto</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Contrato IPC</span></div><span class="finding-ref">extension/background/jobs-dom-ack.js:15-45, 61-78</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> Sem <code>runtime.lastError</code>, qualquer resposta que n&atilde;o tenha <code>ok === false</code> segue para <code>settle(true, 'ack', response)</code>. Isso inclui <code>undefined</code>, <code>{}</code> e <code>{ ok: true, persisted: false }</code>. O estado dur&aacute;vel &eacute; marcado com <code>resultPersisted: true</code> antes de avaliar o campo <code>persisted</code> devolvido ao chamador.</p><p><strong>Impacto.</strong> No caso vazio, o staging tamb&eacute;m retorna <code>persisted: true</code>. No caso explicitamente n&atilde;o persistido, a action rejeita a resposta, mas o job j&aacute; foi marcado como persistido. O commit consulta justamente essa marca ou <code>state === 'dom_applied'</code>. A perda efetiva exige esse caminho de falha; n&atilde;o foi observada em execu&ccedil;&atilde;o.</p><div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; jobs-dom-ack.js:21-28</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>if (ok) {
+  try {
+    await updateJobState(geminiTabId, {
+      state: 'dom_applied',
+      resultPersisted: true,
+      resultPersistedAt: Date.now(),
+    });
+  } catch (_e) {}</code></pre></div><p><strong>Corre&ccedil;&atilde;o.</strong> Exigir <code>response?.ok === true && response.persisted === true</code> antes de alterar o estado. Propagar erro de grava&ccedil;&atilde;o do journal. <code>domApplied: false</code> pode ser leg&iacute;timo quando a p&aacute;gina foi salva sem estar no DOM; n&atilde;o confundir essa situa&ccedil;&atilde;o com falta de persist&ecirc;ncia.</p><p class="evidence"><span class="evidence-label">Cadeia de aceita&ccedil;&atilde;o</span><br><code>extension/background/actions/deliver-result.js:57-75</code><br><code>extension/background/actions/commit-result.js:75-82</code><br><span class="evidence-label">Teste existente</span><br><code>tests/unit/background/jobs-dom-ack-staging.test.js:20-130</code><br>H&aacute; testes reais de ACK positivo, negativo e timeout; faltam os ACKs amb&iacute;guos.</p><div class="finding-actions"><a href="#novo-ipc">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-04" data-level="high" open>
+          <summary><span class="finding-id">MT-04</span><div><div class="finding-title">Normaliza&ccedil;&atilde;o de URLs colide imagens diferentes</div><div class="finding-meta"><span class="badge high">Alto</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Cache e restaura&ccedil;&atilde;o</span></div><span class="finding-ref">extension/cm-dom-replace.js:7-36 &middot; extension/cm-gtc-client.js:26-46</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> O retorno converte toda a URL para min&uacute;sculas, embora o path possa ser sens&iacute;vel a caixa. Al&eacute;m disso, sem um par&acirc;metro de redimensionamento reconhecido, toda a query &eacute; descartada. Assim, <code>/image?id=1</code> e <code>/image?id=2</code> colidem; <code>/A.png</code> e <code>/a.png</code> tamb&eacute;m.</p><p><strong>Inconsist&ecirc;ncia adicional.</strong> Acrescentar <code>&amp;width=800</code> ativa <code>changed</code> e preserva <code>id</code>. A chave da mesma imagem muda dependendo da presen&ccedil;a de um par&acirc;metro de resize. A duplica&ccedil;&atilde;o da fun&ccedil;&atilde;o em dois m&oacute;dulos amplia o risco de corrigir apenas um caminho.</p><div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; cm-dom-replace.js:34-35</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>const query = changed && url.search ? url.search : '';
+return `${url.protocol}//${url.host}${url.pathname}${query}`.toLowerCase();</code></pre></div><p><strong>Corre&ccedil;&atilde;o.</strong> Preservar caixa de path e par&acirc;metros identificadores. Remover somente par&acirc;metros vol&aacute;teis conhecidos, com pol&iacute;tica por provedor. Compartilhar uma &uacute;nica implementa&ccedil;&atilde;o. A restaura&ccedil;&atilde;o por URL pode aplicar uma tradu&ccedil;&atilde;o errada mesmo sem colis&atilde;o dos hashes perceptuais.</p><p class="evidence"><span class="evidence-label">Consumidor e teste</span><br><code>extension/cm-auto-restore.js:49-60</code><br><code>tests/unit/content-manga/get-clean-url.test.js:20-29</code><br>O teste define sua pr&oacute;pria fun&ccedil;&atilde;o; n&atilde;o importa o normalizador de produ&ccedil;&atilde;o.</p><div class="finding-actions"><a href="#novo-dom">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-05" data-level="high" open>
+          <summary><span class="finding-id">MT-05</span><div><div class="finding-title">Controle de conversa tempor&aacute;ria pode ser confundido com estado ativo</div><div class="finding-meta"><span class="badge high">Alto</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Privacidade por contrato</span></div><span class="finding-ref">extension/gemini/temporary-chat.js:81-105</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> Depois de verificar os atributos positivos do bot&atilde;o, <code>isAlreadyActive</code> procura qualquer elemento com <code>data-test-id</code> contendo <code>temp-chat</code> ou <code>moment</code>. O pr&oacute;prio bot&atilde;o inativo &eacute; um candidato. Basta conter uma palavra relacionada a conversa tempor&aacute;ria para retornar <code>true</code>.</p><p><strong>Contraexemplo.</strong> Um bot&atilde;o com <code>data-test-id="temp-chat-button"</code>, texto <code>Temporary chat</code> e <code>aria-pressed="false"</code> &eacute; considerado ativo. O r&oacute;tulo n&atilde;o cont&eacute;m &ldquo;turn on&rdquo;, portanto n&atilde;o aciona o retorno negativo anterior. A extens&atilde;o pode prosseguir sem clicar. <strong>N&atilde;o foi comprovado que esse DOM &eacute; o DOM atual do Gemini.</strong> O defeito no predicado &eacute; determin&iacute;stico; o impacto sobre hist&oacute;rico depende da interface encontrada.</p><p><strong>Corre&ccedil;&atilde;o.</strong> Um atributo de estado explicitamente falso deve prevalecer. Separar seletores de controle dos seletores de confirma&ccedil;&atilde;o de estado, verificar visibilidade e exigir uma transi&ccedil;&atilde;o observ&aacute;vel antes de prometer conversa tempor&aacute;ria.</p><p class="evidence"><span class="evidence-label">Teste existente</span><br><code>tests/unit/content-gemini/temporary-chat-v2.test.js:42-84</code><br>Os cen&aacute;rios negativos usam &ldquo;Ativar conversa moment&acirc;nea&rdquo;, r&oacute;tulo que contorna esse falso positivo.</p><div class="finding-actions"><a href="#novo-dom">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-06" data-level="medium" open>
+          <summary><span class="finding-id">MT-06</span><div><div class="finding-title">Origem Gemini &eacute; reconhecida por substring, n&atilde;o por hostname</div><div class="finding-meta"><span class="badge medium">M&eacute;dio</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Fronteira de confian&ccedil;a</span></div><span class="finding-ref">extension/background/router.js:47-58</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> <code>https://gemini.google.com.evil.example/</code> e <code>https://reader.example/?next=gemini.google.com</code> recebem a classifica&ccedil;&atilde;o <code>gemini</code>. A mesma ambiguidade existe com <code>127.0.0.1</code>. O predicado n&atilde;o valida protocolo, origem efetiva nem documento remetente.</p><div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; router.js:49-53</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>if (sender.tab && sender.tab.url) {
+  if (sender.tab.url.includes('gemini.google.com') ||
+      sender.tab.url.includes('127.0.0.1')) {
+    return 'gemini';
+  }</code></pre></div><p><strong>Limite da conclus&atilde;o.</strong> Isso n&atilde;o demonstra que qualquer script de site consegue chamar <code>chrome.runtime</code> da extens&atilde;o. Content scripts rodam em mundo isolado, e v&aacute;rias actions ainda verificam ownership. O fetch autenticado tamb&eacute;m possui uma verifica&ccedil;&atilde;o adicional mais estrita. Trata-se de classifica&ccedil;&atilde;o incorreta, n&atilde;o de exfiltra&ccedil;&atilde;o remota comprovada.</p><p><strong>Corre&ccedil;&atilde;o.</strong> Fazer parsing de <code>sender.url</code>/<code>sender.origin</code> conforme o contexto, exigir hostname e protocolo exatos, verificar <code>sender.id</code> e retirar a exce&ccedil;&atilde;o localhost do artefato de produ&ccedil;&atilde;o ou proteg&ecirc;-la por build de teste.</p><p class="evidence"><span class="evidence-label">Teste existente</span><br><code>tests/unit/background/router.test.js:42-51</code><br>Valida dom&iacute;nios comuns, mas n&atilde;o prefixos, sufixos ou query strings enganosas.</p><div class="finding-actions"><a href="#novo-ipc">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-07" data-level="medium" open>
+          <summary><span class="finding-id">MT-07</span><div><div class="finding-title">Exporta&ccedil;&atilde;o devolve sucesso mesmo quando todos os downloads falham</div><div class="finding-meta"><span class="badge medium">M&eacute;dio</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Tratamento de erros</span></div><span class="finding-ref">extension/background/actions/export-all.js:12-35</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> Falha na cria&ccedil;&atilde;o e interrup&ccedil;&atilde;o de download chamam o mesmo <code>finishOne</code> do caminho feliz. Quando o contador atinge o total, o retorno &eacute; sempre <code>{ ok: true }</code>. N&atilde;o existe contagem de falhas ou resultado parcial.</p><p><strong>Contraexemplo.</strong> Um &uacute;nico item; o callback de <code>chrome.downloads.download</code> recebe <code>undefined</code> com <code>lastError</code>. Nenhum arquivo &eacute; criado, mas a action resolve com sucesso. A falha &eacute; no contrato da action; uma mensagem enganosa espec&iacute;fica no popup n&atilde;o foi reproduzida.</p><p><strong>Corre&ccedil;&atilde;o.</strong> Retornar totais <code>requested</code>, <code>succeeded</code>, <code>failed</code> e erros por item. Um sucesso parcial deve ser vis&iacute;vel e permitir retentar apenas os itens que falharam. Validar <code>filename</code>, lista e URL antes de iniciar efeitos colaterais.</p><p class="evidence"><span class="evidence-label">Teste existente</span><br><code>tests/unit/background/export-all-action.test.js:27-53</code><br>Exercita lista vazia e dois downloads bem-sucedidos; nenhuma falha &eacute; injetada.</p><div class="finding-actions"><a href="#novo-ipc">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-08" data-level="high" open>
+          <summary><span class="finding-id">MT-08</span><div><div class="finding-title">T&iacute;tulo normalizado pode unir cap&iacute;tulos diferentes</div><div class="finding-meta"><span class="badge high">Alto</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Identidade de cap&iacute;tulo</span></div><span class="finding-ref">extension/cm-chapter.js:5-14, 83-112</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> Quando n&atilde;o encontra a URL exata, o gerenciador reutiliza um cap&iacute;tulo do mesmo host com t&iacute;tulo normalizado equivalente. <code>canonicalTitle</code> remove um prefixo num&eacute;rico. Por exemplo, &ldquo;001 - Saga&rdquo; e &ldquo;002 - Saga&rdquo; viram <code>saga</code>, mesmo em URLs de cap&iacute;tulos distintos.</p><p><strong>Impacto.</strong> O segundo cap&iacute;tulo pode herdar o ID do primeiro e atualizar sua URL. Como as p&aacute;ginas s&atilde;o gravadas por <code>[chapterId, pageIndex]</code>, &iacute;ndices coincidentes passam a sobrescrever dados do cap&iacute;tulo anterior. N&atilde;o &eacute; uma colis&atilde;o de UUID; &eacute; reutiliza&ccedil;&atilde;o deliberada de um ID baseada em uma heur&iacute;stica insuficiente.</p><p><strong>Corre&ccedil;&atilde;o.</strong> Separar r&oacute;tulo de exibi&ccedil;&atilde;o de identidade. Usar URL can&ocirc;nica por site ou chave expl&iacute;cita de obra e cap&iacute;tulo. N&atilde;o considerar t&iacute;tulos iguais como prova de identidade.</p><p class="evidence"><span class="evidence-label">Teste relacionado</span><br><code>tests/unit/content-manga/canonical-title-full.test.js:29-70</code><br><code>tests/helpers/extracted-functions.js:18-37</code><br>O teste importa uma implementa&ccedil;&atilde;o espelho que inclusive difere da produ&ccedil;&atilde;o. A verifica&ccedil;&atilde;o de cap&iacute;tulos diferentes usa n&uacute;meros no fim do t&iacute;tulo, n&atilde;o o prefixo eliminado.</p><div class="finding-actions"><a href="#novo-dom">Ver teste de regress&atilde;o</a></div></div>
+        </details>
+        <details class="finding" id="mt-09" data-level="medium" open>
+          <summary><span class="finding-id">MT-09</span><div><div class="finding-title">Runner visual ignora exce&ccedil;&otilde;es de prepara&ccedil;&atilde;o e limpeza</div><div class="finding-meta"><span class="badge medium">M&eacute;dio</span><span class="badge confirmed">Bug confirmado</span><span class="small muted">Infraestrutura de testes</span></div><span class="finding-ref">tests/visual-v3/runner.js:41-80</span></div><svg class="finding-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="finding-body"><p><strong>Falha.</strong> Os hooks <code>beforeEach</code> e <code>afterEach</code>, tanto no runner s&iacute;ncrono quanto no ass&iacute;ncrono, executam dentro de <code>try/catch</code> vazios. Uma fixture que falha ao inicializar n&atilde;o reprova o teste se o corpo restante passar. O baseline de quantidade n&atilde;o detecta esse falso positivo.</p><div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; runner.js:44-46</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>const befores = _allBefores(), afters = _allAfters();
+for (const bf of befores) { try { bf(); } catch (_e) {} }
+try {</code></pre></div><p><strong>Corre&ccedil;&atilde;o.</strong> Contabilizar exce&ccedil;&otilde;es de hooks como falhas, n&atilde;o executar o corpo ap&oacute;s falha de setup e executar teardown em <code>finally</code>. Reprovar tamb&eacute;m uma Promise retornada ao runner s&iacute;ncrono, ou unificar a execu&ccedil;&atilde;o ass&iacute;ncrona. N&atilde;o foi constatado um hook atualmente falhando; o defeito &eacute; o tratamento que o ocultaria.</p><div class="finding-actions"><a href="#novo-runner">Ver teste do runner</a></div></div>
+        </details>
+        <h3>Riscos adicionais, sem confundir hip&oacute;tese com bug</h3>
+        <div class="table-wrap"><table><thead><tr><th>ID / n&iacute;vel</th><th>Risco e condi&ccedil;&atilde;o</th><th>Evid&ecirc;ncia e encaminhamento</th></tr></thead><tbody>
+          <tr><td>R-01<br><span class="badge high">Alto</span></td><td><strong>Actions privilegiadas amplamente aceitas.</strong> Cancelamento, solicita&ccedil;&atilde;o de imagem e ativa&ccedil;&atilde;o n&atilde;o exigem ownership no pr&oacute;prio m&oacute;dulo. Explora&ccedil;&atilde;o por uma p&aacute;gina comum n&atilde;o demonstrada.</td><td><code>extension/background/actions/stop-batch.js:5-15</code><br><code>extension/background/actions/request-image-data.js:10-28</code><br>Aplicar autoriza&ccedil;&atilde;o por action e contexto, n&atilde;o apenas por disponibilidade do canal.</td></tr>
+          <tr><td>R-02<br><span class="badge medium">M&eacute;dio</span></td><td><strong>Limite de bytes ap&oacute;s aloca&ccedil;&atilde;o.</strong> O fetch baixa o blob inteiro antes de testar 50 MB. O fingerprint n&atilde;o possui limite expl&iacute;cito de bytes nem timeout nesse m&oacute;dulo.</td><td><code>extension/background/actions/fetch-image-base64.js:69-85</code><br><code>extension/background/actions/calculate-visual-fingerprint.js:27-30</code><br>Limitar streaming, tempo e dimens&otilde;es decodificadas. Esgotamento de mem&oacute;ria n&atilde;o medido.</td></tr>
+          <tr><td>R-03<br><span class="badge high">Alto</span></td><td><strong>Publica&ccedil;&atilde;o n&atilde;o depende do CI do SHA.</strong> O workflow de release valida vers&atilde;o, mas n&atilde;o exige evid&ecirc;ncia de testes aprovados para o commit empacotado.</td><td><code>.github/workflows/publish.yml:3-51</code><br>Vincular release ao mesmo SHA aprovado, com ambiente protegido. Regras externas do GitHub n&atilde;o inspecionadas.</td></tr>
+          <tr><td>R-04<br><span class="badge high">Alto</span></td><td><strong>Corrida de metadados entre abas.</strong> Duas inst&acirc;ncias podem ler o mesmo <code>chapterList</code> e sobrescrever a inclus&atilde;o uma da outra. A fila local por cap&iacute;tulo n&atilde;o serializa esse read-modify-write global.</td><td><code>extension/cm-chapter.js:83-112</code><br>Centralizar cria&ccedil;&atilde;o de cap&iacute;tulos no worker ou em transa&ccedil;&atilde;o IDB; testar duas inst&acirc;ncias. Interleaving n&atilde;o executado.</td></tr>
+          <tr><td>R-05<br><span class="badge medium">M&eacute;dio</span></td><td><strong>Espera de estabilidade sem limite local.</strong> Movimento cont&iacute;nuo do elemento reinicia o contador de amostras. A opera&ccedil;&atilde;o depende de prote&ccedil;&otilde;es externas para terminar.</td><td><code>extension/gemini/deletion.js:101-135</code><br>Adicionar deadline absoluto e cancelamento. O restante do arquivo foi lido parcialmente; travamento de ponta a ponta n&atilde;o comprovado.</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="report-section" id="repositorio">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">03</span>Reposit&oacute;rio e arquivos</div><span class="section-aside">Um snapshot, n&atilde;o uma branch mut&aacute;vel</span></div>
+        <h2>O que foi efetivamente examinado.</h2>
+        <p class="section-intro">A &aacute;rvore foi obtida pela API p&uacute;blica do GitHub. As evid&ecirc;ncias de c&oacute;digo foram consultadas no commit abaixo; o README da p&aacute;gina inicial foi usado somente como contexto, n&atilde;o como prova de execu&ccedil;&atilde;o.</p>
+        <div class="table-wrap"><table><thead><tr><th>Refer&ecirc;ncia</th><th>Valor observado</th></tr></thead><tbody>
+          <tr><td>Reposit&oacute;rio</td><td><a class="text-link" href="https://github.com/Diesper/Manga_Translator" target="_blank" rel="noopener noreferrer">github.com/Diesper/Manga_Translator</a></td></tr>
+          <tr><td>Snapshot</td><td><code>8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32</code><br>Objeto commit confirmado pela <a class="text-link" href="https://api.github.com/repos/Diesper/Manga_Translator/git/commits/8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32" target="_blank" rel="noopener noreferrer">API Git do reposit&oacute;rio</a>.</td></tr>
+          <tr><td>&Aacute;rvore vinculada ao commit</td><td><code>a26d7cfa2f1eba369a711c541ae67e8e7ba30492</code><br>Metadado do commit: 28/09/2026, 05:27:33 UTC. Esta &eacute; a data do commit, n&atilde;o uma data de execu&ccedil;&atilde;o dos testes.</td></tr>
+          <tr><td>Vers&atilde;o</td><td><code>package.json:3</code>: 6.5.0 &middot; <code>extension/manifest.json:4</code>: 6.5 &middot; <code>tests/package.json:3</code>: 6.5.0. A diferen&ccedil;a &eacute; intencional no derivador de vers&otilde;es.</td></tr>
+          <tr><td>Modelo de execu&ccedil;&atilde;o</td><td>Extens&atilde;o Chromium Manifest V3, scripts cl&aacute;ssicos, service worker, automa&ccedil;&atilde;o DOM do Gemini e dois bancos IndexedDB. N&atilde;o &eacute; um cliente da API oficial Gemini.</td></tr>
+          <tr><td>Leitura da extens&atilde;o</td><td>56 arquivos JavaScript inventariados: 37 com retorno integral e 19 com retorno parcial/truncado. Manifest consultado integralmente; extra&ccedil;&atilde;o dos tr&ecirc;s HTMLs n&atilde;o preservou todo o markup.</td></tr>
+          <tr><td>Execu&ccedil;&atilde;o</td><td><span class="badge untested">N&atilde;o executado</span> Sem terminal, Jest, Playwright, navegador autenticado ou coleta de LCOV nesta sess&atilde;o.</td></tr>
+        </tbody></table></div>
+        <h3>Estrutura do reposit&oacute;rio</h3>
+        <pre class="repository-tree"><code>Manga_Translator/
+|-- extension/
+|   |-- background.js             Bootstrap e conexao dos modulos
+|   |-- background/               Estado, IPC, jobs e 23 actions
+|   |-- content_manga.js          Integracao com as paginas de manga
+|   |-- cm-*.js                   Capitulo, DOM, cache e restauracao
+|   |-- content_gemini.js         Claim, keepalive e bootstrap
+|   |-- gemini/                   10 modulos de automacao
+|   |-- gtc-*.js                  Fingerprints e repositorio visual
+|   |-- storage-manager.js        Paginas, restores e assets
+|   |-- inject.js                 Ponte no mundo MAIN
+|   |-- popup.*, options.*, reader.*, shared-ui.js
+|   `-- manifest.json
+|-- tests/                        Jest, smoke, visual e Playwright
+|   |-- unit/, integration/, e2e/, smoke/, visual-v3/
+|   `-- helpers/, mocks/, ci/
+|-- .github/workflows/            CI, publicacao e recuperacao
+|-- scripts/sync-version.js       Versao canonica e sincronizacao
+|-- docs/                        Documentacao e relatos historicos
+`-- package.json                 Entradas de execucao</code></pre>
+        <h3>Invent&aacute;rio de produ&ccedil;&atilde;o, arquivo por arquivo</h3>
+        <p class="prose"><strong>Integral</strong>: o retorno completo foi lido estaticamente. <strong>Parcial</strong>: houve truncamento; a observa&ccedil;&atilde;o vale apenas para os trechos dispon&iacute;veis. Nenhum desses r&oacute;tulos significa &ldquo;sem bugs&rdquo; ou cobertura de testes. O n&uacute;mero <code>:1</code> aponta para o in&iacute;cio do arquivo; as faixas dos achados est&atilde;o na se&ccedil;&atilde;o anterior.</p>
+        <div class="inventory-tools js-only"><label class="inventory-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="file-filter" type="search" placeholder="Filtrar arquivos..." aria-label="Filtrar arquivos de produ&ccedil;&atilde;o"></label><select id="file-status-filter" aria-label="Filtrar estado da leitura"><option value="all">Todas as leituras</option><option value="full">Leitura integral</option><option value="partial">Leitura parcial</option></select><span class="inventory-count" id="inventory-count" role="status">56 de 56 arquivos</span></div>
+        <div class="table-wrap"><table class="inventory-table" id="inventory-table"><thead><tr><th>Arquivo / refer&ecirc;ncia</th><th class="status-col">Leitura</th><th>Responsabilidade e observa&ccedil;&atilde;o</th></tr></thead><tbody>
+          <tr class="group-row"><td colspan="3">extension/ &middot; 15 arquivos JavaScript</td></tr>
+          <tr data-read="partial"><td><code>extension/background.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Bootstrap, bridges SM/GTC, lote e downloads. Trechos centrais omitidos pelo retorno. N&atilde;o certifica o lifecycle completo.</td></tr>
+          <tr data-read="full"><td><code>extension/cm-auto-restore.js:1</code></td><td><span class="badge low">Integral</span></td><td>Mapa de restaura&ccedil;&atilde;o, observer e bloqueios. Consome a chave de URL afetada por MT-04.</td></tr>
+          <tr data-read="full"><td><code>extension/cm-chapter.js:1</code></td><td><span class="badge low">Integral</span></td><td>ID do cap&iacute;tulo, cache de assets e persist&ecirc;ncia. MT-08 e corrida R-04.</td></tr>
+          <tr data-read="partial"><td><code>extension/cm-dom-replace.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Normaliza&ccedil;&atilde;o, sele&ccedil;&atilde;o e troca de imagens. Predicado de URL integralmente vis&iacute;vel: MT-04.</td></tr>
+          <tr data-read="partial"><td><code>extension/cm-gtc-client.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Fingerprints em canvas e fallback ao worker. Duplica a normaliza&ccedil;&atilde;o de URL defeituosa.</td></tr>
+          <tr data-read="partial"><td><code>extension/content_gemini.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Valida depend&ecirc;ncias, reconecta keepalive e sanitiza logs. Claim/handlers finais n&atilde;o integralmente vistos.</td></tr>
+          <tr data-read="partial"><td><code>extension/content_manga.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>UI, &aacute;udio, sele&ccedil;&atilde;o e IPC. In&iacute;cio e fim vis&iacute;veis, grande trecho intermedi&aacute;rio truncado.</td></tr>
+          <tr data-read="partial"><td><code>extension/gtc-fingerprint.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Fallback SHA-256, IDs e descritor visual. Implementa&ccedil;&atilde;o matem&aacute;tica completa n&atilde;o auditada.</td></tr>
+          <tr data-read="partial"><td><code>extension/gtc-indexeddb.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Schema v4, reposit&oacute;rios e consultas perceptuais. N&atilde;o comprova paridade de todos os backends.</td></tr>
+          <tr data-read="full"><td><code>extension/inject.js:1</code></td><td><span class="badge low">Integral</span></td><td>Anti-throttling e bridges por CustomEvent. Eventos MAIN n&atilde;o constituem autentica&ccedil;&atilde;o.</td></tr>
+          <tr data-read="full"><td><code>extension/options.js:1</code></td><td><span class="badge low">Integral</span></td><td>Prefer&ecirc;ncias, bloqueios e reset. Escritas com feedback de sucesso sem validar todos os lastError.</td></tr>
+          <tr data-read="partial"><td><code>extension/popup.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Sele&ccedil;&atilde;o, miniaturas, prefer&ecirc;ncias e logs. Retorno com grande omiss&atilde;o intermedi&aacute;ria.</td></tr>
+          <tr data-read="full"><td><code>extension/reader.js:1</code></td><td><span class="badge low">Integral</span></td><td>Leitor sob demanda, navega&ccedil;&atilde;o e descarregamento. Guard de carregamento n&atilde;o distingue valor 'loading'.</td></tr>
+          <tr data-read="partial"><td><code>extension/shared-ui.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Escape HTML, bridge, merges e confirma&ccedil;&atilde;o de refazer. Fluxo final de exclus&atilde;o n&atilde;o integralmente auditado.</td></tr>
+          <tr data-read="full"><td><code>extension/storage-manager.js:1</code></td><td><span class="badge low">Integral</span></td><td>Transa&ccedil;&otilde;es, convers&atilde;o de blobs, consulta e migra&ccedil;&atilde;o. Bugs MT-01 e MT-02.</td></tr>
+          <tr class="group-row"><td colspan="3">extension/background/ &middot; 8 m&oacute;dulos</td></tr>
+          <tr data-read="full"><td><code>extension/background/router.js:1</code></td><td><span class="badge low">Integral</span></td><td>Alias de actions, classifica&ccedil;&atilde;o e dispatch. MT-06; valida&ccedil;&atilde;o ocorre fora do try de execute.</td></tr>
+          <tr data-read="partial"><td><code>extension/background/state.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Snapshot, fila de persist&ecirc;ncia e muta&ccedil;&otilde;es. Serializa&ccedil;&atilde;o local n&atilde;o &eacute; transa&ccedil;&atilde;o global.</td></tr>
+          <tr data-read="partial"><td><code>extension/background/tab-identity.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Aliases com TTL, limite de saltos e journal. Locks e replay completos n&atilde;o verificados.</td></tr>
+          <tr data-read="partial"><td><code>extension/background/jobs-lifecycle.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Promo&ccedil;&atilde;o FIFO, contabilidade e recupera&ccedil;&atilde;o. Uma promessa de exactly-once exige testes de crash reais.</td></tr>
+          <tr data-read="full"><td><code>extension/background/jobs-watchdog.js:1</code></td><td><span class="badge low">Integral</span></td><td>Alarme persistido, rekey e finaliza&ccedil;&atilde;o antes de limpar abas auxiliares.</td></tr>
+          <tr data-read="full"><td><code>extension/background/jobs-reconciliation.js:1</code></td><td><span class="badge low">Integral</span></td><td>Reconcilia identidade, resultados e jobs de lotes antigos; descarta &oacute;rf&atilde;os.</td></tr>
+          <tr data-read="full"><td><code>extension/background/jobs-dom-ack.js:1</code></td><td><span class="badge low">Integral</span></td><td>Timeout e aceita&ccedil;&atilde;o do ACK. Bug MT-03.</td></tr>
+          <tr data-read="full"><td><code>extension/background/log.js:1</code></td><td><span class="badge low">Integral</span></td><td>Fila de logs limitada a 500; erros de armazenamento descartados. Existe logger paralelo no bootstrap.</td></tr>
+          <tr class="group-row"><td colspan="3">extension/background/actions/ &middot; 23 actions</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/calculate-visual-fingerprint.js:1</code></td><td><span class="badge low">Integral</span></td><td>Canvas offscreen, hashes e fechamento do bitmap em finally. Limites de download ausentes: R-02.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/check-extraction-tab.js:1</code></td><td><span class="badge low">Integral</span></td><td>Inicializa antes de consultar o mapeamento da aba remetente.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/claim-gemini-job.js:1</code></td><td><span class="badge low">Integral</span></td><td>Claim direto/alias, jobId e ownership de aba. Retorna apenas subconjunto do job.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/commit-result.js:1</code></td><td><span class="badge low">Integral</span></td><td>Journal para retries e guarda de persist&ecirc;ncia. Depende da marca contamin&aacute;vel por MT-03.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/deliver-result.js:1</code></td><td><span class="badge low">Integral</span></td><td>Ownership, identidade e staging sem finalizar; aceita src como string n&atilde;o vazia.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/deliver-result-url.js:1</code></td><td><span class="badge low">Integral</span></td><td>Abre aba auxiliar inativa e persiste mapeamento. Callback tabs.create n&atilde;o trata explicitamente lastError.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/deliver-result-from-tab.js:1</code></td><td><span class="badge low">Integral</span></td><td>Valida mapeamento, jobId e data URL. Finaliza depois de staging aceito.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/download-chapter.js:1</code></td><td><span class="badge low">Integral</span></td><td>Anchor ou download. Falta valida&ccedil;&atilde;o de images e propaga&ccedil;&atilde;o expl&iacute;cita de rejei&ccedil;&atilde;o do helper.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/download-image.js:1</code></td><td><span class="badge low">Integral</span></td><td>Prefixo de arquivo, espera de download e retorno de erro. Filename &eacute; presumido string.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/export-all.js:1</code></td><td><span class="badge low">Integral</span></td><td>Agrega downloads com sucesso incondicional: MT-07.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/fetch-image-base64.js:1</code></td><td><span class="badge low">Integral</span></td><td>HTTP(S), MIME, 30 s, 50 MB e restri&ccedil;&atilde;o de sess&atilde;o Google. Limite ap&oacute;s blob: R-02.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/force-send-activation.js:1</code></td><td><span class="badge low">Integral</span></td><td>Ativa janela/aba e envia DO_SEND_NOW. Dispon&iacute;vel a 'any'; n&atilde;o prova que o runner atual o utiliza.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/get-tab-id.js:1</code></td><td><span class="badge low">Integral</span></td><td>Resposta s&iacute;ncrona com ID derivado do sender.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/log-entry.js:1</code></td><td><span class="badge low">Integral</span></td><td>Valida tipos de campos; sem limite global de tamanho e sem reda&ccedil;&atilde;o central de dados.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/open-existing-folder.js:1</code></td><td><span class="badge low">Integral</span></td><td>Escapa regex de caminho. Busca alternativa n&atilde;o filtra exists/state como a primeira busca.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/open-manga-root.js:1</code></td><td><span class="badge low">Integral</span></td><td>Fachada ass&iacute;ncrona para marcador da pasta raiz.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/refresh-job-watchdog.js:1</code></td><td><span class="badge low">Integral</span></td><td>Verifica job no &iacute;ndice e IDs can&ocirc;nicos antes de renovar prazo.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/relay-progress.js:1</code></td><td><span class="badge low">Integral</span></td><td>Destino vem da requisi&ccedil;&atilde;o ou estado. Job &eacute; atualizado por read-modify-write de storage.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/report-error.js:1</code></td><td><span class="badge low">Integral</span></td><td>Limita erro a 4.096 caracteres, valida ownership e finaliza com falha.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/request-image-data.js:1</code></td><td><span class="badge low">Integral</span></td><td>Encaminha a uma aba indicada no payload, sem prova de ownership local: R-01.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/set-debug-mode.js:1</code></td><td><span class="badge low">Integral</span></td><td>Valida booleano e propaga para todas as abas. Escrita usa wrapper que ignora lastError.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/start-batch.js:1</code></td><td><span class="badge low">Integral</span></td><td>Valida lista e &iacute;ndices inteiros. N&atilde;o valida unicidade ou tamanho da lista nesse m&oacute;dulo.</td></tr>
+          <tr data-read="full"><td><code>extension/background/actions/stop-batch.js:1</code></td><td><span class="badge low">Integral</span></td><td>Valida tipo do batchId; n&atilde;o passa o sender para stopBatch: R-01.</td></tr>
+          <tr class="group-row"><td colspan="3">extension/gemini/ &middot; 10 m&oacute;dulos</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/attachment.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Evid&ecirc;ncia nova, imagem carregada e aus&ecirc;ncia de spinner. Upload completo n&atilde;o integralmente lido.</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/deletion.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Recovery, seletores e estabiliza&ccedil;&atilde;o de elemento. Loop sem deadline local: R-05.</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/dom.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Visibilidade, Shadow DOM, ownership e busca de controles. Sele&ccedil;&atilde;o final truncada.</td></tr>
+          <tr data-read="full"><td><code>extension/gemini/editor.js:1</code></td><td><span class="badge low">Integral</span></td><td>N&atilde;o remove disabled; clique &eacute; tentativa e observer confirma envio. Padr&atilde;o positivo.</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/image-quarantine.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Corpo de hashing e quarentena vis&iacute;vel; fechamento do arquivo truncado. Igualdade de bytes n&atilde;o mede qualidade de tradu&ccedil;&atilde;o.</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/job-runner.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Orquestra anexo, envio, extra&ccedil;&atilde;o e commit. Trecho intermedi&aacute;rio omitido; sem certifica&ccedil;&atilde;o ponta a ponta.</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/observer.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Baseline DOM, waiters e transi&ccedil;&otilde;es por job. Fluxos completos de cleanup n&atilde;o verificados.</td></tr>
+          <tr data-read="partial"><td><code>extension/gemini/result-extractor.js:1</code></td><td><span class="badge medium">Parcial</span></td><td>Canvas, fetch autenticado e correla&ccedil;&atilde;o MAIN por requestId. Correla&ccedil;&atilde;o n&atilde;o autentica o emissor.</td></tr>
+          <tr data-read="full"><td><code>extension/gemini/selectors.js:1</code></td><td><span class="badge low">Integral</span></td><td>Seletores centralizados e separa&ccedil;&atilde;o de ownership estrito. Compatibilidade com DOM remoto n&atilde;o executada.</td></tr>
+          <tr data-read="full"><td><code>extension/gemini/temporary-chat.js:1</code></td><td><span class="badge low">Integral</span></td><td>Estado tempor&aacute;rio e clique &uacute;nico. Falso positivo MT-05.</td></tr>
+        </tbody></table></div>
+        <p id="inventory-empty" class="empty-result" hidden>Nenhum arquivo corresponde ao filtro. Tente outro nome.</p>
+        <h3>Configura&ccedil;&atilde;o, automa&ccedil;&atilde;o e documenta&ccedil;&atilde;o</h3>
+        <div class="table-wrap"><table><thead><tr><th>Arquivo ou conjunto</th><th>Estado da an&aacute;lise</th><th>Resultado ou limite</th></tr></thead><tbody>
+          <tr><td><code>extension/manifest.json:1-75</code></td><td>Integral</td><td>MV3, worker, permiss&otilde;es e ordem dos content scripts consultados.</td></tr>
+          <tr><td><code>extension/options.html:1</code><br><code>extension/popup.html:1</code><br><code>extension/reader.html:1</code></td><td>Extra&ccedil;&atilde;o parcial</td><td>A ferramenta devolveu conte&uacute;do processado, n&atilde;o o HTML-fonte completo. N&atilde;o certifica markup, ordem de scripts ou estilos.</td></tr>
+          <tr><td><code>package.json:1</code><br><code>tests/package.json:1</code><br><code>scripts/sync-version.js:1</code></td><td>Integral</td><td>Vers&otilde;es, comandos, depend&ecirc;ncias e regras de sincroniza&ccedil;&atilde;o inspecionados.</td></tr>
+          <tr><td><code>tests/jest.config.js:1</code><br><code>tests/jest.coverage.config.js:1</code><br><code>tests/playwright.config.js:1</code></td><td>Integral</td><td>Descoberta, projetos, ambientes e configura&ccedil;&atilde;o de cobertura/E2E.</td></tr>
+          <tr><td><code>tests/ci/test-baseline.json:1</code><br><code>tests/ci/verify-coverage.js:1</code><br><code>tests/ci/run-jest-ci.js:1</code><br><code>tests/ci/playwright-gate-reporter.js:1</code></td><td>Integral</td><td>Baselines e verifica&ccedil;&otilde;es est&aacute;ticas. N&atilde;o executados.</td></tr>
+          <tr><td><code>tests/ci/verify-ci-contract.js:1</code><br><code>tests/run-all-tests.js:1</code><br><code>tests/smoke/run-smoke.js:1</code><br><code>tests/visual-v3/run-all.js:1</code></td><td>Integral</td><td>Contrato de CI e diferen&ccedil;as entre runners locais e CI.</td></tr>
+          <tr><td><code>.github/workflows/ci.yml:1</code><br><code>.github/workflows/recover-cancelled-ci.yml:1</code></td><td>Parcial</td><td>In&iacute;cio dos workflows lido; restante truncado. Contrato do gate tamb&eacute;m consultado no verificador, sem assumir que passou.</td></tr>
+          <tr><td><code>.github/workflows/publish.yml:1</code></td><td>Integral</td><td>Release por tag ou disparo manual, ZIP, checksums e upload. Sem gate de teste no workflow.</td></tr>
+          <tr><td><code>docs/COBERTURA_TESTES_REVISAO_2.md:1</code></td><td>Integral</td><td>Relato hist&oacute;rico de coberturas e de testes removidos/restaurados. N&atilde;o &eacute; um relat&oacute;rio de execu&ccedil;&atilde;o deste snapshot.</td></tr>
+          <tr><td><code>tests/package-lock.json</code>, demais documentos, wrappers <code>.bat/.ps1</code>, fixtures e testes n&atilde;o listados na amostra</td><td>Inventariado ou n&atilde;o revisado</td><td>Sem revis&atilde;o integral de depend&ecirc;ncias transitivas, hist&oacute;rico, bin&aacute;rios ou todos os 108 arquivos/su&iacute;tes do baseline.</td></tr>
+        </tbody></table></div>
+      </section>
+      <section class="report-section" id="producao">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">04</span>C&oacute;digo de produ&ccedil;&atilde;o</div><span class="section-aside">Contratos antes de implementa&ccedil;&otilde;es</span></div>
+        <h2>A arquitetura &eacute; melhor que algumas de suas garantias.</h2>
+        <p class="section-intro">A decomposi&ccedil;&atilde;o em m&oacute;dulos torna os contratos audit&aacute;veis. Os problemas mais importantes est&atilde;o nas fronteiras: identidade, confirma&ccedil;&atilde;o e transi&ccedil;&atilde;o entre armazenamentos.</p>
+        <div class="architecture-flow" aria-label="Fluxo simplificado da traducao"><span><strong>P&aacute;gina de mang&aacute;</strong>Sele&ccedil;&atilde;o e identidade</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17m-5-5 5 5-5 5"/></svg><span><strong>Service worker</strong>Fila, ownership e watchdog</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17m-5-5 5 5-5 5"/></svg><span><strong>Gemini</strong>Anexo, envio e extra&ccedil;&atilde;o</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17m-5-5 5 5-5 5"/></svg><span><strong>Staging + commit</strong>Persist&ecirc;ncia e finaliza&ccedil;&atilde;o</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Contrato</th><th>O que est&aacute; bem encaminhado</th><th>Problema ou limite</th></tr></thead><tbody>
+          <tr><td><strong>Uma fonte de estado</strong><br><code>extension/background/state.js:29-108</code></td><td><code>get</code>, <code>patch</code>, <code>syncState</code> e <code>mutate</code> concentram o snapshot. A cadeia de Promises serializa persist&ecirc;ncias locais.</td><td>H&aacute; mutabilidade direta e c&oacute;pias rasas em partes do snapshot. N&atilde;o foi revisado o ciclo completo de todos os writers; n&atilde;o se pode afirmar isolamento transacional entre todos os handlers.</td></tr>
+          <tr><td><strong>Job pertence a uma aba</strong><br><code>extension/background/actions/claim-gemini-job.js:25-98</code></td><td>Claim por chave direta ou alias confere jobId e aba can&ocirc;nica. Entregas usam dados persistidos em vez de confiar cegamente no payload.</td><td>A guarda n&atilde;o &eacute; uniforme nas actions de controle. Corrigir MT-06 e autorizar cancelamento e solicita&ccedil;&atilde;o de imagem por ownership.</td></tr>
+          <tr><td><strong>Resultado antes da exclus&atilde;o</strong><br><code>extension/background/actions/deliver-result.js:57-84</code><br><code>extension/background/actions/commit-result.js:28-102</code></td><td>Staging separado do commit. Marker dur&aacute;vel reconhece retry de commit cuja resposta se perdeu.</td><td>MT-03 pode criar uma prova falsa de persist&ecirc;ncia. Tamb&eacute;m &eacute; necess&aacute;rio testar falha de grava&ccedil;&atilde;o do pr&oacute;prio marker.</td></tr>
+          <tr><td><strong>Atomicidade de p&aacute;gina</strong><br><code>extension/storage-manager.js:170-238</code></td><td>Asset, p&aacute;gina, restore e metadado de cap&iacute;tulo participam de uma transa&ccedil;&atilde;o readwrite.</td><td>Atomicidade n&atilde;o impede apagar um asset ainda referenciado. MT-02 exige invariantes entre registros, n&atilde;o apenas contagens.</td></tr>
+          <tr><td><strong>Uma imagem, uma identidade</strong><br><code>extension/cm-dom-replace.js:7-36</code><br><code>extension/cm-chapter.js:83-112</code></td><td>Normaliza&ccedil;&atilde;o tenta tolerar CDN e varia&ccedil;&otilde;es de t&iacute;tulos.</td><td>Heur&iacute;sticas destrutivas: MT-04 colide imagens; MT-08 colide cap&iacute;tulos. A identidade precisa preservar distin&ccedil;&otilde;es de conte&uacute;do.</td></tr>
+          <tr><td><strong>Observabilidade</strong><br><code>extension/background/log.js:9-26</code><br><code>extension/content_gemini.js:100-149</code></td><td>Fila de logs com cap de 500 entradas; Gemini sanitiza dados sens&iacute;veis nos logs.</td><td>Falhas de storage s&atilde;o absorvidas; a sanitiza&ccedil;&atilde;o n&atilde;o &eacute; central. URLs parciais aparecem no fingerprint. N&atilde;o assumir log completo ou universalmente redigido.</td></tr>
+        </tbody></table></div>
+        <h3>Leitor, popup e prefer&ecirc;ncias</h3>
+        <p class="prose">O leitor usa &iacute;ndice de p&aacute;ginas, busca sob demanda e um observer de descarregamento, em vez de carregar todas as tradu&ccedil;&otilde;es de uma vez. O popup possui fila de miniaturas limitada a quatro tarefas. S&atilde;o boas escolhas, mas n&atilde;o h&aacute; medi&ccedil;&atilde;o de mem&oacute;ria neste relat&oacute;rio. No leitor, <code>if (!img || !img.dataset.pendingSrc) return</code> n&atilde;o barra um segundo callback quando o valor j&aacute; &eacute; <code>'loading'</code>: um teste com duas notifica&ccedil;&otilde;es antes da resolu&ccedil;&atilde;o do IPC &eacute; recomendado. Refer&ecirc;ncia: <code>extension/reader.js:220-244</code>, bloco do observer de carga.</p>
+        <p class="prose">Em op&ccedil;&otilde;es, o r&oacute;tulo de sucesso &eacute; atualizado em callbacks de storage sem conferir sistematicamente <code>chrome.runtime.lastError</code> (<code>extension/options.js:79-101</code>). Endurecer o feedback de persist&ecirc;ncia. N&atilde;o afirmar que ocorreu uma falha de grava&ccedil;&atilde;o em uso real.</p>
+        <h3>Cache visual e limites matem&aacute;ticos</h3>
+        <p class="prose">O SHA-256 inicial pode ser calculado a partir de dimens&otilde;es e amostra de pixels ou de URL, n&atilde;o necessariamente dos bytes da imagem original (<code>extension/gtc-fingerprint.js:101-140</code>). Hash criptogr&aacute;fico de um descritor pequeno n&atilde;o transforma o descritor em identidade perfeita. Os filtros de aspecto e evid&ecirc;ncia contradit&oacute;ria s&atilde;o prote&ccedil;&otilde;es relevantes (<code>extension/gtc-indexeddb.js:37-57</code>), mas falsos positivos/negativos precisam de corpus real, inclusive p&aacute;ginas quase iguais e bal&otilde;es diferentes. <strong>Evid&ecirc;ncia insuficiente para concluir a taxa de acerto.</strong></p>
+        <aside class="insight">A pergunta decisiva n&atilde;o &eacute; &ldquo;a transa&ccedil;&atilde;o terminou?&rdquo;, mas &ldquo;todos os dados ainda fazem sentido juntos?&rdquo;</aside>
+      </section>
+
+      <section class="report-section" id="extensao">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">05</span>Auditoria espec&iacute;fica da extens&atilde;o</div><span class="section-aside">Manifest V3 e automa&ccedil;&atilde;o DOM</span></div>
+        <h2>O navegador faz parte do contrato.</h2>
+        <p class="section-intro">Mocks de Chrome e um DOM local s&atilde;o necess&aacute;rios, mas n&atilde;o substituem suspens&atilde;o real do worker, permiss&otilde;es do navegador ou a interface autenticada do servi&ccedil;o remoto.</p>
+        <div class="table-wrap"><table><thead><tr><th>&Aacute;rea</th><th>Evid&ecirc;ncia observada</th><th>Avalia&ccedil;&atilde;o</th></tr></thead><tbody>
+          <tr><td>Manifest e isolamento</td><td><code>extension/manifest.json:16-17, 29-73</code><br>Content de mang&aacute; em todas as URLs; inject.js no mundo MAIN, Gemini e localhost.</td><td>Ordem declarada dos m&oacute;dulos coerente com as depend&ecirc;ncias consultadas. A permiss&atilde;o ampla existe independentemente do toggle interno de sites habilitados.</td></tr>
+          <tr><td>Suspens&atilde;o do worker</td><td><code>extension/background/jobs-reconciliation.js:16-98</code><br><code>extension/background/jobs-watchdog.js:15-47</code></td><td>H&aacute; &iacute;ndice, alarme persistido e reconcilia&ccedil;&atilde;o. Ainda &eacute; preciso testar crash entre cada par de writes do journal e retomada ap&oacute;s onReplaced.</td></tr>
+          <tr><td>Keepalive</td><td><code>extension/content_gemini.js:33-97</code></td><td>Port sob demanda e uma tentativa de reconex&atilde;o. A exist&ecirc;ncia de um port, isoladamente, n&atilde;o comprova que o worker nunca ser&aacute; encerrado.</td></tr>
+          <tr><td>Confirma&ccedil;&atilde;o de envio</td><td><code>extension/gemini/editor.js:92-164</code></td><td>Design positivo: clique/Enter &eacute; tentativa, n&atilde;o sucesso. O observer &eacute; a fonte de confirma&ccedil;&atilde;o, sem for&ccedil;ar disabled.</td></tr>
+          <tr><td>Confirma&ccedil;&atilde;o de anexo</td><td><code>extension/gemini/attachment.js:42-50, 145-181</code></td><td>Dimens&otilde;es naturais, carregamento e aus&ecirc;ncia de spinner; baseline estrutural evita aceitar preview antigo. Restante do algoritmo foi truncado.</td></tr>
+          <tr><td>Quarentena</td><td><code>extension/gemini/image-quarantine.js:154-219</code></td><td>Bloqueia entrada estrutural e igualdade de bytes. Uma c&oacute;pia recodificada pode ter bytes distintos: n&atilde;o equivale a validar que o texto foi traduzido.</td></tr>
+          <tr><td>MAIN e anti-throttling</td><td><code>extension/inject.js:6-12, 39-59, 139-180</code></td><td>Altera APIs de visibilidade, foco e agendamento no contexto da p&aacute;gina. Precisa de testes de compatibilidade, cancelamento de callbacks e encerramento da aba.</td></tr>
+          <tr><td>Conversa tempor&aacute;ria</td><td><code>extension/gemini/temporary-chat.js:81-105</code></td><td>MT-05 invalida a premissa &ldquo;controle presente = modo ativo&rdquo;. N&atilde;o prometer aus&ecirc;ncia de hist&oacute;rico sem confirma&ccedil;&atilde;o.</td></tr>
+          <tr><td>Exclus&atilde;o de conversa</td><td><code>extension/gemini/deletion.js:39-96, 101-135</code></td><td>H&aacute; recovery em storage e espera de estabilidade. Como o retorno foi parcial, n&atilde;o se certifica exclus&atilde;o remota, idempot&ecirc;ncia integral ou reten&ccedil;&atilde;o do provedor.</td></tr>
+        </tbody></table></div>
+        <p class="prose"><strong>N&atilde;o confundir fixture com servi&ccedil;o real.</strong> O E2E lido configura <code>geminiBaseUrl: 'http://127.0.0.1:3999/gemini/'</code> (<code>tests/e2e/translation-flow.spec.js:93-123</code>). Isso exercita a extens&atilde;o real em Chromium contra um Gemini simulado. N&atilde;o verifica tradu&ccedil;&atilde;o real, cookies reais do Google, seletores atuais, limites de conta ou exclus&atilde;o no servidor do Google.</p>
+      </section>
+
+      <section class="report-section" id="seguranca">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">06</span>Seguran&ccedil;a</div><span class="section-aside">Amea&ccedil;a, alcance e limites</span></div>
+        <h2>Privil&eacute;gio precisa de uma fronteira expl&iacute;cita.</h2>
+        <p class="section-intro">Ativos relevantes: imagens e cap&iacute;tulos salvos, sess&atilde;o autenticada do Gemini, hist&oacute;rico de conversas, abas/janelas e downloads. Nenhuma explora&ccedil;&atilde;o foi executada.</p>
+        <div class="table-wrap"><table><thead><tr><th>Superf&iacute;cie</th><th>O que se pode afirmar</th><th>A&ccedil;&atilde;o recomendada</th></tr></thead><tbody>
+          <tr><td>Permiss&otilde;es amplas<br><span class="badge risk">Risco prov&aacute;vel</span></td><td><code>extension/manifest.json:6-17</code> declara tabs, scripting, storage, unlimitedStorage, downloads, windows, alarms, contextMenus e acesso a todas as URLs. N&atilde;o &eacute;, por si s&oacute;, uma vulnerabilidade explor&aacute;vel.</td><td>Avaliar permiss&otilde;es opcionais por host, reduzir o artefato distribu&iacute;do e documentar claramente o acesso concedido ao navegador.</td></tr>
+          <tr><td>Mensagens de controle</td><td>MT-06 classifica origem incorretamente. R-01 identifica actions permissivas. N&atilde;o h&aacute; prova de acesso direto por JavaScript arbitr&aacute;rio da p&aacute;gina.</td><td>Verificar contexto, ID da extens&atilde;o, URL/origem exata e ownership por action. Acrescentar limites de payload e valida&ccedil;&atilde;o de schema.</td></tr>
+          <tr><td>Fetch autenticado</td><td><code>extension/background/actions/fetch-image-base64.js:26-34, 60-64</code> restringe host inicial a googleusercontent e exige aba Gemini. Os testes lidos cobrem rejei&ccedil;&atilde;o de origem/host.</td><td>Considerar destino final ap&oacute;s redirect, pol&iacute;tica de credenciais e limita&ccedil;&atilde;o de leitura. N&atilde;o afirmar vazamento de cookies a terceiros sem reprodu&ccedil;&atilde;o.</td></tr>
+          <tr><td>Bridge MAIN</td><td><code>extension/gemini/result-extractor.js:53-108</code> correlaciona resultados por requestId; eventos de p&aacute;gina n&atilde;o s&atilde;o uma fronteira autenticada.</td><td>Tratar qualquer retorno de evento como n&atilde;o confi&aacute;vel: validar MIME, bytes, tamanho, job e associa&ccedil;&atilde;o ao pedido antes de persistir.</td></tr>
+          <tr><td>Inje&ccedil;&atilde;o de HTML</td><td><code>extension/shared-ui.js:8-16</code> escapa cinco caracteres; trechos de UI usam textContent. Isso &eacute; positivo, mas o popup e content principal foram truncados.</td><td>Revisar todos os sinks innerHTML e URLs quando os arquivos completos estiverem dispon&iacute;veis. <strong>Evid&ecirc;ncia insuficiente para concluir aus&ecirc;ncia de XSS.</strong></td></tr>
+          <tr><td>Logs e exporta&ccedil;&atilde;o</td><td><code>extension/content_gemini.js:100-149</code> sanitiza por chave/padr&atilde;o; <code>extension/background/actions/calculate-visual-fingerprint.js:97-119</code> registra trecho de URL.</td><td>Sanitiza&ccedil;&atilde;o central, limite de bytes e avisos antes de compartilhar logs. Prefixos de URL podem conter identificadores mesmo truncados.</td></tr>
+          <tr><td>Supply chain</td><td>Depend&ecirc;ncias de desenvolvimento declaradas, lockfile presente e actions por tags de vers&atilde;o. Nenhum scan de vulnerabilidades transitivas foi executado.</td><td>Revisar lockfile, usar pin de actions por SHA e atualizar depend&ecirc;ncias com testes. N&atilde;o atribuir CVEs sem consultar o lock e avisos aplic&aacute;veis.</td></tr>
+        </tbody></table></div>
+        <aside class="scope-note"><strong>Hip&oacute;tese descartada.</strong> N&atilde;o foi classificado como bug o simples uso de <code>FileReader</code> em um worker. O coment&aacute;rio de <code>storage-manager.js:137</code> n&atilde;o &eacute; prova de indisponibilidade da API. A <a class="text-link" href="https://lists.w3.org/Archives/Public/public-webapps/2019JulSep/0024.html" target="_blank" rel="noopener noreferrer">discuss&atilde;o t&eacute;cnica do W3C</a> distingue FileReader de APIs como createObjectURL. Sem teste da vers&atilde;o-alvo, afirmar ReferenceError seria extrapola&ccedil;&atilde;o.</aside>
+      </section>
+      <section class="report-section" id="testes">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">07</span>Testes existentes e qualidade</div><span class="section-aside">Importar a produ&ccedil;&atilde;o importa</span></div>
+        <h2>Nem todo teste verde protege o produto.</h2>
+        <p class="section-intro">A classifica&ccedil;&atilde;o abaixo avalia o c&oacute;digo dos testes consultados. Todos permanecem <span class="badge untested">N&atilde;o executado</span> nesta auditoria. Um teste &uacute;til pode continuar incompleto; um teste de c&oacute;pia n&atilde;o se torna teste de produ&ccedil;&atilde;o por estar no mesmo reposit&oacute;rio.</p>
+        <h3>Invent&aacute;rio declarado, n&atilde;o resultado observado</h3>
+        <div class="table-wrap"><table><thead><tr><th>Camada</th><th>Configura&ccedil;&atilde;o consultada</th><th>M&iacute;nimo protegido</th><th>Estado nesta sess&atilde;o</th></tr></thead><tbody>
+          <tr><td>Jest</td><td><code>tests/ci/test-baseline.json:2-7</code></td><td>108 su&iacute;tes, 848 testes; 0 skip, 0 todo permitidos</td><td>N&atilde;o executado. Quantidade &eacute; baseline, n&atilde;o recontagem independente.</td></tr>
+          <tr><td>Visual perceptual</td><td><code>tests/ci/test-baseline.json:8-11</code></td><td>224 testes; 0 skip permitido</td><td>N&atilde;o executado. N&atilde;o &eacute; necessariamente regress&atilde;o de screenshot da UI.</td></tr>
+          <tr><td>Playwright</td><td><code>tests/ci/test-baseline.json:12-16</code></td><td>21 testes; 0 skip e 0 flaky permitidos</td><td>N&atilde;o executado. Fixture local do Gemini identificada.</td></tr>
+          <tr><td>Smoke</td><td><code>tests/ci/test-baseline.json:17-19</code></td><td>6 arquivos; os seis foram consultados</td><td>N&atilde;o executado. Tr&ecirc;s incluem l&oacute;gica copiada de produ&ccedil;&atilde;o.</td></tr>
+        </tbody></table></div>
+        <h3>Classifica&ccedil;&atilde;o da amostra examinada</h3>
+        <div class="table-wrap"><table><thead><tr><th>Teste / evid&ecirc;ncia</th><th>Classifica&ccedil;&atilde;o</th><th>O que realmente verifica</th></tr></thead><tbody>
+          <tr><td><code>tests/unit/background/router.test.js:3-10, 42-92</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Importa router real; cobre dispatch, fontes e canal async. Faltam dom&iacute;nios enganosos de MT-06.</td></tr>
+          <tr><td><code>tests/unit/background/jobs-dom-ack-staging.test.js:4-10, 20-130</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Importa m&oacute;dulo real; verifica staging, ACK negativo, timeout e erro runtime. N&atilde;o cobre ACK vazio/contradit&oacute;rio.</td></tr>
+          <tr><td><code>tests/unit/background/export-all-action.test.js:2-13, 27-53</code></td><td><span class="badge medium">Parcialmente &uacute;til</span></td><td>Router e action reais; valida prefixo e sucesso. N&atilde;o injeta falha total, parcial ou interrup&ccedil;&atilde;o.</td></tr>
+          <tr><td><code>tests/unit/background/fetch-image-base64-action.test.js:26-47, 94-176</code><br>Leitura parcial</td><td><span class="badge medium">Parcialmente &uacute;til</span></td><td>Action real; valida credenciais, origem, MIME e tamanho. Blob e FileReader simulados n&atilde;o medem consumo de bytes real.</td></tr>
+          <tr><td><code>tests/unit/background/background-strict-load.test.js:8-57</code></td><td><span class="badge medium">Parcialmente &uacute;til</span></td><td>Executa background real em processo Node isolado, mas <code>importScripts</code> &eacute; no-op e callbacks de instala&ccedil;&atilde;o n&atilde;o s&atilde;o exercitados. N&atilde;o &eacute; boot MV3 completo.</td></tr>
+          <tr><td><code>tests/unit/content-gemini/temporary-chat-v2.test.js:5-13, 27-84</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Importa m&oacute;dulo e exige transi&ccedil;&atilde;o do controle. O r&oacute;tulo negativo muito espec&iacute;fico deixa passar MT-05.</td></tr>
+          <tr><td><code>tests/unit/content-gemini/image-quarantine.test.js:14-26, 39-97</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Quarentena real, igualdade independente de MIME, Shadow DOM e distin&ccedil;&atilde;o estrutural. Exercita fallback de hash com cryptoImpl null; n&atilde;o valida servi&ccedil;o remoto.</td></tr>
+          <tr><td><code>tests/unit/content-manga/canonical-title.test.js:27-45</code><br><code>tests/unit/content-manga/canonical-title-full.test.js:29-70</code><br>Segundo arquivo: leitura parcial</td><td><span class="badge high">N&atilde;o testa produ&ccedil;&atilde;o</span></td><td>Importam <code>tests/helpers/extracted-functions.js</code>. O helper possui regex diferente da fun&ccedil;&atilde;o atual em cm-chapter.</td></tr>
+          <tr><td><code>tests/unit/content-manga/audio-synthesis.test.js:27-38</code></td><td><span class="badge high">N&atilde;o testa produ&ccedil;&atilde;o</span></td><td>Testa playErrorSound do helper espelho. Asser&ccedil;&atilde;o de &ldquo;n&atilde;o lan&ccedil;a&rdquo; tamb&eacute;m aceitaria uma fun&ccedil;&atilde;o vazia.</td></tr>
+          <tr><td><code>tests/unit/content-manga/get-clean-url.test.js:20-29</code></td><td><span class="badge high">N&atilde;o testa produ&ccedil;&atilde;o</span></td><td>Define getCleanUrl dentro do pr&oacute;prio arquivo. N&atilde;o detecta mudan&ccedil;as nos normalizadores reais.</td></tr>
+          <tr><td><code>tests/smoke/smoke-01-batch-lifecycle.js:26-35, 59-71, 99-145</code></td><td><span class="badge high">N&atilde;o testa produ&ccedil;&atilde;o</span></td><td>Ownership, &iacute;ndice e fila s&atilde;o redefinidos localmente. O ACK &eacute; um setTimeout simulado. As promessas no cabe&ccedil;alho excedem o escopo real.</td></tr>
+          <tr><td><code>tests/smoke/smoke-02-uuid-and-reconcile.js:13-20, 134-166</code></td><td><span class="badge high">N&atilde;o testa produ&ccedil;&atilde;o</span></td><td>Gera&ccedil;&atilde;o de IDs e reconcilia&ccedil;&atilde;o copiadas. Mudan&ccedil;as nos m&oacute;dulos de lifecycle n&atilde;o afetam essas fun&ccedil;&otilde;es locais.</td></tr>
+          <tr><td><code>tests/smoke/smoke-03-chapter-persistence.js:21-66</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Importa StorageManager e dispara dez grava&ccedil;&otilde;es paralelas, com fake-indexeddb. Verifica p&aacute;ginas e restore por assetId.</td></tr>
+          <tr><td><code>tests/smoke/smoke-04-storage-manager.js:39-116</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Round-trip, overwrite, exclus&atilde;o e migra&ccedil;&atilde;o reais. A falta de falhas parciais e refer&ecirc;ncias cruzadas deixa passar MT-01/02.</td></tr>
+          <tr><td><code>tests/smoke/smoke-05-perceptual-queries.js:11-16, 47-85</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Consulta real do reposit&oacute;rio em mem&oacute;ria e matching real. N&atilde;o exercita automaticamente o backend persistente s&oacute; por importar fake-indexeddb.</td></tr>
+          <tr><td><code>tests/smoke/smoke-06-sm-message-routing.js:21-70</code></td><td><span class="badge medium">Parcialmente &uacute;til</span><br><span class="badge high">R&oacute;tulo enganoso</span></td><td>StorageManager &eacute; real, mas o &ldquo;listener real&rdquo; anunciado &eacute; uma c&oacute;pia local do handler. N&atilde;o testa o roteamento efetivo do background.</td></tr>
+          <tr><td><code>tests/integration/performance.test.js:1-26, 170-260</code></td><td><span class="badge medium">Parcialmente &uacute;til</span><br><span class="badge neutral">Fr&aacute;gil como benchmark</span></td><td>Parte mede c&oacute;digo real sob Node/JSDOM e mocks. Tempos de parede, GC e m&aacute;quina influenciam os limites; n&atilde;o extrapolar para Chrome real.</td></tr>
+          <tr><td><code>tests/integration/performance.test.js:111-147</code><br>Cen&aacute;rio PERF-09</td><td><span class="badge high">Enganoso para o fallback</span></td><td><code>saveImagesWithIndexedDbFallback</code> &eacute; definido no teste, n&atilde;o importado da extens&atilde;o. Usa um reposit&oacute;rio real, mas a decis&atilde;o de fallback testada &eacute; artificial.</td></tr>
+          <tr><td><code>tests/integration/reader.ui.test.js:23-73</code></td><td><span class="badge low">Teste real e &uacute;til</span></td><td>Carrega p&aacute;gina e script reais; valida t&iacute;tulo, contador, largura e estado vazio em JSDOM. N&atilde;o mede layout, decode ou uso real de mem&oacute;ria.</td></tr>
+          <tr><td><code>tests/visual-v3/visual-v4-crop.visual-v3.js:10-24, 34-112</code></td><td><span class="badge medium">Parcialmente &uacute;til</span></td><td>Fun&ccedil;&otilde;es reais com dados sint&eacute;ticos e reposit&oacute;rio em mem&oacute;ria. Hash hexadecimal v&aacute;lido &eacute; or&aacute;culo fraco para corre&ccedil;&atilde;o matem&aacute;tica; MT-09 afeta a infraestrutura.</td></tr>
+          <tr><td><code>tests/e2e/translation-flow.spec.js:93-123, 159-196</code><br>Leitura parcial</td><td><span class="badge low">E2E real da extens&atilde;o</span><br><span class="badge medium">Servi&ccedil;o simulado</span></td><td>Usa perfil persistente Chromium e worker da extens&atilde;o. Gemini &eacute; fixture local. N&atilde;o &eacute; teste de tradu&ccedil;&atilde;o real no Google.</td></tr>
+        </tbody></table></div>
+        <h3>O problema n&atilde;o &eacute; usar mocks. &Eacute; trocar o objeto testado.</h3>
+        <div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; tests/unit/content-manga/get-clean-url.test.js:21-29</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>function getCleanUrl(urlStr) {
+    if (!urlStr || urlStr.startsWith('data:')) return null;
+    try {
+        const u = new URL(urlStr, 'https://testmanga.com');
+        return u.origin + u.pathname;
+    } catch(e) {
+        return urlStr.split('?')[0].split('#')[0];
+    }
+}</code></pre></div>
+        <p class="prose">Um mock de <code>chrome.tabs</code> permite executar a action real sob controle. Uma segunda implementa&ccedil;&atilde;o de <code>getCleanUrl</code> substitui a pr&oacute;pria unidade que deveria ser verificada. Mesmo que as duas sejam iguais hoje, uma regress&atilde;o futura no arquivo de produ&ccedil;&atilde;o n&atilde;o altera o teste. Neste caso, elas j&aacute; diferem em caixa, tratamento de blob e par&acirc;metros.</p>
+        <h3 id="testes-desabilitados">Testes desabilitados e exclus&otilde;es</h3>
+        <div class="table-wrap"><table><thead><tr><th>Situa&ccedil;&atilde;o</th><th>Constata&ccedil;&atilde;o</th><th>Limite</th></tr></thead><tbody>
+          <tr><td>skip / todo no Jest</td><td><code>tests/ci/run-jest-ci.js:91-108</code> compara pending/todo com limites zero.</td><td>Regra de CI, n&atilde;o resultado. N&atilde;o houve varredura textual completa nem execu&ccedil;&atilde;o para afirmar &ldquo;zero desabilitados&rdquo;.</td></tr>
+          <tr><td>only e retries E2E</td><td><code>tests/playwright.config.js:34-44</code> usa forbidOnly no CI, retries zero e reporter customizado.</td><td>Sem executar, n&atilde;o se sabe se o invent&aacute;rio do snapshot passa pelo gate.</td></tr>
+          <tr><td>Su&iacute;tes n&atilde;o descobertas</td><td><code>tests/ci/run-jest-ci.js:29-39, 80-89</code> confronta arquivos unit/integration com o JSON do runner.</td><td>Protege descoberta nesses diret&oacute;rios. N&atilde;o valida a qualidade das asser&ccedil;&otilde;es e n&atilde;o converte testes de c&oacute;pia em cobertura.</td></tr>
+          <tr><td>Teste removido documentado</td><td><code>docs/COBERTURA_TESTES_REVISAO_2.md</code>, se&ccedil;&atilde;o &ldquo;Testes removidos ou restaurados&rdquo;: retirada de FORCE_ATTACHMENT_ACTIVATION por estrat&eacute;gia descartada.</td><td>Relato de manuten&ccedil;&atilde;o, n&atilde;o prova de fraude nem prova de adequa&ccedil;&atilde;o. Exigiria diff hist&oacute;rico e contrato atual.</td></tr>
+          <tr><td>Runners locais</td><td><code>tests/run-all-tests.js:97-140</code>: smoke &eacute; isolado/opcional e E2E exige flag; Jest local ainda usa forceExit.</td><td><code>npm test</code> na raiz n&atilde;o equivale a todos os gates do CI.</td></tr>
+        </tbody></table></div>
+        <h3 id="mutacao">An&aacute;lise de muta&ccedil;&atilde;o mental</h3>
+        <p class="prose">Predi&ccedil;&otilde;es por depend&ecirc;ncia e asser&ccedil;&atilde;o. <strong>N&atilde;o &eacute; execu&ccedil;&atilde;o de mutation testing e n&atilde;o produz mutation score.</strong> A coluna considera apenas o teste citado, n&atilde;o todas as su&iacute;tes do projeto.</p>
+        <div class="table-wrap"><table><thead><tr><th>Muta&ccedil;&atilde;o hipot&eacute;tica</th><th>Teste relacionado</th><th>Predi&ccedil;&atilde;o e por qu&ecirc;</th></tr></thead><tbody>
+          <tr><td>getCleanUrl real sempre retorna uma constante</td><td><code>tests/unit/content-manga/get-clean-url.test.js:20-29</code></td><td><strong>Sobrevive a este arquivo.</strong> Ele chama a c&oacute;pia local, n&atilde;o a fun&ccedil;&atilde;o alterada.</td></tr>
+          <tr><td>canonicalTitle real n&atilde;o normaliza mais nada</td><td><code>tests/unit/content-manga/canonical-title.test.js:27-45</code></td><td><strong>Sobrevive a este arquivo.</strong> Helper espelho continua igual.</td></tr>
+          <tr><td>Reconcilia&ccedil;&atilde;o real n&atilde;o remove &oacute;rf&atilde;os</td><td><code>tests/smoke/smoke-02-uuid-and-reconcile.js:134-166</code></td><td><strong>Sobrevive ao smoke-02.</strong> A fun&ccedil;&atilde;o usada pelo smoke &eacute; local.</td></tr>
+          <tr><td>Staging chama finalizeJob prematuramente</td><td><code>tests/unit/background/jobs-dom-ack-staging.test.js:20-58</code></td><td><strong>Deve ser detectada.</strong> Asser&ccedil;&atilde;o expl&iacute;cita de que finalizeJob n&atilde;o foi chamado.</td></tr>
+          <tr><td>Salvar uma p&aacute;gina apaga registros de outras p&aacute;ginas</td><td><code>tests/smoke/smoke-03-chapter-persistence.js:28-57</code></td><td><strong>Deve ser detectada.</strong> As dez p&aacute;ginas e seus restores s&atilde;o verificados.</td></tr>
+          <tr><td>SHA de quarentena sempre retorna o mesmo hash</td><td><code>tests/unit/content-gemini/image-quarantine.test.js:65-97</code></td><td><strong>Deve ser detectada.</strong> Resultado diferente deve continuar liberado.</td></tr>
+          <tr><td>Exporta&ccedil;&atilde;o ignora todo erro de download</td><td><code>tests/unit/background/export-all-action.test.js:27-53</code></td><td><strong>N&atilde;o &eacute; discriminada.</strong> Nenhum caso gera erro; o comportamento de MT-07 j&aacute; existe.</td></tr>
+          <tr><td>Migra&ccedil;&atilde;o apaga legado ap&oacute;s sucesso parcial</td><td><code>tests/smoke/smoke-04-storage-manager.js:99-116</code></td><td><strong>N&atilde;o &eacute; discriminada.</strong> Fixture s&oacute; cobre sucesso; MT-01 j&aacute; est&aacute; presente.</td></tr>
+          <tr><td>Hash perceptual retorna qualquer string hexadecimal de 64 caracteres</td><td><code>tests/visual-v3/visual-v4-crop.visual-v3.js:34-44</code></td><td><strong>Sobrevive a essas duas asser&ccedil;&otilde;es de formato.</strong> Outros testes matem&aacute;ticos podem detectar; n&atilde;o generalizar &agrave; su&iacute;te inteira.</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="report-section" id="cobertura">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">08</span>Cobertura e c&oacute;digo sem cobertura</div><span class="section-aside">N&uacute;meros com proced&ecirc;ncia</span></div>
+        <h2>Medir presen&ccedil;a n&atilde;o &eacute; medir confian&ccedil;a.</h2>
+        <p class="section-intro">Nenhum <code>lcov.info</code> ou <code>coverage-summary.json</code> do snapshot foi gerado ou obtido como artefato verific&aacute;vel. Os percentuais abaixo s&atilde;o valores versionados no baseline, n&atilde;o resultados desta auditoria.</p>
+        <div class="table-wrap"><table><caption>Fonte: tests/ci/test-baseline.json:20-34</caption><thead><tr><th>M&eacute;trica</th><th>Baseline registrado</th><th>M&iacute;nimo exigido</th><th>Medi&ccedil;&atilde;o desta auditoria</th></tr></thead><tbody>
+          <tr><td>Statements</td><td>79,44%</td><td>78%</td><td><span class="badge untested">N&atilde;o executado</span></td></tr>
+          <tr><td>Branches</td><td>71,85%</td><td>71%</td><td><span class="badge untested">N&atilde;o executado</span></td></tr>
+          <tr><td>Functions</td><td>82,50%</td><td>80%</td><td><span class="badge untested">N&atilde;o executado</span></td></tr>
+          <tr><td>Lines</td><td>79,44%</td><td>78%</td><td><span class="badge untested">N&atilde;o executado</span></td></tr>
+        </tbody></table></div>
+        <h3>Como o gate est&aacute; configurado</h3>
+        <p class="prose"><code>tests/jest.coverage.config.js:23-54</code> usa provider V8, inclui todos os JavaScript em <code>extension/</code> recursivamente e emite LCOV e JSON summary. O threshold &eacute; aplicado pelo verificador externo; <code>coverageThreshold: undefined</code> nesse arquivo <strong>n&atilde;o significa automaticamente aus&ecirc;ncia de gate</strong>. <code>tests/ci/verify-coverage.js:94-187</code> verifica presen&ccedil;a dos fontes, percentuais, m&iacute;nimos e arquivos cr&iacute;ticos.</p>
+        <div class="table-wrap"><table><caption>M&iacute;nimos por arquivo, n&atilde;o cobertura atual: tests/ci/test-baseline.json:35-66</caption><thead><tr><th>Arquivo cr&iacute;tico</th><th>Statements</th><th>Branches</th><th>Functions</th><th>Lines</th></tr></thead><tbody>
+          <tr><td><code>extension/background.js</code></td><td>55%</td><td>62%</td><td>72%</td><td>55%</td></tr>
+          <tr><td><code>extension/content_manga.js</code></td><td>72%</td><td>68%</td><td>71%</td><td>72%</td></tr>
+          <tr><td><code>extension/content_gemini.js</code></td><td>87%</td><td>81%</td><td>76%</td><td>87%</td></tr>
+          <tr><td><code>extension/shared-ui.js</code></td><td>86%</td><td>69%</td><td>98%</td><td>86%</td></tr>
+          <tr><td><code>extension/gemini/job-runner.js</code></td><td>87%</td><td>64%</td><td>80%</td><td>87%</td></tr>
+        </tbody></table></div>
+        <p class="prose">A presen&ccedil;a de 56 entradas no relat&oacute;rio prova invent&aacute;rio instrumentado, n&atilde;o 56 arquivos bem testados. Uma linha executada pode n&atilde;o ter asser&ccedil;&atilde;o relevante. Os smokes s&atilde;o processos separados e sua execu&ccedil;&atilde;o n&atilde;o entra automaticamente no coverage do Jest. O helper <code>tests/helpers/load-background-module.js:92-128</code> usa <code>new Function</code> com exports adicionais; &eacute; necess&aacute;rio verificar a atribui&ccedil;&atilde;o do c&oacute;digo din&acirc;mico no LCOV, sem presumir cobertura errada ou correta.</p>
+        <h3>Trechos sem evid&ecirc;ncia de cobertura comportamental na amostra</h3>
+        <p class="prose">&ldquo;Sem evid&ecirc;ncia na amostra&rdquo; n&atilde;o quer dizer &ldquo;zero hits no LCOV&rdquo; ou &ldquo;n&atilde;o existe nenhum teste no reposit&oacute;rio&rdquo;. N&atilde;o h&aacute; dados para enumerar linhas numericamente descobertas.</p>
+        <div class="table-wrap"><table><thead><tr><th>C&oacute;digo / ramo</th><th>Lacuna identificada</th><th>Valida&ccedil;&atilde;o necess&aacute;ria</th></tr></thead><tbody>
+          <tr><td><code>extension/storage-manager.js:445-477</code></td><td>Falha parcial, falha total e retentativa de migra&ccedil;&atilde;o.</td><td>Injetar erro no segundo write e inspecionar todos os dados, flags e retry.</td></tr>
+          <tr><td><code>extension/storage-manager.js:190-231</code></td><td>URL repetida em &iacute;ndices diferentes; troca de URL no mesmo &iacute;ndice.</td><td>Todo assetId de p&aacute;gina/restore deve resolver para blob existente.</td></tr>
+          <tr><td><code>extension/background/jobs-dom-ack.js:21-45, 74-78</code></td><td>ACK sem corpo, sem persisted, com persisted falso; erro ao gravar journal.</td><td>Nenhum sucesso nem marker de persist&ecirc;ncia nesses casos.</td></tr>
+          <tr><td><code>extension/cm-dom-replace.js:7-36</code></td><td>Queries sem&acirc;nticas, caixa do path e resize com identificador.</td><td>Imagens distintas n&atilde;o podem produzir a mesma chave.</td></tr>
+          <tr><td><code>extension/gemini/temporary-chat.js:81-105</code></td><td>Bot&atilde;o com r&oacute;tulo neutro e estado falso; indicador oculto.</td><td>Aus&ecirc;ncia de prova positiva deve bloquear o sucesso.</td></tr>
+          <tr><td><code>extension/background/actions/export-all.js:15-35</code></td><td>Falha de todos os downloads e sucesso parcial.</td><td>Contabilidade correta e nenhum falso sucesso.</td></tr>
+          <tr><td><code>extension/reader.js:220-244</code></td><td>Observer dispara novamente com IPC em andamento.</td><td>Uma busca por p&aacute;gina e descarte de resposta obsoleta.</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="report-section" id="matriz">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">09</span>Matriz c&oacute;digo &harr; testes</div><span class="section-aside">Rastreabilidade por contrato</span></div>
+        <h2>Da implementa&ccedil;&atilde;o &agrave; asser&ccedil;&atilde;o.</h2>
+        <p class="section-intro">V&iacute;nculos constru&iacute;dos pela leitura de imports, loaders e asser&ccedil;&otilde;es. Esta matriz n&atilde;o substitui instrumenta&ccedil;&atilde;o nem representa todos os testes existentes.</p>
+        <div class="table-wrap"><table><thead><tr><th>Produ&ccedil;&atilde;o</th><th>Teste existente</th><th>For&ccedil;a do v&iacute;nculo / lacuna</th><th>Novo teste</th></tr></thead><tbody>
+          <tr><td><code>extension/storage-manager.js:415-479</code><br>Migra&ccedil;&atilde;o</td><td><code>tests/smoke/smoke-04-storage-manager.js:99-116</code></td><td>Real, caminho feliz. Falha parcial n&atilde;o demonstrada na amostra.</td><td><a class="text-link" href="#novo-storage">ST-01 / ST-02</a></td></tr>
+          <tr><td><code>extension/storage-manager.js:189-235</code><br>Refer&ecirc;ncias de assets</td><td><code>tests/smoke/smoke-04-storage-manager.js:52-80</code></td><td>Real, mas s&oacute; overwrite no mesmo par &iacute;ndice/URL.</td><td><a class="text-link" href="#novo-storage">ST-03</a></td></tr>
+          <tr><td><code>extension/storage-manager.js:170-238</code><br>Concorr&ecirc;ncia</td><td><code>tests/smoke/smoke-03-chapter-persistence.js:28-57</code></td><td>Real com fake-indexeddb; dez saves e verifica&ccedil;&atilde;o dos resultados.</td><td>Adicionar delete concorrente e crash real.</td></tr>
+          <tr><td><code>extension/background/jobs-dom-ack.js:15-78</code></td><td><code>tests/unit/background/jobs-dom-ack-staging.test.js:20-130</code></td><td>Real; falta contrato estrito do corpo do ACK.</td><td><a class="text-link" href="#novo-ipc">IPC-01</a></td></tr>
+          <tr><td><code>extension/background/router.js:47-58</code></td><td><code>tests/unit/background/router.test.js:42-51</code></td><td>Real; fontes usuais, sem host enganoso.</td><td><a class="text-link" href="#novo-ipc">IPC-02</a></td></tr>
+          <tr><td><code>extension/background/actions/export-all.js:12-35</code></td><td><code>tests/unit/background/export-all-action.test.js:27-53</code></td><td>Real; somente sucesso e lista vazia.</td><td><a class="text-link" href="#novo-ipc">IPC-03</a></td></tr>
+          <tr><td><code>extension/cm-dom-replace.js:7-36</code></td><td><code>tests/unit/content-manga/get-clean-url.test.js:20-29</code></td><td><strong>V&iacute;nculo quebrado:</strong> implementa&ccedil;&atilde;o copiada no teste.</td><td><a class="text-link" href="#novo-dom">DOM-01</a></td></tr>
+          <tr><td><code>extension/cm-chapter.js:5-14, 83-112</code></td><td><code>tests/unit/content-manga/canonical-title.test.js:27-45</code></td><td><strong>V&iacute;nculo quebrado:</strong> helper diferente. Identidade exige integra&ccedil;&atilde;o com chapterList.</td><td><a class="text-link" href="#novo-ipc">IPC-04</a></td></tr>
+          <tr><td><code>extension/gemini/temporary-chat.js:81-105</code></td><td><code>tests/unit/content-gemini/temporary-chat-v2.test.js:42-84</code></td><td>Real; r&oacute;tulo neutro inativo n&atilde;o coberto na amostra.</td><td><a class="text-link" href="#novo-dom">DOM-02</a></td></tr>
+          <tr><td><code>extension/gemini/image-quarantine.js:174-219</code></td><td><code>tests/unit/content-gemini/image-quarantine.test.js:39-97</code></td><td>Real. Bytes iguais/diferentes e similaridade como telemetria. N&atilde;o valida qualidade da tradu&ccedil;&atilde;o.</td><td>Corpus com recodifica&ccedil;&atilde;o e respostas sem tradu&ccedil;&atilde;o.</td></tr>
+          <tr><td><code>extension/reader.js:21-37</code></td><td><code>tests/integration/reader.ui.test.js:46-73</code></td><td>Real: largura, DOM e localStorage; sem layout Chromium.</td><td>Observer concorrente e navega&ccedil;&atilde;o longa no E2E.</td></tr>
+          <tr><td><code>extension/background.js</code><br>Boot dos m&oacute;dulos</td><td><code>tests/unit/background/background-strict-load.test.js:8-57</code></td><td>Parcial: fonte real, importScripts vazio. N&atilde;o prova que depend&ecirc;ncias carregam.</td><td>Carregar todos os imports no worker real.</td></tr>
+          <tr><td><code>tests/visual-v3/runner.js:41-80</code><br>Infraestrutura</td><td>Nenhum teste de falha de hook identificado na amostra consultada.</td><td>Aus&ecirc;ncia global n&atilde;o demonstrada. Risco do runner &eacute; vis&iacute;vel.</td><td><a class="text-link" href="#novo-runner">RUN-01</a></td></tr>
+        </tbody></table></div>
+      </section>
+      <section class="report-section" id="recomendacoes">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">10</span>Recomenda&ccedil;&otilde;es e novos testes</div><span class="section-aside">Prioridade guiada por impacto</span></div>
+        <h2>Corrigir o contrato. Depois aumentar a cobertura.</h2>
+        <p class="section-intro">Primeiro proteger dados e confirma&ccedil;&otilde;es. Depois endurecer a fronteira de privil&eacute;gio e substituir testes que verificam implementa&ccedil;&otilde;es espelho.</p>
+        <div class="table-wrap"><table><thead><tr><th>Ordem</th><th>Entrega recomendada</th><th>Crit&eacute;rio de aceita&ccedil;&atilde;o</th></tr></thead><tbody>
+          <tr><td><strong>P0</strong></td><td>MT-01 e MT-02: migra&ccedil;&atilde;o retom&aacute;vel e integridade referencial.</td><td>Falha em qualquer entrada preserva a origem; retry recupera pend&ecirc;ncias; nenhuma refer&ecirc;ncia aponta para asset ausente. Fazer backup antes de migrar dados reais.</td></tr>
+          <tr><td><strong>P0</strong></td><td>MT-03: staging/commit com ACK estrito e journal confi&aacute;vel.</td><td>Somente confirma&ccedil;&atilde;o expl&iacute;cita autoriza marca de persist&ecirc;ncia. Erro de journal n&atilde;o vira sucesso silencioso.</td></tr>
+          <tr><td><strong>P1</strong></td><td>MT-04 e MT-08: separar identidade de apresenta&ccedil;&atilde;o.</td><td>Queries identificadoras, caixa do path e n&uacute;mero de cap&iacute;tulo preservados. Sem merge por mero t&iacute;tulo igual.</td></tr>
+          <tr><td><strong>P1</strong></td><td>MT-05, MT-06 e R-01: estado observ&aacute;vel e autoriza&ccedil;&atilde;o por action.</td><td>Bot&atilde;o inativo nunca prova modo tempor&aacute;rio. URLs enganosas rejeitadas. Uma aba n&atilde;o controla job alheio.</td></tr>
+          <tr><td><strong>P1</strong></td><td>MT-07, MT-09 e R-03: erros verdadeiros no produto e na entrega.</td><td>Falha de download gera falha/resultado parcial; hook com erro reprova runner; release exige CI do SHA empacotado.</td></tr>
+          <tr><td><strong>P2</strong></td><td>Remover espelhos, uniformizar runner local e revisar recursos.</td><td>Testes importam produ&ccedil;&atilde;o; npm test n&atilde;o mascara handles; streaming limitado; observers e timers limpos.</td></tr>
+        </tbody></table></div>
+        <h3>Funcionalidades e cen&aacute;rios que ainda exigem evid&ecirc;ncia</h3>
+        <ul class="plain-list">
+          <li><strong>Crash-recovery MV3:</strong> suspender/reiniciar o worker antes e depois de cada fase de staging, marker, accounting e rekey, sem duplicar sucesso.</li>
+          <li><strong>Concorr&ecirc;ncia entre contextos:</strong> duas abas criando chapterList, refazer durante save, onReplaced simult&acirc;neo e resposta tardia ap&oacute;s cancelar.</li>
+          <li><strong>Gemini autenticado:</strong> DOM atual, varia&ccedil;&otilde;es de idioma, expirac&atilde;o de sess&atilde;o, cookies, limites de gera&ccedil;&atilde;o e exclus&atilde;o realmente confirmada.</li>
+          <li><strong>Recursos e armazenamento:</strong> imagem comprimida pequena com dimens&otilde;es enormes, resposta sem Content-Length, quota, IDB bloqueado e fechamento/versionchange.</li>
+          <li><strong>Qualidade visual:</strong> corpus de mang&aacute;s com imagens semelhantes, bal&otilde;es alterados, recodifica&ccedil;&atilde;o, layouts responsivos e casos sem tradu&ccedil;&atilde;o.</li>
+          <li><strong>UI e acessibilidade:</strong> leitor com centenas de p&aacute;ginas, navega&ccedil;&atilde;o por teclado, foco de di&aacute;logos, troca de aba e consumo de mem&oacute;ria no Chromium.</li>
+        </ul>
+        <h3 id="codigo-novos-testes">C&oacute;digo dos novos testes</h3>
+        <p class="prose">Os quatro arquivos abaixo s&atilde;o <strong>propostas completas, n&atilde;o aplicadas ao reposit&oacute;rio e n&atilde;o executadas</strong>. Carregam as fun&ccedil;&otilde;es reais; somente APIs de ambiente s&atilde;o simuladas. As regress&otilde;es devem falhar no snapshot atual e passar depois das corre&ccedil;&otilde;es. A compatibilidade final com os hooks globais do projeto ainda precisa ser validada. Recomendado Node 20 e depend&ecirc;ncias instaladas em <code>tests/</code>.</p>
+
+        <details class="test-code" id="novo-storage" open>
+          <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg><strong>01. Migra&ccedil;&atilde;o e refer&ecirc;ncias de assets</strong><span class="badge untested">Proposto &middot; n&atilde;o executado</span></summary>
+          <p class="test-note">Arquivo sugerido: <code>tests/unit/background/audit-storage-integrity.test.js</code><br>Produ&ccedil;&atilde;o: <code>extension/storage-manager.js:170-238, 415-479</code>. ST-01/02 protegem MT-01; ST-03 protege MT-02. A inje&ccedil;&atilde;o ocorre em IDBDatabase.transaction, n&atilde;o em uma c&oacute;pia de savePageResult.</p>
+          <div class="code-sample dark"><div class="code-toolbar"><span>audit-storage-integrity.test.js &middot; Jest / Node</span><button class="copy-button js-only" type="button">Copiar teste</button></div><pre><code>'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const { Blob } = require('buffer');
+const { webcrypto } = require('crypto');
+const { IDBFactory, IDBKeyRange } = require('fake-indexeddb');
+
+const SOURCE = path.resolve(__dirname, '../../../extension/storage-manager.js');
+const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+function loadStorage(initial = {}) {
+  const local = structuredClone(initial);
+  const sandbox = {
+    indexedDB: new IDBFactory(), IDBKeyRange, Blob,
+    crypto: webcrypto, Uint8Array, atob, btoa,
+    module: { exports: {} },
+    chrome: { storage: { local: {
+      get(keys, callback) {
+        const selected = Array.isArray(keys) ? keys : [keys];
+        const result = Object.fromEntries(selected
+          .filter(key => key in local)
+          .map(key => [key, structuredClone(local[key])]));
+        if (callback) callback(result);
+        return Promise.resolve(result);
+      },
+      set(values, callback) {
+        Object.assign(local, structuredClone(values));
+        if (callback) callback();
+        return Promise.resolve();
+      },
+      remove(keys, callback) {
+        for (const key of Array.isArray(keys) ? keys : [keys]) delete local[key];
+        if (callback) callback();
+        return Promise.resolve();
+      },
+    } } },
+  };
+  vm.runInNewContext(fs.readFileSync(SOURCE, 'utf8'), sandbox, { filename: SOURCE });
+  return { api: sandbox.module.exports, local };
+}
+
+describe('StorageManager: integridade sob falha', () => {
+  let env;
+  afterEach(async () => {
+    jest.restoreAllMocks();
+    if (env) (await env.api.openStorageDb()).close();
+    env = null;
+  });
+
+  test('ST-01: falha parcial preserva a pagina ainda nao migrada', async () => {
+    env = loadStorage({ chap_images: { 0: PNG, 1: PNG } });
+    const db = await env.api.openStorageDb();
+    const transaction = db.transaction.bind(db);
+    let writes = 0;
+    jest.spyOn(db, 'transaction').mockImplementation((stores, mode, ...rest) => {
+      if (mode === 'readwrite' && ++writes === 2) {
+        throw new Error('QuotaExceededError injetado');
+      }
+      return transaction(stores, mode, ...rest);
+    });
+
+    await env.api.migrateChapterFromLegacy('chap');
+
+    expect(env.local.chap_images?.[1]).toBe(PNG);
+    expect(env.local._sm_migrated_chap).not.toBe(true);
+    expect(await env.api.getPageDataUrl('chap', 0)).toBe(PNG);
+  });
+
+  test('ST-02: falha total permite uma nova tentativa', async () => {
+    env = loadStorage({ chap_images: { 0: PNG } });
+    const db = await env.api.openStorageDb();
+    const transaction = db.transaction.bind(db);
+    const failure = jest.spyOn(db, 'transaction')
+      .mockImplementation((stores, mode, ...rest) => {
+        if (mode === 'readwrite') throw new Error('Falha transitoria');
+        return transaction(stores, mode, ...rest);
+      });
+
+    await env.api.migrateChapterFromLegacy('chap');
+    failure.mockRestore();
+    const retry = await env.api.migrateChapterFromLegacy('chap');
+
+    expect(retry.skipped).toBe(false);
+    expect(await env.api.getPageDataUrl('chap', 0)).toBe(PNG);
+  });
+
+  test('ST-03: URL repetida nao invalida o asset da pagina anterior', async () => {
+    env = loadStorage();
+    const url = 'https://reader.example/repeated.png';
+    await env.api.savePageResult('chap', 0, PNG, url, url);
+    await env.api.savePageResult('chap', 1, PNG, url, url);
+
+    const pages = await env.api.getChapterPageIndex('chap');
+    expect(pages).toHaveLength(2);
+    for (const page of pages) {
+      expect(await env.api.getAssetBlob(page.assetId)).not.toBeNull();
+    }
+    expect(await env.api.getPageDataUrl('chap', 0)).toBe(PNG);
+    expect(await env.api.getPageDataUrl('chap', 1)).toBe(PNG);
+  });
+});</code></pre></div>
+        </details>
+
+        <details class="test-code" id="novo-ipc" open>
+          <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg><strong>02. ACK, origem, exporta&ccedil;&atilde;o e identidade</strong><span class="badge untested">Proposto &middot; n&atilde;o executado</span></summary>
+          <p class="test-note">Arquivo sugerido: <code>tests/unit/background/audit-contracts.test.js</code><br>Carrega os scripts de produ&ccedil;&atilde;o em contexto isolado. IPC-04 exercita o gerenciador de cap&iacute;tulo, n&atilde;o apenas uma regex de t&iacute;tulo.</p>
+          <div class="code-sample dark"><div class="code-toolbar"><span>audit-contracts.test.js &middot; Jest / Node</span><button class="copy-button js-only" type="button">Copiar teste</button></div><pre><code>'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+function load(relative, sandbox) {
+  const file = path.resolve(__dirname, '../../../extension', relative);
+  vm.runInNewContext(fs.readFileSync(file, 'utf8'), sandbox, { filename: file });
+}
+
+describe('Contratos reais da extensao', () => {
+  test.each([undefined, {}, { ok: true }, { ok: true, persisted: false }])(
+    'IPC-01: ACK ambiguo nao confirma persistencia (%#)', async ack => {
+      const sandbox = {
+        setTimeout, clearTimeout,
+        chrome: {
+          runtime: { lastError: null },
+          tabs: { sendMessage: (_tab, _message, callback) => callback(ack) },
+        },
+      };
+      load('background/jobs-dom-ack.js', sandbox);
+      const update = jest.fn().mockResolvedValue({});
+      const finalize = jest.fn().mockResolvedValue(true);
+      const delivery = sandbox.MangaTranslatorJobsDomAck.createDomAckDelivery({
+        updateJobState: update, finalizeJob: finalize,
+        log: jest.fn(), timeoutMs: 100,
+      });
+
+      const result = await delivery.deliver({
+        mangaTabId: 7, geminiTabId: 9, index: 0,
+        src: 'data:image/png;base64,AA==',
+        jobId: 'job-1', batchId: 'batch-1', finalizeOnAck: false,
+      });
+
+      expect(result.ok).toBe(false);
+      expect(update).not.toHaveBeenCalledWith(9,
+        expect.objectContaining({ resultPersisted: true }));
+      expect(finalize).not.toHaveBeenCalled();
+    }
+  );
+
+  test.each([
+    'https://gemini.google.com.evil.example/',
+    'https://reader.example/?next=gemini.google.com',
+    'https://reader.example/path/127.0.0.1',
+  ])('IPC-02: nao promove origem enganosa: %s', url => {
+    const sandbox = { chrome: { runtime: { id: 'extension-id' } } };
+    load('background/router.js', sandbox);
+    expect(sandbox.MangaTranslatorRouter.identifySource({
+      id: 'extension-id', tab: { id: 2, url },
+    })).toBe('content');
+  });
+
+  test('IPC-03: nenhum download concluido nao e sucesso', async () => {
+    const chrome = {
+      runtime: { id: 'extension-id', lastError: null },
+      downloads: {
+        show: jest.fn(),
+        download: jest.fn((_options, callback) => {
+          chrome.runtime.lastError = { message: 'Download bloqueado' };
+          callback(undefined);
+          chrome.runtime.lastError = null;
+        }),
+      },
+    };
+    const sandbox = { chrome };
+    load('background/router.js', sandbox);
+    load('background/actions/export-all.js', sandbox);
+    const action = sandbox.MangaTranslatorRouter.getAction('export-all');
+
+    const result = await action.execute({
+      allDownloads: [{ url: 'data:image/png;base64,AA==', filename: 'page.png' }],
+    }, { waitForDownload: jest.fn() });
+
+    expect(result.ok).toBe(false);
+    expect(chrome.downloads.show).not.toHaveBeenCalled();
+  });
+
+  test('IPC-04: capitulos diferentes nao compartilham ID por titulo', async () => {
+    let list = [];
+    let counter = 0;
+    const sandbox = {
+      window: { location: { href: 'https://reader.example/chapter/1' } },
+      document: { title: '001 - Saga' },
+      chrome: { runtime: { lastError: null }, storage: { local: {
+        get(_keys, callback) { callback({ chapterList: structuredClone(list) }); },
+        set(values, callback) {
+          if (values.chapterList) list = structuredClone(values.chapterList);
+          if (callback) callback();
+        },
+      } } },
+    };
+    load('cm-chapter.js', sandbox);
+    const manager = sandbox.MangaTranslatorChapter.createChapterManager({
+      hostname: 'reader.example',
+      generateId: () => 'chap_' + (++counter),
+      sendRuntimeMessageAsync: jest.fn(),
+    });
+
+    const first = await manager.getOrCreateChapterId();
+    sandbox.window.location.href = 'https://reader.example/chapter/2';
+    sandbox.document.title = '002 - Saga';
+    const second = await manager.getOrCreateChapterId();
+
+    expect(second).not.toBe(first);
+    expect(list).toHaveLength(2);
+  });
+});</code></pre></div>
+        </details>
+
+        <details class="test-code" id="novo-dom" open>
+          <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg><strong>03. URLs distintas e modo tempor&aacute;rio inativo</strong><span class="badge untested">Proposto &middot; n&atilde;o executado</span></summary>
+          <p class="test-note">Arquivo sugerido: <code>tests/unit/content-manga/audit-dom-contracts.test.js</code><br>Projeto Jest content-scripts, ambiente JSDOM. O arquivo testa as APIs reais; n&atilde;o reproduz a l&oacute;gica de normaliza&ccedil;&atilde;o dentro da su&iacute;te.</p>
+          <div class="code-sample dark"><div class="code-toolbar"><span>audit-dom-contracts.test.js &middot; Jest / JSDOM</span><button class="copy-button js-only" type="button">Copiar teste</button></div><pre><code>'use strict';
+
+describe('DOM e identidade: contratos de producao', () => {
+  let dom;
+  let temporary;
+
+  beforeEach(() => {
+    document.body.replaceChildren();
+    delete window.MangaTranslatorDomReplace;
+    jest.isolateModules(() => {
+      require('../../../extension/cm-dom-replace.js');
+      temporary = require('../../../extension/gemini/temporary-chat.js');
+    });
+    dom = window.MangaTranslatorDomReplace;
+  });
+
+  afterEach(() => {
+    document.body.replaceChildren();
+    delete window.MangaTranslatorDomReplace;
+    delete global.MangaTranslatorDomReplace;
+    jest.restoreAllMocks();
+  });
+
+  test.each([
+    ['https://cdn.example/image?id=1', 'https://cdn.example/image?id=2'],
+    ['https://cdn.example/A.png', 'https://cdn.example/a.png'],
+  ])('DOM-01: recursos diferentes preservam chaves diferentes (%#)', (a, b) => {
+    expect(dom.getCleanUrl(a)).not.toBe(dom.getCleanUrl(b));
+    expect(dom.getCleanUrl(a)).toBe(dom.getCleanUrl(a));
+  });
+
+  test('DOM-01b: resize nao muda a identidade semantica', () => {
+    const source = 'https://cdn.example/image?id=1';
+    expect(dom.getCleanUrl(source + '&amp;width=800'))
+      .toBe(dom.getCleanUrl(source));
+  });
+
+  test('DOM-02: botao presente com aria-pressed=false nao esta ativo', () => {
+    const button = document.createElement('button');
+    button.textContent = 'Temporary chat';
+    button.setAttribute('data-test-id', 'temp-chat-button');
+    button.setAttribute('aria-pressed', 'false');
+    document.body.appendChild(button);
+
+    expect(temporary.isAlreadyActive(button, document)).toBe(false);
+  });
+
+  test('DOM-02b: estado explicitamente ativo continua reconhecido', () => {
+    const button = document.createElement('button');
+    button.textContent = 'Temporary chat';
+    button.setAttribute('aria-pressed', 'true');
+    document.body.appendChild(button);
+
+    expect(temporary.isAlreadyActive(button, document)).toBe(true);
+  });
+});</code></pre></div>
+        </details>
+
+        <details class="test-code" id="novo-runner" open>
+          <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg><strong>04. O runner tamb&eacute;m precisa falhar corretamente</strong><span class="badge untested">Proposto &middot; n&atilde;o executado</span></summary>
+          <p class="test-note">Arquivo sugerido: <code>tests/unit/background/audit-visual-runner.test.js</code><br>Exp&otilde;e o contador interno do fonte real para inspe&ccedil;&atilde;o, sem substituir a implementa&ccedil;&atilde;o dos hooks.</p>
+          <div class="code-sample dark"><div class="code-toolbar"><span>audit-visual-runner.test.js &middot; Jest / Node</span><button class="copy-button js-only" type="button">Copiar teste</button></div><pre><code>'use strict';
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const { createRequire } = require('module');
+
+function loadRunner() {
+  const file = path.resolve(__dirname, '../../visual-v3/runner.js');
+  const source = fs.readFileSync(file, 'utf8');
+  const sandbox = {
+    require: createRequire(file),
+    module: { exports: {} },
+    console: { log: jest.fn(), error: jest.fn() },
+  };
+  // Apenas expoe o contador; os corpos das funcoes permanecem intactos.
+  vm.runInNewContext(source + '\nmodule.exports.auditResults = results;',
+    sandbox, { filename: file });
+  return sandbox.module.exports;
+}
+
+test.each([
+  ['it', 'beforeEach'], ['it', 'afterEach'],
+  ['ita', 'beforeEach'], ['ita', 'afterEach'],
+])('RUN-01: %s contabiliza erro em %s', async (kind, hook) => {
+  const runner = loadRunner();
+  runner.describe('contrato de falha do hook', () => {
+    runner[hook](() => { throw new Error('Falha deliberada da fixture'); });
+    runner[kind]('corpo sem erro', () => {});
+  });
+  await runner.getAsyncQueue();
+
+  expect(runner.auditResults.fail).toBeGreaterThan(0);
+});</code></pre></div>
+        </details>
+        <h3>Como validar as propostas</h3>
+        <div class="code-sample"><div class="code-toolbar"><span>Roteiro sugerido &middot; n&atilde;o executado nesta auditoria</span><button class="copy-button js-only" type="button">Copiar comandos</button></div><pre><code># Depois de criar os quatro arquivos sugeridos no clone do snapshot:
+cd tests
+npm ci
+npx jest --config jest.config.js --runInBand --testPathPattern=audit-
+
+# Apos corrigir os contratos e rever as expectativas:
+npm run test:ci
+npm run test:smoke
+npm run test:visual-v3
+npm run test:coverage:ci
+npx playwright install chromium --with-deps
+npm run test:images
+npm run test:e2e</code></pre></div>
+        <p class="prose">Esses testes n&atilde;o substituem um E2E de crash/reload nem um corpus de tradu&ccedil;&atilde;o. Ap&oacute;s executar, anexar sa&iacute;das integrais, vers&otilde;es de Node/Chromium, SHA, exit codes, LCOV e traces. Atualizar baseline apenas com justificativa, nunca para ocultar uma regress&atilde;o.</p>
+      </section>
+      <section class="report-section" id="ci">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">11</span>CI/CD</div><span class="section-aside">Um gate s&oacute; vale pelo que impede</span></div>
+        <h2>Boa defesa no CI. Uma lacuna na publica&ccedil;&atilde;o.</h2>
+        <p class="section-intro">O projeto possui prote&ccedil;&otilde;es al&eacute;m do exit code do runner. Isso &eacute; positivo. Ainda assim, o pipeline n&atilde;o corrige testes que exercitam c&oacute;pias, e publicar um artefato exige vincular sua origem ao SHA validado.</p>
+        <div class="table-wrap"><table><thead><tr><th>Gate / automa&ccedil;&atilde;o</th><th>Inspe&ccedil;&atilde;o do c&oacute;digo</th><th>Conclus&atilde;o sustentada</th></tr></thead><tbody>
+          <tr><td>Vers&atilde;o e sintaxe</td><td><code>.github/workflows/ci.yml:15-50</code><br><code>scripts/sync-version.js:17-44</code></td><td>Verifica vers&atilde;o e sintaxe recursiva. O derivador explica 6.5.0 no package e 6.5 no manifest. N&atilde;o substitui lint, an&aacute;lise de tipos ou execu&ccedil;&atilde;o.</td></tr>
+          <tr><td>Manifest</td><td><code>.github/workflows/ci.yml:52-72</code></td><td>Valida JSON, campos b&aacute;sicos e MV3. N&atilde;o comprova carregamento no navegador nem validade sem&acirc;ntica de todas as permiss&otilde;es.</td></tr>
+          <tr><td>Jest e invent&aacute;rio</td><td><code>tests/ci/run-jest-ci.js:29-39, 74-129</code></td><td>Confere arquivos descobertos, m&iacute;nimos, skip/todo, falhas e aviso de worker for&ccedil;ado. Runner do CI n&atilde;o usa forceExit.</td></tr>
+          <tr><td>Matriz Node</td><td><code>.github/workflows/ci.yml:136-160</code></td><td>Unit/integration declarados em Node 20 e 22. N&atilde;o prova compatibilidade com todas as vers&otilde;es Chromium.</td></tr>
+          <tr><td>Coverage local</td><td><code>.github/workflows/ci.yml:162-182</code><br><code>tests/ci/verify-coverage.js:94-187</code></td><td>Gera relat&oacute;rio e exige integridade/thresholds em etapas separadas. Zero coverage e fonte ausente devem reprovar o verificador.</td></tr>
+          <tr><td>Publica&ccedil;&atilde;o Codecov</td><td><code>.github/workflows/ci.yml:183-218</code></td><td>Upload externo &eacute; opcional/n&atilde;o bloqueante; n&atilde;o confundir isso com tornar o gate local de coverage opcional.</td></tr>
+          <tr><td>E2E</td><td><code>.github/workflows/ci.yml:231-265</code><br><code>tests/ci/playwright-gate-reporter.js:25-65</code></td><td>Shards declarados; reporter verifica contagem, skipped, failed e flaky. Execu&ccedil;&otilde;es e blobs n&atilde;o obtidos nesta sess&atilde;o.</td></tr>
+          <tr><td>Contrato do CI Gate</td><td><code>tests/ci/verify-ci-contract.js:219-280</code>, bloco ci-gate</td><td>Verificador exige always com !cancelled e depend&ecirc;ncias obrigat&oacute;rias. O final do YAML foi truncado: n&atilde;o afirmar que esse contrato passou nem que branch protection o exige.</td></tr>
+          <tr><td>Recupera&ccedil;&atilde;o de runs</td><td><code>.github/workflows/recover-cancelled-ci.yml:8-49</code></td><td>Token actions:write, guarda para reposit&oacute;rio pr&oacute;prio e sem checkout do branch disparador no trecho lido. L&oacute;gica final de rerun n&atilde;o integralmente examinada.</td></tr>
+          <tr><td>Release</td><td><code>.github/workflows/publish.yml:3-51</code></td><td><strong>R-03:</strong> workflow independente por tag/manual; s&oacute; valida metadados antes de empacotar. Checksums garantem integridade do arquivo, n&atilde;o aprova&ccedil;&atilde;o dos testes.</td></tr>
+        </tbody></table></div>
+        <h3>Diferen&ccedil;a importante entre local e CI</h3>
+        <div class="code-sample"><div class="code-toolbar"><span>Trecho original &middot; tests/run-all-tests.js &middot; argumentos do Jest</span><button class="copy-button js-only" type="button">Copiar</button></div><pre><code>[jestBin, '--config', 'jest.config.js', '--runInBand', '--forceExit']</code></pre></div>
+        <p class="prose"><code>tests/run-all-tests.js:115-124</code> ainda for&ccedil;a o encerramento do Jest. Portanto, a prote&ccedil;&atilde;o de open handles do CI n&atilde;o est&aacute; uniformemente presente nos atalhos locais. Smoke tamb&eacute;m n&atilde;o roda por padr&atilde;o nesse agregador. Recomenda&ccedil;&atilde;o: compartilhar o runner audit&aacute;vel ou oferecer nomes de comandos que explicitem as diferen&ccedil;as.</p>
+        <p class="prose">O verificador de contrato usa busca de strings e express&otilde;es regulares em YAML/JavaScript. &Eacute; uma prote&ccedil;&atilde;o &uacute;til contra regress&otilde;es conhecidas, mas n&atilde;o um interpretador da sem&acirc;ntica do GitHub Actions. Acrescentar parsing do YAML e testes de cen&aacute;rios de falha, cancelamento e skip. Regras de branch, ambientes protegidos, segredos e permiss&otilde;es efetivas da organiza&ccedil;&atilde;o ficaram fora do alcance.</p>
+      </section>
+
+      <section class="report-section" id="execucao">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">12</span>Resultados dos comandos executados</div><span class="section-aside">Sem sa&iacute;das inventadas</span></div>
+        <h2>O registro do que aconteceu, de fato.</h2>
+        <p class="section-intro"><strong>Nenhum comando shell de build, lint, testes ou coverage foi executado.</strong> As ferramentas disponibilizadas permitiram leitura remota, pesquisa, edi&ccedil;&atilde;o e inspe&ccedil;&atilde;o de arquivos; n&atilde;o disponibilizaram terminal nem Chromium.</p>
+        <div class="table-wrap"><table><thead><tr><th>Opera&ccedil;&atilde;o realizada</th><th>Resultado observado</th><th>O que n&atilde;o comprova</th></tr></thead><tbody>
+          <tr><td>Consulta &agrave; &aacute;rvore GitHub</td><td>Retornou o SHA <code>8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32</code>. Sub&aacute;rvores de extension/background/gemini permitiram inventariar 56 JS.</td><td>N&atilde;o foi um git clone local nem uma execu&ccedil;&atilde;o da extens&atilde;o.</td></tr>
+          <tr><td>Leitura raw no SHA</td><td>Fontes, configura&ccedil;&otilde;es, testes selecionados e workflows consultados. Truncamentos marcados no invent&aacute;rio.</td><td>N&atilde;o comprova leitura das partes omitidas nem de todos os testes.</td></tr>
+          <tr><td>Confer&ecirc;ncia do objeto Git</td><td>A API de commits confirmou que o SHA auditado &eacute; um commit e vinculou a &aacute;rvore <code>a26d7cfa2f1eba369a711c541ae67e8e7ba30492</code>. A resposta do endpoint de main tamb&eacute;m trouxe trechos de diff, sem revis&atilde;o hist&oacute;rica integral.</td><td>N&atilde;o demonstra aprova&ccedil;&atilde;o de CI ou validade funcional do commit.</td></tr>
+          <tr><td>Confer&ecirc;ncia de linhas</td><td>Trecho do StorageManager espelhado temporariamente e lido com numera&ccedil;&atilde;o para conferir MT-01/02; evid&ecirc;ncias curtas referenciadas no snapshot.</td><td>Numera&ccedil;&atilde;o de fonte n&atilde;o equivale a reprodu&ccedil;&atilde;o de falha.</td></tr>
+          <tr><td>Pesquisa de compatibilidade</td><td>Consulta sobre FileReader/ServiceWorker impediu tratar um coment&aacute;rio como evid&ecirc;ncia de bug.</td><td>N&atilde;o substitui teste no navegador e vers&atilde;o de destino.</td></tr>
+          <tr><td>Produ&ccedil;&atilde;o deste relat&oacute;rio</td><td>HTML, CSS, conte&uacute;do e intera&ccedil;&otilde;es reunidos em <code>index.html</code>. A fonte do reposit&oacute;rio remoto n&atilde;o foi alterada.</td><td>Os testes propostos n&atilde;o foram instalados nem executados no projeto.</td></tr>
+          <tr><td>Confer&ecirc;ncia est&aacute;tica do HTML</td><td>Fonte lida e invent&aacute;rio conferido por busca textual: 37 entradas integrais + 19 parciais, 14 se&ccedil;&otilde;es e quatro arquivos de testes propostos. Marcadores de constru&ccedil;&atilde;o removidos.</td><td>N&atilde;o houve execu&ccedil;&atilde;o de JavaScript, validador HTML ou verifica&ccedil;&atilde;o visual em navegador.</td></tr>
+        </tbody></table></div>
+        <h3>Comandos pendentes de reprodu&ccedil;&atilde;o</h3>
+        <div class="table-wrap"><table><thead><tr><th>Comando sugerido, na raiz do clone</th><th>Status</th><th>Sa&iacute;da / exit code</th></tr></thead><tbody>
+          <tr><td><code>npm run version:check</code></td><td>N&atilde;o executado</td><td>N&atilde;o dispon&iacute;vel</td></tr>
+          <tr><td><code>node --check extension/background.js</code></td><td>N&atilde;o executado</td><td>N&atilde;o dispon&iacute;vel; repetir recursivamente para todos os JS</td></tr>
+          <tr><td><code>npm --prefix tests ci</code></td><td>N&atilde;o executado</td><td>Instala&ccedil;&atilde;o n&atilde;o realizada</td></tr>
+          <tr><td><code>npm --prefix tests run test:ci</code></td><td>N&atilde;o executado</td><td>Sem JSON de resultados</td></tr>
+          <tr><td><code>npm --prefix tests run test:smoke</code></td><td>N&atilde;o executado</td><td>Sem resultado dos seis processos</td></tr>
+          <tr><td><code>npm --prefix tests run test:visual-v3</code></td><td>N&atilde;o executado</td><td>Sem contagem observada de assertions</td></tr>
+          <tr><td><code>npm --prefix tests run test:coverage:ci</code></td><td>N&atilde;o executado</td><td>Sem LCOV/summary para este SHA</td></tr>
+          <tr><td><code>npm --prefix tests run test:e2e</code></td><td>N&atilde;o executado</td><td>Sem navegador, traces ou screenshots</td></tr>
+          <tr><td><code>npm --prefix tests audit</code></td><td>N&atilde;o executado</td><td>Sem invent&aacute;rio de vulnerabilidades transitivas</td></tr>
+        </tbody></table></div>
+        <div class="code-sample"><div class="code-toolbar"><span>Fixar a mesma fonte para reprodu&ccedil;&atilde;o &middot; sugest&atilde;o</span><button class="copy-button js-only" type="button">Copiar comandos</button></div><pre><code>git clone https://github.com/Diesper/Manga_Translator.git
+cd Manga_Translator
+git checkout --detach 8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32
+git rev-parse HEAD
+node --version
+npm --version
+npm --prefix tests ci
+npm --prefix tests run test:ci
+npm --prefix tests run test:coverage:ci</code></pre></div>
+        <p class="prose">O resumo de uma execu&ccedil;&atilde;o hist&oacute;rica, um badge verde e os valores de <code>measuredBaseline</code> n&atilde;o foram convertidos em &ldquo;resultados executados&rdquo;. Uma reprodu&ccedil;&atilde;o deve preservar o SHA, o comando exato, as vers&otilde;es e o artefato, inclusive quando falhar.</p>
+      </section>
+
+      <section class="report-section" id="limitacoes">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">13</span>Escopo, m&eacute;todo e limita&ccedil;&otilde;es</div><span class="section-aside">O limite tamb&eacute;m &eacute; uma evid&ecirc;ncia</span></div>
+        <h2>Precis&atilde;o &eacute; dizer tamb&eacute;m o que falta.</h2>
+        <p class="section-intro">A solicita&ccedil;&atilde;o de revisar todo o reposit&oacute;rio linha por linha n&atilde;o p&ocirc;de ser integralmente atendida com as ferramentas e retornos desta sess&atilde;o. O relat&oacute;rio preserva o trabalho realizado sem atribuir abrang&ecirc;ncia que n&atilde;o teve.</p>
+        <div class="table-wrap"><table><thead><tr><th>Limita&ccedil;&atilde;o</th><th>Efeito na conclus&atilde;o</th><th>Como encerrar a lacuna</th></tr></thead><tbody>
+          <tr><td>19 fontes JS com retorno parcial</td><td>N&atilde;o houve revis&atilde;o integral de background, content principal, popup, cache e parte dos m&oacute;dulos Gemini.</td><td>Ler os arquivos completos em clone local, com numera&ccedil;&atilde;o, buscas e an&aacute;lise de chamadas.</td></tr>
+          <tr><td>Testes por amostragem</td><td>N&atilde;o se pode classificar individualmente todas as su&iacute;tes nem afirmar aus&ecirc;ncia absoluta de teste para um cen&aacute;rio.</td><td>Gerar invent&aacute;rio do runner; revisar cada teste, assertion, fixture e mock.</td></tr>
+          <tr><td>Sem terminal ou navegador</td><td>Bugs n&atilde;o reproduzidos dinamicamente; c&oacute;digo proposto, UI do relat&oacute;rio e exporta&ccedil;&atilde;o sem teste automatizado em navegador.</td><td>Executar Jest/Playwright, inspecionar console e validar desktop, mobile, impress&atilde;o e arquivo offline.</td></tr>
+          <tr><td>Sem artefatos de coverage do SHA</td><td>Nenhum percentual atual, mapa exato de linhas descobertas ou mutation score pode ser confirmado.</td><td>Gerar e arquivar LCOV, JSON summary e resultados de muta&ccedil;&atilde;o.</td></tr>
+          <tr><td>Sem sess&atilde;o real do Gemini</td><td>N&atilde;o valida qualidade de tradu&ccedil;&atilde;o, hist&oacute;rico, cookies, limites de conta ou seletores remotos atuais.</td><td>Smoke autenticado autorizado e controlado, sem expor credenciais ou imagens sens&iacute;veis.</td></tr>
+          <tr><td>HTMLs extra&iacute;dos e infraestrutura parcial</td><td>Markup completo e final de alguns workflows n&atilde;o foram revisados; branch protection e secrets n&atilde;o s&atilde;o conhecidos.</td><td>Inspecionar fontes locais, runs do SHA e configura&ccedil;&atilde;o administrativa com permiss&atilde;o.</td></tr>
+          <tr><td>Lockfile e hist&oacute;rico n&atilde;o auditados integralmente</td><td>Sem parecer sobre todas as depend&ecirc;ncias, CVEs, regress&otilde;es entre commits ou inten&ccedil;&atilde;o de remo&ccedil;&otilde;es.</td><td>Revis&atilde;o de supply chain, diff, blame e hist&oacute;rico de CI.</td></tr>
+        </tbody></table></div>
+        <h3>Vocabul&aacute;rio usado neste caderno</h3>
+        <p class="prose"><span class="badge confirmed">Bug confirmado</span> contradi&ccedil;&atilde;o est&aacute;tica com condi&ccedil;&atilde;o e contraexemplo expl&iacute;citos. <span class="badge risk">Risco prov&aacute;vel</span> caminho de impacto plaus&iacute;vel que depende de ambiente ou interleaving n&atilde;o reproduzido. <span class="badge neutral">Melhoria</span> endurecimento sem incidente demonstrado. <span class="badge untested">N&atilde;o executado</span> aus&ecirc;ncia de resultado din&acirc;mico; n&atilde;o significa aprovado ou reprovado.</p>
+        <p class="prose">Gravidade e certeza s&atilde;o eixos separados. <strong>Alto</strong> indica potencial de perda/corrup&ccedil;&atilde;o de dados, quebra de confirma&ccedil;&atilde;o ou privacidade; <strong>M&eacute;dio</strong>, erro funcional, diagn&oacute;stico ou fronteira com explora&ccedil;&atilde;o n&atilde;o demonstrada. Nenhuma evid&ecirc;ncia foi considerada suficiente para classificar um achado como <strong>Cr&iacute;tico</strong>.</p>
+        <aside class="scope-note"><strong>Sobre este arquivo.</strong> Todo o conte&uacute;do t&eacute;cnico, as tabelas e os exemplos est&atilde;o neste HTML e podem ser lidos sem JavaScript. O CSS principal est&aacute; embutido; a refer&ecirc;ncia opcional ao CDN do Tailwind n&atilde;o &eacute; necess&aacute;ria &agrave; apresenta&ccedil;&atilde;o. Busca, filtros, c&oacute;pia e exporta&ccedil;&atilde;o s&atilde;o melhorias locais. Apenas os links de evid&ecirc;ncia remota precisam de internet.</aside>
+      </section>
+
+      <section class="report-section" id="conclusoes">
+        <div class="section-topline"><div class="section-kicker"><span class="section-number">14</span>Conclus&otilde;es da auditoria</div><span class="section-aside">S&oacute; o que a evid&ecirc;ncia sustenta</span></div>
+        <h2>Mais confian&ccedil;a come&ccedil;a com garantias menores e reais.</h2>
+        <p class="conclusion-statement">O projeto tem uma base promissora.<br>A prioridade &eacute; impedir que um sucesso aparente esconda uma perda real.</p>
+        <p class="prose"><strong>1. A persist&ecirc;ncia tem defeitos materiais.</strong> MT-01 demonstra remo&ccedil;&atilde;o do legado ap&oacute;s migra&ccedil;&atilde;o parcial e bloqueio de retry. MT-02 demonstra refer&ecirc;ncia pendurada ap&oacute;s troca de asset. A transa&ccedil;&atilde;o IDB &eacute; uma boa base, mas os invariantes de dados precisam ser corrigidos. Evid&ecirc;ncias: <code>extension/storage-manager.js:189-235, 415-479</code>.</p>
+        <p class="prose"><strong>2. O protocolo de sucesso est&aacute; permissivo demais.</strong> MT-03 aceita ACK sem prova expl&iacute;cita de persist&ecirc;ncia. MT-05 confunde controle e estado; MT-07 aceita exporta&ccedil;&atilde;o sem nenhum arquivo conclu&iacute;do. Corrigir esses predicados vale mais que simplesmente elevar um percentual global. Evid&ecirc;ncias: <code>extension/background/jobs-dom-ack.js:15-78</code>, <code>extension/gemini/temporary-chat.js:81-105</code> e <code>extension/background/actions/export-all.js:12-35</code>.</p>
+        <p class="prose"><strong>3. Identidade n&atilde;o pode depender de normaliza&ccedil;&atilde;o destrutiva.</strong> MT-04 e MT-08 mostram colis&otilde;es determin&iacute;sticas de URL e t&iacute;tulo. Preservar sem&acirc;ntica de recurso e cap&iacute;tulo evita restaura&ccedil;&atilde;o errada e sobrescrita. Evid&ecirc;ncias: <code>extension/cm-dom-replace.js:7-36</code> e <code>extension/cm-chapter.js:5-14, 83-112</code>.</p>
+        <p class="prose"><strong>4. A su&iacute;te tem valor real, mas qualidade desigual.</strong> H&aacute; testes importando m&oacute;dulos reais e verificando estados relevantes. Tamb&eacute;m h&aacute; espelhos, smoke de l&oacute;gica simulada e um runner que absorve falhas de hook. A conclus&atilde;o correta n&atilde;o &eacute; &ldquo;nenhum teste serve&rdquo;; &eacute; &ldquo;quantidade e verde n&atilde;o bastam&rdquo;. Evid&ecirc;ncias: <code>tests/smoke/smoke-03-chapter-persistence.js:21-66</code>, <code>tests/unit/content-manga/get-clean-url.test.js:20-29</code> e <code>tests/visual-v3/runner.js:41-80</code>.</p>
+        <p class="prose"><strong>5. O CI &eacute; mais forte que um simples npm test, mas a release precisa ser vinculada a ele.</strong> Invent&aacute;rio e cobertura possuem gates expl&iacute;citos; o workflow de publica&ccedil;&atilde;o n&atilde;o exige aprova&ccedil;&atilde;o do mesmo SHA. Evid&ecirc;ncias: <code>tests/ci/run-jest-ci.js:74-129</code>, <code>tests/ci/verify-coverage.js:94-187</code> e <code>.github/workflows/publish.yml:3-51</code>.</p>
+        <aside class="scope-note"><strong>Parecer final.</strong> Recomenda-se corrigir os riscos de dados e os falsos sucessos antes de tratar uma nova release como validada. Esta &eacute; uma recomenda&ccedil;&atilde;o de engenharia baseada no c&oacute;digo, n&atilde;o uma reprova&ccedil;&atilde;o observada das su&iacute;tes. Para declarar cobertura atual, aus&ecirc;ncia de vulnerabilidades, conformidade de todo o reposit&oacute;rio ou funcionamento real do Gemini: <strong>Evid&ecirc;ncia insuficiente para concluir.</strong></aside>
+        <h3>Condi&ccedil;&otilde;es para encerrar a auditoria</h3>
+        <ul class="checklist">
+          <li><span class="checkbox" aria-hidden="true"></span>Revisar integralmente os 19 fontes truncados e os testes fora da amostra.</li>
+          <li><span class="checkbox" aria-hidden="true"></span>Reproduzir os contraexemplos, aplicar corre&ccedil;&otilde;es e aprovar regress&otilde;es no fonte real.</li>
+          <li><span class="checkbox" aria-hidden="true"></span>Executar todos os gates no mesmo SHA e arquivar resultados e coverage verific&aacute;veis.</li>
+          <li><span class="checkbox" aria-hidden="true"></span>Validar crash-recovery, autoriza&ccedil;&atilde;o e fluxo autenticado com dados de teste autorizados.</li>
+          <li><span class="checkbox" aria-hidden="true"></span>Publicar somente o artefato cujo commit e valida&ccedil;&atilde;o possam ser rastreados.</li>
+        </ul>
+        <div class="summary-bottom"><span>Fim do relat&oacute;rio &middot; snapshot 8d470f4ac173</span><button class="print-button js-only" id="print-report" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7zM17 11h.01"/></svg>Imprimir / salvar PDF</button></div>
+      </section>
+      <footer class="footer"><div class="footer-mark"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="M5 2h16v24H5zM8 2v24M2 7h6M2 13h6M2 19h6M12 9h6M12 14h6"/></svg><span>caderno. &nbsp; Evid&ecirc;ncias antes de conclus&otilde;es.</span></div><a href="#inicio">Voltar ao in&iacute;cio<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4m-6 6 6-6 6 6"/></svg></a></footer>
+    </div>
+  </main>
+  <dialog id="search-dialog" aria-label="Buscar no relat&oacute;rio">
+    <div class="search-head"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="report-search" type="search" placeholder="Busque um tema, arquivo ou achado..." aria-label="Texto da busca" autocomplete="off"><button id="close-search" type="button" aria-label="Fechar busca">Esc</button></div>
+    <div class="search-results" id="search-results"></div><div class="search-status" id="search-status" role="status">Busque por migra&ccedil;&atilde;o, cobertura, MT-03 ou um arquivo.</div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+  (() => {
+    'use strict';
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+    const normalize = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const plainText = node => node.textContent.replace(/\s+/g, ' ').trim();
+    const sections = $$('.report-section');
+    const findings = $$('.finding');
+    const navLinks = $$('.report-nav a');
+    const fileRows = $$('#inventory-table tr[data-read]');
+    const filterButtons = $$('.filter-tab');
+    const disclosureButton = $('#toggle-findings');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let toastTimer;
+
+    function notify(message) {
+      clearTimeout(toastTimer);
+      const toast = $('#toast');
+      toast.textContent = message;
+      toast.classList.add('visible');
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
+    }
+
+    function setMenu(open, restoreFocus = false) {
+      document.body.classList.toggle('menu-open', open);
+      $('#menu-button').setAttribute('aria-expanded', String(open));
+      $('#menu-button').setAttribute('aria-label', open ? 'Fechar navega\u00e7\u00e3o' : 'Abrir navega\u00e7\u00e3o');
+      if (restoreFocus) $('#menu-button').focus();
+    }
+    $('#menu-button').addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+    $('#mobile-backdrop').addEventListener('click', () => setMenu(false, true));
+    navLinks.forEach(link => link.addEventListener('click', () => setMenu(false)));
+
+    function updateDisclosureLabel() {
+      const someOpen = findings.some(finding => !finding.hidden && finding.open);
+      $('span', disclosureButton).textContent = someOpen ? 'Recolher detalhes' : 'Expandir detalhes';
+    }
+    function filterFindings(level) {
+      let count = 0;
+      findings.forEach(finding => {
+        finding.hidden = level !== 'all' && finding.dataset.level !== level;
+        if (!finding.hidden) count++;
+      });
+      filterButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.severity === level)));
+      const status = $('#finding-filter-status');
+      status.hidden = level === 'all';
+      status.textContent = count + ' de 9 achados exibidos. Os riscos adicionais permanecem abaixo.';
+      updateDisclosureLabel();
+      scheduleProgress();
+    }
+    filterButtons.forEach(button => button.addEventListener('click', () => filterFindings(button.dataset.severity)));
+    disclosureButton.addEventListener('click', () => {
+      const visible = findings.filter(finding => !finding.hidden);
+      const open = !visible.some(finding => finding.open);
+      visible.forEach(finding => { finding.open = open; });
+      updateDisclosureLabel();
+    });
+    findings.forEach(finding => finding.addEventListener('toggle', () => {
+      updateDisclosureLabel();
+      scheduleProgress();
+    }));
+
+    function filterFiles() {
+      const query = normalize($('#file-filter').value.trim());
+      const status = $('#file-status-filter').value;
+      let count = 0;
+      fileRows.forEach(row => {
+        const matches = normalize(plainText(row)).includes(query) && (status === 'all' || row.dataset.read === status);
+        row.hidden = !matches;
+        if (matches) count++;
+      });
+      $$('#inventory-table .group-row').forEach(group => {
+        let row = group.nextElementSibling;
+        let hasVisible = false;
+        while (row && !row.classList.contains('group-row')) {
+          if (!row.hidden) hasVisible = true;
+          row = row.nextElementSibling;
+        }
+        group.hidden = !hasVisible;
+      });
+      $('#inventory-count').textContent = count + ' de ' + fileRows.length + ' arquivos';
+      $('#inventory-empty').hidden = count !== 0;
+      scheduleProgress();
+    }
+    $('#file-filter').addEventListener('input', filterFiles);
+    $('#file-status-filter').addEventListener('change', filterFiles);
+
+    // Source references remain readable offline; links are a progressive enhancement.
+    const sourceBase = 'https://github.com/Diesper/Manga_Translator/blob/8d470f4ac173f8fb96abe4b14bd1d2bf41faaf32/';
+    $$('main code').forEach(code => {
+      if (code.closest('pre') || code.closest('a')) return;
+      const match = code.textContent.trim().match(/^((?:extension|tests|scripts|\.github)\/[^\s:]+):(\d+)(?:-(\d+))?(?:,.*)?$/);
+      if (!match) return;
+      const anchor = document.createElement('a');
+      anchor.href = sourceBase + match[1].split('/').map(encodeURIComponent).join('/') + '#L' + match[2] + (match[3] ? '-L' + match[3] : '');
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.className = 'source-ref';
+      anchor.title = 'Abrir fonte no snapshot auditado (requer internet)';
+      code.replaceWith(anchor);
+      anchor.appendChild(code);
+    });
+
+    async function copyText(text) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        try { await navigator.clipboard.writeText(text); return; } catch (_) { /* file:// may need the local fallback. */ }
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.cssText = 'position:fixed;left:-9999px;top:0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      let copied = false;
+      try { copied = document.execCommand('copy'); } finally { textarea.remove(); }
+      if (!copied) throw new Error('Clipboard unavailable');
+    }
+    const copyTimers = new WeakMap();
+    $$('.copy-button').forEach(button => button.addEventListener('click', async () => {
+      const code = $('pre code', button.closest('.code-sample'));
+      if (!code) return;
+      const label = button.dataset.originalLabel || button.textContent;
+      button.dataset.originalLabel = label;
+      try {
+        await copyText(code.textContent);
+        button.focus({ preventScroll: true });
+        button.textContent = 'Copiado';
+        notify('Trecho copiado. Exemplos de testes continuam n\u00e3o executados.');
+        clearTimeout(copyTimers.get(button));
+        copyTimers.set(button, setTimeout(() => { button.textContent = label; }, 2200));
+      } catch (_) {
+        notify('O navegador bloqueou a c\u00f3pia. Selecione o trecho e copie manualmente.');
+      }
+    }));
+
+    let progressScheduled = false;
+    function updateProgress() {
+      progressScheduled = false;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const fraction = total > 0 ? Math.max(0, Math.min(1, window.scrollY / total)) : 1;
+      $('#read-bar').style.width = (fraction * 100).toFixed(2) + '%';
+      $('#read-percent').textContent = Math.round(fraction * 100) + '%';
+      let active = sections[0].id;
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 155) active = section.id;
+      }
+      if (fraction > .995) active = sections[sections.length - 1].id;
+      navLinks.forEach(link => {
+        const current = link.hash === '#' + active;
+        link.classList.toggle('active', current);
+        if (current) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }
+    function scheduleProgress() {
+      if (progressScheduled) return;
+      progressScheduled = true;
+      requestAnimationFrame(updateProgress);
+    }
+    window.addEventListener('scroll', scheduleProgress, { passive: true });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) setMenu(false);
+      scheduleProgress();
+    });
+    $$('details').forEach(detail => detail.addEventListener('toggle', scheduleProgress));
+
+    function revealTarget(id, shouldScroll = true) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      if (target.classList.contains('finding') && target.hidden) filterFindings('all');
+      if (target.matches('#inventory-table tr') && target.hidden) {
+        $('#file-filter').value = '';
+        $('#file-status-filter').value = 'all';
+        filterFiles();
+      }
+      let ancestor = target;
+      while (ancestor) {
+        if (ancestor.tagName === 'DETAILS') ancestor.open = true;
+        ancestor = ancestor.parentElement;
+      }
+      if (shouldScroll) requestAnimationFrame(() => {
+        target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
+    window.addEventListener('hashchange', () => {
+      try { revealTarget(decodeURIComponent(location.hash.slice(1))); } catch (_) {}
+    });
+    $$('a[href^="#"]').forEach(anchor => anchor.addEventListener('click', () => {
+      const id = anchor.getAttribute('href').slice(1);
+      if (id) revealTarget(id, false);
+    }));
+
+    const dialog = $('#search-dialog');
+    const searchInput = $('#report-search');
+    let previousFocus = null;
+    const searchEntries = [];
+    sections.forEach(section => {
+      const title = plainText($('h2', section));
+      const label = plainText($('.section-kicker', section));
+      searchEntries.push({ id: section.id, title: label + ' / ' + title, description: plainText($('.section-intro', section) || $('p', section)), text: normalize(plainText(section)) });
+    });
+    [...findings, ...$$('.test-code')].forEach(detail => {
+      const titleNode = $('.finding-title', detail) || $('summary strong', detail);
+      const title = (detail.classList.contains('finding') ? detail.id.toUpperCase() + ' / ' : '') + plainText(titleNode);
+      searchEntries.push({ id: detail.id, title, description: plainText($('.finding-ref', detail) || $('.test-note', detail)), text: normalize(plainText(detail)) });
+    });
+    fileRows.forEach((row, index) => {
+      if (!row.id) row.id = 'arquivo-' + index;
+      const cells = $$('td', row);
+      searchEntries.push({ id: row.id, title: plainText(cells[0]), description: plainText(cells[1]) + ' / ' + plainText(cells[2]), text: normalize(plainText(row)) });
+    });
+
+    function closeSearch() {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+      if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+    }
+    function selectResult(id) {
+      closeSearch();
+      setMenu(false);
+      revealTarget(id);
+      try { history.replaceState(null, '', '#' + id); } catch (_) { location.hash = id; }
+      const target = document.getElementById(id);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    }
+    function renderSearch() {
+      const query = normalize(searchInput.value.trim());
+      const tokens = query.split(/\s+/).filter(Boolean);
+      let results;
+      if (!query) {
+        const initial = ['problemas', 'repositorio', 'testes', 'cobertura', 'conclusoes'];
+        results = initial.map(id => searchEntries.find(entry => entry.id === id));
+      } else {
+        results = searchEntries.filter(entry => tokens.every(token => (entry.text + ' ' + normalize(entry.title) + ' ' + entry.id).includes(token)));
+        results.sort((a, b) => {
+          const score = entry => (normalize(entry.title).includes(query) ? 20 : 0) + (entry.id === query ? 30 : 0) + (entry.id.startsWith('mt-') ? 2 : 0);
+          return score(b) - score(a);
+        });
+      }
+      const container = $('#search-results');
+      container.replaceChildren();
+      results.slice(0, 14).forEach(entry => {
+        const link = document.createElement('a');
+        link.className = 'search-result';
+        link.href = '#' + entry.id;
+        const title = document.createElement('strong');
+        title.textContent = entry.title;
+        const description = document.createElement('small');
+        description.textContent = entry.description.length > 170 ? entry.description.slice(0, 170) + '...' : entry.description;
+        link.append(title, description);
+        link.addEventListener('click', event => { event.preventDefault(); selectResult(entry.id); });
+        container.appendChild(link);
+      });
+      if (!results.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-result';
+        empty.textContent = 'Nenhum resultado. Tente "storage", "MT-03" ou "cobertura".';
+        container.appendChild(empty);
+      }
+      $('#search-status').textContent = query
+        ? results.length + ' resultado(s)' + (results.length > 14 ? ' / exibindo os 14 primeiros' : '') + '. Use Tab ou as setas para navegar.'
+        : 'Atalhos de leitura. Busque um tema, arquivo ou identificador.';
+    }
+    function openSearch() {
+      setMenu(false);
+      previousFocus = document.activeElement;
+      if (!dialog.open) {
+        if (typeof dialog.showModal === 'function') dialog.showModal();
+        else dialog.setAttribute('open', '');
+      }
+      renderSearch();
+      searchInput.focus();
+      searchInput.select();
+    }
+    $('#open-search').addEventListener('click', openSearch);
+    $('#close-search').addEventListener('click', closeSearch);
+    searchInput.addEventListener('input', renderSearch);
+    dialog.addEventListener('click', event => { if (event.target === dialog) closeSearch(); });
+    dialog.addEventListener('cancel', event => { event.preventDefault(); closeSearch(); });
+    dialog.addEventListener('keydown', event => {
+      const links = $$('.search-result', dialog);
+      if (event.key === 'Enter' && document.activeElement === searchInput && links.length) {
+        event.preventDefault(); links[0].click();
+      }
+      if (!['ArrowDown', 'ArrowUp'].includes(event.key) || !links.length) return;
+      event.preventDefault();
+      const index = links.indexOf(document.activeElement);
+      const next = event.key === 'ArrowDown' ? (index + 1) % links.length : (index <= 0 ? links.length - 1 : index - 1);
+      links[next].focus();
+    });
+    document.addEventListener('keydown', event => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        if (dialog.open) closeSearch(); else openSearch();
+      }
+      if (event.key === 'Escape' && document.body.classList.contains('menu-open')) setMenu(false, true);
+    });
+
+    $('#export-html').addEventListener('click', () => {
+      try {
+        const clone = document.documentElement.cloneNode(true);
+        clone.classList.remove('js');
+        $('body', clone).classList.remove('menu-open');
+        $$('.report-nav a', clone).forEach((link, index) => {
+          link.classList.toggle('active', index === 0);
+          if (index === 0) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+        $$('details', clone).forEach(detail => { detail.open = true; });
+        $$('.finding, #inventory-table tr', clone).forEach(row => { row.hidden = false; });
+        $$('.copy-button', clone).forEach(button => {
+          if (button.dataset.originalLabel) button.textContent = button.dataset.originalLabel;
+        });
+        $$('.filter-tab', clone).forEach(button => button.setAttribute('aria-pressed', String(button.dataset.severity === 'all')));
+        $('#finding-filter-status', clone).hidden = true;
+        $('#inventory-empty', clone).hidden = true;
+        $('#file-filter', clone).setAttribute('value', '');
+        $('#file-status-filter', clone).selectedIndex = 0;
+        $('#inventory-count', clone).textContent = '56 de 56 arquivos';
+        $('#read-percent', clone).textContent = '0%';
+        $('#read-bar', clone).style.width = '0%';
+        $('#menu-button', clone).setAttribute('aria-expanded', 'false');
+        $('#menu-button', clone).setAttribute('aria-label', 'Abrir navega\u00e7\u00e3o');
+        $('#search-dialog', clone).removeAttribute('open');
+        $('#search-results', clone).replaceChildren();
+        $('#toast', clone).classList.remove('visible');
+        $('#toast', clone).textContent = '';
+        $('#toggle-findings span', clone).textContent = 'Recolher detalhes';
+        const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+        const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'manga-translator-auditoria-8d470f4.html';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+        notify('Download iniciado: relat\u00f3rio HTML completo, sem filtros.');
+      } catch (_) {
+        notify('N\u00e3o foi poss\u00edvel iniciar o download. Salve esta p\u00e1gina pelo navegador.');
+      }
+    });
+
+    let printSnapshot = null;
+    window.addEventListener('beforeprint', () => {
+      if (printSnapshot) return;
+      printSnapshot = {
+        details: $$('details').map(node => [node, node.open]),
+        hidden: $$('.finding, #inventory-table tr, #finding-filter-status, #inventory-empty').map(node => [node, node.hidden]),
+      };
+      printSnapshot.details.forEach(([node]) => { node.open = true; });
+      printSnapshot.hidden.forEach(([node]) => { node.hidden = false; });
+      $('#finding-filter-status').hidden = true;
+      $('#inventory-empty').hidden = true;
+    });
+    window.addEventListener('afterprint', () => {
+      if (!printSnapshot) return;
+      printSnapshot.details.forEach(([node, open]) => { node.open = open; });
+      printSnapshot.hidden.forEach(([node, hidden]) => { node.hidden = hidden; });
+      printSnapshot = null;
+      updateDisclosureLabel();
+      scheduleProgress();
+    });
+    $('#print-report').addEventListener('click', () => window.print());
+    updateDisclosureLabel();
+    scheduleProgress();
+    if (location.hash) {
+      try { revealTarget(decodeURIComponent(location.hash.slice(1))); } catch (_) {}
+    }
+  })();
+  </script>
+</body>
+</html>
