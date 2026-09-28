@@ -186,7 +186,12 @@ describe('gemini/job-runner.js', () => {
     expect(() => createGeminiJobRunner({ ...options, root: null }))
       .toThrow('JobRunner requer document/window/runtime/storage');
 
-    expect(() => createGeminiJobRunner({ ...options, domApi: null }))
+    expect(() => createGeminiJobRunner({
+      ...options,
+      domApi: null,
+      // Evita que o default de imageQuarantine falhe antes da guarda do runner.
+      imageQuarantine: {},
+    }))
       .toThrow('JobRunner requer módulos Gemini DOM/Observer/Editor/Attachment/TemporaryChat');
 
     expect(() => createGeminiJobRunner({ ...options, resultExtractor: null }))
