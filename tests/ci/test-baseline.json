@@ -1,7 +1,7 @@
 {
   "jest": {
     "minSuites": 108,
-    "minTests": 841,
+    "minTests": 844,
     "maxSkipped": 0,
     "maxTodo": 0
   },
