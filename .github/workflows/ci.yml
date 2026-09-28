@@ -1,14 +1,97 @@
-name: PR48 Benchmark Queue Cleanup
+name: PR48 Temporary Benchmark - Fast E2E
 
 concurrency:
-  group: pr48-benchmark-${{ github.ref }}
+  # Deliberadamente igual ao grupo do workflow original desta branch para
+  # cancelar o run completo disparado no instante da criação da branch.
+  group: ci-MangaTranslator CI-${{ github.ref }}
   cancel-in-progress: true
 
 on:
   push:
 
 jobs:
-  cleanup:
+  benchmark:
+    name: "[TEST ONLY] Fast E2E"
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tests
     steps:
-      - run: echo "Cancel stale benchmark run for ${GITHUB_REF_NAME}"
+      - name: Checkout benchmark branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+
+      - name: Confirm frozen PR48 base
+        working-directory: .
+        shell: bash
+        run: |
+          echo "Frozen PR48 base: ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032"
+          echo "Benchmark branch: ${GITHUB_REF_NAME}"
+          echo "Benchmark group: Fast E2E"
+          echo "Expected tests: 9"
+          echo "Grep: @e2e-fast"
+          git merge-base --is-ancestor ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032 HEAD
+          echo "Frozen base is an ancestor of benchmark HEAD."
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify selected test inventory
+        shell: bash
+        env:
+          CI: true
+          MANGA_E2E_SHARD: '1'
+          MANGA_E2E_WORKERS: '1'
+        run: |
+          set -o pipefail
+          npx playwright test --config playwright.config.js --list --reporter=line --grep "@e2e-fast" | tee /tmp/benchmark-list.txt
+          grep -Eq "Total: 9 tests? in " /tmp/benchmark-list.txt
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps --no-shell
+
+      - name: Create E2E fixtures
+        run: npm run test:images
+
+      - name: Run benchmark group
+        shell: bash
+        env:
+          CI: true
+          MANGA_E2E_BROWSER_MODE: stealth
+          MANGA_E2E_SHARD: '1'
+          MANGA_E2E_WORKERS: '1'
+          MANGA_E2E_RETRIES: '0'
+        run: |
+          set -o pipefail
+          echo "BENCHMARK_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          xvfb-run --auto-servernum -- npm run test:e2e -- --grep "@e2e-fast"
+          status=$?
+          echo "BENCHMARK_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          exit "$status"
+
+      - name: Upload benchmark blob
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && !cancelled() }}
+        with:
+          name: pr48-benchmark-pr48-benchmark-fast-${{ github.sha }}
+          path: tests/blob-report/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload failure artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        continue-on-error: true
+        with:
+          name: pr48-benchmark-failure-pr48-benchmark-fast-${{ github.sha }}
+          path: tests/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
