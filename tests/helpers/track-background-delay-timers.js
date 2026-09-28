@@ -9,7 +9,7 @@
 function trackBackgroundDelayTimers() {
     const realSetTimeout = global.setTimeout;
     const realClearTimeout = global.clearTimeout;
-    const pending = new Set();
+    const pending = new Map();
 
     jest.spyOn(global, 'setTimeout').mockImplementation((callback, delay, ...args) => {
         if (delay !== 600 && delay !== 4_000 && delay !== 18_000) {
@@ -19,14 +19,23 @@ function trackBackgroundDelayTimers() {
             pending.delete(timer);
             callback(...args);
         }, delay);
-        pending.add(timer);
+        pending.set(timer, delay);
         return timer;
     });
 
-    return () => {
-        for (const timer of pending) realClearTimeout(timer);
+    const cancelTrackedBackgroundDelayTimers = () => {
+        const cancelledDelays = Array.from(pending.values());
+        for (const timer of pending.keys()) realClearTimeout(timer);
         pending.clear();
+        return cancelledDelays;
     };
+
+    // Expostos somente para regressões de ownership: permitem provar que o
+    // recurso atrasado pertence ao caso atual sem esperar 4/18 segundos reais.
+    cancelTrackedBackgroundDelayTimers.getPendingDelays = () => Array.from(pending.values());
+    cancelTrackedBackgroundDelayTimers.getPendingCount = () => pending.size;
+
+    return cancelTrackedBackgroundDelayTimers;
 }
 
 module.exports = { trackBackgroundDelayTimers };

@@ -1645,70 +1645,164 @@ Os eventos relevantes de diagnóstico são:
 
 A suíte atual possui:
 
-- testes unitários;
-- testes de integração;
+- Jest unitário e de integração em múltiplos projects;
 - smoke tests;
-- testes visuais/perceptuais;
-- E2E Playwright.
+- 224 testes visuais/perceptuais;
+- E2E Playwright real da extensão;
+- self-tests da infraestrutura de coverage, reporter E2E e detector de worker;
+- uma matriz de regressões críticas validada pelo próprio `CI Contract`.
 
-## 18.2 Baseline
+## 18.2 Baseline obrigatório
 
-Baseline funcional conhecido:
+O arquivo `tests/ci/test-baseline.json` é contrato, não estatística informativa.
 
-| Camada | Resultado de referência |
+| Camada | Piso atual |
 |---|---:|
-| Jest | 81/81 suítes |
-| Jest | 574/574 testes |
-| E2E | 8/8 |
-| Sintaxe JS | aprovado |
-| Manifest | aprovado |
-| Smoke | aprovado |
-| Visual/perceptual | aprovado |
+| Jest | 108 suítes |
+| Jest | 848 testes |
+| Jest skipped | 0 |
+| Jest TODO | 0 |
+| E2E | 21 testes |
+| E2E skipped | 0 |
+| E2E flaky/retry recuperado | 0 |
+| Visual/perceptual | 224 testes |
+| Smoke | 6 arquivos |
+| Coverage | 56 arquivos instrumentados |
+
+Reduzir esses números para fazer a pipeline passar é regressão de CI e exige justificativa explícita, revisão da matriz e atualização da documentação.
 
 ## 18.3 Node
 
-O CI executa a camada unit/integration em:
+O gate `Unit + Integration` executa a mesma suíte em:
 
 - Node 20;
 - Node 22.
+
+Ambos usam `tests/ci/run-jest-ci.js`, que preserva o código de saída do Jest e também inspeciona stderr.
 
 ## 18.4 Sintaxe
 
 O job de sintaxe percorre recursivamente:
 
-- <code>extension/**/*.js</code>.
+- `extension/**/*.js`;
+- todos os `tests/**/*.js`, incluindo infraestrutura de CI.
 
-Isso impede que arquivos extraídos para subpastas escapem da validação.
+Isso impede que módulos extraídos ou scripts auxiliares escapem da validação.
 
-## 18.5 Manifest
+## 18.5 Manifest e versão
 
-O CI valida:
+A pipeline valida:
 
-- campos obrigatórios;
-- manifest_version igual a 3.
+- campos obrigatórios do Manifest;
+- `manifest_version === 3`;
+- integridade da fonte única de versão via `version:check`.
 
-## 18.6 Jest é gate real
+## 18.6 Jest é gate real e worker leak também
 
 Falha de Jest não é mascarada por:
 
-- <code>|| true</code>;
-- <code>continue-on-error</code> funcional.
+- `|| true`;
+- `continue-on-error` nos jobs funcionais;
+- `--forceExit`;
+- serialização permanente para esconder open handles.
+
+Além do status normal, `run-jest-ci.js` reprova explicitamente:
+
+`A worker process has failed to exit gracefully and has been force exited`
+
+O self-test `verify-jest-worker-warning-selftest.js` prova que o warning é detectado e que uma falha Jest comum não é confundida com ele.
+
+A regressão que motivou essa proteção foi um timer real de 4 s do fallback de `handleMarkerAndShow()`. O caso `REG-WORKER-4S` prova ownership e cancelamento desse recurso no teardown.
 
 ## 18.7 E2E
 
-Em <code>main</code>, E2E roda mesmo se uma dependência anterior falhar, para que
-o estado do navegador continue visível na mesma pipeline.
+O E2E executa independentemente dos outros jobs funcionais para manter diagnóstico útil mesmo quando outro gate falha.
 
-A falha do próprio E2E continua sendo falha real.
+O reporter de gate exige:
+
+- pelo menos 21 testes descobertos;
+- zero skipped;
+- zero flaky;
+- zero retry recuperando `failed` ou `timedOut`;
+- zero status terminal `failed`, `timedOut` ou `interrupted`.
+
+Portanto `failed -> passed` não é considerado verde.
+
+Os cenários críticos incluem FIFO multi-lote, `minimized_window`, `background_delete`, attachment gate, ownership do resultado, resposta rápida e aba Gemini manual inerte.
 
 ## 18.8 Cobertura
 
-Cobertura é observabilidade.
+Coverage é gate local real. O job executa Jest/V8 e depois `verify-coverage.js`.
 
-Problemas de publicação/serviço de cobertura não devem transformar sozinhos uma
-execução funcionalmente correta em regressão do produto.
+Pisos globais:
 
-## 18.9 Concurrency do CI
+- statements: 78%;
+- branches: 71%;
+- functions: 80%;
+- lines: 78%.
+
+Arquivos críticos têm pisos próprios. Entre eles, `extension/gemini/job-runner.js` exige no mínimo 87% statements, 64% branches, 80% functions e 87% lines.
+
+O verificador reprova, entre outros:
+
+- `lcov.info` vazio/ausente;
+- coverage 0%;
+- arquivo crítico ausente;
+- threshold global abaixo do piso;
+- threshold crítico abaixo do piso.
+
+Falha externa do Codecov é reportada separadamente; nunca substitui o gate local.
+
+## 18.9 CI Gate e ruleset
+
+`CI Gate` usa `if: always()` e só passa quando todos os gates obrigatórios concluíram com `success`:
+
+- Version Integrity;
+- JS Syntax Check;
+- Manifest Validation;
+- CI Contract;
+- Smoke Tests;
+- Visual Tests;
+- Unit + Integration;
+- Code Coverage;
+- E2E Tests.
+
+O ruleset ativo da `main` exige os contextos reais, incluindo `CI Gate`, com strict status checks.
+
+## 18.10 Matriz de regressões obrigatórias
+
+`tests/ci/regression-matrix.json` é a lista machine-readable dos bugs críticos que precisam conservar teste.
+
+O `CI Contract` valida para cada entrada:
+
+1. ID único;
+2. arquivo existente;
+3. marcadores obrigatórios do teste presentes;
+4. tamanho mínimo da matriz.
+
+A matriz cobre, entre outros:
+
+- cleanup ACK/retry/pagehide da extração auxiliar;
+- callbacks/timers pendentes dos mocks Chrome;
+- teardown do runner Gemini;
+- clique individual e `START_BATCH` stale;
+- timer de 4 s do arquivo-âncora;
+- regex de pasta;
+- worker warning;
+- flaky/retry do Playwright;
+- coverage crítico;
+- guardas e fallback do JobRunner;
+- cenários E2E essenciais.
+
+Assim, apagar silenciosamente um desses testes também reprova `CI Contract`, mesmo que outro teste seja adicionado para manter a contagem total.
+
+## 18.11 Diagnósticos pesados
+
+`Jest Worker Diagnostic`, `Focused Project Leak` e `Background Leak Bisection` foram preservados, mas rodam somente por `workflow_dispatch`.
+
+Eles são ferramentas de investigação, não gates funcionais cotidianos. A proteção permanente contra worker leak continua no `Unit + Integration`.
+
+## 18.12 Concurrency do CI
 
 Execuções superseded da mesma branch/workflow podem ser canceladas.
 
@@ -2005,8 +2099,35 @@ A PR #36 evoluiu a automação sem alterar o contrato de versionamento v6.5:
 - telemetria registra execution mode e fases de recovery sem alterar routing;
 - `package.json = 6.5.0`, Manifest `6.5`, `version:sync`, `version:check` e `publish.yml` permaneceram intactos.
 
-O baseline pós-estabilização é o run #663: 98/98 suítes Jest, 716/716 testes
-Jest e 22/22 E2E Playwright aprovados.
+O baseline pós-estabilização daquele marco foi o run #663: 98/98 suítes Jest, 716/716 testes
+Jest e 22/22 E2E Playwright aprovados. Esses números são históricos e foram substituídos pelo baseline atual da seção 18.
+
+## 21.10 PR #47 — fila durável, staging/commit e endurecimento definitivo da CI
+
+O PR #47 integra as correções funcionais de lote com os gates estritos de CI e passa a ser o marco operacional mais recente desta documentação.
+
+As mudanças funcionais incluem:
+
+- estado durável único em `background/state.js`;
+- fila FIFO de batches pendentes e promoção atômica;
+- proteção contra finalização tardia de lote antigo;
+- staging do resultado antes da liberação definitiva do job;
+- commit explícito após persistência;
+- rotas de `deliver-result`, `deliver-result-url` e `deliver-result-from-tab` preservando identidade de job/batch;
+- reconciliação de jobs e batches após suspensão do Service Worker;
+- finalização idempotente e marcadores duráveis;
+- correções de `minimized_window` e `background_delete`;
+- cleanup da extração auxiliar em ACK, retry, timeout e `pagehide`;
+- teardown explícito de recursos assíncronos em testes/mocks;
+- detecção obrigatória de worker Jest forçado;
+- E2E sem skipped/flaky/retry recuperado;
+- coverage V8 com thresholds globais e críticos;
+- `CI Gate` agregado e ruleset da `main` alinhado aos checks reais;
+- diagnósticos caros de leak disponíveis somente sob demanda.
+
+A causa-raiz final do worker leak foi um timer de 4 s do arquivo `_anchor.png` que podia sobreviver ao teardown. O teste `REG-WORKER-4S` e a matriz `tests/ci/regression-matrix.json` tornam esse e os demais incidentes críticos regressões obrigatórias.
+
+O baseline vigente passa a ser 108 suítes / 848 testes Jest, 21 E2E, 224 visuais, 6 smoke e 56 arquivos instrumentados de coverage, com skipped/TODO/flaky iguais a zero.
 
 ---
 
@@ -2370,11 +2491,11 @@ Store:
 18. **Promoção de lote deve ser atômica e ocorrer no máximo uma vez por posição da fila.**
 19. **STOP_BATCH com batchId pendente deve remover somente esse lote, sem cancelar o lote ativo.**
 20. **Finalização tardia de lote antigo não pode alterar contadores do lote atualmente promovido.**
-16. **Compatibilidade antiga só permanece com consumidor/dado justificável.**
-17. **Logs detalhados do Gemini não ficam ativos fora de debug.**
-18. **CI funcional não pode mascarar Jest/E2E.**
-19. **Mudança de contrato exige teste correspondente.**
-20. **README deve apontar somente para a documentação canônica atual.**
+21. **Compatibilidade antiga só permanece com consumidor/dado justificável.**
+22. **Logs detalhados do Gemini não ficam ativos fora de debug.**
+23. **CI funcional não pode mascarar Jest/E2E.**
+24. **Mudança de contrato exige teste correspondente e entrada na matriz quando for regressão crítica.**
+25. **README deve apontar somente para a documentação canônica atual.**
 
 ---
 

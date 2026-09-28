@@ -128,6 +128,24 @@ describe('background.js - handleMarkerAndShow real', () => {
         expect(eraseSpy).toHaveBeenCalled();
     });
 
+    test('REG-WORKER-4S: teardown possui e cancela o timer de 4s do arquivo-âncora', async () => {
+        jest.spyOn(downloadsMock, 'search').mockImplementation((query, callback) => {
+            if (callback) callback([]);
+            return Promise.resolve([]);
+        });
+
+        const sendResponse = jest.fn();
+        backgroundModule.handleMarkerAndShow('Worker_Leak_Regression', sendResponse);
+        await flush(12);
+
+        expect(sendResponse).toHaveBeenCalledWith({ ok: true });
+        expect(cancelBackgroundDelayTimers.getPendingDelays()).toContain(4_000);
+
+        const cancelledDelays = cancelBackgroundDelayTimers();
+        expect(cancelledDelays).toContain(4_000);
+        expect(cancelBackgroundDelayTimers.getPendingCount()).toBe(0);
+    });
+
     test('BG-42: falha ao criar âncora responde erro sem crash', async () => {
         jest.spyOn(downloadsMock, 'search').mockImplementation((query, callback) => {
             if (callback) callback([]);

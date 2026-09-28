@@ -872,3 +872,16 @@ E2E: **21/21 passed**, skipped=0, flaky=0, failed=0.
 Os diagnósticos exploratórios pesados foram movidos para `workflow_dispatch`, mas permanecem disponíveis para investigação futura. O job obrigatório `Unit + Integration` continua falhando se o warning do worker reaparecer.
 
 O ruleset #23791606 exige `CI Gate` e os checks reais atuais, com strict status checks habilitado.
+
+
+## Pós-fechamento — matriz de regressões obrigatórias
+
+A finalização foi endurecida com uma proteção adicional de manutenção:
+
+1. o caminho real de `handleMarkerAndShow()` ganhou `REG-WORKER-4S`, que observa o timer de 4 s antes do teardown e exige seu cancelamento;
+2. o helper de ownership expõe contagem/delays somente para testes;
+3. `tests/ci/regression-matrix.json` lista as regressões críticas;
+4. o `CI Contract` falha se qualquer teste/marcador obrigatório da matriz desaparecer;
+5. o baseline mínimo Jest passa a **108 suítes / 848 testes**.
+
+A matriz não substitui a execução dos testes: ela garante que os testes críticos continuem fazendo parte dos gates que já os executam.

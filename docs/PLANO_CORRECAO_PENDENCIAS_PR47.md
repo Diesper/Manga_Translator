@@ -186,3 +186,16 @@ Eles não consomem runners em todo push/PR. A proteção permanente continua no 
 - [x] CI Gate verde;
 - [x] ruleset da main alinhado ao workflow real;
 - [x] diagnósticos pesados retirados da CI normal sem remover o gate permanente.
+
+
+## Proteção adicional contra remoção futura de regressões
+
+Depois do fechamento da causa-raiz, foi adicionada uma camada de conservação do conhecimento:
+
+- `REG-WORKER-4S` testa diretamente ownership/cancelamento do timer de 4 s;
+- `tests/ci/regression-matrix.json` registra as regressões críticas do PR;
+- `verify-ci-contract.js` exige que os arquivos e marcadores desses testes permaneçam presentes;
+- o baseline Jest passa a exigir **848 testes**;
+- os diagnósticos pesados continuam restritos a `workflow_dispatch`.
+
+Isso impede duas classes diferentes de regressão: o bug funcional voltar e o teste que o detecta ser removido silenciosamente.

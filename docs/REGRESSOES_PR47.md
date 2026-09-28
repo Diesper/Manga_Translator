@@ -132,3 +132,55 @@ Run #1355:
 - CI Gate aprovado com todos os gates obrigatórios em `success`.
 
 Os diagnósticos caros de leak continuam disponíveis por `workflow_dispatch`, enquanto o gate permanente do Jest completo permanece obrigatório.
+
+
+## Matriz obrigatória de regressões — atualização final
+
+A partir desta atualização, `tests/ci/regression-matrix.json` é a fonte machine-readable das regressões críticas do PR #47. O `CI Contract` lê a matriz e falha se:
+
+- um ID estiver duplicado;
+- o arquivo do teste desaparecer;
+- um teste/marcador obrigatório desaparecer;
+- a matriz cair abaixo do conjunto mínimo de contratos críticos.
+
+Isso complementa o baseline numérico: não basta manter “848 testes” substituindo um teste crítico por outro irrelevante.
+
+| ID | Falha protegida | Teste/arquivo | Gate |
+|---|---|---|---|
+| REG-EXTRACT-ACK-PERSISTED | retry tardio após ACK persistido | `extraction-and-handlers-real.test.js` | Jest |
+| REG-EXTRACT-ACK-RETRY | retry acumulado após ACK negativo/positivo | mesmo arquivo | Jest |
+| REG-EXTRACT-PAGEHIDE-RETRY | retry sobrevivendo a descarte | mesmo arquivo | Jest |
+| REG-EXTRACT-PAGEHIDE-MAPPING | lookup sobrevivendo a descarte | mesmo arquivo | Jest |
+| REG-EXTRACT-SAFETY-TIMEOUT | polling/listeners presos | mesmo arquivo | Jest |
+| REG-RUNTIME-MESSAGE-TIMER | timeout de canal do mock atravessando teardown | `chrome-runtime-mock-lifecycle.test.js` | Jest |
+| REG-STORAGE-PENDING-CALLBACK | callback de storage tardio | mesmo arquivo | Jest |
+| REG-TABS-PENDING-UPDATE | onUpdated tardio de tabs.create | mesmo arquivo | Jest |
+| REG-RUNTIME-INSTALLED-PENDING | onInstalled pendente | mesmo arquivo | Jest |
+| REG-RPA-PROMISE-TEARDOWN | runner Gemini vivo após teardown | `rpa-flow.test.js` | Jest + worker gate |
+| REG-SINGLE-CLICK-STALE-BATCH | START_BATCH stale após imagem desaparecer | `floating-button-guard-and-single-click.test.js` | Jest |
+| REG-WORKER-ANCHOR-4S | timer de 4 s do `_anchor.png` mantém worker vivo | `marker-anchor-real.test.js` / `REG-WORKER-4S` | Jest + worker gate |
+| REG-REGEX-FOLDER | regex inválida em path com metacaracteres | `regex-escape.test.js` | Jest |
+| REG-WORKER-WARNING-GATE | warning de force-exit não reprova CI | self-test de worker | CI Contract |
+| REG-E2E-FLAKY-RETRY-GATE | retry transforma falha em verde | self-test reporter Playwright | CI Contract |
+| REG-COVERAGE-CRITICAL-THRESHOLD | coverage crítico é reduzido/omitido | self-test coverage | Coverage + CI Contract |
+| REG-JOB-RUNNER-GUARDS | dependências obrigatórias sem erro explícito | `job-runner.test.js` RUN-00 | Jest + Coverage |
+| REG-JOB-RUNNER-CLICK-FALLBACK | card stale impede próximo candidato | `job-runner.test.js` RUN-COV-02 | Jest + Coverage |
+| REG-E2E-FIFO-MULTIBATCH | batches A→G quebram FIFO/ownership | `translation-flow.spec.js` | E2E |
+| REG-E2E-MODES-NO-GHOST | modos dependem de ghost mousemove/foco | mesmo arquivo | E2E |
+| REG-E2E-ATTACHMENT-GATE | texto enviado sem anexo confirmado | mesmo arquivo | E2E |
+| REG-E2E-RESULT-OWNERSHIP | input/IMG órfã aceita como resultado | mesmo arquivo | E2E |
+| REG-E2E-MANUAL-INERT | Gemini manual inicia automação/keepalive | mesmo arquivo | E2E |
+
+### Regressão específica nova do timer de 4 s
+
+O teste `REG-WORKER-4S` usa o fluxo real de `handleMarkerAndShow()`, confirma que o tracker possui um delay de `4000` ms, executa o teardown e exige contagem zero de recursos pendentes.
+
+O helper de testes agora expõe apenas para regressão:
+
+- `getPendingDelays()`;
+- `getPendingCount()`;
+- a lista de delays efetivamente cancelados no retorno do cleanup.
+
+Isso evita esperar quatro segundos reais e torna a causa-raiz diretamente observável.
+
+O baseline Jest passa de 847 para **848 testes**, mantendo **108 suítes**, skipped=0 e TODO=0.

@@ -12,8 +12,15 @@ const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-
 const e2eReporter = fs.readFileSync(path.join(root, 'tests', 'ci', 'playwright-gate-reporter.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
+const regressionMatrixPath = path.join(root, 'tests', 'ci', 'regression-matrix.json');
 
 const problems = [];
+let regressionMatrix = null;
+try {
+  regressionMatrix = JSON.parse(fs.readFileSync(regressionMatrixPath, 'utf8'));
+} catch (error) {
+  problems.push('regression-matrix.json inválido ou ausente: ' + error.message);
+}
 const requiredJobs = [
   'version-integrity',
   'syntax-check',
@@ -43,6 +50,59 @@ function jobBlock(id) {
 
 for (const job of requiredJobs) {
   if (!jobBlock(job)) problems.push('job obrigatório ausente: ' + job);
+}
+
+for (const diagnosticJob of [
+  'jest-worker-diagnostic',
+  'focused-project-leak-diagnostic',
+  'background-leak-bisection',
+]) {
+  const block = jobBlock(diagnosticJob);
+  if (!block) {
+    problems.push('job de diagnóstico ausente: ' + diagnosticJob);
+  } else if (!block.includes("github.event_name == 'workflow_dispatch'")) {
+    problems.push(diagnosticJob + ': diagnóstico pesado deve rodar somente por workflow_dispatch');
+  }
+}
+
+if (regressionMatrix) {
+  const entries = Array.isArray(regressionMatrix.regressions)
+    ? regressionMatrix.regressions
+    : [];
+  if (entries.length < 20) {
+    problems.push('matriz de regressão precisa preservar pelo menos 20 contratos críticos');
+  }
+  const ids = new Set();
+  for (const entry of entries) {
+    if (!entry || typeof entry.id !== 'string' || !entry.id) {
+      problems.push('matriz de regressão contém entrada sem id');
+      continue;
+    }
+    if (ids.has(entry.id)) problems.push('id de regressão duplicado: ' + entry.id);
+    ids.add(entry.id);
+
+    if (typeof entry.file !== 'string' || !entry.file) {
+      problems.push(entry.id + ': arquivo de regressão ausente');
+      continue;
+    }
+    const target = path.join(root, entry.file);
+    if (!fs.existsSync(target)) {
+      problems.push(entry.id + ': arquivo de regressão não existe: ' + entry.file);
+      continue;
+    }
+
+    const source = fs.readFileSync(target, 'utf8');
+    const markers = Array.isArray(entry.markers) ? entry.markers : [];
+    if (!markers.length) {
+      problems.push(entry.id + ': precisa declarar pelo menos um marcador obrigatório');
+      continue;
+    }
+    for (const marker of markers) {
+      if (typeof marker !== 'string' || !marker || !source.includes(marker)) {
+        problems.push(entry.id + ': marcador obrigatório ausente em ' + entry.file + ': ' + marker);
+      }
+    }
+  }
 }
 
 for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e']) {

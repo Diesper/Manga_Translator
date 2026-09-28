@@ -1,8 +1,8 @@
 # Manga Translator — documentação da versão funcional
 
-Identificação: MT-UNICO-01, revisão 2. Atualização: 27/09/2026. Pasta: `extension/`.
+Identificação: MT-UNICO-01, revisão 2 + hardening PR #47. Atualização: 27/09/2026 (horário local; runs finais do GitHub em 28/09 UTC). Pasta: `extension/`.
 
-**Estado da base: aprovado pelo usuário e sustentado pelos logs manuais da revisão 2.** Foram concluídos quatro lotes com 21 imagens: sete temporárias, sete minimizadas e sete normais. A proteção adicional de quarentena descrita abaixo foi acrescentada depois dessa validação manual e deve passar pelo GitHub Actions e pelo novo teste manual do mantenedor. Nenhum Jest foi executado localmente pelo agente.
+**Estado atual: a base manual da revisão 2 permanece válida e o conjunto automatizado do PR #47 está estabilizado.** A validação manual anterior concluiu quatro lotes com 21 imagens: sete temporárias, sete minimizadas e sete normais. Depois dela foram incorporadas quarentena, fila/lifecycle duráveis, staging/commit e hardening de CI. Essas mudanças posteriores são cobertas pela suíte automatizada; a evidência manual histórica não deve ser reinterpretada como se tivesse exercitado código acrescentado depois.
 
 ## 1. Qual pasta utilizar
 
@@ -101,6 +101,31 @@ No histórico local, a revisão 2 acrescentou duas melhorias à revisão 1 em se
 
 O diff do PR registra as alterações contra main. Esta documentação descreve o conjunto funcional completo, incluindo componentes que já existiam na base. O resumo público em VALIDACAO_REVISAO_2.json registra contagens e limites da evidência sem publicar os exports brutos.
 
+### 7.1 Arquivos de runtime modificados pelo PR #47
+
+Contra a `main` usada como base do PR, o conjunto funcional modifica diretamente estes 16 arquivos de runtime:
+
+| Arquivo | Papel da modificação |
+|---|---|
+| `background.js` | Integra lifecycle, finalização e rotas do fluxo de job. |
+| `background/state.js` | Estado durável único, batches pendentes e índice de jobs. |
+| `background/router.js` | Registro/roteamento das ações do protocolo atual. |
+| `background/jobs-dom-ack.js` | ACK/staging de aplicação do resultado no mangá. |
+| `background/jobs-lifecycle.js` | Finalização, promoção de batch e cleanup por modo. |
+| `background/jobs-reconciliation.js` | Reconciliação após suspensão/restart do Service Worker. |
+| `background/actions/commit-result.js` | Commit após persistência/staging confirmado. |
+| `background/actions/deliver-result.js` | Entrega direta preservando identidade e estado. |
+| `background/actions/deliver-result-url.js` | Entrega por URL com contrato de staging/commit. |
+| `background/actions/deliver-result-from-tab.js` | Entrega originada da aba com validações de ownership. |
+| `background/actions/report-error.js` | Propagação de erro sem falso sucesso/contabilidade duplicada. |
+| `content_manga.js` | Cleanup da extração auxiliar, ACK/retry/pagehide e integração de lote. |
+| `content_gemini.js` | Bootstrap/claim e integração com o runner modular. |
+| `gemini/job-runner.js` | Pipeline Gemini, staging/commit, quarentena e fallbacks. |
+| `gemini/result-extractor.js` | Ownership e extração autenticada do resultado. |
+| `popup.js` | Integração da UI com o estado e fluxos atuais. |
+
+A lista acima descreve o diff funcional do PR #47; módulos não listados continuam podendo participar do fluxo porque já existiam na base.
+
 ## 8. Validação manual atual
 
 | Modo | Resultados identificados | Lotes | Exclusões confirmadas |
@@ -136,3 +161,26 @@ Em lotes paralelos, correlacione os eventos de extração pelos campos `jobIdPre
 Mantenha esta revisão como base para mudanças futuras e altere um motivo por vez. Preserve logs e cache relevantes antes de diagnosticar regressão. Os backups e exports brutos da rodada manual permanecem locais.
 
 Documentos associados: [README](../README.md) para instalação; [documentação canônica](Documentação.md) para arquitetura geral; [extração e prazo](MELHORIAS_EXTRACAO_E_PRAZO.md) para a última rodada; [validação manual](VALIDACAO_REVISAO_2.json) para contagens e limites. O CI deste PR é independente da validação manual e roda no GitHub.
+
+
+## 10. Validação automatizada e regressões obrigatórias do PR #47
+
+O estado atual não depende apenas da validação manual da revisão 2.
+
+O contrato automatizado exige:
+
+- Jest: **108 suítes / mínimo de 848 testes**, skipped=0 e TODO=0;
+- Node 20 e Node 22;
+- E2E: **21 testes**, skipped=0, flaky=0 e nenhum retry recuperando falha;
+- visual/perceptual: **224 testes**;
+- smoke: **6 arquivos**;
+- coverage: **56 arquivos instrumentados**, com thresholds globais e críticos;
+- `CI Gate` agregando todos os gates obrigatórios.
+
+O worker Jest não pode ser encerrado à força. `run-jest-ci.js` trata o texto de force-exit como falha mesmo quando o Jest retornaria zero.
+
+A investigação do PR #47 encontrou como causa-raiz final um timer real de **4 s** criado por `handleMarkerAndShow()` para remover `_anchor.png`. O teste `REG-WORKER-4S` prova que o timer é capturado pelo ownership do caso e cancelado no teardown.
+
+Além das contagens, `tests/ci/regression-matrix.json` enumera regressões que não podem ser removidas silenciosamente. O `CI Contract` exige que os testes e marcadores da matriz continuem presentes. Ela cobre cleanup de extração, callbacks dos mocks Chrome, teardown do RPA, clique individual, worker warning, coverage, flaky/retry E2E e os cenários E2E essenciais.
+
+Os diagnósticos exploratórios de worker/bisection permanecem disponíveis por `workflow_dispatch`, mas não são executados em todo push. O gate permanente continua no Jest completo.
