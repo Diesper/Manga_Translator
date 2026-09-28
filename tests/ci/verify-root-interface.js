@@ -56,6 +56,47 @@ try {
   problems.push('tests/package-lock.json inválido: ' + error.message);
 }
 
+const rootE2EPath = path.join(root, 'scripts', 'run-e2e-root.js');
+const setupPlaywrightPath = path.join(root, 'tests', 'ci', 'setup-playwright.js');
+let rootE2ESource = '';
+let setupPlaywrightSource = '';
+
+try {
+  rootE2ESource = fs.readFileSync(rootE2EPath, 'utf8');
+} catch (error) {
+  problems.push('não foi possível ler scripts/run-e2e-root.js: ' + error.message);
+}
+
+try {
+  setupPlaywrightSource = fs.readFileSync(setupPlaywrightPath, 'utf8');
+} catch (error) {
+  problems.push('não foi possível ler tests/ci/setup-playwright.js: ' + error.message);
+}
+
+for (const requiredMarker of [
+  "process.platform === 'linux'",
+  '!process.env.DISPLAY',
+  '!process.env.WAYLAND_DISPLAY',
+  "'xvfb-run'",
+  "'--auto-servernum'",
+  "'--prefix', 'tests', 'run', 'test:e2e'",
+]) {
+  if (!rootE2ESource.includes(requiredMarker)) {
+    problems.push('scripts/run-e2e-root.js perdeu proteção obrigatória: ' + requiredMarker);
+  }
+}
+
+for (const requiredMarker of [
+  "'install', 'chromium'",
+  "process.platform === 'linux'",
+  "'--with-deps'",
+  "'--no-shell'",
+]) {
+  if (!setupPlaywrightSource.includes(requiredMarker)) {
+    problems.push('tests/ci/setup-playwright.js perdeu proteção obrigatória: ' + requiredMarker);
+  }
+}
+
 if (rootPackage && testsPackage && testsLock) {
   const expectedRootScripts = {
     'setup:deps': 'npm --prefix tests ci',
