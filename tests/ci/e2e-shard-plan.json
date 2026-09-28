@@ -6,35 +6,40 @@
       "tag": "@e2e-fifo",
       "kind": "heavy-exclusive",
       "expectedTests": 1,
-      "estimatedSeconds": 86.3
+      "estimatedSeconds": 48.3,
+      "workers": 1
     },
     {
       "id": "attachment",
       "tag": "@e2e-attachment",
       "kind": "heavy",
       "expectedTests": 3,
-      "estimatedSeconds": 73.2
+      "estimatedSeconds": 27.8,
+      "workers": 3
     },
     {
       "id": "medium-a",
       "tag": "@e2e-medium-a",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 71.1
+      "estimatedSeconds": 40,
+      "workers": 2
     },
     {
       "id": "medium-b",
       "tag": "@e2e-medium-b",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 72.7
+      "estimatedSeconds": 40,
+      "workers": 2
     },
     {
       "id": "fast",
       "tag": "@e2e-fast",
       "kind": "fast",
       "expectedTests": 9,
-      "estimatedSeconds": 54.6
+      "estimatedSeconds": 21.9,
+      "workers": 3
     }
   ]
 }
