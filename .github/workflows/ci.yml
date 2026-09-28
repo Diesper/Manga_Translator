@@ -67,7 +67,7 @@ jobs:
           CI: true
           MANGA_E2E_BROWSER_MODE: stealth
           MANGA_E2E_SHARD: '1'
-          MANGA_E2E_WORKERS: '1'
+          MANGA_E2E_WORKERS: '3'
           MANGA_E2E_RETRIES: '0'
         run: |
           set -o pipefail
