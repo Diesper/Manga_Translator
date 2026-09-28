@@ -14,7 +14,7 @@
     "test:integration": "npm --prefix tests run test:integration",
     "test:smoke": "npm --prefix tests run test:smoke",
     "test:visual": "npm --prefix tests run test:visual-v3",
-    "test:e2e": "npm --prefix tests run test:e2e",
+    "test:e2e": "node scripts/run-e2e-root.js",
     "test:e2e:setup": "npm run setup:e2e",
     "test:coverage": "npm --prefix tests run test:coverage && npm --prefix tests run test:coverage:verify",
     "test:coverage:generate": "npm --prefix tests run test:coverage",
