@@ -123,8 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chrome.storage.local.set({ clickToTranslateEnabled: clickToTranslateEnabledEl.checked }, () => {
                 showStatus(
                     clickToTranslateEnabledEl.checked
-                        ? 'Clique para traduzir uma imagem ativado.'
-                        : 'Clique para traduzir uma imagem desativado.',
+                        ? 'Menu de clique direito para traduzir imagem ativado.'
+                        : 'Menu de clique direito para traduzir imagem desativado.',
                     clickToTranslateEnabledEl.checked ? '#4CAF50' : '#FF9800'
                 );
             });
