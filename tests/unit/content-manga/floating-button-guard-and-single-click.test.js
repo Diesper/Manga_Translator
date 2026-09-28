@@ -190,73 +190,24 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         }));
     });
 
-    test('clique individual desligado não interfere no clique normal da imagem', async () => {
+    test('clique esquerdo continua pertencendo ao site mesmo com tradução individual ativada', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
         await loadContentScript({
             hostname: 'reader.test',
-            clickToTranslateEnabled: false,
+            clickToTranslateEnabled: true,
             domImages: [{ src: 'https://reader.test/p1.png', width: 800, height: 1200 }],
         });
 
         const img = document.querySelector('img');
-        const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, clientX: 100, clientY: 100 });
-        const allowed = img.dispatchEvent(event);
+        const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+        expect(img.dispatchEvent(event)).toBe(true);
+        await delay(20);
 
-        expect(allowed).toBe(true);
+        expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
         expect(document.getElementById('manga-single-image-action')).toBeNull();
     });
 
-    test('clique individual só oferece tradução para imagem elegível e não banida', async () => {
-        await loadContentScript({
-            hostname: 'reader.test',
-            clickToTranslateEnabled: true,
-            bannedImages: ['https://reader.test/banned.png'],
-            domImages: [
-                { src: 'https://reader.test/small.png', width: 80, height: 80 },
-                { src: 'https://reader.test/banned.png', width: 800, height: 1200 },
-                { src: 'https://reader.test/ok.png', width: 800, height: 1200 },
-            ],
-        });
-
-        document.querySelector('[data-testid="img-0"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
-        await delay(30);
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
-
-        document.querySelector('[data-testid="img-1"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
-        await delay(30);
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
-
-        document.querySelector('[data-testid="img-2"]').dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            clientX: 120,
-            clientY: 140,
-        }));
-        await waitFor(() => document.getElementById('manga-single-image-action'));
-
-        expect(document.getElementById('manga-single-image-translate')).not.toBeNull();
-        document.getElementById('manga-single-image-cancel').click();
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
-    });
-
-    test('imagem já traduzida não abre ação de tradução individual', async () => {
-        await loadContentScript({
-            hostname: 'reader.test',
-            clickToTranslateEnabled: true,
-            domImages: [{
-                src: 'https://reader.test/translated.png',
-                width: 800,
-                height: 1200,
-                attributes: { 'data-translated': 'true' },
-            }],
-        });
-
-        document.querySelector('img').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
-        await delay(30);
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
-    });
-
-    test('confirmação individual recalcula o índice quando o DOM muda antes de traduzir', async () => {
+    test('clique direito mantém o menu nativo e a ação traduz somente a imagem escolhida', async () => {
         const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
         const context = await loadContentScript({
             hostname: 'reader.test',
@@ -268,14 +219,62 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         });
 
         const target = document.querySelector('[data-testid="img-1"]');
-        target.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            clientX: 100,
-            clientY: 100,
-        }));
-        await waitFor(() => document.getElementById('manga-single-image-action'));
+        const nativeMenuEvent = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 });
+        expect(target.dispatchEvent(nativeMenuEvent)).toBe(true);
+
+        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: target.src });
+        expect(response).toEqual({ ok: true, index: 1 });
+
+        const requestLog = await waitFor(() => {
+            const logs = logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_REQUEST');
+            return logs.length ? logs[logs.length - 1] : null;
+        });
+        expect(requestLog.extra.index).toBe(1);
+        expect(requestLog.extra.cleanUrl).toContain('/p2.png');
+
+        await waitFor(() => sendSpy.mock.calls.some(([message]) =>
+            message && message.action === 'START_BATCH'
+        ));
+        const main = context.getMainContent();
+        if (main) main.click();
+        await delay(20);
+    });
+
+    test('menu de contexto rejeita imagem pequena, banida ou já traduzida', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+        const context = await loadContentScript({
+            hostname: 'reader.test',
+            clickToTranslateEnabled: true,
+            bannedImages: ['https://reader.test/banned.png'],
+            domImages: [
+                { src: 'https://reader.test/small.png', width: 80, height: 80 },
+                { src: 'https://reader.test/banned.png', width: 800, height: 1200 },
+                { src: 'https://reader.test/translated.png', width: 800, height: 1200, attributes: { 'data-translated': 'true' } },
+            ],
+        });
+
+        for (const img of document.querySelectorAll('img')) {
+            img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+            const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
+            expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
+        }
+
+        expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
+    });
+
+    test('ação do menu de contexto recalcula o índice quando o DOM muda antes da escolha', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+        const context = await loadContentScript({
+            hostname: 'reader.test',
+            clickToTranslateEnabled: true,
+            domImages: [
+                { src: 'https://reader.test/p1.png', width: 800, height: 1200 },
+                { src: 'https://reader.test/p2.png', width: 800, height: 1200 },
+            ],
+        });
+
+        const target = document.querySelector('[data-testid="img-1"]');
+        target.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
 
         const inserted = document.createElement('img');
         inserted.src = 'https://reader.test/inserted.png';
@@ -283,7 +282,8 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         Object.defineProperty(inserted, 'naturalHeight', { value: 1200, configurable: true });
         document.body.insertBefore(inserted, document.body.firstChild);
 
-        document.getElementById('manga-single-image-translate').click();
+        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: target.src });
+        expect(response).toEqual({ ok: true, index: 2 });
 
         const requestLog = await waitFor(() => {
             const logs = logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_REQUEST');
@@ -292,14 +292,9 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         expect(requestLog.extra.index).toBe(2);
         expect(requestLog.extra.cleanUrl).toContain('/p2.png');
 
-        // Interrompe o lote logo após validar a seleção para não deixar timer de
-        // watchdog ativo no restante da suíte.
         await waitFor(() => sendSpy.mock.calls.some(([message]) =>
             message && message.action === 'START_BATCH'
         ));
-        expect(sendSpy.mock.calls.filter(([message]) =>
-            message && message.action === 'START_BATCH'
-        )).toHaveLength(1);
         const main = context.getMainContent();
         if (main) main.click();
         await delay(20);
@@ -352,38 +347,26 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         await startPromise;
     });
 
-    test('imagem removida entre clique e confirmação aborta sem iniciar tradução', async () => {
+    test('imagem removida entre clique direito e escolha da ação aborta sem iniciar tradução', async () => {
         const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
-        await loadContentScript({
+        const context = await loadContentScript({
             hostname: 'reader.test',
             clickToTranslateEnabled: true,
-            domImages: [{ src: 'https://reader.test/remove-before-confirm.png', width: 800, height: 1200 }],
+            domImages: [{ src: 'https://reader.test/remove-before-action.png', width: 800, height: 1200 }],
         });
 
-        // A previous content-script instance can finish an asynchronous batch
-        // after this spy is installed. Only this click's messages are relevant.
         sendSpy.mockClear();
-
         const img = document.querySelector('img');
-        img.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            clientX: 80,
-            clientY: 90,
-        }));
-        await waitFor(() => document.getElementById('manga-single-image-action'));
-
+        img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
         img.remove();
-        document.getElementById('manga-single-image-translate').click();
-        await delay(100);
 
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
+        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: 'https://reader.test/remove-before-action.png' });
+        expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
         expect(logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_ABORTED').length).toBeGreaterThanOrEqual(1);
         expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
     });
 
-    test('clique individual durante tradução ativa não abre segundo fluxo', async () => {
+    test('ação de clique direito durante tradução ativa não abre segundo fluxo', async () => {
         const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
         const context = await loadContentScript({
             hostname: 'reader.test',
@@ -397,45 +380,35 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         context.sendMessage('START_TRANSLATION_FROM_POPUP', { indices: [0] });
         await delay(5);
 
-        document.querySelector('[data-testid="img-1"]').dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            clientX: 100,
-            clientY: 120,
-        }));
-        await delay(30);
+        const target = document.querySelector('[data-testid="img-1"]');
+        target.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: target.src });
 
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
+        expect(response).toEqual({ ok: false, reason: 'translation_in_progress' });
         expect(logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_BLOCKED').length).toBeGreaterThanOrEqual(1);
 
         await context.sendMessage('BATCH_COMPLETE', { hasErrors: false });
     });
 
 
-    test('banir a imagem enquanto a confirmação individual está aberta fecha a ação imediatamente', async () => {
-        await loadContentScript({
+    test('banir a imagem depois do clique direito faz a ação revalidar e recusar a tradução', async () => {
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+        const context = await loadContentScript({
             hostname: 'reader.test',
             clickToTranslateEnabled: true,
             domImages: [{ src: 'https://reader.test/becomes-banned.png', width: 800, height: 1200 }],
         });
 
         const img = document.querySelector('img');
-        img.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            clientX: 90,
-            clientY: 110,
-        }));
-        await waitFor(() => document.getElementById('manga-single-image-action'));
+        img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
 
         await storageMock.set({
             'bannedImages_reader.test': ['https://reader.test/becomes-banned.png'],
         });
-        await waitFor(() => !document.getElementById('manga-single-image-action'));
 
-        expect(document.getElementById('manga-single-image-action')).toBeNull();
+        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
+        expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
+        expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
     });
 
 });
