@@ -210,9 +210,13 @@ jobs:
           path: tests/coverage/
           retention-days: 30
 
-  e2e:
-    name: E2E Tests (Playwright)
+  e2e-shard:
+    name: E2E Shard (${{ matrix.group }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [fifo, attachment, medium-a, medium-b, fast]
     defaults:
       run:
         working-directory: tests
@@ -227,26 +231,72 @@ jobs:
           cache-dependency-path: tests/package-lock.json
       - name: Instalar dependências
         run: npm ci
-      - name: Instalar Playwright e browsers
-        run: npx playwright install chromium --with-deps
+      - name: Instalar Chromium sem headless shell redundante
+        run: npx playwright install chromium --with-deps --no-shell
       - name: Criar imagens de teste
         run: npm run test:images
-      - name: Rodar testes E2E
-        run: xvfb-run --auto-servernum -- npm run test:e2e
+      - name: Rodar grupo E2E ${{ matrix.group }}
+        run: xvfb-run --auto-servernum -- npm run test:e2e:group -- "${{ matrix.group }}"
         env:
           CI: true
           MANGA_E2E_BROWSER_MODE: stealth
-      - name: Upload screenshots de falha
+          MANGA_E2E_SHARD: '1'
+      - name: Upload blob report do shard
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && !cancelled() }}
+        with:
+          name: blob-report-${{ matrix.group }}-${{ github.sha }}
+          path: tests/blob-report/
+          retention-days: 1
+          if-no-files-found: warn
+      - name: Upload artefatos de falha do shard
         uses: actions/upload-artifact@v4
         if: failure()
         continue-on-error: true
         with:
-          name: playwright-screenshots-${{ github.sha }}
+          name: playwright-failure-shard-${{ matrix.group }}-${{ github.sha }}
           path: tests/test-results/
           retention-days: 7
+          if-no-files-found: ignore
 
 
-
+  e2e:
+    name: E2E Tests (Playwright)
+    if: ${{ always() }}
+    needs:
+      - e2e-shard
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Instalar dependências para merge dos relatórios
+        run: npm ci
+      - name: Verificar cobertura exata do plano de 5 shards
+        run: npm run test:e2e:plan
+      - name: Baixar blob reports dos shards
+        uses: actions/download-artifact@v4
+        with:
+          path: tests/all-blob-reports
+          pattern: blob-report-*-${{ github.sha }}
+          merge-multiple: true
+      - name: Conferir inventário de blobs
+        run: |
+          echo "Blob reports recebidos:"
+          find all-blob-reports -maxdepth 1 -type f -name '*.zip' -print
+          test "$(find all-blob-reports -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 5
+      - name: Mesclar shards e aplicar gate global E2E
+        run: npx playwright merge-reports --config=ci/playwright-merge.config.js ./all-blob-reports
+        env:
+          CI: true
 
   jest-worker-diagnostic:
     name: Jest Worker Diagnostic (${{ matrix.case }})
@@ -402,6 +452,7 @@ jobs:
       - visual
       - unit-and-integration
       - coverage
+      - e2e-shard
       - e2e
       - jest-worker-diagnostic
       - focused-project-leak-diagnostic
@@ -417,6 +468,7 @@ jobs:
           VISUAL: ${{ needs.visual.result }}
           UNIT_INTEGRATION: ${{ needs.unit-and-integration.result }}
           COVERAGE: ${{ needs.coverage.result }}
+          E2E_SHARDS: ${{ needs.e2e-shard.result }}
           E2E: ${{ needs.e2e.result }}
           FULL_DIAGNOSTICS_REQUIRED: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
           JEST_WORKER_DIAGNOSTIC: ${{ needs.jest-worker-diagnostic.result }}
@@ -442,6 +494,7 @@ jobs:
           check "Visual Tests" "$VISUAL"
           check "Unit + Integration" "$UNIT_INTEGRATION"
           check "Code Coverage" "$COVERAGE"
+          check "E2E Shards" "$E2E_SHARDS"
           check "E2E Tests" "$E2E"
 
           if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
