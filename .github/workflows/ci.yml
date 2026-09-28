@@ -304,6 +304,49 @@ jobs:
           retention-days: 7
 
 
+  focused-project-leak-diagnostic:
+    name: Focused Project Leak (${{ matrix.case }})
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        case:
+          - project-content-scripts
+          - project-shared-ui
+          - project-integration
+          - project-manifest
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Instalar dependências
+        run: npm ci
+      - name: Executar ${{ matrix.case }}
+        continue-on-error: true
+        run: npm run test:diagnose-workers -- --case=${{ matrix.case }}
+      - name: Publicar diagnóstico ${{ matrix.case }}
+        if: always()
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: focused-project-leak-${{ matrix.case }}-${{ github.sha }}
+          path: |
+            tests/.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+          retention-days: 7
+
+
   background-leak-bisection:
     name: Background Leak Bisection
     runs-on: ubuntu-latest
