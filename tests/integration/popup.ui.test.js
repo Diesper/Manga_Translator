@@ -588,8 +588,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         expect(redo.closest('label').textContent).toContain('Confirmar ao apertar o botão de refazer a imagem');
         const redoSection = redo.closest('.settings-section');
         expect(redoSection.querySelector('.settings-section-title').textContent).toContain('Substituição automática');
+        expect(redo.previousElementSibling.textContent).toContain('Sites habilitados');
         expect(redoSection.textContent).toContain('Sites habilitados');
-        expect(document.querySelector('.settings-section-title:nth-of-type(1)')).not.toBeNull();
         expect(floating.checked).toBe(false);
         expect(single.checked).toBe(true);
         expect(redo.checked).toBe(false);
