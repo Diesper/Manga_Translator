@@ -583,6 +583,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         const single = document.getElementById('settings-click-to-translate-enabled');
         const redo = document.getElementById('settings-redo-confirm-enabled');
 
+        expect(single.closest('label').textContent).toContain('Clique direito para traduzir uma única imagem');
+        expect(single.closest('label').textContent).toContain('Traduzir esta imagem');
         expect(floating.checked).toBe(false);
         expect(single.checked).toBe(true);
         expect(redo.checked).toBe(false);
