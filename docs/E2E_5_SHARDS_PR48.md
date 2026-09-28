@@ -175,3 +175,83 @@ Após implementar:
 5. medir setup, teste e total por shard;
 6. rebalancear uma segunda vez se os tempos reais divergirem materialmente;
 7. repetir a mesma árvore de código em várias execuções consecutivas para detectar flakiness.
+
+
+## Primeira execução real com 5 shards
+
+Fonte principal: workflow #1353.
+
+| Shard | Testes | Tempo efetivo observado | Duração total do job |
+|---|---:|---:|---:|
+| fifo | 1 | ~86.3 s | ~121 s |
+| attachment | 3 | ~73.2 s | ~107 s |
+| medium-a | 4 | ~71.1 s | ~115 s |
+| medium-b | 4 | ~72.7 s | ~117 s |
+| fast | 9 | ~54.6 s | ~89 s |
+
+Inventário dinâmico no agregador:
+- fifo: 1
+- attachment: 3
+- medium-a: 4
+- medium-b: 4
+- fast: 9
+- total: **21**
+- união exata, sem omissões e sem duplicatas.
+
+Resultado agregado:
+- 21/21 passed;
+- skipped=0;
+- flaky=0;
+- failed=0;
+- CI Gate = success.
+
+### Wall-clock observado
+
+Run #1353:
+- primeiro shard iniciou: ~02:14:25;
+- último shard concluiu: ~02:16:26;
+- janela real dos shards: **~121 s (~2.02 min)**;
+- agregador/gate E2E concluiu: ~02:16:50;
+- E2E completo desde o início dos shards até fim do agregador: **~145 s (~2.42 min)**.
+
+Baseline anterior de 2 shards (run #1323):
+- primeiro shard iniciou: ~02:00:18;
+- último shard concluiu: ~02:04:05;
+- agregador concluiu: ~02:04:25;
+- E2E completo: **~247 s (~4.12 min)**.
+
+Redução inicial de wall-clock E2E completo:
+- absoluta: **~102 s (~1.70 min)**;
+- percentual: **~41%**.
+
+## Segunda rodada de balanceamento com tempos reais
+
+Tempos individuais do #1353 confirmaram:
+- FIFO: ~86.3 s;
+- attachment gates: ~25.7 / 23.4 / 24.1 s;
+- caches: ~20.2 / 19.5 / 20.9 / 18.7 s;
+- fluxo básico: ~19.0 s;
+- submit ignorado: ~17.3 s;
+- execution modes: ~14.1 / 14.1 s;
+- rápidos: ~0.4–10.4 s.
+
+A partição medida ficou:
+- FIFO = 86.3 s;
+- attachment = 73.2 s;
+- medium-a = 71.1 s;
+- medium-b = 72.7 s;
+- fast = 54.6 s.
+
+### Decisão da segunda rodada
+
+**Nenhum teste foi movido após a primeira execução**, porque os dados reais confirmaram que a distribuição proposta já é a melhor sob as restrições:
+
+1. FIFO sozinho define o piso inevitável do caminho crítico em ~86 s.
+2. Os três shards pesados/médios ficaram concentrados em ~71–73 s, praticamente balanceados.
+3. O shard fast precisa continuar contendo somente testes classificados como rápidos; adicionar um teste de 14–20 s violaria essa restrição.
+4. Mover um teste rápido para um shard médio deixaria o fast ainda mais curto e aumentaria o desvio.
+5. Criar um 6º shard não reduz o FIFO de ~86 s, mas acrescenta outro setup de ~30–40 s e mais disputa por runners.
+
+Portanto, a segunda rodada é deliberadamente um **no-op de distribuição**, validado por medição real, e não uma ausência de análise.
+
+O próximo passo de validação é repetir exatamente esta mesma árvore de código várias vezes para medir flakiness, scheduling e p95.
