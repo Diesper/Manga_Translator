@@ -125,6 +125,8 @@ let browserContext;
 let backgroundWorker;
 
 test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
+    // O reader compartilha persistent context/storage entre casos deste arquivo.
+    test.describe.configure({ mode: 'serial' });
     test.beforeAll(async () => {
         const pathToExtension = getExtensionPath(__dirname);
         const userDataDir = path.join(os.tmpdir(), `pw-manga-reader-${Date.now()}`);
