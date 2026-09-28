@@ -190,6 +190,7 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
     let sentMessages;
     let originalSendMessage;
     let originalFetch;
+    let processPromises;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -205,6 +206,7 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         originalSendMessage = runtimeMock.sendMessage;
         originalFetch = global.fetch;
         sentMessages = [];
+        processPromises = [];
 
         runtimeMock._messageListeners = [];
         runtimeMock._connectListeners = [];
@@ -218,6 +220,26 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
     });
 
     afterEach(async () => {
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
+        if (processPromises.length) {
+            await Promise.allSettled(processPromises);
+        }
+
         runtimeMock.sendMessage = originalSendMessage;
         global.fetch = originalFetch;
         jest.restoreAllMocks();
@@ -314,7 +336,7 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
 
         const execCommandSpy = jest.spyOn(document, 'execCommand').mockReturnValue(true);
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         await waitFor(() => (
             document.querySelector('.ql-editor')
@@ -354,7 +376,7 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         window.addEventListener('MANGA_TRANSLATOR_SET_PROMPT', setPromptListener);
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const promptWasInserted = await waitFor(() => (
             document.querySelector('.ql-editor')
@@ -397,7 +419,7 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         jest.spyOn(document, 'execCommand').mockReturnValue(false);
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         await waitFor(() => (
             document.querySelector('.ql-editor')
@@ -426,7 +448,7 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
         await delay(100);
 
         expect(sentMessages.some((message) => message.action === 'REQUEST_IMAGE_DATA')).toBe(false);
