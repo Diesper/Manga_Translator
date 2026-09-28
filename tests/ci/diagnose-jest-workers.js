@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('./jest-worker-warning');
@@ -8,11 +9,6 @@ const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('./jest-worker-warni
 const testsRoot = path.resolve(__dirname, '..');
 const jestBin = path.join(testsRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 const outDir = path.join(testsRoot, '.ci-results', 'jest-worker-diagnostic');
-const summaryFile = path.join(testsRoot, '.ci-results', 'jest-worker-diagnostic.json');
-
-fs.mkdirSync(outDir, { recursive: true });
-
-const baseArgs = [jestBin, '--config', 'jest.config.js', '--ci'];
 
 const cases = [
   { name: 'full-default', args: [] },
@@ -52,6 +48,20 @@ const cases = [
   },
 ];
 
+function parseCaseFilter() {
+  const cliArg = process.argv.find(arg => arg.startsWith('--case='));
+  const requested = cliArg ? cliArg.slice('--case='.length) : process.env.MT_JEST_DIAG_CASE;
+  if (!requested) return null;
+  if (!cases.some(spec => spec.name === requested)) {
+    console.error(
+      'Caso de diagnóstico desconhecido: ' + requested + '\nCasos válidos: ' +
+      cases.map(spec => spec.name).join(', ')
+    );
+    process.exit(64);
+  }
+  return requested;
+}
+
 function pickLines(text) {
   return String(text || '')
     .split(/\r?\n/)
@@ -64,7 +74,13 @@ function pickLines(text) {
 
 function runCase(spec) {
   const startedAt = Date.now();
-  const proc = spawnSync(process.execPath, [...baseArgs, ...spec.args], {
+  const proc = spawnSync(process.execPath, [
+    jestBin,
+    '--config',
+    'jest.config.js',
+    '--ci',
+    ...spec.args,
+  ], {
     cwd: testsRoot,
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
@@ -78,19 +94,22 @@ function runCase(spec) {
   const stderr = proc.stderr || '';
   const combined = stdout + '\n' + stderr;
   const forcedWorkerExit = hasForcedWorkerExit(combined);
-  const logFile = path.join(outDir, spec.name + '.log');
+  const durationMs = Date.now() - startedAt;
 
+  fs.mkdirSync(outDir, { recursive: true });
+  const logFile = path.join(outDir, spec.name + '.log');
   fs.writeFileSync(
     logFile,
     [
       '# case=' + spec.name,
       '# node=' + process.version,
       '# pid=' + process.pid,
+      '# cpuCount=' + os.cpus().length,
       '# args=' + JSON.stringify(spec.args),
       '# status=' + String(proc.status),
       '# signal=' + String(proc.signal || ''),
       '# forcedWorkerExit=' + String(forcedWorkerExit),
-      '# durationMs=' + String(Date.now() - startedAt),
+      '# durationMs=' + String(durationMs),
       '',
       '===== STDOUT =====',
       stdout,
@@ -105,71 +124,77 @@ function runCase(spec) {
     name: spec.name,
     args: spec.args,
     node: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    cpuCount: os.cpus().length,
     status: proc.status,
     signal: proc.signal || null,
     forcedWorkerExit,
-    durationMs: Date.now() - startedAt,
+    durationMs,
     error: proc.error ? proc.error.message : null,
     interestingLines: pickLines(combined),
     logFile: path.relative(testsRoot, logFile).replace(/\\/g, '/'),
   };
+
+  const summaryFile = path.join(outDir, spec.name + '.json');
+  fs.writeFileSync(summaryFile, JSON.stringify(result, null, 2) + '\n');
 
   const marker = forcedWorkerExit ? 'LEAK' : (proc.status === 0 ? 'CLEAN' : 'FAIL');
   console.log(
     '[jest-worker-diagnostic] ' + marker +
     ' case=' + spec.name +
     ' status=' + String(proc.status) +
-    ' durationMs=' + String(result.durationMs)
+    ' forcedWorkerExit=' + String(forcedWorkerExit) +
+    ' durationMs=' + String(durationMs)
   );
-  for (const line of result.interestingLines.slice(-12)) {
+  for (const line of result.interestingLines.slice(-20)) {
     console.log('  ' + line);
   }
 
   return result;
 }
 
-const results = cases.map(runCase);
-const summary = {
+const filter = parseCaseFilter();
+const selectedCases = filter ? cases.filter(spec => spec.name === filter) : cases;
+const results = selectedCases.map(runCase);
+
+const aggregate = {
   generatedAt: new Date().toISOString(),
   node: process.version,
   platform: process.platform,
   arch: process.arch,
-  cpuCount: require('os').cpus().length,
+  cpuCount: os.cpus().length,
+  caseFilter: filter,
   cases: results,
 };
 
-fs.mkdirSync(path.dirname(summaryFile), { recursive: true });
-fs.writeFileSync(summaryFile, JSON.stringify(summary, null, 2) + '\n');
+fs.mkdirSync(path.join(testsRoot, '.ci-results'), { recursive: true });
+const aggregateName = filter
+  ? 'jest-worker-diagnostic-' + filter + '.json'
+  : 'jest-worker-diagnostic.json';
+fs.writeFileSync(
+  path.join(testsRoot, '.ci-results', aggregateName),
+  JSON.stringify(aggregate, null, 2) + '\n'
+);
 
-console.log('\n[jest-worker-diagnostic] resumo');
-for (const result of results) {
-  console.log(
-    '- ' + result.name +
-    ': status=' + String(result.status) +
-    ', forcedWorkerExit=' + String(result.forcedWorkerExit) +
-    ', durationMs=' + String(result.durationMs)
-  );
-}
-
-const leaks = results.filter((result) => result.forcedWorkerExit);
-const commandFailures = results.filter((result) => result.status !== 0 && !result.forcedWorkerExit);
+const leaks = results.filter(result => result.forcedWorkerExit);
+const commandFailures = results.filter(result => result.status !== 0 && !result.forcedWorkerExit);
 
 if (leaks.length) {
   console.error(
-    '\n[jest-worker-diagnostic] warning reproduzido em: ' +
-    leaks.map((item) => item.name).join(', ')
+    '[jest-worker-diagnostic] warning reproduzido em: ' +
+    leaks.map(item => item.name).join(', ')
   );
 }
 if (commandFailures.length) {
   console.error(
     '[jest-worker-diagnostic] comandos com falha própria: ' +
-    commandFailures.map((item) => item.name).join(', ')
+    commandFailures.map(item => item.name).join(', ')
   );
 }
 
-// O diagnóstico precisa executar todos os casos antes de sinalizar o resultado.
-// O workflow chama esta ferramenta em uma etapa continue-on-error e sempre
-// publica os logs/JSON como artifact.
+// O caller decide se isto bloqueia a pipeline. Na CI normal, o step é
+// continue-on-error e os artifacts continuam disponíveis para investigação.
 if (leaks.length || commandFailures.length) {
   process.exitCode = 2;
 }
