@@ -141,6 +141,9 @@ let browserContext;
 let backgroundWorker;
 
 test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2E-10/E2E-11/E2E-12/E2E-13/E2E-14/E2E-15/E2E-15b/E2E-16/E2E-16b/E2E-17/E2E-18: Automacao UI: Fluxo de Traducao em Massa (E2E)', () => {
+    // Cada teste cria um persistent context/profile exclusivo no beforeEach.
+    // Pode ser distribuído entre workers/shards sem compartilhar storage/SW.
+    test.describe.configure({ mode: 'parallel' });
     test.beforeEach(async () => {
         const pathToExtension = getExtensionPath(__dirname);
         const userDataDir = path.join(
@@ -177,7 +180,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         }
     });
 
-    test('Deve traduzir as paginas validas de ponta a ponta e encerrar o lote corretamente', async () => {
+    test('Deve traduzir as paginas validas de ponta a ponta e encerrar o lote corretamente', { tag: '@e2e-medium-b' }, async () => {
         const page = await browserContext.newPage();
 
         await page.goto('http://localhost:3999/manga-page.html');
@@ -264,14 +267,113 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
-    test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', async () => {
+    const regressionScenarios = [
+        {
+            mode: 'temp_chat',
+            basePath: '/gemini/',
+            label: 'conversa temporária',
+        },
+        {
+            mode: 'minimized_window',
+            basePath: '/gemini/',
+            label: 'janela minimizada',
+        },
+        {
+            mode: 'background_delete',
+            basePath: '/app/mock-chat',
+            label: 'background com exclusão segura',
+        },
+    ];
+
+    // Registro intencional antes do FIFO: mantém exatamente os mesmos cenários
+    // e assertions, mas equilibra a divisão 11/10 feita pelo Playwright.
+    for (const scenario of regressionScenarios) {
+        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, { tag: '@e2e-attachment' }, async () => {
+            test.setTimeout(90000);
+
+            const joiner = scenario.basePath.includes('?') ? '&' : '?';
+            await resetExtensionState(backgroundWorker, {
+                geminiExecutionMode: scenario.mode,
+                geminiBaseUrl:
+                    `http://127.0.0.1:3999${scenario.basePath}${joiner}attachmentFails=1`,
+            });
+
+            const page = await browserContext.newPage();
+            await page.goto('http://localhost:3999/manga-page.html');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+            });
+
+            const mainContent = page.locator('#manga-main-content');
+            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+            await mainContent.click();
+
+            await expect.poll(async () => {
+                backgroundWorker = await getBackgroundWorker(browserContext);
+                const storage = await readStorage(backgroundWorker, ['translatorLog']);
+                const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+                return logs.some(entry =>
+                    entry && entry.action === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
+                );
+            }, {
+                timeout: 70000,
+                message: `Esperava gate de attachment no modo ${scenario.mode}`,
+            }).toBe(true);
+
+            if (scenario.mode === 'minimized_window') {
+                expect(
+                    page.isClosed(),
+                    'O fallback minimizado não pode fechar a janela que contém o mangá'
+                ).toBe(false);
+                await expect(page).toHaveURL('http://localhost:3999/manga-page.html');
+                await expect(mainContent).toBeVisible();
+            }
+
+            const storage = await readStorage(backgroundWorker, ['translatorLog']);
+            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            const attachmentActions = logs
+                .filter(entry => entry && typeof entry.action === 'string')
+                .map(entry => entry.action);
+
+            expect(attachmentActions).toContain('ATTACHMENT_STARTED');
+            expect(attachmentActions).toContain('ATTACHMENT_REJECTED');
+            expect(attachmentActions).toContain('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(attachmentActions).not.toContain('ATTACHMENT_CONFIRMED');
+
+            const startedAt = attachmentActions.indexOf('ATTACHMENT_STARTED');
+            const rejectedAt = attachmentActions.indexOf('ATTACHMENT_REJECTED');
+            const blockedAt = attachmentActions.indexOf('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(startedAt).toBeGreaterThanOrEqual(0);
+            expect(rejectedAt).toBeGreaterThan(startedAt);
+            expect(blockedAt).toBeGreaterThan(rejectedAt);
+
+            expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
+            expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
+            expect(await page.evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            )).toBe(0);
+
+            await page.close();
+        });
+    }
+
+    test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', { tag: '@e2e-fifo' }, async () => {
         test.setTimeout(180000);
+        const barrierId = `fifo-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const barrierBaseUrl =
+            `http://127.0.0.1:3999/__test/attachment-barrier/${encodeURIComponent(barrierId)}`;
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
-            // Mantém A ativo tempo suficiente para B-G entrarem na fila por
-            // seus content scripts reais, sem depender de corrida de milissegundos.
-            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
+            // A primeira tentativa de attachment é bloqueada por uma barreira
+            // explícita. O teste só a libera depois de provar que B-G entraram
+            // na fila. Assim não existe mais dependência de um sleep de 2500 ms.
+            // As latências artificiais de geração/download também são removidas
+            // somente deste teste; os defaults permanecem nos demais E2E.
+            geminiBaseUrl:
+                `http://127.0.0.1:3999/gemini/?attachmentBarrierId=${encodeURIComponent(barrierId)}` +
+                '&generationDelayMs=0&resultImageDelayMs=0',
         });
 
         const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
@@ -342,6 +444,18 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             message: 'Lote A deveria assumir o scheduler antes da fila B-G',
         }).toBe(true);
 
+        await expect.poll(async () => {
+            const response = await fetch(`${barrierBaseUrl}/status`);
+            if (!response.ok) return false;
+            const barrier = await response.json();
+            return barrier.arrivals === 1 &&
+                barrier.waiting === 1 &&
+                barrier.released === false;
+        }, {
+            timeout: 15000,
+            message: 'Lote A deveria alcançar a barreira de attachment antes de enfileirar B-G',
+        }).toBe(true);
+
         let stateData = await readStorage(backgroundWorker, ['mt_state']);
         const batchIds = [stateData.mt_state.currentBatchId];
 
@@ -374,6 +488,18 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             .toEqual(batchIds.slice(1));
         expect(stateData.mt_state.pendingBatches.map(batch => batch.mangaTabId))
             .toEqual(labels.slice(1).map(label => tabIds[label]));
+
+        const releaseResponse = await fetch(`${barrierBaseUrl}/release`, {
+            method: 'POST',
+        });
+        expect(releaseResponse.ok).toBe(true);
+        const releasedBarrier = await releaseResponse.json();
+        expect(releasedBarrier).toEqual(expect.objectContaining({
+            ok: true,
+            arrivals: 1,
+            waiting: 0,
+            released: true,
+        }));
 
         for (let index = 0; index < pages.length; index++) {
             // eslint-disable-next-line no-await-in-loop
@@ -454,7 +580,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             label: 'background com exclusão segura',
         },
     ]) {
-        test(`Executa o lote em ${scenario.label} sem depender de ghost mousemove`, async () => {
+        test(`Executa o lote em ${scenario.label} sem depender de ghost mousemove`, { tag: scenario.mode === 'background_delete' ? '@e2e-medium-a' : '@e2e-medium-b' }, async () => {
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
                 geminiBaseUrl: scenario.baseUrl,
@@ -536,7 +662,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     }
 
 
-    test('E2E resposta rápida: resultado no mesmo instante lógico do submit não é perdido', async () => {
+    test('E2E resposta rápida: resultado no mesmo instante lógico do submit não é perdido', { tag: '@e2e-fast' }, async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?fastResult=1',
@@ -585,7 +711,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
-    test('E2E resultado atual do Gemini: shadow DOM + wrapper assistant é detectado sem intervenção manual', async () => {
+    test('E2E resultado atual do Gemini: shadow DOM + wrapper assistant é detectado sem intervenção manual', { tag: '@e2e-fast' }, async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl:
@@ -628,7 +754,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     });
 
 
-    test('E2E submit ignorado: falha cedo sem entrar em espera de geração de 4 minutos', async () => {
+    test('E2E submit ignorado: falha cedo sem entrar em espera de geração de 4 minutos', { tag: '@e2e-medium-a' }, async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?ignoreSubmit=1',
@@ -695,93 +821,8 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     });
 
 
-    for (const scenario of [
-        {
-            mode: 'temp_chat',
-            basePath: '/gemini/',
-            label: 'conversa temporária',
-        },
-        {
-            mode: 'minimized_window',
-            basePath: '/gemini/',
-            label: 'janela minimizada',
-        },
-        {
-            mode: 'background_delete',
-            basePath: '/app/mock-chat',
-            label: 'background com exclusão segura',
-        },
-    ]) {
-        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
-            test.setTimeout(90000);
-
-            const joiner = scenario.basePath.includes('?') ? '&' : '?';
-            await resetExtensionState(backgroundWorker, {
-                geminiExecutionMode: scenario.mode,
-                geminiBaseUrl:
-                    `http://127.0.0.1:3999${scenario.basePath}${joiner}attachmentFails=1`,
-            });
-
-            const page = await browserContext.newPage();
-            await page.goto('http://localhost:3999/manga-page.html');
-            await page.waitForLoadState('networkidle');
-            await page.evaluate(() => {
-                document.querySelector('[data-testid="manga-image-1"]')?.remove();
-            });
-
-            const mainContent = page.locator('#manga-main-content');
-            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
-            await mainContent.click();
-
-            await expect.poll(async () => {
-                backgroundWorker = await getBackgroundWorker(browserContext);
-                const storage = await readStorage(backgroundWorker, ['translatorLog']);
-                const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
-                return logs.some(entry =>
-                    entry && entry.action === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
-                );
-            }, {
-                timeout: 70000,
-                message: `Esperava gate de attachment no modo ${scenario.mode}`,
-            }).toBe(true);
-
-            if (scenario.mode === 'minimized_window') {
-                expect(
-                    page.isClosed(),
-                    'O fallback minimizado não pode fechar a janela que contém o mangá'
-                ).toBe(false);
-                await expect(page).toHaveURL('http://localhost:3999/manga-page.html');
-                await expect(mainContent).toBeVisible();
-            }
-
-            const storage = await readStorage(backgroundWorker, ['translatorLog']);
-            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
-            const attachmentActions = logs
-                .filter(entry => entry && typeof entry.action === 'string')
-                .map(entry => entry.action);
-
-            expect(attachmentActions).toContain('ATTACHMENT_STARTED');
-            expect(attachmentActions).toContain('ATTACHMENT_REJECTED');
-            expect(attachmentActions).toContain('SUBMIT_BLOCKED_ATTACHMENT');
-            expect(attachmentActions).not.toContain('ATTACHMENT_CONFIRMED');
-
-            const startedAt = attachmentActions.indexOf('ATTACHMENT_STARTED');
-            const rejectedAt = attachmentActions.indexOf('ATTACHMENT_REJECTED');
-            const blockedAt = attachmentActions.indexOf('SUBMIT_BLOCKED_ATTACHMENT');
-            expect(startedAt).toBeGreaterThanOrEqual(0);
-            expect(rejectedAt).toBeGreaterThan(startedAt);
-            expect(blockedAt).toBeGreaterThan(rejectedAt);
-
-            expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
-            expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
-            expect(await page.evaluate(() =>
-                document.querySelectorAll('img[data-translated="true"]').length
-            )).toBe(0);
-
-            await page.close();
-        });
-
-        test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, async () => {
+    for (const scenario of regressionScenarios) {
+        test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, { tag: '@e2e-fast' }, async () => {
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
@@ -826,7 +867,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         });
     }
 
-    test('E2E aba Gemini manual: zero automação, zero keepalive e DOM intacto', async () => {
+    test('E2E aba Gemini manual: zero automação, zero keepalive e DOM intacto', { tag: '@e2e-fast' }, async () => {
         await backgroundWorker.evaluate(() => {
             chrome.storage.local.set({ __e2e_keepalive_count: 0 });
             chrome.runtime.onConnect.addListener(port => {
