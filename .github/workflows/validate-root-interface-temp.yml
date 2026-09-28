@@ -25,10 +25,6 @@ jobs:
       - name: Root setup
         run: npm run setup
 
-      - name: Instalar dependências Linux do Chromium
-        working-directory: tests
-        run: npx playwright install-deps chromium
-
       - name: Root unit
         run: npm run test:unit
 
@@ -45,7 +41,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Root e2e
-        run: xvfb-run --auto-servernum -- npm run test:e2e
+        run: npm run test:e2e
 
       - name: Root all
-        run: xvfb-run --auto-servernum -- npm run test:all
+        run: npm run test:all
