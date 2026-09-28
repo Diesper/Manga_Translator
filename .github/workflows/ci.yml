@@ -49,7 +49,7 @@ jobs:
         env:
           CI: true
           MANGA_E2E_SHARD: '1'
-          MANGA_E2E_WORKERS: '1'
+          MANGA_E2E_WORKERS: '3'
         run: |
           set -o pipefail
           npx playwright test --config playwright.config.js --list --reporter=line --grep "@e2e-attachment" | tee /tmp/benchmark-list.txt
