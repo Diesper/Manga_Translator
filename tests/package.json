@@ -27,7 +27,9 @@
     "test:coverage:infra": "node ci/verify-coverage-selftest.js",
     "test:open-handles": "jest --config jest.config.js --detectOpenHandles --runInBand",
     "test:diagnose-workers": "node ci/diagnose-jest-workers.js",
-    "test:diagnose-background-leak": "node ci/diagnose-background-leak.js"
+    "test:diagnose-background-leak": "node ci/diagnose-background-leak.js",
+    "test:e2e:group": "node ci/run-e2e-group.js",
+    "test:e2e:plan": "node ci/verify-e2e-shard-plan.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
