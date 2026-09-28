@@ -34,6 +34,7 @@ const fs   = require('fs');
 
 const PORT     = 3999;
 const FIXTURES = __dirname;
+const RELEASED_ATTACHMENT_BARRIERS = new Set();
 
 function buildGeminiMockHtml() {
     return `<!DOCTYPE html>
@@ -197,6 +198,8 @@ function buildGeminiMockHtml() {
         0,
         Number(currentUrl.searchParams.get('attachmentDelayMs') || 0)
       );
+      const attachmentBarrierId =
+        currentUrl.searchParams.get('attachmentBarrierId') || '';
       const cloneInputIntoUserTurn =
         currentUrl.searchParams.get('cloneInputIntoUserTurn') === '1';
       const orphanImageBeforeResult =
@@ -235,13 +238,32 @@ function buildGeminiMockHtml() {
         }
       }
 
-      function showPreviewFromEvent(event) {
+      async function waitForAttachmentBarrier() {
+        if (!attachmentBarrierId) return;
+        status.textContent = 'Attachment aguardando barreira determinística';
+
+        for (;;) {
+          const response = await fetch(
+            '/test-control/attachment-barrier/status?id=' +
+              encodeURIComponent(attachmentBarrierId),
+            { cache: 'no-store' }
+          );
+          if (response.status === 204) return;
+          await new Promise(resolve => setTimeout(resolve, 25));
+        }
+      }
+
+      async function showPreviewFromEvent(event) {
         if (attachmentSeen) return;
         attachmentAttempts += 1;
 
         if (attachmentFails || attachmentAttempts <= attachmentFailAttempts) {
           status.textContent = 'Attachment ignorado pelo mock';
           return;
+        }
+
+        if (attachmentBarrierId) {
+          await waitForAttachmentBarrier();
         }
 
         if (attachmentDelayMs > 0) {
@@ -620,6 +642,31 @@ const server = http.createServer((req, res) => {
     if (url === '/health') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'ok', mock: true }));
+        return;
+    }
+
+    // Barreira determinística usada por testes de scheduler/FIFO. O mock não
+    // altera a semântica do attachment: ele apenas impede a confirmação até o
+    // teste liberar explicitamente a fase observável que deseja sincronizar.
+    if (url === '/test-control/attachment-barrier/status' && req.method === 'GET') {
+        const id = requestUrl.searchParams.get('id') || '';
+        res.writeHead(RELEASED_ATTACHMENT_BARRIERS.has(id) ? 204 : 425, {
+            'Cache-Control': 'no-store',
+        });
+        res.end();
+        return;
+    }
+
+    if (url === '/test-control/attachment-barrier/release' && req.method === 'POST') {
+        const id = requestUrl.searchParams.get('id') || '';
+        if (!id) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: false, error: 'missing_id' }));
+            return;
+        }
+        RELEASED_ATTACHMENT_BARRIERS.add(id);
+        res.writeHead(204, { 'Cache-Control': 'no-store' });
+        res.end();
         return;
     }
 
