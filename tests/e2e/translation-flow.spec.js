@@ -369,12 +369,16 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             }));
         };
         fifoProfile('test_start');
+        const fifoBarrierId = `fifo-${process.pid}-${Date.now()}`;
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
-            // Mantém A ativo tempo suficiente para B-G entrarem na fila por
-            // seus content scripts reais, sem depender de corrida de milissegundos.
-            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
+            // A só pode confirmar o attachment depois que B-G estiverem
+            // comprovadamente enfileirados. Isso substitui o atraso cego de
+            // 2500 ms por uma condição observável/determinística.
+            geminiBaseUrl:
+                'http://127.0.0.1:3999/gemini/?attachmentBarrierId=' +
+                encodeURIComponent(fifoBarrierId),
         });
         fifoProfile('state_reset');
 
@@ -485,6 +489,14 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             .toEqual(batchIds.slice(1));
         expect(stateData.mt_state.pendingBatches.map(batch => batch.mangaTabId))
             .toEqual(labels.slice(1).map(label => tabIds[label]));
+
+        const releaseResponse = await fetch(
+            'http://127.0.0.1:3999/test-control/attachment-barrier/release?id=' +
+                encodeURIComponent(fifoBarrierId),
+            { method: 'POST' }
+        );
+        expect(releaseResponse.status).toBe(204);
+        fifoProfile('attachment_barrier_released');
 
         for (let index = 0; index < pages.length; index++) {
             // eslint-disable-next-line no-await-in-loop
