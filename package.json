@@ -3,15 +3,27 @@
   "version": "6.5.0",
   "description": "Manga Translator - extensão Chromium para tradução automática de mangás e quadrinhos usando Google Gemini",
   "scripts": {
-    "test": "node tests/run-all-tests.js",
-    "test:all": "node tests/run-all-tests.js",
-    "test:fast": "node tests/run-all-tests.js",
-    "test:e2e": "node tests/run-all-tests.js --e2e",
-    "test:visual": "node tests/run-all-tests.js --visual",
-    "test:unit": "node tests/run-all-tests.js --unit",
-    "test:smoke": "node tests/smoke/run-smoke.js",
+    "setup": "npm --prefix tests ci && npm --prefix tests run test:e2e:setup",
+    "setup:deps": "npm --prefix tests ci",
+    "setup:e2e": "npm --prefix tests run test:e2e:setup",
+    "test": "npm --prefix tests run test:all",
+    "test:all": "npm run test:smoke && npm run test:ci && npm run test:visual && npm run test:coverage && npm run test:e2e",
+    "test:fast": "npm --prefix tests run test:all",
+    "test:ci": "npm --prefix tests run test:ci",
+    "test:unit": "npm --prefix tests run test:unit",
+    "test:integration": "npm --prefix tests run test:integration",
+    "test:smoke": "npm --prefix tests run test:smoke",
+    "test:visual": "npm --prefix tests run test:visual-v3",
+    "test:e2e": "npm --prefix tests run test:e2e",
+    "test:e2e:setup": "npm run setup:e2e",
+    "test:coverage": "npm --prefix tests run test:coverage && npm --prefix tests run test:coverage:verify",
+    "test:coverage:generate": "npm --prefix tests run test:coverage",
+    "test:coverage:verify": "npm --prefix tests run test:coverage:verify",
     "version:sync": "node scripts/sync-version.js",
     "version:check": "node scripts/sync-version.js --check"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "license": "MIT"
 }
