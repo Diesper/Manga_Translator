@@ -15,10 +15,16 @@ if (!group) {
   process.exit(2);
 }
 
+if (!Number.isInteger(group.workers) || group.workers <= 0) {
+  console.error('[E2E/GROUP] workers inválido para ' + group.id + ': ' + group.workers);
+  process.exit(2);
+}
+
 console.log(
   '[E2E/GROUP] ' + group.id +
   ' | tag=' + group.tag +
   ' | expectedTests=' + group.expectedTests +
+  ' | workers=' + group.workers +
   ' | estimatedSeconds=' + group.estimatedSeconds
 );
 
@@ -31,6 +37,7 @@ const child = spawn(
       ...process.env,
       MANGA_E2E_GROUP: group.id,
       MANGA_E2E_SHARD: '1',
+      MANGA_E2E_WORKERS: String(group.workers),
     },
     stdio: 'inherit',
     shell: false,
