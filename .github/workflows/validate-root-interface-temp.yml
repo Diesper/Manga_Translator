@@ -1,0 +1,51 @@
+name: TEMP Root Interface Validation
+
+on:
+  push:
+    branches:
+      - chore/root-execution-interface-audit
+
+jobs:
+  root-interface:
+    name: Root npm interface
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CI: true
+      MANGA_E2E_BROWSER_MODE: stealth
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Root setup
+        run: npm run setup
+
+      - name: Instalar dependências Linux do Chromium
+        working-directory: tests
+        run: npx playwright install-deps chromium
+
+      - name: Root unit
+        run: npm run test:unit
+
+      - name: Root integration
+        run: npm run test:integration
+
+      - name: Root smoke
+        run: npm run test:smoke
+
+      - name: Root visual
+        run: npm run test:visual
+
+      - name: Root coverage
+        run: npm run test:coverage
+
+      - name: Root e2e
+        run: xvfb-run --auto-servernum -- npm run test:e2e
+
+      - name: Root all
+        run: xvfb-run --auto-servernum -- npm run test:all
