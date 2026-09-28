@@ -6,7 +6,7 @@
       "tag": "@e2e-fifo",
       "kind": "heavy-exclusive",
       "expectedTests": 1,
-      "estimatedSeconds": 48.3,
+      "estimatedSeconds": 50.5,
       "workers": 1
     },
     {
@@ -14,7 +14,7 @@
       "tag": "@e2e-attachment",
       "kind": "heavy",
       "expectedTests": 3,
-      "estimatedSeconds": 27.8,
+      "estimatedSeconds": 27.4,
       "workers": 3
     },
     {
@@ -22,7 +22,7 @@
       "tag": "@e2e-medium-a",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 40,
+      "estimatedSeconds": 41.5,
       "workers": 2
     },
     {
@@ -30,7 +30,7 @@
       "tag": "@e2e-medium-b",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 40,
+      "estimatedSeconds": 42.1,
       "workers": 2
     },
     {
@@ -38,7 +38,7 @@
       "tag": "@e2e-fast",
       "kind": "fast",
       "expectedTests": 9,
-      "estimatedSeconds": 21.9,
+      "estimatedSeconds": 22.4,
       "workers": 3
     }
   ]
