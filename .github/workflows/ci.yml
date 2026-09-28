@@ -35,10 +35,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Verificar sintaxe de todos os arquivos JS da extensão
+      - name: Verificar sintaxe dos scripts da raiz e da extensão
         run: |
+          echo "Verificando sintaxe dos scripts da raiz..."
+          find scripts -name "*.js" -type f | sort | while read f; do
+            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
+          done
           echo "Verificando sintaxe dos arquivos da extensão..."
-          node --check scripts/sync-version.js
           find extension -name "*.js" -type f | sort | while read f; do
             node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
           done
