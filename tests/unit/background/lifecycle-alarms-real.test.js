@@ -6,6 +6,7 @@ const {
     getDownloadsMock,
 } = require('../../mocks/chrome-api.mock.js');
 const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
+const { trackBackgroundDelayTimers } = require('../../helpers/track-background-delay-timers.js');
 const {
     BACKGROUND_PATH,
     flush,
@@ -19,10 +20,12 @@ describe('background.js - lifecycle e alarms reais', () => {
     let alarmsMock;
     let downloadsMock;
     let backgroundModule;
+    let cancelBackgroundDelayTimers;
 
     beforeEach(async () => {
         jest.resetModules();
         jest.useRealTimers();
+        cancelBackgroundDelayTimers = trackBackgroundDelayTimers();
 
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
@@ -51,6 +54,10 @@ describe('background.js - lifecycle e alarms reais', () => {
     });
 
     afterEach(async () => {
+        // O watchdog real chama finalizeJob(), que pode agendar fechamento em
+        // 600 ms. Esse timer pertence ao caso e não pode sobreviver ao teardown.
+        cancelBackgroundDelayTimers();
+
         // onStartup dispara processNextJob() sem await. Bloqueie novos launches e
         // drene a cadeia assíncrona antes de limpar alarms; caso contrário o
         // fluxo pode armar um watchdog DEPOIS de clearAll() e manter o worker vivo.
