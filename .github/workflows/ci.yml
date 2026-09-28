@@ -243,31 +243,11 @@ jobs:
           retention-days: 7
 
 
-  open-handles-diagnostic:
-    name: Open Handles Diagnostic (${{ matrix.label }})
+
+  jest-worker-diagnostic:
+    name: Jest Worker Diagnostic
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - label: jobs-reconciliation
-            files: unit/background/jobs-reconciliation-batch-queue.test.js
-          - label: jobs-watchdog
-            files: unit/background/jobs-watchdog-ordering.test.js
-          - label: lifecycle-alarms
-            files: unit/background/lifecycle-alarms-real.test.js
-          - label: marker-anchor
-            files: unit/background/marker-anchor-real.test.js
-          - label: message-handlers
-            files: unit/background/message-handlers-real.test.js
-          - label: open-existing-folder
-            files: unit/background/open-existing-folder-action.test.js
-          - label: process-finalize
-            files: unit/background/process-finalize-real.test.js
-          - label: refresh-watchdog
-            files: unit/background/refresh-job-watchdog-action.test.js
-          - label: regex-escape
-            files: unit/background/regex-escape.test.js
+    continue-on-error: true
     defaults:
       run:
         working-directory: tests
@@ -282,21 +262,19 @@ jobs:
           cache-dependency-path: tests/package-lock.json
       - name: Instalar dependências
         run: npm ci
-      - name: Rodar combinação e detectar worker forçado
+      - name: Executar sweep de workers, projects e combinações
         continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          read -r -a selected <<< "${{ matrix.files }}"
-          printf 'Arquivos selecionados (%s):\n' "${#selected[@]}"
-          printf '  %s\n' "${selected[@]}"
-          npx jest --config jest.config.js --ci --selectProjects background --runTestsByPath "${selected[@]}" 2>&1 | tee /tmp/jest-group.log
-          status=${PIPESTATUS[0]}
-          if grep -Fq "A worker process has failed to exit gracefully" /tmp/jest-group.log; then
-            echo "::error::${{ matrix.label }} reproduziu worker forçado"
-            exit 2
-          fi
-          exit "$status"
+        run: npm run test:diagnose-workers
+      - name: Publicar diagnóstico do worker Jest
+        if: always()
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: jest-worker-diagnostic-${{ github.sha }}
+          path: |
+            tests/.ci-results/jest-worker-diagnostic.json
+            tests/.ci-results/jest-worker-diagnostic/
+          retention-days: 7
 
   ci-gate:
     name: CI Gate
