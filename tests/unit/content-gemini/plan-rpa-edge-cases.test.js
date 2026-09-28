@@ -206,6 +206,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     let storageMock;
     let originalSendMessage;
     let sentMessages;
+    let processPromises;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -220,6 +221,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         storageMock = getStorageMock();
         originalSendMessage = runtimeMock.sendMessage;
         sentMessages = [];
+        processPromises = [];
 
         runtimeMock._messageListeners = [];
         runtimeMock._connectListeners = [];
@@ -230,6 +232,29 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
     });
 
     afterEach(async () => {
+        // Os testes observam mensagens intermediárias do runner; isso não garante
+        // que processGeminiJob() já tenha alcançado seu finally. Pare observers
+        // antes de desmontar o DOM e aguarde todos os runners iniciados pelo caso.
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
+        if (processPromises.length) {
+            await Promise.allSettled(processPromises);
+        }
+
         runtimeMock.sendMessage = originalSendMessage;
         jest.useRealTimers();
         jest.restoreAllMocks();
@@ -270,7 +295,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         setTimeout(() => {
             storageMock.set({
@@ -300,7 +325,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const notFoundLog = await waitFor(() => sentMessages.find(message =>
             message.action === 'LOG_ENTRY' && message.action_name === 'JOB_NOT_FOUND'
@@ -323,7 +348,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const error = await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_ERROR'));
         expect(error).toEqual(expect.objectContaining({
@@ -343,7 +368,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const error = await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_ERROR'));
         expect(error.error).toContain('Editor do Gemini está desabilitado');
@@ -360,7 +385,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         for (let i = 0; i < 60; i += 1) {
             // eslint-disable-next-line no-await-in-loop
@@ -420,7 +445,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_IMAGE_EXTRACTED'));
 
@@ -465,7 +490,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const fetch = await waitFor(() => sentMessages.find(message =>
             message.action === 'FETCH_IMAGE_AS_BASE64'
@@ -494,7 +519,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const fetch = await waitFor(() => sentMessages.find(message =>
             message.action === 'FETCH_IMAGE_AS_BASE64'
@@ -530,7 +555,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const panel = await waitFor(() => document.getElementById('mt-gemini-assist'));
         await waitFor(() => manualImage);
@@ -582,7 +607,7 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
         });
 
         const mod = loadContentGeminiModule();
-        mod.processGeminiJob();
+        processPromises.push(mod.processGeminiJob());
 
         const staged = await waitFor(() => sentMessages.find(message =>
             message.action === 'GEMINI_IMAGE_EXTRACTED'
