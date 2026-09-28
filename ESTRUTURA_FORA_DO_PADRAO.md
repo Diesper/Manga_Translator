@@ -251,15 +251,19 @@ A nova raiz delega:
 
 Config oficial: `tests/playwright.config.js`.
 
-Cadeia local:
+Cadeia local atual:
 
 ```text
 npm run test:e2e (raiz)
+ -> node scripts/run-e2e-root.js
+ -> em Linux sem DISPLAY/Wayland: xvfb-run --auto-servernum
  -> npm --prefix tests run test:e2e
  -> node tests/run-e2e.js
  -> Playwright CLI --config tests/playwright.config.js
  -> tests/e2e/
 ```
+
+O adaptador `scripts/run-e2e-root.js` não recria lógica do Playwright: ele trata somente a diferença de ambiente gráfico em Linux e delega imediatamente ao runner oficial de `tests/`.
 
 Pontos confirmados:
 
@@ -274,26 +278,35 @@ Pontos confirmados:
 - blobs são mesclados e o gate global valida o inventário;
 - Linux CI usa `xvfb-run` e instala Chromium com dependências.
 
-A raiz não cria segunda config Playwright. O novo setup apenas expõe a instalação do Chromium por meio do pacote `tests/`.
+A raiz não cria segunda config Playwright. O setup é centralizado em `tests/ci/setup-playwright.js`: em Linux ele executa a instalação do Chromium com `--with-deps --no-shell`, incluindo as dependências de sistema necessárias; nas demais plataformas instala somente o Chromium. A CI e a raiz chamam esse mesmo setup.
 
 ## 9. GitHub Actions
 
-`.github/workflows/ci.yml` usa `working-directory: tests` nos jobs funcionais. Isso é coerente com o lockfile e as dependências estarem em `tests/`.
+A CI preserva o lockfile e o pacote de tooling em `tests/`, mas agora **Smoke, Visual e Jest CI-grade são disparados pela interface da raiz**. Isso testa continuamente os wrappers sem duplicar suítes:
+
+```text
+CI raiz -> npm run setup:deps -> npm --prefix tests ci
+CI raiz -> npm run test:smoke -> tests/smoke/run-smoke.js
+CI raiz -> npm run test:visual -> tests/visual-v3/run-all.js
+CI raiz -> npm run test:ci -> tests/ci/run-jest-ci.js
+```
+
+Coverage e E2E sharded mantêm a orquestração especializada em `tests/`, porque seus jobs manipulam artefatos, shards e paths próprios. O E2E, contudo, reutiliza o mesmo `tests/package.json#test:e2e:setup` usado pela raiz.
 
 A CI e a interface local não são idênticas em topologia:
 
-- local `test:e2e`: suíte E2E completa;
+- local `test:e2e`: suíte E2E completa, com adaptação automática de Xvfb quando necessário;
 - CI: cinco grupos E2E + merge de blob reports;
 - local `test:all`: fluxo funcional completo;
 - CI: adiciona syntax check, manifest validation, version integrity e diagnósticos pesados pós-merge/main.
 
-Isso é **INCOMUM MAS VÁLIDO**: não existem duas implementações de Playwright, apenas duas estratégias de orquestração sobre os mesmos runners/configs.
+Isso é **INCOMUM MAS VÁLIDO**: não existem duas implementações de Jest/Playwright, apenas estratégias de orquestração diferentes sobre os mesmos runners/configs.
 
-Nesta tarefa a CI recebeu somente um novo check leve:
+Nesta tarefa a CI também passou a:
 
-```bash
-node tests/ci/verify-root-interface.js
-```
+- executar `node tests/ci/verify-root-interface.js`;
+- verificar a sintaxe de todos os `scripts/**/*.js`, e não apenas `scripts/sync-version.js`;
+- usar o setup Playwright centralizado em `tests/ci/setup-playwright.js`.
 
 Nenhum gate funcional foi removido, rebaixado ou tornado não-bloqueante.
 
@@ -360,6 +373,11 @@ Não é necessário inferir o segundo package.json para uso normal.
 11. Proteção no próprio `verify-ci-contract.js` para exigir que o novo contrato continue na CI.
 12. Atualização do README para tornar a raiz o ponto de entrada recomendado.
 13. Criação deste relatório.
+14. Criação de `scripts/run-e2e-root.js` para adaptar automaticamente Linux sem display ao Xvfb sem duplicar o runner Playwright.
+15. Criação de `tests/ci/setup-playwright.js` como fonte única para preparar Chromium/depêndencias Linux.
+16. Alteração dos gates Smoke, Visual e Jest CI-grade para atravessarem a interface da raiz.
+17. Ampliação do syntax-check para todos os scripts JavaScript da raiz.
+18. Proteção contratual dos invariantes do adaptador E2E e do setup Playwright.
 
 ## 12. Melhorias recomendadas, mas NÃO implementadas
 
@@ -446,6 +464,8 @@ raiz: npm run test:coverage
 
 ```text
 raiz: npm run test:e2e
+ -> scripts/run-e2e-root.js
+ -> Linux sem DISPLAY/Wayland? xvfb-run --auto-servernum
  -> npm --prefix tests run test:e2e
  -> tests/run-e2e.js
  -> tests/playwright.config.js
@@ -465,4 +485,4 @@ raiz: npm run test:all
 
 ## Observação de validação
 
-O sandbox da auditoria não possui acesso DNS a GitHub/NPM para clonar e instalar as dependências localmente. Por isso, os resultados funcionais finais desta branch devem ser lidos do GitHub Actions, que é o ambiente autorizado que possui checkout, `npm ci`, Chromium, dependências Linux e Xvfb. O contrato estático da nova fachada roda antes de dependências e impede regressões óbvias de path/delegação.
+O sandbox da auditoria não possui acesso DNS a GitHub/NPM para clonar e instalar as dependências localmente. Por isso, a validação funcional é feita pelo GitHub Actions, que possui checkout, `npm ci`, Chromium, dependências Linux e Xvfb. Além do contrato estático, Smoke, Visual e Jest CI-grade atravessam permanentemente os wrappers da raiz; o E2E sharded continua usando a orquestração especializada da CI sobre o mesmo setup/runner Playwright.
