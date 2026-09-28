@@ -367,21 +367,30 @@
                         <span class="settings-toggle-help">Quando desligado, nenhuma imagem é trocada automaticamente em nenhum site.</span>
                     </span>
                 </label>
-                <div class="settings-section-title" style="margin-top:18px;">Sites habilitados</div>
-                <div class="settings-section-desc">
-                    Domínios onde a extensão está ativa. Abra cada site para ver as imagens salvas dele, bloquear auto-substituição ou refazer uma tradução específica.
+                <div id="settings-enabled-sites-group" aria-labelledby="settings-enabled-sites-title">
+                    <div class="settings-section-title" id="settings-enabled-sites-title" style="margin-top:18px;">Sites habilitados</div>
+                    <div class="settings-section-desc">
+                        Domínios onde a extensão está ativa. Abra cada site para ver as imagens salvas dele, bloquear auto-substituição ou refazer uma tradução específica.
+                    </div>
+                    <label class="settings-toggle-row" style="margin-bottom:8px;">
+                        <input type="checkbox" id="settings-redo-confirm-enabled">
+                        <span>
+                            <span class="settings-toggle-title">Confirmar ao apertar o botão de refazer a imagem</span>
+                            <span class="settings-toggle-help">Antes de apagar a tradução salva para refazê-la, pede uma confirmação própria da extensão.</span>
+                        </span>
+                    </label>
+                    <div class="settings-small-actions">
+                        <button id="settings-refresh-auto-images">Atualizar</button>
+                        <button id="settings-clear-auto-blocks">Limpar bloqueios</button>
+                    </div>
+                    <div id="settings-sites-list"></div>
                 </div>
-                <div class="settings-small-actions">
-                    <button id="settings-refresh-auto-images">Atualizar</button>
-                    <button id="settings-clear-auto-blocks">Limpar bloqueios</button>
-                </div>
-                <div id="settings-sites-list"></div>
             </div>
             <div class="settings-divider"></div>
             <div class="settings-section">
                 <div class="settings-section-title">Interação na página</div>
                 <div class="settings-section-desc">
-                    Controle o botão flutuante, a tradução de uma única imagem por clique e a confirmação do comando Refazer.
+                    Controle o botão flutuante e a tradução de uma única imagem por clique.
                 </div>
                 <label class="settings-toggle-row">
                     <input type="checkbox" id="settings-floating-button-enabled">
@@ -393,15 +402,8 @@
                 <label class="settings-toggle-row" style="margin-top:8px;">
                     <input type="checkbox" id="settings-click-to-translate-enabled">
                     <span>
-                        <span class="settings-toggle-title">Clique esquerdo para traduzir uma única imagem</span>
-                        <span class="settings-toggle-help">Ao clicar em uma imagem elegível, mostra uma ação para traduzir somente aquela imagem. Desligado por padrão para não interferir nos leitores.</span>
-                    </span>
-                </label>
-                <label class="settings-toggle-row" style="margin-top:8px;">
-                    <input type="checkbox" id="settings-redo-confirm-enabled">
-                    <span>
-                        <span class="settings-toggle-title">Confirmar antes de Refazer</span>
-                        <span class="settings-toggle-help">Usa uma confirmação própria da extensão, que não é afetada pelo bloqueio de caixas de diálogo do navegador.</span>
+                        <span class="settings-toggle-title">Clique direito para traduzir uma única imagem</span>
+                        <span class="settings-toggle-help">Ao clicar com o botão direito em uma imagem elegível, escolha “Traduzir esta imagem” no menu do navegador. Desligado por padrão.</span>
                     </span>
                 </label>
             </div>

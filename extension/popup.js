@@ -1403,15 +1403,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 element: settingsClickToTranslateEnabled,
                 key: 'clickToTranslateEnabled',
                 defaultValue: false,
-                onText: 'Clique para traduzir uma imagem ativado.',
-                offText: 'Clique para traduzir uma imagem desativado.',
+                onText: 'Menu de clique direito para traduzir imagem ativado.',
+                offText: 'Menu de clique direito para traduzir imagem desativado.',
             },
             {
                 element: settingsRedoConfirmEnabled,
                 key: 'redoConfirmEnabled',
                 defaultValue: true,
-                onText: 'Confirmação de Refazer ativada.',
-                offText: 'Refazer será executado sem confirmação.',
+                onText: 'Confirmação ao refazer imagem ativada.',
+                offText: 'Refazer a imagem será executado sem confirmação.',
             },
         ].filter(item => item.element);
 

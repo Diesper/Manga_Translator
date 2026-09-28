@@ -884,7 +884,7 @@ if (!window.__manga_translator_content_injected) {
         let buttonGuardObserver = null;
         let translationButtonHealthTimer = null;
         let lastIntegratedErrorState = null;
-        let singleImagePromptCleanup = null;
+        let lastContextMenuImage = null;
         const floatingButtonLogTimes = new Map();
         let _autoRestoreConfig = {
             enabled: true,
@@ -1248,17 +1248,13 @@ if (!window.__manga_translator_content_injected) {
 
             if (changes.clickToTranslateEnabled) {
                 clickToTranslateEnabled = changes.clickToTranslateEnabled.newValue === true;
-                if (!clickToTranslateEnabled && typeof singleImagePromptCleanup === 'function') {
-                    singleImagePromptCleanup();
-                }
+                if (!clickToTranslateEnabled) lastContextMenuImage = null;
             }
 
             if (changes[bannedImagesStorageKey]) {
                 const nextBanned = changes[bannedImagesStorageKey].newValue;
                 bannedImagesForHost = Array.isArray(nextBanned) ? nextBanned.slice() : [];
-                if (typeof singleImagePromptCleanup === 'function') {
-                    singleImagePromptCleanup();
-                }
+                lastContextMenuImage = null;
             }
         });
 
@@ -1568,151 +1564,104 @@ if (!window.__manga_translator_content_injected) {
             setTimeout(() => toast.remove(), 2200);
         }
 
-        function closeSingleImagePrompt() {
-            if (typeof singleImagePromptCleanup === 'function') singleImagePromptCleanup();
+        function normalizeContextImageUrl(value) {
+            if (!value) return '';
+            try {
+                return new URL(String(value), window.location.href).href;
+            } catch (_error) {
+                return String(value);
+            }
         }
 
-        function showSingleImagePrompt(img, clickX, clickY) {
-            closeSingleImagePrompt();
-            const panel = document.createElement('div');
-            panel.id = 'manga-single-image-action';
-            panel.style.cssText = 'position:fixed;z-index:2147483647;background:#171717;color:#fff;border:1px solid #444;border-radius:8px;padding:9px;box-shadow:0 8px 28px rgba(0,0,0,.55);font-family:sans-serif;display:flex;align-items:center;gap:7px;max-width:330px';
-
-            const label = document.createElement('span');
-            label.textContent = 'Traduzir somente esta imagem?';
-            label.style.cssText = 'font-size:12px;font-weight:700;white-space:nowrap';
-
-            const translate = document.createElement('button');
-            translate.id = 'manga-single-image-translate';
-            translate.type = 'button';
-            translate.textContent = 'Traduzir';
-            translate.style.cssText = 'border:0;border-radius:5px;background:#FF4444;color:#fff;padding:6px 9px;font-weight:800;cursor:pointer';
-
-            const cancel = document.createElement('button');
-            cancel.id = 'manga-single-image-cancel';
-            cancel.type = 'button';
-            cancel.textContent = 'Cancelar';
-            cancel.style.cssText = 'border:1px solid #444;border-radius:5px;background:#252525;color:#ddd;padding:6px 8px;font-weight:700;cursor:pointer';
-
-            panel.append(label, translate, cancel);
-            document.documentElement.appendChild(panel);
-
-            const panelWidth = panel.offsetWidth || 310;
-            const panelHeight = panel.offsetHeight || 46;
-            const left = Math.max(8, Math.min(clickX + 10, (window.innerWidth || 1024) - panelWidth - 8));
-            const top = Math.max(8, Math.min(clickY + 10, (window.innerHeight || 768) - panelHeight - 8));
-            panel.style.left = `${left}px`;
-            panel.style.top = `${top}px`;
-
-            let outsideListenerTimer = null;
-            const cleanup = () => {
-                if (outsideListenerTimer !== null) {
-                    clearTimeout(outsideListenerTimer);
-                    outsideListenerTimer = null;
-                }
-                document.removeEventListener('keydown', onKeydown, true);
-                document.removeEventListener('pointerdown', onOutside, true);
-                panel.remove();
-                if (singleImagePromptCleanup === cleanup) singleImagePromptCleanup = null;
-            };
-            const onKeydown = (event) => {
-                if (event.key === 'Escape') cleanup();
-            };
-            const onOutside = (event) => {
-                if (!panel.contains(event.target)) cleanup();
-            };
-            singleImagePromptCleanup = cleanup;
-
-            cancel.addEventListener('click', cleanup);
-            translate.addEventListener('click', () => {
-                if (!isActiveContentInstance()) {
-                    cleanup();
-                    return;
-                }
-                if (isTranslating) {
-                    cleanup();
-                    showSingleImageToast('Já existe uma tradução em andamento.');
-                    return;
-                }
-                if (!img.isConnected || img.dataset.translated === 'true') {
-                    cleanup();
-                    showSingleImageToast('A imagem não está mais disponível para tradução.');
-                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada deixou de ser válida antes da confirmação.', { hostname });
-                    return;
-                }
-
-                const candidate = getSingleImageCandidate(img);
-                if (!candidate) {
-                    cleanup();
-                    showSingleImageToast('Esta imagem não está elegível para tradução.');
-                    sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem clicada ficou inelegível antes da confirmação.', {
-                        index: Array.from(document.querySelectorAll('img')).indexOf(img),
-                        hostname,
-                    });
-                    return;
-                }
-
-                selectedImagesIndices = new Set([candidate.index]);
-                updateBtnStatus();
-                sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada por clique na imagem.', {
-                    index: candidate.index,
-                    cleanUrl: candidate.cleanUrl,
-                    width: candidate.width,
-                    height: candidate.height,
-                });
-                cleanup();
-                unlockNotificationAudio();
-                extractAndSendImages([candidate.index]);
-            });
-
-            document.addEventListener('keydown', onKeydown, true);
-            outsideListenerTimer = setTimeout(() => {
-                outsideListenerTimer = null;
-                if (singleImagePromptCleanup === cleanup && isActiveContentInstance()) {
-                    document.addEventListener('pointerdown', onOutside, true);
-                }
-            }, 0);
+        function imageMatchesContextSource(img, srcUrl) {
+            if (!img || !srcUrl) return !srcUrl;
+            const expected = normalizeContextImageUrl(srcUrl);
+            const candidates = [
+                img.currentSrc,
+                img.src,
+                img.getAttribute('src'),
+                img.dataset && img.dataset.src,
+                img.dataset && img.dataset.lazySrc,
+                img.getAttribute('data-original'),
+            ];
+            return candidates.some(value => value && normalizeContextImageUrl(value) === expected);
         }
 
-        const onSingleImageClick = (event) => {
-            // Listeners de uma injeção anterior continuam registrados no
-            // document até a navegação destruir o contexto. Eles não podem
-            // interceptar cliques depois que outra instância assumiu.
-            if (!isActiveContentInstance()) return;
-            if (!clickToTranslateEnabled || event.button !== 0) return;
-            const target = event.target && event.target.nodeType === 1 ? event.target : null;
-            const img = target && typeof target.closest === 'function' ? target.closest('img') : null;
-            if (!img) return;
+        function resolveContextMenuImage(srcUrl) {
+            const remembered = lastContextMenuImage;
+            lastContextMenuImage = null;
 
-            const candidate = getSingleImageCandidate(img);
-            if (!candidate) return;
+            if (remembered && remembered.isConnected && imageMatchesContextSource(remembered, srcUrl)) {
+                return remembered;
+            }
+            if (remembered && remembered.isConnected && !srcUrl) return remembered;
+            if (!srcUrl) return null;
 
-            // Só intercepta o clique normal do leitor depois de confirmar que a
-            // própria imagem clicada é traduzível. Cliques em imagens pequenas,
-            // banidas ou decorativas continuam pertencendo ao site.
-            event.preventDefault();
-            event.stopImmediatePropagation();
+            return Array.from(document.querySelectorAll('img'))
+                .find(img => imageMatchesContextSource(img, srcUrl)) || null;
+        }
 
+        function startSingleImageTranslation(img) {
+            if (!clickToTranslateEnabled) {
+                return { ok: false, reason: 'disabled' };
+            }
+            if (!isPageEnabled) {
+                return { ok: false, reason: 'page_disabled' };
+            }
             if (isTranslating) {
                 showSingleImageToast('Já existe uma tradução em andamento.');
-                sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_BLOCKED', 'Clique individual ignorado porque já há tradução em andamento.', {
-                    index: candidate.index,
+                sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_BLOCKED', 'Ação do menu de contexto ignorada porque já há tradução em andamento.', {
                     hostname,
                 });
+                return { ok: false, reason: 'translation_in_progress' };
+            }
+
+            const candidate = getSingleImageCandidate(img);
+            if (!candidate) {
+                showSingleImageToast('Esta imagem não está elegível para tradução.');
+                sendLog('warn', 'SINGLE_IMAGE_TRANSLATION_ABORTED', 'Imagem escolhida no menu de contexto não está mais elegível.', {
+                    index: img ? Array.from(document.querySelectorAll('img')).indexOf(img) : -1,
+                    hostname,
+                });
+                return { ok: false, reason: 'image_ineligible' };
+            }
+
+            selectedImagesIndices = new Set([candidate.index]);
+            updateBtnStatus();
+            sendLog('info', 'SINGLE_IMAGE_TRANSLATION_REQUEST', 'Tradução individual iniciada pelo menu de contexto.', {
+                index: candidate.index,
+                cleanUrl: candidate.cleanUrl,
+                width: candidate.width,
+                height: candidate.height,
+            });
+            unlockNotificationAudio();
+            extractAndSendImages([candidate.index]);
+            return { ok: true, index: candidate.index };
+        }
+
+        const onSingleImageContextMenu = (event) => {
+            // Não bloqueia o menu nativo do navegador. Apenas memoriza a imagem
+            // exata que recebeu o clique direito para o comando criado pelo
+            // Service Worker em chrome.contextMenus.
+            if (!isActiveContentInstance()) return;
+            if (!clickToTranslateEnabled || !isPageEnabled) {
+                lastContextMenuImage = null;
                 return;
             }
 
-            showSingleImagePrompt(img, event.clientX, event.clientY);
+            const target = event.target && event.target.nodeType === 1 ? event.target : null;
+            const img = target && typeof target.closest === 'function' ? target.closest('img') : null;
+            lastContextMenuImage = img && img.isConnected ? img : null;
         };
-        document.addEventListener('click', onSingleImageClick, true);
+        document.addEventListener('contextmenu', onSingleImageContextMenu, true);
 
         let readerDisposed = false;
         window.addEventListener('pagehide', (event) => {
             // Uma página no back-forward cache pode voltar sem reinjetar o script.
             if (event.persisted || readerDisposed || !isActiveContentInstance()) return;
             readerDisposed = true;
-            closeSingleImagePrompt();
-            document.removeEventListener('click', onSingleImageClick, true);
+            lastContextMenuImage = null;
+            document.removeEventListener('contextmenu', onSingleImageContextMenu, true);
             if (buttonGuardObserver) buttonGuardObserver.disconnect();
             buttonGuardObserver = null;
             stopTranslationButtonWatchdog();
@@ -2747,6 +2696,9 @@ if (!window.__manga_translator_content_injected) {
                 if (btn) { setBtnHTML(btn, request.text, true); setTranslatorButtonBackground(btn, '#ff9800'); }
             } else if (request.action === 'DEBUG_MODE_CHANGED') {
                 applyDebugDrawer(request.debugOn);
+            } else if (request.action === 'TRANSLATE_CONTEXT_IMAGE') {
+                const img = resolveContextMenuImage(request.srcUrl || '');
+                sendResponse(startSingleImageTranslation(img));
             } else if (request.action === 'GET_PAGE_IMAGES') {
                 chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
                     const banned = data[`bannedImages_${hostname}`] || [];

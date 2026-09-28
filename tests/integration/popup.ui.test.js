@@ -583,6 +583,24 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         const single = document.getElementById('settings-click-to-translate-enabled');
         const redo = document.getElementById('settings-redo-confirm-enabled');
 
+        expect(single.closest('label').textContent).toContain('Clique direito para traduzir uma única imagem');
+        expect(single.closest('label').textContent).toContain('Traduzir esta imagem');
+
+        const enabledSitesGroup = document.getElementById('settings-enabled-sites-group');
+        const enabledSitesTitle = document.getElementById('settings-enabled-sites-title');
+        const sitesList = document.getElementById('settings-sites-list');
+        expect(document.querySelectorAll('#settings-redo-confirm-enabled')).toHaveLength(1);
+        expect(enabledSitesGroup).not.toBeNull();
+        expect(enabledSitesTitle).not.toBeNull();
+        expect(enabledSitesTitle.textContent.trim()).toBe('Sites habilitados');
+        expect(enabledSitesGroup.getAttribute('aria-labelledby')).toBe('settings-enabled-sites-title');
+        expect(enabledSitesGroup.contains(redo)).toBe(true);
+        expect(enabledSitesGroup.contains(sitesList)).toBe(true);
+        expect(redo.closest('#settings-enabled-sites-group')).toBe(enabledSitesGroup);
+        expect(redo.closest('label').textContent).toContain('Confirmar ao apertar o botão de refazer a imagem');
+
+        const redoSection = redo.closest('.settings-section');
+        expect(redoSection.querySelector('.settings-section-title').textContent).toContain('Substituição automática');
         expect(floating.checked).toBe(false);
         expect(single.checked).toBe(true);
         expect(redo.checked).toBe(false);
@@ -605,6 +623,9 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
             clickToTranslateEnabled: false,
             redoConfirmEnabled: true,
         }));
+        const interactionSection = Array.from(document.querySelectorAll('.settings-section'))
+            .find(section => section.querySelector('.settings-section-title')?.textContent.includes('Interação na página'));
+        expect(interactionSection?.contains(redo)).toBe(false);
     });
 
 });
