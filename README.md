@@ -162,6 +162,8 @@ A diferença é que os nomes específicos da raiz agora têm semântica exata: `
 
 A pipeline em `.github/workflows/ci.yml` trata **Smoke, Visual, Jest, Coverage e E2E como gates funcionais independentes**. Uma falha em Jest não impede o Playwright de rodar, então uma única execução expõe regressões de várias camadas ao mesmo tempo.
 
+Smoke, Visual e o Jest CI-grade são iniciados pela própria interface da raiz (`setup:deps`, `test:smoke`, `test:visual` e `test:ci`), garantindo que esses wrappers sejam testados continuamente sem duplicar as suítes. Coverage e os cinco shards E2E preservam a orquestração especializada necessária para artefatos e paralelismo.
+
 O job final **CI Gate** exige sucesso dos gates obrigatórios. Os diagnósticos pesados de worker/leak continuam obrigatórios em `push` para `main` e em execução manual, conforme o contrato atual da CI.
 
 Além do código de saída normal:
