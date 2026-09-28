@@ -294,6 +294,40 @@ jobs:
         env:
           CI: true
 
+  # Validação temporária da tarefa de padronização da raiz.
+  # Remover após uma execução verde e registrar os resultados no PR.
+  root-interface-validation:
+    name: Root Interface Full Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Setup completo pela raiz
+        run: npm run setup
+      - name: Unit pela raiz
+        run: npm run test:unit
+      - name: Integration pela raiz
+        run: npm run test:integration
+      - name: Smoke pela raiz
+        run: npm run test:smoke
+      - name: E2E completo pela raiz
+        run: npm run test:e2e
+        env:
+          CI: true
+          MANGA_E2E_BROWSER_MODE: stealth
+      - name: Agregado completo pela raiz
+        run: npm run test:all
+        env:
+          CI: true
+          MANGA_E2E_BROWSER_MODE: stealth
+
   jest-worker-diagnostic:
     name: Jest Worker Diagnostic (${{ matrix.case }})
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
