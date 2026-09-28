@@ -585,6 +585,11 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
 
         expect(single.closest('label').textContent).toContain('Clique direito para traduzir uma única imagem');
         expect(single.closest('label').textContent).toContain('Traduzir esta imagem');
+        expect(redo.closest('label').textContent).toContain('Confirmar ao apertar o botão de refazer a imagem');
+        const redoSection = redo.closest('.settings-section');
+        expect(redoSection.querySelector('.settings-section-title').textContent).toContain('Substituição automática');
+        expect(redoSection.textContent).toContain('Sites habilitados');
+        expect(document.querySelector('.settings-section-title:nth-of-type(1)')).not.toBeNull();
         expect(floating.checked).toBe(false);
         expect(single.checked).toBe(true);
         expect(redo.checked).toBe(false);
@@ -607,6 +612,9 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
             clickToTranslateEnabled: false,
             redoConfirmEnabled: true,
         }));
+        const interactionSection = Array.from(document.querySelectorAll('.settings-section'))
+            .find(section => section.querySelector('.settings-section-title')?.textContent.includes('Interação na página'));
+        expect(interactionSection?.contains(redo)).toBe(false);
     });
 
 });
