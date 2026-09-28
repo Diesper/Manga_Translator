@@ -180,7 +180,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         }
     });
 
-    test('Deve traduzir as paginas validas de ponta a ponta e encerrar o lote corretamente', async () => {
+    test('Deve traduzir as paginas validas de ponta a ponta e encerrar o lote corretamente', { tag: '@e2e-medium-b' }, async () => {
         const page = await browserContext.newPage();
 
         await page.goto('http://localhost:3999/manga-page.html');
@@ -288,7 +288,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     // Registro intencional antes do FIFO: mantém exatamente os mesmos cenários
     // e assertions, mas equilibra a divisão 11/10 feita pelo Playwright.
     for (const scenario of regressionScenarios) {
-        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
+        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, { tag: '@e2e-attachment' }, async () => {
             test.setTimeout(90000);
 
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
@@ -358,7 +358,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         });
     }
 
-    test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', async () => {
+    test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', { tag: '@e2e-fifo' }, async () => {
         test.setTimeout(180000);
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
@@ -548,7 +548,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             label: 'background com exclusão segura',
         },
     ]) {
-        test(`Executa o lote em ${scenario.label} sem depender de ghost mousemove`, async () => {
+        test(`Executa o lote em ${scenario.label} sem depender de ghost mousemove`, { tag: scenario.mode === 'background_delete' ? '@e2e-medium-a' : '@e2e-medium-b' }, async () => {
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
                 geminiBaseUrl: scenario.baseUrl,
@@ -630,7 +630,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     }
 
 
-    test('E2E resposta rápida: resultado no mesmo instante lógico do submit não é perdido', async () => {
+    test('E2E resposta rápida: resultado no mesmo instante lógico do submit não é perdido', { tag: '@e2e-fast' }, async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?fastResult=1',
@@ -679,7 +679,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
-    test('E2E resultado atual do Gemini: shadow DOM + wrapper assistant é detectado sem intervenção manual', async () => {
+    test('E2E resultado atual do Gemini: shadow DOM + wrapper assistant é detectado sem intervenção manual', { tag: '@e2e-fast' }, async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl:
@@ -722,7 +722,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     });
 
 
-    test('E2E submit ignorado: falha cedo sem entrar em espera de geração de 4 minutos', async () => {
+    test('E2E submit ignorado: falha cedo sem entrar em espera de geração de 4 minutos', { tag: '@e2e-medium-a' }, async () => {
         await resetExtensionState(backgroundWorker, {
             geminiExecutionMode: 'temp_chat',
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?ignoreSubmit=1',
@@ -790,7 +790,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
 
 
     for (const scenario of regressionScenarios) {
-        test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, async () => {
+        test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, { tag: '@e2e-fast' }, async () => {
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
             await resetExtensionState(backgroundWorker, {
                 geminiExecutionMode: scenario.mode,
@@ -835,7 +835,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         });
     }
 
-    test('E2E aba Gemini manual: zero automação, zero keepalive e DOM intacto', async () => {
+    test('E2E aba Gemini manual: zero automação, zero keepalive e DOM intacto', { tag: '@e2e-fast' }, async () => {
         await backgroundWorker.evaluate(() => {
             chrome.storage.local.set({ __e2e_keepalive_count: 0 });
             chrome.runtime.onConnect.addListener(port => {
