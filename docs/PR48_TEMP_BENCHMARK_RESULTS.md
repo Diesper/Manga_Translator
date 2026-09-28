@@ -212,3 +212,87 @@ O FIFO otimizado continuará exigindo:
 - mesmas assertions existentes.
 
 Nenhuma alteração definitiva deve ser trazida das branches temporárias; somente mudanças redesenhadas e revisadas no PR #48.
+
+
+## 11. Benchmark de workers por grupo
+
+Depois de estabilizar o baseline, foram testados workers adicionais sem alterar testes, assertions, retries ou timeouts.
+
+| Grupo temporário | Antes | Configuração testada | Execução 1 | Execução 2 |
+|---|---:|---:|---:|---:|
+| Attachment | ~73,4 s | 3 workers | 28,7 s | 26,8 s |
+| Fast | ~55,5 s | 3 workers | 21,8 s | 22,0 s |
+| Medium A residual | ~34,3 s | 2 workers | 18,6 s | 18,5 s |
+| Medium B residual | ~36,7 s | 2 workers | 21,2 s | 20,1 s |
+
+A primeira tentativa de benchmark de workers foi descartada porque a variável foi aplicada somente à etapa de inventário e o log mostrou `using 1 worker`. Os números acima vêm das execuções corrigidas, cujos logs confirmam explicitamente `using 2 workers` ou `using 3 workers`.
+
+Configuração escolhida para o PR #48:
+- fifo: 1 worker;
+- attachment: 3 workers;
+- medium-a: 2 workers;
+- medium-b: 2 workers;
+- fast: 3 workers.
+
+A configuração ficou centralizada em `tests/ci/e2e-shard-plan.json`; `run-e2e-group.js` aplica o valor e o CI Contract protege a alocação medida.
+
+## 12. FIFO definitivo no PR #48
+
+A implementação definitiva no PR #48 ficou mais rigorosa que a variante experimental simples:
+
+1. o primeiro attachment chega a uma barreira explícita;
+2. o teste exige `arrivals=1`, `waiting=1` e `released=false`;
+3. só então B–G são enfileirados e a ordem é validada;
+4. a barreira é liberada explicitamente;
+5. os delays artificiais do mock de geração (1200 ms) e imagem (2000 ms) são configuráveis;
+6. somente o FIFO usa esses delays artificiais como zero;
+7. os defaults dos demais testes permanecem inalterados;
+8. nenhum sleep de produção de `job-runner.js` foi reduzido.
+
+No run integrado #1426 (attempt 1), o FIFO completo A→G passou em **50,5 s**, contra baseline mediano de **86,1 s** no Playwright (~41% menor), preservando as mesmas invariantes de fila e resultado.
+
+## 13. Primeiro run integrado com barreira + workers
+
+Workflow #1426, attempt 1:
+
+| Shard | Testes | Workers | Playwright |
+|---|---:|---:|---:|
+| fifo | 1 | 1 | **50,5 s** |
+| attachment | 3 | 3 | **27,4 s** |
+| medium-a | 4 | 2 | **41,5 s** |
+| medium-b | 4 | 2 | **42,1 s** |
+| fast | 9 | 3 | **22,4 s** |
+
+Resultado agregado:
+- inventário: **21/21**;
+- blob reports: **5/5**;
+- passed: **21**;
+- skipped: **0**;
+- flaky: **0**;
+- failed: **0**;
+- retries CI: **0**;
+- CI Contract: **success**;
+- Code Coverage: **success**;
+- CI Gate: **success**.
+
+Tempos de parede do bloco E2E nesse run:
+- janela desde o início do primeiro shard até o último shard terminar: **106 s**;
+- espera até o agregador: **2 s**;
+- agregador/gate E2E: **17 s**;
+- E2E completo: **125 s (~2m05s)**.
+
+Comparação com a arquitetura estável anterior de 5 shards/1 worker:
+- mediana E2E anterior: **169 s**;
+- primeira execução integrada nova: **125 s**;
+- redução: **44 s (~26%)**.
+
+Comparação com o baseline antigo de 2 shards:
+- mediana E2E: **261,5 s**;
+- nova execução: **125 s**;
+- redução: **136,5 s (~52%)**.
+
+O workflow inteiro do #1426 terminou depois do E2E porque o job de **Code Coverage (~176 s)** passou a ser o caminho crítico global. Portanto novas reduções do E2E abaixo deste ponto têm retorno limitado no wall-clock total do workflow enquanto coverage continuar mais lento.
+
+## 14. Próxima validação
+
+A árvore final (incluindo este relatório e as estimativas atualizadas) deve ser repetida em execuções completas consecutivas, sem alterações de código entre elas, antes de considerar a otimização concluída.
