@@ -56,6 +56,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
         runtimeMock._startupListeners = [];
         runtimeMock.lastError = null;
         tabsMock._tabs.clear();
+        storageMock._listeners = [];
         await storageMock.clear();
 
         contextMenus = createContextMenusMock();
