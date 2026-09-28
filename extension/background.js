@@ -519,10 +519,135 @@ function deliverResultToManga({
     });
 }
 
+// ── Menu nativo: tradução de uma única imagem ────────────────────────────────
+const SINGLE_IMAGE_CONTEXT_MENU_ID = 'manga-translator-translate-single-image';
+const SINGLE_IMAGE_CONTEXT_MENU_TITLE = 'Traduzir esta imagem';
+let singleImageContextMenuSyncVersion = 0;
+
+function enabledDomainToMatchPattern(domain) {
+    const host = String(domain || '').trim().toLowerCase();
+    if (!host || !/^[a-z0-9.-]+$/.test(host)) return null;
+    return `*://${host}/*`;
+}
+
+function rebuildSingleImageContextMenu(enabled, enabledDomains) {
+    if (!chrome.contextMenus || typeof chrome.contextMenus.create !== 'function' || typeof chrome.contextMenus.remove !== 'function') {
+        return;
+    }
+
+    const syncVersion = ++singleImageContextMenuSyncVersion;
+    const documentUrlPatterns = Array.from(new Set(
+        (Array.isArray(enabledDomains) ? enabledDomains : [])
+            .map(enabledDomainToMatchPattern)
+            .filter(Boolean)
+    ));
+    const shouldCreate = enabled === true && documentUrlPatterns.length > 0;
+
+    const createCurrentMenu = () => {
+        if (syncVersion !== singleImageContextMenuSyncVersion || !shouldCreate) return;
+        try {
+            chrome.contextMenus.create({
+                id: SINGLE_IMAGE_CONTEXT_MENU_ID,
+                title: SINGLE_IMAGE_CONTEXT_MENU_TITLE,
+                contexts: ['image'],
+                documentUrlPatterns,
+            }, () => {
+                const error = chrome.runtime && chrome.runtime.lastError;
+                if (error) {
+                    log('warn', 'bg', 'SINGLE_IMAGE_CONTEXT_MENU_CREATE_FAILED',
+                        'Falha ao criar a ação de tradução no menu de contexto.', {
+                            error: error.message || String(error),
+                        });
+                }
+            });
+        } catch (error) {
+            log('warn', 'bg', 'SINGLE_IMAGE_CONTEXT_MENU_CREATE_FAILED',
+                'Falha síncrona ao criar a ação de tradução no menu de contexto.', {
+                    error: error && error.message ? error.message : String(error),
+                });
+        }
+    };
+
+    try {
+        chrome.contextMenus.remove(SINGLE_IMAGE_CONTEXT_MENU_ID, () => {
+            // Ler lastError evita o aviso "Unchecked runtime.lastError" quando o
+            // item ainda não existe (primeira instalação ou preferência desligada).
+            void (chrome.runtime && chrome.runtime.lastError);
+            createCurrentMenu();
+        });
+    } catch (_error) {
+        createCurrentMenu();
+    }
+}
+
+function refreshSingleImageContextMenu() {
+    if (!chrome.storage || !chrome.storage.local || typeof chrome.storage.local.get !== 'function') return;
+    chrome.storage.local.get(['clickToTranslateEnabled', 'enabledDomains'], (data) => {
+        rebuildSingleImageContextMenu(
+            data && data.clickToTranslateEnabled === true,
+            data && Array.isArray(data.enabledDomains) ? data.enabledDomains : []
+        );
+    });
+}
+
+function isContextMenuPageEnabled(url, enabledDomains) {
+    try {
+        const hostname = new URL(String(url || '')).hostname;
+        return Array.isArray(enabledDomains) && enabledDomains.includes(hostname);
+    } catch (_error) {
+        return false;
+    }
+}
+
+if (chrome.storage && chrome.storage.onChanged && typeof chrome.storage.onChanged.addListener === 'function') {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName && areaName !== 'local') return;
+        if (changes.clickToTranslateEnabled || changes.enabledDomains) {
+            refreshSingleImageContextMenu();
+        }
+    });
+}
+
+if (chrome.contextMenus && chrome.contextMenus.onClicked && typeof chrome.contextMenus.onClicked.addListener === 'function') {
+    chrome.contextMenus.onClicked.addListener((info, tab) => {
+        if (!info || info.menuItemId !== SINGLE_IMAGE_CONTEXT_MENU_ID) return;
+        if (!tab || !Number.isInteger(tab.id)) return;
+
+        chrome.storage.local.get(['clickToTranslateEnabled', 'enabledDomains'], (data) => {
+            const enabledDomains = data && Array.isArray(data.enabledDomains) ? data.enabledDomains : [];
+            if (!data || data.clickToTranslateEnabled !== true) return;
+            if (!isContextMenuPageEnabled(info.pageUrl || tab.url, enabledDomains)) return;
+
+            chrome.tabs.sendMessage(tab.id, {
+                action: 'TRANSLATE_CONTEXT_IMAGE',
+                srcUrl: info.srcUrl || null,
+            }, (response) => {
+                const error = chrome.runtime && chrome.runtime.lastError;
+                if (error) {
+                    log('warn', 'bg', 'SINGLE_IMAGE_CONTEXT_MENU_DELIVERY_FAILED',
+                        'Não foi possível entregar a ação de clique direito ao leitor.', {
+                            tabId: tab.id,
+                            error: error.message || String(error),
+                        });
+                    return;
+                }
+                if (!response || response.ok !== true) {
+                    log('warn', 'bg', 'SINGLE_IMAGE_CONTEXT_MENU_REJECTED',
+                        'A página rejeitou a solicitação de tradução individual.', {
+                            tabId: tab.id,
+                            reason: response && response.reason ? response.reason : 'no_response',
+                        });
+                }
+            });
+        });
+    });
+}
+
 // SEC-05: Constante nomeada para prompt padrão em vez de string longa inline
 const DEFAULT_TRANSLATION_PROMPT = "Objetivo primário: voce vai criar uma imagem , exata da imagem fornecida e traduzir ela pro português brasileiro . \nNão altere nenhum pixel fora das áreas de texto e Remova o texto original dos balões de fala, preenchendo o fundo com a cor correspondente. \nConverta os diálogos para PT-BR, mantendo a informalidade do contexto. Tipografia: Renderize o novo texto em caixa alta, fonte padrão de HQ (sans-serif), alinhamento centralizado.\nEfeitos Sonoros: Traduza e recrie as onomatopeias  mantendo as fontes estilizadas, cores, contornos e inclinação originais. lembre-se que todas as palavras devem sem traduzidas sem exceção";
 
 chrome.runtime.onInstalled.addListener(() => {
+    refreshSingleImageContextMenu();
     chrome.storage.local.get(['defaultPrompt'], (data) => {
         if (!data.defaultPrompt) {
             chrome.storage.local.set({ defaultPrompt: DEFAULT_TRANSLATION_PROMPT });
@@ -531,6 +656,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onStartup.addListener(async () => {
+    refreshSingleImageContextMenu();
     await restoreState();
     const identity = initializeTabIdentity();
     await identity.recoverPendingMigrations();
