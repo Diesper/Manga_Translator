@@ -162,49 +162,95 @@ if (!allFiles.length) {
   process.exit(1);
 }
 
-// 1) Descobrir em qual nível de paralelismo o project background reproduz.
-// Duas execuções por modo reduzem a chance de escolher um falso negativo de race.
-const modes = [1, 2, 3, 4, null];
-const sweep = modes.map((workers) => ({
-  workers,
-  result: probe({
-    label: 'sweep-' + (workers === null ? 'default' : 'w' + String(workers)),
-    files: allFiles,
-    workers,
-    repeats: 2,
-  }),
-}));
+// 1) Escolher o nível de paralelismo.
+// A CI pode fornecer MT_BACKGROUND_LEAK_WORKERS quando uma rodada anterior já
+// isolou um valor reproduzível (no PR #47, w2 ficou limpo e w3 reproduziu).
+// Sem override, preservamos o sweep completo para uso independente/local.
+const requestedWorkersRaw = String(process.env.MT_BACKGROUND_LEAK_WORKERS || '').trim();
+const requestedWorkers = requestedWorkersRaw === ''
+  ? undefined
+  : (requestedWorkersRaw === 'default' ? null : Number(requestedWorkersRaw));
 
-const leakingModes = sweep
-  .map((entry) => ({
-    workers: entry.workers,
-    leakCount: entry.result.attempts.filter((attempt) => attempt.forcedWorkerExit).length,
-  }))
-  .filter((entry) => entry.leakCount > 0)
-  .sort((a, b) => {
-    if (b.leakCount !== a.leakCount) return b.leakCount - a.leakCount;
-    // Preferir um valor numérico reproduzível em vez do cálculo automático do Jest.
-    if (a.workers === null) return 1;
-    if (b.workers === null) return -1;
-    return Number(a.workers) - Number(b.workers);
-  });
-
-if (!leakingModes.length) {
-  const summary = {
-    generatedAt: new Date().toISOString(),
-    node: process.version,
-    cpuCount: os.cpus().length,
-    backgroundFiles: allFiles,
-    selectedWorkers: null,
-    historicalLeakNotReproduced: true,
-    records,
-  };
-  fs.writeFileSync(summaryFile, JSON.stringify(summary, null, 2) + '\n');
-  console.log('[background-leak] warning não reproduziu no sweep desta rodada.');
-  process.exit(0);
+if (
+  requestedWorkers !== undefined &&
+  requestedWorkers !== null &&
+  (!Number.isInteger(requestedWorkers) || requestedWorkers < 1)
+) {
+  console.error('[background-leak] MT_BACKGROUND_LEAK_WORKERS inválido: ' + requestedWorkersRaw);
+  process.exit(64);
 }
 
-const selectedWorkers = leakingModes[0].workers;
+let leakingModes = [];
+let selectedWorkers;
+
+if (requestedWorkers !== undefined) {
+  const baseline = probe({
+    label: 'baseline-' + (requestedWorkers === null ? 'default' : 'w' + String(requestedWorkers)),
+    files: allFiles,
+    workers: requestedWorkers,
+    repeats: 2,
+  });
+  const leakCount = baseline.attempts.filter((attempt) => attempt.forcedWorkerExit).length;
+  if (leakCount === 0) {
+    const summary = {
+      generatedAt: new Date().toISOString(),
+      node: process.version,
+      cpuCount: os.cpus().length,
+      backgroundFiles: allFiles,
+      selectedWorkers: requestedWorkers === null ? 'default' : requestedWorkers,
+      requestedWorkersDidNotReproduce: true,
+      records,
+    };
+    fs.writeFileSync(summaryFile, JSON.stringify(summary, null, 2) + '\n');
+    console.log('[background-leak] override não reproduziu o warning em 2 tentativas.');
+    process.exit(0);
+  }
+  leakingModes = [{ workers: requestedWorkers, leakCount }];
+  selectedWorkers = requestedWorkers;
+} else {
+  // Duas execuções por modo reduzem a chance de escolher um falso negativo de race.
+  const modes = [1, 2, 3, 4, null];
+  const sweep = modes.map((workers) => ({
+    workers,
+    result: probe({
+      label: 'sweep-' + (workers === null ? 'default' : 'w' + String(workers)),
+      files: allFiles,
+      workers,
+      repeats: 2,
+    }),
+  }));
+
+  leakingModes = sweep
+    .map((entry) => ({
+      workers: entry.workers,
+      leakCount: entry.result.attempts.filter((attempt) => attempt.forcedWorkerExit).length,
+    }))
+    .filter((entry) => entry.leakCount > 0)
+    .sort((a, b) => {
+      if (b.leakCount !== a.leakCount) return b.leakCount - a.leakCount;
+      if (a.workers === null) return 1;
+      if (b.workers === null) return -1;
+      return Number(a.workers) - Number(b.workers);
+    });
+
+  if (!leakingModes.length) {
+    const summary = {
+      generatedAt: new Date().toISOString(),
+      node: process.version,
+      cpuCount: os.cpus().length,
+      backgroundFiles: allFiles,
+      selectedWorkers: null,
+      historicalLeakNotReproduced: true,
+      records,
+    };
+    fs.writeFileSync(summaryFile, JSON.stringify(summary, null, 2) + '\n');
+    console.log('[background-leak] warning não reproduziu no sweep desta rodada.');
+    process.exit(0);
+  }
+
+  selectedWorkers = leakingModes[0].workers;
+}
+
 console.log('[background-leak] workers selecionados para bisection=' +
   (selectedWorkers === null ? 'default' : String(selectedWorkers)));
 
