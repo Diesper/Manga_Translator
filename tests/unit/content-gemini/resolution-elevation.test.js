@@ -165,6 +165,7 @@ describe('Elevação de Resolução CDN (=s0) — content_gemini.js', () => {
     let runtimeMock;
     let storageMock;
     let sentMessages = [];
+    let processPromise = null;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -177,11 +178,30 @@ describe('Elevação de Resolução CDN (=s0) — content_gemini.js', () => {
         runtimeMock = getRuntimeMock();
         storageMock = getStorageMock();
         sentMessages = [];
+        processPromise = null;
         await storageMock.clear();
         document.documentElement.innerHTML = '<head></head><body></body>';
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
+        if (processPromise) await processPromise.catch(() => {});
+
         jest.restoreAllMocks();
         document.documentElement.innerHTML = '<head></head><body></body>';
     });
@@ -278,7 +298,7 @@ describe('Elevação de Resolução CDN (=s0) — content_gemini.js', () => {
             require(GEMINI_DELETION_PATH);
             require(GEMINI_JOB_RUNNER_PATH);
             const contentGemini = require(CONTENT_GEMINI_PATH);
-            contentGemini.processGeminiJob();
+            processPromise = contentGemini.processGeminiJob();
         });
 
         await waitFor(() => sentMessages.find(m => m.action === 'FETCH_IMAGE_AS_BASE64'));
