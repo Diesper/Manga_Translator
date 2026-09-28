@@ -323,6 +323,9 @@ jobs:
       - name: Reduzir conjunto de testes de background que mantém worker vivo
         continue-on-error: true
         run: npm run test:diagnose-background-leak
+        env:
+          # Evidência do run #1289: w2 limpo; w3 reproduz worker forçado.
+          MT_BACKGROUND_LEAK_WORKERS: "3"
       - name: Publicar bisection do leak de background
         if: always()
         uses: actions/upload-artifact@v4
