@@ -179,6 +179,20 @@ describe('gemini/job-runner.js', () => {
     document.documentElement.innerHTML = '<head></head><body></body>';
   });
 
+  test('RUN-00: rejeita dependências obrigatórias ausentes com erro explícito', () => {
+    const { createGeminiJobRunner } = loadModule();
+    const { options } = baseDependencies();
+
+    expect(() => createGeminiJobRunner({ ...options, root: null }))
+      .toThrow('JobRunner requer document/window/runtime/storage');
+
+    expect(() => createGeminiJobRunner({ ...options, domApi: null }))
+      .toThrow('JobRunner requer módulos Gemini DOM/Observer/Editor/Attachment/TemporaryChat');
+
+    expect(() => createGeminiJobRunner({ ...options, resultExtractor: null }))
+      .toThrow('JobRunner requer resultExtractor e deletionController');
+  });
+
   test('RUN-01: dataURLtoFile valida e converte PNG', () => {
     const { createGeminiJobRunner } = loadModule();
     const { options } = baseDependencies();
