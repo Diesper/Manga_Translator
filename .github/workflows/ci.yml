@@ -244,10 +244,34 @@ jobs:
 
 
 
+
   jest-worker-diagnostic:
-    name: Jest Worker Diagnostic
+    name: Jest Worker Diagnostic (${{ matrix.case }})
     runs-on: ubuntu-latest
     continue-on-error: true
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        case:
+          - full-default
+          - full-w1
+          - full-w2
+          - full-w3
+          - full-w4
+          - project-background
+          - project-gtc
+          - project-content-scripts
+          - project-popup
+          - project-reader
+          - project-manifest
+          - project-shared-ui
+          - project-integration
+          - combo-content-integration
+          - combo-jsdom-projects
+          - combo-background-content
+          - combo-background-integration
+          - combo-background-jsdom
     defaults:
       run:
         working-directory: tests
@@ -262,18 +286,19 @@ jobs:
           cache-dependency-path: tests/package-lock.json
       - name: Instalar dependências
         run: npm ci
-      - name: Isolar vazamento do project background por delta debugging
+      - name: Executar diagnóstico ${{ matrix.case }}
         continue-on-error: true
-        run: npm run test:diagnose-background-leak
-      - name: Publicar diagnóstico do worker Jest
+        run: npm run test:diagnose-workers -- --case=${{ matrix.case }}
+      - name: Publicar diagnóstico ${{ matrix.case }}
         if: always()
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: jest-background-leak-diagnostic-${{ github.sha }}
+          name: jest-worker-diagnostic-${{ matrix.case }}-${{ github.sha }}
           path: |
-            tests/.ci-results/background-leak-diagnostic.json
-            tests/.ci-results/background-leak-diagnostic/
+            tests/.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
   ci-gate:
