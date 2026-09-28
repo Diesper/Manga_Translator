@@ -14,6 +14,21 @@ class ChromeStorageMock {
   constructor() {
     this._store = {};     // Estado em memória
     this._listeners = []; // onChanged listeners
+    this._pendingTimers = new Set();
+  }
+
+  _schedule(callback, delay = 0) {
+    const timer = setTimeout(() => {
+      this._pendingTimers.delete(timer);
+      callback();
+    }, delay);
+    this._pendingTimers.add(timer);
+    return timer;
+  }
+
+  clearTimers() {
+    for (const timer of this._pendingTimers) clearTimeout(timer);
+    this._pendingTimers.clear();
   }
 
   get(keys, callback) {
@@ -32,8 +47,8 @@ class ChromeStorageMock {
         });
       }
 
-      if (callback) setTimeout(() => callback(result), 0);
-      setTimeout(() => resolve(result), 0);
+      if (callback) this._schedule(() => callback(result), 0);
+      this._schedule(() => resolve(result), 0);
     });
   }
 
@@ -45,7 +60,7 @@ class ChromeStorageMock {
         this._store[key] = items[key];
       });
       this._listeners.forEach(listener => listener(changes, 'local'));
-      setTimeout(() => { if (callback) callback(); resolve(); }, 0);
+      this._schedule(() => { if (callback) callback(); resolve(); }, 0);
     });
   }
 
@@ -53,13 +68,13 @@ class ChromeStorageMock {
     return new Promise((resolve) => {
       const toRemove = Array.isArray(keys) ? keys : [keys];
       toRemove.forEach(k => delete this._store[k]);
-      setTimeout(() => { if (callback) callback(); resolve(); }, 0);
+      this._schedule(() => { if (callback) callback(); resolve(); }, 0);
     });
   }
 
   clear(callback) {
     this._store = {};
-    if (callback) setTimeout(callback, 0);
+    if (callback) this._schedule(callback, 0);
     return Promise.resolve();
   }
 
@@ -81,6 +96,21 @@ class ChromeTabsMock {
     this._onRemovedListeners  = [];
     this._onUpdatedListeners  = [];
     this._onReplacedListeners = [];
+    this._pendingTimers        = new Set();
+  }
+
+  _schedule(callback, delay = 0) {
+    const timer = setTimeout(() => {
+      this._pendingTimers.delete(timer);
+      callback();
+    }, delay);
+    this._pendingTimers.add(timer);
+    return timer;
+  }
+
+  clearTimers() {
+    for (const timer of this._pendingTimers) clearTimeout(timer);
+    this._pendingTimers.clear();
   }
 
   create(options, callback) {
@@ -94,12 +124,12 @@ class ChromeTabsMock {
     };
     this._tabs.set(tabId, tab);
 
-    setTimeout(() => {
+    this._schedule(() => {
       tab.status = 'complete';
       this._onUpdatedListeners.forEach(fn => fn(tabId, { status: 'complete' }, tab));
     }, 10);
 
-    if (callback) setTimeout(() => callback(tab), 0);
+    if (callback) this._schedule(() => callback(tab), 0);
     return Promise.resolve(tab);
   }
 
@@ -107,9 +137,9 @@ class ChromeTabsMock {
     const tab = this._tabs.get(tabId) || null;
     if (!tab && callback) {
       global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
-      setTimeout(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
+      this._schedule(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
     } else if (callback) {
-      setTimeout(() => callback(tab), 0);
+      this._schedule(() => callback(tab), 0);
     }
     return Promise.resolve(tab);
   }
@@ -124,7 +154,7 @@ class ChromeTabsMock {
         global.chrome.runtime.lastError = { message: `No tab with id: ${id}` };
       }
     });
-    if (callback) setTimeout(() => { callback(); global.chrome.runtime.lastError = null; }, 0);
+    if (callback) this._schedule(() => { callback(); global.chrome.runtime.lastError = null; }, 0);
     return Promise.resolve();
   }
 
@@ -133,7 +163,7 @@ class ChromeTabsMock {
     if (queryInfo.active !== undefined) {
       results = results.filter(t => t.active === queryInfo.active);
     }
-    if (callback) setTimeout(() => callback(results), 0);
+    if (callback) this._schedule(() => callback(results), 0);
     return Promise.resolve(results);
   }
 
@@ -141,12 +171,12 @@ class ChromeTabsMock {
     const handlers = this._messageHandlers.get(tabId) || [];
     if (handlers.length === 0) {
       global.chrome.runtime.lastError = { message: 'Could not establish connection.' };
-      if (callback) setTimeout(() => { callback(undefined); global.chrome.runtime.lastError = null; }, 0);
+      if (callback) this._schedule(() => { callback(undefined); global.chrome.runtime.lastError = null; }, 0);
       return;
     }
     handlers.forEach(handler => {
       const sendResponse = (response) => {
-        if (callback) setTimeout(() => callback(response), 0);
+        if (callback) this._schedule(() => callback(response), 0);
       };
       handler(message, { tab: this._tabs.get(tabId) }, sendResponse);
     });
@@ -360,7 +390,7 @@ class ChromeRuntimeMock {
   onInstalled = {
     addListener:    (fn) => {
       this._installedListeners.push(fn);
-      setTimeout(() => fn({ reason: 'install' }), 0);
+      this._scheduleMessageCallback(() => fn({ reason: 'install' }), 0);
     },
     removeListener: (fn) => {
       this._installedListeners = this._installedListeners.filter(listener => listener !== fn);
@@ -514,6 +544,10 @@ function initChromeMocks() {
     };
   } else {
     // Reset leve — NÃO recria runtimeMock para preservar listeners do background.js
+    // Cancele primeiro callbacks transitórios do caso anterior para impedir que
+    // eles executem depois do reset e reativem listeners persistentes.
+    storageMock.clearTimers();
+    tabsMock.clearTimers();
     storageMock.clear();
     tabsMock._tabs.clear();
     alarmsMock.clearAll();
@@ -539,6 +573,8 @@ beforeEach(() => {
 afterEach(() => {
   // O último caso da suíte também pode criar alarmes de vários minutos.
   // Limpá-los apenas no beforeEach seguinte deixa o worker Jest vivo.
+  storageMock?.clearTimers();
+  tabsMock?.clearTimers();
   alarmsMock?.clearAll();
   runtimeMock?.clearMessageTimers();
   downloadsMock?.clearTimers();
