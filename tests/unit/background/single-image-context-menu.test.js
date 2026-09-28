@@ -5,7 +5,6 @@ const {
     getAlarmsMock,
     getDownloadsMock,
 } = require('../../mocks/chrome-api.mock.js');
-const { loadBackgroundModule } = require('../../helpers/load-background-module.js');
 const { BACKGROUND_PATH, flush, waitFor } = require('../../helpers/background-test-utils.js');
 
 function createContextMenusMock() {
@@ -87,7 +86,9 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
             enabledDomains: ['reader.test', 'second-reader.test'],
         });
 
-        loadBackgroundModule(BACKGROUND_PATH);
+        jest.isolateModules(() => {
+            require(BACKGROUND_PATH);
+        });
         await flush(8);
 
         const item = contextMenus.items.get('manga-translator-translate-single-image');
@@ -108,7 +109,9 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
             enabledDomains: ['reader.test'],
         });
 
-        loadBackgroundModule(BACKGROUND_PATH);
+        jest.isolateModules(() => {
+            require(BACKGROUND_PATH);
+        });
         await flush(8);
 
         const tab = await tabsMock.create({ url: 'https://reader.test/chapter-1', active: true });
@@ -139,7 +142,9 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
             enabledDomains: ['reader.test'],
         });
 
-        loadBackgroundModule(BACKGROUND_PATH);
+        jest.isolateModules(() => {
+            require(BACKGROUND_PATH);
+        });
         await flush(8);
         expect(contextMenus.items.has('manga-translator-translate-single-image')).toBe(true);
 
