@@ -262,18 +262,18 @@ jobs:
           cache-dependency-path: tests/package-lock.json
       - name: Instalar dependências
         run: npm ci
-      - name: Executar sweep de workers, projects e combinações
+      - name: Isolar vazamento do project background por delta debugging
         continue-on-error: true
-        run: npm run test:diagnose-workers
+        run: npm run test:diagnose-background-leak
       - name: Publicar diagnóstico do worker Jest
         if: always()
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: jest-worker-diagnostic-${{ github.sha }}
+          name: jest-background-leak-diagnostic-${{ github.sha }}
           path: |
-            tests/.ci-results/jest-worker-diagnostic.json
-            tests/.ci-results/jest-worker-diagnostic/
+            tests/.ci-results/background-leak-diagnostic.json
+            tests/.ci-results/background-leak-diagnostic/
           retention-days: 7
 
   ci-gate:
