@@ -347,7 +347,7 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         await startPromise;
     });
 
-    test('imagem removida entre clique direito e escolha da ação aborta sem iniciar tradução', async () => {
+    test('imagem removida entre clique e confirmação aborta sem iniciar tradução — agora via clique direito', async () => {
         const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
         const context = await loadContentScript({
             hostname: 'reader.test',
