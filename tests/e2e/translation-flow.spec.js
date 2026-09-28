@@ -267,6 +267,97 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
+    const regressionScenarios = [
+        {
+            mode: 'temp_chat',
+            basePath: '/gemini/',
+            label: 'conversa temporária',
+        },
+        {
+            mode: 'minimized_window',
+            basePath: '/gemini/',
+            label: 'janela minimizada',
+        },
+        {
+            mode: 'background_delete',
+            basePath: '/app/mock-chat',
+            label: 'background com exclusão segura',
+        },
+    ];
+
+    // Registro intencional antes do FIFO: mantém exatamente os mesmos cenários
+    // e assertions, mas equilibra a divisão 11/10 feita pelo Playwright.
+    for (const scenario of regressionScenarios) {
+        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
+            test.setTimeout(90000);
+
+            const joiner = scenario.basePath.includes('?') ? '&' : '?';
+            await resetExtensionState(backgroundWorker, {
+                geminiExecutionMode: scenario.mode,
+                geminiBaseUrl:
+                    `http://127.0.0.1:3999${scenario.basePath}${joiner}attachmentFails=1`,
+            });
+
+            const page = await browserContext.newPage();
+            await page.goto('http://localhost:3999/manga-page.html');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+            });
+
+            const mainContent = page.locator('#manga-main-content');
+            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
+            await mainContent.click();
+
+            await expect.poll(async () => {
+                backgroundWorker = await getBackgroundWorker(browserContext);
+                const storage = await readStorage(backgroundWorker, ['translatorLog']);
+                const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+                return logs.some(entry =>
+                    entry && entry.action === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
+                );
+            }, {
+                timeout: 70000,
+                message: `Esperava gate de attachment no modo ${scenario.mode}`,
+            }).toBe(true);
+
+            if (scenario.mode === 'minimized_window') {
+                expect(
+                    page.isClosed(),
+                    'O fallback minimizado não pode fechar a janela que contém o mangá'
+                ).toBe(false);
+                await expect(page).toHaveURL('http://localhost:3999/manga-page.html');
+                await expect(mainContent).toBeVisible();
+            }
+
+            const storage = await readStorage(backgroundWorker, ['translatorLog']);
+            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            const attachmentActions = logs
+                .filter(entry => entry && typeof entry.action === 'string')
+                .map(entry => entry.action);
+
+            expect(attachmentActions).toContain('ATTACHMENT_STARTED');
+            expect(attachmentActions).toContain('ATTACHMENT_REJECTED');
+            expect(attachmentActions).toContain('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(attachmentActions).not.toContain('ATTACHMENT_CONFIRMED');
+
+            const startedAt = attachmentActions.indexOf('ATTACHMENT_STARTED');
+            const rejectedAt = attachmentActions.indexOf('ATTACHMENT_REJECTED');
+            const blockedAt = attachmentActions.indexOf('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(startedAt).toBeGreaterThanOrEqual(0);
+            expect(rejectedAt).toBeGreaterThan(startedAt);
+            expect(blockedAt).toBeGreaterThan(rejectedAt);
+
+            expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
+            expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
+            expect(await page.evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            )).toBe(0);
+
+            await page.close();
+        });
+    }
+
     test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', async () => {
         test.setTimeout(180000);
         await resetExtensionState(backgroundWorker, {
@@ -698,92 +789,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
     });
 
 
-    for (const scenario of [
-        {
-            mode: 'temp_chat',
-            basePath: '/gemini/',
-            label: 'conversa temporária',
-        },
-        {
-            mode: 'minimized_window',
-            basePath: '/gemini/',
-            label: 'janela minimizada',
-        },
-        {
-            mode: 'background_delete',
-            basePath: '/app/mock-chat',
-            label: 'background com exclusão segura',
-        },
-    ]) {
-        test(`REG attachment gate: ${scenario.label} nunca envia texto quando a imagem não confirma`, async () => {
-            test.setTimeout(90000);
-
-            const joiner = scenario.basePath.includes('?') ? '&' : '?';
-            await resetExtensionState(backgroundWorker, {
-                geminiExecutionMode: scenario.mode,
-                geminiBaseUrl:
-                    `http://127.0.0.1:3999${scenario.basePath}${joiner}attachmentFails=1`,
-            });
-
-            const page = await browserContext.newPage();
-            await page.goto('http://localhost:3999/manga-page.html');
-            await page.waitForLoadState('networkidle');
-            await page.evaluate(() => {
-                document.querySelector('[data-testid="manga-image-1"]')?.remove();
-            });
-
-            const mainContent = page.locator('#manga-main-content');
-            await expect(mainContent).toContainText('TRADUZIR', { timeout: 10000 });
-            await mainContent.click();
-
-            await expect.poll(async () => {
-                backgroundWorker = await getBackgroundWorker(browserContext);
-                const storage = await readStorage(backgroundWorker, ['translatorLog']);
-                const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
-                return logs.some(entry =>
-                    entry && entry.action === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
-                );
-            }, {
-                timeout: 70000,
-                message: `Esperava gate de attachment no modo ${scenario.mode}`,
-            }).toBe(true);
-
-            if (scenario.mode === 'minimized_window') {
-                expect(
-                    page.isClosed(),
-                    'O fallback minimizado não pode fechar a janela que contém o mangá'
-                ).toBe(false);
-                await expect(page).toHaveURL('http://localhost:3999/manga-page.html');
-                await expect(mainContent).toBeVisible();
-            }
-
-            const storage = await readStorage(backgroundWorker, ['translatorLog']);
-            const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
-            const attachmentActions = logs
-                .filter(entry => entry && typeof entry.action === 'string')
-                .map(entry => entry.action);
-
-            expect(attachmentActions).toContain('ATTACHMENT_STARTED');
-            expect(attachmentActions).toContain('ATTACHMENT_REJECTED');
-            expect(attachmentActions).toContain('SUBMIT_BLOCKED_ATTACHMENT');
-            expect(attachmentActions).not.toContain('ATTACHMENT_CONFIRMED');
-
-            const startedAt = attachmentActions.indexOf('ATTACHMENT_STARTED');
-            const rejectedAt = attachmentActions.indexOf('ATTACHMENT_REJECTED');
-            const blockedAt = attachmentActions.indexOf('SUBMIT_BLOCKED_ATTACHMENT');
-            expect(startedAt).toBeGreaterThanOrEqual(0);
-            expect(rejectedAt).toBeGreaterThan(startedAt);
-            expect(blockedAt).toBeGreaterThan(rejectedAt);
-
-            expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
-            expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
-            expect(await page.evaluate(() =>
-                document.querySelectorAll('img[data-translated="true"]').length
-            )).toBe(0);
-
-            await page.close();
-        });
-
+    for (const scenario of regressionScenarios) {
         test(`REG result ownership: ${scenario.label} ignora clone do input e IMG órfã`, async () => {
             const joiner = scenario.basePath.includes('?') ? '&' : '?';
             await resetExtensionState(backgroundWorker, {
