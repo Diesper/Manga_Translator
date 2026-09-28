@@ -371,6 +371,13 @@
                 <div class="settings-section-desc">
                     Domínios onde a extensão está ativa. Abra cada site para ver as imagens salvas dele, bloquear auto-substituição ou refazer uma tradução específica.
                 </div>
+                <label class="settings-toggle-row" style="margin-bottom:8px;">
+                    <input type="checkbox" id="settings-redo-confirm-enabled">
+                    <span>
+                        <span class="settings-toggle-title">Confirmar ao apertar o botão de refazer a imagem</span>
+                        <span class="settings-toggle-help">Antes de apagar a tradução salva para refazê-la, pede uma confirmação própria da extensão.</span>
+                    </span>
+                </label>
                 <div class="settings-small-actions">
                     <button id="settings-refresh-auto-images">Atualizar</button>
                     <button id="settings-clear-auto-blocks">Limpar bloqueios</button>
@@ -381,7 +388,7 @@
             <div class="settings-section">
                 <div class="settings-section-title">Interação na página</div>
                 <div class="settings-section-desc">
-                    Controle o botão flutuante, a tradução de uma única imagem por clique e a confirmação do comando Refazer.
+                    Controle o botão flutuante e a tradução de uma única imagem por clique.
                 </div>
                 <label class="settings-toggle-row">
                     <input type="checkbox" id="settings-floating-button-enabled">
@@ -395,13 +402,6 @@
                     <span>
                         <span class="settings-toggle-title">Clique direito para traduzir uma única imagem</span>
                         <span class="settings-toggle-help">Ao clicar com o botão direito em uma imagem elegível, escolha “Traduzir esta imagem” no menu do navegador. Desligado por padrão.</span>
-                    </span>
-                </label>
-                <label class="settings-toggle-row" style="margin-top:8px;">
-                    <input type="checkbox" id="settings-redo-confirm-enabled">
-                    <span>
-                        <span class="settings-toggle-title">Confirmar antes de Refazer</span>
-                        <span class="settings-toggle-help">Usa uma confirmação própria da extensão, que não é afetada pelo bloqueio de caixas de diálogo do navegador.</span>
                     </span>
                 </label>
             </div>
