@@ -26,7 +26,8 @@
     "test:coverage:verify": "node ci/verify-coverage.js",
     "test:coverage:infra": "node ci/verify-coverage-selftest.js",
     "test:open-handles": "jest --config jest.config.js --detectOpenHandles --runInBand",
-    "test:diagnose-workers": "node ci/diagnose-jest-workers.js"
+    "test:diagnose-workers": "node ci/diagnose-jest-workers.js",
+    "test:diagnose-background-leak": "node ci/diagnose-background-leak.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
