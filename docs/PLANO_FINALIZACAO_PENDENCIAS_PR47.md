@@ -815,3 +815,60 @@ Ao final, o PR #47 deve provar simultaneamente:
 10. existe uma regressão permanente para a causa raiz encontrada.
 
 O ponto central é simples: **o warning de worker não deve ser silenciado; deve deixar de existir porque o recurso que o mantém vivo passa a ter ownership e teardown corretos.**
+
+
+## Encerramento executado — 28/09/2026
+
+Este plano foi executado até a causa-raiz, sem recorrer às anti-soluções listadas acima.
+
+### Resultado da investigação
+
+- Sweep de workers mostrou: 2 workers limpos e 3/default reproduzindo o warning em rodadas intermediárias.
+- Isolamento por project mostrou `background` como project capaz de reproduzir sozinho.
+- Delta debugging reduziu 44 arquivos a `process-finalize-real.test.js + regex-escape.test.js`, com reprodução 4/4.
+- O timer de 4 s do fallback `handleMarkerAndShow()` não era possuído pelo teardown de `regex-escape`.
+- O teardown passou a cancelar o recurso no dono correto.
+- Após a correção, o project `background` e o Jest completo deixaram de emitir o warning.
+
+### Validação final
+
+Head funcional validado: `d940df4ddf982a7b45c423ba74901b993fc37f06`.
+
+GitHub Actions run #1355 (`36369097974`):
+
+| Gate | Resultado |
+| --- | --- |
+| Version Integrity | success |
+| JS Syntax Check | success |
+| Manifest Validation | success |
+| CI Contract | success |
+| Smoke Tests | success |
+| Visual Tests | success |
+| Unit + Integration Node 20 | success |
+| Unit + Integration Node 22 | success |
+| Code Coverage | success |
+| E2E Tests (Playwright) | success |
+| CI Gate | success |
+
+Jest: **108 suítes / 847 testes**, skipped=0, TODO=0, sem worker forçado.
+
+Coverage: `job-runner.js` **65,67% branches**, acima de 64%; global **79,52 / 71,68 / 82,71 / 79,52** (statements/branches/functions/lines).
+
+E2E: **21/21 passed**, skipped=0, flaky=0, failed=0.
+
+### Estado das anti-soluções
+
+- `--forceExit`: não usado;
+- remoção do detector: não feita;
+- ignorar stderr: não feito;
+- `.skip`/TODO: não usados;
+- redução de baseline: não feita;
+- redução do threshold de coverage: não feita;
+- `--runInBand` como solução permanente: não usado;
+- redução permanente de workers para esconder o problema: não feita.
+
+### Operação contínua
+
+Os diagnósticos exploratórios pesados foram movidos para `workflow_dispatch`, mas permanecem disponíveis para investigação futura. O job obrigatório `Unit + Integration` continua falhando se o warning do worker reaparecer.
+
+O ruleset #23791606 exige `CI Gate` e os checks reais atuais, com strict status checks habilitado.

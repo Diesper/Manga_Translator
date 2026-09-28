@@ -58,3 +58,77 @@ npx jest --config jest.config.js --runInBand --runTestsByPath integration/perfor
 ```
 
 Essas execuções isoladas validam o comportamento dos casos alterados. O inventário completo, a cobertura global, a matriz Node 20/22 e o E2E são verificados pelos gates do GitHub Actions após o push.
+
+
+## Causa-raiz encerrada — worker Jest do PR #47
+
+A investigação do worker leak terminou com reprodução mínima e correção atribuível a um recurso concreto.
+
+### Reprodução mínima
+
+O delta debugging do project `background` reduziu 44 suítes ao par:
+
+- `unit/background/process-finalize-real.test.js`
+- `unit/background/regex-escape.test.js`
+
+Com `--maxWorkers=3`, esse par reproduziu o warning **4/4 vezes**. Cada arquivo executado sozinho ficava limpo, demonstrando por que diagnósticos isolados anteriores davam falso negativo: uma execução de um único arquivo não reproduz necessariamente o mesmo ciclo de vida de worker pool.
+
+### Recurso responsável
+
+`regex-escape.test.js` exercita `SHOW_EXISTING_FOLDER`. Nos cenários em que não há uma pasta existente, o fluxo real chega a `handleMarkerAndShow()`, cria `_anchor.png` e agenda sua remoção/erase cerca de **4 segundos** depois.
+
+Esse timer não pertencia ao teardown da suíte. Assim, o teste podia terminar aprovado enquanto o processo ainda possuía um Timeout ativo. Dependendo da distribuição dos arquivos entre workers, o Jest precisava matar o worker após o fim das assertions.
+
+### Correção
+
+`trackBackgroundDelayTimers()` passou a possuir também o delay de **4000 ms**, além dos delays já rastreados de 600 ms e 18 s. `regex-escape.test.js` inicia o tracker no setup e o cancela no teardown.
+
+As suítes reais relacionadas a marker/finalização também usam teardown explícito para impedir que recursos de um caso atravessem para o próximo.
+
+### Prova de resolução
+
+Run #1327:
+
+- background: 44 suítes / 221 testes, `forcedWorkerExit=false`;
+- bisection em 3 workers: 2/2 execuções limpas;
+- Node 20/22 completos: sem warning.
+
+Run #1355 no head `d940df4ddf982a7b45c423ba74901b993fc37f06`:
+
+- Node 20: 108/108 suítes, 847/847 testes, gate aprovado;
+- Node 22: 108/108 suítes, 847/847 testes, gate aprovado;
+- sem worker forçado.
+
+O detector de worker continua ativo no caminho obrigatório de CI. A solução não usa `--forceExit`, não ignora stderr e não serializa permanentemente a suíte.
+
+## Regressão de coverage do JobRunner
+
+Durante a finalização, `extension/gemini/job-runner.js` ficou em 63,37% de branches, abaixo do piso crítico de 64%.
+
+O piso **não foi reduzido**. Foram adicionados testes para:
+
+- guardas explícitas de dependências obrigatórias do JobRunner;
+- ausência de candidato em `tryClickModelImageCards()`;
+- candidato cujo `click()` falha e fallback para o próximo candidato.
+
+Resultado no run #1355:
+
+- `job-runner.js`: **285/434 branches = 65,67%**;
+- coverage global: **79,52% statements, 71,68% branches, 82,71% functions, 79,52% lines**;
+- Coverage Integrity aprovado.
+
+O inventário Jest final protegido é **108 suítes / 847 testes**.
+
+## Evidência E2E e CI final
+
+Run #1355:
+
+- Playwright descobriu 21 testes;
+- **21 passed**;
+- skipped=0;
+- flaky=0;
+- failed=0;
+- E2E gate aprovado;
+- CI Gate aprovado com todos os gates obrigatórios em `success`.
+
+Os diagnósticos caros de leak continuam disponíveis por `workflow_dispatch`, enquanto o gate permanente do Jest completo permanece obrigatório.

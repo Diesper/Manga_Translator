@@ -79,3 +79,110 @@ Esta etapa é uma operação de configuração externa ao PR. Fazer depois de ve
 5. Atualizar o ruleset da `main`, validar os checks obrigatórios no próprio PR e registrar o resultado. Não considerar a tarefa encerrada apenas porque a suíte serial passou ou porque o CI ficou verde enquanto emitia o warning.
 
 Relatório de conclusão esperado: SHA enviado; lista dos quatro testes novos e o que falhavam antes; comando mínimo que reproduzia o worker; logs paralelos finais de Node 20/22 sem warning; resultado de inventário, cobertura, skipped/TODO e Playwright; diff antes/depois do ruleset; estado final do PR. Se qualquer item não for comprovado, marcar como pendente com a evidência disponível.
+
+
+## Estado final verificado — 28/09/2026
+
+As pendências deste plano foram encerradas com evidência no GitHub Actions. O head funcional validado foi `d940df4ddf982a7b45c423ba74901b993fc37f06`, run **#1355** (`36369097974`).
+
+### Causa-raiz do worker Jest
+
+O warning de worker forçado foi reduzido por delta debugging de 44 suítes de `background` até o par:
+
+- `unit/background/process-finalize-real.test.js`
+- `unit/background/regex-escape.test.js`
+
+O par reproduziu o leak **4/4 vezes** com 3 workers; cada arquivo isolado ficava limpo. A causa concreta era um recurso assíncrono pertencente ao teste de `SHOW_EXISTING_FOLDER`: quando o fallback chegava a `handleMarkerAndShow()`, era criado `_anchor.png` e agendado cleanup por `setTimeout(..., 4000)`. O teardown de `regex-escape.test.js` não possuía/cancelava esse timer, permitindo que ele sobrevivesse ao caso e mantivesse um worker Jest vivo.
+
+A correção passou a registrar esse timer no helper de ownership de timers do background e cancelá-lo no `afterEach` da suíte. O helper também preserva ownership dos delays já conhecidos de 600 ms e 18 s.
+
+### Evidência pós-correção
+
+No run #1327, depois da correção:
+
+- `project-background`: **44/44 suítes, 221/221 testes, CLEAN**, sem worker forçado;
+- bisection completo com `maxWorkers=3`: **2/2 execuções limpas**;
+- Node 20 e Node 22: 108 suítes aprovadas, sem warning.
+
+No run final #1355:
+
+- Node 20: **108/108 suítes, 847/847 testes**, skipped=0, TODO=0, gate Jest aprovado;
+- Node 22: **108/108 suítes, 847/847 testes**, skipped=0, TODO=0, gate Jest aprovado;
+- nenhum `A worker process has failed to exit gracefully`;
+- nenhum `--forceExit`;
+- nenhuma conversão da suíte para `--runInBand`.
+
+### Coverage
+
+O piso crítico de `extension/gemini/job-runner.js` permaneceu em **64% branches**. Não houve redução de threshold.
+
+Foram adicionadas regressões para guardas de dependência e caminhos de `tryClickModelImageCards()`. Resultado final:
+
+- `job-runner.js`: **285/434 branches = 65,67%**;
+- global: Statements **79,52%**, Branches **71,68%**, Functions **82,71%**, Lines **79,52%**;
+- 56/56 arquivos de coverage esperados;
+- **847/847 testes** no job de coverage;
+- `Coverage Integrity`: aprovado.
+
+### E2E
+
+Playwright no run #1355:
+
+- **21/21 passed**;
+- skipped=0;
+- flaky=0;
+- failed=0;
+- gate E2E aprovado;
+- execução de aproximadamente 4,6 min.
+
+### CI Gate e ruleset
+
+O `CI Gate` do run #1355 terminou com sucesso e confirmou:
+
+- Version Integrity = success;
+- JS Syntax Check = success;
+- Manifest Validation = success;
+- CI Contract = success;
+- Smoke Tests = success;
+- Visual Tests = success;
+- Unit + Integration = success;
+- Code Coverage = success;
+- E2E Tests = success.
+
+O ruleset ativo da `main` (#23791606) está com `strict_required_status_checks_policy: true` e exige:
+
+- `JS Syntax Check`;
+- `Manifest Validation`;
+- `E2E Tests (Playwright)`;
+- `Code Coverage`;
+- `CI Gate`.
+
+Os nomes antigos de checks não são mais exigidos.
+
+### Diagnósticos pesados
+
+Os diagnósticos de leak foram preservados, mas movidos para `workflow_dispatch` depois da causa-raiz ser comprovada:
+
+- `Jest Worker Diagnostic`;
+- `Focused Project Leak`;
+- `Background Leak Bisection`.
+
+Eles não consomem runners em todo push/PR. A proteção permanente continua no `Unit + Integration`: se o warning de worker reaparecer, `run-jest-ci.js` reprova o job.
+
+### Critérios de aceite
+
+- [x] cleanup da extração auxiliar;
+- [x] regressões de ACK/retry/pagehide/safety timeout;
+- [x] teardown de RPA;
+- [x] teardown de clique individual;
+- [x] worker leak reproduzido e reduzido a um conjunto mínimo;
+- [x] causa-raiz concreta identificada;
+- [x] regressão/ownership do timer de 4 s adicionados;
+- [x] Jest paralelo limpo em Node 20;
+- [x] Jest paralelo limpo em Node 22;
+- [x] skipped=0 e TODO=0;
+- [x] coverage crítico sem redução de threshold;
+- [x] E2E sem skipped/flaky/failure;
+- [x] CI Gate verde;
+- [x] ruleset da main alinhado ao workflow real;
+- [x] diagnósticos pesados retirados da CI normal sem remover o gate permanente.
