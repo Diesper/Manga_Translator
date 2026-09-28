@@ -303,6 +303,9 @@ if (!jestRunner.includes('hasForcedWorkerExit(jestStderr)')) {
 if (!workflow.includes('node tests/ci/verify-jest-worker-warning-selftest.js')) {
   problems.push('CI Contract precisa testar a detecção de worker forçado');
 }
+if (!workflow.includes('node tests/ci/verify-root-interface.js')) {
+  problems.push('CI Contract precisa validar a interface padronizada da raiz');
+}
 if (jestRunner.includes("'--forceExit'") || jestRunner.includes('"--forceExit"')) {
   problems.push('run-jest-ci.js não pode mascarar open handles com --forceExit');
 }
