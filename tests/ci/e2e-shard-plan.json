@@ -6,35 +6,35 @@
       "tag": "@e2e-fifo",
       "kind": "heavy-exclusive",
       "expectedTests": 1,
-      "estimatedSeconds": 86.1
+      "estimatedSeconds": 86.3
     },
     {
       "id": "attachment",
       "tag": "@e2e-attachment",
       "kind": "heavy",
       "expectedTests": 3,
-      "estimatedSeconds": 72.6
+      "estimatedSeconds": 73.2
     },
     {
       "id": "medium-a",
       "tag": "@e2e-medium-a",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 71.2
+      "estimatedSeconds": 71.1
     },
     {
       "id": "medium-b",
       "tag": "@e2e-medium-b",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 71.4
+      "estimatedSeconds": 72.7
     },
     {
       "id": "fast",
       "tag": "@e2e-fast",
       "kind": "fast",
       "expectedTests": 9,
-      "estimatedSeconds": 54.2
+      "estimatedSeconds": 54.6
     }
   ]
 }
