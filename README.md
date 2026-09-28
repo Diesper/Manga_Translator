@@ -101,7 +101,7 @@ Depois de clonar o repositório, na raiz:
 npm run setup
 ```
 
-Esse comando executa a instalação determinística do pacote de testes com `npm ci` e instala o Chromium esperado pelo Playwright.
+Esse comando executa a instalação determinística do pacote de testes com `npm ci` e prepara o Chromium esperado pelo Playwright. Em Linux, o setup também instala as dependências de sistema do Chromium e o Xvfb usado quando não existe display gráfico.
 
 Comandos de preparação mais específicos:
 
@@ -110,7 +110,7 @@ npm run setup:deps   # somente npm ci em tests/
 npm run setup:e2e    # somente instalação do Chromium do Playwright
 ```
 
-> No GitHub Actions Linux, o E2E continua usando a preparação própria da CI com dependências de sistema e `xvfb-run`. O comando local da raiz não substitui a configuração especializada da CI.
+> A CI reutiliza o mesmo `test:e2e:setup`. Os shards continuam envolvendo o runner em `xvfb-run` explicitamente; na interface da raiz, `scripts/run-e2e-root.js` faz essa adaptação automaticamente quando detecta Linux sem `DISPLAY`/Wayland.
 
 ### Interface padronizada da raiz
 
@@ -130,7 +130,7 @@ Significado dos comandos:
 - `test:integration`: executa somente `tests/integration/`;
 - `test:smoke`: executa o runner oficial `tests/smoke/run-smoke.js`;
 - `test:visual`: executa a suíte perceptual `tests/visual-v3/`;
-- `test:e2e`: executa `tests/run-e2e.js`, que por sua vez chama o Playwright com `tests/playwright.config.js`;
+- `test:e2e`: passa pelo adaptador de ambiente `scripts/run-e2e-root.js`; em Linux sem display ele usa Xvfb automaticamente e então delega ao `tests/run-e2e.js`, que chama o Playwright com `tests/playwright.config.js`;
 - `test:coverage`: gera coverage pelo runner auditável da CI e depois executa o verificador de integridade/thresholds;
 - `test:all`: executa Smoke → Jest com inventário CI → Visual → Coverage → E2E, sem mascarar falhas.
 
@@ -138,6 +138,10 @@ A cadeia E2E oficial permanece:
 
 ```text
 raiz: npm run test:e2e
+        ↓
+scripts/run-e2e-root.js
+        ↓
+Linux sem DISPLAY? xvfb-run --auto-servernum
         ↓
 npm --prefix tests run test:e2e
         ↓
