@@ -29,8 +29,8 @@ jobs:
           echo "Frozen PR48 base: ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032"
           echo "Benchmark branch: ${GITHUB_REF_NAME}"
           echo "Benchmark group: Medium A residual"
-          echo "Expected tests: 2"
-          echo "Grep: Executa o lote em background com exclusão segura|E2E submit ignorado"
+          echo "Expected tests: 4"
+          echo "Grep: @e2e-medium-a"
           git merge-base --is-ancestor ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032 HEAD
           echo "Frozen base is an ancestor of benchmark HEAD."
 
@@ -52,8 +52,8 @@ jobs:
           MANGA_E2E_WORKERS: '2'
         run: |
           set -o pipefail
-          npx playwright test --config playwright.config.js --list --reporter=line --grep "Executa o lote em background com exclusão segura|E2E submit ignorado" | tee /tmp/benchmark-list.txt
-          grep -Eq "Total: 2 tests? in " /tmp/benchmark-list.txt
+          npx playwright test --config playwright.config.js --list --reporter=line --grep "@e2e-medium-a" | tee /tmp/benchmark-list.txt
+          grep -Eq "Total: 4 tests? in " /tmp/benchmark-list.txt
 
       - name: Install Chromium
         run: npx playwright install chromium --with-deps --no-shell
@@ -72,7 +72,7 @@ jobs:
         run: |
           set -o pipefail
           echo "BENCHMARK_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          xvfb-run --auto-servernum -- npm run test:e2e -- --grep "Executa o lote em background com exclusão segura|E2E submit ignorado"
+          xvfb-run --auto-servernum -- npm run test:e2e -- --grep "@e2e-medium-a"
           status=$?
           echo "BENCHMARK_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           exit "$status"
