@@ -360,6 +360,15 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
 
     test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', { tag: '@e2e-fifo' }, async () => {
         test.setTimeout(180000);
+        const fifoProfileStartedAt = Date.now();
+        const fifoProfile = (phase, extra = {}) => {
+            console.log('[FIFO_PROFILE]', JSON.stringify({
+                phase,
+                elapsedMs: Date.now() - fifoProfileStartedAt,
+                ...extra,
+            }));
+        };
+        fifoProfile('test_start');
         await resetExtensionState(backgroundWorker, {
             maxConcurrentJobs: 1,
             geminiExecutionMode: 'temp_chat',
@@ -367,6 +376,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             // seus content scripts reais, sem depender de corrida de milissegundos.
             geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
         });
+        fifoProfile('state_reset');
 
         const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
         const pages = [];
@@ -389,7 +399,9 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 document.querySelector('[data-testid="manga-image-1"]')?.remove();
             });
             pages.push(page);
+            fifoProfile('manga_page_ready', { label });
         }
+        fifoProfile('all_manga_pages_ready');
 
         const tabIds = await backgroundWorker.evaluate(async labelsToFind => {
             return new Promise(resolve => {
@@ -406,6 +418,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             });
         }, labels);
         labels.forEach(label => expect(tabIds[label]).not.toBeNull());
+        fifoProfile('tab_ids_resolved');
 
         const startReaderBatch = async label => {
             return backgroundWorker.evaluate(async tabId => {
@@ -422,6 +435,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         };
 
         expect(await startReaderBatch('A')).toEqual(expect.objectContaining({ ok: true }));
+        fifoProfile('batch_A_requested');
 
         await expect.poll(async () => {
             const storage = await readStorage(backgroundWorker, ['mt_state']);
@@ -435,6 +449,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             timeout: 15000,
             message: 'Lote A deveria assumir o scheduler antes da fila B-G',
         }).toBe(true);
+        fifoProfile('batch_A_active');
 
         let stateData = await readStorage(backgroundWorker, ['mt_state']);
         const batchIds = [stateData.mt_state.currentBatchId];
@@ -460,7 +475,9 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             // eslint-disable-next-line no-await-in-loop
             stateData = await readStorage(backgroundWorker, ['mt_state']);
             batchIds.push(stateData.mt_state.pendingBatches[index - 1].batchId);
+            fifoProfile('batch_queued', { label, queuePosition: index });
         }
+        fifoProfile('queue_B_to_G_complete');
 
         stateData = await readStorage(backgroundWorker, ['mt_state']);
         expect(stateData.mt_state.currentBatchId).toBe(batchIds[0]);
@@ -477,7 +494,9 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 timeout: 150000,
                 message: `Lote ${labels[index]} deveria receber seu resultado sem ser invalidado pelos lotes seguintes`,
             }).toBe(1);
+            fifoProfile('batch_result_visible', { label: labels[index], index });
         }
+        fifoProfile('all_results_visible');
 
         await expect.poll(async () => {
             backgroundWorker = await getBackgroundWorker(browserContext);
@@ -508,6 +527,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             pendingIds: [],
             jobIndexLength: 0,
         });
+        fifoProfile('scheduler_drained');
 
         const storage = await readStorage(backgroundWorker, ['translatorLog']);
         const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
@@ -515,6 +535,35 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         const queuedLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_QUEUED');
         const promotedLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_PROMOTED');
         const doneLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_DONE');
+        const interestingActions = new Set([
+            'BATCH_QUEUED',
+            'BATCH_PROMOTED',
+            'BATCH_DONE',
+            'GEMINI_TEMP_CHAT_STATUS',
+            'ATTACHMENT_STARTED',
+            'ATTACHMENT_CONFIRMED',
+            'GEMINI_STEP_3_OK',
+            'PROMPT_INJECTED',
+            'GEMINI_SUBMIT_ATTEMPT',
+            'GEMINI_SEND_SUCCESS',
+            'GEMINI_GENERATION_ACTIVE',
+            'GEMINI_RESULT_ACCEPTED',
+            'GEMINI_IMG_FOUND',
+        ]);
+        const timeline = logs
+            .filter(entry => entry && interestingActions.has(entry.action) && Number.isFinite(entry.ts))
+            .map(entry => ({
+                elapsedMs: entry.ts - fifoProfileStartedAt,
+                source: entry.source,
+                action: entry.action,
+                job: entry.extra?.jobIdPrefix || null,
+                batch: entry.extra?.batchId || entry.extra?.batchIdPrefix || null,
+                queuePosition: entry.extra?.queuePosition ?? null,
+                attempt: entry.extra?.attempt ?? null,
+                status: entry.extra?.status ?? null,
+            }));
+        console.log('[FIFO_PROFILE_TIMELINE]', JSON.stringify(timeline));
+        fifoProfile('assert_scheduler_logs');
 
         expect(queuedLogs.map(entry => entry.extra?.queuePosition)).toEqual([1, 2, 3, 4, 5, 6]);
         expect(promotedLogs.map(entry => entry.extra?.batchId)).toEqual(
@@ -530,10 +579,12 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
             'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
         ].includes(entry.action))).toBe(false);
 
+        fifoProfile('test_assertions_complete');
         for (const page of pages) {
             // eslint-disable-next-line no-await-in-loop
             await page.close();
         }
+        fifoProfile('pages_closed');
     });
 
     for (const scenario of [
