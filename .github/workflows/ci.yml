@@ -313,10 +313,16 @@ jobs:
       max-parallel: 4
       matrix:
         case:
+          - project-background
           - project-content-scripts
           - project-shared-ui
           - project-integration
           - project-manifest
+          - combo-content-integration
+          - combo-jsdom-projects
+          - combo-background-content
+          - combo-background-integration
+          - combo-background-jsdom
     defaults:
       run:
         working-directory: tests
