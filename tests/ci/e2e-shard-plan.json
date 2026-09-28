@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "id": "fifo",
+      "tag": "@e2e-fifo",
+      "kind": "heavy-exclusive",
+      "expectedTests": 1,
+      "estimatedSeconds": 50.5,
+      "workers": 1
+    },
+    {
+      "id": "attachment",
+      "tag": "@e2e-attachment",
+      "kind": "heavy",
+      "expectedTests": 3,
+      "estimatedSeconds": 27.4,
+      "workers": 3
+    },
+    {
+      "id": "medium-a",
+      "tag": "@e2e-medium-a",
+      "kind": "medium",
+      "expectedTests": 4,
+      "estimatedSeconds": 41.5,
+      "workers": 2
+    },
+    {
+      "id": "medium-b",
+      "tag": "@e2e-medium-b",
+      "kind": "medium",
+      "expectedTests": 4,
+      "estimatedSeconds": 42.1,
+      "workers": 2
+    },
+    {
+      "id": "fast",
+      "tag": "@e2e-fast",
+      "kind": "fast",
+      "expectedTests": 9,
+      "estimatedSeconds": 22.4,
+      "workers": 3
+    }
+  ]
+}

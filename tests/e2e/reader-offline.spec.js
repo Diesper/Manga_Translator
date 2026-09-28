@@ -125,6 +125,8 @@ let browserContext;
 let backgroundWorker;
 
 test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
+    // O reader compartilha persistent context/storage entre casos deste arquivo.
+    test.describe.configure({ mode: 'serial' });
     test.beforeAll(async () => {
         const pathToExtension = getExtensionPath(__dirname);
         const userDataDir = path.join(os.tmpdir(), `pw-manga-reader-${Date.now()}`);
@@ -157,7 +159,7 @@ test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
         await resetExtensionState(backgroundWorker);
     });
 
-    test('renderiza paginas salvas em ordem numerica correta e contador inicial consistente', async () => {
+    test('renderiza paginas salvas em ordem numerica correta e contador inicial consistente', { tag: '@e2e-fast' }, async () => {
         const chapterId = await seedReaderChapter(backgroundWorker, {});
         const readerPage = await browserContext.newPage();
         const readerUrl = await getReaderUrl(backgroundWorker, chapterId);
@@ -195,7 +197,7 @@ test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
         await readerPage.close();
     });
 
-    test('slider de largura persiste no localStorage ao reabrir o reader', async () => {
+    test('slider de largura persiste no localStorage ao reabrir o reader', { tag: '@e2e-fast' }, async () => {
         const chapterId = await seedReaderChapter(backgroundWorker, {
             chapterId: 'chap_reader_width',
             indices: [0, 1, 2],
@@ -226,7 +228,7 @@ test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
         await reopenedPage.close();
     });
 
-    test('navegacao por teclado avanca paginas e atualiza contador/progresso', async () => {
+    test('navegacao por teclado avanca paginas e atualiza contador/progresso', { tag: '@e2e-fast' }, async () => {
         const chapterId = await seedReaderChapter(backgroundWorker, {
             chapterId: 'chap_reader_keyboard',
         });
