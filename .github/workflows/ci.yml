@@ -1,4 +1,4 @@
-name: PR48 Temporary Benchmark - FIFO A-G
+name: PR48 Benchmark Queue Cleanup
 
 concurrency:
   group: pr48-benchmark-${{ github.ref }}
@@ -8,73 +8,7 @@ on:
   push:
 
 jobs:
-  benchmark:
-    name: "[TEST ONLY] FIFO A-G"
+  cleanup:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
-      - name: Checkout benchmark branch
-        uses: actions/checkout@v4
-
-      - name: Confirm frozen PR48 base
-        shell: bash
-        run: |
-          echo "Frozen PR48 base: ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032"
-          echo "Benchmark branch: ${GITHUB_REF_NAME}"
-          echo "Benchmark group: FIFO A-G"
-          echo "Expected tests: 1"
-          echo "Grep: @e2e-fifo"
-          git merge-base --is-ancestor ef3276eb4d7e1ddfdbe500e0fbb1a4d3a3a20032 HEAD
-
-      - name: Configure Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-          cache-dependency-path: tests/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Chromium
-        run: npx playwright install chromium --with-deps --no-shell
-
-      - name: Create E2E fixtures
-        run: npm run test:images
-
-      - name: Run benchmark group
-        shell: bash
-        env:
-          CI: true
-          MANGA_E2E_BROWSER_MODE: stealth
-          MANGA_E2E_SHARD: '1'
-          MANGA_E2E_WORKERS: '1'
-          MANGA_E2E_RETRIES: '0'
-        run: |
-          set -o pipefail
-          echo "BENCHMARK_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          xvfb-run --auto-servernum -- npm run test:e2e -- --grep "@e2e-fifo"
-          status=$?
-          echo "BENCHMARK_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          exit "$status"
-
-      - name: Upload benchmark blob
-        uses: actions/upload-artifact@v4
-        if: ${{ always() && !cancelled() }}
-        with:
-          name: pr48-benchmark-pr48-benchmark-fifo-${{ github.sha }}
-          path: tests/blob-report/
-          retention-days: 7
-          if-no-files-found: warn
-
-      - name: Upload failure artifacts
-        uses: actions/upload-artifact@v4
-        if: failure()
-        continue-on-error: true
-        with:
-          name: pr48-benchmark-failure-pr48-benchmark-fifo-${{ github.sha }}
-          path: tests/test-results/
-          retention-days: 7
-          if-no-files-found: ignore
+      - run: echo "Cancel stale benchmark run for ${GITHUB_REF_NAME}"
