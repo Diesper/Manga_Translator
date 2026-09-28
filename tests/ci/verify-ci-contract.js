@@ -208,9 +208,16 @@ if (!coverage.includes('fail_ci_if_error: true')) {
   problems.push('coverage: Codecov configurado deve reportar sua própria falha');
 }
 
+// O gate precisa sobreviver a falhas/skips de dependências para avaliá-las,
+// mas não deve ressuscitar depois que o workflow inteiro foi cancelado.
 const gate = jobBlock('ci-gate');
-if (!/if:\s*\$\{\{\s*always\(\)\s*\}\}/.test(gate)) {
-  problems.push('ci-gate: precisa usar if: always() para avaliar failure/skipped/cancelled');
+if (!/if:\s*\$\{\{\s*always\(\)\s*&&\s*!cancelled\(\)\s*\}\}/.test(gate)) {
+  problems.push(
+    'ci-gate: precisa usar if: always() && !cancelled() para avaliar falhas reais sem transformar workflow cancelado em falso vermelho'
+  );
+}
+if (/if:\s*\$\{\{\s*always\(\)\s*\}\}/.test(gate)) {
+  problems.push('ci-gate: if: always() puro é proibido porque pode gerar falso vermelho em run cancelado');
 }
 for (const dependency of requiredJobs.filter((job) => job !== 'ci-gate')) {
   if (!gate.includes('- ' + dependency)) {
