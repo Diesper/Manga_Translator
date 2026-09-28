@@ -1110,14 +1110,19 @@ mudança de monitor, resolução, zoom ou tamanho de janela deixe o botão fora 
 tela.
 
 O usuário pode ocultar o botão de forma intencional pela chave
-`floatingButtonEnabled`. Essa remoção não é tratada como erro. A chave
+`floatingButtonEnabled`. Essa remoção não é tratada como erro. A chave legada
 `clickToTranslateEnabled`, desligada por padrão, ativa a tradução de uma única
-imagem por clique esquerdo. Quando ligada, uma imagem elegível abre uma ação
-própria da extensão. Na confirmação, o índice é recalculado contra o DOM atual e
-a elegibilidade é revalidada antes de chamar o mesmo pipeline
-`extractAndSendImages([index])`. A lista de imagens banidas do domínio é
-mantida sincronizada em memória; se ela mudar enquanto a ação está aberta, a
-ação é fechada.
+imagem pelo **clique direito**. Quando ligada, o Service Worker registra a ação
+nativa **“Traduzir esta imagem”** em `chrome.contextMenus`, restrita ao contexto
+`image` e aos domínios habilitados. O content script apenas memoriza a imagem
+que recebeu o evento `contextmenu`; ele não cancela o menu nativo nem interfere
+no clique esquerdo. Quando a ação é escolhida, o background envia
+`TRANSLATE_CONTEXT_IMAGE` para a aba, o alvo é resolvido novamente e o índice é
+recalculado contra o DOM atual. A imagem é então revalidada (dimensões, banimento,
+estado traduzido e disponibilidade) antes de chamar o mesmo pipeline
+`extractAndSendImages([index])`. Mudanças em `clickToTranslateEnabled` ou
+`enabledDomains` recriam/removem o item do menu de contexto para manter a UI do
+navegador sincronizada com as preferências.
 
 ## 11.5 URL limpa
 
