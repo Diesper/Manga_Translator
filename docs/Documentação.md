@@ -405,6 +405,7 @@ O snapshot retornado por <code>state.get()</code> contém:
 | <code>stopRequested</code> | cancelamento solicitado |
 | <code>activeMangaTabId</code> | aba de origem do lote |
 | <code>currentBatchId</code> | identidade do lote corrente |
+| <code>pendingBatches</code> | fila FIFO durável dos lotes aceitos enquanto outro lote está ativo |
 | <code>extractionTabs</code> | abas auxiliares de extração |
 | <code>totalJobs</code> | total do lote |
 | <code>completedJobs</code> | concluídos com sucesso |
@@ -564,11 +565,15 @@ Para um hit válido:
 
 Para misses:
 
-1. <code>content_manga.js</code> envia START_BATCH;
-2. o background cria <code>batchId</code>;
-3. lê <code>maxConcurrentJobs</code>;
-4. popula a fila;
-5. abre jobs até o limite de concorrência.
+1. <code>content_manga.js</code> envia START_BATCH com um <code>batchId</code> próprio;
+2. se não existe lote ativo, o background promove esse lote imediatamente;
+3. se já existe A ativo, B/C/D/E/F/G/... são aceitos em <code>pendingBatches</code> e preservados em ordem FIFO;
+4. o lote ativo mantém seus próprios <code>jobQueue</code>, contadores e resultados; a chegada de lotes posteriores não reescreve seu estado;
+5. ao terminar ou ser cancelado o lote corrente, somente o primeiro lote pendente é promovido de forma atômica;
+6. o lote promovido lê <code>maxConcurrentJobs</code> e abre jobs até o limite de concorrência;
+7. retries de START_BATCH com o mesmo <code>batchId</code> são idempotentes e não duplicam nem mudam a posição na fila.
+
+A fila é persistida em <code>mt_state.pendingBatches</code>, portanto sobrevive à suspensão/recriação do Service Worker MV3. Cada lote pendente conserva <code>batchId</code>, aba de mangá, prompt e índices de imagens.
 
 ## 7.4 Fase 4 — abertura do Gemini
 
@@ -1266,7 +1271,7 @@ encaminhada ao mesmo Observer ativo; não cria um pipeline paralelo.
 
 ## 12.10 Conclusão de lote
 
-`BATCH_COMPLETE` propaga `hasErrors`, calculado quando completedJobs é menor que totalJobs. A página preserva o estado de falha e não toca áudio de sucesso para lote com erros. Esta revisão utiliza o indicador existente, sem adicionar contador persistente failedJobs.
+`BATCH_COMPLETE` propaga `hasErrors`, calculado quando completedJobs é menor que totalJobs. A página preserva o estado de falha e não toca áudio de sucesso para lote com erros. A conclusão é reivindicada uma única vez por `batchId`. Se houver lotes pendentes, a mesma transição persistida retira o primeiro item de `pendingBatches` e o promove; isso impede uma janela em que dois chamadores poderiam promover lotes diferentes. Esta revisão utiliza o indicador existente, sem adicionar contador persistente failedJobs.
 
 ## 12.11 Privacidade de logs
 
@@ -1510,6 +1515,13 @@ A validação é feita por <code>assertJobOwnership()</code>.
 
 O batchId impede que resultado de lote anterior seja aplicado como se
 pertencesse ao lote atual.
+
+A exclusividade agora é por identidade de job/lote e não por uma variável global
+que é sobrescrita a cada START_BATCH. Um job de A que ainda está vivo continua
+válido enquanto B/C/D/... aguardam em <code>pendingBatches</code>. Quando outro
+lote já foi promovido, uma finalização atrasada de lote anterior pode limpar seu
+próprio journal/índice, mas não pode incrementar/decrementar os contadores do
+novo lote.
 
 Abas auxiliares de extração também carregam jobId e batchId.
 
@@ -2353,6 +2365,11 @@ Store:
 13. **Gemini manual não deve ser automatizado sem job válido.**
 14. **inject.js precisa continuar isolado às abas controladas.**
 15. **Falha de módulo obrigatório deve ser visível no boot.**
+16. **START_BATCH de B/C/D/... nunca pode sobrescrever estado, jobs ou contadores de A.**
+17. **pendingBatches deve preservar FIFO e sobreviver ao restart do Service Worker.**
+18. **Promoção de lote deve ser atômica e ocorrer no máximo uma vez por posição da fila.**
+19. **STOP_BATCH com batchId pendente deve remover somente esse lote, sem cancelar o lote ativo.**
+20. **Finalização tardia de lote antigo não pode alterar contadores do lote atualmente promovido.**
 16. **Compatibilidade antiga só permanece com consumidor/dado justificável.**
 17. **Logs detalhados do Gemini não ficam ativos fora de debug.**
 18. **CI funcional não pode mascarar Jest/E2E.**

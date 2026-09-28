@@ -377,6 +377,17 @@ class ChromeDownloadsMock {
     this._onChangedListeners = [];
   }
 
+  _schedule(callback, _delay = 0) {
+    // Promise microtasks preservam assincronicidade sem criar handles de timer
+    // e continuam funcionando quando a suíte ativa fake timers.
+    Promise.resolve().then(callback);
+    return null;
+  }
+
+  clearTimers() {
+    // Compatibilidade com o reset do mock; microtasks não deixam handles vivos.
+  }
+
   download(options, callback) {
     const id = this._nextId++;
     const download = {
@@ -388,7 +399,11 @@ class ChromeDownloadsMock {
     };
     this._downloads.set(id, download);
 
-    setTimeout(() => {
+    // O callback entrega o ID antes do evento de conclusão, como no Chrome.
+    // O consumidor consegue registrar onChanged/waitForDownload antes do evento.
+    if (callback) this._schedule(() => callback(id), 0);
+
+    this._schedule(() => {
       download.state    = 'complete';
       download.exists   = true;
       download.filename = `/home/user/Downloads/${download.filename}`;
@@ -396,8 +411,6 @@ class ChromeDownloadsMock {
         fn({ id, state: { previous: 'in_progress', current: 'complete' } })
       );
     }, 10);
-
-    if (callback) setTimeout(() => callback(id), 0);
     return Promise.resolve(id);
   }
 
@@ -408,7 +421,7 @@ class ChromeDownloadsMock {
       const regex = new RegExp(query.filenameRegex);
       results = results.filter(d => regex.test(d.filename));
     }
-    if (callback) setTimeout(() => callback(results), 0);
+    if (callback) this._schedule(() => callback(results), 0);
     return Promise.resolve(results);
   }
 
@@ -417,13 +430,13 @@ class ChromeDownloadsMock {
   removeFile(downloadId, callback) {
     const dl = this._downloads.get(downloadId);
     if (dl) dl.exists = false;
-    if (callback) setTimeout(callback, 0);
+    if (callback) this._schedule(callback, 0);
     return Promise.resolve();
   }
 
   erase(query, callback) {
     if (query.id) this._downloads.delete(query.id);
-    if (callback) setTimeout(callback, 0);
+    if (callback) this._schedule(callback, 0);
     return Promise.resolve();
   }
 
@@ -484,6 +497,7 @@ function initChromeMocks() {
     storageMock.clear();
     tabsMock._tabs.clear();
     alarmsMock.clearAll();
+    downloadsMock.clearTimers();
     downloadsMock._downloads.clear();
     // CORREÇÃO: _onChangedListeners acumulava entre testes quando um teste registrava
     // um listener mas nunca disparava o evento que o removeria (ex: esperava download 42
@@ -503,6 +517,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  downloadsMock?.clearTimers();
   jest.clearAllTimers();
   jest.clearAllMocks();
   if (global.chrome?.runtime) global.chrome.runtime.lastError = null;

@@ -125,13 +125,13 @@ Essa evidência confirma o fluxo anterior às mudanças de quarentena nas execu�
 | `GEMINI_STEP_3_OK` | O anexo confirmou; o prompt pode prosseguir. |
 | `GEMINI_RESULT_ACCEPTED` | Resultado passou pelos filtros; motivo e prefixo da tarefa ajudam a atribuir o evento. |
 | `GEMINI_WATCHDOG_REFRESH_CONFIRMED` | O runner recebeu confirmação do refresh validado. |
-| `GEMINI_EXTRACT_STAGE` | Rota de extração e tentativa; interpretar avisos junto de conclusões posteriores. |
+| `GEMINI_EXTRACT_STAGE` | Rota de extração e tentativa; inclui `jobIdPrefix`, `batchIdPrefix` e `index` para correlação por tarefa. |
 | `GEMINI_EXTRACT_RETRY_ALL` | Outra tentativa da cadeia completa; não é falha terminal por si só. |
 | `DELETE_OK` / `DELETE_ALREADY_CONFIRMED` | Exclusão verificada / reconhecimento de repetição. |
 | `BATCH_DONE` | Conferir completed, total e hasErrors. |
 | `JOB_TIMEOUT` | O limite global expirou; analisar preparação, geração e refresh antes de atribuir causa. |
 
-Em lotes paralelos, os eventos de extração ainda não possuem prefixo de tarefa. Não associe uma falha a uma imagem apenas por proximidade textual.
+Em lotes paralelos, correlacione os eventos de extração pelos campos `jobIdPrefix`, `batchIdPrefix` e `index`; não é necessário inferir a imagem apenas pela proximidade textual.
 
 Mantenha esta revisão como base para mudanças futuras e altere um motivo por vez. Preserve logs e cache relevantes antes de diagnosticar regressão. Os backups e exports brutos da rodada manual permanecem locais.
 

@@ -12,6 +12,8 @@
   let totalJobs       = 0;
   let completedJobs   = 0;
   let activeJobsCount = 0;
+  let completionClaimedBatchId = null;
+  let pendingBatches = [];
 
   // ── Índice durável de jobs abertos ───────────────────────────────────────────
   let jobIndex = [];
@@ -35,6 +37,11 @@
           totalJobs,
           completedJobs,
           activeJobsCount,
+          completionClaimedBatchId,
+          pendingBatches: Array.isArray(pendingBatches) ? pendingBatches.map(batch => ({
+              ...batch,
+              images: Array.isArray(batch?.images) ? batch.images.map(image => ({ ...image })) : [],
+          })) : [],
           jobIndex: Array.isArray(jobIndex) ? jobIndex.slice() : [],
       };
   }
@@ -50,6 +57,8 @@
       if (Object.prototype.hasOwnProperty.call(nextState, 'totalJobs')) totalJobs = Number(nextState.totalJobs) || 0;
       if (Object.prototype.hasOwnProperty.call(nextState, 'completedJobs')) completedJobs = Number(nextState.completedJobs) || 0;
       if (Object.prototype.hasOwnProperty.call(nextState, 'activeJobsCount')) activeJobsCount = Number(nextState.activeJobsCount) || 0;
+      if (Object.prototype.hasOwnProperty.call(nextState, 'completionClaimedBatchId')) completionClaimedBatchId = nextState.completionClaimedBatchId || null;
+      if (Object.prototype.hasOwnProperty.call(nextState, 'pendingBatches')) pendingBatches = Array.isArray(nextState.pendingBatches) ? nextState.pendingBatches.map(batch => ({ ...batch, images: Array.isArray(batch?.images) ? batch.images.map(image => ({ ...image })) : [] })) : [];
       if (Object.prototype.hasOwnProperty.call(nextState, 'jobIndex')) jobIndex = Array.isArray(nextState.jobIndex) ? nextState.jobIndex : [];
       return get();
   }
@@ -228,6 +237,10 @@
       set completedJobs(v) { completedJobs = v; },
       get activeJobsCount() { return activeJobsCount; },
       set activeJobsCount(v) { activeJobsCount = v; },
+      get completionClaimedBatchId() { return completionClaimedBatchId; },
+      set completionClaimedBatchId(v) { completionClaimedBatchId = v || null; },
+      get pendingBatches() { return pendingBatches; },
+      set pendingBatches(v) { pendingBatches = Array.isArray(v) ? v : []; },
       get jobIndex() { return jobIndex; },
       set jobIndex(v) { jobIndex = v; },
       get _cachedMaxCon() { return _cachedMaxCon; },

@@ -41,10 +41,48 @@ function getExtensionPath(startDir) {
     return path.join(process.cwd(), 'extension');
 }
 
+let extensionId = null;
+
+function rememberExtensionId(worker) {
+    if (!worker) return worker;
+    try {
+        const parsed = new URL(worker.url());
+        if (parsed.protocol === 'chrome-extension:' && parsed.hostname) {
+            extensionId = parsed.hostname;
+        }
+    } catch (_error) {}
+    return worker;
+}
+
 async function getBackgroundWorker(context) {
     const existingWorker = context.serviceWorkers()[0];
-    if (existingWorker) return existingWorker;
-    return context.waitForEvent('serviceworker', { timeout: 15000 });
+    if (existingWorker) return rememberExtensionId(existingWorker);
+
+    if (!extensionId) {
+        return rememberExtensionId(
+            await context.waitForEvent('serviceworker', { timeout: 15000 })
+        );
+    }
+
+    let wakePage = null;
+    try {
+        const workerPromise = context.waitForEvent('serviceworker', { timeout: 15000 })
+            .catch(() => null);
+        wakePage = await context.newPage();
+        await wakePage.goto(`chrome-extension://${extensionId}/popup.html`, {
+            waitUntil: 'domcontentloaded',
+            timeout: 10000,
+        });
+        await wakePage.evaluate(() => new Promise(resolve => {
+            chrome.runtime.sendMessage({ action: 'GET_TAB_ID' }, () => resolve());
+        }));
+
+        const worker = context.serviceWorkers()[0] || await workerPromise;
+        if (!worker) throw new Error('Service Worker MV3 não acordou após mensagem da extensão');
+        return rememberExtensionId(worker);
+    } finally {
+        if (wakePage) await wakePage.close().catch(() => {});
+    }
 }
 
 async function resetExtensionState(backgroundWorker, overrides = {}) {
@@ -226,6 +264,184 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
         await page.close();
     });
 
+    test('E2E FIFO N-lotes: A→B→C→D→E→F→G preserva resultados e ordem sem stale', async () => {
+        test.setTimeout(180000);
+        await resetExtensionState(backgroundWorker, {
+            maxConcurrentJobs: 1,
+            geminiExecutionMode: 'temp_chat',
+            // Mantém A ativo tempo suficiente para B-G entrarem na fila por
+            // seus content scripts reais, sem depender de corrida de milissegundos.
+            geminiBaseUrl: 'http://127.0.0.1:3999/gemini/?attachmentDelayMs=2500',
+        });
+
+        const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+        const pages = [];
+
+        for (const label of labels) {
+            // eslint-disable-next-line no-await-in-loop
+            const page = await browserContext.newPage();
+            // eslint-disable-next-line no-await-in-loop
+            await page.goto(`http://localhost:3999/manga-page.html?fifo=${label}`);
+            // eslint-disable-next-line no-await-in-loop
+            await page.waitForLoadState('networkidle');
+            // eslint-disable-next-line no-await-in-loop
+            await page.waitForFunction(() => {
+                const image = document.querySelector('[data-testid="manga-image-0"]');
+                return image && image.naturalWidth >= 300 && image.naturalHeight >= 400;
+            }, { timeout: 15000 });
+            // Cada aba representa um lote de uma única página.
+            // eslint-disable-next-line no-await-in-loop
+            await page.evaluate(() => {
+                document.querySelector('[data-testid="manga-image-1"]')?.remove();
+            });
+            pages.push(page);
+        }
+
+        const tabIds = await backgroundWorker.evaluate(async labelsToFind => {
+            return new Promise(resolve => {
+                chrome.tabs.query({}, tabs => {
+                    const result = {};
+                    labelsToFind.forEach(label => {
+                        const match = (tabs || []).find(tab =>
+                            String(tab.url || '').includes(`manga-page.html?fifo=${label}`)
+                        );
+                        result[label] = match ? match.id : null;
+                    });
+                    resolve(result);
+                });
+            });
+        }, labels);
+        labels.forEach(label => expect(tabIds[label]).not.toBeNull());
+
+        const startReaderBatch = async label => {
+            return backgroundWorker.evaluate(async tabId => {
+                return new Promise(resolve => {
+                    chrome.tabs.sendMessage(tabId, {
+                        action: 'START_TRANSLATION_FROM_POPUP',
+                        indices: [0],
+                    }, response => {
+                        const error = chrome.runtime.lastError;
+                        resolve(error ? { ok: false, error: error.message } : (response || null));
+                    });
+                });
+            }, tabIds[label]);
+        };
+
+        expect(await startReaderBatch('A')).toEqual(expect.objectContaining({ ok: true }));
+
+        await expect.poll(async () => {
+            const storage = await readStorage(backgroundWorker, ['mt_state']);
+            const state = storage.mt_state || {};
+            return Boolean(
+                state.currentBatchId &&
+                state.activeMangaTabId === tabIds.A &&
+                state.isProcessing
+            );
+        }, {
+            timeout: 15000,
+            message: 'Lote A deveria assumir o scheduler antes da fila B-G',
+        }).toBe(true);
+
+        let stateData = await readStorage(backgroundWorker, ['mt_state']);
+        const batchIds = [stateData.mt_state.currentBatchId];
+
+        for (let index = 1; index < labels.length; index++) {
+            const label = labels[index];
+            // eslint-disable-next-line no-await-in-loop
+            expect(await startReaderBatch(label)).toEqual(expect.objectContaining({ ok: true }));
+
+            // Aguarda este content script terminar hashing/seleção e efetivamente
+            // registrar seu START_BATCH no fim da fila.
+            // eslint-disable-next-line no-await-in-loop
+            await expect.poll(async () => {
+                const storage = await readStorage(backgroundWorker, ['mt_state']);
+                const pending = storage.mt_state?.pendingBatches || [];
+                return pending.length >= index &&
+                    pending[index - 1]?.mangaTabId === tabIds[label];
+            }, {
+                timeout: 15000,
+                message: `Lote ${label} deveria ocupar a posição FIFO ${index}`,
+            }).toBe(true);
+
+            // eslint-disable-next-line no-await-in-loop
+            stateData = await readStorage(backgroundWorker, ['mt_state']);
+            batchIds.push(stateData.mt_state.pendingBatches[index - 1].batchId);
+        }
+
+        stateData = await readStorage(backgroundWorker, ['mt_state']);
+        expect(stateData.mt_state.currentBatchId).toBe(batchIds[0]);
+        expect(stateData.mt_state.pendingBatches.map(batch => batch.batchId))
+            .toEqual(batchIds.slice(1));
+        expect(stateData.mt_state.pendingBatches.map(batch => batch.mangaTabId))
+            .toEqual(labels.slice(1).map(label => tabIds[label]));
+
+        for (let index = 0; index < pages.length; index++) {
+            // eslint-disable-next-line no-await-in-loop
+            await expect.poll(async () => pages[index].evaluate(() =>
+                document.querySelectorAll('img[data-translated="true"]').length
+            ), {
+                timeout: 150000,
+                message: `Lote ${labels[index]} deveria receber seu resultado sem ser invalidado pelos lotes seguintes`,
+            }).toBe(1);
+        }
+
+        await expect.poll(async () => {
+            backgroundWorker = await getBackgroundWorker(browserContext);
+            const storage = await readStorage(backgroundWorker, ['mt_state']);
+            const state = storage.mt_state || {};
+            return {
+                currentBatchId: state.currentBatchId || null,
+                completedJobs: state.completedJobs || 0,
+                totalJobs: state.totalJobs || 0,
+                activeJobsCount: state.activeJobsCount || 0,
+                isProcessing: !!state.isProcessing,
+                queueLength: Array.isArray(state.jobQueue) ? state.jobQueue.length : -1,
+                pendingIds: Array.isArray(state.pendingBatches)
+                    ? state.pendingBatches.map(batch => batch.batchId)
+                    : null,
+                jobIndexLength: Array.isArray(state.jobIndex) ? state.jobIndex.length : -1,
+            };
+        }, {
+            timeout: 150000,
+            message: 'Todos os sete lotes deveriam drenar a fila FIFO completamente',
+        }).toEqual({
+            currentBatchId: batchIds[batchIds.length - 1],
+            completedJobs: 1,
+            totalJobs: 1,
+            activeJobsCount: 0,
+            isProcessing: false,
+            queueLength: 0,
+            pendingIds: [],
+            jobIndexLength: 0,
+        });
+
+        const storage = await readStorage(backgroundWorker, ['translatorLog']);
+        const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+        const schedulerLogs = logs.filter(entry => entry?.source === 'bg');
+        const queuedLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_QUEUED');
+        const promotedLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_PROMOTED');
+        const doneLogs = schedulerLogs.filter(entry => entry?.action === 'BATCH_DONE');
+
+        expect(queuedLogs.map(entry => entry.extra?.queuePosition)).toEqual([1, 2, 3, 4, 5, 6]);
+        expect(promotedLogs.map(entry => entry.extra?.batchId)).toEqual(
+            batchIds.slice(1).map(id => id.slice(0, 8))
+        );
+        expect(doneLogs.map(entry => entry.extra?.batchId)).toEqual(
+            batchIds.map(id => id.slice(0, 8))
+        );
+        expect(logs.some(entry => entry && [
+            'RESULT_JOB_IDENTITY_MISMATCH',
+            'RESULT_COMMIT_REJECTED',
+            'STALE_UPDATE',
+            'JOB_ACCOUNTING_FOREIGN_BATCH_IGNORED',
+        ].includes(entry.action))).toBe(false);
+
+        for (const page of pages) {
+            // eslint-disable-next-line no-await-in-loop
+            await page.close();
+        }
+    });
+
     for (const scenario of [
         {
             mode: 'minimized_window',
@@ -300,7 +516,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                 batchDone: true,
             });
 
-            if (scenario.mode === 'background_delete') {
+            if (scenario.mode === 'background_delete' || scenario.mode === 'minimized_window') {
                 await expect.poll(async () => {
                     const storage = await readStorage(backgroundWorker, ['translatorLog']);
                     const logs = Array.isArray(storage.translatorLog)
@@ -311,7 +527,7 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
                     );
                 }, {
                     timeout: 15000,
-                    message: 'Esperava exclusão segura confirmada no log',
+                    message: `Esperava exclusão segura confirmada no log para ${scenario.mode}`,
                 }).toBe(true);
             }
 
@@ -540,6 +756,22 @@ test.describe('E2E-01/E2E-02/E2E-03/E2E-04/E2E-05/E2E-06/E2E-07/E2E-08/E2E-09/E2
 
             const storage = await readStorage(backgroundWorker, ['translatorLog']);
             const logs = Array.isArray(storage.translatorLog) ? storage.translatorLog : [];
+            const attachmentActions = logs
+                .filter(entry => entry && typeof entry.action === 'string')
+                .map(entry => entry.action);
+
+            expect(attachmentActions).toContain('ATTACHMENT_STARTED');
+            expect(attachmentActions).toContain('ATTACHMENT_REJECTED');
+            expect(attachmentActions).toContain('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(attachmentActions).not.toContain('ATTACHMENT_CONFIRMED');
+
+            const startedAt = attachmentActions.indexOf('ATTACHMENT_STARTED');
+            const rejectedAt = attachmentActions.indexOf('ATTACHMENT_REJECTED');
+            const blockedAt = attachmentActions.indexOf('SUBMIT_BLOCKED_ATTACHMENT');
+            expect(startedAt).toBeGreaterThanOrEqual(0);
+            expect(rejectedAt).toBeGreaterThan(startedAt);
+            expect(blockedAt).toBeGreaterThan(rejectedAt);
+
             expect(logs.some(entry => entry && entry.action === 'GEMINI_SUBMIT_ATTEMPT')).toBe(false);
             expect(logs.some(entry => entry && entry.action === 'PROMPT_INJECTED')).toBe(false);
             expect(await page.evaluate(() =>

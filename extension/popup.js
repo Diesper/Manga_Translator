@@ -730,64 +730,110 @@ document.addEventListener('DOMContentLoaded', async () => {
                 let pollStarted = false;
                 let backgroundStarted = false;
                 const pollProgress = setInterval(() => {
-                    chrome.storage.local.get(['mt_state', 'mt_popup_state'], (d) => {
-                        const state = d.mt_state || {};
-                        const popupState = d.mt_popup_state || {};
-                        const popupStatus = popupState.status || null;
-                        const popupStarted = popupStatus === 'starting' || popupStatus === 'processing' || popupStatus === 'complete';
-                        if (state.isProcessing) backgroundStarted = true;
-                        if (!pollStarted && !state.isProcessing && !popupStarted) return;
-                        pollStarted = true;
-                        if (!state.isProcessing && !backgroundStarted && popupStatus !== 'complete') return;
-
-                        const geminiDone = state.completedJobs || 0;
-                        const geminiTotal = state.totalJobs || popupState.geminiTotal || 0;
-                        const cacheHits = Number.isFinite(popupState.cacheHits)
-                            ? popupState.cacheHits
-                            : Math.max(0, total - geminiTotal);
-                        const queued = (state.jobQueue && state.jobQueue.length) || 0;
-                        const active = state.activeJobsCount || 0;
-                        
-                        const processed = Math.max(0, total - queued - active);
-                        const pct = total > 0 ? Math.round((Math.min(total, processed) / total) * 100) : 0;
-                        
-                        progressFill.style.width = pct + '%';
-                        progressSub.textContent = geminiTotal > 0
-                            ? `${geminiDone} / ${geminiTotal} Gemini + ${cacheHits} cache`
-                            : `${processed} / ${total} páginas`;
-                        const allDone = popupStatus === 'complete' || (backgroundStarted && active === 0 && queued === 0);
-                        
-                        if (allDone) {
-                            clearInterval(pollProgress);
-                            chrome.storage.local.remove('mt_popup_state');
-                            progressText.textContent = geminiDone > 0 || cacheHits > 0
-                                ? '✅ Tradução concluída!'
-                                : '⚠️ Concluído com erros';
-
-                            if (!progressPanel.querySelector('.progress-close-btn')) {
-                                const btnClose = document.createElement('button');
-                                btnClose.className = 'btn progress-close-btn';
-                                btnClose.style.cssText = 'width:auto;padding:6px 24px;margin-top:8px;font-size:12px;';
-                                btnClose.textContent = '✓ Fechar';
-                                btnClose.addEventListener('click', () => {
-                                    progressPanel.classList.remove('active');
-                                    if (tabsEl) tabsEl.style.display = '';
-                                    tabContentsEl.forEach(t => { t.style.display = ''; });
-                                    document.querySelector('.tab-btn')?.click();
-                                    window.close();
-                                });
-                                progressPanel.appendChild(btnClose);
-                            }
-                            setTimeout(() => window.close(), 1500);
+                    // O estado global pertence ao lote atualmente promovido. Para
+                    // uma aba B/C/D/... que ainda espera na FIFO, consulte primeiro
+                    // o content script da própria aba para não mostrar contadores de A.
+                    sendMessageToTab({ action: 'GET_FLOATING_BUTTON_STATUS' }, (localState) => {
+                        if (localState?.batchStatus === 'queued') {
+                            pollStarted = true;
+                            progressText.textContent = '⏳ Aguardando na fila...';
+                            progressSub.textContent = `Posição #${localState.queuePosition || '?'} · lote desta página`;
+                            progressFill.style.width = '0%';
+                            return;
                         }
+
+                        if (localState?.batchStatus === 'complete') {
+                            clearInterval(pollProgress);
+                            progressText.textContent = '✅ Tradução concluída!';
+                            progressSub.textContent = 'Lote desta página concluído.';
+                            progressFill.style.width = '100%';
+                            setTimeout(() => window.close(), 1500);
+                            return;
+                        }
+
+                        if (localState?.batchStatus === 'cancelled') {
+                            clearInterval(pollProgress);
+                            progressText.textContent = '⏹️ Tradução cancelada';
+                            progressSub.textContent = 'O lote desta página foi removido.';
+                            progressFill.style.width = '0%';
+                            return;
+                        }
+
+                        chrome.storage.local.get(['mt_state', 'mt_popup_state'], (d) => {
+                            const state = d.mt_state || {};
+                            const popupState = d.mt_popup_state || {};
+                            const popupStatus = popupState.status || null;
+                            const popupStarted = ['starting', 'processing', 'queued', 'complete', 'cancelled']
+                                .includes(popupStatus);
+                            if (state.isProcessing) backgroundStarted = true;
+                            if (!pollStarted && !state.isProcessing && !popupStarted) return;
+                            pollStarted = true;
+
+                            if (popupStatus === 'cancelled') {
+                                clearInterval(pollProgress);
+                                progressText.textContent = '⏹️ Tradução cancelada';
+                                progressSub.textContent = 'O lote desta página foi removido.';
+                                progressFill.style.width = '0%';
+                                return;
+                            }
+
+                            if (!state.isProcessing && !backgroundStarted && popupStatus !== 'complete') return;
+
+                            const geminiDone = state.completedJobs || 0;
+                            const geminiTotal = state.totalJobs || popupState.geminiTotal || 0;
+                            const cacheHits = Number.isFinite(popupState.cacheHits)
+                                ? popupState.cacheHits
+                                : Math.max(0, total - geminiTotal);
+                            const queued = (state.jobQueue && state.jobQueue.length) || 0;
+                            const active = state.activeJobsCount || 0;
+
+                            const processed = Math.max(0, total - queued - active);
+                            const pct = total > 0 ? Math.round((Math.min(total, processed) / total) * 100) : 0;
+
+                            progressText.textContent = 'Traduzindo páginas...';
+                            progressFill.style.width = pct + '%';
+                            progressSub.textContent = geminiTotal > 0
+                                ? `${geminiDone} / ${geminiTotal} Gemini + ${cacheHits} cache`
+                                : `${processed} / ${total} páginas`;
+                            const allDone = popupStatus === 'complete' || (backgroundStarted && active === 0 && queued === 0);
+
+                            if (allDone) {
+                                clearInterval(pollProgress);
+                                chrome.storage.local.remove('mt_popup_state');
+                                progressText.textContent = geminiDone > 0 || cacheHits > 0
+                                    ? '✅ Tradução concluída!'
+                                    : '⚠️ Concluído com erros';
+
+                                if (!progressPanel.querySelector('.progress-close-btn')) {
+                                    const btnClose = document.createElement('button');
+                                    btnClose.className = 'btn progress-close-btn';
+                                    btnClose.style.cssText = 'width:auto;padding:6px 24px;margin-top:8px;font-size:12px;';
+                                    btnClose.textContent = '✓ Fechar';
+                                    btnClose.addEventListener('click', () => {
+                                        progressPanel.classList.remove('active');
+                                        if (tabsEl) tabsEl.style.display = '';
+                                        tabContentsEl.forEach(t => { t.style.display = ''; });
+                                        document.querySelector('.tab-btn')?.click();
+                                        window.close();
+                                    });
+                                    progressPanel.appendChild(btnClose);
+                                }
+                                setTimeout(() => window.close(), 1500);
+                            }
+                        });
                     });
                 }, 800);
 
                 const stopBtn = document.getElementById('btn-progress-stop');
                 if (stopBtn) stopBtn.addEventListener('click', () => {
                     clearInterval(pollProgress);
-                    chrome.runtime.sendMessage({ action: 'STOP_BATCH' });
-                    window.close();
+                    sendMessageToTab({ action: 'STOP_TRANSLATION_FROM_POPUP' }, (response) => {
+                        if (!response || response.ok !== true) {
+                            showPopupToast('Não foi possível cancelar o lote desta página.', 'error');
+                            return;
+                        }
+                        window.close();
+                    });
                 });
             } else {
                 window.close();

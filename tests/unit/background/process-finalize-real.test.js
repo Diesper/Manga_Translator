@@ -82,6 +82,8 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             isProcessing: true,
             stopRequested: false,
             activeMangaTabId: mangaTab.id,
+            currentBatchId: 'batch-complete',
+            completionClaimedBatchId: null,
             extractionTabs: {},
             totalJobs: 1,
             completedJobs: 1,
@@ -460,12 +462,83 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         expect(stored.mt_state.activeJobsCount).toBe(0);
     });
 
-    test('BG-77: aba do mangá fechada durante tradução não deixa job preso', async () => {
+    test('BG-76b: STOP_BATCH durante tabs.create não permite job tardio ressuscitar o lote', async () => {
+        await storageMock.set({
+            maxConcurrentJobs: 1,
+            geminiBaseUrl: 'https://example.com/mock',
+            geminiExecutionMode: 'temp_chat',
+        });
+
+        const originalCreate = tabsMock.create.bind(tabsMock);
+        let releaseCreate = null;
+        jest.spyOn(tabsMock, 'create').mockImplementation(options =>
+            new Promise(resolve => {
+                releaseCreate = async () => resolve(await originalCreate(options));
+            })
+        );
+
+        const start = await dispatchToBackground(runtimeMock, {
+            action: 'START_BATCH',
+            batchId: 'batch-cancel-launch',
+            mangaTabId: 55,
+            prompt: 'Traduzir',
+            images: [{ index: 1 }],
+        }, { tab: { id: 55 } });
+
+        expect(start.response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: 'batch-cancel-launch',
+        }));
+        await waitFor(() => typeof releaseCreate === 'function');
+
+        const stop = await dispatchToBackground(runtimeMock, {
+            action: 'STOP_BATCH',
+            batchId: 'batch-cancel-launch',
+        });
+        expect(stop.response).toEqual({ ok: true });
+
+        await releaseCreate();
+        await flush(12);
+
+        await waitFor(async () => {
+            const state = backgroundModule.__getState();
+            const stored = await storageMock.get(null);
+            return state.activeJobsCount === 0 &&
+                state.jobIndex.length === 0 &&
+                tabsMock._tabs.size === 0 &&
+                !Object.keys(stored).some(key => key.startsWith('gemini_job_'));
+        });
+
+        const stored = await storageMock.get(null);
+        expect(backgroundModule.__getState()).toEqual(expect.objectContaining({
+            stopRequested: false,
+            isProcessing: false,
+            currentBatchId: null,
+            activeJobsCount: 0,
+            jobIndex: [],
+        }));
+        expect(Object.keys(stored).filter(key => key.startsWith('wd_data_'))).toEqual([]);
+        expect(Object.keys(stored).filter(key => key.startsWith('gemini_job_'))).toEqual([]);
+    });
+
+    test('BG-77: aba do mangá fechada falha staging e erro subsequente encerra o job sem falso sucesso', async () => {
         await storageMock.set({
             debugMode: false,
-            deleting_urls: [],
-            gemini_job_1900: { geminiTabId: 1900, mangaTabId: 404, index: 7, jobId: 'job-1900' },
-            wd_data_1900: { mangaTabId: 404, index: 7, geminiTabId: 1900, jobId: 'job-1900' },
+            geminiExecutionMode: 'temp_chat',
+            gemini_job_1900: {
+                geminiTabId: 1900,
+                mangaTabId: 404,
+                index: 7,
+                jobId: 'job-1900',
+                batchId: 'batch-1900',
+                executionMode: 'temp_chat',
+            },
+            wd_data_1900: {
+                mangaTabId: 404,
+                index: 7,
+                geminiTabId: 1900,
+                jobId: 'job-1900',
+            },
         });
         tabsMock._tabs.set(1900, {
             id: 1900,
@@ -478,6 +551,14 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         jest.useFakeTimers();
         backgroundModule.__setState({
             jobQueue: [],
+            jobIndex: [{
+                geminiTabId: 1900,
+                mangaTabId: 404,
+                index: 7,
+                jobId: 'job-1900',
+                batchId: 'batch-1900',
+            }],
+            currentBatchId: 'batch-1900',
             isProcessing: true,
             stopRequested: false,
             activeMangaTabId: 404,
@@ -492,13 +573,36 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             index: 7,
             src: 'data:image/png;base64,TRANSLATED',
             jobId: 'job-1900',
+            batchId: 'batch-1900',
         }, { tab: { id: 1900 } });
-        await jest.advanceTimersByTimeAsync(1);
+        // A ação passa por reidratação/storage antes de chrome.tabs.sendMessage;
+        // avance em rodadas para também executar o callback de erro agendado no mock.
+        await flushFakeTimerRounds(24);
         const result = await resultPromise;
 
-        expect(result.response).toEqual({ ok: true });
+        expect(result.response.ok).toBe(false);
+        expect(result.response.staged).toBeUndefined();
+        expect(backgroundModule.__getState().activeJobsCount).toBe(1);
+        expect(storageMock._getStore().gemini_job_1900).toBeDefined();
 
-        await jest.advanceTimersByTimeAsync(1500);
+        // O job runner transforma a falha de staging em GEMINI_ERROR. Mesmo
+        // sem a aba do mangá, report-error finaliza o job real e libera o slot.
+        const errorPromise = dispatchToBackground(runtimeMock, {
+            action: 'GEMINI_ERROR',
+            mangaTabId: 404,
+            index: 7,
+            error: 'RESULT_STAGE_FAILED',
+            jobId: 'job-1900',
+            batchId: 'batch-1900',
+        }, { tab: { id: 1900 } });
+        // report-error também agenda o callback de chrome.tabs.sendMessage no
+        // mock; avance em rodadas após os awaits internos para não depender da
+        // ordem de microtasks do Node 20/22.
+        await flushFakeTimerRounds(24);
+        const errorResult = await errorPromise;
+        expect(errorResult.response).toEqual({ ok: true });
+
+        await jest.advanceTimersByTimeAsync(601);
         await flushFakeTimerRounds(6);
 
         expect(backgroundModule.__getState()).toEqual(expect.objectContaining({
@@ -506,10 +610,74 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
             completedJobs: 0,
         }));
         expect(storageMock._getStore().gemini_job_1900).toBeUndefined();
+        expect(tabsMock._tabs.has(1900)).toBe(false);
+    });
+
+    test('BG-31c: background_delete só inicia exclusão depois que o job chega à finalização pós-persistência', async () => {
+        await storageMock.set({
+            debugMode: false,
+            geminiExecutionMode: 'background_delete',
+            deleting_urls: [],
+            gemini_job_1900: {
+                geminiTabId: 1900,
+                jobId: 'job-bg-delete',
+                batchId: 'batch-bg-delete',
+                mangaTabId: 60,
+                executionMode: 'background_delete',
+                state: 'result_committed',
+                resultPersisted: true,
+            },
+            wd_data_1900: {
+                mangaTabId: 60,
+                index: 6,
+                geminiTabId: 1900,
+                jobId: 'job-bg-delete',
+            },
+        });
+        tabsMock._tabs.set(1900, {
+            id: 1900,
+            url: 'https://gemini.google.com/app/job-1900',
+            active: false,
+            status: 'complete',
+            title: '',
+        });
+
+        const received = [];
+        tabsMock._registerMessageHandler(1900, (message, _sender, sendResponse) => {
+            received.push(message);
+            sendResponse({ ok: true });
+        });
+
+        jest.useFakeTimers();
+        backgroundModule.__setState({
+            activeJobsCount: 1,
+            completedJobs: 0,
+            currentBatchId: 'batch-bg-delete',
+            totalJobs: 1,
+            jobIndex: [{
+                geminiTabId: 1900,
+                jobId: 'job-bg-delete',
+                batchId: 'batch-bg-delete',
+                mangaTabId: 60,
+                index: 6,
+            }],
+        });
+
+        const finalizePromise = backgroundModule.finalizeJob(1900, 60, false);
+        await flushFakeTimerRounds(12);
+        await finalizePromise;
+        await flushFakeTimerRounds(6);
+
+        expect(received).toContainEqual({ action: 'DELETE_CONVERSATION' });
+        expect(tabsMock._tabs.has(1900)).toBe(true);
+        expect(storageMock._getStore().deleting_urls)
+            .toContain('https://gemini.google.com/app/job-1900');
 
         await jest.advanceTimersByTimeAsync(18_001);
         await flushFakeTimerRounds(4);
 
         expect(tabsMock._tabs.has(1900)).toBe(false);
+        expect(storageMock._getStore().deleting_urls).toEqual([]);
     });
+
 });

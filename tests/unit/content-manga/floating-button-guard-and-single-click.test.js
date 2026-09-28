@@ -291,6 +291,12 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
 
         // Interrompe o lote logo após validar a seleção para não deixar timer de
         // watchdog ativo no restante da suíte.
+        await waitFor(() => sendSpy.mock.calls.some(([message]) =>
+            message && message.action === 'START_BATCH'
+        ));
+        expect(sendSpy.mock.calls.filter(([message]) =>
+            message && message.action === 'START_BATCH'
+        )).toHaveLength(1);
         const main = context.getMainContent();
         if (main) main.click();
         await delay(20);
@@ -351,6 +357,10 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
             domImages: [{ src: 'https://reader.test/remove-before-confirm.png', width: 800, height: 1200 }],
         });
 
+        // A previous content-script instance can finish an asynchronous batch
+        // after this spy is installed. Only this click's messages are relevant.
+        sendSpy.mockClear();
+
         const img = document.querySelector('img');
         img.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
@@ -363,7 +373,7 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
 
         img.remove();
         document.getElementById('manga-single-image-translate').click();
-        await delay(30);
+        await delay(100);
 
         expect(document.getElementById('manga-single-image-action')).toBeNull();
         expect(logMessages(sendSpy, 'SINGLE_IMAGE_TRANSLATION_ABORTED').length).toBeGreaterThanOrEqual(1);

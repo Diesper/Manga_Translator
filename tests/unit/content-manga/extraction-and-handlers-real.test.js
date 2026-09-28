@@ -36,12 +36,13 @@ async function waitFor(assertion, { timeout = 2000, interval = 10 } = {}) {
     throw new Error('Timeout aguardando condicao');
 }
 
-function setWindowLocation(hostname, pathname = '/chapter/1') {
+function setWindowLocation(hostname, pathname = '/chapter/1', hash = '') {
     Object.defineProperty(window, 'location', {
         value: {
             hostname,
-            href: `https://${hostname}${pathname}`,
+            href: `https://${hostname}${pathname}${hash}`,
             pathname,
+            hash,
             origin: `https://${hostname}`,
         },
         configurable: true,
@@ -80,7 +81,7 @@ function defineImageState(img, {
     height = 1200,
     complete = true,
 } = {}) {
-    img.src = src;
+    if (src !== null) img.src = src;
     img.scrollIntoView = jest.fn();
     Object.defineProperty(img, 'naturalWidth', { value: width, configurable: true });
     Object.defineProperty(img, 'naturalHeight', { value: height, configurable: true, writable: true });
@@ -128,9 +129,12 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
     async function loadExtractionScript({
         extractionResponse = { isExtractionTab: true, mangaTabId: 77, index: 3, geminiTabId: 999 },
         fetchFallbackResponse = { dataUrl: 'data:image/png;base64,RkFMTEJBQ0s=' },
+        deliveryResponse = { ok: true, persisted: true },
+        hostname = 'lh3.googleusercontent.com',
+        hash = '',
         buildDom,
     } = {}) {
-        setWindowLocation('lh3.googleusercontent.com', '/proxy/result');
+        setWindowLocation(hostname, '/proxy/result', hash);
         if (typeof buildDom === 'function') buildDom();
 
         const sentMessages = [];
@@ -138,7 +142,10 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             sentMessages.push(message);
 
             if (message.action === 'CHECK_IF_EXTRACTION_TAB') {
-                if (callback) setTimeout(() => callback(extractionResponse), 0);
+                const response = typeof extractionResponse === 'function'
+                    ? extractionResponse(message)
+                    : extractionResponse;
+                if (callback) setTimeout(() => callback(response), 0);
                 return;
             }
 
@@ -146,6 +153,14 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
                 const response = typeof fetchFallbackResponse === 'function'
                     ? fetchFallbackResponse(message)
                     : fetchFallbackResponse;
+                if (callback) setTimeout(() => callback(response), 0);
+                return;
+            }
+
+            if (message.action === 'IMAGE_READY_FROM_NEW_TAB') {
+                const response = typeof deliveryResponse === 'function'
+                    ? deliveryResponse(message)
+                    : deliveryResponse;
                 if (callback) setTimeout(() => callback(response), 0);
                 return;
             }
@@ -165,6 +180,51 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
     }
 
     describe('modo extracao em googleusercontent', () => {
+        test('ACK persistido encerra a entrega sem retry tardio', async () => {
+            const sentMessages = await loadExtractionScript({
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            const deliveries = () => sentMessages.filter(message =>
+                message.action === 'IMAGE_READY_FROM_NEW_TAB'
+            );
+            await waitFor(() => deliveries().length === 1);
+            await delay(850); // maior que o retry de 700 ms
+
+            expect(deliveries()).toHaveLength(1);
+        });
+
+        test('ACK não confirmado repete a entrega e para após persistência', async () => {
+            let acknowledgements = 0;
+            const sentMessages = await loadExtractionScript({
+                deliveryResponse: () => {
+                    acknowledgements++;
+                    return acknowledgements === 1
+                        ? { ok: false, persisted: false, reason: 'not_persisted' }
+                        : { ok: true, persisted: true };
+                },
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            const deliveries = () => sentMessages.filter(message =>
+                message.action === 'IMAGE_READY_FROM_NEW_TAB'
+            );
+            await waitFor(() => deliveries().length === 2, { timeout: 3000 });
+            await delay(850);
+
+            expect(deliveries()).toHaveLength(2);
+            expect(acknowledgements).toBe(2);
+            expect(deliveries()[1]).toEqual(deliveries()[0]);
+        });
+
         test('envia IMAGE_READY_FROM_NEW_TAB imediatamente quando a imagem ja esta carregada', async () => {
             const sentMessages = await loadExtractionScript({
                 buildDom: () => {
@@ -204,25 +264,111 @@ describe('CM-21/CM-22/CM-23/CM-24/CM-25/CM-26/CM-27/CM-28/CM-99/CM-100/CM-102/CM
             expect(sentMessages.filter(message => message.action === 'FETCH_IMAGE_AS_BASE64')).toHaveLength(0);
         });
 
-        test('aguarda o evento load quando a imagem ainda esta carregando', async () => {
-            let img;
+        test('google.com comum mantém o modo leitor quando não é aba auxiliar marcada', async () => {
+            const context = await loadContentScript({
+                hostname: 'www.google.com',
+                enabledDomains: ['www.google.com'],
+            });
+
+            expect(context.getButton()).not.toBeNull();
+        });
+
+        test('aba auxiliar marcada funciona em host não-Google', async () => {
             const sentMessages = await loadExtractionScript({
+                hostname: '127.0.0.1',
+                hash: '#manga-translator-extraction',
                 buildDom: () => {
-                    img = document.createElement('img');
-                    defineImageState(img, { complete: false, height: 0 });
+                    const img = document.createElement('img');
+                    defineImageState(img, {
+                        src: 'http://127.0.0.1:3999/gemini-result-image',
+                        complete: true,
+                        height: 900,
+                    });
                     document.body.appendChild(img);
                 },
             });
 
-            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(0);
+            await waitFor(() => sentMessages.find(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+
+            expect(sentMessages).toContainEqual(expect.objectContaining({
+                action: 'IMAGE_READY_FROM_NEW_TAB',
+                mangaTabId: 77,
+                index: 3,
+                geminiTabId: 999,
+            }));
+        });
+
+        test('aba auxiliar marcada repete o lookup se o mapeamento ainda não foi persistido', async () => {
+            let checks = 0;
+            const sentMessages = await loadExtractionScript({
+                hostname: 'cdn.example',
+                hash: '#manga-translator-extraction',
+                extractionResponse: () => {
+                    checks++;
+                    if (checks < 3) return { isExtractionTab: false };
+                    return {
+                        isExtractionTab: true,
+                        mangaTabId: 77,
+                        index: 3,
+                        geminiTabId: 999,
+                        jobId: 'job-delayed',
+                        batchId: 'batch-delayed',
+                    };
+                },
+                buildDom: () => {
+                    const img = document.createElement('img');
+                    defineImageState(img, { complete: true, height: 900 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            await waitFor(() => sentMessages.find(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+
+            expect(checks).toBeGreaterThanOrEqual(3);
+            expect(sentMessages.filter(message => message.action === 'CHECK_IF_EXTRACTION_TAB').length)
+                .toBeGreaterThanOrEqual(3);
+            expect(sentMessages).toContainEqual(expect.objectContaining({
+                action: 'IMAGE_READY_FROM_NEW_TAB',
+                jobId: 'job-delayed',
+                batchId: 'batch-delayed',
+            }));
+        });
+
+        test('aguarda o evento load quando a imagem ainda esta carregando', async () => {
+            let img;
+            const currentJobId = 'job-await-load';
+            const sentMessages = await loadExtractionScript({
+                extractionResponse: {
+                    isExtractionTab: true,
+                    mangaTabId: 77,
+                    index: 3,
+                    geminiTabId: 999,
+                    jobId: currentJobId,
+                    batchId: 'batch-await-load',
+                },
+                buildDom: () => {
+                    img = document.createElement('img');
+                    // Sem src: evita que o JSDOM dispare "error" de recurso antes
+                    // do load manual que este teste quer validar.
+                    defineImageState(img, { src: null, complete: false, height: 0 });
+                    document.body.appendChild(img);
+                },
+            });
+
+            const deliveriesForCurrentJob = () => sentMessages.filter(message =>
+                message.action === 'IMAGE_READY_FROM_NEW_TAB' &&
+                message.jobId === currentJobId
+            );
+
+            expect(deliveriesForCurrentJob()).toHaveLength(0);
 
             Object.defineProperty(img, 'naturalHeight', { value: 1200, configurable: true, writable: true });
             Object.defineProperty(img, 'complete', { value: true, configurable: true, writable: true });
             img.dispatchEvent(new Event('load'));
 
-            await waitFor(() => sentMessages.find(message => message.action === 'IMAGE_READY_FROM_NEW_TAB'));
+            await waitFor(() => deliveriesForCurrentJob()[0]);
 
-            expect(sentMessages.filter(message => message.action === 'IMAGE_READY_FROM_NEW_TAB')).toHaveLength(1);
+            expect(deliveriesForCurrentJob()).toHaveLength(1);
         });
 
         test('faz fallback para FETCH_IMAGE_AS_BASE64 quando o canvas falha na aba de extracao', async () => {

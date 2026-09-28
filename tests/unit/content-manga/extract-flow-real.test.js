@@ -130,8 +130,10 @@ describe('CM-14/CM-15/CM-16/CM-17/CM-18/CM-19/CM-20/CM-51/CM-52/CM-53/CM-54/CM-7
             }
 
             if (message.action === 'START_BATCH') {
-                if (typeof onStartBatch === 'function') onStartBatch(message);
-                if (callback) setTimeout(() => callback({ ok: true }), 0);
+                const response = typeof onStartBatch === 'function'
+                    ? onStartBatch(message)
+                    : null;
+                if (callback) setTimeout(() => callback(response || { ok: true }), 0);
                 return;
             }
 
@@ -159,6 +161,174 @@ describe('CM-14/CM-15/CM-16/CM-17/CM-18/CM-19/CM-20/CM-51/CM-52/CM-53/CM-54/CM-7
         expect(startBatch.images).toEqual([{ index: 0 }, { index: 3 }]);
         expect(startBatch.prompt).toBe('Teste prompt');
         await waitFor(() => document.getElementById('manga-main-content').textContent.includes('TRADUZINDO'));
+    });
+
+    test('lote aceito em FIFO mostra posição na fila sem abortar a tradução local', async () => {
+        installRuntimeResponder({
+            onStartBatch(message) {
+                return {
+                    ok: true,
+                    batchId: message.batchId,
+                    queued: true,
+                    queuePosition: 3,
+                    activeBatchId: 'batch-a',
+                };
+            },
+        });
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/page-0.png', width: 800, height: 1200 },
+            ],
+        });
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() =>
+            document.getElementById('manga-main-content').textContent.includes('NA FILA (#3)')
+        );
+
+        const popupState = await storageMock.get(['mt_popup_state']);
+        expect(popupState.mt_popup_state).toEqual(expect.objectContaining({
+            status: 'queued',
+            queuePosition: 3,
+            completed: false,
+        }));
+        expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(true);
+    });
+
+    test('lote enfileirado cancela pelo seu batchId sem atingir o lote global ativo', async () => {
+        installRuntimeResponder({
+            onStartBatch(message) {
+                return {
+                    ok: true,
+                    batchId: message.batchId,
+                    queued: true,
+                    queuePosition: 4,
+                    activeBatchId: 'batch-a',
+                };
+            },
+        });
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/page-0.png', width: 800, height: 1200 },
+            ],
+        });
+
+        const mainContent = document.getElementById('manga-main-content');
+        mainContent.click();
+
+        const startBatch = await waitFor(() =>
+            sentMessages.find(message => message.action === 'START_BATCH')
+        );
+        await waitFor(() => mainContent.textContent.includes('NA FILA (#4)'));
+
+        mainContent.click();
+
+        const stopBatch = await waitFor(() =>
+            sentMessages.find(message => message.action === 'STOP_BATCH')
+        );
+        expect(stopBatch).toEqual({
+            action: 'STOP_BATCH',
+            batchId: startBatch.batchId,
+        });
+        expect(stopBatch.batchId).not.toBe('batch-a');
+    });
+
+    test('STOP_TRANSLATION_FROM_POPUP cancela somente o batchId pertencente à aba atual', async () => {
+        installRuntimeResponder({
+            onStartBatch(message) {
+                return {
+                    ok: true,
+                    batchId: message.batchId,
+                    queued: true,
+                    queuePosition: 5,
+                    activeBatchId: 'batch-a',
+                };
+            },
+        });
+        const context = await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/page-0.png', width: 800, height: 1200 },
+            ],
+        });
+
+        document.getElementById('manga-main-content').click();
+        const startBatch = await waitFor(() =>
+            sentMessages.find(message => message.action === 'START_BATCH')
+        );
+        await waitFor(() =>
+            document.getElementById('manga-main-content').textContent.includes('NA FILA (#5)')
+        );
+
+        const response = await context.sendMessage('STOP_TRANSLATION_FROM_POPUP');
+
+        expect(response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: startBatch.batchId,
+        }));
+        const stopMessages = sentMessages.filter(message => message.action === 'STOP_BATCH');
+        expect(stopMessages).toEqual([{
+            action: 'STOP_BATCH',
+            batchId: startBatch.batchId,
+        }]);
+        expect(stopMessages[0].batchId).not.toBe('batch-a');
+
+        const status = await context.sendMessage('GET_FLOATING_BUTTON_STATUS');
+        expect(status).toEqual(expect.objectContaining({
+            translating: false,
+            batchId: null,
+            batchStatus: 'cancelled',
+            queuePosition: null,
+        }));
+
+        const popupState = await storageMock.get(['mt_popup_state']);
+        expect(popupState.mt_popup_state).toEqual(expect.objectContaining({
+            status: 'cancelled',
+        }));
+    });
+
+    test('segunda solicitação na mesma aba não sobrescreve batchId nem cria outro START_BATCH', async () => {
+        installRuntimeResponder({
+            onStartBatch(message) {
+                return {
+                    ok: true,
+                    batchId: message.batchId,
+                    queued: true,
+                    queuePosition: 2,
+                    activeBatchId: 'batch-a',
+                };
+            },
+        });
+        const context = await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/page-0.png', width: 800, height: 1200 },
+            ],
+        });
+
+        document.getElementById('manga-main-content').click();
+        const firstStart = await waitFor(() =>
+            sentMessages.find(message => message.action === 'START_BATCH')
+        );
+        await waitFor(() =>
+            document.getElementById('manga-main-content').textContent.includes('NA FILA (#2)')
+        );
+
+        const second = await context.sendMessage('START_TRANSLATION_FROM_POPUP', { indices: [0] });
+
+        expect(second).toEqual(expect.objectContaining({
+            ok: false,
+            reason: 'local_batch_busy',
+            batchId: firstStart.batchId,
+        }));
+        expect(sentMessages.filter(message => message.action === 'START_BATCH')).toHaveLength(1);
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' &&
+            message.action_name === 'BATCH_LOCAL_REENTRY_BLOCKED'
+        )).toBe(true);
     });
 
     test('quando storage nao tem prompts envia START_BATCH com prompt vazio', async () => {

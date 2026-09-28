@@ -84,7 +84,7 @@ Nos logs da nova revisão, procure:
 - `GEMINI_EXTRACT_STAGE` com `stage:service_worker_session`: extração autenticada; após falha do canvas, deve aparecer antes de eventual `gemini_page_fetch_last_resort` no caminho de asset reconhecido.
 - `DELETE_OK` e `BATCH_DONE` com `hasErrors:false`: preservação da limpeza e conclusão.
 
-Eventos de extração ainda não carregam prefixo da tarefa. Em lotes paralelos, a ordem global pode intercalar canvas/SW/page de imagens distintas; não atribua esses eventos a uma imagem apenas pela posição no texto. A renovação possui prefixo, permitindo conferir a tarefa correspondente.
+Os eventos de extração agora carregam `jobIdPrefix`, `batchIdPrefix` e `index`. Em lotes paralelos, use esses campos para correlacionar canvas/SW/page com a tarefa correta; a proximidade textual deixa de ser necessária para atribuir uma falha ou sucesso a uma imagem.
 
 Não é necessário provocar um timeout para testar o funcionamento normal. Se ocorrer uma geração lenta naturalmente, seus logs ajudarão a avaliar a margem. Um eventual `GEMINI_WATCHDOG_REFRESH_FAILED` deve ser enviado junto dos eventos anteriores; ele não significa sozinho que a tradução falhou.
 

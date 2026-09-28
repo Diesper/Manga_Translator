@@ -114,7 +114,22 @@ async function removeGeminiTabs(backgroundWorker) {
     await backgroundWorker.evaluate(async () => {
         const tabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
         const geminiIds = tabs
-            .filter(tab => tab.url && tab.url.includes('127.0.0.1:3999/gemini'))
+            .filter(tab => {
+                try {
+                    const url = new URL(tab.url || '');
+                    const isLoopbackMock =
+                        (url.hostname === '127.0.0.1' || url.hostname === 'localhost') &&
+                        url.port === '3999';
+                    const isGeminiSurface =
+                        url.pathname === '/gemini' ||
+                        url.pathname === '/gemini/' ||
+                        url.pathname === '/app' ||
+                        url.pathname.startsWith('/app/');
+                    return isLoopbackMock && isGeminiSurface;
+                } catch (_error) {
+                    return false;
+                }
+            })
             .map(tab => tab.id);
 
         if (geminiIds.length > 0) {
@@ -126,7 +141,22 @@ async function removeGeminiTabs(backgroundWorker) {
 async function countGeminiTabs(backgroundWorker) {
     return backgroundWorker.evaluate(async () => {
         const tabs = await new Promise(resolve => chrome.tabs.query({}, resolve));
-        return tabs.filter(tab => tab.url && tab.url.includes('127.0.0.1:3999/gemini')).length;
+        return tabs.filter(tab => {
+            try {
+                const url = new URL(tab.url || '');
+                const isLoopbackMock =
+                    (url.hostname === '127.0.0.1' || url.hostname === 'localhost') &&
+                    url.port === '3999';
+                const isGeminiSurface =
+                    url.pathname === '/gemini' ||
+                    url.pathname === '/gemini/' ||
+                    url.pathname === '/app' ||
+                    url.pathname.startsWith('/app/');
+                return isLoopbackMock && isGeminiSurface;
+            } catch (_error) {
+                return false;
+            }
+        }).length;
     });
 }
 

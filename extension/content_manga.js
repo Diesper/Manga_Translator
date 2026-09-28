@@ -168,6 +168,8 @@ if (!window.__manga_translator_content_injected) {
     let isTranslating = false;
     let _countedJobIndices = new Set();
     let _currentBatchId = null;
+    let _localBatchStatus = 'idle';
+    let _localBatchQueuePosition = null;
     // Um contexto por página é importante: Chromium impõe um limite baixo de
     // AudioContexts simultâneos. Criar um a cada lote fazia o som parar depois
     // de algumas traduções e o catch abaixo escondia a causa.
@@ -690,9 +692,25 @@ if (!window.__manga_translator_content_injected) {
     saveGlobalTranslationCacheEntry = cmGtcClient.saveGlobalTranslationCacheEntry;
     confirmWithRegionalHashes = cmGtcClient.confirmWithRegionalHashes;
 
-    if (window.location.hostname.includes('googleusercontent.com') || window.location.hostname.includes('google.com')) {
-        chrome.runtime.sendMessage({ action: 'CHECK_IF_EXTRACTION_TAB' }, (response) => {
-            if (response && response.isExtractionTab) {
+    const isLegacyExtractionHost =
+        window.location.hostname.includes('googleusercontent.com') ||
+        window.location.hostname.includes('google.com');
+    const isMarkedExtractionTab = window.location.hash === '#manga-translator-extraction';
+    const isExtractionCandidate = isLegacyExtractionHost || isMarkedExtractionTab;
+
+    if (isExtractionCandidate) {
+        const MAX_MAPPING_CHECKS = isMarkedExtractionTab ? 20 : 1;
+        let mappingChecks = 0;
+
+        const checkExtractionMapping = () => {
+            mappingChecks++;
+            chrome.runtime.sendMessage({ action: 'CHECK_IF_EXTRACTION_TAB' }, (response) => {
+                if (!response || !response.isExtractionTab) {
+                    if (mappingChecks < MAX_MAPPING_CHECKS) {
+                        setTimeout(checkExtractionMapping, 100);
+                    }
+                    return;
+                }
                 const MAX_ATTEMPTS = 60; let attempts = 0;
                 const extractAndSend = () => {
                     attempts++; if (attempts > MAX_ATTEMPTS) return;
@@ -705,7 +723,32 @@ if (!window.__manga_translator_content_injected) {
                     const deliverImage = (src) => {
                         if (imageDelivered) return;
                         imageDelivered = true;
-                        chrome.runtime.sendMessage({ action: 'IMAGE_READY_FROM_NEW_TAB', mangaTabId: response.mangaTabId, index: response.index, src, geminiTabId: response.geminiTabId, jobId: response.jobId, batchId: response.batchId });
+                        chrome.runtime.sendMessage({
+                            action: 'IMAGE_READY_FROM_NEW_TAB',
+                            mangaTabId: response.mangaTabId,
+                            index: response.index,
+                            src,
+                            geminiTabId: response.geminiTabId,
+                            jobId: response.jobId,
+                            batchId: response.batchId,
+                        }, (ack) => {
+                            if (ack && ack.ok === true && ack.persisted !== false) {
+                                sendLog('success', 'AUXILIARY_RESULT_ACK',
+                                    'Resultado auxiliar persistido e confirmado pelo background.', {
+                                        jobId: String(response.jobId || '').slice(0, 8),
+                                        batchId: String(response.batchId || '').slice(0, 8),
+                                    });
+                                return;
+                            }
+
+                            imageDelivered = false;
+                            sendLog('error', 'AUXILIARY_RESULT_ACK_FAILED',
+                                'Background não confirmou a persistência do resultado auxiliar; tentando novamente.', {
+                                    jobId: String(response.jobId || '').slice(0, 8),
+                                    reason: ack?.reason || ack?.error?.code || 'no_ack',
+                                });
+                            scheduleRetry();
+                        });
                     };
                     const scheduleRetry = () => {
                         if (imageDelivered) return;
@@ -734,21 +777,56 @@ if (!window.__manga_translator_content_injected) {
                     
                     if (img.complete && img.naturalHeight !== 0) sendImage();
                     else {
-                        img.addEventListener('load', sendImage, { once: true });
-                        img.addEventListener('error', () => {
+                        let pollLoaded = null;
+                        let pollSafetyTimeout = null;
+
+                        const stopLoadWaiters = () => {
+                            if (pollLoaded !== null) {
+                                clearInterval(pollLoaded);
+                                pollLoaded = null;
+                            }
+                            if (pollSafetyTimeout !== null) {
+                                clearTimeout(pollSafetyTimeout);
+                                pollSafetyTimeout = null;
+                            }
+                            img.removeEventListener('load', onImageSettled);
+                            img.removeEventListener('error', onImageSettled);
+                        };
+
+                        const onImageSettled = () => {
+                            stopLoadWaiters();
                             sendImage();
-                        }, { once: true });
-                        const pollLoaded = setInterval(() => { if (img.naturalHeight > 0) { clearInterval(pollLoaded); sendImage(); } }, 100);
-                        setTimeout(() => clearInterval(pollLoaded), 20000);
+                        };
+
+                        img.addEventListener('load', onImageSettled, { once: true });
+                        img.addEventListener('error', onImageSettled, { once: true });
+
+                        pollLoaded = setInterval(() => {
+                            if (img.naturalHeight > 0) onImageSettled();
+                        }, 100);
+
+                        pollSafetyTimeout = setTimeout(() => {
+                            if (pollLoaded !== null) {
+                                clearInterval(pollLoaded);
+                                pollLoaded = null;
+                            }
+                            pollSafetyTimeout = null;
+                        }, 20000);
                     }
                 };
                 extractAndSend();
-                return;
-            }
-        });
+            });
+        };
+
+        checkExtractionMapping();
     }
 
-    if (window === window.top && !window.location.hostname.includes('googleusercontent.com') && !window.location.hostname.includes('gemini.google.com')) {
+    const isReaderExcludedHost =
+        window.location.hostname.includes('googleusercontent.com') ||
+        window.location.hostname.includes('gemini.google.com') ||
+        isMarkedExtractionTab;
+
+    if (window === window.top && !isReaderExcludedHost) {
         const hostname = window.location.hostname;
         let processedCount = 0; let totalToProcess = 0; let batchHasErrors = false;
         let _closeInterval = null; let _closeCountdown = 0;
@@ -1230,7 +1308,28 @@ if (!window.__manga_translator_content_injected) {
 
             mainContent.addEventListener('click', (e) => {
                 if (Math.abs(e.clientX - dragStartX) > 5 || Math.abs(e.clientY - dragStartY) > 5) return; 
-                if (isTranslating) { chrome.runtime.sendMessage({ action: 'STOP_BATCH' }); isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus(); return; }
+                if (isTranslating) {
+                    const ownedBatchId = _currentBatchId;
+                    chrome.runtime.sendMessage({ action: 'STOP_BATCH', batchId: ownedBatchId || undefined });
+                    isTranslating = false;
+                    _currentBatchId = null;
+                    _localBatchStatus = 'cancelled';
+                    _localBatchQueuePosition = null;
+                    totalToProcess = 0;
+                    processedCount = 0;
+                    batchHasErrors = false;
+                    _countedJobIndices.clear();
+                    stopTranslationButtonWatchdog();
+                    chrome.storage.local.set({
+                        mt_popup_state: {
+                            status: 'cancelled',
+                            completed: false,
+                            updatedAt: Date.now(),
+                        }
+                    });
+                    updateBtnStatus();
+                    return;
+                }
                 unlockNotificationAudio();
                 if (selectedImagesIndices.size === 0) {
                     chrome.storage.local.get([`bannedImages_${hostname}`], (data) => {
@@ -1719,8 +1818,18 @@ if (!window.__manga_translator_content_injected) {
         //   Todos falharam → fila para o Gemini
         // ─────────────────────────────────────────────────────────────────────
         async function extractAndSendImages(indicesToTranslate) {
+            if (isTranslating) {
+                sendLog('warn', 'BATCH_LOCAL_REENTRY_BLOCKED',
+                    'Nova solicitação nesta mesma página foi ignorada para preservar o lote local já aceito.', {
+                        batchId: String(_currentBatchId || '').slice(0, 8),
+                        requestedCount: Array.isArray(indicesToTranslate) ? indicesToTranslate.length : 0,
+                    });
+                return false;
+            }
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
+            _localBatchStatus = 'starting';
+            _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
                 ensureFloatingButtonHealth('translation_start');
                 startTranslationButtonWatchdog();
@@ -2231,7 +2340,7 @@ if (!window.__manga_translator_content_injected) {
                     sendLog('success', 'GTC_BATCH_HIT', `Lote completo via cache: ${instantCacheHits} imagem${instantCacheHits !== 1 ? 'ns' : ''} (0 para o Gemini)`, { instantCacheHits });
                     checkIfComplete(true);
                 } else {
-                    isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
+                    isTranslating = false; _localBatchStatus = 'idle'; _localBatchQueuePosition = null; stopTranslationButtonWatchdog(); updateBtnStatus();
                     const toast = document.createElement('div');
                     toast.textContent = '⚠️ Nenhuma página de mangá detectada ou selecionada.';
                     toast.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#b35000;color:#fff;padding:10px 20px;border-radius:8px;font-weight:bold;font-size:13px;font-family:sans-serif;z-index:2147483647;box-shadow:0 4px 16px rgba(0,0,0,0.4);pointer-events:none;opacity:1;transition:opacity 0.4s ease;`;
@@ -2260,8 +2369,72 @@ if (!window.__manga_translator_content_injected) {
                     prompt: result.customPrompt || result.defaultPrompt || "",
                     batchId: _currentBatchId
                 }, (resp) => {
-                    // Background may return a different batchId if it overrides
+                    // O background serializa lotes globalmente. Se outro lote
+                    // estiver ativo, este permanece aceito em FIFO e esta aba
+                    // aguarda sua promoção sem interferir no lote anterior.
+                    if (resp && resp.queued === true) {
+                        if (resp.batchId) _currentBatchId = resp.batchId;
+                        const position = Number(resp.queuePosition) || 1;
+                        _localBatchStatus = 'queued';
+                        _localBatchQueuePosition = position;
+                        sendLog('info', resp.alreadyQueued ? 'BATCH_QUEUE_DUPLICATE_IGNORED' : 'BATCH_QUEUED',
+                            resp.alreadyQueued
+                                ? 'Lote já estava na fila; retry preservou a posição original.'
+                                : 'Lote aguardará sua vez sem substituir o lote ativo.', {
+                                batchId: String(resp.batchId || '').slice(0, 8),
+                                activeBatchId: String(resp.activeBatchId || '').slice(0, 8),
+                                queuePosition: position,
+                            });
+                        chrome.storage.local.set({
+                            mt_popup_state: {
+                                status: 'queued',
+                                total: totalToProcess,
+                                geminiTotal: geminiCount,
+                                cacheHits: instantCacheHits,
+                                completed: false,
+                                queuePosition: position,
+                                updatedAt: Date.now(),
+                            }
+                        });
+                        if (btn) {
+                            setBtnHTML(btn, `NA FILA (#${position})...`, true);
+                            setTranslatorButtonBackground(btn, '#ff9800');
+                        }
+                        return;
+                    }
+
+                    // Compatibilidade defensiva com versões antigas do background.
+                    if (resp && resp.ok === false && resp.reason === 'batch_busy') {
+                        sendLog('error', 'BATCH_OVERLAP_BLOCKED',
+                            'Nova tradução não foi iniciada porque ainda existe um lote ativo.', {
+                                incomingBatchId: String(_currentBatchId || '').slice(0, 8),
+                                activeBatchId: String(resp.activeBatchId || '').slice(0, 8),
+                            });
+                        isTranslating = false;
+                        _currentBatchId = null;
+                        _localBatchStatus = 'idle';
+                        _localBatchQueuePosition = null;
+                        totalToProcess = 0;
+                        processedCount = 0;
+                        _countedJobIndices.clear();
+                        updateBtnStatus();
+                        showIntegratedError(
+                            'Já existe uma tradução em andamento. Aguarde o lote atual terminar antes de iniciar outro.',
+                            null,
+                            false
+                        );
+                        return;
+                    }
+
                     if (resp && resp.batchId) _currentBatchId = resp.batchId;
+                    _localBatchStatus = 'processing';
+                    _localBatchQueuePosition = null;
+                    if (resp && resp.alreadyStarted === true) {
+                        sendLog('info', 'BATCH_DUPLICATE_IGNORED',
+                            'START_BATCH repetido foi tratado como retry idempotente.', {
+                                batchId: String(resp.batchId || '').slice(0, 8),
+                            });
+                    }
                     if(btn) setBtnHTML(btn, `TRADUZINDO (${instantCacheHits}✓ + 0/${geminiCount})...`, true);
                 });
             });
@@ -2332,6 +2505,8 @@ if (!window.__manga_translator_content_injected) {
             if ((processedCount >= totalToProcess && totalToProcess > 0) || force) {
                 isTranslating = false; stopTranslationButtonWatchdog(); updateBtnStatus();
                 _currentBatchId = null;
+                _localBatchStatus = 'complete';
+                _localBatchQueuePosition = null;
                 if (!batchHasErrors) playSuccessSound();
                 sendLog(batchHasErrors ? 'warn' : 'success', 'BATCH_COMPLETE', batchHasErrors ? 'Lote encerrado com erros' : 'Lote de tradução concluído');
 
@@ -2479,6 +2654,22 @@ if (!window.__manga_translator_content_injected) {
                 floatingButtonViewState.text = String(request.text || '');
                 floatingButtonViewState.showStop = true;
                 floatingButtonViewState.background = '#ff9800';
+                if (/INICIANDO LOTE DA FILA|ABRINDO GEMINI|EXTRAINDO IMAGEM|AGUARDANDO/i.test(String(request.text || ''))) {
+                    _localBatchStatus = 'processing';
+                    _localBatchQueuePosition = null;
+                    chrome.storage.local.get(['mt_popup_state'], (data) => {
+                        const current = data.mt_popup_state || {};
+                        chrome.storage.local.set({
+                            mt_popup_state: {
+                                ...current,
+                                status: 'processing',
+                                queuePosition: null,
+                                completed: false,
+                                updatedAt: Date.now(),
+                            }
+                        });
+                    });
+                }
                 if (buttonShouldExist()) ensureFloatingButtonHealth('progress_message');
                 const btn = document.getElementById('manga-translator-trigger');
                 if (btn) { setBtnHTML(btn, request.text, true); setTranslatorButtonBackground(btn, '#ff9800'); }
@@ -2519,8 +2710,73 @@ if (!window.__manga_translator_content_injected) {
                     expected: buttonShouldExist(),
                     present: !!(btn && btn.isConnected),
                     translating: isTranslating,
+                    batchId: _currentBatchId,
+                    batchStatus: _localBatchStatus,
+                    queuePosition: _localBatchQueuePosition,
                 });
+            } else if (request.action === 'STOP_TRANSLATION_FROM_POPUP') {
+                const ownedBatchId = _currentBatchId;
+                if (!isTranslating || !ownedBatchId) {
+                    sendResponse({ ok: false, reason: 'no_local_batch' });
+                    return;
+                }
+
+                chrome.runtime.sendMessage({
+                    action: 'STOP_BATCH',
+                    batchId: ownedBatchId,
+                }, (backgroundResponse) => {
+                    const error = chrome.runtime.lastError;
+                    if (error) {
+                        sendLog('error', 'BATCH_LOCAL_STOP_FAILED',
+                            'Falha ao cancelar o lote pertencente a esta página.', {
+                                batchId: String(ownedBatchId).slice(0, 8),
+                                error: error.message || 'runtime_error',
+                            });
+                        sendResponse({
+                            ok: false,
+                            reason: 'background_stop_failed',
+                            error: error.message || 'runtime_error',
+                        });
+                        return;
+                    }
+
+                    isTranslating = false;
+                    stopTranslationButtonWatchdog();
+                    _currentBatchId = null;
+                    _localBatchStatus = 'cancelled';
+                    _localBatchQueuePosition = null;
+                    totalToProcess = 0;
+                    processedCount = 0;
+                    batchHasErrors = false;
+                    _countedJobIndices.clear();
+                    chrome.storage.local.set({
+                        mt_popup_state: {
+                            status: 'cancelled',
+                            completed: false,
+                            updatedAt: Date.now(),
+                        }
+                    });
+                    updateBtnStatus();
+                    sendLog('info', 'BATCH_LOCAL_STOPPED',
+                        'Lote desta página cancelado sem afetar os demais lotes da fila.', {
+                            batchId: String(ownedBatchId).slice(0, 8),
+                        });
+                    sendResponse({
+                        ok: true,
+                        batchId: ownedBatchId,
+                        background: backgroundResponse || { ok: true },
+                    });
+                });
+                return true;
             } else if (request.action === 'START_TRANSLATION_FROM_POPUP') {
+                if (isTranslating) {
+                    sendLog('warn', 'BATCH_LOCAL_REENTRY_BLOCKED',
+                        'Solicitação do popup ignorada porque esta página já possui um lote ativo ou enfileirado.', {
+                            batchId: String(_currentBatchId || '').slice(0, 8),
+                        });
+                    sendResponse({ ok: false, reason: 'local_batch_busy', batchId: _currentBatchId });
+                    return;
+                }
                 if (request.indices && request.indices.length > 0) {
                     selectedImagesIndices = new Set(request.indices);
                     updateBtnStatus();

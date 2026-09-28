@@ -355,7 +355,11 @@ async function processGeminiJob() {
         if (isBeingDeleted) return;
     }
 
-    const job = await claimGeminiJob({ timeoutMs: 5000 });
+    // Jobs gerenciados carregam jobId na URL. Em janela minimizada o Chrome
+    // pode atrasar o scheduling/document_idle; dê margem maior para o registro
+    // durável aparecer sem penalizar abas Gemini manuais (sem jobId).
+    const managedJobClaimTimeoutMs = getExpectedGeminiJobId() ? 12_000 : 5_000;
+    const job = await claimGeminiJob({ timeoutMs: managedJobClaimTimeoutMs });
     const isExistingChat = currentPath.startsWith('/app/');
 
     if (!job) {

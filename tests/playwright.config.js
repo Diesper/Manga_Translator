@@ -18,6 +18,10 @@ module.exports = defineConfig({
     outputDir: './test-results',
     timeout: 60000, // 60s por teste E2E (operações de UI são lentas)
     retries: 2,     // Testes E2E são inerentemente flaky — 2 retries
+    forbidOnly: !!process.env.CI,
+    reporter: process.env.CI
+        ? [['line'], ['./ci/playwright-gate-reporter.js']]
+        : [['list']],
 
     use: {
         // Carrega a extensão real do Chrome

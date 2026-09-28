@@ -11,10 +11,14 @@ function __getState() {
         isProcessing: runtimeState.isProcessing,
         stopRequested: runtimeState.stopRequested,
         activeMangaTabId: runtimeState.activeMangaTabId,
+        currentBatchId: runtimeState.currentBatchId,
         extractionTabs: runtimeState.extractionTabs,
         totalJobs: runtimeState.totalJobs,
         completedJobs: runtimeState.completedJobs,
         activeJobsCount: runtimeState.activeJobsCount,
+        completionClaimedBatchId: runtimeState.completionClaimedBatchId,
+        pendingBatches: runtimeState.pendingBatches,
+        jobIndex: runtimeState.jobIndex,
         _cachedMaxCon: runtimeState._cachedMaxCon,
         _logQueue,
         _logFlushing,
@@ -33,10 +37,14 @@ function __setState(next = {}) {
     if (has('isProcessing')) runtimeState.isProcessing = next.isProcessing;
     if (has('stopRequested')) runtimeState.stopRequested = next.stopRequested;
     if (has('activeMangaTabId')) runtimeState.activeMangaTabId = next.activeMangaTabId;
+    if (has('currentBatchId')) runtimeState.currentBatchId = next.currentBatchId;
     if (has('extractionTabs')) runtimeState.extractionTabs = next.extractionTabs;
     if (has('totalJobs')) runtimeState.totalJobs = next.totalJobs;
     if (has('completedJobs')) runtimeState.completedJobs = next.completedJobs;
     if (has('activeJobsCount')) runtimeState.activeJobsCount = next.activeJobsCount;
+    if (has('completionClaimedBatchId')) runtimeState.completionClaimedBatchId = next.completionClaimedBatchId;
+    if (has('pendingBatches')) runtimeState.pendingBatches = next.pendingBatches;
+    if (has('jobIndex')) runtimeState.jobIndex = next.jobIndex;
     if (has('_cachedMaxCon')) runtimeState._cachedMaxCon = next._cachedMaxCon;
     if (has('_logQueue')) _logQueue = next._logQueue;
     if (has('_logFlushing')) _logFlushing = next._logFlushing;
