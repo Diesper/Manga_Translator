@@ -318,6 +318,16 @@ const jestRunner = fs.readFileSync(path.join(root, 'scripts', 'ci', 'run-jest-ci
 if (!jestRunner.includes('hasForcedWorkerExit(jestStderr)')) {
   problems.push('run-jest-ci.js precisa reprovar o aviso de worker forçado');
 }
+if (!jestRunner.includes('[CI/Jest Partition]') || !jestRunner.includes('listProjectFiles(unitProjects)')) {
+  problems.push('run-jest-ci.js precisa provar a partição exata entre test:unit e test:integration');
+}
+const expectedUnitScript = 'jest --config jest.config.js --selectProjects background gtc content-scripts popup reader manifest shared-ui';
+if (pkg.scripts['test:unit'] !== expectedUnitScript) {
+  problems.push('package.json#test:unit precisa selecionar exatamente os projetos unitários canônicos');
+}
+if (pkg.scripts['test:integration'] !== 'jest --config jest.config.js --selectProjects integration') {
+  problems.push('package.json#test:integration precisa selecionar exclusivamente o projeto integration');
+}
 if (!workflow.includes('node scripts/validation/verify-jest-worker-warning-selftest.js')) {
   problems.push('CI Contract precisa testar a detecção de worker forçado');
 }

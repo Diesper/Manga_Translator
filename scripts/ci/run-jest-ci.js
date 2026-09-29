@@ -12,6 +12,9 @@ const resultDir = path.join(repoRoot, '.ci-results');
 const resultFile = path.join(resultDir, 'jest-results.json');
 const coverageRequested = process.argv.includes('--coverage');
 const jestConfig = path.join(repoRoot, 'jest.config.js');
+const unitProjects = ['background', 'gtc', 'content-scripts', 'popup', 'reader', 'manifest', 'shared-ui'];
+const integrationProjects = ['integration'];
+const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -42,6 +45,43 @@ if (expectedFiles.length === 0) {
 }
 
 const jestBin = path.join(repoRoot, 'node_modules', 'jest', 'bin', 'jest.js');
+
+function listProjectFiles(projects) {
+  const proc = spawnSync(process.execPath, [
+    jestBin,
+    '--config', jestConfig,
+    '--listTests',
+    '--json',
+    '--selectProjects',
+    ...projects,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    maxBuffer: 16 * 1024 * 1024,
+    env: { ...process.env },
+  });
+
+  if (proc.error) {
+    throw new Error('Falha ao listar projetos Jest ' + projects.join(', ') + ': ' + proc.error.message);
+  }
+  if (proc.status !== 0) {
+    throw new Error(
+      'Jest --listTests falhou para ' + projects.join(', ') +
+      ' com código ' + String(proc.status) + ':\n' + String(proc.stderr || '')
+    );
+  }
+
+  let files;
+  try {
+    files = JSON.parse(String(proc.stdout || '[]'));
+  } catch (error) {
+    throw new Error(
+      'Saída inválida de Jest --listTests para ' + projects.join(', ') +
+      ': ' + error.message + '\n' + String(proc.stdout || '')
+    );
+  }
+  return files.map(normalize).sort();
+}
 const args = [
   jestBin,
   '--config', jestConfig,
@@ -71,6 +111,63 @@ const jestStderr = run.stderr || '';
 if (jestStderr) process.stderr.write(jestStderr);
 
 const problems = [];
+
+if (!coverageRequested) {
+  try {
+    const unitFiles = listProjectFiles(unitProjects);
+    const integrationFiles = listProjectFiles(integrationProjects);
+    const unitSet = new Set(unitFiles);
+    const integrationSet = new Set(integrationFiles);
+    const overlap = unitFiles.filter((file) => integrationSet.has(file));
+    const union = [...new Set([...unitFiles, ...integrationFiles])].sort();
+    const missingFromPartition = expectedFiles.filter((file) => !union.includes(file));
+    const unexpectedInPartition = union.filter((file) => !expectedFiles.includes(file));
+
+    if (overlap.length) {
+      problems.push(
+        'Partição Jest possui arquivo(s) em unit e integration ao mesmo tempo:\n' +
+        overlap.map((file) => '  - ' + path.relative(testsRoot, file)).join('\n')
+      );
+    }
+    if (missingFromPartition.length || unexpectedInPartition.length) {
+      problems.push(
+        'Partição Jest unit + integration não corresponde ao inventário total.' +
+        (missingFromPartition.length
+          ? '\nAusentes:\n' + missingFromPartition.map((file) => '  - ' + path.relative(testsRoot, file)).join('\n')
+          : '') +
+        (unexpectedInPartition.length
+          ? '\nInesperados:\n' + unexpectedInPartition.map((file) => '  - ' + path.relative(testsRoot, file)).join('\n')
+          : '')
+      );
+    }
+    if (unitFiles.some((file) => !file.includes('/tests/unit/'))) {
+      problems.push('test:unit descobre arquivo fora de tests/unit/.');
+    }
+    if (integrationFiles.some((file) => !file.includes('/tests/integration/'))) {
+      problems.push('test:integration descobre arquivo fora de tests/integration/.');
+    }
+
+    const expectedUnitCommand =
+      'jest --config jest.config.js --selectProjects ' + unitProjects.join(' ');
+    const expectedIntegrationCommand =
+      'jest --config jest.config.js --selectProjects integration';
+    if (pkg.scripts['test:unit'] !== expectedUnitCommand) {
+      problems.push('package.json#test:unit não corresponde aos projetos unitários canônicos.');
+    }
+    if (pkg.scripts['test:integration'] !== expectedIntegrationCommand) {
+      problems.push('package.json#test:integration não aponta exclusivamente para integration.');
+    }
+
+    console.log(
+      '[CI/Jest Partition] unitFiles=' + String(unitFiles.length) +
+      ', integrationFiles=' + String(integrationFiles.length) +
+      ', union=' + String(union.length) +
+      ', expected=' + String(expectedFiles.length)
+    );
+  } catch (error) {
+    problems.push('Falha ao provar partição unit/integration: ' + error.message);
+  }
+}
 if (hasForcedWorkerExit(jestStderr)) {
   problems.push('Um worker Jest precisou ser encerrado à força; corrigir os recursos pendentes.');
 }

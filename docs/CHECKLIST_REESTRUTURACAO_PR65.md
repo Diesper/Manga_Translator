@@ -56,7 +56,9 @@
 - [x] Jobs da CI executam `npm ci` a partir da raiz.
 - [x] `test:ci`, `test:smoke`, `test:visual`, `test:e2e`/shards e `test:coverage` funcionam a partir da raiz na CI.
 - [ ] Executar a sequência integral do plano como um único fluxo de “clone novo”: `npm ci` → unit → integration → smoke → visual → e2e → coverage → `npm test`.
-- [ ] Provar explicitamente por inventário que `test:unit + test:integration` cobre exatamente as mesmas 109 suítes / 851 testes do gate total.
+- [x] Implementada prova de inventário no `run-jest-ci.js`: `test:unit` e `test:integration` precisam ser disjuntos e sua união precisa cobrir exatamente todos os arquivos `.test.js` do gate total.
+- [x] O contrato protege os seletores canônicos de `test:unit` e `test:integration`.
+- [ ] CI do novo HEAD precisa confirmar a nova prova de partição.
 
 ## Estado da PR
 
