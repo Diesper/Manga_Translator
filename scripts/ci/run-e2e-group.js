@@ -4,8 +4,9 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const testsRoot = path.resolve(__dirname, '..');
-const plan = JSON.parse(fs.readFileSync(path.join(__dirname, 'e2e-shard-plan.json'), 'utf8'));
+const repoRoot = path.resolve(__dirname, '../..');
+const plan = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'e2e-shard-plan.json'), 'utf8'));
+const playwrightCli = path.join(repoRoot, 'node_modules', 'playwright', 'cli.js');
 const groupId = String(process.argv[2] || process.env.MANGA_E2E_GROUP || '').trim();
 const group = (plan.groups || []).find(item => item.id === groupId);
 
@@ -30,9 +31,9 @@ console.log(
 
 const child = spawn(
   process.execPath,
-  [path.join(testsRoot, 'run-e2e.js'), '--grep', group.tag],
+  [playwrightCli, 'test', '--config', path.join(repoRoot, 'playwright.config.js'), '--grep', group.tag],
   {
-    cwd: testsRoot,
+    cwd: repoRoot,
     env: {
       ...process.env,
       MANGA_E2E_GROUP: group.id,

@@ -40,11 +40,11 @@ function parseLcovFiles(lcovText, repoRoot) {
       continue;
     }
 
-    // O LCOV do Jest é emitido relativamente ao diretório de execução (tests/),
-    // por isso SF:../extension/foo.js precisa resolver para <repo>/extension/foo.js.
-    const fromTests = path.resolve(testsRoot, raw);
+    // Aceita LCOV relativo tanto à raiz canônica quanto ao diretório tests/
+    // para manter compatibilidade de leitura durante a migração estrutural.
     const fromRepo = path.resolve(repoRoot, raw);
-    const resolved = fs.existsSync(fromTests) ? fromTests : fromRepo;
+    const fromTests = path.resolve(testsRoot, raw);
+    const resolved = fs.existsSync(fromRepo) ? fromRepo : fromTests;
     files.push(relativeToRepo(repoRoot, resolved));
   }
   return [...new Set(files)].sort();
@@ -57,8 +57,8 @@ function metricPct(summary, metric) {
 
 function verifyCoverage({
   repoRoot = path.resolve(__dirname, '../..'),
-  coverageDir = path.resolve(__dirname, '../coverage'),
-  baselinePath = path.resolve(__dirname, 'test-baseline.json'),
+  coverageDir = path.resolve(__dirname, '../../coverage'),
+  baselinePath = path.resolve(__dirname, '../ci/data/test-baseline.json'),
   criticalFiles = DEFAULT_CRITICAL_FILES,
   quiet = false,
 } = {}) {

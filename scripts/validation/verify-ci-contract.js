@@ -5,17 +5,17 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '../..');
 const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
-const playwright = fs.readFileSync(path.join(root, 'tests', 'playwright.config.js'), 'utf8');
-const coverageConfig = fs.readFileSync(path.join(root, 'tests', 'jest.coverage.config.js'), 'utf8');
-const coverageVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage.js'), 'utf8');
-const coverageSelfTest = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-coverage-selftest.js'), 'utf8');
-const e2eReporter = fs.readFileSync(path.join(root, 'tests', 'ci', 'playwright-gate-reporter.js'), 'utf8');
-const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'e2e-shard-plan.json'), 'utf8'));
-const e2ePlanVerifier = fs.readFileSync(path.join(root, 'tests', 'ci', 'verify-e2e-shard-plan.js'), 'utf8');
-const e2eGroupRunner = fs.readFileSync(path.join(root, 'tests', 'ci', 'run-e2e-group.js'), 'utf8');
-const pkg = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'package.json'), 'utf8'));
-const baseline = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'ci', 'test-baseline.json'), 'utf8'));
-const regressionMatrixPath = path.join(root, 'tests', 'ci', 'regression-matrix.json');
+const playwright = fs.readFileSync(path.join(root, 'playwright.config.js'), 'utf8');
+const coverageConfig = fs.readFileSync(path.join(root, 'jest.config.js'), 'utf8');
+const coverageVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage.js'), 'utf8');
+const coverageSelfTest = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage-selftest.js'), 'utf8');
+const e2eReporter = fs.readFileSync(path.join(root, 'scripts', 'ci', 'playwright-gate-reporter.js'), 'utf8');
+const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
+const e2ePlanVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-e2e-shard-plan.js'), 'utf8');
+const e2eGroupRunner = fs.readFileSync(path.join(root, 'scripts', 'ci', 'run-e2e-group.js'), 'utf8');
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+const baseline = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'test-baseline.json'), 'utf8'));
+const regressionMatrixPath = path.join(root, 'scripts', 'ci', 'data', 'regression-matrix.json');
 
 const problems = [];
 let regressionMatrix = null;
@@ -249,14 +249,14 @@ if (!playwright.includes('fullyParallel: true')) {
 if (!playwright.includes('retries: isCi ? 0')) {
   problems.push('Playwright CI precisa usar retries=0 para não mascarar flakiness nem desperdiçar tempo');
 }
-if (!playwright.includes('./ci/playwright-gate-reporter.js')) {
+if (!playwright.includes('./scripts/ci/playwright-gate-reporter.js')) {
   problems.push('Playwright precisa carregar o reporter de gate em CI');
 }
-if (pkg.scripts['test:e2e:group'] !== 'node ci/run-e2e-group.js') {
-  problems.push('tests/package.json#test:e2e:group precisa usar o runner de grupos explícitos');
+if (pkg.scripts['test:e2e:group'] !== 'node scripts/ci/run-e2e-group.js') {
+  problems.push('package.json#test:e2e:group precisa usar o runner de grupos explícitos');
 }
-if (pkg.scripts['test:e2e:plan'] !== 'node ci/verify-e2e-shard-plan.js') {
-  problems.push('tests/package.json#test:e2e:plan precisa verificar o inventário dos shards');
+if (pkg.scripts['test:e2e:plan'] !== 'node scripts/validation/verify-e2e-shard-plan.js') {
+  problems.push('package.json#test:e2e:plan precisa verificar o inventário dos shards');
 }
 if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
   problems.push('e2e-shard-plan.json precisa conter exatamente 5 grupos nesta fase');
@@ -293,37 +293,37 @@ for (const invariant of ['cobertura exata sem omissões ou duplicatas', 'teste d
     problems.push('verify-e2e-shard-plan.js não protege invariável: ' + invariant);
   }
 }
-if (pkg.scripts['test:ci'] !== 'node ci/run-jest-ci.js') {
-  problems.push('tests/package.json#test:ci precisa usar o runner auditável');
+if (pkg.scripts['test:ci'] !== 'node scripts/ci/run-jest-ci.js') {
+  problems.push('package.json#test:ci precisa usar o runner auditável');
 }
-const jestRunner = fs.readFileSync(path.join(root, 'tests', 'ci', 'run-jest-ci.js'), 'utf8');
+const jestRunner = fs.readFileSync(path.join(root, 'scripts', 'ci', 'run-jest-ci.js'), 'utf8');
 if (!jestRunner.includes('hasForcedWorkerExit(jestStderr)')) {
   problems.push('run-jest-ci.js precisa reprovar o aviso de worker forçado');
 }
-if (!workflow.includes('node tests/ci/verify-jest-worker-warning-selftest.js')) {
+if (!workflow.includes('node scripts/validation/verify-jest-worker-warning-selftest.js')) {
   problems.push('CI Contract precisa testar a detecção de worker forçado');
 }
 if (jestRunner.includes("'--forceExit'") || jestRunner.includes('"--forceExit"')) {
   problems.push('run-jest-ci.js não pode mascarar open handles com --forceExit');
 }
-if (pkg.scripts['test:coverage'] !== 'node ci/run-jest-ci.js --coverage') {
-  problems.push('tests/package.json#test:coverage precisa usar o runner auditável com cobertura');
+if (pkg.scripts['test:coverage'] !== 'node scripts/ci/run-jest-ci.js --coverage') {
+  problems.push('package.json#test:coverage precisa usar o runner auditável com cobertura');
 }
-if (pkg.scripts['test:coverage:verify'] !== 'node ci/verify-coverage.js') {
-  problems.push('tests/package.json#test:coverage:verify precisa executar o verificador de integridade');
+if (pkg.scripts['test:coverage:verify'] !== 'node scripts/validation/verify-coverage.js') {
+  problems.push('package.json#test:coverage:verify precisa executar o verificador de integridade');
 }
-if (pkg.scripts['test:coverage:infra'] !== 'node ci/verify-coverage-selftest.js') {
-  problems.push('tests/package.json#test:coverage:infra precisa testar a própria infraestrutura');
+if (pkg.scripts['test:coverage:infra'] !== 'node scripts/validation/verify-coverage-selftest.js') {
+  problems.push('package.json#test:coverage:infra precisa testar a própria infraestrutura');
 }
 if (!coverageConfig.includes("coverageProvider: 'v8'")) {
-  problems.push('jest.coverage.config.js precisa usar coverageProvider v8');
+  problems.push('jest.config.js precisa usar coverageProvider v8');
 }
 if (!coverageConfig.includes("<rootDir>/extension/**/*.js")) {
   problems.push('coverage precisa incluir a arquitetura atual extension/**/*.js');
 }
 for (const reporter of ['lcov', 'json-summary', 'text-summary']) {
   if (!coverageConfig.includes("'" + reporter + "'")) {
-    problems.push('jest.coverage.config.js precisa gerar reporter ' + reporter);
+    problems.push('jest.config.js precisa gerar reporter ' + reporter);
   }
 }
 for (const invariant of ['lcov.info ausente ou vazio', 'coverage zero não é aceito', 'arquivo crítico ausente']) {

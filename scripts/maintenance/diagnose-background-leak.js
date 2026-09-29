@@ -4,12 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
-const { hasForcedWorkerExit } = require('./jest-worker-warning');
+const { hasForcedWorkerExit } = require('../ci/jest-worker-warning');
 
-const testsRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(__dirname, '../..');
+const testsRoot = path.join(repoRoot, 'tests');
 const backgroundRoot = path.join(testsRoot, 'unit', 'background');
-const jestBin = path.join(testsRoot, 'node_modules', 'jest', 'bin', 'jest.js');
-const resultRoot = path.join(testsRoot, '.ci-results');
+const jestBin = path.join(repoRoot, 'node_modules', 'jest', 'bin', 'jest.js');
+const resultRoot = path.join(repoRoot, '.ci-results');
 const logDir = path.join(resultRoot, 'background-leak-diagnostic');
 const summaryFile = path.join(resultRoot, 'background-leak-diagnostic.json');
 
@@ -68,7 +69,7 @@ function runOnce({ label, files, workers }) {
 
   const startedAt = Date.now();
   const proc = spawnSync(process.execPath, args, {
-    cwd: testsRoot,
+    cwd: repoRoot,
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
     env: {
@@ -115,7 +116,7 @@ function runOnce({ label, files, workers }) {
     durationMs,
     error: proc.error ? proc.error.message : null,
     interestingLines: compactOutput(combined),
-    logFile: path.relative(testsRoot, logPath).replace(/\\/g, '/'),
+    logFile: path.relative(repoRoot, logPath).replace(/\\/g, '/'),
   };
   records.push(record);
 
@@ -412,7 +413,7 @@ for (const file of candidate) console.log('[background-leak] candidate=' + file)
 console.log('[background-leak] confirmation=' +
   String(confirmationLeakCount) + '/' + String(confirmation.attempts.length));
 console.log('[background-leak] summary=' +
-  path.relative(testsRoot, summaryFile).replace(/\\/g, '/'));
+  path.relative(repoRoot, summaryFile).replace(/\\/g, '/'));
 
 if (confirmationLeakCount > 0) {
   process.exitCode = 2;

@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('./jest-worker-warning');
+const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('../ci/jest-worker-warning');
 
 assert.equal(hasForcedWorkerExit('PASS 107 suites\n' + FORCED_WORKER_EXIT + '\n'), true);
 assert.equal(hasForcedWorkerExit('PASS 107 suites\nTests: 840 passed\n'), false);

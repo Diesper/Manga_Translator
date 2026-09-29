@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const PlaywrightGateReporter = require('./playwright-gate-reporter');
+const PlaywrightGateReporter = require('../ci/playwright-gate-reporter');
 
 function suite(total) {
   return {

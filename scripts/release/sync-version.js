@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DEFAULT_ROOT = path.resolve(__dirname, '..');
+const DEFAULT_ROOT = path.resolve(__dirname, '../..');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -47,8 +47,7 @@ function collectState(root = DEFAULT_ROOT) {
   const paths = {
     rootPackage: path.join(root, 'package.json'),
     manifest: path.join(root, 'extension', 'manifest.json'),
-    testsPackage: path.join(root, 'tests', 'package.json'),
-    testsLock: path.join(root, 'tests', 'package-lock.json'),
+    rootLock: path.join(root, 'package-lock.json'),
     canonicalDocs: path.join(root, 'docs', 'Documentação.md'),
     publishWorkflow: path.join(root, '.github', 'workflows', 'publish.yml'),
   };
@@ -56,29 +55,25 @@ function collectState(root = DEFAULT_ROOT) {
   const rootPackage = readJson(paths.rootPackage);
   const info = deriveVersionInfo(rootPackage.version);
   const manifest = readJson(paths.manifest);
-  const testsPackage = readJson(paths.testsPackage);
-  const testsLock = readJson(paths.testsLock);
+  const rootLock = readJson(paths.rootLock);
 
-  return { paths, info, manifest, testsPackage, testsLock };
+  return { paths, info, manifest, rootLock };
 }
 
 function getDifferences(state) {
-  const { paths, info, manifest, testsPackage, testsLock } = state;
+  const { paths, info, manifest, rootLock } = state;
   const differences = [];
 
   if (manifest.version !== info.manifestVersion) {
     differences.push(`extension/manifest.json#version: ${manifest.version} -> ${info.manifestVersion}`);
   }
-  if (testsPackage.version !== info.packageVersion) {
-    differences.push(`tests/package.json#version: ${testsPackage.version} -> ${info.packageVersion}`);
-  }
-  if (testsLock.version !== info.packageVersion) {
-    differences.push(`tests/package-lock.json#version: ${testsLock.version} -> ${info.packageVersion}`);
+  if (rootLock.version !== info.packageVersion) {
+    differences.push(`package-lock.json#version: ${rootLock.version} -> ${info.packageVersion}`);
   }
 
-  const lockRootVersion = testsLock.packages && testsLock.packages[''] && testsLock.packages[''].version;
+  const lockRootVersion = rootLock.packages && rootLock.packages[''] && rootLock.packages[''].version;
   if (lockRootVersion !== info.packageVersion) {
-    differences.push(`tests/package-lock.json#packages[""].version: ${lockRootVersion} -> ${info.packageVersion}`);
+    differences.push(`package-lock.json#packages[""].version: ${lockRootVersion} -> ${info.packageVersion}`);
   }
   if (!fs.existsSync(paths.canonicalDocs)) {
     differences.push('docs/Documentação.md ausente');
@@ -95,17 +90,15 @@ function syncWorkspace(root = DEFAULT_ROOT) {
   const before = getDifferences(state);
 
   state.manifest.version = state.info.manifestVersion;
-  state.testsPackage.version = state.info.packageVersion;
-  state.testsLock.version = state.info.packageVersion;
+  state.rootLock.version = state.info.packageVersion;
 
-  if (!state.testsLock.packages || !state.testsLock.packages['']) {
-    throw new Error('tests/package-lock.json não contém packages[""]');
+  if (!state.rootLock.packages || !state.rootLock.packages['']) {
+    throw new Error('package-lock.json não contém packages[""]');
   }
-  state.testsLock.packages[''].version = state.info.packageVersion;
+  state.rootLock.packages[''].version = state.info.packageVersion;
 
   writeJson(state.paths.manifest, state.manifest);
-  writeJson(state.paths.testsPackage, state.testsPackage);
-  writeJson(state.paths.testsLock, state.testsLock);
+  writeJson(state.paths.rootLock, state.rootLock);
 
   const after = checkWorkspace(root).differences;
   if (after.length) {

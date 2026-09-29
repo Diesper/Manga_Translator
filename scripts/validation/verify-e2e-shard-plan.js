@@ -4,10 +4,10 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const testsRoot = path.resolve(__dirname, '..');
-const plan = JSON.parse(fs.readFileSync(path.join(__dirname, 'e2e-shard-plan.json'), 'utf8'));
-const baseline = JSON.parse(fs.readFileSync(path.join(__dirname, 'test-baseline.json'), 'utf8'));
-const playwrightCli = path.join(testsRoot, 'node_modules', 'playwright', 'cli.js');
+const repoRoot = path.resolve(__dirname, '../..');
+const plan = JSON.parse(fs.readFileSync(path.join(repoRoot, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
+const baseline = JSON.parse(fs.readFileSync(path.join(repoRoot, 'scripts', 'ci', 'data', 'test-baseline.json'), 'utf8'));
+const playwrightCli = path.join(repoRoot, 'node_modules', 'playwright', 'cli.js');
 
 function fail(message) {
   console.error('[E2E/PLAN] ' + message);
@@ -21,13 +21,13 @@ function runList(extraArgs = []) {
       playwrightCli,
       'test',
       '--config',
-      'playwright.config.js',
+      path.join(repoRoot, 'playwright.config.js'),
       '--list',
       '--reporter=json',
       ...extraArgs,
     ],
     {
-      cwd: testsRoot,
+      cwd: repoRoot,
       env: {
         ...process.env,
         CI: '1',

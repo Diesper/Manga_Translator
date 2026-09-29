@@ -4,11 +4,12 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('./jest-worker-warning');
+const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('../ci/jest-worker-warning');
 
-const testsRoot = path.resolve(__dirname, '..');
-const jestBin = path.join(testsRoot, 'node_modules', 'jest', 'bin', 'jest.js');
-const outDir = path.join(testsRoot, '.ci-results', 'jest-worker-diagnostic');
+const repoRoot = path.resolve(__dirname, '../..');
+const testsRoot = path.join(repoRoot, 'tests');
+const jestBin = path.join(repoRoot, 'node_modules', 'jest', 'bin', 'jest.js');
+const outDir = path.join(repoRoot, '.ci-results', 'jest-worker-diagnostic');
 
 const cases = [
   { name: 'full-default', args: [] },
@@ -81,7 +82,7 @@ function runCase(spec) {
     '--ci',
     ...spec.args,
   ], {
-    cwd: testsRoot,
+    cwd: repoRoot,
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
     env: {
@@ -133,7 +134,7 @@ function runCase(spec) {
     durationMs,
     error: proc.error ? proc.error.message : null,
     interestingLines: pickLines(combined),
-    logFile: path.relative(testsRoot, logFile).replace(/\\/g, '/'),
+    logFile: path.relative(repoRoot, logFile).replace(/\\/g, '/'),
   };
 
   const summaryFile = path.join(outDir, spec.name + '.json');
@@ -168,7 +169,7 @@ const aggregate = {
   cases: results,
 };
 
-fs.mkdirSync(path.join(testsRoot, '.ci-results'), { recursive: true });
+fs.mkdirSync(path.join(repoRoot, '.ci-results'), { recursive: true });
 const aggregateName = filter
   ? 'jest-worker-diagnostic-' + filter + '.json'
   : 'jest-worker-diagnostic.json';

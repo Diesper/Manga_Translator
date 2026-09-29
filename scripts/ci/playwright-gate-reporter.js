@@ -1,6 +1,6 @@
 'use strict';
 
-const baseline = require('./test-baseline.json');
+const baseline = require('./data/test-baseline.json');
 
 class PlaywrightGateReporter {
   constructor() {

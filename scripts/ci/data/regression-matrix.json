@@ -128,7 +128,7 @@
     {
       "id": "REG-WORKER-WARNING-GATE",
       "error": "Jest podia retornar zero mesmo após force-exit de worker.",
-      "file": "tests/ci/verify-jest-worker-warning-selftest.js",
+      "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
       "markers": [
         "FORCED_WORKER_EXIT",
         "hasForcedWorkerExit",
@@ -139,7 +139,7 @@
     {
       "id": "REG-E2E-FLAKY-RETRY-GATE",
       "error": "failed/timedOut -> passed em retry podia deixar E2E verde.",
-      "file": "tests/ci/playwright-gate-reporter-selftest.js",
+      "file": "scripts/validation/playwright-gate-reporter-selftest.js",
       "markers": [
         "status: 'failed', retry: 0",
         "status: 'passed', retry: 1",
@@ -150,7 +150,7 @@
     {
       "id": "REG-COVERAGE-CRITICAL-THRESHOLD",
       "error": "arquivo crítico ou threshold de coverage podia ser mascarado.",
-      "file": "tests/ci/verify-coverage-selftest.js",
+      "file": "scripts/validation/verify-coverage-selftest.js",
       "markers": [
         "arquivo crítico ausente",
         "threshold crítico abaixo do mínimo"

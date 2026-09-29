@@ -81,9 +81,9 @@ class DiagnosticNodeEnvironment extends NodeEnvironment {
         ageMs: Date.now() - resource.createdAt,
       }));
 
-    const testsRoot = path.resolve(__dirname, '..');
-    const rel = path.relative(testsRoot, this.testPath).replace(/\\/g, '/');
-    const outDir = path.join(testsRoot, '.ci-results', 'async-leaks');
+    const repoRoot = path.resolve(__dirname, '../..');
+    const rel = path.relative(repoRoot, this.testPath).replace(/\\/g, '/');
+    const outDir = path.join(repoRoot, '.ci-results', 'async-leaks');
     fs.mkdirSync(outDir, { recursive: true });
 
     const report = {

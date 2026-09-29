@@ -3,14 +3,15 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const baseline = require('./test-baseline.json');
+const baseline = require('./data/test-baseline.json');
 const { hasForcedWorkerExit } = require('./jest-worker-warning');
 
-const testsRoot = path.resolve(__dirname, '..');
-const resultDir = path.join(testsRoot, '.ci-results');
+const repoRoot = path.resolve(__dirname, '../..');
+const testsRoot = path.join(repoRoot, 'tests');
+const resultDir = path.join(repoRoot, '.ci-results');
 const resultFile = path.join(resultDir, 'jest-results.json');
 const coverageRequested = process.argv.includes('--coverage');
-const jestConfig = coverageRequested ? 'jest.coverage.config.js' : 'jest.config.js';
+const jestConfig = path.join(repoRoot, 'jest.config.js');
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -40,7 +41,7 @@ if (expectedFiles.length === 0) {
   process.exit(1);
 }
 
-const jestBin = path.join(testsRoot, 'node_modules', 'jest', 'bin', 'jest.js');
+const jestBin = path.join(repoRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 const args = [
   jestBin,
   '--config', jestConfig,
@@ -56,7 +57,7 @@ if (coverageRequested) {
 }
 
 const run = spawnSync(process.execPath, args, {
-  cwd: testsRoot,
+  cwd: repoRoot,
   // Jest escreve o aviso no stderr mesmo quando retorna status 0.
   stdio: ['inherit', 'inherit', 'pipe'],
   encoding: 'utf8',
