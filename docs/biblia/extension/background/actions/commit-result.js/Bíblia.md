@@ -1,6 +1,7 @@
 # Bíblia técnica — `extension/background/actions/commit-result.js`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
+> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
 > **SHA auditado:** `32270d1c4ade42b7e6decd5ef124d71745c2a5b0`  
 > **Linhas auditadas:** **107**  
 > **Teste direto:** `tests/unit/background/commit-result-action.test.js` (`1a185784edd118aeee377d7e3f1ed4a9c8375914`).
@@ -1336,6 +1337,6 @@ O journal `gemini_finalized_<tabId>` torna o commit idempotente quando o process
 - Todas as linhas comentadas: **SIM**.
 - Caminhos críticos provados: **SIM**.
 - Lacunas de journal/falha documentadas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **SIM**.
+- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
 
 **Próximo arquivo após o rastreador:** `extension/background/actions/deliver-result-from-tab.js`.
