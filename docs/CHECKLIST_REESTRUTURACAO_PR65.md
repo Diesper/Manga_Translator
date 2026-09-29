@@ -8,6 +8,7 @@
 ## Estrutura
 
 - [x] Projeto npm centralizado na raiz (`package.json` + `package-lock.json` únicos).
+- [x] O lockfile preservou as versões resolvidas verificadas de Jest 29.7.0, Playwright 1.59.1, jest-environment-jsdom 29.7.0, fake-indexeddb 6.2.5 e jsdom 20.0.3.
 - [x] Jest centralizado em `/jest.config.js`.
 - [x] Playwright de execução centralizado em `/playwright.config.js`.
 - [x] Tooling movido para `scripts/{ci,validation,maintenance,release}`.
@@ -33,6 +34,8 @@
 - [x] E2E: **21/21**, 0 skipped, 0 flaky, grupos 1/3/4/4/9.
 - [x] Coverage: **56 arquivos** instrumentados.
 - [x] Coverage global: **79,55 / 71,52 / 83,04 / 79,55** (statements/branches/functions/lines), acima dos mínimos.
+- [x] Linux coverage no run #1621: **56/56 arquivos**, 109 suítes / 851 testes.
+- [x] Windows coverage no run #1621: **56/56 arquivos**, **79,57 / 71,53 / 83,04 / 79,57**.
 - [x] Node 20 e Node 22 aprovados no gate Unit + Integration.
 
 ## Contrato e anti-falso-positivo
@@ -105,8 +108,9 @@
 ## Estado da PR
 
 - [x] PR #65 permanece aberta e mergeable.
-- [x] `main` estava em `8d470f4`, o mesmo base do PR, na última auditoria.
+- [x] `main` permanece em `8d470f4`; branch está **37 commits à frente e 0 atrás**, merge-base `8d470f4`.
 - [x] CI do HEAD anterior `e720890cf34dc9437ee91f3b8172953497d69870` ficou verde.
 - [x] Run #1620 do HEAD `a942823` ficou completamente verde, incluindo `CI Gate`.
-- [ ] CI do novo HEAD após o último endurecimento (`--print-env` + documentação Fase 0) precisa ficar verde.
+- [x] Run #1621 do HEAD `0d19a20` ficou completamente verde após `--print-env` + mapa Fase 0, incluindo Windows Portability e CI Gate.
+- [x] Checklist/documentação atualizada após #1621; este commit final é somente documental.
 - [ ] Não fazer merge automático.

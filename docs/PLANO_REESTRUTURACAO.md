@@ -258,3 +258,24 @@ O run GitHub Actions #1620 validou o HEAD `a942823c676a3bd4f7ba9106581c359162e57
 
 Os diagnósticos pesados e o Fresh Developer Flow continuam intencionalmente condicionados a
 `workflow_dispatch`/push na `main`; a validação manual final permanece pendente antes da revisão.
+
+
+## Evidência final de PR — run #1621
+
+O run #1621 validou o HEAD funcional/configuracional `0d19a20a030c16986ca4720d18716f5a413039a7` integralmente:
+
+- Version Integrity incluiu `npm run version:check` e `sync-version.js --print-env`;
+- CI Contract e self-tests: success;
+- Jest Node 20/22: 109 suítes / 851 testes;
+- partição: unit 96 arquivos + integration 13 = 109/109;
+- Visual: 224/224;
+- Smoke: 6 arquivos;
+- E2E: 21/21, cinco grupos, sem skipped/flaky;
+- Linux coverage: 56/56 arquivos; 79,55 / 71,52 / 83,04 / 79,55;
+- Windows Portability: success; coverage 56/56 e 79,57 / 71,53 / 83,04 / 79,57;
+- CI Gate: success;
+- branch: 37 commits à frente, 0 atrás da main, mergeable.
+
+A única validação obrigatória ainda pendente do plano é o `workflow_dispatch` final para executar
+os três diagnósticos pesados e o Fresh Developer Flow, pois esses jobs são intencionalmente skipped
+em `pull_request`.
