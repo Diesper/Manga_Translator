@@ -10,7 +10,9 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - `docs/biblia/STATUS.md` — estado operacional;
 - `docs/biblia/CHECKLIST.md` — somente arquivos auditados/aprovados recebem `[x]`;
-- `docs/biblia/AUDITORIA.md` — evidência e veredito da auditoria de qualidade.
+- `docs/biblia/AUDITORIA.md` — evidência e veredito da auditoria de qualidade;
+- `docs/biblia/.reservas/` — ownership exclusivo por arquivo em modo multiagente;
+- `docs/biblia/.coordination/` — mutexes curtos de bootstrap/progresso.
 
 ## Corpus congelado
 
@@ -22,7 +24,7 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Estados
 
 - `⬜ PENDENTE`: Bíblia ainda não materializada.
-- `🟠 EM ANDAMENTO`: único arquivo sendo escrito/revisado agora.
+- `🟠 EM ANDAMENTO — <AGENTE>`: arquivo reservado e sendo escrito/revisado por um único agente; vários arquivos distintos podem estar neste estado ao mesmo tempo.
 - `🟣 REVISÃO DE QUALIDADE`: Bíblia existe, mas a auditoria encontrou falhas e ela não conta como concluída.
 - `✅ CONCLUÍDO`: Bíblia existe **e** passou em `AUDITORIA.md`.
 - `BLOQUEADO`: depende de evidência indisponível; o bloqueio deve ser descrito.
@@ -50,12 +52,14 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **195**
+- ⬜ Pendentes: **194**
+- ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **16,31%**
 - Cobertura apenas materializada: **16,31%**
 - Último aprovado: `extension/content/content_gemini.js`
-- Arquivo atual: `extension/content/content_manga.js`
-- Bíblia atual: `docs/biblia/extension/content/content_manga.js/Bíblia.md`
-- Fila normal em produção: `extension/content/content_manga.js`
+- Arquivos atualmente em andamento:
+  - `#039 extension/content/content_manga.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/content/content_manga.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta migração: `#040 extension/content/gemini/attachment.js`
 
 ## Auditoria de 2026-09-29
 
@@ -104,7 +108,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 
 ### Revisão obrigatória
 
-Nenhuma. As seis revisões obrigatórias foram concluídas; a produção normal foi retomada em `extension/background/actions/deliver-result.js`.
+Nenhuma. As seis revisões obrigatórias foram concluídas; a produção normal avançou até `extension/content/content_manga.js`.
 
 Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 
@@ -150,7 +154,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 36 | ✅ CONCLUÍDO | `extension/content/cm-dom-replace.js` | `d3fc72032dbd` | `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` |
 | 37 | ✅ CONCLUÍDO | `extension/content/cm-gtc-client.js` | `95d062f41b9f` | `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` |
 | 38 | ✅ CONCLUÍDO | `extension/content/content_gemini.js` | `55bc83afe31a` | `docs/biblia/extension/content/content_gemini.js/Bíblia.md` |
-| 39 | 🟠 EM ANDAMENTO | `extension/content/content_manga.js` | `a8b3698019f6` | `docs/biblia/extension/content/content_manga.js/Bíblia.md` |
+| 39 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/content/content_manga.js` | `a8b3698019f6` | `docs/biblia/extension/content/content_manga.js/Bíblia.md` |
 | 40 | ⬜ PENDENTE | `extension/content/gemini/attachment.js` | `50092e4d7d71` | `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` |
 | 41 | ⬜ PENDENTE | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
 | 42 | ⬜ PENDENTE | `extension/content/gemini/dom.js` | `d3694ea70cdd` | `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` |
@@ -346,12 +350,16 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 232 | ⬜ PENDENTE | `tests/visual/run-all.js` | `2a5542167543` | `docs/biblia/tests/visual/run-all.js/Bíblia.md` |
 | 233 | ⬜ PENDENTE | `tests/visual/runner.js` | `fe34764874ca` | `docs/biblia/tests/visual/runner.js/Bíblia.md` |
 
-## Regra de continuidade
+## Regra de continuidade multiagente
 
-1. Ler `AUDITORIA.md`, `STATUS.md` e `CHECKLIST.md`.
-2. Trabalhar somente no único `🟠 EM ANDAMENTO`.
-3. Se ele estiver em revisão, corrigir a Bíblia existente; não criar outra.
-4. Reauditar contra fonte e assertions reais.
-5. Somente após aprovação: mudar para `✅ CONCLUÍDO` e marcar `[x]`.
-6. Mover `🟠 EM ANDAMENTO` para o próximo item em revisão; somente quando não restar revisão voltar aos arquivos novos.
-7. Publicar no chat o resultado de cada reauditoria/conclusão.
+1. Definir uma identidade estável de agente.
+2. Ler `AUDITORIA.md`, `STATUS.md`, `CHECKLIST.md` e as reservas atuais.
+3. Cada agente pode possuir no máximo uma reserva ativa; cada arquivo pode possuir no máximo um proprietário.
+4. Escolher o menor índice `⬜ PENDENTE` sem reserva, ou migrar primeiro um legado `EM ANDAMENTO` sem reserva.
+5. Criar a reserva com semântica CREATE ONLY e relê-la antes de editar a Bíblia.
+6. Trabalhar somente na Bíblia reservada pelo próprio agente.
+7. Antes de alterar STATUS/CHECKLIST/AUDITORIA/PR, adquirir `.coordination/PROGRESS.lock.md` com CREATE ONLY, reler o estado e aplicar apenas o delta necessário.
+8. Somente após auditoria aprovada: mudar para `✅ CONCLUÍDO`, marcar `[x]`, atualizar `AUDITORIA.md`, recalcular contadores e liberar a reserva antiga.
+9. Vários arquivos distintos podem ficar `🟠 EM ANDAMENTO — <AGENTE>` simultaneamente, desde que reserva, STATUS e CHECKLIST concordem.
+10. Nunca roubar reserva, nunca force-push e nunca restaurar STATUS/CHECKLIST a partir de snapshot antigo.
+11. Publicar no chat o checkpoint de cada arquivo concluído antes de iniciar a análise do próximo arquivo reservado.
