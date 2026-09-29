@@ -48,17 +48,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **42**
-- ✅ Concluídos auditados: **39**
-- 🟠 Em andamento: **10**
+- ✅ Concluídos auditados: **40**
+- 🟠 Em andamento: **9**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **191**
 - ⬜ Pendentes: **184**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **16,74%**
+- Cobertura realmente aprovada: **17,17%**
 - Cobertura apenas materializada: **18,03%**
-- Último aprovado: `extension/content/gemini/attachment.js`
+- Último aprovado: `extension/content/content_manga.js`
 - Arquivos atualmente em andamento:
-  - `#039 extension/content/content_manga.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/content/content_manga.js/Bíblia.md`
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#042 extension/content/gemini/dom.js` — `GPT-5.6-Sol#D` — Bíblia: `docs/biblia/extension/content/gemini/dom.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -115,6 +114,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 37. ✅ `extension/content/cm-gtc-client.js`
 38. ✅ `extension/content/content_gemini.js`
 39. ✅ `extension/content/gemini/attachment.js`
+40. ✅ `extension/content/content_manga.js`
 
 ### Revisão obrigatória
 
@@ -164,7 +164,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 36 | ✅ CONCLUÍDO | `extension/content/cm-dom-replace.js` | `d3fc72032dbd` | `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` |
 | 37 | ✅ CONCLUÍDO | `extension/content/cm-gtc-client.js` | `95d062f41b9f` | `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` |
 | 38 | ✅ CONCLUÍDO | `extension/content/content_gemini.js` | `55bc83afe31a` | `docs/biblia/extension/content/content_gemini.js/Bíblia.md` |
-| 39 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/content/content_manga.js` | `a8b3698019f6` | `docs/biblia/extension/content/content_manga.js/Bíblia.md` |
+| 39 | ✅ CONCLUÍDO | `extension/content/content_manga.js` | `a8b3698019f6` | `docs/biblia/extension/content/content_manga.js/Bíblia.md` |
 | 40 | ✅ CONCLUÍDO | `extension/content/gemini/attachment.js` | `50092e4d7d71` | `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` |
 | 41 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#B | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
 | 42 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#D | `extension/content/gemini/dom.js` | `d3694ea70cdd` | `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` |

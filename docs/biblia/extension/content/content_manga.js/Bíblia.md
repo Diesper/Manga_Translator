@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/content_manga.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `a8b3698019f6f22027f09f544f15c0563a9f6515`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript — content script Chromium Manifest V3  
@@ -28819,5 +28819,5 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 - [x] Segurança, privacidade, MV3, IPC, storage e lifecycle analisados.
 - [x] Lacunas marcadas conservadoramente.
 - [x] Invariantes explícitos.
-- [ ] Releitura pós-write e validação final contra o HEAD.
-- [ ] Atualização atômica de STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.
+- [x] Releitura pós-write e validação final contra o HEAD.
+- [x] Atualização atômica de STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.

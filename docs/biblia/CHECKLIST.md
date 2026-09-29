@@ -56,7 +56,7 @@
 - [x] 036 — `extension/content/cm-dom-replace.js` → `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 037 — `extension/content/cm-gtc-client.js` → `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 038 — `extension/content/content_gemini.js` → `docs/biblia/extension/content/content_gemini.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
+- [x] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 040 — `extension/content/gemini/attachment.js` → `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 041 — `extension/content/gemini/deletion.js` → `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#B**
 - [ ] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#D**
