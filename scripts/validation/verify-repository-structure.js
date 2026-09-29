@@ -90,6 +90,29 @@ if (lockfiles.length !== 1 || lockfiles[0] !== 'package-lock.json') {
 const wrappers = tracked.filter((file) => /\.(?:bat|ps1)$/i.test(file)).map(rel);
 if (wrappers.length) problems.push('wrappers BAT/PS1 proibidos: ' + wrappers.join(', '));
 
+const jestConfigs = tracked
+  .filter((file) => /^jest.*config\.js$/i.test(path.basename(file)))
+  .map(rel)
+  .sort();
+if (JSON.stringify(jestConfigs) !== JSON.stringify(['jest.config.js'])) {
+  problems.push('Jest precisa ter exatamente uma config canônica: ' + jestConfigs.join(', '));
+}
+
+const playwrightConfigs = tracked
+  .filter((file) => /^playwright.*config\.js$/i.test(path.basename(file)))
+  .map(rel)
+  .sort();
+const allowedPlaywrightConfigs = ['playwright.config.js', 'scripts/ci/playwright-merge.config.js'].sort();
+if (JSON.stringify(playwrightConfigs) !== JSON.stringify(allowedPlaywrightConfigs)) {
+  problems.push('configs Playwright inesperadas: ' + playwrightConfigs.join(', '));
+}
+const mergeConfig = fs.readFileSync(path.join(root, 'scripts/ci/playwright-merge.config.js'), 'utf8');
+for (const forbiddenKey of ['testDir', 'outputDir', 'workers', 'retries', 'projects', 'webServer', 'launchOptions']) {
+  if (mergeConfig.includes(forbiddenKey)) {
+    problems.push('playwright-merge.config.js deve conter apenas configuração de merge/reporter; chave proibida: ' + forbiddenKey);
+  }
+}
+
 const workflow = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
 for (const marker of [
   'working-directory: tests',
