@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/shared/gtc-fingerprint.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `fa014028d5e2ec9d9ca5d05c1199e1f6c45a2198`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — fingerprint/hash visual multi-runtime  
@@ -7818,5 +7818,5 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. Helpers int
 - [x] Fórmulas, dimensões, thresholds e formatos documentados.
 - [x] Lacunas de validação/migração registradas.
 - [x] Invariantes matemáticos explícitos.
-- [ ] Releitura do blob gravado e validação mecânica final.
-- [ ] Atualização de STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.
+- [x] Releitura do blob gravado e validação mecânica final.
+- [x] Atualização de STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.
