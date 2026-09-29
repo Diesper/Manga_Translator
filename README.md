@@ -150,9 +150,9 @@ A extensão continua com os mesmos entrypoints MV3. Esta reestruturação muda *
 Principais áreas:
 
 - `extension/background.js` + `extension/background/`: Service Worker, estado, lifecycle, watchdog e actions.
-- `extension/content/content_manga.js` + `extension/cm-*.js`: descoberta/aplicação de imagens.
+- `extension/content/content_manga.js` + `extension/content/cm-*.js`: descoberta/aplicação de imagens.
 - `extension/content/content_gemini.js` + `extension/content/gemini/`: automação do Gemini.
-- `extension/gtc-*.js` e `extension/shared/storage-manager.js`: cache/persistência.
+- `extension/shared/gtc-*.js` e `extension/shared/storage-manager.js`: cache/persistência.
 - popup, opções, reader e UI compartilhada.
 
 ## Documentação

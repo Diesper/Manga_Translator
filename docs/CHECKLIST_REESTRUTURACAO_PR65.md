@@ -19,6 +19,7 @@
 - [x] Descoberta de raiz centralizada em `tests/helpers/repo-root.js`.
 - [x] Layout interno 0-G de `extension/` aplicado sem mover `extension/`, `manifest.json` ou `background.js`.
 - [x] Documentação histórica movida para `docs/historico/`.
+- [x] README alinhado ao layout 0-G (`extension/content/cm-*` e `extension/shared/gtc-*`).
 - [ ] ⚠️ Histórico da Fase 0 não está literalmente dividido em um commit por bloco 0-A…0-G; o resultado estrutural está aplicado, mas reescrever commits antigos agora aumentaria o risco sem alterar o estado final.
 
 ## Baselines comprovadas pela CI do PR

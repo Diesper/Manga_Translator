@@ -21,6 +21,7 @@ const staticFiles = [
   'scripts/validation/verify-e2e-shard-plan.js',
   'scripts/ci/run-e2e-group.js',
   'scripts/ci/run-jest-ci.js',
+  'scripts/maintenance/diagnose-jest-workers.js',
   'package.json',
   'scripts/ci/data/test-baseline.json',
   matrixRel,
