@@ -86,6 +86,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 39 | `extension/content/content_manga.js` | SHA `a8b3698019f6...` reconfirmado; bloco integral exato | 2862 linhas + newline final = 2863/2863 posições; 2863 headings sequenciais | suites `*-real` executam o módulo real; Playwright cobre fluxo MV3; espelhos/simulações separados; gaps de stale state, cancelamento, listeners e payloads malformados explícitos | 18 unidades funcionais + posição terminal; papel local por posição; invariantes e trust boundaries específicos | ✅ APROVADO |
 | 40 | `extension/content/gemini/attachment.js` | SHA `50092e4d7d71...` conferido; bloco integral exato | 582 linhas + newline final = 583/583 posições; 583 headings sequenciais | ATT-01..ATT-11 executam o módulo real; job-runner mock separado; E2E do gate negativo classificado como integração; gaps específicos explícitos | 16 unidades específicas + papel local por posição + cobertura Linha N | ✅ APROVADO |
 | 42 | `extension/content/gemini/dom.js` | SHA `d3694ea70cdd...` conferido; bloco integral exato | 370 linhas + newline final = 371/371 posições; 371 headings sequenciais | 8 testes focais em `dom-modules.test.js` executam o módulo real; OBS/QUA/SEND usados apenas como evidência indireta; fallbacks sem assertion mantidos como lacunas | 19 unidades específicas + papel local por posição + riscos de ownership/Send/Shadow DOM explícitos | ✅ APROVADO |
+| 44 | `extension/content/gemini/image-quarantine.js` | SHA `ddca93d17ca2...` conferido; bloco integral exato | 215 linhas + newline final = 216/216 posições; 216 headings sequenciais | QUA-01..QUA-08 executam o módulo real; RUN-09..11/OBS-15/17 classificados como prova no consumidor; gate de ordem separado; 12 lacunas específicas explícitas | 19 unidades específicas + papel local por posição + riscos de Shadow DOM/hash/encoding/fail-open documentados | ✅ APROVADO |
+
+### `image-quarantine.js` — criação e auditoria em 2026-09-29
+
+- SHA `ddca93d17ca2934a9e95dba96a87283be4e9b9a3` e fonte integral reconfirmados;
+- 215 linhas + newline final = 216/216 posições, com 216 headings sequenciais;
+- QUA-01..QUA-08 executam a implementação real e provam identidade por bytes, quarentena exata, telemetria perceptual, classificação estrutural, Shadow DOM, precedência de model response e rejeição de URL não-data;
+- RUN-09..RUN-11 e OBS-15/OBS-17 foram mantidos como prova dos consumidores reais, não promovidos automaticamente a prova de cada linha interna;
+- o gate estrutural foi classificado separadamente como prova estática da posição no manifest;
+- 12 lacunas foram rotuladas explicitamente, incluindo Web Crypto nativo, vetor SHA conhecido, Data URL não-Base64, falta de atob, branches restantes de seletores e performance do fallback;
+- riscos de fail-open no consumidor, custo síncrono do fallback, divergência de encoding sem TextEncoder e limite da identidade exata foram registrados.
+
+**Veredito:** ✅ APROVADO.
 
 ## Correções já aplicadas pela auditoria
 
