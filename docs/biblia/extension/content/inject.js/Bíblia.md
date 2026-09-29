@@ -604,4264 +604,4264 @@ Duas fragilidades merecem teste real: (1) Enter pode já ter enviado antes do cl
 
 ## 14. Cobertura documental linha a linha
 
-Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classificação de evidência é da unidade funcional; quando a unidade é apenas simulada/indireta, isso permanece explícito em todas as suas linhas.
+Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidência indicada é conservadora e pertence à unidade funcional; simulações e consumidores não são promovidos a prova direta deste MAIN-world.
 
 ### Linha 0001
 
 **Fonte:** `// inject.js — Manga Translator (Anti-throttling progressivo)`  
-**O que faz:** Comentário do fonte registra: “inject.js — Manga Translator (Anti-throttling progressivo)”.  
-**Como faz:** Documenta intenção ou limitação da unidade **IIFE e guard de idempotência** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — `inject-anti-hibernation.test.js` lê o fonte para o guard, mas o comportamento é simulado; não carrega este arquivo real.
+**O que faz:** Documenta no próprio fonte: “inject.js — Manga Translator (Anti-throttling progressivo)”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **IIFE e guard de idempotência**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — o teste lê o guard no fonte, mas simula o comportamento sem carregar `inject.js`.
 
 ### Linha 0002
 
 **Fonte:** `(function() {`  
-**O que faz:** Participa de **IIFE e guard de idempotência** com `(function() {`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Evita instalar duas vezes shims globais, listeners e timers no mesmo document MAIN-world.  
-**Risco/alternativa:** Sem o guard, cada reinjeção duplicaria filas rAF/idle, listeners e pontes de eventos.  
-**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — `inject-anti-hibernation.test.js` lê o fonte para o guard, mas o comportamento é simulado; não carrega este arquivo real.
+**O que faz:** Abre uma IIFE que encapsula todo o `inject.js`.  
+**Como faz:** Cria escopo privado imediato no MAIN world; somente globals deliberados escapam.  
+**Por que assim:** Evita poluir `window` com cada variável interna.  
+**Risco/alternativa:** Top-level solto aumentaria colisões com o JavaScript do Gemini.  
+**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — o teste lê o guard no fonte, mas simula o comportamento sem carregar `inject.js`.
 
 ### Linha 0003
 
 **Fonte:** `if (window.__anti_hibernation_injected) return;`  
-**O que faz:** Aplica a guarda `if (window.__anti_hibernation_injected) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **IIFE e guard de idempotência**.  
-**Por que assim:** Evita instalar duas vezes shims globais, listeners e timers no mesmo document MAIN-world.  
-**Risco/alternativa:** Sem o guard, cada reinjeção duplicaria filas rAF/idle, listeners e pontes de eventos.  
-**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — `inject-anti-hibernation.test.js` lê o fonte para o guard, mas o comportamento é simulado; não carrega este arquivo real.
+**O que faz:** Testa a guarda `if (window.__anti_hibernation_injected) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **IIFE e guard de idempotência** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — o teste lê o guard no fonte, mas simula o comportamento sem carregar `inject.js`.
 
 ### Linha 0004
 
 **Fonte:** `window.__anti_hibernation_injected = true;`  
-**O que faz:** Participa de **IIFE e guard de idempotência** com `window.__anti_hibernation_injected = true;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Evita instalar duas vezes shims globais, listeners e timers no mesmo document MAIN-world.  
-**Risco/alternativa:** Sem o guard, cada reinjeção duplicaria filas rAF/idle, listeners e pontes de eventos.  
-**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — `inject-anti-hibernation.test.js` lê o fonte para o guard, mas o comportamento é simulado; não carrega este arquivo real.
+**O que faz:** Atualiza `window.__anti_hibernation_injected` para `true;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **IIFE e guard de idempotência**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — o teste lê o guard no fonte, mas simula o comportamento sem carregar `inject.js`.
 
 ### Linha 0005
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **IIFE e guard de idempotência**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — `inject-anti-hibernation.test.js` lê o fonte para o guard, mas o comportamento é simulado; não carrega este arquivo real.
+**O que faz:** Mantém uma posição vazia entre trechos de **IIFE e guard de idempotência**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + evidência complementar — o teste lê o guard no fonte, mas simula o comportamento sem carregar `inject.js`.
 
 ### Linha 0006
 
 **Fonte:** `// 0. Guarda de Isolamento: Executar apenas se for aba de tradução`  
-**O que faz:** Comentário do fonte registra: “0. Guarda de Isolamento: Executar apenas se for aba de tradução”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Gate da aba de tradução** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Documenta no próprio fonte: “0. Guarda de Isolamento: Executar apenas se for aba de tradução”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **gate da aba de tradução**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0007
 
 **Fonte:** `const isTranslatorTab = window.location.href.includes('mangatranslator') \|\|`  
-**O que faz:** Declara `isTranslatorTab` usando `const`; a expressão é `const isTranslatorTab = window.location.href.includes('mangatranslator') \|\|`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Gate da aba de tradução**.  
-**Por que assim:** O manifest injeta também em páginas Gemini/loopback; o marker impede anti-throttling em abas não pertencentes ao job.  
-**Risco/alternativa:** Ativar indiscriminadamente alteraria o Gemini aberto manualmente; depender só de host não distinguiria tab de automação.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Inicializa `isTranslatorTab` com `window.location.href.includes('mangatranslator') \|\|`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **gate da aba de tradução**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0008
 
 **Fonte:** `sessionStorage.getItem('mangatranslator_tab') === 'true';`  
-**O que faz:** Acessa sessionStorage: `sessionStorage.getItem('mangatranslator_tab') === 'true';`.  
-**Como faz:** Mantém marker/mode no contexto da aba e origem durante a sessão, sem persistência global da extensão.  
-**Por que assim:** O manifest injeta também em páginas Gemini/loopback; o marker impede anti-throttling em abas não pertencentes ao job.  
-**Risco/alternativa:** Ativar indiscriminadamente alteraria o Gemini aberto manualmente; depender só de host não distinguiria tab de automação.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Usa `sessionStorage` em `sessionStorage.getItem('mangatranslator_tab') === 'true';`.  
+**Como faz:** Lê/grava marker ou modo por aba/origem durante a sessão.  
+**Por que assim:** O estado deve sobreviver reload da aba sem virar preferência global.  
+**Risco/alternativa:** `localStorage` persistiria além do job; memória pura sumiria em reload.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0009
 
 **Fonte:** `if (!isTranslatorTab) {`  
-**O que faz:** Aplica a guarda `if (!isTranslatorTab) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Gate da aba de tradução**.  
-**Por que assim:** O manifest injeta também em páginas Gemini/loopback; o marker impede anti-throttling em abas não pertencentes ao job.  
-**Risco/alternativa:** Ativar indiscriminadamente alteraria o Gemini aberto manualmente; depender só de host não distinguiria tab de automação.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Testa a guarda `if (!isTranslatorTab) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **gate da aba de tradução** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0010
 
 **Fonte:** `return;`  
-**O que faz:** Encerra este fluxo com `return;`.  
-**Como faz:** Evita que as linhas seguintes instalem/continuem a unidade quando o pré-requisito não foi atendido.  
-**Por que assim:** O manifest injeta também em páginas Gemini/loopback; o marker impede anti-throttling em abas não pertencentes ao job.  
-**Risco/alternativa:** Ativar indiscriminadamente alteraria o Gemini aberto manualmente; depender só de host não distinguiria tab de automação.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Encerra o fluxo atual com `return;`.  
+**Como faz:** Evita que o restante do bloco rode neste caso e, quando há expressão, devolve o valor ao caller.  
+**Por que assim:** Early return mantém guards de **gate da aba de tradução** simples e impede efeitos tardios.  
+**Risco/alternativa:** Continuar após condição terminal poderia instalar shims ou operar em alvo inválido.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0011
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Gate da aba de tradução**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** O manifest injeta também em páginas Gemini/loopback; o marker impede anti-throttling em abas não pertencentes ao job.  
-**Risco/alternativa:** Ativar indiscriminadamente alteraria o Gemini aberto manualmente; depender só de host não distinguiria tab de automação.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Fecha/continua a estrutura sintática de **gate da aba de tradução** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0012
 
 **Fonte:** `try { sessionStorage.setItem('mangatranslator_tab', 'true'); } catch (e) {}`  
-**O que faz:** Acessa sessionStorage: `try { sessionStorage.setItem('mangatranslator_tab', 'true'); } catch (e) {}`.  
-**Como faz:** Mantém marker/mode no contexto da aba e origem durante a sessão, sem persistência global da extensão.  
-**Por que assim:** O manifest injeta também em páginas Gemini/loopback; o marker impede anti-throttling em abas não pertencentes ao job.  
-**Risco/alternativa:** Ativar indiscriminadamente alteraria o Gemini aberto manualmente; depender só de host não distinguiria tab de automação.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Usa `sessionStorage` em `try { sessionStorage.setItem('mangatranslator_tab', 'true'); } catch (e) {}`.  
+**Como faz:** Lê/grava marker ou modo por aba/origem durante a sessão.  
+**Por que assim:** O estado deve sobreviver reload da aba sem virar preferência global.  
+**Risco/alternativa:** `localStorage` persistiria além do job; memória pura sumiria em reload.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0013
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Gate da aba de tradução**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Mantém uma posição vazia entre trechos de **gate da aba de tradução**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0014
 
 **Fonte:** `// 1. Anti-throttling progressivo.`  
-**O que faz:** Comentário do fonte registra: “1. Anti-throttling progressivo.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Gate da aba de tradução** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — O teste verifica a presença do gate; `jobs-lifecycle.js` constrói URLs com `?mangatranslator=true`, que satisfaz o marcador no fluxo real.
+**O que faz:** Documenta no próprio fonte: “1. Anti-throttling progressivo.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **gate da aba de tradução**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 consumidor — o gate existe no fonte e `jobs-lifecycle.js` acrescenta `mangatranslator=true` aos jobs reais.
 
 ### Linha 0015
 
 **Fonte:** `//`  
-**O que faz:** Comentário do fonte registra: “”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0016
 
 **Fonte:** `// O modo padrão é minimal: mantém os shims necessários para o Gemini não`  
-**O que faz:** Comentário do fonte registra: “O modo padrão é minimal: mantém os shims necessários para o Gemini não”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “O modo padrão é minimal: mantém os shims necessários para o Gemini não”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0017
 
 **Fonte:** `// congelar em background, mas não simula atividade humana nem dispara foco`  
-**O que faz:** Comentário do fonte registra: “congelar em background, mas não simula atividade humana nem dispara foco”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “congelar em background, mas não simula atividade humana nem dispara foco”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0018
 
 **Fonte:** `// continuamente. O content script pode elevar temporariamente para`  
-**O que faz:** Comentário do fonte registra: “continuamente. O content script pode elevar temporariamente para”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “continuamente. O content script pode elevar temporariamente para”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0019
 
 **Fonte:** `// balanced/legacy quando o modo de execução ou uma segunda tentativa de`  
-**O que faz:** Comentário do fonte registra: “balanced/legacy quando o modo de execução ou uma segunda tentativa de”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “balanced/legacy quando o modo de execução ou uma segunda tentativa de”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0020
 
 **Fonte:** `// submit realmente precisar.`  
-**O que faz:** Comentário do fonte registra: “submit realmente precisar.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “submit realmente precisar.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0021
 
 **Fonte:** `const ANTI_THROTTLE_MODES = new Set(['minimal', 'balanced', 'legacy']);`  
-**O que faz:** Declara `ANTI_THROTTLE_MODES` usando `const`; a expressão é `const ANTI_THROTTLE_MODES = new Set(['minimal', 'balanced', 'legacy']);`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Inicializa `ANTI_THROTTLE_MODES` com `new Set(['minimal', 'balanced', 'legacy']);`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **modos anti-throttle e sessionStorage**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0022
 
 **Fonte:** `const RAF_CADENCE_MS = {`  
-**O que faz:** Declara `RAF_CADENCE_MS` usando `const`; a expressão é `const RAF_CADENCE_MS = {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Inicializa `RAF_CADENCE_MS` com `{`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **modos anti-throttle e sessionStorage**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0023
 
 **Fonte:** `minimal: 250,`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `minimal: 250,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Define a propriedade/opção `minimal` como `250`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **modos anti-throttle e sessionStorage**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0024
 
 **Fonte:** `balanced: 100,`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `balanced: 100,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Define a propriedade/opção `balanced` como `100`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **modos anti-throttle e sessionStorage**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0025
 
 **Fonte:** `legacy: 50,`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `legacy: 50,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Define a propriedade/opção `legacy` como `50`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **modos anti-throttle e sessionStorage**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0026
 
 **Fonte:** `};`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Avalia a expressão específica `};` dentro de **modos anti-throttle e sessionStorage**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0027
 
 **Fonte:** `const FOCUS_CADENCE_MS = {`  
-**O que faz:** Declara `FOCUS_CADENCE_MS` usando `const`; a expressão é `const FOCUS_CADENCE_MS = {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Inicializa `FOCUS_CADENCE_MS` com `{`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **modos anti-throttle e sessionStorage**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0028
 
 **Fonte:** `minimal: 0,`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `minimal: 0,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Define a propriedade/opção `minimal` como `0`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **modos anti-throttle e sessionStorage**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0029
 
 **Fonte:** `balanced: 5000,`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `balanced: 5000,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Define a propriedade/opção `balanced` como `5000`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **modos anti-throttle e sessionStorage**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0030
 
 **Fonte:** `legacy: 1000,`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `legacy: 1000,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Define a propriedade/opção `legacy` como `1000`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **modos anti-throttle e sessionStorage**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0031
 
 **Fonte:** `};`  
-**O que faz:** Participa de **Política minimal/balanced/legacy e persistência em sessionStorage** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Avalia a expressão específica `};` dentro de **modos anti-throttle e sessionStorage**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0032
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **modos anti-throttle e sessionStorage**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0033
 
 **Fonte:** `let antiThrottleMode = 'minimal';`  
-**O que faz:** Declara `antiThrottleMode` usando `let`; a expressão é `let antiThrottleMode = 'minimal';`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Inicializa `antiThrottleMode` com `'minimal';`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **modos anti-throttle e sessionStorage**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0034
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0035
 
 **Fonte:** `const storedMode = sessionStorage.getItem('mangaTranslatorAntiThrottleMode');`  
-**O que faz:** Declara `storedMode` usando `const`; a expressão é `const storedMode = sessionStorage.getItem('mangaTranslatorAntiThrottleMode');`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Inicializa `storedMode` com `sessionStorage.getItem('mangaTranslatorAntiThrottleMode');`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **modos anti-throttle e sessionStorage**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0036
 
 **Fonte:** `if (ANTI_THROTTLE_MODES.has(storedMode)) antiThrottleMode = storedMode;`  
-**O que faz:** Aplica a guarda `if (ANTI_THROTTLE_MODES.has(storedMode)) antiThrottleMode = storedMode;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Testa a guarda `if (ANTI_THROTTLE_MODES.has(storedMode)) antiThrottleMode = storedMode;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **modos anti-throttle e sessionStorage** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0037
 
 **Fonte:** `} catch (_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch (_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Permite gastar menos CPU no baseline e escalar somente quando o modo de execução precisa resistir mais ao throttling.  
-**Risco/alternativa:** Um intervalo agressivo permanente aumenta CPU/bateria e interfere com uso manual; sem persistência o modo se perderia em reload da mesma sessão.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Captura exceção da tentativa anterior com `} catch (_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0038
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Política minimal/balanced/legacy e persistência em sessionStorage**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **modos anti-throttle e sessionStorage**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0039
 
 **Fonte:** `// Visibilidade permanece falsificada enquanto esta aba é um worker válido.`  
-**O que faz:** Comentário do fonte registra: “Visibilidade permanece falsificada enquanto esta aba é um worker válido.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “Visibilidade permanece falsificada enquanto esta aba é um worker válido.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0040
 
 **Fonte:** `// Isso evita que frameworks da página parem pipelines internos ao receber`  
-**O que faz:** Comentário do fonte registra: “Isso evita que frameworks da página parem pipelines internos ao receber”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “Isso evita que frameworks da página parem pipelines internos ao receber”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0041
 
 **Fonte:** `// visibilitychange/blur, sem gerar mousemove sintético.`  
-**O que faz:** Comentário do fonte registra: “visibilitychange/blur, sem gerar mousemove sintético.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Política minimal/balanced/legacy e persistência em sessionStorage** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor real — Testes de inject conferem strings/cadências; `job-runner.test.js` prova que o consumidor emite modos minimal/balanced/legacy, mas não prova o listener real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “visibilitychange/blur, sem gerar mousemove sintético.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **modos anti-throttle e sessionStorage**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0042
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0043
 
 **Fonte:** `Object.defineProperty(document, 'visibilityState', {`  
-**O que faz:** Sobrescreve propriedade DOM via `Object.defineProperty`: `Object.defineProperty(document, 'visibilityState', {`.  
-**Como faz:** Substitui o getter nativo no objeto document para que o app enxergue o estado artificial definido pelo anti-throttling.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Inicia sobrescrita de propriedade nativa com `Object.defineProperty`.  
+**Como faz:** Substitui o getter do `document` no MAIN world usando opções declaradas nas linhas seguintes.  
+**Por que assim:** Propriedades read-only de visibility exigem descriptor, não atribuição simples.  
+**Risco/alternativa:** Atribuição direta pode falhar ou não afetar o getter lido pelo Gemini.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0044
 
 **Fonte:** `get: () => 'visible',`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `get: () => 'visible',`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Define a propriedade/opção `get` como `() => 'visible'`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0045
 
 **Fonte:** `configurable: true`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `configurable: true`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Define a propriedade/opção `configurable` como `true`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0046
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Fecha/continua a estrutura sintática de **spoof de visibilidade e supressão de lifecycle** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0047
 
 **Fonte:** `Object.defineProperty(document, 'hidden', {`  
-**O que faz:** Sobrescreve propriedade DOM via `Object.defineProperty`: `Object.defineProperty(document, 'hidden', {`.  
-**Como faz:** Substitui o getter nativo no objeto document para que o app enxergue o estado artificial definido pelo anti-throttling.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Inicia sobrescrita de propriedade nativa com `Object.defineProperty`.  
+**Como faz:** Substitui o getter do `document` no MAIN world usando opções declaradas nas linhas seguintes.  
+**Por que assim:** Propriedades read-only de visibility exigem descriptor, não atribuição simples.  
+**Risco/alternativa:** Atribuição direta pode falhar ou não afetar o getter lido pelo Gemini.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0048
 
 **Fonte:** `get: () => false,`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `get: () => false,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Define a propriedade/opção `get` como `() => false`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0049
 
 **Fonte:** `configurable: true`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `configurable: true`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Define a propriedade/opção `configurable` como `true`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0050
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Fecha/continua a estrutura sintática de **spoof de visibilidade e supressão de lifecycle** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0051
 
 **Fonte:** `if (Document.prototype) Document.prototype.hasFocus = () => true;`  
-**O que faz:** Aplica a guarda `if (Document.prototype) Document.prototype.hasFocus = () => true;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Testa a guarda `if (Document.prototype) Document.prototype.hasFocus = () => true;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **spoof de visibilidade e supressão de lifecycle** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0052
 
 **Fonte:** `} catch(e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0053
 
 **Fonte:** `document.hasFocus = () => true;`  
-**O que faz:** Participa de **Spoof de visibilidade/foco e supressão de lifecycle** com `document.hasFocus = () => true;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Atualiza `document.hasFocus` para `() => true;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0054
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Mantém uma posição vazia entre trechos de **spoof de visibilidade e supressão de lifecycle**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0055
 
 **Fonte:** `const stopProp = e => e.stopImmediatePropagation();`  
-**O que faz:** Declara `stopProp` usando `const`; a expressão é `const stopProp = e => e.stopImmediatePropagation();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Inicializa `stopProp` com `e => e.stopImmediatePropagation();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0056
 
 **Fonte:** `document.addEventListener('visibilitychange', stopProp, true);`  
-**O que faz:** Registra listener com `document.addEventListener('visibilitychange', stopProp, true);`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Registra o listener `document.addEventListener('visibilitychange', stopProp, true);`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0057
 
 **Fonte:** `window.addEventListener('visibilitychange', stopProp, true);`  
-**O que faz:** Registra listener com `window.addEventListener('visibilitychange', stopProp, true);`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Registra o listener `window.addEventListener('visibilitychange', stopProp, true);`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0058
 
 **Fonte:** `window.addEventListener('blur', stopProp, true);`  
-**O que faz:** Registra listener com `window.addEventListener('blur', stopProp, true);`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Registra o listener `window.addEventListener('blur', stopProp, true);`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0059
 
 **Fonte:** `window.addEventListener('pagehide', stopProp, true);`  
-**O que faz:** Registra listener com `window.addEventListener('pagehide', stopProp, true);`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Spoof de visibilidade/foco e supressão de lifecycle**.  
-**Por que assim:** Frameworks do Gemini podem pausar trabalho ao observar hidden/blur; o MAIN world permite sobrescrever getters que o isolated world não controla.  
-**Risco/alternativa:** Só alterar uma variável da extensão não mudaria o estado que o app Gemini enxerga; porém interceptar lifecycle globalmente é invasivo e exige escopo estrito.  
-**Evidência:** evidência complementar/simulação — `visibility-spoof.test.js` e a suíte agregada reproduzem a técnica em JSDOM; não executam `inject.js`.
+**O que faz:** Registra o listener `window.addEventListener('pagehide', stopProp, true);`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **spoof de visibilidade e supressão de lifecycle**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** evidência complementar/simulação — JSDOM valida a técnica em espelho, não esta instalação MAIN-world.
 
 ### Linha 0060
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0061
 
 **Fonte:** `const dispatchFocusEvents = () => {`  
-**O que faz:** Declara `dispatchFocusEvents` usando `const`; a expressão é `const dispatchFocusEvents = () => {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Inicializa `dispatchFocusEvents` com `() => {`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **foco sintético e escalada periódica**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0062
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Pulso de foco e escalada periódica**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0063
 
 **Fonte:** `window.dispatchEvent(new Event('focus'));`  
-**O que faz:** Publica evento no MAIN world: `window.dispatchEvent(new Event('focus'));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Despacha `window.dispatchEvent(new Event('focus'));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0064
 
 **Fonte:** `document.dispatchEvent(new Event('focus'));`  
-**O que faz:** Publica evento no MAIN world: `document.dispatchEvent(new Event('focus'));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Despacha `document.dispatchEvent(new Event('focus'));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0065
 
 **Fonte:** `document.dispatchEvent(new FocusEvent('focusin', {`  
-**O que faz:** Publica evento no MAIN world: `document.dispatchEvent(new FocusEvent('focusin', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Despacha `document.dispatchEvent(new FocusEvent('focusin', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0066
 
 **Fonte:** `bubbles: true,`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `bubbles: true,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Define a propriedade/opção `bubbles` como `true`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **foco sintético e escalada periódica**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0067
 
 **Fonte:** `composed: true`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `composed: true`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Define a propriedade/opção `composed` como `true`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **foco sintético e escalada periódica**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0068
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Avalia a expressão específica `}));` dentro de **foco sintético e escalada periódica**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0069
 
 **Fonte:** `} catch (_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch (_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Captura exceção da tentativa anterior com `} catch (_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0070
 
 **Fonte:** `};`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Avalia a expressão específica `};` dentro de **foco sintético e escalada periódica**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0071
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0072
 
 **Fonte:** `let focusIntervalId = null;`  
-**O que faz:** Declara `focusIntervalId` usando `let`; a expressão é `let focusIntervalId = null;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Inicializa `focusIntervalId` com `null;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **foco sintético e escalada periódica**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0073
 
 **Fonte:** `function refreshFocusEscalation() {`  
-**O que faz:** Declara a função `refreshFocusEscalation` em **Pulso de foco e escalada periódica**.  
-**Como faz:** Cria um escopo reutilizável para o comportamento iniciado nesta posição e continuado nas linhas seguintes.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Declara `refreshFocusEscalation` dentro de **foco sintético e escalada periódica**.  
+**Como faz:** O corpo seguinte implementa a rotina reutilizável associada a esse nome.  
+**Por que assim:** A função mantém a política do bloco centralizada.  
+**Risco/alternativa:** Duplicar o corpo nos callers aumentaria divergência.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0074
 
 **Fonte:** `if (focusIntervalId !== null) {`  
-**O que faz:** Aplica a guarda `if (focusIntervalId !== null) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Testa a guarda `if (focusIntervalId !== null) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **foco sintético e escalada periódica** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0075
 
 **Fonte:** `clearInterval(focusIntervalId);`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `clearInterval(focusIntervalId);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Cancela o timer indicado por `clearInterval(focusIntervalId);`.  
+**Como faz:** Impede que uma agenda antiga permaneça ativa após mudança/cancelamento.  
+**Por que assim:** **foco sintético e escalada periódica** precisa ter no máximo a agenda lógica corrente.  
+**Risco/alternativa:** Timer órfão causaria callbacks duplicados e retenção.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0076
 
 **Fonte:** `focusIntervalId = null;`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `focusIntervalId = null;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Atualiza `focusIntervalId` para `null;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **foco sintético e escalada periódica**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0077
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Pulso de foco e escalada periódica**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **foco sintético e escalada periódica** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0078
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0079
 
 **Fonte:** `const cadence = FOCUS_CADENCE_MS[antiThrottleMode] \|\| 0;`  
-**O que faz:** Declara `cadence` usando `const`; a expressão é `const cadence = FOCUS_CADENCE_MS[antiThrottleMode] \|\| 0;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Inicializa `cadence` com `FOCUS_CADENCE_MS[antiThrottleMode] \|\| 0;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **foco sintético e escalada periódica**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0080
 
 **Fonte:** `if (cadence <= 0) return;`  
-**O que faz:** Aplica a guarda `if (cadence <= 0) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Testa a guarda `if (cadence <= 0) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **foco sintético e escalada periódica** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0081
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0082
 
 **Fonte:** `focusIntervalId = setInterval(dispatchFocusEvents, cadence);`  
-**O que faz:** Agenda trabalho temporizado: `focusIntervalId = setInterval(dispatchFocusEvents, cadence);`.  
-**Como faz:** Mantém a cadência definida pelo modo atual e adia o callback sem bloquear a thread.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Atualiza `focusIntervalId` para `setInterval(dispatchFocusEvents, cadence);`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **foco sintético e escalada periódica**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0083
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Pulso de foco e escalada periódica**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **foco sintético e escalada periódica** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0084
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0085
 
 **Fonte:** `function setAntiThrottleMode(nextMode) {`  
-**O que faz:** Declara a função `setAntiThrottleMode` em **Pulso de foco e escalada periódica**.  
-**Como faz:** Cria um escopo reutilizável para o comportamento iniciado nesta posição e continuado nas linhas seguintes.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Declara `setAntiThrottleMode` dentro de **foco sintético e escalada periódica**.  
+**Como faz:** O corpo seguinte implementa a rotina reutilizável associada a esse nome.  
+**Por que assim:** A função mantém a política do bloco centralizada.  
+**Risco/alternativa:** Duplicar o corpo nos callers aumentaria divergência.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0086
 
 **Fonte:** `const normalized = ANTI_THROTTLE_MODES.has(nextMode)`  
-**O que faz:** Declara `normalized` usando `const`; a expressão é `const normalized = ANTI_THROTTLE_MODES.has(nextMode)`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Inicializa `normalized` com `ANTI_THROTTLE_MODES.has(nextMode)`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **foco sintético e escalada periódica**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0087
 
 **Fonte:** `? nextMode`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `? nextMode`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Continua a expressão condicional com `? nextMode`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0088
 
 **Fonte:** `: 'minimal';`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `: 'minimal';`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Continua a expressão condicional com `: 'minimal';`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0089
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0090
 
 **Fonte:** `antiThrottleMode = normalized;`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `antiThrottleMode = normalized;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Atualiza `antiThrottleMode` para `normalized;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **foco sintético e escalada periódica**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0091
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Pulso de foco e escalada periódica**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0092
 
 **Fonte:** `sessionStorage.setItem(`  
-**O que faz:** Acessa sessionStorage: `sessionStorage.setItem(`.  
-**Como faz:** Mantém marker/mode no contexto da aba e origem durante a sessão, sem persistência global da extensão.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Usa `sessionStorage` em `sessionStorage.setItem(`.  
+**Como faz:** Lê/grava marker ou modo por aba/origem durante a sessão.  
+**Por que assim:** O estado deve sobreviver reload da aba sem virar preferência global.  
+**Risco/alternativa:** `localStorage` persistiria além do job; memória pura sumiria em reload.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0093
 
 **Fonte:** `'mangaTranslatorAntiThrottleMode',`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `'mangaTranslatorAntiThrottleMode',`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Avalia a expressão específica `'mangaTranslatorAntiThrottleMode',` dentro de **foco sintético e escalada periódica**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0094
 
 **Fonte:** `antiThrottleMode`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `antiThrottleMode`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Avalia a expressão específica `antiThrottleMode` dentro de **foco sintético e escalada periódica**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0095
 
 **Fonte:** `);`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Pulso de foco e escalada periódica**: `);`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **foco sintético e escalada periódica** com `);`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0096
 
 **Fonte:** `} catch (_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch (_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Captura exceção da tentativa anterior com `} catch (_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0097
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0098
 
 **Fonte:** `refreshFocusEscalation();`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `refreshFocusEscalation();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Chama `refreshFocusEscalation` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **foco sintético e escalada periódica**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0099
 
 **Fonte:** `dispatchFocusEvents();`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `dispatchFocusEvents();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Chama `dispatchFocusEvents` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **foco sintético e escalada periódica**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0100
 
 **Fonte:** `return antiThrottleMode;`  
-**O que faz:** Encerra este fluxo com `return antiThrottleMode;`.  
-**Como faz:** Evita que as linhas seguintes instalem/continuem a unidade quando o pré-requisito não foi atendido.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Encerra o fluxo atual com `return antiThrottleMode;`.  
+**Como faz:** Evita que o restante do bloco rode neste caso e, quando há expressão, devolve o valor ao caller.  
+**Por que assim:** Early return mantém guards de **foco sintético e escalada periódica** simples e impede efeitos tardios.  
+**Risco/alternativa:** Continuar após condição terminal poderia instalar shims ou operar em alvo inválido.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0101
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Pulso de foco e escalada periódica**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **foco sintético e escalada periódica** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0102
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0103
 
 **Fonte:** `// Pulso inicial único. Não existe mais loop de foco permanente no baseline.`  
-**O que faz:** Comentário do fonte registra: “Pulso inicial único. Não existe mais loop de foco permanente no baseline.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Pulso de foco e escalada periódica** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Documenta no próprio fonte: “Pulso inicial único. Não existe mais loop de foco permanente no baseline.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **foco sintético e escalada periódica**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0104
 
 **Fonte:** `dispatchFocusEvents();`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `dispatchFocusEvents();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Chama `dispatchFocusEvents` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **foco sintético e escalada periódica**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0105
 
 **Fonte:** `if (document.readyState === 'loading') {`  
-**O que faz:** Aplica a guarda `if (document.readyState === 'loading') {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Testa a guarda `if (document.readyState === 'loading') {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **foco sintético e escalada periódica** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0106
 
 **Fonte:** `document.addEventListener('DOMContentLoaded', dispatchFocusEvents, {`  
-**O que faz:** Registra listener com `document.addEventListener('DOMContentLoaded', dispatchFocusEvents, {`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Pulso de foco e escalada periódica**.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Registra o listener `document.addEventListener('DOMContentLoaded', dispatchFocusEvents, {`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **foco sintético e escalada periódica**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0107
 
 **Fonte:** `once: true`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `once: true`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Define a propriedade/opção `once` como `true`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **foco sintético e escalada periódica**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0108
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **foco sintético e escalada periódica** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0109
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Pulso de foco e escalada periódica**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **foco sintético e escalada periódica** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0110
 
 **Fonte:** `refreshFocusEscalation();`  
-**O que faz:** Participa de **Pulso de foco e escalada periódica** com `refreshFocusEscalation();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Minimal evita foco periódico; balanced/legacy adicionam pulsos apenas durante condições mais propensas a throttling/submit falho.  
-**Risco/alternativa:** Foco sintético a cada segundo em todos os casos pode disparar handlers da página, gastar CPU e alterar UX.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Chama `refreshFocusEscalation` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **foco sintético e escalada periódica**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0111
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Pulso de foco e escalada periódica**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — A política de cadência é verificada como texto e o runner prova o evento de mudança de modo; não há assertion do timer real deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **foco sintético e escalada periódica**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0112
 
 **Fonte:** `window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', event => {`  
-**O que faz:** Registra listener com `window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', event => {`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **API/eventos públicos de anti-throttle**.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Registra o listener `window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', event => {`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **API pública de anti-throttle**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0113
 
 **Fonte:** `const requestedMode = event.detail && event.detail.mode;`  
-**O que faz:** Declara `requestedMode` usando `const`; a expressão é `const requestedMode = event.detail && event.detail.mode;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **API/eventos públicos de anti-throttle**.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Inicializa `requestedMode` com `event.detail && event.detail.mode;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **API pública de anti-throttle**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0114
 
 **Fonte:** `setAntiThrottleMode(requestedMode);`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `setAntiThrottleMode(requestedMode);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Chama `setAntiThrottleMode` com `requestedMode`.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **API pública de anti-throttle**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0115
 
 **Fonte:** `});`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Fecha/continua a estrutura sintática de **API pública de anti-throttle** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0116
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **API/eventos públicos de anti-throttle**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Mantém uma posição vazia entre trechos de **API pública de anti-throttle**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0117
 
 **Fonte:** `window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_PULSE', () => {`  
-**O que faz:** Registra listener com `window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_PULSE', () => {`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **API/eventos públicos de anti-throttle**.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Registra o listener `window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_PULSE', () => {`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **API pública de anti-throttle**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0118
 
 **Fonte:** `dispatchFocusEvents();`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `dispatchFocusEvents();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Chama `dispatchFocusEvents` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **API pública de anti-throttle**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0119
 
 **Fonte:** `});`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Fecha/continua a estrutura sintática de **API pública de anti-throttle** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0120
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **API/eventos públicos de anti-throttle**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Mantém uma posição vazia entre trechos de **API pública de anti-throttle**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0121
 
 **Fonte:** `window.__mangaTranslatorAntiThrottle = {`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `window.__mangaTranslatorAntiThrottle = {`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Atualiza `window.__mangaTranslatorAntiThrottle` para `{`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **API pública de anti-throttle**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0122
 
 **Fonte:** `getMode: () => antiThrottleMode,`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `getMode: () => antiThrottleMode,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Define a propriedade/opção `getMode` como `() => antiThrottleMode`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **API pública de anti-throttle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0123
 
 **Fonte:** `setMode: setAntiThrottleMode,`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `setMode: setAntiThrottleMode,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Define a propriedade/opção `setMode` como `setAntiThrottleMode`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **API pública de anti-throttle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0124
 
 **Fonte:** `pulse: dispatchFocusEvents,`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `pulse: dispatchFocusEvents,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Define a propriedade/opção `pulse` como `dispatchFocusEvents`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **API pública de anti-throttle**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0125
 
 **Fonte:** `};`  
-**O que faz:** Participa de **API/eventos públicos de anti-throttle** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** CustomEvent é a ponte permitida entre isolated world e MAIN world para ajustar shims da página.  
-**Risco/alternativa:** Acoplamento direto entre mundos não existe; expor uma API mais ampla aumentaria superfície acessível ao JavaScript da página.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Avalia a expressão específica `};` dentro de **API pública de anti-throttle**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0126
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **API/eventos públicos de anti-throttle**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `job-runner.test.js` prova emissão de `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE`; nenhuma suíte comprova que este listener real recebeu e aplicou o evento.
+**O que faz:** Mantém uma posição vazia entre trechos de **API pública de anti-throttle**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0127
 
 **Fonte:** `// 2. requestAnimationFrame progressivo.`  
-**O que faz:** Comentário do fonte registra: “2. requestAnimationFrame progressivo.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **requestAnimationFrame híbrido com fallback progressivo** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Documenta no próprio fonte: “2. requestAnimationFrame progressivo.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **rAF híbrido e fallback temporal**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0128
 
 **Fonte:** `// Em vez de acordar a fila a cada 50ms para sempre, o próximo flush usa a`  
-**O que faz:** Comentário do fonte registra: “Em vez de acordar a fila a cada 50ms para sempre, o próximo flush usa a”.  
-**Como faz:** Documenta intenção ou limitação da unidade **requestAnimationFrame híbrido com fallback progressivo** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Documenta no próprio fonte: “Em vez de acordar a fila a cada 50ms para sempre, o próximo flush usa a”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **rAF híbrido e fallback temporal**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0129
 
 **Fonte:** `// cadência do nível atual. Uma escalada passa a valer no tick seguinte.`  
-**O que faz:** Comentário do fonte registra: “cadência do nível atual. Uma escalada passa a valer no tick seguinte.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **requestAnimationFrame híbrido com fallback progressivo** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Documenta no próprio fonte: “cadência do nível atual. Uma escalada passa a valer no tick seguinte.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **rAF híbrido e fallback temporal**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0130
 
 **Fonte:** `let nextRafId = 1;`  
-**O que faz:** Declara `nextRafId` usando `let`; a expressão é `let nextRafId = 1;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `nextRafId` com `1;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0131
 
 **Fonte:** `const rafCallbacks = new Map();`  
-**O que faz:** Declara `rafCallbacks` usando `const`; a expressão é `const rafCallbacks = new Map();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `rafCallbacks` com `new Map();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0132
 
 **Fonte:** `const origRaf = typeof window.requestAnimationFrame === 'function'`  
-**O que faz:** Declara `origRaf` usando `const`; a expressão é `const origRaf = typeof window.requestAnimationFrame === 'function'`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `origRaf` com `typeof window.requestAnimationFrame === 'function'`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0133
 
 **Fonte:** `? window.requestAnimationFrame.bind(window)`  
-**O que faz:** Manipula API de scheduling com `? window.requestAnimationFrame.bind(window)`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Referencia/substitui API de scheduling em `? window.requestAnimationFrame.bind(window)`.  
+**Como faz:** Combina a primitiva nativa com estado próprio para fallback/cancelamento.  
+**Por que assim:** A aba em background pode suspender frame/idle nativo.  
+**Risco/alternativa:** Usar apenas a API nativa pode congelar a automação.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0134
 
 **Fonte:** `: null;`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `: null;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Continua a expressão condicional com `: null;`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0135
 
 **Fonte:** `const origCancelRaf = typeof window.cancelAnimationFrame === 'function'`  
-**O que faz:** Declara `origCancelRaf` usando `const`; a expressão é `const origCancelRaf = typeof window.cancelAnimationFrame === 'function'`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `origCancelRaf` com `typeof window.cancelAnimationFrame === 'function'`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0136
 
 **Fonte:** `? window.cancelAnimationFrame.bind(window)`  
-**O que faz:** Manipula API de scheduling com `? window.cancelAnimationFrame.bind(window)`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Referencia/substitui API de scheduling em `? window.cancelAnimationFrame.bind(window)`.  
+**Como faz:** Combina a primitiva nativa com estado próprio para fallback/cancelamento.  
+**Por que assim:** A aba em background pode suspender frame/idle nativo.  
+**Risco/alternativa:** Usar apenas a API nativa pode congelar a automação.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0137
 
 **Fonte:** `: null;`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `: null;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Continua a expressão condicional com `: null;`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0138
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **rAF híbrido e fallback temporal**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0139
 
 **Fonte:** `window.requestAnimationFrame = function(cb) {`  
-**O que faz:** Manipula API de scheduling com `window.requestAnimationFrame = function(cb) {`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Atualiza `window.requestAnimationFrame` para `function(cb) {`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **rAF híbrido e fallback temporal**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0140
 
 **Fonte:** `const id = nextRafId++;`  
-**O que faz:** Declara `id` usando `const`; a expressão é `const id = nextRafId++;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `id` com `nextRafId++;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0141
 
 **Fonte:** `rafCallbacks.set(id, cb);`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `rafCallbacks.set(id, cb);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Registra item na fila/mapa com `rafCallbacks.set(id, cb);`.  
+**Como faz:** Associa o ID local à callback ou timer para execução/cancelamento posterior.  
+**Por que assim:** O Map torna deduplicação e cancelamento O(1) e visíveis.  
+**Risco/alternativa:** Array sem IDs exigiria busca e tornaria cancelamento menos preciso.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0142
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **rAF híbrido e fallback temporal**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0143
 
 **Fonte:** `if (origRaf && document.visibilityState === 'visible') {`  
-**O que faz:** Aplica a guarda `if (origRaf && document.visibilityState === 'visible') {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Testa a guarda `if (origRaf && document.visibilityState === 'visible') {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **rAF híbrido e fallback temporal** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0144
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0145
 
 **Fonte:** `origRaf(now => {`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `origRaf(now => {`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Define callback/arrow expression em `origRaf(now => {`.  
+**Como faz:** Empacota o comportamento que será chamado por evento, timer, Promise ou iterador.  
+**Por que assim:** Callback local mantém o comportamento junto do gatilho que o consome.  
+**Risco/alternativa:** Função global separada aumentaria superfície e dificultaria capturar closures.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0146
 
 **Fonte:** `if (!rafCallbacks.has(id)) return;`  
-**O que faz:** Aplica a guarda `if (!rafCallbacks.has(id)) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Testa a guarda `if (!rafCallbacks.has(id)) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **rAF híbrido e fallback temporal** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0147
 
 **Fonte:** `rafCallbacks.delete(id);`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `rafCallbacks.delete(id);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Remove o ID da fila com `rafCallbacks.delete(id);`.  
+**Como faz:** Marca a callback como consumida/cancelada antes que outro caminho tente executá-la.  
+**Por que assim:** A remoção é a trava contra dupla entrega entre API nativa e fallback.  
+**Risco/alternativa:** Manter a entrada permitiria callback duplicado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0148
 
 **Fonte:** `try { cb(now); } catch(_e) {}`  
-**O que faz:** Abre região protegida por `try` em **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0149
 
 **Fonte:** `});`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Fecha/continua a estrutura sintática de **rAF híbrido e fallback temporal** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0150
 
 **Fonte:** `} catch(_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0151
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestAnimationFrame híbrido com fallback progressivo**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Fecha/continua a estrutura sintática de **rAF híbrido e fallback temporal** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0152
 
 **Fonte:** `return id;`  
-**O que faz:** Encerra este fluxo com `return id;`.  
-**Como faz:** Evita que as linhas seguintes instalem/continuem a unidade quando o pré-requisito não foi atendido.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Encerra o fluxo atual com `return id;`.  
+**Como faz:** Evita que o restante do bloco rode neste caso e, quando há expressão, devolve o valor ao caller.  
+**Por que assim:** Early return mantém guards de **rAF híbrido e fallback temporal** simples e impede efeitos tardios.  
+**Risco/alternativa:** Continuar após condição terminal poderia instalar shims ou operar em alvo inválido.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0153
 
 **Fonte:** `};`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Avalia a expressão específica `};` dentro de **rAF híbrido e fallback temporal**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0154
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **rAF híbrido e fallback temporal**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0155
 
 **Fonte:** `window.cancelAnimationFrame = function(id) {`  
-**O que faz:** Manipula API de scheduling com `window.cancelAnimationFrame = function(id) {`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Atualiza `window.cancelAnimationFrame` para `function(id) {`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **rAF híbrido e fallback temporal**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0156
 
 **Fonte:** `rafCallbacks.delete(id);`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `rafCallbacks.delete(id);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Remove o ID da fila com `rafCallbacks.delete(id);`.  
+**Como faz:** Marca a callback como consumida/cancelada antes que outro caminho tente executá-la.  
+**Por que assim:** A remoção é a trava contra dupla entrega entre API nativa e fallback.  
+**Risco/alternativa:** Manter a entrada permitiria callback duplicado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0157
 
 **Fonte:** `if (origCancelRaf) {`  
-**O que faz:** Aplica a guarda `if (origCancelRaf) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Testa a guarda `if (origCancelRaf) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **rAF híbrido e fallback temporal** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0158
 
 **Fonte:** `try { origCancelRaf(id); } catch (_e) {}`  
-**O que faz:** Abre região protegida por `try` em **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0159
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestAnimationFrame híbrido com fallback progressivo**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Fecha/continua a estrutura sintática de **rAF híbrido e fallback temporal** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0160
 
 **Fonte:** `};`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Avalia a expressão específica `};` dentro de **rAF híbrido e fallback temporal**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0161
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **rAF híbrido e fallback temporal**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0162
 
 **Fonte:** `const flushRaf = () => {`  
-**O que faz:** Declara `flushRaf` usando `const`; a expressão é `const flushRaf = () => {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `flushRaf` com `() => {`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0163
 
 **Fonte:** `if (rafCallbacks.size === 0) return;`  
-**O que faz:** Aplica a guarda `if (rafCallbacks.size === 0) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Testa a guarda `if (rafCallbacks.size === 0) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **rAF híbrido e fallback temporal** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0164
 
 **Fonte:** `const entries = Array.from(rafCallbacks.entries());`  
-**O que faz:** Declara `entries` usando `const`; a expressão é `const entries = Array.from(rafCallbacks.entries());`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `entries` com `Array.from(rafCallbacks.entries());`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0165
 
 **Fonte:** `rafCallbacks.clear();`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `rafCallbacks.clear();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Esvazia a coleção com `rafCallbacks.clear();`.  
+**Como faz:** Depois de copiar o lote, remove todas as callbacks pendentes antes de invocá-las.  
+**Por que assim:** Drenagem antes da execução separa o tick atual de novos registros feitos por callbacks.  
+**Risco/alternativa:** Limpar depois faria callbacks recém-adicionadas serem perdidas.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0166
 
 **Fonte:** `const now = performance.now();`  
-**O que faz:** Declara `now` usando `const`; a expressão é `const now = performance.now();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `now` com `performance.now();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0167
 
 **Fonte:** `for (const [, cb] of entries) {`  
-**O que faz:** Inicia iteração em **requestAnimationFrame híbrido com fallback progressivo** com `for (const [, cb] of entries) {`.  
-**Como faz:** Percorre candidatos/nós/callbacks e aplica o corpo associado a cada item enquanto preserva seus guards.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicia iteração `for (const [, cb] of entries) {`.  
+**Como faz:** Percorre callbacks, nós ou botões enquanto aplica os guards do bloco.  
+**Por que assim:** A unidade precisa avaliar todos os candidatos até encontrar/consumir os adequados.  
+**Risco/alternativa:** Tratar apenas o primeiro elemento falharia em DOM dinâmico/Shadow DOM.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0168
 
 **Fonte:** `try { cb(now); } catch(_e) {}`  
-**O que faz:** Abre região protegida por `try` em **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0169
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestAnimationFrame híbrido com fallback progressivo**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Fecha/continua a estrutura sintática de **rAF híbrido e fallback temporal** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0170
 
 **Fonte:** `};`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Avalia a expressão específica `};` dentro de **rAF híbrido e fallback temporal**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0171
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **rAF híbrido e fallback temporal**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0172
 
 **Fonte:** `let rafFlushTimer = null;`  
-**O que faz:** Declara `rafFlushTimer` usando `let`; a expressão é `let rafFlushTimer = null;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `rafFlushTimer` com `null;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0173
 
 **Fonte:** `function scheduleRafFlush() {`  
-**O que faz:** Declara a função `scheduleRafFlush` em **requestAnimationFrame híbrido com fallback progressivo**.  
-**Como faz:** Cria um escopo reutilizável para o comportamento iniciado nesta posição e continuado nas linhas seguintes.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Declara `scheduleRafFlush` dentro de **rAF híbrido e fallback temporal**.  
+**Como faz:** O corpo seguinte implementa a rotina reutilizável associada a esse nome.  
+**Por que assim:** A função mantém a política do bloco centralizada.  
+**Risco/alternativa:** Duplicar o corpo nos callers aumentaria divergência.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0174
 
 **Fonte:** `const cadence = RAF_CADENCE_MS[antiThrottleMode] \|\| RAF_CADENCE_MS.minimal;`  
-**O que faz:** Declara `cadence` usando `const`; a expressão é `const cadence = RAF_CADENCE_MS[antiThrottleMode] \|\| RAF_CADENCE_MS.minimal;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestAnimationFrame híbrido com fallback progressivo**.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Inicializa `cadence` com `RAF_CADENCE_MS[antiThrottleMode] \|\| RAF_CADENCE_MS.minimal;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **rAF híbrido e fallback temporal**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0175
 
 **Fonte:** `rafFlushTimer = setTimeout(() => {`  
-**O que faz:** Agenda trabalho temporizado: `rafFlushTimer = setTimeout(() => {`.  
-**Como faz:** Mantém a cadência definida pelo modo atual e adia o callback sem bloquear a thread.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Atualiza `rafFlushTimer` para `setTimeout(() => {`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **rAF híbrido e fallback temporal**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0176
 
 **Fonte:** `flushRaf();`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `flushRaf();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Chama `flushRaf` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **rAF híbrido e fallback temporal**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0177
 
 **Fonte:** `scheduleRafFlush();`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `scheduleRafFlush();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Chama `scheduleRafFlush` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **rAF híbrido e fallback temporal**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0178
 
 **Fonte:** `}, cadence);`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `}, cadence);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Avalia a expressão específica `}, cadence);` dentro de **rAF híbrido e fallback temporal**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0179
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestAnimationFrame híbrido com fallback progressivo**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Fecha/continua a estrutura sintática de **rAF híbrido e fallback temporal** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0180
 
 **Fonte:** `scheduleRafFlush();`  
-**O que faz:** Participa de **requestAnimationFrame híbrido com fallback progressivo** com `scheduleRafFlush();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Preserva rAF nativo quando possível e mantém uma fila drenável por timer quando Chromium suspende frames em background.  
-**Risco/alternativa:** Substituir por timer fixo de alta frequência desperdiçaria CPU; depender apenas do rAF nativo pode congelar a automação oculta.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO do código real — `raf-replacement.test.js` e parte de `inject-anti-hibernation.test.js` são espelhos desatualizados: falam em setInterval/cancel stub, enquanto produção usa Map + rAF nativo + setTimeout recursivo.
+**O que faz:** Chama `scheduleRafFlush` com ``.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **rAF híbrido e fallback temporal**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0181
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Mantém uma posição vazia entre trechos de **requestIdleCallback adaptativo**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0182
 
 **Fonte:** `// 2.1. requestIdleCallback com fallback adaptativo.`  
-**O que faz:** Comentário do fonte registra: “2.1. requestIdleCallback com fallback adaptativo.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **requestIdleCallback com deadline adaptativo** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Documenta no próprio fonte: “2.1. requestIdleCallback com fallback adaptativo.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **requestIdleCallback adaptativo**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0183
 
 **Fonte:** `let nextIdleId = 1;`  
-**O que faz:** Declara `nextIdleId` usando `let`; a expressão é `let nextIdleId = 1;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `nextIdleId` com `1;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0184
 
 **Fonte:** `const idleCallbacks = new Map();`  
-**O que faz:** Declara `idleCallbacks` usando `const`; a expressão é `const idleCallbacks = new Map();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `idleCallbacks` com `new Map();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0185
 
 **Fonte:** `const origIdle = typeof window.requestIdleCallback === 'function'`  
-**O que faz:** Declara `origIdle` usando `const`; a expressão é `const origIdle = typeof window.requestIdleCallback === 'function'`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `origIdle` com `typeof window.requestIdleCallback === 'function'`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0186
 
 **Fonte:** `? window.requestIdleCallback.bind(window)`  
-**O que faz:** Manipula API de scheduling com `? window.requestIdleCallback.bind(window)`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Referencia/substitui API de scheduling em `? window.requestIdleCallback.bind(window)`.  
+**Como faz:** Combina a primitiva nativa com estado próprio para fallback/cancelamento.  
+**Por que assim:** A aba em background pode suspender frame/idle nativo.  
+**Risco/alternativa:** Usar apenas a API nativa pode congelar a automação.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0187
 
 **Fonte:** `: null;`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `: null;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Continua a expressão condicional com `: null;`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0188
 
 **Fonte:** `const origCancelIdle = typeof window.cancelIdleCallback === 'function'`  
-**O que faz:** Declara `origCancelIdle` usando `const`; a expressão é `const origCancelIdle = typeof window.cancelIdleCallback === 'function'`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `origCancelIdle` com `typeof window.cancelIdleCallback === 'function'`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0189
 
 **Fonte:** `? window.cancelIdleCallback.bind(window)`  
-**O que faz:** Manipula API de scheduling com `? window.cancelIdleCallback.bind(window)`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Referencia/substitui API de scheduling em `? window.cancelIdleCallback.bind(window)`.  
+**Como faz:** Combina a primitiva nativa com estado próprio para fallback/cancelamento.  
+**Por que assim:** A aba em background pode suspender frame/idle nativo.  
+**Risco/alternativa:** Usar apenas a API nativa pode congelar a automação.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0190
 
 **Fonte:** `: null;`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `: null;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Continua a expressão condicional com `: null;`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0191
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Mantém uma posição vazia entre trechos de **requestIdleCallback adaptativo**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0192
 
 **Fonte:** `window.requestIdleCallback = function(cb, options) {`  
-**O que faz:** Manipula API de scheduling com `window.requestIdleCallback = function(cb, options) {`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Atualiza `window.requestIdleCallback` para `function(cb, options) {`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **requestIdleCallback adaptativo**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0193
 
 **Fonte:** `const id = nextIdleId++;`  
-**O que faz:** Declara `id` usando `const`; a expressão é `const id = nextIdleId++;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `id` com `nextIdleId++;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0194
 
 **Fonte:** `let executed = false;`  
-**O que faz:** Declara `executed` usando `let`; a expressão é `let executed = false;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `executed` com `false;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0195
 
 **Fonte:** `const modeBudget = RAF_CADENCE_MS[antiThrottleMode] \|\| RAF_CADENCE_MS.minimal;`  
-**O que faz:** Declara `modeBudget` usando `const`; a expressão é `const modeBudget = RAF_CADENCE_MS[antiThrottleMode] \|\| RAF_CADENCE_MS.minimal;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `modeBudget` com `RAF_CADENCE_MS[antiThrottleMode] \|\| RAF_CADENCE_MS.minimal;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0196
 
 **Fonte:** `const requestedTimeout =`  
-**O que faz:** Declara `requestedTimeout` usando `const`; a expressão é `const requestedTimeout =`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `const requestedTimeout =` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0197
 
 **Fonte:** `options && typeof options.timeout === 'number'`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `options && typeof options.timeout === 'number'`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `options && typeof options.timeout === 'number'` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0198
 
 **Fonte:** `? options.timeout`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `? options.timeout`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Continua a expressão condicional com `? options.timeout`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0199
 
 **Fonte:** `: modeBudget;`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `: modeBudget;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Continua a expressão condicional com `: modeBudget;`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0200
 
 **Fonte:** `const maxWait = Math.min(requestedTimeout, modeBudget);`  
-**O que faz:** Declara `maxWait` usando `const`; a expressão é `const maxWait = Math.min(requestedTimeout, modeBudget);`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `maxWait` com `Math.min(requestedTimeout, modeBudget);`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0201
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Mantém uma posição vazia entre trechos de **requestIdleCallback adaptativo**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0202
 
 **Fonte:** `const timerId = setTimeout(() => {`  
-**O que faz:** Declara `timerId` usando `const`; a expressão é `const timerId = setTimeout(() => {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Inicializa `timerId` com `setTimeout(() => {`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **requestIdleCallback adaptativo**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0203
 
 **Fonte:** `if (executed) return;`  
-**O que faz:** Aplica a guarda `if (executed) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Testa a guarda `if (executed) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0204
 
 **Fonte:** `executed = true;`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `executed = true;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Atualiza `executed` para `true;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **requestIdleCallback adaptativo**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0205
 
 **Fonte:** `idleCallbacks.delete(id);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `idleCallbacks.delete(id);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Remove o ID da fila com `idleCallbacks.delete(id);`.  
+**Como faz:** Marca a callback como consumida/cancelada antes que outro caminho tente executá-la.  
+**Por que assim:** A remoção é a trava contra dupla entrega entre API nativa e fallback.  
+**Risco/alternativa:** Manter a entrada permitiria callback duplicado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0206
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0207
 
 **Fonte:** `cb({`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `cb({`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `cb({` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0208
 
 **Fonte:** `didTimeout: true,`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `didTimeout: true,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Define a propriedade/opção `didTimeout` como `true`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **requestIdleCallback adaptativo**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0209
 
 **Fonte:** `timeRemaining: () => Math.max(`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `timeRemaining: () => Math.max(`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Define a propriedade/opção `timeRemaining` como `() => Math.max(`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **requestIdleCallback adaptativo**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0210
 
 **Fonte:** `0,`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `0,`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `0,` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0211
 
 **Fonte:** `modeBudget - (performance.now() % modeBudget)`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `modeBudget - (performance.now() % modeBudget)`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `modeBudget - (performance.now() % modeBudget)` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0212
 
 **Fonte:** `)`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestIdleCallback com deadline adaptativo**: `)`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Fecha/continua a estrutura sintática de **requestIdleCallback adaptativo** com `)`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0213
 
 **Fonte:** `});`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Fecha/continua a estrutura sintática de **requestIdleCallback adaptativo** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0214
 
 **Fonte:** `} catch(_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0215
 
 **Fonte:** `}, maxWait);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `}, maxWait);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `}, maxWait);` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0216
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Mantém uma posição vazia entre trechos de **requestIdleCallback adaptativo**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0217
 
 **Fonte:** `idleCallbacks.set(id, timerId);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `idleCallbacks.set(id, timerId);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Registra item na fila/mapa com `idleCallbacks.set(id, timerId);`.  
+**Como faz:** Associa o ID local à callback ou timer para execução/cancelamento posterior.  
+**Por que assim:** O Map torna deduplicação e cancelamento O(1) e visíveis.  
+**Risco/alternativa:** Array sem IDs exigiria busca e tornaria cancelamento menos preciso.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0218
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Mantém uma posição vazia entre trechos de **requestIdleCallback adaptativo**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0219
 
 **Fonte:** `if (origIdle && document.visibilityState === 'visible') {`  
-**O que faz:** Aplica a guarda `if (origIdle && document.visibilityState === 'visible') {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Testa a guarda `if (origIdle && document.visibilityState === 'visible') {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0220
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0221
 
 **Fonte:** `origIdle(deadline => {`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `origIdle(deadline => {`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Define callback/arrow expression em `origIdle(deadline => {`.  
+**Como faz:** Empacota o comportamento que será chamado por evento, timer, Promise ou iterador.  
+**Por que assim:** Callback local mantém o comportamento junto do gatilho que o consome.  
+**Risco/alternativa:** Função global separada aumentaria superfície e dificultaria capturar closures.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0222
 
 **Fonte:** `if (executed) return;`  
-**O que faz:** Aplica a guarda `if (executed) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Testa a guarda `if (executed) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0223
 
 **Fonte:** `executed = true;`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `executed = true;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Atualiza `executed` para `true;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **requestIdleCallback adaptativo**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0224
 
 **Fonte:** `clearTimeout(timerId);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `clearTimeout(timerId);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Cancela o timer indicado por `clearTimeout(timerId);`.  
+**Como faz:** Impede que uma agenda antiga permaneça ativa após mudança/cancelamento.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa ter no máximo a agenda lógica corrente.  
+**Risco/alternativa:** Timer órfão causaria callbacks duplicados e retenção.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0225
 
 **Fonte:** `idleCallbacks.delete(id);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `idleCallbacks.delete(id);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Remove o ID da fila com `idleCallbacks.delete(id);`.  
+**Como faz:** Marca a callback como consumida/cancelada antes que outro caminho tente executá-la.  
+**Por que assim:** A remoção é a trava contra dupla entrega entre API nativa e fallback.  
+**Risco/alternativa:** Manter a entrada permitiria callback duplicado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0226
 
 **Fonte:** `try { cb(deadline); } catch(_e) {}`  
-**O que faz:** Abre região protegida por `try` em **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0227
 
 **Fonte:** `}, options);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `}, options);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `}, options);` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0228
 
 **Fonte:** `} catch(_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0229
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestIdleCallback com deadline adaptativo**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Fecha/continua a estrutura sintática de **requestIdleCallback adaptativo** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0230
 
 **Fonte:** `return id;`  
-**O que faz:** Encerra este fluxo com `return id;`.  
-**Como faz:** Evita que as linhas seguintes instalem/continuem a unidade quando o pré-requisito não foi atendido.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Encerra o fluxo atual com `return id;`.  
+**Como faz:** Evita que o restante do bloco rode neste caso e, quando há expressão, devolve o valor ao caller.  
+**Por que assim:** Early return mantém guards de **requestIdleCallback adaptativo** simples e impede efeitos tardios.  
+**Risco/alternativa:** Continuar após condição terminal poderia instalar shims ou operar em alvo inválido.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0231
 
 **Fonte:** `};`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Avalia a expressão específica `};` dentro de **requestIdleCallback adaptativo**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0232
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **requestIdleCallback com deadline adaptativo**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Mantém uma posição vazia entre trechos de **requestIdleCallback adaptativo**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0233
 
 **Fonte:** `window.cancelIdleCallback = function(id) {`  
-**O que faz:** Manipula API de scheduling com `window.cancelIdleCallback = function(id) {`.  
-**Como faz:** Substitui ou referencia a primitiva nativa para compor o fallback anti-throttling progressivo.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Atualiza `window.cancelIdleCallback` para `function(id) {`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **requestIdleCallback adaptativo**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0234
 
 **Fonte:** `if (idleCallbacks.has(id)) {`  
-**O que faz:** Aplica a guarda `if (idleCallbacks.has(id)) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Testa a guarda `if (idleCallbacks.has(id)) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0235
 
 **Fonte:** `clearTimeout(idleCallbacks.get(id));`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `clearTimeout(idleCallbacks.get(id));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Cancela o timer indicado por `clearTimeout(idleCallbacks.get(id));`.  
+**Como faz:** Impede que uma agenda antiga permaneça ativa após mudança/cancelamento.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa ter no máximo a agenda lógica corrente.  
+**Risco/alternativa:** Timer órfão causaria callbacks duplicados e retenção.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0236
 
 **Fonte:** `idleCallbacks.delete(id);`  
-**O que faz:** Participa de **requestIdleCallback com deadline adaptativo** com `idleCallbacks.delete(id);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Remove o ID da fila com `idleCallbacks.delete(id);`.  
+**Como faz:** Marca a callback como consumida/cancelada antes que outro caminho tente executá-la.  
+**Por que assim:** A remoção é a trava contra dupla entrega entre API nativa e fallback.  
+**Risco/alternativa:** Manter a entrada permitiria callback duplicado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0237
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **requestIdleCallback com deadline adaptativo**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Fecha/continua a estrutura sintática de **requestIdleCallback adaptativo** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0238
 
 **Fonte:** `if (origCancelIdle) {`  
-**O que faz:** Aplica a guarda `if (origCancelIdle) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **requestIdleCallback com deadline adaptativo**.  
-**Por que assim:** Fornece fallback temporizado para callbacks ociosos que poderiam nunca rodar em aba throttled, respeitando o orçamento do modo atual.  
-**Risco/alternativa:** Sem fallback, tarefas internas baseadas em idle podem ficar bloqueadas; um timeout ilimitado contrariaria a política progressiva.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não há teste que execute esta implementação real; a suíte agregada apenas declara cobertura conceitual.
+**O que faz:** Testa a guarda `if (origCancelIdle) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **requestIdleCallback adaptativo** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0239
 
 **Fonte:** `try { origCancelIdle(id); } catch (_e) {}`  
-**O que faz:** Abre região protegida por `try` em **AudioContext silencioso após gesto confiável**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0240
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **AudioContext silencioso após gesto confiável**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Fecha/continua a estrutura sintática de **AudioContext silencioso após gesto confiável** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0241
 
 **Fonte:** `};`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Avalia a expressão específica `};` dentro de **AudioContext silencioso após gesto confiável**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0242
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **AudioContext silencioso após gesto confiável**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Mantém uma posição vazia entre trechos de **AudioContext silencioso após gesto confiável**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0243
 
 **Fonte:** `// 3. Audio silencioso apenas após gesto real do usuário.`  
-**O que faz:** Comentário do fonte registra: “3. Audio silencioso apenas após gesto real do usuário.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **AudioContext silencioso após gesto confiável** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Documenta no próprio fonte: “3. Audio silencioso apenas após gesto real do usuário.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **AudioContext silencioso após gesto confiável**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0244
 
 **Fonte:** `let audioContextAtivo = false;`  
-**O que faz:** Declara `audioContextAtivo` usando `let`; a expressão é `let audioContextAtivo = false;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Inicializa `audioContextAtivo` com `false;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0245
 
 **Fonte:** `const activateAudio = e => {`  
-**O que faz:** Declara `activateAudio` usando `const`; a expressão é `const activateAudio = e => {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Inicializa `activateAudio` com `e => {`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0246
 
 **Fonte:** `if (audioContextAtivo \|\| (e && !e.isTrusted)) return;`  
-**O que faz:** Aplica a guarda `if (audioContextAtivo \|\| (e && !e.isTrusted)) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Testa a guarda `if (audioContextAtivo \|\| (e && !e.isTrusted)) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **AudioContext silencioso após gesto confiável** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0247
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **AudioContext silencioso após gesto confiável**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0248
 
 **Fonte:** `const ctx = new (window.AudioContext \|\| window.webkitAudioContext)();`  
-**O que faz:** Declara `ctx` usando `const`; a expressão é `const ctx = new (window.AudioContext \|\| window.webkitAudioContext)();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Inicializa `ctx` com `new (window.AudioContext \|\| window.webkitAudioContext)();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0249
 
 **Fonte:** `if (ctx.state === 'suspended') ctx.resume();`  
-**O que faz:** Aplica a guarda `if (ctx.state === 'suspended') ctx.resume();`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Testa a guarda `if (ctx.state === 'suspended') ctx.resume();`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **AudioContext silencioso após gesto confiável** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0250
 
 **Fonte:** `const osc = ctx.createOscillator();`  
-**O que faz:** Declara `osc` usando `const`; a expressão é `const osc = ctx.createOscillator();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Inicializa `osc` com `ctx.createOscillator();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0251
 
 **Fonte:** `const gain = ctx.createGain();`  
-**O que faz:** Declara `gain` usando `const`; a expressão é `const gain = ctx.createGain();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Inicializa `gain` com `ctx.createGain();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0252
 
 **Fonte:** `gain.gain.value = 0;`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `gain.gain.value = 0;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Atualiza `gain.gain.value` para `0;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0253
 
 **Fonte:** `osc.connect(gain);`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `osc.connect(gain);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Conecta nós de áudio com `osc.connect(gain);`.  
+**Como faz:** Monta a cadeia oscillator → gain → destination usada pelo contexto silencioso.  
+**Por que assim:** O gain zerado mantém o grafo ativo sem som audível.  
+**Risco/alternativa:** Oscillator desconectado não manteria o mesmo pipeline de áudio.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0254
 
 **Fonte:** `gain.connect(ctx.destination);`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `gain.connect(ctx.destination);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Conecta nós de áudio com `gain.connect(ctx.destination);`.  
+**Como faz:** Monta a cadeia oscillator → gain → destination usada pelo contexto silencioso.  
+**Por que assim:** O gain zerado mantém o grafo ativo sem som audível.  
+**Risco/alternativa:** Oscillator desconectado não manteria o mesmo pipeline de áudio.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0255
 
 **Fonte:** `osc.start();`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `osc.start();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Inicia a fonte/rotina com `osc.start();`.  
+**Como faz:** Ativa o oscillator ou operação explicitamente criada nas linhas anteriores.  
+**Por que assim:** O recurso só produz atividade após início explícito.  
+**Risco/alternativa:** Criar sem iniciar não produz o efeito anti-hibernação esperado.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0256
 
 **Fonte:** `audioContextAtivo = true;`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `audioContextAtivo = true;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Atualiza `audioContextAtivo` para `true;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0257
 
 **Fonte:** `['click', 'pointerdown', 'keydown'].forEach(evt =>`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `['click', 'pointerdown', 'keydown'].forEach(evt =>`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Itera a coleção com `['click', 'pointerdown', 'keydown'].forEach(evt =>`.  
+**Como faz:** Aplica a mesma instalação/remoção a cada tipo de evento listado.  
+**Por que assim:** A lista explícita evita duplicar três blocos quase idênticos.  
+**Risco/alternativa:** Código repetido poderia remover/adicionar conjuntos diferentes por engano.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0258
 
 **Fonte:** `document.removeEventListener(evt, activateAudio, true)`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `document.removeEventListener(evt, activateAudio, true)`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Remove listener com `document.removeEventListener(evt, activateAudio, true)`.  
+**Como faz:** Desativa o gatilho depois que ele não é mais necessário, evitando repetição.  
+**Por que assim:** Cleanup local reduz retenção e ativações duplicadas.  
+**Risco/alternativa:** Deixar listeners de ativação após sucesso produziria trabalho redundante.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0259
 
 **Fonte:** `);`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **AudioContext silencioso após gesto confiável**: `);`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Fecha/continua a estrutura sintática de **AudioContext silencioso após gesto confiável** com `);`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0260
 
 **Fonte:** `} catch(_e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(_e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(_e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0261
 
 **Fonte:** `};`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `};`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Avalia a expressão específica `};` dentro de **AudioContext silencioso após gesto confiável**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0262
 
 **Fonte:** `['click', 'pointerdown', 'keydown'].forEach(evt =>`  
-**O que faz:** Participa de **AudioContext silencioso após gesto confiável** com `['click', 'pointerdown', 'keydown'].forEach(evt =>`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Itera a coleção com `['click', 'pointerdown', 'keydown'].forEach(evt =>`.  
+**Como faz:** Aplica a mesma instalação/remoção a cada tipo de evento listado.  
+**Por que assim:** A lista explícita evita duplicar três blocos quase idênticos.  
+**Risco/alternativa:** Código repetido poderia remover/adicionar conjuntos diferentes por engano.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0263
 
 **Fonte:** `document.addEventListener(evt, activateAudio, true)`  
-**O que faz:** Registra listener com `document.addEventListener(evt, activateAudio, true)`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **AudioContext silencioso após gesto confiável**.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Registra o listener `document.addEventListener(evt, activateAudio, true)`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **AudioContext silencioso após gesto confiável**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0264
 
 **Fonte:** `);`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **AudioContext silencioso após gesto confiável**: `);`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Só ativa após gesto real para respeitar autoplay policy e manter um contexto da página acordado sem som audível.  
-**Risco/alternativa:** Criar áudio antes de gesto pode ser bloqueado; sintetizar gesto não produz `isTrusted`; porém o contexto/oscillator persistente precisa de lifecycle claro.  
-**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — Não foi encontrada assertion que carregue o `inject.js` real, dispare evento `isTrusted` e verifique o contexto/oscillator.
+**O que faz:** Fecha/continua a estrutura sintática de **AudioContext silencioso após gesto confiável** com `);`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0265
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **travessia profunda de DOM e Shadow DOM**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0266
 
 **Fonte:** `// Ghost mousemove removido. Atividade sintética aleatória não é necessária`  
-**O que faz:** Comentário do fonte registra: “Ghost mousemove removido. Atividade sintética aleatória não é necessária”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Busca profunda Light DOM + Shadow DOM** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Documenta no próprio fonte: “Ghost mousemove removido. Atividade sintética aleatória não é necessária”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **travessia profunda de DOM e Shadow DOM**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0267
 
 **Fonte:** `// para manter rAF/idle vivos e pode interferir com menus, tooltips e seleção.`  
-**O que faz:** Comentário do fonte registra: “para manter rAF/idle vivos e pode interferir com menus, tooltips e seleção.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Busca profunda Light DOM + Shadow DOM** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Documenta no próprio fonte: “para manter rAF/idle vivos e pode interferir com menus, tooltips e seleção.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **travessia profunda de DOM e Shadow DOM**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0268
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **travessia profunda de DOM e Shadow DOM**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0269
 
 **Fonte:** `// Helper: busca profunda atravessando Shadow Roots`  
-**O que faz:** Comentário do fonte registra: “Helper: busca profunda atravessando Shadow Roots”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Busca profunda Light DOM + Shadow DOM** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Documenta no próprio fonte: “Helper: busca profunda atravessando Shadow Roots”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **travessia profunda de DOM e Shadow DOM**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0270
 
 **Fonte:** `function findAllDeep(root, predicate) {`  
-**O que faz:** Declara a função `findAllDeep` em **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** Cria um escopo reutilizável para o comportamento iniciado nesta posição e continuado nas linhas seguintes.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Declara `findAllDeep` dentro de **travessia profunda de DOM e Shadow DOM**.  
+**Como faz:** O corpo seguinte implementa a rotina reutilizável associada a esse nome.  
+**Por que assim:** A função mantém a política do bloco centralizada.  
+**Risco/alternativa:** Duplicar o corpo nos callers aumentaria divergência.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0271
 
 **Fonte:** `const list = [];`  
-**O que faz:** Declara `list` usando `const`; a expressão é `const list = [];`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Busca profunda Light DOM + Shadow DOM**.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Inicializa `list` com `[];`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **travessia profunda de DOM e Shadow DOM**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0272
 
 **Fonte:** `function walk(node) {`  
-**O que faz:** Declara a função `walk` em **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** Cria um escopo reutilizável para o comportamento iniciado nesta posição e continuado nas linhas seguintes.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Declara `walk` dentro de **travessia profunda de DOM e Shadow DOM**.  
+**Como faz:** O corpo seguinte implementa a rotina reutilizável associada a esse nome.  
+**Por que assim:** A função mantém a política do bloco centralizada.  
+**Risco/alternativa:** Duplicar o corpo nos callers aumentaria divergência.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0273
 
 **Fonte:** `if (!node) return;`  
-**O que faz:** Aplica a guarda `if (!node) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Busca profunda Light DOM + Shadow DOM**.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Testa a guarda `if (!node) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **travessia profunda de DOM e Shadow DOM** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0274
 
 **Fonte:** `if (node.nodeType === Node.ELEMENT_NODE) {`  
-**O que faz:** Aplica a guarda `if (node.nodeType === Node.ELEMENT_NODE) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Busca profunda Light DOM + Shadow DOM**.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Testa a guarda `if (node.nodeType === Node.ELEMENT_NODE) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **travessia profunda de DOM e Shadow DOM** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0275
 
 **Fonte:** `try { if (predicate(node)) list.push(node); } catch(e) {}`  
-**O que faz:** Abre região protegida por `try` em **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0276
 
 **Fonte:** `try { if (node.shadowRoot) walk(node.shadowRoot); } catch(e) {}`  
-**O que faz:** Abre região protegida por `try` em **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0277
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Busca profunda Light DOM + Shadow DOM**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **travessia profunda de DOM e Shadow DOM** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0278
 
 **Fonte:** `let child = node.firstChild;`  
-**O que faz:** Declara `child` usando `let`; a expressão é `let child = node.firstChild;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Busca profunda Light DOM + Shadow DOM**.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Inicializa `child` com `node.firstChild;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **travessia profunda de DOM e Shadow DOM**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0279
 
 **Fonte:** `while (child) {`  
-**O que faz:** Inicia iteração em **Busca profunda Light DOM + Shadow DOM** com `while (child) {`.  
-**Como faz:** Percorre candidatos/nós/callbacks e aplica o corpo associado a cada item enquanto preserva seus guards.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Inicia iteração `while (child) {`.  
+**Como faz:** Percorre callbacks, nós ou botões enquanto aplica os guards do bloco.  
+**Por que assim:** A unidade precisa avaliar todos os candidatos até encontrar/consumir os adequados.  
+**Risco/alternativa:** Tratar apenas o primeiro elemento falharia em DOM dinâmico/Shadow DOM.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0280
 
 **Fonte:** `walk(child);`  
-**O que faz:** Participa de **Busca profunda Light DOM + Shadow DOM** com `walk(child);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Chama `walk` com `child`.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **travessia profunda de DOM e Shadow DOM**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0281
 
 **Fonte:** `child = child.nextSibling;`  
-**O que faz:** Participa de **Busca profunda Light DOM + Shadow DOM** com `child = child.nextSibling;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Atualiza `child` para `child.nextSibling;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **travessia profunda de DOM e Shadow DOM**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0282
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Busca profunda Light DOM + Shadow DOM**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **travessia profunda de DOM e Shadow DOM** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0283
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Busca profunda Light DOM + Shadow DOM**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **travessia profunda de DOM e Shadow DOM** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0284
 
 **Fonte:** `walk(root);`  
-**O que faz:** Participa de **Busca profunda Light DOM + Shadow DOM** com `walk(root);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Chama `walk` com `root`.  
+**Como faz:** Invoca a operação nomeada usando os argumentos preparados pelas linhas anteriores de **travessia profunda de DOM e Shadow DOM**.  
+**Por que assim:** A chamada materializa a etapa do protocolo/DOM descrita pelo próprio identificador.  
+**Risco/alternativa:** Omitir a chamada deixaria o estado preparado sem produzir o efeito esperado.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0285
 
 **Fonte:** `return list;`  
-**O que faz:** Encerra este fluxo com `return list;`.  
-**Como faz:** Evita que as linhas seguintes instalem/continuem a unidade quando o pré-requisito não foi atendido.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Encerra o fluxo atual com `return list;`.  
+**Como faz:** Evita que o restante do bloco rode neste caso e, quando há expressão, devolve o valor ao caller.  
+**Por que assim:** Early return mantém guards de **travessia profunda de DOM e Shadow DOM** simples e impede efeitos tardios.  
+**Risco/alternativa:** Continuar após condição terminal poderia instalar shims ou operar em alvo inválido.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0286
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Busca profunda Light DOM + Shadow DOM**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** O botão/editor do Gemini pode migrar entre Light DOM e Shadow Roots; fallback MAIN-world precisa atravessar ambos.  
-**Risco/alternativa:** `querySelectorAll` simples não enxerga conteúdo encapsulado; varrer toda a árvore em todo momento seria caro, por isso o helper é usado apenas em fallback de envio.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Fecha/continua a estrutura sintática de **travessia profunda de DOM e Shadow DOM** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0287
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Busca profunda Light DOM + Shadow DOM**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — Módulos Gemini têm testes próprios de Shadow DOM, mas não há assertion do helper local `findAllDeep` deste arquivo.
+**O que faz:** Mantém uma posição vazia entre trechos de **travessia profunda de DOM e Shadow DOM**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — módulos Gemini testam Shadow DOM, mas não este helper local.
 
 ### Linha 0288
 
 **Fonte:** `// 5. Ponte entre Isolated World e Main World (Gemini Input / BardChatUi)`  
-**O que faz:** Comentário do fonte registra: “5. Ponte entre Isolated World e Main World (Gemini Input / BardChatUi)”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “5. Ponte entre Isolated World e Main World (Gemini Input / BardChatUi)”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0289
 
 **Fonte:** `window.addEventListener('MANGA_TRANSLATOR_SET_PROMPT', (e) => {`  
-**O que faz:** Registra listener com `window.addEventListener('MANGA_TRANSLATOR_SET_PROMPT', (e) => {`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Registra o listener `window.addEventListener('MANGA_TRANSLATOR_SET_PROMPT', (e) => {`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **ponte MAIN de prompt**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0290
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0291
 
 **Fonte:** `const text = e.detail && e.detail.prompt;`  
-**O que faz:** Declara `text` usando `const`; a expressão é `const text = e.detail && e.detail.prompt;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `text` com `e.detail && e.detail.prompt;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0292
 
 **Fonte:** `if (!text) return;`  
-**O que faz:** Aplica a guarda `if (!text) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (!text) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0293
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0294
 
 **Fonte:** `const rta = document.querySelector('rich-textarea');`  
-**O que faz:** Declara `rta` usando `const`; a expressão é `const rta = document.querySelector('rich-textarea');`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `rta` com `document.querySelector('rich-textarea');`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0295
 
 **Fonte:** `const target = (rta && rta.querySelector ? rta.querySelector('[contenteditable="true"], .ql-editor') : null)`  
-**O que faz:** Declara `target` usando `const`; a expressão é `const target = (rta && rta.querySelector ? rta.querySelector('[contenteditable="true"], .ql-editor') : null)`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `target` com `(rta && rta.querySelector ? rta.querySelector('[contenteditable="true"], .ql-editor') : null)`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0296
 
 **Fonte:** `\|\| document.querySelector('[contenteditable="true"], .ql-editor');`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `\|\| document.querySelector('[contenteditable="true"], .ql-editor');`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Continua a expressão condicional com `\|\| document.querySelector('[contenteditable="true"], .ql-editor');`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0297
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0298
 
 **Fonte:** `if (!target) return;`  
-**O que faz:** Aplica a guarda `if (!target) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (!target) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0299
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0300
 
 **Fonte:** `// Previne duplicação do prompt se já estiver preenchido com o texto exato`  
-**O que faz:** Comentário do fonte registra: “Previne duplicação do prompt se já estiver preenchido com o texto exato”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “Previne duplicação do prompt se já estiver preenchido com o texto exato”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0301
 
 **Fonte:** `if (target.textContent.trim() === text.trim()) return;`  
-**O que faz:** Aplica a guarda `if (target.textContent.trim() === text.trim()) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (target.textContent.trim() === text.trim()) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0302
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0303
 
 **Fonte:** `// 1. Tenta acessar Quill se disponível`  
-**O que faz:** Comentário do fonte registra: “1. Tenta acessar Quill se disponível”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “1. Tenta acessar Quill se disponível”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0304
 
 **Fonte:** `const q = (target && target.__quill)`  
-**O que faz:** Declara `q` usando `const`; a expressão é `const q = (target && target.__quill)`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `q` com `(target && target.__quill)`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0305
 
 **Fonte:** `\|\| (rta && rta.__quill)`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `\|\| (rta && rta.__quill)`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Continua a expressão condicional com `\|\| (rta && rta.__quill)`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0306
 
 **Fonte:** `\|\| (window.Quill && typeof window.Quill.find === 'function' && (window.Quill.find(target) \|\| window.Quill.find(rta)));`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `\|\| (window.Quill && typeof window.Quill.find === 'function' && (window.Quill.find(target) \|\| window.Quill.find(rta)));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Continua a expressão condicional com `\|\| (window.Quill && typeof window.Quill.find === 'function' && (window.Quill.find(target) \|\| window.Quill.find(rta)));`.  
+**Como faz:** Esta linha fornece o ramo/fallback lógico da expressão iniciada acima.  
+**Por que assim:** A composição escolhe a opção disponível sem duplicar a decisão em vários `if`s.  
+**Risco/alternativa:** Separar incorretamente os ramos pode mudar precedência ou selecionar API errada.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0307
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0308
 
 **Fonte:** `if (q) {`  
-**O que faz:** Aplica a guarda `if (q) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (q) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0309
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0310
 
 **Fonte:** `if (typeof q.setText === 'function') q.setText(text, 'user');`  
-**O que faz:** Aplica a guarda `if (typeof q.setText === 'function') q.setText(text, 'user');`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (typeof q.setText === 'function') q.setText(text, 'user');`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0311
 
 **Fonte:** `if (typeof q.update === 'function') q.update('user');`  
-**O que faz:** Aplica a guarda `if (typeof q.update === 'function') q.update('user');`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (typeof q.update === 'function') q.update('user');`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0312
 
 **Fonte:** `} catch(e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0313
 
 **Fonte:** `} else {`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `} else {`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Entra no ramo alternativo da condição anterior.  
+**Como faz:** Seleciona o fallback quando a estratégia principal de **ponte MAIN de prompt** não se aplica.  
+**Por que assim:** A separação preserva degradação controlada entre APIs/DOM disponíveis e ausentes.  
+**Risco/alternativa:** Misturar os dois caminhos faria ambos rodarem ou ocultaria o fallback.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0314
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0315
 
 **Fonte:** `const dt = new DataTransfer();`  
-**O que faz:** Declara `dt` usando `const`; a expressão é `const dt = new DataTransfer();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `dt` com `new DataTransfer();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0316
 
 **Fonte:** `dt.setData('text/plain', text);`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `dt.setData('text/plain', text);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Preenche o `DataTransfer` com `dt.setData('text/plain', text);`.  
+**Como faz:** Constrói payload de clipboard em formato texto/HTML para o evento paste.  
+**Por que assim:** Editor rich-text pode depender do formato de clipboard para atualizar seu modelo.  
+**Risco/alternativa:** Escrever apenas DOM pode não notificar Quill/framework.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0317
 
 **Fonte:** `const safeHtml = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');`  
-**O que faz:** Declara `safeHtml` usando `const`; a expressão é `const safeHtml = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `safeHtml` com `text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0318
 
 **Fonte:** `dt.setData('text/html', \`<p>${safeHtml}</p>\`);`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `dt.setData('text/html', \`<p>${safeHtml}</p>\`);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Preenche o `DataTransfer` com `dt.setData('text/html', \`<p>${safeHtml}</p>\`);`.  
+**Como faz:** Constrói payload de clipboard em formato texto/HTML para o evento paste.  
+**Por que assim:** Editor rich-text pode depender do formato de clipboard para atualizar seu modelo.  
+**Risco/alternativa:** Escrever apenas DOM pode não notificar Quill/framework.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0319
 
 **Fonte:** `target.dispatchEvent(new ClipboardEvent('paste', {`  
-**O que faz:** Publica evento no MAIN world: `target.dispatchEvent(new ClipboardEvent('paste', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Despacha `target.dispatchEvent(new ClipboardEvent('paste', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0320
 
 **Fonte:** `bubbles: true, cancelable: true, composed: true, clipboardData: dt`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `bubbles: true, cancelable: true, composed: true, clipboardData: dt`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Define a propriedade/opção `bubbles` como `true, cancelable: true, composed: true, clipboardData: dt`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **ponte MAIN de prompt**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0321
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN de prompt**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0322
 
 **Fonte:** `} catch(e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0323
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0324
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0325
 
 **Fonte:** `// 2. Garante o elemento de parágrafo no DOM caso vazio`  
-**O que faz:** Comentário do fonte registra: “2. Garante o elemento de parágrafo no DOM caso vazio”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “2. Garante o elemento de parágrafo no DOM caso vazio”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0326
 
 **Fonte:** `if ((target.textContent \|\| '').trim().length === 0) {`  
-**O que faz:** Aplica a guarda `if ((target.textContent \|\| '').trim().length === 0) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if ((target.textContent \|\| '').trim().length === 0) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0327
 
 **Fonte:** `const p = document.createElement('p');`  
-**O que faz:** Declara `p` usando `const`; a expressão é `const p = document.createElement('p');`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicializa `p` com `document.createElement('p');`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN de prompt**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0328
 
 **Fonte:** `p.textContent = text;`  
-**O que faz:** Escreve texto no DOM com `p.textContent = text;`.  
-**Como faz:** Atualiza conteúdo textual sem interpretar o prompt como markup HTML.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Atualiza `p.textContent` para `text;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **ponte MAIN de prompt**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0329
 
 **Fonte:** `if (typeof target.replaceChildren === 'function') {`  
-**O que faz:** Aplica a guarda `if (typeof target.replaceChildren === 'function') {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (typeof target.replaceChildren === 'function') {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0330
 
 **Fonte:** `target.replaceChildren(p);`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `target.replaceChildren(p);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Muta a árvore DOM com `target.replaceChildren(p);`.  
+**Como faz:** Adiciona/substitui/remove o nó usado como fallback de prompt.  
+**Por que assim:** DOM API com `textContent` mantém o texto do usuário separado de markup.  
+**Risco/alternativa:** Concatenar HTML bruto do prompt aumentaria risco de injeção.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0331
 
 **Fonte:** `} else {`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `} else {`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Entra no ramo alternativo da condição anterior.  
+**Como faz:** Seleciona o fallback quando a estratégia principal de **ponte MAIN de prompt** não se aplica.  
+**Por que assim:** A separação preserva degradação controlada entre APIs/DOM disponíveis e ausentes.  
+**Risco/alternativa:** Misturar os dois caminhos faria ambos rodarem ou ocultaria o fallback.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0332
 
 **Fonte:** `while (target.firstChild) {`  
-**O que faz:** Inicia iteração em **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `while (target.firstChild) {`.  
-**Como faz:** Percorre candidatos/nós/callbacks e aplica o corpo associado a cada item enquanto preserva seus guards.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Inicia iteração `while (target.firstChild) {`.  
+**Como faz:** Percorre callbacks, nós ou botões enquanto aplica os guards do bloco.  
+**Por que assim:** A unidade precisa avaliar todos os candidatos até encontrar/consumir os adequados.  
+**Risco/alternativa:** Tratar apenas o primeiro elemento falharia em DOM dinâmico/Shadow DOM.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0333
 
 **Fonte:** `target.removeChild(target.firstChild);`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `target.removeChild(target.firstChild);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Muta a árvore DOM com `target.removeChild(target.firstChild);`.  
+**Como faz:** Adiciona/substitui/remove o nó usado como fallback de prompt.  
+**Por que assim:** DOM API com `textContent` mantém o texto do usuário separado de markup.  
+**Risco/alternativa:** Concatenar HTML bruto do prompt aumentaria risco de injeção.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0334
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0335
 
 **Fonte:** `target.appendChild(p);`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `target.appendChild(p);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Muta a árvore DOM com `target.appendChild(p);`.  
+**Como faz:** Adiciona/substitui/remove o nó usado como fallback de prompt.  
+**Por que assim:** DOM API com `textContent` mantém o texto do usuário separado de markup.  
+**Risco/alternativa:** Concatenar HTML bruto do prompt aumentaria risco de injeção.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0336
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0337
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0338
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0339
 
 **Fonte:** `if (typeof target.focus === 'function') target.focus({ preventScroll: true });`  
-**O que faz:** Aplica a guarda `if (typeof target.focus === 'function') target.focus({ preventScroll: true });`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (typeof target.focus === 'function') target.focus({ preventScroll: true });`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0340
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0341
 
 **Fonte:** `// 3. Dispara eventos de Input com composed: true`  
-**O que faz:** Comentário do fonte registra: “3. Dispara eventos de Input com composed: true”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “3. Dispara eventos de Input com composed: true”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0342
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0343
 
 **Fonte:** `target.dispatchEvent(new InputEvent('beforeinput', {`  
-**O que faz:** Publica evento no MAIN world: `target.dispatchEvent(new InputEvent('beforeinput', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Despacha `target.dispatchEvent(new InputEvent('beforeinput', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0344
 
 **Fonte:** `bubbles: true, cancelable: true, composed: true, inputType: 'insertText', data: text`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `bubbles: true, cancelable: true, composed: true, inputType: 'insertText', data: text`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Define a propriedade/opção `bubbles` como `true, cancelable: true, composed: true, inputType: 'insertText', data: text`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **ponte MAIN de prompt**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0345
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN de prompt**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0346
 
 **Fonte:** `target.dispatchEvent(new InputEvent('input', {`  
-**O que faz:** Publica evento no MAIN world: `target.dispatchEvent(new InputEvent('input', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Despacha `target.dispatchEvent(new InputEvent('input', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0347
 
 **Fonte:** `bubbles: true, cancelable: true, composed: true, inputType: 'insertText', data: text`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `bubbles: true, cancelable: true, composed: true, inputType: 'insertText', data: text`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Define a propriedade/opção `bubbles` como `true, cancelable: true, composed: true, inputType: 'insertText', data: text`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **ponte MAIN de prompt**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0348
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN de prompt**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0349
 
 **Fonte:** `target.dispatchEvent(new Event('input', { bubbles: true, composed: true }));`  
-**O que faz:** Publica evento no MAIN world: `target.dispatchEvent(new Event('input', { bubbles: true, composed: true }));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Despacha `target.dispatchEvent(new Event('input', { bubbles: true, composed: true }));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0350
 
 **Fonte:** `target.dispatchEvent(new Event('change', { bubbles: true, composed: true }));`  
-**O que faz:** Publica evento no MAIN world: `target.dispatchEvent(new Event('change', { bubbles: true, composed: true }));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Despacha `target.dispatchEvent(new Event('change', { bubbles: true, composed: true }));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0351
 
 **Fonte:** `} catch(e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0352
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0353
 
 **Fonte:** `if (rta) {`  
-**O que faz:** Aplica a guarda `if (rta) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Testa a guarda `if (rta) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN de prompt** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0354
 
 **Fonte:** `try { if ('value' in rta) rta.value = text; } catch(e) {}`  
-**O que faz:** Abre região protegida por `try` em **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0355
 
 **Fonte:** `try { rta.dispatchEvent(new Event('input', { bubbles: true, composed: true })); } catch(e) {}`  
-**O que faz:** Publica evento no MAIN world: `try { rta.dispatchEvent(new Event('input', { bubbles: true, composed: true })); } catch(e) {}`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Despacha `try { rta.dispatchEvent(new Event('input', { bubbles: true, composed: true })); } catch(e) {}`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0356
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0357
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0358
 
 **Fonte:** `console.log("⚡ [inject.js] Prompt injetado com sucesso no modelo do Gemini!");`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `console.log("⚡ [inject.js] Prompt injetado com sucesso no modelo do Gemini!");`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Emite diagnóstico `console.log("⚡ [inject.js] Prompt injetado com sucesso no modelo do Gemini!");`.  
+**Como faz:** Escreve no console da página para tornar sucesso/falha MAIN-world observável.  
+**Por que assim:** Falhas de world/DOM são difíceis de rastrear apenas pelo isolated world.  
+**Risco/alternativa:** Sem diagnóstico, regressões da ponte ficam silenciosas.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0359
 
 **Fonte:** `} catch(err) {`  
-**O que faz:** Captura falha da operação anterior: `} catch(err) {`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(err) {`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0360
 
 **Fonte:** `console.warn("❌ [inject.js] Erro ao injetar prompt:", err);`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `console.warn("❌ [inject.js] Erro ao injetar prompt:", err);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Emite diagnóstico `console.warn("❌ [inject.js] Erro ao injetar prompt:", err);`.  
+**Como faz:** Escreve no console da página para tornar sucesso/falha MAIN-world observável.  
+**Por que assim:** Falhas de world/DOM são difíceis de rastrear apenas pelo isolated world.  
+**Risco/alternativa:** Sem diagnóstico, regressões da ponte ficam silenciosas.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0361
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0362
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Ponte MANGA_TRANSLATOR_SET_PROMPT** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Permite que isolated world peça ao contexto da página para interagir com Quill/rich-textarea e emitir eventos que o framework reconhece.  
-**Risco/alternativa:** Só atribuir `textContent` pode não atualizar estado interno do editor; usar innerHTML com prompt bruto criaria injeção, por isso o HTML de clipboard é escapado e o fallback usa textContent.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN de prompt** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0363
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte MANGA_TRANSLATOR_SET_PROMPT**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN de prompt**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0364
 
 **Fonte:** `// A imagem do resultado já está acessível dentro da sessão autenticada do`  
-**O que faz:** Comentário do fonte registra: “A imagem do resultado já está acessível dentro da sessão autenticada do”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “A imagem do resultado já está acessível dentro da sessão autenticada do”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0365
 
 **Fonte:** `// Gemini. Esta ponte permite que o content script a converta sem abrir uma`  
-**O que faz:** Comentário do fonte registra: “Gemini. Esta ponte permite que o content script a converta sem abrir uma”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “Gemini. Esta ponte permite que o content script a converta sem abrir uma”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0366
 
 **Fonte:** `// aba auxiliar e sem usar o fetch anônimo do Service Worker.`  
-**O que faz:** Comentário do fonte registra: “aba auxiliar e sem usar o fetch anônimo do Service Worker.”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Ponte MANGA_TRANSLATOR_SET_PROMPT** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor real + simulação da outra ponta — `helpers-and-regressions-real.test.js` prova que o runner emite o evento e mantém fallback DOM; o listener MAIN deste arquivo não é carregado pela suíte.
+**O que faz:** Documenta no próprio fonte: “aba auxiliar e sem usar o fetch anônimo do Service Worker.”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **ponte MAIN de prompt**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0367
 
 **Fonte:** `window.addEventListener('MANGA_TRANSLATOR_FETCH_IMAGE', async (event) => {`  
-**O que faz:** Registra listener com `window.addEventListener('MANGA_TRANSLATOR_FETCH_IMAGE', async (event) => {`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Registra o listener `window.addEventListener('MANGA_TRANSLATOR_FETCH_IMAGE', async (event) => {`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0368
 
 **Fonte:** `const detail = event.detail \|\| {};`  
-**O que faz:** Declara `detail` usando `const`; a expressão é `const detail = event.detail \|\| {};`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Inicializa `detail` com `event.detail \|\| {};`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0369
 
 **Fonte:** `if (!detail.requestId \|\| !detail.url) return;`  
-**O que faz:** Aplica a guarda `if (!detail.requestId \|\| !detail.url) return;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Testa a guarda `if (!detail.requestId \|\| !detail.url) return;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN autenticada de imagem** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0370
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0371
 
 **Fonte:** `const response = await fetch(detail.url, { credentials: 'include', cache: 'no-store' });`  
-**O que faz:** Declara `response` usando `const`; a expressão é `const response = await fetch(detail.url, { credentials: 'include', cache: 'no-store' });`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Inicializa `response` com `await fetch(detail.url, { credentials: 'include', cache: 'no-store' });`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0372
 
 **Fonte:** `if (!response.ok) throw new Error(\`HTTP ${response.status}\`);`  
-**O que faz:** Aplica a guarda `if (!response.ok) throw new Error(\`HTTP ${response.status}\`);`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Testa a guarda `if (!response.ok) throw new Error(\`HTTP ${response.status}\`);`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN autenticada de imagem** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0373
 
 **Fonte:** `const blob = await response.blob();`  
-**O que faz:** Declara `blob` usando `const`; a expressão é `const blob = await response.blob();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Inicializa `blob` com `await response.blob();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0374
 
 **Fonte:** `if (!blob.type.startsWith('image/')) throw new Error(\`Tipo inválido: ${blob.type \|\| 'desconhecido'}\`);`  
-**O que faz:** Aplica a guarda `if (!blob.type.startsWith('image/')) throw new Error(\`Tipo inválido: ${blob.type \|\| 'desconhecido'}\`);`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Testa a guarda `if (!blob.type.startsWith('image/')) throw new Error(\`Tipo inválido: ${blob.type \|\| 'desconhecido'}\`);`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **ponte MAIN autenticada de imagem** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0375
 
 **Fonte:** `const dataUrl = await new Promise((resolve, reject) => {`  
-**O que faz:** Declara `dataUrl` usando `const`; a expressão é `const dataUrl = await new Promise((resolve, reject) => {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Inicializa `dataUrl` com `await new Promise((resolve, reject) => {`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0376
 
 **Fonte:** `const reader = new FileReader();`  
-**O que faz:** Declara `reader` usando `const`; a expressão é `const reader = new FileReader();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Inicializa `reader` com `new FileReader();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0377
 
 **Fonte:** `reader.onloadend = () => resolve(reader.result);`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `reader.onloadend = () => resolve(reader.result);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Atualiza `reader.onloadend` para `() => resolve(reader.result);`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **ponte MAIN autenticada de imagem**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0378
 
 **Fonte:** `reader.onerror = () => reject(reader.error \|\| new Error('Falha ao ler imagem'));`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `reader.onerror = () => reject(reader.error \|\| new Error('Falha ao ler imagem'));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Atualiza `reader.onerror` para `() => reject(reader.error \|\| new Error('Falha ao ler imagem'));`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **ponte MAIN autenticada de imagem**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0379
 
 **Fonte:** `reader.readAsDataURL(blob);`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `reader.readAsDataURL(blob);`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Converte o `Blob` em Data URL com `FileReader.readAsDataURL`.  
+**Como faz:** A leitura assíncrona alimenta `onloadend`/`onerror` e produz payload transportável por CustomEvent.  
+**Por que assim:** Data URL é serializável e reutilizável pelo isolated world.  
+**Risco/alternativa:** Repassar Blob entre contratos esperados como string complicaria persistência/IPC.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0380
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN autenticada de imagem** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0381
 
 **Fonte:** `window.dispatchEvent(new CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT', {`  
-**O que faz:** Publica evento no MAIN world: `window.dispatchEvent(new CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Despacha `window.dispatchEvent(new CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0382
 
 **Fonte:** `detail: { requestId: detail.requestId, dataUrl }`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `detail: { requestId: detail.requestId, dataUrl }`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Define a propriedade/opção `detail` como `{ requestId: detail.requestId, dataUrl }`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **ponte MAIN autenticada de imagem**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0383
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN autenticada de imagem**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0384
 
 **Fonte:** `} catch (error) {`  
-**O que faz:** Captura falha da operação anterior: `} catch (error) {`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Captura exceção da tentativa anterior com `} catch (error) {`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0385
 
 **Fonte:** `window.dispatchEvent(new CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT', {`  
-**O que faz:** Publica evento no MAIN world: `window.dispatchEvent(new CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Despacha `window.dispatchEvent(new CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0386
 
 **Fonte:** `detail: { requestId: detail.requestId, error: error && error.message ? error.message : 'Falha ao buscar imagem' }`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `detail: { requestId: detail.requestId, error: error && error.message ? error.message : 'Falha ao buscar imagem' }`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Define a propriedade/opção `detail` como `{ requestId: detail.requestId, error: error && error.message ? error.message : 'Falha ao buscar imagem' }`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **ponte MAIN autenticada de imagem**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0387
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN autenticada de imagem**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0388
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN autenticada de imagem** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0389
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Fecha/continua a estrutura sintática de **ponte MAIN autenticada de imagem** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0390
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Mantém uma posição vazia entre trechos de **ponte MAIN autenticada de imagem**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0391
 
 **Fonte:** `let _lastTriggerSendTime = 0;`  
-**O que faz:** Declara `_lastTriggerSendTime` usando `let`; a expressão é `let _lastTriggerSendTime = 0;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Ponte autenticada MANGA_TRANSLATOR_FETCH_IMAGE**.  
-**Por que assim:** Faz o download no contexto autenticado da página Gemini quando canvas/SW não conseguem ler o asset, devolvendo Data URL correlacionada por requestId.  
-**Risco/alternativa:** Sem requestId respostas concorrentes poderiam se misturar; aceitar qualquer payload sem checar MIME permitiria devolver conteúdo não-imagem como imagem.  
-**Evidência:** 🟨 consumidor/protocolo provado; implementação MAIN não direta — `safe-background-delete.test.js` e `result-extractor.test.js` provam requestId, timeout, erro e fallback usando responders simulados, não este fetch real.
+**O que faz:** Inicializa `_lastTriggerSendTime` com `0;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **ponte MAIN autenticada de imagem**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0392
 
 **Fonte:** `window.addEventListener('MANGA_TRANSLATOR_TRIGGER_SEND', () => {`  
-**O que faz:** Registra listener com `window.addEventListener('MANGA_TRANSLATOR_TRIGGER_SEND', () => {`.  
-**Como faz:** Conecta um evento do MAIN world/lifecycle à rotina correspondente de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Registra o listener `window.addEventListener('MANGA_TRANSLATOR_TRIGGER_SEND', () => {`.  
+**Como faz:** Conecta o evento DOM/lifecycle ao callback que implementa **fallback de submit**.  
+**Por que assim:** Eventos são a ponte entre mundos e o mecanismo de lifecycle disponível.  
+**Risco/alternativa:** Polling equivalente gastaria CPU e perderia semântica de evento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0393
 
 **Fonte:** `const now = Date.now();`  
-**O que faz:** Declara `now` usando `const`; a expressão é `const now = Date.now();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `now` com `Date.now();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0394
 
 **Fonte:** `if (now - _lastTriggerSendTime < 3000) return; // Debounce de 3s para evitar envios duplicados`  
-**O que faz:** Aplica a guarda `if (now - _lastTriggerSendTime < 3000) return; // Debounce de 3s para evitar envios duplicados`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (now - _lastTriggerSendTime < 3000) return; // Debounce de 3s para evitar envios duplicados`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0395
 
 **Fonte:** `_lastTriggerSendTime = now;`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `_lastTriggerSendTime = now;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Atualiza `_lastTriggerSendTime` para `now;`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **fallback de submit**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0396
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0397
 
 **Fonte:** `window.dispatchEvent(new Event('focus'));`  
-**O que faz:** Publica evento no MAIN world: `window.dispatchEvent(new Event('focus'));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `window.dispatchEvent(new Event('focus'));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0398
 
 **Fonte:** `document.dispatchEvent(new Event('focus'));`  
-**O que faz:** Publica evento no MAIN world: `document.dispatchEvent(new Event('focus'));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `document.dispatchEvent(new Event('focus'));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0399
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0400
 
 **Fonte:** `// 1. Dispara Enter no container e editores`  
-**O que faz:** Comentário do fonte registra: “1. Dispara Enter no container e editores”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Documenta no próprio fonte: “1. Dispara Enter no container e editores”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **fallback de submit**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0401
 
 **Fonte:** `const rta = document.querySelector('rich-textarea');`  
-**O que faz:** Declara `rta` usando `const`; a expressão é `const rta = document.querySelector('rich-textarea');`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `rta` com `document.querySelector('rich-textarea');`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0402
 
 **Fonte:** `if (rta) {`  
-**O que faz:** Aplica a guarda `if (rta) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (rta) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0403
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0404
 
 **Fonte:** `rta.dispatchEvent(new KeyboardEvent('keydown', {`  
-**O que faz:** Publica evento no MAIN world: `rta.dispatchEvent(new KeyboardEvent('keydown', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `rta.dispatchEvent(new KeyboardEvent('keydown', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0405
 
 **Fonte:** `bubbles: true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `bubbles: true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Define a propriedade/opção `bubbles` como `true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **fallback de submit**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0406
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Avalia a expressão específica `}));` dentro de **fallback de submit**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0407
 
 **Fonte:** `} catch(e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0408
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Fecha/continua a estrutura sintática de **fallback de submit** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0409
 
 **Fonte:** `const targets = findAllDeep(document.body, el => el.getAttribute && (el.getAttribute('contenteditable') === 'true' \|\| (el.className && typeof el.className === 'string' && el.className.includes('ql-editor'))));`  
-**O que faz:** Declara `targets` usando `const`; a expressão é `const targets = findAllDeep(document.body, el => el.getAttribute && (el.getAttribute('contenteditable') === 'true' \|\| (el.className && typeof el…`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `targets` com `findAllDeep(document.body, el => el.getAttribute && (el.getAttribute('contenteditable') === 'true' \|\| (el.className && typeo…`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0410
 
 **Fonte:** `for (const target of targets) {`  
-**O que faz:** Inicia iteração em **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `for (const target of targets) {`.  
-**Como faz:** Percorre candidatos/nós/callbacks e aplica o corpo associado a cada item enquanto preserva seus guards.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicia iteração `for (const target of targets) {`.  
+**Como faz:** Percorre callbacks, nós ou botões enquanto aplica os guards do bloco.  
+**Por que assim:** A unidade precisa avaliar todos os candidatos até encontrar/consumir os adequados.  
+**Risco/alternativa:** Tratar apenas o primeiro elemento falharia em DOM dinâmico/Shadow DOM.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0411
 
 **Fonte:** `try {`  
-**O que faz:** Abre região protegida por `try` em **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** As operações seguintes podem falhar por diferenças de API/DOM; o catch correspondente degrada sem abortar a automação inteira.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Abre `try` para uma operação compatível com múltiplas versões de DOM/API.  
+**Como faz:** Erros de uma técnica ficam confinados ao catch e permitem que fallbacks posteriores continuem.  
+**Por que assim:** MAIN world muda com o navegador/Gemini; tolerância local evita abortar o job inteiro.  
+**Risco/alternativa:** Sem isolamento, uma API ausente derrubaria toda a ponte.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0412
 
 **Fonte:** `if (typeof target.focus === 'function') target.focus({ preventScroll: true });`  
-**O que faz:** Aplica a guarda `if (typeof target.focus === 'function') target.focus({ preventScroll: true });`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (typeof target.focus === 'function') target.focus({ preventScroll: true });`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0413
 
 **Fonte:** `target.dispatchEvent(new KeyboardEvent('keydown', {`  
-**O que faz:** Publica evento no MAIN world: `target.dispatchEvent(new KeyboardEvent('keydown', {`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `target.dispatchEvent(new KeyboardEvent('keydown', {`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0414
 
 **Fonte:** `bubbles: true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `bubbles: true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Define a propriedade/opção `bubbles` como `true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13`.  
+**Como faz:** Esta linha compõe o objeto/tabela configurado nas linhas vizinhas de **fallback de submit**.  
+**Por que assim:** O valor nomeado permite que a API/cadência seja parametrizada de forma explícita.  
+**Risco/alternativa:** Valor posicional sem chave seria menos legível e mais sujeito a troca acidental.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0415
 
 **Fonte:** `}));`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `}));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Avalia a expressão específica `}));` dentro de **fallback de submit**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0416
 
 **Fonte:** `} catch(e) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(e) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(e) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0417
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Fecha/continua a estrutura sintática de **fallback de submit** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0418
 
 **Fonte:** ``  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0419
 
 **Fonte:** `// 2. Busca profunda por botões de envio em Light DOM e Shadow Roots`  
-**O que faz:** Comentário do fonte registra: “2. Busca profunda por botões de envio em Light DOM e Shadow Roots”.  
-**Como faz:** Documenta intenção ou limitação da unidade **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** sem produzir efeito em runtime.  
-**Por que assim:** Neste arquivo comentários são relevantes porque vários shims são deliberadamente invasivos e precisam explicar escopo/custo.  
-**Risco/alternativa:** Sem o contexto, uma manutenção pode reintroduzir loops agressivos ou remover guards necessários.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Documenta no próprio fonte: “2. Busca profunda por botões de envio em Light DOM e Shadow Roots”.  
+**Como faz:** É comentário; registra intenção/limitação para as linhas executáveis próximas.  
+**Por que assim:** O comentário reduz risco de manutenção contradizer a política de **fallback de submit**.  
+**Risco/alternativa:** Código continuaria rodando sem ele, mas a decisão arquitetural ficaria oculta.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0420
 
 **Fonte:** `const allButtons = findAllDeep(document.body, el => {`  
-**O que faz:** Declara `allButtons` usando `const`; a expressão é `const allButtons = findAllDeep(document.body, el => {`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `allButtons` com `findAllDeep(document.body, el => {`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0421
 
 **Fonte:** `if (!el \|\| el.nodeType !== Node.ELEMENT_NODE) return false;`  
-**O que faz:** Aplica a guarda `if (!el \|\| el.nodeType !== Node.ELEMENT_NODE) return false;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (!el \|\| el.nodeType !== Node.ELEMENT_NODE) return false;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0422
 
 **Fonte:** `const tag = el.tagName.toLowerCase();`  
-**O que faz:** Declara `tag` usando `const`; a expressão é `const tag = el.tagName.toLowerCase();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `tag` com `el.tagName.toLowerCase();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0423
 
 **Fonte:** `const role = (el.getAttribute('role') \|\| '').toLowerCase();`  
-**O que faz:** Declara `role` usando `const`; a expressão é `const role = (el.getAttribute('role') \|\| '').toLowerCase();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `role` com `(el.getAttribute('role') \|\| '').toLowerCase();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0424
 
 **Fonte:** `return tag === 'button' \|\| role === 'button' \|\| tag.includes('button') \|\| tag === 'mat-icon-button';`  
-**O que faz:** Encerra este fluxo com `return tag === 'button' \|\| role === 'button' \|\| tag.includes('button') \|\| tag === 'mat-icon-button';`.  
-**Como faz:** Evita que as linhas seguintes instalem/continuem a unidade quando o pré-requisito não foi atendido.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Encerra o fluxo atual com `return tag === 'button' \|\| role === 'button' \|\| tag.includes('button') \|\| tag === 'mat-icon-button';`.  
+**Como faz:** Evita que o restante do bloco rode neste caso e, quando há expressão, devolve o valor ao caller.  
+**Por que assim:** Early return mantém guards de **fallback de submit** simples e impede efeitos tardios.  
+**Risco/alternativa:** Continuar após condição terminal poderia instalar shims ou operar em alvo inválido.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0425
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Fecha/continua a estrutura sintática de **fallback de submit** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0426
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0427
 
 **Fonte:** `const blacklist = ['feedback', 'report', 'survey', 'bug', 'cancel', 'cancelar', 'close', 'fechar', 'dismiss', 'mic', 'microfone', 'voice', 'audio', 'stop'];`  
-**O que faz:** Declara `blacklist` usando `const`; a expressão é `const blacklist = ['feedback', 'report', 'survey', 'bug', 'cancel', 'cancelar', 'close', 'fechar', 'dismiss', 'mic', 'microfone', 'voice', 'audi…`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `blacklist` com `['feedback', 'report', 'survey', 'bug', 'cancel', 'cancelar', 'close', 'fechar', 'dismiss', 'mic', 'microfone', 'voice', 'au…`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0428
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0429
 
 **Fonte:** `for (let i = allButtons.length - 1; i >= 0; i--) {`  
-**O que faz:** Inicia iteração em **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `for (let i = allButtons.length - 1; i >= 0; i--) {`.  
-**Como faz:** Percorre candidatos/nós/callbacks e aplica o corpo associado a cada item enquanto preserva seus guards.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicia iteração `for (let i = allButtons.length - 1; i >= 0; i--) {`.  
+**Como faz:** Percorre callbacks, nós ou botões enquanto aplica os guards do bloco.  
+**Por que assim:** A unidade precisa avaliar todos os candidatos até encontrar/consumir os adequados.  
+**Risco/alternativa:** Tratar apenas o primeiro elemento falharia em DOM dinâmico/Shadow DOM.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0430
 
 **Fonte:** `const btn = allButtons[i];`  
-**O que faz:** Declara `btn` usando `const`; a expressão é `const btn = allButtons[i];`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `btn` com `allButtons[i];`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0431
 
 **Fonte:** `const label = (btn.getAttribute('aria-label') \|\| '').toLowerCase().trim();`  
-**O que faz:** Declara `label` usando `const`; a expressão é `const label = (btn.getAttribute('aria-label') \|\| '').toLowerCase().trim();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `label` com `(btn.getAttribute('aria-label') \|\| '').toLowerCase().trim();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0432
 
 **Fonte:** `const tooltip = (btn.getAttribute('mattooltip') \|\| '').toLowerCase().trim();`  
-**O que faz:** Declara `tooltip` usando `const`; a expressão é `const tooltip = (btn.getAttribute('mattooltip') \|\| '').toLowerCase().trim();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `tooltip` com `(btn.getAttribute('mattooltip') \|\| '').toLowerCase().trim();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0433
 
 **Fonte:** `const dataTooltip = (btn.getAttribute('data-tooltip') \|\| '').toLowerCase().trim();`  
-**O que faz:** Declara `dataTooltip` usando `const`; a expressão é `const dataTooltip = (btn.getAttribute('data-tooltip') \|\| '').toLowerCase().trim();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `dataTooltip` com `(btn.getAttribute('data-tooltip') \|\| '').toLowerCase().trim();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0434
 
 **Fonte:** `const testId = (btn.getAttribute('data-test-id') \|\| btn.getAttribute('data-testid') \|\| '').toLowerCase().trim();`  
-**O que faz:** Declara `testId` usando `const`; a expressão é `const testId = (btn.getAttribute('data-test-id') \|\| btn.getAttribute('data-testid') \|\| '').toLowerCase().trim();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `testId` com `(btn.getAttribute('data-test-id') \|\| btn.getAttribute('data-testid') \|\| '').toLowerCase().trim();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0435
 
 **Fonte:** `const className = (typeof btn.className === 'string' ? btn.className : '').toLowerCase();`  
-**O que faz:** Declara `className` usando `const`; a expressão é `const className = (typeof btn.className === 'string' ? btn.className : '').toLowerCase();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `className` com `(typeof btn.className === 'string' ? btn.className : '').toLowerCase();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0436
 
 **Fonte:** `const text = (btn.innerText \|\| btn.textContent \|\| '').toLowerCase().trim();`  
-**O que faz:** Declara `text` usando `const`; a expressão é `const text = (btn.innerText \|\| btn.textContent \|\| '').toLowerCase().trim();`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `text` com `(btn.innerText \|\| btn.textContent \|\| '').toLowerCase().trim();`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0437
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0438
 
 **Fonte:** `const combined = \`${label} ${tooltip} ${dataTooltip} ${testId} ${className}\`;`  
-**O que faz:** Declara `combined` usando `const`; a expressão é `const combined = \`${label} ${tooltip} ${dataTooltip} ${testId} ${className}\`;`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `combined` com `\`${label} ${tooltip} ${dataTooltip} ${testId} ${className}\`;`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0439
 
 **Fonte:** `if (blacklist.some(b => combined.includes(b))) continue;`  
-**O que faz:** Aplica a guarda `if (blacklist.some(b => combined.includes(b))) continue;`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (blacklist.some(b => combined.includes(b))) continue;`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0440
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0441
 
 **Fonte:** `const hasSendIcon = text.includes('arrow_upward') \|\| text.includes('send') \|\|`  
-**O que faz:** Declara `hasSendIcon` usando `const`; a expressão é `const hasSendIcon = text.includes('arrow_upward') \|\| text.includes('send') \|\|`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `hasSendIcon` com `text.includes('arrow_upward') \|\| text.includes('send') \|\|`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0442
 
 **Fonte:** `!!btn.querySelector('mat-icon, svg, [data-icon-name*="send"], [data-icon-name*="arrow"]');`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `!!btn.querySelector('mat-icon, svg, [data-icon-name*="send"], [data-icon-name*="arrow"]');`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Avalia a expressão específica `!!btn.querySelector('mat-icon, svg, [data-icon-name*="send"], [data-icon-name*="arrow"]');` dentro de **fallback de submit**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0443
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0444
 
 **Fonte:** `const isSend = label === 'enviar' \|\| label === 'enviar mensagem' \|\| label === 'enviar prompt' \|\| label === 'enviar consulta' \|\|`  
-**O que faz:** Declara `isSend` usando `const`; a expressão é `const isSend = label === 'enviar' \|\| label === 'enviar mensagem' \|\| label === 'enviar prompt' \|\| label === 'enviar consulta' \|\|`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `isSend` com `label === 'enviar' \|\| label === 'enviar mensagem' \|\| label === 'enviar prompt' \|\| label === 'enviar consulta' \|\|`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0445
 
 **Fonte:** `label === 'send' \|\| label === 'send message' \|\| label === 'send prompt' \|\|`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `label === 'send' \|\| label === 'send message' \|\| label === 'send prompt' \|\|`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Atualiza `label` para `== 'send' \|\| label === 'send message' \|\| label === 'send prompt' \|\|`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **fallback de submit**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0446
 
 **Fonte:** `tooltip === 'enviar' \|\| tooltip === 'enviar mensagem' \|\| tooltip === 'send' \|\|`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `tooltip === 'enviar' \|\| tooltip === 'enviar mensagem' \|\| tooltip === 'send' \|\|`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Atualiza `tooltip` para `== 'enviar' \|\| tooltip === 'enviar mensagem' \|\| tooltip === 'send' \|\|`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **fallback de submit**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0447
 
 **Fonte:** `dataTooltip === 'enviar' \|\| dataTooltip === 'send' \|\|`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `dataTooltip === 'enviar' \|\| dataTooltip === 'send' \|\|`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Atualiza `dataTooltip` para `== 'enviar' \|\| dataTooltip === 'send' \|\|`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **fallback de submit**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0448
 
 **Fonte:** `testId === 'send-button' \|\| className.includes('send-button') \|\|`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `testId === 'send-button' \|\| className.includes('send-button') \|\|`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Atualiza `testId` para `== 'send-button' \|\| className.includes('send-button') \|\|`.  
+**Como faz:** A atribuição muda explicitamente o estado usado pelas próximas etapas de **fallback de submit**.  
+**Por que assim:** A mutação é local ao contrato desse estado e torna a transição observável.  
+**Risco/alternativa:** Mutação implícita/duplicada em vários pontos tornaria o lifecycle mais difícil de auditar.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0449
 
 **Fonte:** `(hasSendIcon && (label.includes('enviar') \|\| label.includes('send') \|\| label === ''));`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `(hasSendIcon && (label.includes('enviar') \|\| label.includes('send') \|\| label === ''));`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Avalia a expressão específica `(hasSendIcon && (label.includes('enviar') \|\| label.includes('send') \|\| label === ''));` dentro de **fallback de submit**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0450
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0451
 
 **Fonte:** `const enabled = btn.disabled !== true &&`  
-**O que faz:** Declara `enabled` usando `const`; a expressão é `const enabled = btn.disabled !== true &&`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `enabled` com `btn.disabled !== true &&`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0452
 
 **Fonte:** `!btn.hasAttribute('disabled') &&`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `!btn.hasAttribute('disabled') &&`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Avalia a expressão específica `!btn.hasAttribute('disabled') &&` dentro de **fallback de submit**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0453
 
 **Fonte:** `btn.getAttribute('aria-disabled') !== 'true';`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `btn.getAttribute('aria-disabled') !== 'true';`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Avalia a expressão específica `btn.getAttribute('aria-disabled') !== 'true';` dentro de **fallback de submit**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0454
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0455
 
 **Fonte:** `if (isSend && enabled) {`  
-**O que faz:** Aplica a guarda `if (isSend && enabled) {`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (isSend && enabled) {`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0456
 
 **Fonte:** `if (typeof btn.focus === 'function') btn.focus();`  
-**O que faz:** Aplica a guarda `if (typeof btn.focus === 'function') btn.focus();`.  
-**Como faz:** O ramo seguinte só ocorre quando a condição é verdadeira; isso controla side effects globais de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Testa a guarda `if (typeof btn.focus === 'function') btn.focus();`.  
+**Como faz:** Somente o ramo verdadeiro pode produzir os side effects globais subsequentes.  
+**Por que assim:** **fallback de submit** precisa bloquear casos fora do contrato antes de alterar a página.  
+**Risco/alternativa:** Executar sem a guarda ampliaria escopo ou duplicaria trabalho.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0457
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0458
 
 **Fonte:** `const eventOpts = { bubbles: true, cancelable: true, composed: true, view: window };`  
-**O que faz:** Declara `eventOpts` usando `const`; a expressão é `const eventOpts = { bubbles: true, cancelable: true, composed: true, view: window };`.  
-**Como faz:** Materializa estado, referência nativa ou parâmetro de política usado pelo bloco **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Inicializa `eventOpts` com `{ bubbles: true, cancelable: true, composed: true, view: window };`.  
+**Como faz:** O valor fica no escopo da IIFE/bloco e alimenta **fallback de submit**.  
+**Por que assim:** Essa variável separa estado/política da operação que a consome.  
+**Risco/alternativa:** Incorporar o valor em vários lugares dificultaria sincronizar o comportamento.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0459
 
 **Fonte:** `btn.dispatchEvent(new PointerEvent('pointerdown', eventOpts));`  
-**O que faz:** Publica evento no MAIN world: `btn.dispatchEvent(new PointerEvent('pointerdown', eventOpts));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `btn.dispatchEvent(new PointerEvent('pointerdown', eventOpts));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0460
 
 **Fonte:** `btn.dispatchEvent(new MouseEvent('mousedown', eventOpts));`  
-**O que faz:** Publica evento no MAIN world: `btn.dispatchEvent(new MouseEvent('mousedown', eventOpts));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `btn.dispatchEvent(new MouseEvent('mousedown', eventOpts));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0461
 
 **Fonte:** `btn.dispatchEvent(new MouseEvent('mouseup', eventOpts));`  
-**O que faz:** Publica evento no MAIN world: `btn.dispatchEvent(new MouseEvent('mouseup', eventOpts));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `btn.dispatchEvent(new MouseEvent('mouseup', eventOpts));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0462
 
 **Fonte:** `btn.dispatchEvent(new PointerEvent('pointerup', eventOpts));`  
-**O que faz:** Publica evento no MAIN world: `btn.dispatchEvent(new PointerEvent('pointerup', eventOpts));`.  
-**Como faz:** Atravessa a ponte por eventos DOM para que o outro componente observe o estado/dado sem acesso direto entre mundos.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Despacha `btn.dispatchEvent(new PointerEvent('pointerup', eventOpts));`.  
+**Como faz:** Publica um evento no MAIN world para sincronizar página/isolated world ou simular a interação necessária.  
+**Por que assim:** Custom/Event dispatch é o boundary disponível sem acesso direto entre worlds.  
+**Risco/alternativa:** Chamada direta entre mundos não existe e acoplamento global seria mais frágil.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0463
 
 **Fonte:** `btn.click();`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `btn.click();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Aciona `click()` no botão candidato selecionado.  
+**Como faz:** Depois de pointer/mouse events, chama a ação semântica nativa do elemento.  
+**Por que assim:** Alguns frameworks escutam `click` em vez de eventos de baixo nível.  
+**Risco/alternativa:** O clique amplia chance de submit, mas deve ocorrer só no botão validado.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0464
 
 **Fonte:** `break;`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `break;`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Interrompe o loop assim que o candidato desejado foi tratado.  
+**Como faz:** Impede que o fallback de submit continue clicando outros botões após um clique escolhido.  
+**Por que assim:** A unidade deve limitar a tentativa a um botão por varredura.  
+**Risco/alternativa:** Continuar poderia gerar múltiplos cliques/submits.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0465
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Fecha/continua a estrutura sintática de **fallback de submit** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0466
 
 **Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática da unidade **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**: `}`.  
-**Como faz:** Delimita o escopo ou expressão iniciada nas posições anteriores; não cria contrato independente.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Fecha/continua a estrutura sintática de **fallback de submit** com `}`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0467
 
 **Fonte:** `} catch(err) {}`  
-**O que faz:** Captura falha da operação anterior: `} catch(err) {}`.  
-**Como faz:** Impede que incompatibilidade pontual de DOM/API derrube o restante da ponte Main World.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Captura exceção da tentativa anterior com `} catch(err) {}`.  
+**Como faz:** Transforma incompatibilidade em degradação silenciosa ou resposta de erro controlada.  
+**Por que assim:** Fallbacks deste arquivo são best-effort e não podem derrubar o app.  
+**Risco/alternativa:** Propagar qualquer erro de DOM impediria as rotas seguintes.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0468
 
 **Fonte:** `});`  
-**O que faz:** Participa de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND** com `});`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** Quando APIs/editor normais falham, tenta Enter e por último identifica um botão de envio através de múltiplos sinais, incluindo Shadow DOM.  
-**Risco/alternativa:** Um seletor único é frágil diante do Gemini; porém heurística ampla pode clicar elemento errado ou duplicar envio se Enter já submeteu, exigindo teste Main-world real.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Fecha/continua a estrutura sintática de **fallback de submit** com `});`.  
+**Como faz:** Delimita callback, objeto, chamada ou bloco aberto nas linhas anteriores.  
+**Por que assim:** A posição preserva o escopo exato da operação composta.  
+**Risco/alternativa:** Mover/omitir o delimitador alteraria escopo ou sintaxe.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0469
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Fallback MANGA_TRANSLATOR_TRIGGER_SEND**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 consumidor provado; ⚠️ implementação MAIN sem prova direta — `rpa-flow.test.js` prova que o fluxo consumidor emite o evento e continua; não executa a busca profunda/cliques deste listener.
+**O que faz:** Mantém uma posição vazia entre trechos de **fallback de submit**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0470
 
 **Fonte:** `console.log("⚡ Anti-throttling progressivo ativo no Gemini (modo " + antiThrottleMode + ").");`  
-**O que faz:** Participa de **Telemetria final e fechamento da IIFE** com `console.log("⚡ Anti-throttling progressivo ativo no Gemini (modo " + antiThrottleMode + ").");`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** O log torna visível o modo inicial em diagnóstico e o fechamento mantém variáveis privadas no escopo da IIFE.  
-**Risco/alternativa:** Poluir `window` com todo o estado aumentaria colisões; omitir qualquer diagnóstico torna falhas Main-world difíceis de observar.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — E2E MV3 pode carregar o script via manifest em URLs marcadas, mas não há assertion específica do log final ou fechamento.
+**O que faz:** Emite diagnóstico `console.log("⚡ Anti-throttling progressivo ativo no Gemini (modo " + antiThrottleMode + ").");`.  
+**Como faz:** Escreve no console da página para tornar sucesso/falha MAIN-world observável.  
+**Por que assim:** Falhas de world/DOM são difíceis de rastrear apenas pelo isolated world.  
+**Risco/alternativa:** Sem diagnóstico, regressões da ponte ficam silenciosas.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — MV3 pode carregar o script, mas não há assertion do log final.
 
 ### Linha 0471
 
 **Fonte:** `})();`  
-**O que faz:** Participa de **Telemetria final e fechamento da IIFE** com `})();`.  
-**Como faz:** A expressão usa os identificadores visíveis no próprio bloco para alterar estado, DOM, scheduling ou protocolo de eventos conforme indicado pela linha.  
-**Por que assim:** O log torna visível o modo inicial em diagnóstico e o fechamento mantém variáveis privadas no escopo da IIFE.  
-**Risco/alternativa:** Poluir `window` com todo o estado aumentaria colisões; omitir qualquer diagnóstico torna falhas Main-world difíceis de observar.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — E2E MV3 pode carregar o script via manifest em URLs marcadas, mas não há assertion específica do log final ou fechamento.
+**O que faz:** Avalia a expressão específica `})();` dentro de **log final e fechamento**.  
+**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
+**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
+**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — MV3 pode carregar o script, mas não há assertion do log final.
 
 ### Linha 0472
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Telemetria final e fechamento da IIFE**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — E2E MV3 pode carregar o script via manifest em URLs marcadas, mas não há assertion específica do log final ou fechamento.
+**O que faz:** Mantém uma posição vazia entre trechos de **log final e fechamento**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — MV3 pode carregar o script, mas não há assertion do log final.
 
 ### Linha 0473
 
 **Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Posição vazia que separa responsabilidades dentro de **Telemetria final e fechamento da IIFE**.  
-**Como faz:** Não cria bytecode ou side effect; mantém a fronteira editorial do bloco.  
-**Por que assim:** A separação ajuda a revisar um arquivo que altera APIs globais e mantém a numeração física rastreável.  
-**Risco/alternativa:** Removê-la não muda o runtime, mas alteraria a correspondência posicional desta Bíblia.  
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — E2E MV3 pode carregar o script via manifest em URLs marcadas, mas não há assertion específica do log final ou fechamento.
+**O que faz:** Mantém uma posição vazia entre trechos de **log final e fechamento**.  
+**Como faz:** Não roda JavaScript; separa visualmente responsabilidades e preserva a numeração física.  
+**Por que assim:** A separação torna revisões de overrides globais menos ambíguas.  
+**Risco/alternativa:** Remover não muda o runtime, mas altera a rastreabilidade posicional.  
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — MV3 pode carregar o script, mas não há assertion do log final.
 
 
 ## 15. Checklist de revisão antes da conclusão
