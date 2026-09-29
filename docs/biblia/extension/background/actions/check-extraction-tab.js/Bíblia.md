@@ -1,9 +1,9 @@
 # Bíblia técnica — `extension/background/actions/check-extraction-tab.js`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA em 2026-09-29.  
 > **Arquivo-fonte:** `extension/background/actions/check-extraction-tab.js`  
 > **SHA auditado:** `9ee40474d8c52da5e725ab04a2e325dd69830a51`  
-> **Linhas auditadas:** 25 (incluindo newline final).  
+> **Linhas auditadas:** 25 linhas de conteúdo + newline final (26 posições na auditoria linha a linha).  
 > **Ação pública legada:** `CHECK_IF_EXTRACTION_TAB` → `check-extraction-tab`.  
 > **Teste unitário direto da action:** `tests/unit/background/actions-low-risk.test.js`.  
 > **Teste do caminho real pelo background:** `tests/unit/background/plan-missing-handlers-real.test.js` e `tests/unit/background/routed-actions-legacy.test.js`.
@@ -143,7 +143,7 @@ Separa cabeçalho da IIFE. Sem efeito de runtime.
 
 **O que faz:** inicia uma IIFE que recebe o escopo global apropriado.
 
-**Como faz:** o argumento é fornecido na linha 24 como `self` no Service Worker ou `globalThis` em Node/Jest.
+**Como faz:** o argumento é fornecido na linha 25 como `self` no Service Worker ou `globalThis` em Node/Jest.
 
 **Por que assim:** permite que o mesmo arquivo seja carregado no browser e em testes CommonJS sem introduzir variáveis auxiliares globais.
 
@@ -344,6 +344,18 @@ Finaliza `registerAction`.
 **Por que assim:** mantém um único arquivo compatível com browser e Node/Jest sem wrapper duplicado.
 
 **Evidência:** ✅ os testes Jest atribuem `global.self = global` e carregam o arquivo real com sucesso.
+
+
+## Linha 26 — newline final
+
+**O que faz:** representa a terminação final do arquivo após a invocação da IIFE; não executa JavaScript adicional.
+
+**Como faz:** o arquivo termina com um caractere de nova linha depois da linha 25.
+
+**Por que assim:** preserva a convenção POSIX/editor, evita o indicador “No newline at end of file” e produz diffs mais previsíveis. Isso não altera o runtime da extensão.
+
+**Evidência:** ℹ️ **NÃO EXECUTÁVEL** — não há comportamento funcional a ser provado por teste.
+
 
 ---
 
