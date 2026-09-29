@@ -108,6 +108,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 57 | `extension/shared/gtc-fingerprint.js` | SHA `fa014028d5e2...` reconfirmado; bloco integral exato | 770 linhas + newline final = 771/771 posições; 771 headings sequenciais; 0 fallbacks genéricos | unit `gtc/fingerprint.test.js` e suítes visuais carregam o módulo real; consumers SW/content/IDB classificados separadamente; gaps de hex inválido, comprimento, Unicode fallback, region opts e ID fallback explícitos | 16 unidades específicas + papel local por posição; contratos SHA/dHash/Haar/DCT/regional/strict/relaxed e invariantes de compatibilidade documentados | ✅ APROVADO |
 | 59 | `extension/shared/shared-ui.js` | SHA `b284fb8eb0e8...` reconfirmado; bloco integral exato | 350 linhas + newline final = 351/351 posições; 351 headings sequenciais; fonte integral conferida | `redo-confirmation.test.js` carrega o módulo real; integrações reais de Popup/Options exercitam Refazer/fallback legado; XSS específico prova escape no consumidor; gate de ordem separado; lacunas de restore moderno, erros de API e races explícitas | 12 unidades específicas + papel local por posição; trust boundaries, lifecycle MV3, migração parcial, overlay concorrente e risco sem `chapterId` documentados | ✅ APROVADO |
 | 61 | `.gitignore` | SHA `e48fc70b1acc...` reconfirmado; bloco integral exato | 37 linhas + newline final = 38/38 posições; 38 headings sequenciais | gate estrutural prova presença de `.jest-cache*/`, `.ci-results/`, `all-blob-reports/` e `dist/`; produtores Jest/Playwright/CI/publish/fixtures cruzados; demais patterns mantidos como contrato/lacuna sem inventar `git check-ignore` | explicação específica por glob + segurança `.env`, portabilidade, artifacts, fixtures e tradeoffs; comentário editorial stale registrado | ✅ APROVADO |
+| 62 | `jest.config.js` | SHA `f0b7c55a5c8c...` reconfirmado; bloco integral exato | 90 linhas + newline final = 91/91 posições; 91 headings sequenciais | `run-jest-ci.js` executa este config via Jest/listTests e prova partição unit/integration; `verify-ci-contract.js` protege provider V8, escopo `extension/**/*.js` e reporters-chave; ambientes/setup/cache/timeout classificados conservadoramente | 8 projetos específicos + cobertura condicional + trust boundary dos mocks + riscos de duas listas nominais, jsdom integrado e threshold externo | ✅ APROVADO |
 
 ### `temporary-chat.js` — criação e auditoria em 2026-09-29
 
@@ -564,6 +565,17 @@ A integridade física foi reconfirmada:
 - `jest.config.js`, `playwright.config.js`, CI, publish e gerador de fixtures confirmam produtores concretos dos principais artefatos;
 - regras sem teste de `git check-ignore` foram classificadas como contrato operacional ou lacuna, não como prova direta;
 - riscos/documentação crítica: `.env.production` não coberto, regras defensivas `playwright-report/` e `.nyc_output/`, IDEs ignoradas integralmente e comentário “Sistema Operacional e Editores” abrangendo indevidamente CI/build/fixtures.
+
+**Veredito:** ✅ APROVADO.
+
+### `jest.config.js` — auditoria aprovada em 2026-09-29
+
+- SHA `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc` e fonte integral reconfirmados;
+- 90 linhas + newline final = 91/91 posições documentadas;
+- `run-jest-ci.js` usa o próprio config com `--listTests --selectProjects` e falha em overlap/arquivo fora da união unit/integration;
+- `verify-ci-contract.js` exige provider V8, `extension/**/*.js` e reporters lcov/json-summary/text-summary;
+- ambientes node/jsdom, setup files, caches e timeouts foram mantidos como execução indireta/lacuna quando não há assertion focal;
+- riscos: lista de nomes duplicada entre config/runner, integração sempre jsdom, ausência de reset global de mocks e dependência do verificador externo porque `coverageThreshold` é indefinido.
 
 **Veredito:** ✅ APROVADO.
 
