@@ -58,8 +58,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 11 | `extension/background/actions/download-image.js` | SHA `408102f057ab...` conferido; bloco integral exato | 31 linhas + newline final = 32/32 posições | happy path/action + helper/integrado separados; erros mantidos como gaps | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 12 | `extension/background/actions/export-all.js` | SHA `6160a220094d...` conferido; bloco integral exato | 40 linhas + newline final = 41/41 posições | action/integrado/helper/mirror distinguidos; best-effort e erros explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 13 | `extension/background/actions/fetch-image-base64.js` | SHA `4a4825c36fdb...` conferido; bloco integral exato | 95 linhas + newline final = 96/96 posições | URL/auth/MIME/size/timeout provados; consumer/mirror/gaps separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
+| 14 | `extension/background/actions/force-send-activation.js` | SHA `cbeea5768301...` conferido; bloco integral exato | 70 linhas + newline final = 71/71 posições | branches minimized/aba provados; router/content/uso atual separados; gaps assíncronos explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `force-send-activation.js` — criação e auditoria em 2026-09-29
+
+- branches `minimized_window` e ativação por aba ligados às assertions diretas;
+- semântica `async:false` confrontada com o router: a resposta `ok:true` ocorre antes dos efeitos assíncronos;
+- handler `DO_SEND_NOW` verificado em `content_gemini.js`;
+- busca do corpus registrou ausência de caller de produção atual para `FORCE_SEND_ACTIVATION`;
+- gaps de IDs, APIs Chrome, timers e erros silenciosos explicitados;
+- SHA e 71/71 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `fetch-image-base64.js` — criação e auditoria em 2026-09-29
 
