@@ -5,8 +5,8 @@ const path = require('path');
 
 describe('versionamento da UI', () => {
   const extensionDir = path.resolve(__dirname, '../../../extension');
-  const optionsHtml = fs.readFileSync(path.join(extensionDir, 'options.html'), 'utf8');
-  const optionsJs = fs.readFileSync(path.join(extensionDir, 'options.js'), 'utf8');
+  const optionsHtml = fs.readFileSync(path.join(extensionDir, 'options', 'options.html'), 'utf8');
+  const optionsJs = fs.readFileSync(path.join(extensionDir, 'options', 'options.js'), 'utf8');
 
   test('options.html não contém versão de produto hardcoded', () => {
     expect(optionsHtml).toContain('id="app-title"');

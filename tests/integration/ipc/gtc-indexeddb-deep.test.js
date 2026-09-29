@@ -37,8 +37,8 @@ global.TextEncoder = TextEncoder;
 
 const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));
 const { getRuntimeMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
-const { createIndexedDbRepository, createGtcRuntimeHandler } = require(path.join(ROOT, 'extension/gtc-indexeddb.js'));
-const { createFingerprintFromDescriptor } = require(path.join(ROOT, 'extension/gtc-fingerprint.js'));
+const { createIndexedDbRepository, createGtcRuntimeHandler } = require(path.join(ROOT, 'extension/shared/gtc-indexeddb.js'));
+const { createFingerprintFromDescriptor } = require(path.join(ROOT, 'extension/shared/gtc-fingerprint.js'));
 
 function cleanUrl(urlStr) {
     if (!urlStr || urlStr.startsWith('data:')) return null;

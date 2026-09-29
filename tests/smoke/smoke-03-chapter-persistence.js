@@ -18,7 +18,7 @@ global.chrome = {
     }
 };
 
-const sm = require('../../extension/storage-manager.js');
+const sm = require('../../extension/shared/storage-manager.js');
 
 async function run() {
     const chapterId = 'smoke03_concurrency_chapter';

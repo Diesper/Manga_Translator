@@ -1180,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         const ti = item.querySelector('.chap-title-input');
                         ti.addEventListener('change', (e) => { chap.title = e.target.value; chrome.storage.local.set({ chapterList: list }); });
-                        item.querySelector('.btn-read-chap').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL(`reader.html?id=${chap.id}`) }));
+                        item.querySelector('.btn-read-chap').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL(`reader/reader.html?id=${chap.id}`) }));
                         item.querySelector('.btn-open-chap-folder').addEventListener('click', (e) => {
                             
                             const originalText = e.target.textContent;

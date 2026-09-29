@@ -60,8 +60,8 @@ describe('Log Buffer e Exportador — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -96,8 +96,8 @@ describe('Log Buffer e Exportador — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -140,8 +140,8 @@ describe('Log Buffer e Exportador — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -174,8 +174,8 @@ describe('Log Buffer e Exportador — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -201,7 +201,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
         const activeTab = await tabsMock.create({ url: 'https://manga.test/ch1', active: true, title: 'Manga Test' });
         tabsMock._activeTabId = activeTab.id;
 
-        await loadExtensionPage({ htmlPath: 'extension/popup.html', scriptPath: 'extension/popup.js', fireDOMContentLoaded: true });
+        await loadExtensionPage({ htmlPath: 'extension/popup/popup.html', scriptPath: 'extension/popup/popup.js', fireDOMContentLoaded: true });
         await flushAsyncTasks(8);
         await openLogsSection();
         const filterLevel = document.getElementById('log-filter-level');

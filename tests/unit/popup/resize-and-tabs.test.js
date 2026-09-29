@@ -50,8 +50,8 @@ describe('Popup 2D Resizing e Agrupamento de Banidas — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -73,8 +73,8 @@ describe('Popup 2D Resizing e Agrupamento de Banidas — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -114,8 +114,8 @@ describe('Popup 2D Resizing e Agrupamento de Banidas — popup.js', () => {
         tabsMock._activeTabId = activeTab.id;
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);

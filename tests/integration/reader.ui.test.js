@@ -30,8 +30,8 @@ describe('RD-01/RD-02/RD-03/RD-04/RD-05/RD-06/RD-07/RD-08/RD-09/RD-10/RD-11/RD-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_1',
         });
 
@@ -53,8 +53,8 @@ describe('RD-01/RD-02/RD-03/RD-04/RD-05/RD-06/RD-07/RD-08/RD-09/RD-10/RD-11/RD-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_2',
         });
 
@@ -83,8 +83,8 @@ describe('RD-01/RD-02/RD-03/RD-04/RD-05/RD-06/RD-07/RD-08/RD-09/RD-10/RD-11/RD-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_3',
         });
 
@@ -102,8 +102,8 @@ describe('RD-01/RD-02/RD-03/RD-04/RD-05/RD-06/RD-07/RD-08/RD-09/RD-10/RD-11/RD-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_4',
         });
 
@@ -116,8 +116,8 @@ describe('RD-01/RD-02/RD-03/RD-04/RD-05/RD-06/RD-07/RD-08/RD-09/RD-10/RD-11/RD-1
 
     test('mostra estado vazio quando nao existe capitulo na URL ou nao ha imagens', async () => {
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html',
         });
 
@@ -135,8 +135,8 @@ describe('RD-01/RD-02/RD-03/RD-04/RD-05/RD-06/RD-07/RD-08/RD-09/RD-10/RD-11/RD-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_empty',
         });
 

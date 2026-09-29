@@ -162,8 +162,20 @@ MangaTranslator/
 │   ├── manifest.json
 │   ├── background.js
 │   ├── background/
-│   ├── gemini/
-│   └── demais entrypoints/recursos da extensão
+│   ├── content/
+│   │   ├── content_manga.js
+│   │   ├── content_gemini.js
+│   │   ├── inject.js
+│   │   ├── cm-*.js
+│   │   └── gemini/
+│   ├── shared/
+│   │   ├── gtc-fingerprint.js
+│   │   ├── gtc-indexeddb.js
+│   │   ├── storage-manager.js
+│   │   └── shared-ui.js
+│   ├── popup/
+│   ├── options/
+│   └── reader/
 ├── tests/
 │   ├── unit/
 │   ├── integration/
@@ -194,9 +206,9 @@ A extensão possui cinco blocos arquiteturais principais:
 
 1. **orquestração MV3** — background, estado, lifecycle, watchdog e router;
 2. **captura e aplicação na página de mangá** — módulos <code>cm-*</code> +
-   <code>content_manga.js</code>;
-3. **automação do Gemini** — <code>inject.js</code>,
-   <code>content_gemini.js</code> e módulos de <code>gemini/</code>;
+   <code>content/content_manga.js</code>;
+3. **automação do Gemini** — <code>content/inject.js</code>,
+   <code>content/content_gemini.js</code> e módulos de <code>content/gemini/</code>;
 4. **persistência e cache** — StorageManager + GTC;
 5. **interfaces da extensão** — popup, opções, shared-ui e reader.
 
@@ -231,17 +243,17 @@ precisa operar em leitores de mangá hospedados em domínios arbitrários.
 
 Em todas as URLs compatíveis, o manifesto injeta nesta ordem:
 
-1. <code>gtc-fingerprint.js</code>;
-2. <code>cm-gtc-client.js</code>;
-3. <code>cm-dom-replace.js</code>;
-4. <code>cm-chapter.js</code>;
-5. <code>cm-auto-restore.js</code>;
-6. <code>content_manga.js</code>.
+1. <code>shared/gtc-fingerprint.js</code>;
+2. <code>content/cm-gtc-client.js</code>;
+3. <code>content/cm-dom-replace.js</code>;
+4. <code>content/cm-chapter.js</code>;
+5. <code>content/cm-auto-restore.js</code>;
+6. <code>content/content_manga.js</code>.
 
 Essa ordem é um contrato.
 
 Os módulos <code>cm-*</code> preparam APIs menores e
-<code>content_manga.js</code> atua como orquestrador e fachada compatível com
+<code>content/content_manga.js</code> atua como orquestrador e fachada compatível com
 call sites ainda existentes.
 
 ## 4.3 Scripts do Gemini
@@ -262,18 +274,18 @@ o manifesto injeta:
 
 Em <strong>document_idle</strong>, a ordem é:
 
-1. <code>gemini/selectors.js</code>;
-2. <code>gemini/dom.js</code>;
-3. <code>gemini/observer.js</code>;
-4. <code>gemini/editor.js</code>;
-5. <code>gemini/attachment.js</code>;
-6. <code>gemini/temporary-chat.js</code>;
-7. <code>gemini/result-extractor.js</code>;
-8. <code>gemini/deletion.js</code>;
-9. <code>gemini/job-runner.js</code>;
-10. <code>content_gemini.js</code>.
+1. <code>content/gemini/selectors.js</code>;
+2. <code>content/gemini/dom.js</code>;
+3. <code>content/gemini/observer.js</code>;
+4. <code>content/gemini/editor.js</code>;
+5. <code>content/gemini/attachment.js</code>;
+6. <code>content/gemini/temporary-chat.js</code>;
+7. <code>content/gemini/result-extractor.js</code>;
+8. <code>content/gemini/deletion.js</code>;
+9. <code>content/gemini/job-runner.js</code>;
+10. <code>content/content_gemini.js</code>.
 
-<code>content_gemini.js</code> é o bootstrap: claim, keep-alive, wiring e
+<code>content/content_gemini.js</code> é o bootstrap: claim, keep-alive, wiring e
 handlers. A execução detalhada do job pertence a <code>job-runner.js</code>.
 
 ## 4.4 Por que a injeção é estática
@@ -321,9 +333,9 @@ No ambiente real de Service Worker, são importados primeiro:
 
 Depois são importados:
 
-- <code>gtc-fingerprint.js</code>;
-- <code>gtc-indexeddb.js</code>;
-- <code>storage-manager.js</code>.
+- <code>shared/gtc-fingerprint.js</code>;
+- <code>shared/gtc-indexeddb.js</code>;
+- <code>shared/storage-manager.js</code>.
 
 ## 5.3 Fail-fast
 
@@ -532,7 +544,7 @@ Para um hit válido:
 
 Para misses:
 
-1. <code>content_manga.js</code> envia START_BATCH com um <code>batchId</code> próprio;
+1. <code>content/content_manga.js</code> envia START_BATCH com um <code>batchId</code> próprio;
 2. se não existe lote ativo, o background promove esse lote imediatamente;
 3. se já existe A ativo, B/C/D/E/F/G/... são aceitos em <code>pendingBatches</code> e preservados em ordem FIFO;
 4. o lote ativo mantém seus próprios <code>jobQueue</code>, contadores e resultados; a chegada de lotes posteriores não reescreve seu estado;
@@ -742,7 +754,7 @@ O banco:
 
 pertence à origem da extensão.
 
-O módulo <code>storage-manager.js</code> não deve ser injetado como content
+O módulo <code>shared/storage-manager.js</code> não deve ser injetado como content
 script.
 
 ## 9.2 Por que
@@ -887,7 +899,7 @@ Essa versão 4 é do schema do cache, não do MangaTranslator.
 
 ## 10.3 Algoritmos principais
 
-<code>gtc-fingerprint.js</code> implementa:
+<code>shared/gtc-fingerprint.js</code> implementa:
 
 - SHA/fingerprint determinístico;
 - dHash;
@@ -963,14 +975,14 @@ Código novo deve preferir a API correlacionada.
 
 ## 11.1 Composição
 
-A responsabilidade antes concentrada em <code>content_manga.js</code> já possui
+A responsabilidade antes concentrada em <code>content/content_manga.js</code> já possui
 módulos auxiliares:
 
-### cm-gtc-client.js
+### content/cm-gtc-client.js
 
 Responsável pela fronteira de cache/fingerprint.
 
-### cm-dom-replace.js
+### content/cm-dom-replace.js
 
 Responsável por:
 
@@ -979,7 +991,7 @@ Responsável por:
 - filtragem de backdrop;
 - substituição no DOM.
 
-### cm-chapter.js
+### content/cm-chapter.js
 
 Responsável por:
 
@@ -988,7 +1000,7 @@ Responsável por:
 - persistência de página;
 - escrita serializada por capítulo.
 
-### cm-auto-restore.js
+### content/cm-auto-restore.js
 
 Responsável por:
 
@@ -997,7 +1009,7 @@ Responsável por:
 - aplicação automática;
 - reação a mudanças no storage.
 
-### content_manga.js
+### content/content_manga.js
 
 Continua responsável por:
 
@@ -1035,7 +1047,7 @@ largura e a altura mínimas configuradas. Os valores padrão são **300 × 400 p
 preservando o comportamento das instalações existentes.
 
 Os limites são persistidos em `chrome.storage.local` nas chaves
-`imageMinWidth` e `imageMinHeight`. O `content_manga.js` os mantém em memória e
+`imageMinWidth` e `imageMinHeight`. O `content/content_manga.js` os mantém em memória e
 reage a mudanças no storage, portanto uma alteração feita no popup passa a
 valer para `GET_PAGE_IMAGES` e para a seleção do botão flutuante sem recarregar
 a página.
@@ -1136,7 +1148,7 @@ aba).
 
 ## 12.2 Bootstrap e Job Runner
 
-<code>content_gemini.js</code> contém apenas infraestrutura:
+<code>content/content_gemini.js</code> contém apenas infraestrutura:
 
 - claim;
 - keep-alive sob demanda;
@@ -1144,7 +1156,7 @@ aba).
 - handlers de runtime;
 - chamada de <code>jobRunner.run(job)</code>.
 
-<code>gemini/job-runner.js</code> coordena, nessa ordem:
+<code>content/gemini/job-runner.js</code> coordena, nessa ordem:
 
 1. recovery pendente de deletion;
 2. aquisição da imagem da aba do mangá;
@@ -1161,7 +1173,7 @@ aba).
 
 ## 12.3 Conversa temporária
 
-<code>gemini/temporary-chat.js</code> usa somente identificação semântica
+<code>content/gemini/temporary-chat.js</code> usa somente identificação semântica
 (texto, aria-label, test-id, estado e indicadores conhecidos), em português e
 inglês.
 
@@ -1175,7 +1187,7 @@ repetidamente.
 
 ## 12.4 Attachment
 
-<code>gemini/attachment.js</code> separa tentativa de confirmação. O runner espera editor editável, conectado e estável por até 12 s e renova os alvos entre métodos. A ordem é input de arquivo → drop → paste, com intervalo de 3,5 s e janela total de confirmação de 20 s.
+<code>content/gemini/attachment.js</code> separa tentativa de confirmação. O runner espera editor editável, conectado e estável por até 12 s e renova os alvos entre métodos. A ordem é input de arquivo → drop → paste, com intervalo de 3,5 s e janela total de confirmação de 20 s.
 
 O baseline exige evidência nova/alterada ligada ao composer/attachment UI. Um sinal parcial interrompe novos dispatches; confirmação exige preview carregada, dimensões naturais positivas e ausência de processamento pendente. Mensagens do usuário/modelo não confirmam anexo. Sem confirmação, <code>GEMINI_ATTACHMENT_NOT_CONFIRMED</code> bloqueia o prompt.
 
@@ -1183,8 +1195,8 @@ O runner não ativa fisicamente aba/janela para recuperar upload. O paste da ima
 
 ## 12.5 Editor e submit
 
-<code>gemini/editor.js</code> manipula o editor e o submit, enquanto
-<code>gemini/observer.js</code> é a fonte de verdade para confirmação.
+<code>content/gemini/editor.js</code> manipula o editor e o submit, enquanto
+<code>content/gemini/observer.js</code> é a fonte de verdade para confirmação.
 
 O pipeline não considera click, Enter ou CustomEvent como sucesso de envio.
 Cada um é apenas uma tentativa. O submit só é confirmado quando o Observer
@@ -1199,14 +1211,14 @@ O Observer é instalado antes do submit e mantém baseline de fontes e respostas
 
 O módulo atravessa Shadow DOM aberto, observa src/data-src/srcset e eventos de carga/erro e inspeciona a cada 1,25 s enquanto a tarefa está ativa. Blob/data de resultado precisam estar carregados. Sem autoria estrita, o fallback exige URL HTTPS de asset gerado do Google e geração observada; imagem órfã genérica não basta.
 
-Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa. <code>gemini/image-quarantine.js</code> também exclui imagens estruturalmente ligadas à entrada da seleção automática/manual e compara SHA-256 dos bytes antes da entrega. Igualdade exata produz <code>GEMINI_RESULT_MATCHES_INPUT</code>; similaridade perceptual não bloqueia resultados.
+Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa. <code>content/gemini/image-quarantine.js</code> também exclui imagens estruturalmente ligadas à entrada da seleção automática/manual e compara SHA-256 dos bytes antes da entrega. Igualdade exata produz <code>GEMINI_RESULT_MATCHES_INPUT</code>; similaridade perceptual não bloqueia resultados.
 
 ## 12.7 Resolução e extração
 
 Quando o resultado usa CDN do Google e o formato permite, a URL é elevada para
 <code>=s0</code> antes da extração.
 
-`gemini/result-extractor.js` utiliza:
+`content/gemini/result-extractor.js` utiliza:
 
 - Data URL: retorno direto;
 - Blob URL: fetch local + FileReader;
@@ -1220,7 +1232,7 @@ as rotas diretas o módulo aciona o fallback auxiliar por callback e registra
 
 ## 12.8 Deletion e recovery
 
-<code>gemini/deletion.js</code> concentra:
+<code>content/gemini/deletion.js</code> concentra:
 
 - lock idempotente de exclusão;
 - localização da conversa pelo chatId atual;
@@ -1256,7 +1268,7 @@ tokens e campos equivalentes não devem ser persistidos no log.
 
 ## 13.1 Papel de inject.js
 
-<code>inject.js</code> roda no mundo MAIN porque precisa atuar no mesmo contexto
+<code>content/inject.js</code> roda no mundo MAIN porque precisa atuar no mesmo contexto
 JavaScript da página para a ponte de prompt, submit e fetch autenticado.
 
 A guarda de isolamento exige uma aba marcada pelo MangaTranslator; uma aba
@@ -1310,7 +1322,7 @@ respostas concorrentes.
 
 # 14. Popup, opções, UI compartilhada e Reader
 
-## 14.1 popup.js
+## 14.1 popup/popup.js
 
 O popup concentra:
 
@@ -1357,7 +1369,7 @@ caixas de diálogo adicionais”** não bloqueia a operação. A preferência
 novamente** grava `false`. A operação também possui trava por `cleanUrl` para
 impedir duas purgas concorrentes por duplo clique.
 
-## 14.2 options.js
+## 14.2 options/options.js
 
 A página de opções concentra:
 
@@ -1371,7 +1383,7 @@ A página de opções concentra:
 - modo do Gemini, usando a mesma chave <code>geminiExecutionMode</code> do popup;
 - limpeza de entradas salvas.
 
-## 14.3 shared-ui.js
+## 14.3 shared/shared-ui.js
 
 Funções compartilhadas incluem:
 
@@ -1522,7 +1534,7 @@ Uso de <code>innerHTML</code> com conteúdo externo deve ser evitado.
 
 Tudo que roda em MAIN deve ser tratado como superfície sensível.
 
-A guarda de isolamento de <code>inject.js</code> é parte da fronteira de
+A guarda de isolamento de <code>content/inject.js</code> é parte da fronteira de
 segurança e estabilidade.
 
 ## 16.6 &lt;all_urls&gt;
@@ -1717,7 +1729,7 @@ Pisos globais:
 - functions: 80%;
 - lines: 78%.
 
-Arquivos críticos têm pisos próprios. Entre eles, `extension/gemini/job-runner.js` exige no mínimo 87% statements, 64% branches, 80% functions e 87% lines.
+Arquivos críticos têm pisos próprios. Entre eles, `extension/content/gemini/job-runner.js` exige no mínimo 87% statements, 64% branches, 80% functions e 87% lines.
 
 O verificador reprova, entre outros:
 
@@ -2241,23 +2253,23 @@ Cancela lote alvo.
 
 ## A.3 Página de mangá
 
-### cm-gtc-client.js
+### content/cm-gtc-client.js
 
 Cliente de cache/fingerprint.
 
-### cm-dom-replace.js
+### content/cm-dom-replace.js
 
 Descoberta e substituição de imagem.
 
-### cm-chapter.js
+### content/cm-chapter.js
 
 Persistência e identidade de capítulo.
 
-### cm-auto-restore.js
+### content/cm-auto-restore.js
 
 Restauração automática.
 
-### content_manga.js
+### content/content_manga.js
 
 Orquestrador e integração com UI/runtime.
 
@@ -2267,44 +2279,44 @@ Orquestrador e integração com UI/runtime.
 
 Script MAIN de anti-throttling progressivo e pontes com a página.
 
-### content_gemini.js
+### content/content_gemini.js
 
 Bootstrap leve: claim, keep-alive, wiring e handlers.
 
-### gemini/
+### content/gemini/
 
 Módulos de seletores/DOM, Observer V3, editor, Temporary Chat, attachment,
 extração de resultado, deletion/recovery e Job Runner.
 
 ## A.5 Persistência
 
-### storage-manager.js
+### shared/storage-manager.js
 
 Banco de páginas, restore e assets.
 
-### gtc-fingerprint.js
+### shared/gtc-fingerprint.js
 
 Algoritmos de fingerprint.
 
-### gtc-indexeddb.js
+### shared/gtc-indexeddb.js
 
 Repositório e handler do cache global.
 
 ## A.6 UI
 
-### popup.js
+### popup/popup.js
 
 Interface principal.
 
-### options.js
+### options/options.js
 
 Configuração completa.
 
-### shared-ui.js
+### shared/shared-ui.js
 
 Funções compartilhadas.
 
-### reader.js
+### reader/reader.js
 
 Leitor offline/lazy.
 

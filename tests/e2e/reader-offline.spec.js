@@ -110,7 +110,7 @@ async function seedReaderChapter(backgroundWorker, {
 
 async function getReaderUrl(backgroundWorker, chapterId) {
     return backgroundWorker.evaluate(async requestedChapterId => {
-        return `${chrome.runtime.getURL('reader.html')}?id=${encodeURIComponent(requestedChapterId)}`;
+        return `${chrome.runtime.getURL('reader/reader.html')}?id=${encodeURIComponent(requestedChapterId)}`;
     }, chapterId);
 }
 

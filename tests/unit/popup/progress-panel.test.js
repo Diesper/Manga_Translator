@@ -46,8 +46,8 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -99,8 +99,8 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -199,8 +199,8 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -273,8 +273,8 @@ describe('popup.js - Painel de Progresso Inline Real', () => {
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);

@@ -5,7 +5,7 @@ const { findRepoRoot } = require('../../helpers/repo-root');
 const ROOT = findRepoRoot(__dirname);
 
 const { getStorageMock, getRuntimeMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
-const SHARED_UI = path.join(ROOT, 'extension/shared-ui.js');
+const SHARED_UI = path.join(ROOT, 'extension/shared/shared-ui.js');
 
 function delay(ms = 0) {
     return new Promise(resolve => setTimeout(resolve, ms));

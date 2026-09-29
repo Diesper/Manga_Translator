@@ -8,8 +8,8 @@
 const assert = require('assert');
 require('fake-indexeddb/auto');
 
-const fp = require('../../extension/gtc-fingerprint.js');
-const gtcModule = require('../../extension/gtc-indexeddb.js');
+const fp = require('../../extension/shared/gtc-fingerprint.js');
+const gtcModule = require('../../extension/shared/gtc-indexeddb.js');
 
 async function run() {
     console.log('[smoke-05] 1. Inicializando repositório GTC...');

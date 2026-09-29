@@ -2,9 +2,9 @@
 
 const path = require('path');
 
-const SELECTORS_PATH = path.resolve(__dirname, '../../../extension/gemini/selectors.js');
-const DOM_PATH = path.resolve(__dirname, '../../../extension/gemini/dom.js');
-const OBSERVER_PATH = path.resolve(__dirname, '../../../extension/gemini/observer.js');
+const SELECTORS_PATH = path.resolve(__dirname, '../../../extension/content/gemini/selectors.js');
+const DOM_PATH = path.resolve(__dirname, '../../../extension/content/gemini/dom.js');
+const OBSERVER_PATH = path.resolve(__dirname, '../../../extension/content/gemini/observer.js');
 
 function loadObserver() {
   let observerApi;

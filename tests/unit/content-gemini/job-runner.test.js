@@ -4,15 +4,15 @@ const path = require('path');
 
 const RUNNER_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/job-runner.js'
+  '../../../extension/content/gemini/job-runner.js'
 );
 const SELECTORS_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/selectors.js'
+  '../../../extension/content/gemini/selectors.js'
 );
 const DOM_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/dom.js'
+  '../../../extension/content/gemini/dom.js'
 );
 
 function loadModule() {

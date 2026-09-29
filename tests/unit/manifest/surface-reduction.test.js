@@ -12,9 +12,9 @@ describe('manifest surface reduction', () => {
             .flatMap((entry) => entry.resources || []);
 
         expect(exposedResources).not.toEqual(expect.arrayContaining([
-            'inject.js',
-            'reader.html',
-            'reader.js',
+            'content/inject.js',
+            'reader/reader.html',
+            'reader/reader.js',
         ]));
     });
 

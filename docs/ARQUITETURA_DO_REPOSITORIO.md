@@ -138,4 +138,40 @@ A publicação continua empacotando somente `extension/` e copiando `docs/Docume
 - `working-directory: tests`, `cd tests` ou `npm --prefix tests`;
 - `findRoot` duplicado;
 - fallback em `process.cwd()` dentro dos testes;
-- ausência dos diretórios/configs canônicos.
+- ausência dos diretórios/configs canônicos;
+- reintrodução dos entrypoints planos removidos pelo bloco 0-G;
+- divergência entre Manifest, background, páginas internas e o layout canônico de `extension/`.
+
+
+## Layout interno da extensão
+
+O bloco 0-G organiza a distribuição sem alterar os entrypoints estáveis do pacote:
+
+```text
+extension/
+├── manifest.json
+├── background.js
+├── background/
+├── content/
+│   ├── content_manga.js
+│   ├── cm-gtc-client.js
+│   ├── cm-dom-replace.js
+│   ├── cm-chapter.js
+│   ├── cm-auto-restore.js
+│   ├── content_gemini.js
+│   ├── inject.js
+│   └── gemini/
+├── shared/
+│   ├── gtc-fingerprint.js
+│   ├── gtc-indexeddb.js
+│   ├── storage-manager.js
+│   └── shared-ui.js
+├── popup/
+├── options/
+└── reader/
+```
+
+`extension/`, `extension/manifest.json`, `extension/background.js` e
+`extension/background/` continuam estáveis. Mover arquivos entre os demais
+subdiretórios exige atualizar Manifest, importScripts/require, HTML,
+`chrome.runtime.getURL`, testes e thresholds no mesmo commit.

@@ -38,6 +38,22 @@ for (const required of [
   'jest.config.js',
   'playwright.config.js',
   'extension/manifest.json',
+  'extension/background.js',
+  'extension/background',
+  'extension/content/content_manga.js',
+  'extension/content/content_gemini.js',
+  'extension/content/inject.js',
+  'extension/content/gemini/job-runner.js',
+  'extension/shared/gtc-fingerprint.js',
+  'extension/shared/gtc-indexeddb.js',
+  'extension/shared/storage-manager.js',
+  'extension/shared/shared-ui.js',
+  'extension/popup/popup.html',
+  'extension/popup/popup.js',
+  'extension/options/options.html',
+  'extension/options/options.js',
+  'extension/reader/reader.html',
+  'extension/reader/reader.js',
   'tests/unit',
   'tests/integration',
   'tests/smoke',
@@ -58,6 +74,24 @@ for (const required of [
 ]) requirePresent(required);
 
 for (const forbidden of [
+  'extension/content_manga.js',
+  'extension/content_gemini.js',
+  'extension/inject.js',
+  'extension/cm-gtc-client.js',
+  'extension/cm-dom-replace.js',
+  'extension/cm-chapter.js',
+  'extension/cm-auto-restore.js',
+  'extension/gemini',
+  'extension/gtc-fingerprint.js',
+  'extension/gtc-indexeddb.js',
+  'extension/storage-manager.js',
+  'extension/shared-ui.js',
+  'extension/popup.html',
+  'extension/popup.js',
+  'extension/options.html',
+  'extension/options.js',
+  'extension/reader.html',
+  'extension/reader.js',
   'tests/package.json',
   'tests/package-lock.json',
   'tests/jest.config.js',
@@ -76,6 +110,98 @@ for (const forbidden of [
   'projeto.md',
   'status.md',
 ]) requireAbsent(forbidden);
+
+
+// Contrato interno do bloco 0-G: paths de runtime precisam permanecer alinhados.
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'extension/manifest.json'), 'utf8'));
+const expectedContentScripts = [
+  [
+    'shared/gtc-fingerprint.js',
+    'content/cm-gtc-client.js',
+    'content/cm-dom-replace.js',
+    'content/cm-chapter.js',
+    'content/cm-auto-restore.js',
+    'content/content_manga.js',
+  ],
+  ['content/inject.js'],
+  [
+    'content/gemini/selectors.js',
+    'content/gemini/dom.js',
+    'content/gemini/image-quarantine.js',
+    'content/gemini/observer.js',
+    'content/gemini/editor.js',
+    'content/gemini/attachment.js',
+    'content/gemini/temporary-chat.js',
+    'content/gemini/result-extractor.js',
+    'content/gemini/deletion.js',
+    'content/gemini/job-runner.js',
+    'content/content_gemini.js',
+  ],
+];
+if (manifest.action?.default_popup !== 'popup/popup.html') {
+  problems.push('manifest action.default_popup precisa apontar para popup/popup.html');
+}
+if (manifest.options_ui?.page !== 'options/options.html') {
+  problems.push('manifest options_ui.page precisa apontar para options/options.html');
+}
+if (manifest.background?.service_worker !== 'background.js') {
+  problems.push('manifest background.service_worker precisa permanecer em background.js');
+}
+const actualContentScripts = (manifest.content_scripts || []).map(entry => entry.js || []);
+if (JSON.stringify(actualContentScripts) !== JSON.stringify(expectedContentScripts)) {
+  problems.push('manifest content_scripts não corresponde ao layout canônico do bloco 0-G');
+}
+
+const backgroundSource = fs.readFileSync(path.join(root, 'extension/background.js'), 'utf8');
+for (const requiredMarker of [
+  "importScripts('shared/gtc-fingerprint.js')",
+  "importScripts('shared/gtc-indexeddb.js')",
+  "importScripts('shared/storage-manager.js')",
+  "require('./shared/gtc-indexeddb.js')",
+  "require('./shared/storage-manager.js')",
+]) {
+  if (!backgroundSource.includes(requiredMarker)) {
+    problems.push('background.js não contém referência canônica: ' + requiredMarker);
+  }
+}
+for (const legacyMarker of [
+  "importScripts('gtc-fingerprint.js')",
+  "importScripts('gtc-indexeddb.js')",
+  "importScripts('storage-manager.js')",
+  "require('./gtc-indexeddb.js')",
+  "require('./storage-manager.js')",
+]) {
+  if (backgroundSource.includes(legacyMarker)) {
+    problems.push('background.js ainda contém referência plana antiga: ' + legacyMarker);
+  }
+}
+
+const pageContracts = [
+  ['extension/popup/popup.html', '../shared/shared-ui.js', 'popup.js'],
+  ['extension/options/options.html', '../shared/shared-ui.js', 'options.js'],
+  ['extension/reader/reader.html', '../shared/shared-ui.js', 'reader.js'],
+];
+for (const [page, sharedSrc, ownSrc] of pageContracts) {
+  const html = fs.readFileSync(path.join(root, page), 'utf8');
+  if (!html.includes(`<script src="${sharedSrc}"></script>`)) {
+    problems.push(page + ' precisa carregar ' + sharedSrc);
+  }
+  if (!html.includes(`<script src="${ownSrc}"></script>`)) {
+    problems.push(page + ' precisa carregar ' + ownSrc);
+  }
+}
+const popupSource = fs.readFileSync(path.join(root, 'extension/popup/popup.js'), 'utf8');
+if (!popupSource.includes('reader/reader.html?id=')) {
+  problems.push('popup/popup.js precisa abrir reader/reader.html');
+}
+
+const extensionRootFiles = fs.readdirSync(path.join(root, 'extension'), { withFileTypes: true })
+  .filter(entry => entry.isFile())
+  .map(entry => entry.name)
+  .sort();
+if (JSON.stringify(extensionRootFiles) !== JSON.stringify(['background.js', 'manifest.json'])) {
+  problems.push('a raiz de extension/ deve conter somente background.js e manifest.json: ' + extensionRootFiles.join(', '));
+}
 
 const tracked = walk(root, { ignore: new Set(['.git', 'node_modules', 'coverage', 'playwright-report', 'test-results', 'dist', 'build', '.ci-results', 'blob-report', 'all-blob-reports']) });
 const packageJsons = tracked.filter((file) => path.basename(file) === 'package.json').map(rel);

@@ -18,7 +18,7 @@ global.chrome = {
     }
 };
 
-const storageManagerApi = require('../../extension/storage-manager.js');
+const storageManagerApi = require('../../extension/shared/storage-manager.js');
 
 // Simulação fiel do handler de roteamento do background.js
 function handleStorageManagerMessage(request, sender, sendResponse) {

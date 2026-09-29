@@ -3,7 +3,7 @@
 // Testes completos para gtc-fingerprint.js visual-v3
 
 globalThis.self = globalThis;
-require('../../extension/gtc-fingerprint.js');
+require('../../extension/shared/gtc-fingerprint.js');
 
 const { describe, it, ita, beforeEach, expect } = require('./runner.js');
 const { solidColor, horizontalGradient, checkerboard, mangaPage,

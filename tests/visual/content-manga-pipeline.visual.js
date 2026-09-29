@@ -21,8 +21,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 globalThis.self = globalThis;
-require('../../extension/gtc-fingerprint.js');
-require('../../extension/gtc-indexeddb.js');
+require('../../extension/shared/gtc-fingerprint.js');
+require('../../extension/shared/gtc-indexeddb.js');
 
 const { describe, it, ita, beforeEach, expect } = require('./runner.js');
 const { solidColor, horizontalGradient, checkerboard, mangaPage, noise, brightnessShifted, isValidHex } = require('./helpers.js');

@@ -4,11 +4,11 @@ const path = require('path');
 
 const MODULE_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/image-quarantine.js'
+  '../../../extension/content/gemini/image-quarantine.js'
 );
 const DOM_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/dom.js'
+  '../../../extension/content/gemini/dom.js'
 );
 
 function loadQuarantine({ perceptualEvaluator = null } = {}) {

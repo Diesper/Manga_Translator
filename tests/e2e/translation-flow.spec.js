@@ -62,7 +62,7 @@ async function getBackgroundWorker(context) {
         const workerPromise = context.waitForEvent('serviceworker', { timeout: 15000 })
             .catch(() => null);
         wakePage = await context.newPage();
-        await wakePage.goto(`chrome-extension://${extensionId}/popup.html`, {
+        await wakePage.goto(`chrome-extension://${extensionId}/popup/popup.html`, {
             waitUntil: 'domcontentloaded',
             timeout: 10000,
         });

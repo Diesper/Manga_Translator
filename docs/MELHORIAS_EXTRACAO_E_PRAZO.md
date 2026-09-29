@@ -12,7 +12,7 @@ A mudança importa apenas as duas melhorias recomendadas. Ela não substitui o r
 
 ## 2. Extração autenticada
 
-Arquivo: `gemini/result-extractor.js`.
+Arquivo: `content/gemini/result-extractor.js`.
 
 Para uma URL HTTPS cujo host é `googleusercontent.com` ou seu subdomínio e cujo caminho contém `/gg-dl/` ou `/rd-gg-dl/`, a ordem passa a ser:
 
@@ -57,8 +57,8 @@ No tratamento de timeout, `finalizeJob(...)` agora é aguardado antes da continu
 | `background/router.js` | Mapeia apenas `REFRESH_JOB_WATCHDOG`; não adiciona ações de ativação. |
 | `background/actions/refresh-job-watchdog.js` | Novo arquivo, transplantado da referência: valida tarefa/aba e rearma seu watchdog. |
 | `background/jobs-watchdog.js` | Acrescenta `await` na finalização por timeout. |
-| `gemini/job-runner.js` | Solicita renovação no início observado da geração e registra solicitação, confirmação ou falha com modo e prefixo da tarefa. |
-| `gemini/result-extractor.js` | Reordena apenas a cadeia dos assets gerados reconhecidos do Google. |
+| `content/gemini/job-runner.js` | Solicita renovação no início observado da geração e registra solicitação, confirmação ou falha com modo e prefixo da tarefa. |
+| `content/gemini/result-extractor.js` | Reordena apenas a cadeia dos assets gerados reconhecidos do Google. |
 
 Na rodada aqui documentada foram cinco arquivos existentes e um novo em relação à versão aprovada. A quarentena posterior altera esse inventário e a ordem de scripts do manifest, sem mudar nome, permissões ou versão do produto. Consulte `DOCUMENTACAO_VERSAO_FUNCIONAL.md` para o mapa consolidado atual.
 

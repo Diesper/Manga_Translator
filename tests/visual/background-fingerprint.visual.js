@@ -14,7 +14,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 globalThis.self = globalThis;
-require('../../extension/gtc-fingerprint.js');
+require('../../extension/shared/gtc-fingerprint.js');
 
 const { describe, it, ita, beforeEach, expect } = require('./runner.js');
 const { solidColor, horizontalGradient, checkerboard, mangaPage, noise, brightnessShifted, isValidHex } = require('./helpers.js');
@@ -385,7 +385,7 @@ describe('CALCULATE_VISUAL_FINGERPRINT — consistência SW ↔ content script',
 // ─────────────────────────────────────────────────────────────────────────────
 describe('Integração SW fingerprint → IndexedDB → lookup perceptual', () => {
 
-    require('../../extension/gtc-indexeddb.js');
+    require('../../extension/shared/gtc-indexeddb.js');
     const idb = globalThis.MangaTranslatorGtcIndexedDb;
 
     ita('pipeline completo: calcular → salvar → buscar cross-language', async () => {

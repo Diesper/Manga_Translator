@@ -91,7 +91,7 @@ A execução desta branch segue uma exceção operacional solicitada pelo manten
 | D2 prompt interativo E2E | runner interativo removido; `MANGA_E2E_BROWSER_MODE` continua consumido pelos specs |
 | D3 `Documentação.md` | mantido com nome/caminho estável |
 | D4 PNGs | arquivos versionados removidos; `tests/fixtures/manga-images.js` é a fonte única, compartilhada pelo servidor e pelo materializador |
-| D5 layout interno da extensão | **não executado** nesta rodada; exige baseline automatizada completa |
+| D5 layout interno da extensão | **executado no bloco 0-G** após confirmação de baseline completa verde |
 | D6 JSON de dados | movidos para `scripts/ci/data/` |
 | D7 benchmark temporário | arquivado em `docs/historico/` |
 
@@ -105,16 +105,32 @@ A execução desta branch segue uma exceção operacional solicitada pelo manten
 - C25–C26: estrutura de unit/integration/helpers/mocks preservada.
 - C27: runner visual preserva o formato de resumo e ganhou nomes de arquivo neutros.
 - C29–C34: Playwright e fixtures apontam para a raiz; plano de cinco grupos e workers permanece em dados canônicos.
-- C35–C38: manifest/entrypoints da extensão não foram movidos.
+- C35–C38: `extension/manifest.json` e `extension/background.js` permaneceram estáveis; Manifest, content scripts e páginas internas foram atualizados atomicamente para o novo layout 0-G.
 - C39–C41: launchers removidos, `.gitignore` ampliado, documentação atualizada.
 
 ## Bloco 0-G — extensão
 
-Não executado. A tarefa original exige baseline integral verde antes de reorganizar internamente `extension/`. Como esta execução foi explicitamente feita sem rodar testes automatizados, mover os entrypoints da extensão nesta mesma rodada violaria essa condição de segurança.
+Executado após a confirmação do mantenedor de que a baseline completa estava verde.
+
+Migração aplicada sem divisão de arquivos e sem alteração deliberada de lógica funcional:
+
+- `extension/background.js`, `extension/background/` e `extension/manifest.json` permanecem estáveis;
+- content scripts de mangá/Gemini foram agrupados em `extension/content/`;
+- módulos Gemini foram movidos para `extension/content/gemini/`;
+- GTC, storage e UI compartilhada foram agrupados em `extension/shared/`;
+- popup, options e reader receberam diretórios próprios;
+- Manifest, importScripts/require, HTML, runtime.getURL, testes, coverage e documentação foram atualizados no mesmo bloco;
+- os caminhos planos antigos passam a ser proibidos pelo gate estrutural.
+
+A validação automatizada pós-migração continua delegada à GitHub Actions, conforme a política desta execução.
 
 ## Validação delegada à CI
 
-Baselines que **não foram re-medidas localmente nesta branch**:
+A baseline completa anterior ao bloco 0-G foi confirmada verde pelo mantenedor.
+Após a migração 0-G, nenhuma suíte foi executada localmente pelo agente; a
+validação pós-movimento permanece delegada à GitHub Actions.
+
+Baselines protegidas:
 
 - Jest: mínimo 108 suítes / 848 testes; 0 skipped; 0 todo.
 - Visual: mínimo 224.
@@ -122,7 +138,7 @@ Baselines que **não foram re-medidas localmente nesta branch**:
 - Smoke: mínimo 6 arquivos.
 - Coverage: mínimo 56 arquivos + thresholds globais/críticos.
 
-A CI deve validar o comportamento após a reestruturação. Falha vermelha deve ser tratada como informação de integração, não como motivo para restaurar a duplicação estrutural removida.
+A CI deve validar o comportamento após o 0-G. Falha vermelha deve ser tratada como informação de integração a corrigir nos novos caminhos, não como motivo para restaurar a duplicação estrutural ou o layout plano removido.
 
 ## Rollback
 

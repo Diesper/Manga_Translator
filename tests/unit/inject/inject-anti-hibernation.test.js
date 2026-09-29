@@ -23,7 +23,7 @@ const path = require('path');
 describe('INJ-01/INJ-02/INJ-03/INJ-04/INJ-05/INJ-06/INJ-07/INJ-08/INJ-09/INJ-10/INJ-11/INJ-12/INJ-13/INJ-14/INJ-15/INJ-16/INJ-17: inject.js — Sistema Anti-Hibernação (Cobertura Completa)', () => {
 
     test('a ativação exige o marcador explícito, inclusive em localhost', () => {
-        const source = fs.readFileSync(path.resolve(__dirname, '../../../extension/inject.js'), 'utf8');
+        const source = fs.readFileSync(path.resolve(__dirname, '../../../extension/content/inject.js'), 'utf8');
         expect(source).toContain('if (!isTranslatorTab) {');
         expect(source).not.toContain("hostname.includes('127.0.0.1')");
     });
@@ -208,7 +208,7 @@ describe('INJ-01/INJ-02/INJ-03/INJ-04/INJ-05/INJ-06/INJ-07/INJ-08/INJ-09/INJ-10/
     describe('Política progressiva minimal/balanced/legacy', () => {
         test('source define os três níveis e inicia em minimal', () => {
             const source = fs.readFileSync(
-                path.resolve(__dirname, '../../../extension/inject.js'),
+                path.resolve(__dirname, '../../../extension/content/inject.js'),
                 'utf8'
             );
 
@@ -219,7 +219,7 @@ describe('INJ-01/INJ-02/INJ-03/INJ-04/INJ-05/INJ-06/INJ-07/INJ-08/INJ-09/INJ-10/
 
         test('minimal não mantém intervalo periódico de foco', () => {
             const source = fs.readFileSync(
-                path.resolve(__dirname, '../../../extension/inject.js'),
+                path.resolve(__dirname, '../../../extension/content/inject.js'),
                 'utf8'
             );
 
@@ -231,7 +231,7 @@ describe('INJ-01/INJ-02/INJ-03/INJ-04/INJ-05/INJ-06/INJ-07/INJ-08/INJ-09/INJ-10/
 
         test('mousemove aleatório foi removido do anti-throttling', () => {
             const source = fs.readFileSync(
-                path.resolve(__dirname, '../../../extension/inject.js'),
+                path.resolve(__dirname, '../../../extension/content/inject.js'),
                 'utf8'
             );
 
@@ -242,7 +242,7 @@ describe('INJ-01/INJ-02/INJ-03/INJ-04/INJ-05/INJ-06/INJ-07/INJ-08/INJ-09/INJ-10/
 
         test('cadência do rAF diminui no baseline e escala progressivamente', () => {
             const source = fs.readFileSync(
-                path.resolve(__dirname, '../../../extension/inject.js'),
+                path.resolve(__dirname, '../../../extension/content/inject.js'),
                 'utf8'
             );
 

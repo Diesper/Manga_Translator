@@ -5,7 +5,7 @@ const {
     createIndexedDbRepository,
     createGtcRuntimeHandler,
     normalizeHash,
-} = require('../../../extension/gtc-indexeddb.js');
+} = require('../../../extension/shared/gtc-indexeddb.js');
 
 function uniqueDbName(prefix) {
     return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;

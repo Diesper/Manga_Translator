@@ -32,7 +32,7 @@ function createFixture({
   const coverage = path.join(root, 'tests', 'coverage');
   const baseline = path.join(root, 'tests', 'ci', 'test-baseline.json');
   const critical = 'extension/background.js';
-  const other = 'extension/content_manga.js';
+  const other = 'extension/content/content_manga.js';
 
   writeFile(path.join(root, critical), 'module.exports = 1;\n');
   writeFile(path.join(root, other), 'module.exports = 2;\n');

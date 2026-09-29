@@ -19,12 +19,12 @@ const { findRepoRoot } = require('./repo-root');
 const ROOT = findRepoRoot(__dirname);
 
 
-const GTC_FINGERPRINT_PATH = path.join(ROOT, 'extension/gtc-fingerprint.js');
-const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/cm-gtc-client.js');
-const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/cm-dom-replace.js');
-const CM_CHAPTER_PATH = path.join(ROOT, 'extension/cm-chapter.js');
-const CM_AUTO_RESTORE_PATH = path.join(ROOT, 'extension/cm-auto-restore.js');
-const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content_manga.js');
+const GTC_FINGERPRINT_PATH = path.join(ROOT, 'extension/shared/gtc-fingerprint.js');
+const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/content/cm-gtc-client.js');
+const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/content/cm-dom-replace.js');
+const CM_CHAPTER_PATH = path.join(ROOT, 'extension/content/cm-chapter.js');
+const CM_AUTO_RESTORE_PATH = path.join(ROOT, 'extension/content/cm-auto-restore.js');
+const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js');
 
 /**
  * Carrega o content script em ambiente JSDOM com estado controlado.

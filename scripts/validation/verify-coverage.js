@@ -5,10 +5,10 @@ const path = require('path');
 
 const DEFAULT_CRITICAL_FILES = [
   'extension/background.js',
-  'extension/content_manga.js',
-  'extension/content_gemini.js',
-  'extension/shared-ui.js',
-  'extension/gemini/job-runner.js',
+  'extension/content/content_manga.js',
+  'extension/content/content_gemini.js',
+  'extension/shared/shared-ui.js',
+  'extension/content/gemini/job-runner.js',
 ];
 
 function walkJs(dir) {

@@ -2,9 +2,9 @@
 
 const path = require('path');
 
-const SELECTORS_PATH = path.resolve(__dirname, '../../../extension/gemini/selectors.js');
-const DOM_PATH = path.resolve(__dirname, '../../../extension/gemini/dom.js');
-const ATTACHMENT_PATH = path.resolve(__dirname, '../../../extension/gemini/attachment.js');
+const SELECTORS_PATH = path.resolve(__dirname, '../../../extension/content/gemini/selectors.js');
+const DOM_PATH = path.resolve(__dirname, '../../../extension/content/gemini/dom.js');
+const ATTACHMENT_PATH = path.resolve(__dirname, '../../../extension/content/gemini/attachment.js');
 
 function installDataTransferMock() {
   class MockDataTransfer {

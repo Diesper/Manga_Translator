@@ -12,9 +12,9 @@ Object.defineProperty(global, 'crypto', {
 });
 global.TextEncoder = TextEncoder;
 
-const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content_manga.js');
-const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/cm-gtc-client.js');
-const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/cm-dom-replace.js');
+const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js');
+const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/content/cm-gtc-client.js');
+const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/content/cm-dom-replace.js');
 const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));
 const { getRuntimeMock, getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
 

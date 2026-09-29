@@ -42,12 +42,16 @@ A raiz do repositório é o **único projeto Node/npm oficial**. Não existe um 
 ├── playwright.config.js
 ├── README.md
 ├── LICENSE
-├── extension/
-│   ├── manifest.json
-│   ├── background.js
-│   ├── background/
-│   ├── gemini/
-│   └── ...
+├── extension/                 # Código distribuído da extensão MV3
+│   ├── manifest.json          # Mantido na raiz da extensão
+│   ├── background.js          # Service Worker entrypoint estável
+│   ├── background/            # Estado, lifecycle, actions e router
+│   ├── content/               # Content scripts de mangá + Gemini
+│   │   └── gemini/            # Módulos do pipeline Gemini
+│   ├── shared/                # GTC, storage e UI compartilhada
+│   ├── popup/                 # popup.html + popup.js
+│   ├── options/               # options.html + options.js
+│   └── reader/                # reader.html + reader.js
 ├── tests/
 │   ├── unit/
 │   ├── integration/
@@ -146,9 +150,9 @@ A extensão continua com os mesmos entrypoints MV3. Esta reestruturação muda *
 Principais áreas:
 
 - `extension/background.js` + `extension/background/`: Service Worker, estado, lifecycle, watchdog e actions.
-- `extension/content_manga.js` + `extension/cm-*.js`: descoberta/aplicação de imagens.
-- `extension/content_gemini.js` + `extension/gemini/`: automação do Gemini.
-- `extension/gtc-*.js` e `extension/storage-manager.js`: cache/persistência.
+- `extension/content/content_manga.js` + `extension/cm-*.js`: descoberta/aplicação de imagens.
+- `extension/content/content_gemini.js` + `extension/content/gemini/`: automação do Gemini.
+- `extension/gtc-*.js` e `extension/shared/storage-manager.js`: cache/persistência.
 - popup, opções, reader e UI compartilhada.
 
 ## Documentação

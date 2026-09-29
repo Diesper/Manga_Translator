@@ -17,7 +17,7 @@ A comparação exata detecta o mesmo payload, inclusive quando apenas o MIME da 
 
 ## Integração
 
-`gemini/image-quarantine.js` é carregado depois de `gemini/dom.js` e antes do Observer. O módulo expõe:
+`content/gemini/image-quarantine.js` é carregado depois de `content/gemini/dom.js` e antes do Observer. O módulo expõe:
 
 - `classifyStructuralInput(element)`: retorna `attachment_preview`, `composer`, `user_turn` ou `null`;
 - `isStructurallyInput(element)`: forma booleana usada pelo runner;

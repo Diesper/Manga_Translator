@@ -8,8 +8,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 globalThis.self = globalThis;
-require('../../extension/gtc-fingerprint.js');
-require('../../extension/gtc-indexeddb.js');
+require('../../extension/shared/gtc-fingerprint.js');
+require('../../extension/shared/gtc-indexeddb.js');
 
 const { describe, it, ita, beforeEach, expect } = require('./runner.js');
 const fp  = globalThis.MangaTranslatorGtcFingerprint;
