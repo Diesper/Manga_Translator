@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { loadFiles: loadBibleSourceFiles } = require('../docs/bible/project-files');
 
 const root = path.resolve(__dirname, '../..');
 const problems = [];
@@ -70,26 +69,80 @@ for (const required of [
   'scripts/validation/verify-ci-contract.js',
   'scripts/release/sync-version.js',
   'docs/Documentação.md',
-  'docs/Bíblia.md',
+  'docs/biblia/STATUS.md',
+  'docs/biblia/CHECKLIST.md',
 ]) requirePresent(required);
 
-const docsFiles = walk(path.join(root, 'docs')).map(rel).sort();
-const expectedDocsFiles = ['docs/Bíblia.md', 'docs/Documentação.md'].sort();
-if (JSON.stringify(docsFiles) !== JSON.stringify(expectedDocsFiles)) {
-  problems.push('docs/ deve conter somente docs/Documentação.md e docs/Bíblia.md; encontrados: ' + docsFiles.join(', '));
+const docsRootEntries = fs.readdirSync(path.join(root, 'docs'), { withFileTypes: true })
+  .map(entry => entry.name)
+  .sort();
+const expectedDocsRootEntries = ['Documentação.md', 'biblia'].sort();
+if (JSON.stringify(docsRootEntries) !== JSON.stringify(expectedDocsRootEntries)) {
+  problems.push(
+    'docs/ deve conter somente Documentação.md e o diretório biblia/; encontrados: '
+    + docsRootEntries.join(', ')
+  );
 }
 
-if (exists('docs/Bíblia.md')) {
-  const projectCodeLines = loadBibleSourceFiles()
-    .reduce((sum, file) => sum + file.lines.length, 0);
-  const bibleLines = fs.readFileSync(path.join(root, 'docs/Bíblia.md'), 'utf8')
-    .replace(/\r\n/g, '\n')
-    .split('\n').length;
-  if (bibleLines <= projectCodeLines) {
+requireAbsent('docs/Bíblia.md');
+
+const bibleRoot = path.join(root, 'docs', 'biblia');
+if (fs.existsSync(bibleRoot)) {
+  const bibleFiles = walk(bibleRoot).map(rel).sort();
+  const allowedControlFiles = new Set([
+    'docs/biblia/STATUS.md',
+    'docs/biblia/CHECKLIST.md',
+  ]);
+  const unexpectedBibleFiles = bibleFiles.filter(file =>
+    !allowedControlFiles.has(file) && !file.endsWith('/Bíblia.md')
+  );
+  if (unexpectedBibleFiles.length) {
     problems.push(
-      'docs/Bíblia.md precisa ter mais linhas que o corpus documentado; Bíblia=' 
-      + bibleLines + ', corpus=' + projectCodeLines
+      'docs/biblia/ só pode conter STATUS.md, CHECKLIST.md e Bíblias individuais; inesperados: '
+      + unexpectedBibleFiles.join(', ')
     );
+  }
+
+  const statusSource = fs.readFileSync(path.join(bibleRoot, 'STATUS.md'), 'utf8');
+  const checklistSource = fs.readFileSync(path.join(bibleRoot, 'CHECKLIST.md'), 'utf8');
+  const completedFromStatus = new Set(
+    [...statusSource.matchAll(/\|\s*\d+\s*\|\s*✅ CONCLUÍDO\s*\|\s*`([^`]+)`/g)]
+      .map(match => match[1])
+  );
+  const inProgress = [...statusSource.matchAll(
+    /\|\s*\d+\s*\|\s*🟠 EM ANDAMENTO\s*\|\s*`([^`]+)`/g
+  )].map(match => match[1]);
+  if (inProgress.length !== 1) {
+    problems.push(
+      'docs/biblia/STATUS.md precisa ter exatamente um arquivo EM ANDAMENTO; encontrados: '
+      + inProgress.length
+    );
+  }
+
+  const completedFromChecklist = new Set(
+    [...checklistSource.matchAll(/^- \[x\]\s+\d+\s+—\s+`([^`]+)`/gm)]
+      .map(match => match[1])
+  );
+  const sortedStatusDone = [...completedFromStatus].sort();
+  const sortedChecklistDone = [...completedFromChecklist].sort();
+  if (JSON.stringify(sortedStatusDone) !== JSON.stringify(sortedChecklistDone)) {
+    problems.push('STATUS.md e CHECKLIST.md divergem sobre quais Bíblias estão concluídas');
+  }
+
+  for (const sourcePath of completedFromStatus) {
+    const expectedBible = 'docs/biblia/' + sourcePath + '/Bíblia.md';
+    if (!exists(expectedBible)) {
+      problems.push('arquivo marcado CONCLUÍDO sem Bíblia individual: ' + sourcePath);
+    }
+  }
+
+  const individualBibles = bibleFiles.filter(file => file.endsWith('/Bíblia.md'));
+  for (const bibleFile of individualBibles) {
+    const sourcePath = bibleFile
+      .slice('docs/biblia/'.length, -'/Bíblia.md'.length);
+    if (!completedFromStatus.has(sourcePath)) {
+      problems.push('Bíblia individual existe sem estado CONCLUÍDO no STATUS.md: ' + sourcePath);
+    }
   }
 }
 
