@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/inject.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `21f7f6cf9c940a6de6e4fd72d4bf7eeb88e7a27c`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript — content script Chromium MV3 em `world: MAIN`  
@@ -4874,5 +4874,5 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 - [x] Divergências de testes desatualizados registradas.
 - [x] Segurança, lifecycle, scheduling e trust boundaries analisados.
 - [x] Lacunas e invariantes explícitos.
-- [ ] Releitura do blob gravado e validação mecânica final.
-- [ ] Conclusão atômica em STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.
+- [x] Releitura do blob gravado e validação mecânica final.
+- [x] Conclusão atômica em STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.
