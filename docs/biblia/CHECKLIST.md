@@ -26,8 +26,8 @@
 - [x] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 009 — `extension/background/actions/deliver-result.js` → `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 010 — `extension/background/actions/download-chapter.js` → `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 011 — `extension/background/actions/download-image.js` → `docs/biblia/extension/background/actions/download-image.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
-- [ ] 012 — `extension/background/actions/export-all.js` → `docs/biblia/extension/background/actions/export-all.js/Bíblia.md`
+- [x] 011 — `extension/background/actions/download-image.js` → `docs/biblia/extension/background/actions/download-image.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 012 — `extension/background/actions/export-all.js` → `docs/biblia/extension/background/actions/export-all.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
 - [ ] 013 — `extension/background/actions/fetch-image-base64.js` → `docs/biblia/extension/background/actions/fetch-image-base64.js/Bíblia.md`
 - [ ] 014 — `extension/background/actions/force-send-activation.js` → `docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md`
 - [ ] 015 — `extension/background/actions/get-tab-id.js` → `docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md`
