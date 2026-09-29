@@ -77,8 +77,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 30 | `extension/background/log.js` | SHA `86d5f2f1229b...` conferido; bloco integral exato | 30 linhas + newline final = 31/31 posições | módulo não carregado no runtime atual; implementação inline equivalente/testes separados; risco de drift explícito | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 31 | `extension/background/router.js` | SHA `d9278e9e58e4...` conferido; bloco integral exato | 168 linhas + newline final = 169/169 posições | aliases/source/gates/sync/async provados; risco substring URL e lacunas explícitos | 15 unidades específicas + papel local por posição | ✅ APROVADO |
 | 32 | `extension/background/state.js` | SHA `7570b545d5e9...` conferido; bloco integral exato | 267 linhas + newline final = 268/268 posições | API ativa/exports legados separados; patch/restore/sync diretos; mutate/tab replacement parcialmente provados; gaps explícitos | 17 unidades específicas + papel local por posição | ✅ APROVADO |
+| 33 | `extension/background/tab-identity.js` | SHA `008c9a054ae4...` conferido; bloco integral exato | 362 linhas + newline final = 363/363 posições | alias/cycle/TTL/journal/recovery/state+alarm migration provados; concorrência/journal por jobId como gaps | 18 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `tab-identity.js` — criação e auditoria em 2026-09-29
+
+- migração completa de job/watchdog/recovery/finalization marker/state/alarms ligada ao TAB-01;
+- cadeia, ciclo, TTL/cleanup, recovery idempotente e integração reconciler/lifecycle ligados às assertions reais;
+- conflito de job, max hops, fallbacks de alarm/state e concorrência dos índices mantidos como lacunas;
+- risco de reutilização de migration journal por `jobId` em rekeys sucessivos explicitado;
+- SHA e 363/363 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `state.js` — criação e auditoria em 2026-09-29
 
