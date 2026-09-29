@@ -72,8 +72,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 25 | `extension/background/actions/stop-batch.js` | SHA `e552d0a91109...` conferido; bloco integral exato | 18 linhas + newline final = 19/19 posições | validator/delegação diretos; cleanup/FIFO/orchestrator separados; ausência de sender ownership explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 26 | `extension/background/jobs-dom-ack.js` | SHA `07b4197a206f...` conferido; bloco integral exato | 89 linhas + newline final = 90/90 posições | ACK/staging/timeout/runtime error provados; simulação smoke separada; riscos de ACK permissivo/ordenação explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 | 27 | `extension/background/jobs-lifecycle.js` | SHA `e4ab9f6c5472...` conferido; bloco integral exato | 746 linhas + newline final = 747/747 posições | scheduler/FIFO/recovery/finalização/tab identity cobertos; integrações e lacunas separadas | 21 unidades específicas + rastreabilidade integral | ✅ APROVADO |
+| 28 | `extension/background/jobs-reconciliation.js` | SHA `f0f2370ba6b7...` conferido; bloco integral exato | 111 linhas + newline final = 112/112 posições | canonicalização/recovery/foreign/drop provados; smoke simulado separado; gap de sync vazio explícito | 12 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `jobs-reconciliation.js` — criação e auditoria em 2026-09-29
+
+- drop de job foreign e preservação do batch atual ligados ao teste direto;
+- canonicalização antes de tabExists ligada ao TAB-12 real;
+- recovery antes de liveness e reconstrução do contador documentados;
+- smoke simplificado classificado como simulação, não prova do módulo;
+- gap de activeJobsCount stale com jobIndex vazio sem sync explicitado;
+- SHA e 112/112 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `jobs-lifecycle.js` — criação e auditoria em 2026-09-29
 
