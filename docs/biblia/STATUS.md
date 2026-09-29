@@ -56,6 +56,7 @@ Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada a
 6. ✅ `extension/background/actions/commit-result.js` — SHA-base `32270d1c4ade42b7e6decd5ef124d71745c2a5b0`.
 7. ✅ `extension/background/actions/deliver-result-from-tab.js` — SHA-base `59543c1359669ced02a1d05c251b272abaad6709`.
 8. ✅ `extension/background/actions/deliver-result-url.js` — SHA-base `91c50efe4764f56aac16aec2c91309e06db7d0ac`.
+8. ✅ `extension/background/actions/deliver-result-url.js` — SHA-base `91c50efe4764f56aac16aec2c91309e06db7d0ac`.
 
 ## Fila
 
