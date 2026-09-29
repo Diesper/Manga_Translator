@@ -48,22 +48,21 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **49**
-- ✅ Concluídos auditados: **43**
-- 🟠 Em andamento: **10**
+- ✅ Concluídos auditados: **44**
+- 🟠 Em andamento: **9**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **184**
 - ⬜ Pendentes: **180**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **18,45%**
+- Cobertura realmente aprovada: **18,88%**
 - Cobertura apenas materializada: **21,03%**
-- Último aprovado: `extension/content/gemini/result-extractor.js`
+- Último aprovado: `extension/content/gemini/temporary-chat.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
   - `#045 extension/content/gemini/job-runner.js` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md`
   - `#046 extension/content/gemini/observer.js` — `GPT-5.6-Sol#H` — Bíblia: `docs/biblia/extension/content/gemini/observer.js/Bíblia.md`
   - `#048 extension/content/gemini/selectors.js` — `GPT-5.6-Sol#C` — Bíblia: `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md`
-  - `#049 extension/content/gemini/temporary-chat.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md`
   - `#050 extension/content/inject.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/content/inject.js/Bíblia.md`
   - `#051 extension/options/options.html` — `GPT-5.6-Sol#D` — Bíblia: `docs/biblia/extension/options/options.html/Bíblia.md`
   - `#052 extension/options/options.js` — `GPT-5.6-Sol#F` — Bíblia: `docs/biblia/extension/options/options.js/Bíblia.md`
@@ -118,6 +117,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 40. ✅ `extension/content/content_manga.js`
 41. ✅ `extension/content/gemini/dom.js`
 42. ✅ `extension/content/gemini/result-extractor.js`
+43. ✅ `extension/content/gemini/temporary-chat.js`
 
 ### Revisão obrigatória
 
@@ -177,7 +177,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 46 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#H | `extension/content/gemini/observer.js` | `59c5335e1b4f` | `docs/biblia/extension/content/gemini/observer.js/Bíblia.md` |
 | 47 | ✅ CONCLUÍDO | `extension/content/gemini/result-extractor.js` | `a3efd499a0b0` | `docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md` |
 | 48 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#C | `extension/content/gemini/selectors.js` | `0bf8db6e416a` | `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md` |
-| 49 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/content/gemini/temporary-chat.js` | `40fbc8dc6acf` | `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` |
+| 49 | ✅ CONCLUÍDO | `extension/content/gemini/temporary-chat.js` | `40fbc8dc6acf` | `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` |
 | 50 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/content/inject.js` | `21f7f6cf9c94` | `docs/biblia/extension/content/inject.js/Bíblia.md` |
 | 51 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#D | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
 | 52 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#F | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
