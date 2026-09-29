@@ -49,10 +49,10 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - Total: **233**
 - Bíblias materializadas: **49**
 - ✅ Concluídos auditados: **44**
-- 🟠 Em andamento: **9**
+- 🟠 Em andamento: **10**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **184**
-- ⬜ Pendentes: **180**
+- ⬜ Pendentes: **179**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **18,88%**
 - Cobertura apenas materializada: **21,03%**
@@ -67,7 +67,8 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#051 extension/options/options.html` — `GPT-5.6-Sol#D` — Bíblia: `docs/biblia/extension/options/options.html/Bíblia.md`
   - `#052 extension/options/options.js` — `GPT-5.6-Sol#F` — Bíblia: `docs/biblia/extension/options/options.js/Bíblia.md`
   - `#053 extension/popup/popup.html` — `GPT-5.6-Sol#I` — Bíblia: `docs/biblia/extension/popup/popup.html/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#054 extension/popup/popup.js`
+  - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#055 extension/reader/reader.html`
 
 ## Auditoria de 2026-09-29
 
@@ -182,7 +183,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 51 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#D | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
 | 52 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#F | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
 | 53 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#I | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
-| 54 | ⬜ PENDENTE | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
+| 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | ⬜ PENDENTE | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
 | 56 | ⬜ PENDENTE | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
 | 57 | ⬜ PENDENTE | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
