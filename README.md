@@ -69,10 +69,7 @@ A raiz do repositório é o **único projeto Node/npm oficial**. Não existe um 
 │   ├── maintenance/
 │   └── release/
 ├── docs/
-│   ├── Documentação.md
-│   ├── ARQUITETURA_DO_REPOSITORIO.md
-│   ├── PLANO_REESTRUTURACAO.md
-│   └── historico/
+│   └── Documentação.md
 └── .github/workflows/
 ```
 
@@ -157,10 +154,7 @@ Principais áreas:
 
 ## Documentação
 
-- [Documentação técnica canônica](docs/Documentação.md)
-- [Arquitetura do repositório](docs/ARQUITETURA_DO_REPOSITORIO.md)
-- [Plano e registro da reestruturação](docs/PLANO_REESTRUTURACAO.md)
-- [Histórico](docs/historico/)
+- [Documentação técnica canônica](docs/Documentação.md) — arquitetura, operação, testes, CI, release, manutenção e histórico consolidado.
 
 ## Licença
 

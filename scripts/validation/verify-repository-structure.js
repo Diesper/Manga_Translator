@@ -69,9 +69,12 @@ for (const required of [
   'scripts/validation/verify-ci-contract.js',
   'scripts/release/sync-version.js',
   'docs/Documentação.md',
-  'docs/ARQUITETURA_DO_REPOSITORIO.md',
-  'docs/PLANO_REESTRUTURACAO.md',
 ]) requirePresent(required);
+
+const docsFiles = walk(path.join(root, 'docs')).map(rel).sort();
+if (docsFiles.length !== 1 || docsFiles[0] !== 'docs/Documentação.md') {
+  problems.push('docs/ deve conter somente docs/Documentação.md; encontrados: ' + docsFiles.join(', '));
+}
 
 for (const forbidden of [
   'extension/content_manga.js',
@@ -109,6 +112,12 @@ for (const forbidden of [
   'scripts/sync-version.js',
   'projeto.md',
   'status.md',
+  'docs/historico',
+  'docs/ARQUITETURA_DO_REPOSITORIO.md',
+  'docs/CHECKLIST_REESTRUTURACAO_PR65.md',
+  'docs/PLANO_REESTRUTURACAO.md',
+  'docs/MELHORIAS_EXTRACAO_E_PRAZO.md',
+  'docs/QUARENTENA_DE_IMAGEM.md',
 ]) requireAbsent(forbidden);
 
 
