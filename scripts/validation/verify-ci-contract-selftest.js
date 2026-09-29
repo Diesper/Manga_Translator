@@ -17,6 +17,7 @@ const staticFiles = [
   'scripts/validation/verify-coverage.js',
   'scripts/validation/verify-coverage-selftest.js',
   'scripts/validation/verify-repository-structure.js',
+  'scripts/validation/verify-test-policy.js',
   'scripts/ci/playwright-gate-reporter.js',
   'scripts/ci/data/e2e-shard-plan.json',
   'scripts/validation/verify-e2e-shard-plan.js',

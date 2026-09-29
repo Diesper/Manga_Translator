@@ -10,6 +10,7 @@ const coverageConfig = fs.readFileSync(path.join(root, 'jest.config.js'), 'utf8'
 const coverageVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage.js'), 'utf8');
 const coverageSelfTest = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage-selftest.js'), 'utf8');
 const repositoryStructureVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-repository-structure.js'), 'utf8');
+const testPolicyVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-test-policy.js'), 'utf8');
 const e2eReporter = fs.readFileSync(path.join(root, 'scripts', 'ci', 'playwright-gate-reporter.js'), 'utf8');
 const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
 const e2ePlanVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-e2e-shard-plan.js'), 'utf8');
@@ -26,6 +27,17 @@ if (!workflow.includes('node scripts/validation/verify-repository-structure.js')
 if (!repositoryStructureVerifier.includes('legacyReferenceMarkers') ||
     !repositoryStructureVerifier.includes('referência operacional legada')) {
   problems.push('gate estrutural precisa varrer referências operacionais aos caminhos legados');
+}
+if (!workflow.includes('npm run validate:test-policy')) {
+  problems.push('CI Contract precisa executar a política anti-skip/escape-hatch');
+}
+if (pkg.scripts['validate:test-policy'] !== 'node scripts/validation/verify-test-policy.js') {
+  problems.push('package.json#validate:test-policy precisa apontar para o verificador canônico');
+}
+for (const marker of ['.skip', '.only', 'test.todo', '--forceExit', '--passWithNoTests', '|| true']) {
+  if (!testPolicyVerifier.includes(marker)) {
+    problems.push('verify-test-policy.js não protege marcador proibido: ' + marker);
+  }
 }
 
 let regressionMatrix = null;
