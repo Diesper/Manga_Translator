@@ -100,6 +100,8 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 
 **Veredito:** ✅ APROVADO.
 
+| 47 | `extension/content/gemini/result-extractor.js` | SHA `a3efd499a0b0...` conferido; bloco integral exato | 413 linhas + newline final = 414/414 posições; 414 linhas de cobertura sequenciais | EXT-01..EXT-13 executam o módulo real; BGD-04/05/06/08/09/10/12/13/14 exercitam bridge/retry em integração real; action SW e mocks do runner classificados separadamente; lacunas específicas explícitas | 15 unidades específicas + papel local por posição + trust boundaries/riscos de MAIN bridge e rota autenticada documentados | ✅ APROVADO |
+
 ## Correções já aplicadas pela auditoria
 
 ### `content_gemini.js` — criação e auditoria em 2026-09-29
