@@ -230,7 +230,7 @@ jobs:
         continue-on-error: true
         with:
           name: playwright-failure-shard-${{ matrix.group }}-${{ github.sha }}
-          path: tests/test-results/
+          path: test-results/
           retention-days: 7
           if-no-files-found: ignore
 

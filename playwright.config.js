@@ -14,7 +14,7 @@ const localRetries = Number.isFinite(requestedRetries) && requestedRetries >= 0
 
 module.exports = defineConfig({
   testDir: './tests/e2e',
-  outputDir: './tests/test-results',
+  outputDir: './test-results',
   timeout: 60000,
   fullyParallel: true,
   workers: isCi ? ciWorkers : undefined,

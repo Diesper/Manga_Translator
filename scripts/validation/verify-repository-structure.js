@@ -64,6 +64,9 @@ for (const forbidden of [
   'tests/jest.coverage.config.js',
   'tests/jest.background-diagnostic.config.js',
   'tests/playwright.config.js',
+  'tests/test-results',
+  'tests/coverage',
+  'tests/.ci-results',
   'tests/ci',
   'tests/visual-v3',
   'tests/e2e/fixtures',
@@ -100,6 +103,11 @@ for (const marker of [
   'scripts/sync-version.js',
 ]) {
   if (workflow.includes(marker)) problems.push('ci.yml contém referência operacional legada: ' + marker);
+}
+
+const playwrightConfig = fs.readFileSync(path.join(root, 'playwright.config.js'), 'utf8');
+for (const marker of ["outputDir: './tests/test-results'", "testDir: './e2e'"]) {
+  if (playwrightConfig.includes(marker)) problems.push('playwright.config.js contém caminho legado: ' + marker);
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
