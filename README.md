@@ -1,158 +1,161 @@
 # 📖 Manga Translator
 
-> Extensão para navegadores Chromium (Manifest V3) para tradução automática, contínua e em alta resolução de mangás e quadrinhos na web utilizando o Google Gemini. A versão do produto tem uma única fonte de verdade em `package.json` e é sincronizada automaticamente com o Manifest e os metadados de teste.
+> Extensão Chromium Manifest V3 para tradução automática de mangás e quadrinhos usando Google Gemini.
 
 [![Manifest V3](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![CI](https://github.com/Diesper/Manga_Translator/actions/workflows/ci.yml/badge.svg)](https://github.com/Diesper/Manga_Translator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
+## Requisitos
 
-## ✨ Principais Funcionalidades
+- Node.js 18 ou superior.
+- npm.
+- Chromium para os testes E2E.
+- Para carregar a extensão manualmente, Chrome/Edge/Brave/Opera ou outro navegador Chromium compatível.
 
-- **Automação com Gemini em segundo plano:** editor estável, anexo carregado antes do prompt, resultado com autoria de modelo, extração autenticada com fallbacks e exclusão verificada nos modos normal/minimizado. O runner não solicita ativação física da aba/janela nas retentativas.
-- **Cache Perceptual Visual (GTC Fingerprint):** Identificação de imagens por assinatura perceptual dHash/aHash, impedindo retraduções de imagens já processadas mesmo com URLs dinâmicas ou CDN com tokens expiráveis.
-- **Armazenamento Transacional (StorageManager + IndexedDB):** Persistência atômica com eliminação automática de assets órfãos e sem o problema de *read-modify-write* em acessos concorrentes.
-- **Ciclo de Vida Durável (Manifest V3):** Reconciliação automática de abas e estado persistente resistente ao descarregamento (*unload*) do Service Worker do Chrome.
-- **Leitor Embutido (Reader Mode):** Interface dedicada para visualização sequencial ou em página dupla dos mangás traduzidos, com opção de download local em lote.
-- **Controle de Concorrência:** Fila assíncrona inteligente com limite de páginas simultâneas configurável para evitar sobrecarga ou bloqueio.
-- **Filtro dimensional configurável:** Defina a largura e a altura mínimas das imagens elegíveis, com campos numéricos, controles deslizantes sincronizados, prévia proporcional e restauração rápida do padrão `300 × 400 px`.
+## Instalação para desenvolvimento
 
----
-
-## 🚀 Como Instalar no Navegador
-
-Como a extensão está em formato de código aberto, você pode carregá-la diretamente em qualquer navegador baseado em Chromium (**Google Chrome**, **Microsoft Edge**, **Brave**, **Opera**):
-
-1. Clone ou baixe este repositório no seu computador.
-2. Abra a página de extensões no seu navegador:
-   - **Google Chrome:** `chrome://extensions`
-   - **Microsoft Edge:** `edge://extensions`
-   - **Brave:** `brave://extensions`
-3. No canto superior direito, ative o interruptor **Modo do desenvolvedor** (*Developer mode*).
-4. Clique no botão **Carregar sem compactação** (*Load unpacked*).
-5. Selecione a pasta [`extension/`](extension/) deste projeto.
-6. Pronto! O ícone do **MangaTranslator** aparecerá na sua barra de extensões.
-
----
-
-## 📂 Estrutura do Repositório
-
-```text
-├── extension/                 # Código-fonte da extensão (Manifest V3)
-│   ├── manifest.json          # Manifesto da extensão
-│   ├── background.js          # Bootstrap do Service Worker + wiring dos módulos
-│   ├── background/            # Router, estado, lifecycle, watchdog, reconciliação e actions
-│   ├── content_manga.js       # Content script injetado nas páginas de mangá
-│   ├── content_gemini.js      # Bootstrap/claim/keepalive/handlers do worker Gemini
-│   ├── gemini/                # DOM, Observer, editor, attachment, result, deletion e job-runner
-│   ├── gtc-fingerprint.js     # Hashing perceptual e extração de assinaturas
-│   ├── gtc-indexeddb.js       # Camada de banco de dados visual IndexedDB
-│   ├── storage-manager.js     # Gerenciamento atômico de blobs e transações
-│   ├── popup.html / popup.js  # Janela de controle da extensão
-│   ├── options.html / .js     # Painel de preferências e configurações
-│   └── reader.html / reader.js# Modo leitor integrado
-├── tests/                     # Suíte de testes automatizados
-│   ├── smoke/                 # Testes de fumaça rápidos (ciclo de vida, concorrência)
-│   ├── unit/                  # Testes unitários Jest (GTC, background, content)
-│   ├── integration/           # Testes de integração de fluxo IPC
-│   ├── visual-v3/             # Testes visuais de consistência e fingerprint
-│   └── e2e/                   # Testes de ponta a ponta com Playwright
-├── docs/                      # Documentação técnica de arquitetura
-├── scripts/                   # Automação de versionamento e manutenção
-├── .github/workflows/         # CI e publicação de releases
-└── package.json               # Fonte única da versão do produto + scripts
+```bash
+git clone https://github.com/Diesper/Manga_Translator.git
+cd Manga_Translator
+npm ci
 ```
 
----
+A raiz do repositório é o **único projeto Node/npm oficial**. Não existe um segundo workspace em `tests/`.
 
-## 🔢 Versionamento
+## Carregar a extensão no navegador
 
-A versão do produto é definida **uma única vez** no `package.json` raiz. Os demais metadados são derivados dela:
+1. Abra `chrome://extensions` ou `edge://extensions`.
+2. Ative **Modo do desenvolvedor**.
+3. Clique em **Carregar sem compactação**.
+4. Selecione a pasta `extension/`.
 
-- `extension/manifest.json` recebe a versão Chromium correspondente;
-- `tests/package.json` e os metadados raiz de `tests/package-lock.json` recebem a versão SemVer completa;
-- a UI de opções lê `chrome.runtime.getManifest().version`, sem número hardcoded;
-- o workflow de publicação deriva tag, pasta, ZIP e nome da documentação automaticamente;
-- a documentação canônica no repositório usa o caminho estável `docs/Documentação.md`.
+> `extension/` e `extension/manifest.json` são caminhos estáveis do projeto e não devem ser movidos.
 
-Depois de alterar apenas `package.json`, execute:
+## Estrutura do repositório
+
+```text
+/
+├── package.json
+├── package-lock.json
+├── jest.config.js
+├── playwright.config.js
+├── README.md
+├── LICENSE
+├── extension/
+│   ├── manifest.json
+│   ├── background.js
+│   ├── background/
+│   ├── gemini/
+│   └── ...
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── smoke/
+│   ├── visual/
+│   ├── e2e/
+│   ├── fixtures/
+│   ├── helpers/
+│   ├── mocks/
+│   └── setup/
+├── scripts/
+│   ├── ci/
+│   │   └── data/
+│   ├── validation/
+│   ├── maintenance/
+│   └── release/
+├── docs/
+│   ├── Documentação.md
+│   ├── ARQUITETURA_DO_REPOSITORIO.md
+│   ├── PLANO_REESTRUTURACAO.md
+│   └── historico/
+└── .github/workflows/
+```
+
+## Comandos oficiais
+
+Todos os comandos são executados **na raiz**.
+
+```bash
+npm ci
+npm test
+npm run test:unit
+npm run test:integration
+npm run test:smoke
+npm run test:visual
+npm run test:e2e
+npm run test:coverage
+npm run test:coverage:verify
+npm run test:ci
+npm run validate
+npm run lint
+```
+
+Comandos especializados:
+
+```bash
+npm run test:e2e:group -- fast
+npm run test:e2e:plan
+npm run test:images
+npm run test:diagnose-workers
+npm run test:diagnose-background-leak
+npm run version:check
+npm run version:sync
+```
+
+Não é necessário usar `cd tests`, `npm --prefix tests`, BAT/PS1 wrappers ou runners legados.
+
+## Testes e gates
+
+- **Jest:** configuração canônica em `/jest.config.js`; projetos internos separam unitários e integração.
+- **Smoke:** `tests/smoke/`.
+- **Visual:** `tests/visual/`.
+- **Playwright:** configuração canônica em `/playwright.config.js`; E2E em `tests/e2e/`.
+- **Fixtures:** `tests/fixtures/`; imagens E2E são geradas por `tests/setup/create-test-images.js`.
+- **Coverage:** gerado em `/coverage/` e verificado por `scripts/validation/verify-coverage.js`.
+- **Baseline:** `scripts/ci/data/test-baseline.json`.
+- **Matriz de regressão:** `scripts/ci/data/regression-matrix.json`.
+- **Contrato da CI:** `scripts/validation/verify-ci-contract.js`.
+
+O workflow `.github/workflows/ci.yml` executa npm a partir da raiz, mantém os cinco grupos E2E e preserva o gate agregado. Os diagnósticos pesados continuam condicionados a `workflow_dispatch` ou push na `main`.
+
+## Versionamento
+
+A versão manual existe somente em `package.json#version`.
 
 ```bash
 npm run version:sync
 npm run version:check
 ```
 
-O CI também executa `version:check` e falha se os metadados divergirem.
+`scripts/release/sync-version.js` mantém em sincronia:
 
----
+- `extension/manifest.json#version`;
+- `package-lock.json#version`;
+- `package-lock.json#packages[""].version`;
+- os contratos de documentação/release.
 
-## 🧪 Executando os Testes
+O workflow de publicação usa `scripts/release/sync-version.js --print-env`.
 
-O projeto conta com suíte abrangente de testes unitários, de integração, visuais, smoke e E2E.
+## Arquitetura da extensão
 
-Os testes de popup e content script também cobrem o filtro dimensional: valores
-personalizados, atualização imediata após alteração no armazenamento,
-sincronização entre campos/sliders/prévia e o reset para o padrão.
+A extensão continua com os mesmos entrypoints MV3. Esta reestruturação muda **tooling, testes, fixtures, documentação e caminhos de desenvolvimento**, não a lógica funcional de tradução.
 
-> A pipeline atual trata Jest, smoke/visual, validação de sintaxe/Manifest V3, cobertura e Playwright E2E como gates reais. Os cenários E2E incluem o fluxo padrão e os modos `minimized_window` e `background_delete`.
+Principais áreas:
 
-### Testes de Fumaça (Smoke Tests)
-Validação ultrarrápida do ciclo de vida, transações IndexedDB e isolamento de lote:
-```powershell
-# No Windows:
-.\run-smoke.bat
-# ou
-powershell -ExecutionPolicy Bypass -File .\run-smoke.ps1
-```
+- `extension/background.js` + `extension/background/`: Service Worker, estado, lifecycle, watchdog e actions.
+- `extension/content_manga.js` + `extension/cm-*.js`: descoberta/aplicação de imagens.
+- `extension/content_gemini.js` + `extension/gemini/`: automação do Gemini.
+- `extension/gtc-*.js` e `extension/storage-manager.js`: cache/persistência.
+- popup, opções, reader e UI compartilhada.
 
-### Testes Unitários e Integração (Jest)
-```bash
-npm test
-# ou diretamente dentro da pasta tests:
-cd tests
-npm run test:unit
-```
+## Documentação
 
-### Testes E2E (Playwright)
-Fluxos reais de ponta a ponta no Chromium com a extensão carregada (tradução real, botão de parada, cache GTC, persistência no IndexedDB, auto-restauração no reload e leitor offline):
-```bash
-cd tests
-npm run test:e2e
-```
+- [Documentação técnica canônica](docs/Documentação.md)
+- [Arquitetura do repositório](docs/ARQUITETURA_DO_REPOSITORIO.md)
+- [Plano e registro da reestruturação](docs/PLANO_REESTRUTURACAO.md)
+- [Histórico](docs/historico/)
 
-### CI e regressões de Service Worker
+## Licença
 
-A pipeline em `.github/workflows/ci.yml` trata **Smoke, Visual, Jest, Coverage e E2E como gates funcionais independentes**. Uma falha em Jest não impede o Playwright de rodar, então uma única execução expõe regressões de várias camadas ao mesmo tempo.
-
-O job final **CI Gate** usa `if: always()` e exige que todos os jobs obrigatórios terminem como `success`. Estados `failure`, `cancelled` ou `skipped` em qualquer gate obrigatório tornam a CI vermelha.
-
-Além do código de saída normal:
-- Jest compara todos os arquivos `.test.js` existentes em `tests/unit` e `tests/integration` com o inventário realmente descoberto pelo runner, rejeita `skip`/`todo` e protege um baseline mínimo;
-- Playwright proíbe `test.only` na CI, rejeita testes `skipped` e uma queda silenciosa no inventário E2E;
-- o runner visual falha se houver teste pulado ou se o total cair abaixo do baseline;
-- Smoke falha se o conjunto esperado de arquivos não for descoberto;
-- Coverage usa `tests/jest.coverage.config.js` com provider V8 sobre `extension/**/*.js`; `verify-coverage.js` exige 56/56 arquivos, LCOV/summary válidos, percentuais não-zero, thresholds globais e thresholds de arquivos críticos; apenas a publicação externa no Codecov continua independente do gate local;
-- `tests/ci/verify-ci-contract.js` testa a própria configuração da CI para impedir a reintrodução de `|| true`, jobs funcionais não bloqueantes ou dependências que façam o E2E ser pulado.
-- o runner Jest não usa mais `--forceExit`; o mock de downloads foi corrigido para não deixar timers/handles vivos.
-
-Também existe um teste específico de carregamento em modo estrito (`tests/unit/background/background-strict-load.test.js`) para detectar exceções fatais durante o boot do Service Worker antes do registro dos listeners.
-
-As regressões de ACK da aba auxiliar, isolamento entre testes assíncronos e medição de performance do PR #47 estão descritas em [`docs/REGRESSOES_PR47.md`](docs/REGRESSOES_PR47.md). O baseline Jest protege no mínimo 836 testes; a execução completa e a cobertura são responsabilidade dos jobs do GitHub Actions.
-
----
-
-## 📚 Documentação Técnica
-
-A arquitetura vigente, contratos IPC/storage, lifecycle MV3, cache perceptual, Gemini RPA, Reader, compatibilidade, versionamento e critérios de manutenção estão consolidados na documentação canônica de caminho estável:
-
-- [`docs/Documentação.md`](docs/Documentação.md): arquitetura canônica.
-- [`docs/DOCUMENTACAO_VERSAO_FUNCIONAL.md`](docs/DOCUMENTACAO_VERSAO_FUNCIONAL.md): revisão funcional 2, fluxo, prazos e manutenção.
-- [`docs/MELHORIAS_EXTRACAO_E_PRAZO.md`](docs/MELHORIAS_EXTRACAO_E_PRAZO.md): extração autenticada e watchdog.
-- [`docs/VALIDACAO_REVISAO_2.json`](docs/VALIDACAO_REVISAO_2.json): 21 resultados manuais, sete por modo, quatro lotes completos e 21 renovações confirmadas. A aprovação manual não presume resultado do CI deste PR.
-
----
-
-## 🛡️ Licença
-
-Distribuído sob a licença **MIT**. Consulte o arquivo [`LICENSE`](LICENSE) para mais detalhes.
+MIT. Consulte [LICENSE](LICENSE).

@@ -11,7 +11,7 @@
 >
 > **Data da consolidação:** 26/09/2026.
 > **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente + hardening automatizado do PR #47.
-> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para separar a evidência manual histórica da validação automatizada atual.
+> Consulte [a documentação da versão funcional](historico/DOCUMENTACAO_VERSAO_FUNCIONAL.md) para separar a evidência manual histórica da validação automatizada atual.
 >
 > **Escopo da auditoria:** manifesto, Service Worker, módulos de background,
 > content scripts, cache perceptual, IndexedDB, persistência de capítulos,
@@ -69,7 +69,7 @@ Isso significa:
 
 A v6.5 é o marco desta documentação técnica consolidada. A consolidação começou no PR 13 após a refatoração Gemini RPA V2 e foi atualizada para incorporar o estado funcional/hardening do PR #47.
 
-O marco v6.5 também torna o versionamento do produto automático: `package.json` contém a versão SemVer canônica, enquanto `manifest.json` e os metadados de teste são sincronizados por `scripts/sync-version.js`.
+O marco v6.5 mantém o versionamento do produto automático: `package.json` contém a versão SemVer canônica; `manifest.json` e o lockfile raiz são sincronizados por `scripts/release/sync-version.js`.
 
 Ela não altera automaticamente:
 
@@ -104,7 +104,7 @@ quando o respectivo schema mudar.
 
 ## 2.2 Baseline funcional conhecido
 
-O baseline operacional atual é definido por `tests/ci/test-baseline.json` e pelos gates descritos na seção 18:
+O baseline operacional atual é definido por `scripts/ci/data/test-baseline.json` e pelos gates descritos na seção 18:
 
 - **108 suítes Jest**;
 - **mínimo de 848 testes Jest**;
@@ -116,9 +116,9 @@ O baseline operacional atual é definido por `tests/ci/test-baseline.json` e pel
 - **56 arquivos instrumentados** no coverage;
 - `CI Gate` obrigatório.
 
-O PR #47 também protege o warning de worker forçado como falha real, mantém thresholds críticos de coverage e valida a matriz `tests/ci/regression-matrix.json`.
+O PR #47 também protege o warning de worker forçado como falha real, mantém thresholds críticos de coverage e valida a matriz `scripts/ci/data/regression-matrix.json`.
 
-A revisão funcional 2 continua sendo a evidência manual disponível: 21 traduções (sete temporárias, sete minimizadas e sete normais) em quatro lotes completos, com 21 renovações de watchdog e 14 exclusões verificadas. Essa evidência é anterior a parte do hardening posterior e não substitui os testes automatizados. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+A revisão funcional 2 continua sendo a evidência manual disponível: 21 traduções (sete temporárias, sete minimizadas e sete normais) em quatro lotes completos, com 21 renovações de watchdog e 14 exclusões verificadas. Essa evidência é anterior a parte do hardening posterior e não substitui os testes automatizados. Veja [o resumo de validação](historico/VALIDACAO_REVISAO_2.json).
 
 Para rastreabilidade histórica, o run #663 no commit `446f003` havia aprovado 98 suítes / 716 testes Jest e 22 E2E. Esses números não são mais o baseline atual.
 
@@ -144,86 +144,49 @@ Esses itens pertencem ao histórico de estabilização da série v5.x.
 
 ~~~text
 MangaTranslator/
+├── package.json
+├── package-lock.json
+├── jest.config.js
+├── playwright.config.js
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
+│       ├── ci.yml
+│       ├── publish.yml
+│       └── recover-cancelled-ci.yml
 ├── docs/
-│   ├── DOCUMENTACAO_v5.1.1_ATUALIZACAO.md   # histórico
-│   └── Documentação.md                       # fonte técnica canônica, nome estável
+│   ├── Documentação.md
+│   ├── ARQUITETURA_DO_REPOSITORIO.md
+│   ├── PLANO_REESTRUTURACAO.md
+│   └── historico/
 ├── extension/
 │   ├── manifest.json
 │   ├── background.js
 │   ├── background/
-│   │   ├── log.js
-│   │   ├── router.js
-│   │   ├── state.js
-│   │   ├── jobs-dom-ack.js
-│   │   ├── jobs-lifecycle.js
-│   │   ├── jobs-reconciliation.js
-│   │   ├── jobs-watchdog.js
-│   │   └── actions/
-│   │       ├── calculate-visual-fingerprint.js
-│   │       ├── check-extraction-tab.js
-│   │       ├── deliver-result-from-tab.js
-│   │       ├── deliver-result-url.js
-│   │       ├── deliver-result.js
-│   │       ├── download-chapter.js
-│   │       ├── download-image.js
-│   │       ├── export-all.js
-│   │       ├── fetch-image-base64.js
-│   │       ├── force-send-activation.js
-│   │       ├── get-tab-id.js
-│   │       ├── log-entry.js
-│   │       ├── open-existing-folder.js
-│   │       ├── open-manga-root.js
-│   │       ├── relay-progress.js
-│   │       ├── report-error.js
-│   │       ├── request-image-data.js
-│   │       ├── set-debug-mode.js
-│   │       ├── start-batch.js
-│   │       └── stop-batch.js
-│   ├── cm-auto-restore.js
-│   ├── cm-chapter.js
-│   ├── cm-dom-replace.js
-│   ├── cm-gtc-client.js
-│   ├── content_manga.js
-│   ├── content_gemini.js
 │   ├── gemini/
-│   │   ├── selectors.js
-│   │   ├── dom.js
-│   │   ├── observer.js
-│   │   ├── editor.js
-│   │   ├── temporary-chat.js
-│   │   ├── attachment.js
-│   │   ├── result-extractor.js
-│   │   ├── deletion.js
-│   │   └── job-runner.js
-│   ├── gtc-fingerprint.js
-│   ├── gtc-indexeddb.js
-│   ├── inject.js
-│   ├── storage-manager.js
-│   ├── shared-ui.js
-│   ├── popup.html
-│   ├── popup.js
-│   ├── options.html
-│   ├── options.js
-│   ├── reader.html
-│   └── reader.js
+│   └── demais entrypoints/recursos da extensão
 ├── tests/
-│   ├── e2e/
+│   ├── unit/
 │   ├── integration/
 │   ├── smoke/
-│   ├── unit/
-│   ├── visual-v3/
-│   ├── run-all-tests.js
-│   ├── package.json
-│   └── package-lock.json
-├── package.json
-├── run.ps1
-├── run.bat
-├── run-smoke.ps1
-└── run-smoke.bat
+│   ├── visual/
+│   ├── e2e/
+│   ├── fixtures/
+│   ├── helpers/
+│   ├── mocks/
+│   └── setup/
+└── scripts/
+    ├── ci/
+    │   └── data/
+    ├── validation/
+    ├── maintenance/
+    └── release/
 ~~~
+
+A raiz é o único projeto Node/npm e concentra as configurações de Jest e Playwright.
+Tooling de CI não vive mais em `tests/`; testes contêm apenas código de teste,
+fixtures, mocks, helpers e setup. `extension/` e `extension/manifest.json`
+permanecem nos mesmos caminhos para preservar o contrato MV3.
+
 
 ## 3.1 Divisão por responsabilidade
 
@@ -1666,7 +1629,7 @@ A suíte atual possui:
 
 ## 18.2 Baseline obrigatório
 
-O arquivo `tests/ci/test-baseline.json` é contrato, não estatística informativa.
+O arquivo `scripts/ci/data/test-baseline.json` é contrato, não estatística informativa.
 
 | Camada | Piso atual |
 |---|---:|
@@ -1783,7 +1746,7 @@ O ruleset ativo da `main` exige os contextos reais, incluindo `CI Gate`, com str
 
 ## 18.10 Matriz de regressões obrigatórias
 
-`tests/ci/regression-matrix.json` é a lista machine-readable dos bugs críticos que precisam conservar teste.
+`scripts/ci/data/regression-matrix.json` é a lista machine-readable dos bugs críticos que precisam conservar teste.
 
 O `CI Contract` valida para cada entrada:
 
@@ -1948,12 +1911,12 @@ Ao preparar uma nova versão:
 2. executar <code>npm run version:sync</code>;
 3. executar <code>npm run version:check</code>.
 
-<code>scripts/sync-version.js</code> deriva e valida:
+<code>scripts/release/sync-version.js</code> deriva e valida:
 
 - <code>extension/manifest.json#version</code>;
-- <code>tests/package.json#version</code>;
-- <code>tests/package-lock.json#version</code>;
-- <code>tests/package-lock.json#packages[""].version</code>.
+- <code>package-lock.json#version</code>;
+- <code>package-lock.json#packages[""].version</code>;
+- a existência da documentação canônica e do workflow de publicação.
 
 Para versões cujo patch é zero, a versão Chromium pode omitir o último zero
 (<code>6.5.0 → 6.5</code>). Quando existe patch, ele é preservado
@@ -2151,7 +2114,7 @@ As mudanças funcionais incluem:
 - `CI Gate` agregado e ruleset da `main` alinhado aos checks reais;
 - diagnósticos caros de leak disponíveis somente sob demanda.
 
-A causa-raiz final do worker leak foi um timer de 4 s do arquivo `_anchor.png` que podia sobreviver ao teardown. O teste `REG-WORKER-4S` e a matriz `tests/ci/regression-matrix.json` tornam esse e os demais incidentes críticos regressões obrigatórias.
+A causa-raiz final do worker leak foi um timer de 4 s do arquivo `_anchor.png` que podia sobreviver ao teardown. O teste `REG-WORKER-4S` e a matriz `scripts/ci/data/regression-matrix.json` tornam esse e os demais incidentes críticos regressões obrigatórias.
 
 O baseline vigente passa a ser 108 suítes / 848 testes Jest, 21 E2E, 224 visuais, 6 smoke e 56 arquivos instrumentados de coverage, com skipped/TODO/flaky iguais a zero.
 
