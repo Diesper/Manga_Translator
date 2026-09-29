@@ -73,8 +73,8 @@
 - [ ] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#I**
 - [ ] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#J**
 - [ ] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#G**
-- [ ] 056 — `extension/reader/reader.js` → `docs/biblia/extension/reader/reader.js/Bíblia.md`
-- [ ] 057 — `extension/shared/gtc-fingerprint.js` → `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md`
+- [ ] 056 — `extension/reader/reader.js` → `docs/biblia/extension/reader/reader.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#K**
+- [ ] 057 — `extension/shared/gtc-fingerprint.js` → `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
 - [ ] 058 — `extension/shared/gtc-indexeddb.js` → `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
 - [ ] 059 — `extension/shared/shared-ui.js` → `docs/biblia/extension/shared/shared-ui.js/Bíblia.md`
 - [ ] 060 — `extension/shared/storage-manager.js` → `docs/biblia/extension/shared/storage-manager.js/Bíblia.md`
