@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/gemini/attachment.js`
 
-> **Estado:** 🟠 MATERIALIZADA — aguardando fechamento coordenado/auditoria compartilhada  
+> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE; documentação 583/583 pronta
 > **SHA auditado:** `50092e4d7d71994f91236d271d3418507f10eade`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#C`  
 > **Tipo:** JavaScript — content-script helper Gemini / RPA de attachment  
@@ -182,7 +182,7 @@ O helper exportado `dispatchAttachmentAttempt` possui ordem própria paste → f
 
 ## 14. Fonte integral
 
-~~~javascript
+```javascript
 'use strict';
 // gemini/attachment.js — Upload de imagem com confirmação observável.
 //
@@ -765,7 +765,7 @@ O helper exportado `dispatchAttachmentAttempt` possui ordem própria paste → f
   scope.MangaTranslatorGeminiAttachment = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof self !== 'undefined' ? self : globalThis);
-~~~
+```
 
 ## 15. Rastreabilidade 583/583
 
@@ -1355,7 +1355,7005 @@ O helper exportado `dispatchAttachmentAttempt` possui ordem própria paste → f
 | 582 | U15 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha a IIFE escolhendo `self` quando disponível e `globalThis` como fallback. |
 | 583 | U16 | ␠ [linha vazia] | Newline terminal da fonte; preserva a equivalência editorial e fecha a rastreabilidade 583/583. |
 
-## 16. Análise por unidade
+## 16. Cobertura linha a linha — 583/583
+
+### Linha 001 — U01
+
+**Fonte:** 'use strict';
+
+**O que faz:** Ativa modo estrito para este script antes de qualquer declaração, reduzindo coerções/atribuições globais acidentais.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 002 — U01
+
+**Fonte:** // gemini/attachment.js — Upload de imagem com confirmação observável.
+
+**O que faz:** Comentário de contrato/manutenção: gemini/attachment.js — Upload de imagem com confirmação observável..
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 003 — U01
+
+**Fonte:** //
+
+**O que faz:** Comentário de contrato/manutenção: linha de comentário vazia usada para separar a explicação adjacente.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 004 — U01
+
+**Fonte:** // Regra central: disparar paste/change/drop significa apenas TENTATIVA.
+
+**O que faz:** Comentário de contrato/manutenção: Regra central: disparar paste/change/drop significa apenas TENTATIVA..
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 005 — U01
+
+**Fonte:** // Attachment só é confirmado quando surge (ou muda) evidência visual/DOM
+
+**O que faz:** Comentário de contrato/manutenção: Attachment só é confirmado quando surge (ou muda) evidência visual/DOM.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 006 — U01
+
+**Fonte:** // posterior ao baseline capturado antes do upload.
+
+**O que faz:** Comentário de contrato/manutenção: posterior ao baseline capturado antes do upload..
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 007 — U01
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U01; não altera estado, mas delimita o bloco "Modo estrito, IIFE e resolução da dependência DOM".
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 008 — U01
+
+**Fonte:** (function(scope) {
+
+**O que faz:** Abre a IIFE e injeta a superfície global (`self`/`globalThis`) usada tanto no content script quanto em testes.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 009 — U01
+
+**Fonte:** let domApi = scope.MangaTranslatorGeminiDom \|\| null;
+
+**O que faz:** Resolve primeiro `MangaTranslatorGeminiDom` já carregado pelo manifest, sem import ESM em content script clássico.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 010 — U01
+
+**Fonte:** if (!domApi && typeof require === 'function') {
+
+**O que faz:** Habilita fallback CommonJS somente quando `require` existe, mantendo compatibilidade com Jest sem afetar o browser.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 011 — U01
+
+**Fonte:** try { domApi = require('./dom.js'); } catch (_e) {}
+
+**O que faz:** Carrega `dom.js` real no ambiente CommonJS; o `catch` vazio permite que o fail-fast posterior produza erro único e estável.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 012 — U01
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U01 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 013 — U01
+
+**Fonte:** if (!domApi) throw new Error('MangaTranslatorGeminiDom indisponível');
+
+**O que faz:** Falha cedo antes de instalar a API se a dependência DOM profunda não pôde ser resolvida.
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 014 — U01
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U01; não altera estado, mas delimita o bloco "Modo estrito, IIFE e resolução da dependência DOM".
+
+**Como faz:** `'use strict'` endurece semântica; a IIFE recebe `self/globalThis`; `domApi` usa global primeiro e `require('./dom.js')` apenas quando disponível.
+
+**Por que foi implementado dessa forma:** O mesmo arquivo precisa funcionar como content script clássico carregado pelo manifest e como módulo CommonJS nos testes, sem duplicar implementação.
+
+**Por que uma implementação ingênua seria pior:** Depender somente de `require` quebraria no browser; depender somente de global tornaria o teste unitário mais frágil; prosseguir sem DOM API produziria erro tardio no upload.
+
+### Linha 015 — U02
+
+**Fonte:** function getSearchRoot(root) {
+
+**O que faz:** Declara normalizador de raiz usado por buscas e observação; aceita Document, Element ou raiz já normalizada.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 016 — U02
+
+**Fonte:** return root && (root.body \|\| root.documentElement \|\| root);
+
+**O que faz:** Prefere `body`, depois `documentElement`, e por fim a própria raiz para funcionar com Document e elementos/shadow roots.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 017 — U02
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U02 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 018 — U02
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U02; não altera estado, mas delimita o bloco "Raiz de busca e ancestralidade composta".
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 019 — U02
+
+**Fonte:** function closestComposed(element, selector) {
+
+**O que faz:** Declara busca de ancestral que atravessa host de Shadow DOM, requisito para classificar contexto do composer.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 020 — U02
+
+**Fonte:** for (let current = element; current; current = current.parentElement \|\| current.getRootNode?.().host) {
+
+**O que faz:** Sobe por parentElement e, ao cruzar um ShadowRoot, continua pelo `host`; optional chaining evita quebra em nós incompletos.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 021 — U02
+
+**Fonte:** if (current.matches?.(selector)) return current;
+
+**O que faz:** Aceita o primeiro ancestral que corresponda ao seletor sem assumir que todo nó implementa `matches`.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 022 — U02
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U02 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 023 — U02
+
+**Fonte:** return null;
+
+**O que faz:** Retorna deste ponto de U02 o valor `null;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 024 — U02
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U02 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** `getSearchRoot` prefere `body`, depois `documentElement`; `closestComposed` testa `matches` e atravessa `getRootNode().host` quando necessário.
+
+**Por que foi implementado dessa forma:** Gemini usa componentes com Shadow DOM e wrappers variáveis; busca DOM rasa perderia elementos relevantes.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas `closest()`/`parentElement` não atravessaria fronteiras de shadow root e poderia confundir contexto de composer/resposta.
+
+### Linha 025 — U03
+
+**Fonte:** const COMPOSER = 'rich-textarea, .input-area, .chat-input-container, .chat-input, input-area, [contenteditable="true"][role="textbox"], .ql-editor[contenteditable="true"]';
+
+**O que faz:** Lista superfícies de composição conhecidas do Gemini/Quill usadas para priorizar controles pertencentes ao editor.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 026 — U03
+
+**Fonte:** const USER_OR_MODEL = 'model-response, bard-model-response, [data-message-author], [data-turn-role], .user-query-container, .user-message, .model-response-container';
+
+**O que faz:** Lista containers de turnos user/model que devem ser excluídos da detecção de anexos do composer.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 027 — U03
+
+**Fonte:** const ATTACHMENT = 'file-preview, attachment-card, [data-test-id*="attachment"], [data-testid*="attachment"], [data-test-id*="preview"], [data-testid*="preview"], .file-preview, .attachment-preview, .image-preview, .attachment-container';
+
+**O que faz:** Lista tags/classes/testids observados para previews de arquivo; é deliberadamente redundante para tolerar variações de UI.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 028 — U03
+
+**Fonte:** function isAttachmentContext(element) {
+
+**O que faz:** Declara boundary que impede evidência em mensagem histórica/model response de contar como attachment atual.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 029 — U03
+
+**Fonte:** if (closestComposed(element, USER_OR_MODEL)) return false;
+
+**O que faz:** Rejeita imediatamente qualquer elemento aninhado em turno user/model, fechando o principal falso positivo.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 030 — U03
+
+**Fonte:** return Boolean(closestComposed(element, COMPOSER) \|\| closestComposed(element, ATTACHMENT));
+
+**O que faz:** Aceita somente elemento ligado ao composer ou a um container reconhecido de anexo.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 031 — U03
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U03 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 032 — U03
+
+**Fonte:** function findFileInputsDeep(root) {
+
+**O que faz:** Declara descoberta profunda de file inputs candidatos ao upload.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 033 — U03
+
+**Fonte:** return domApi.findAllDeep(root, element => {
+
+**O que faz:** Retorna deste ponto de U03 o valor `domApi.findAllDeep(root, element => {`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 034 — U03
+
+**Fonte:** if (String(element.tagName \|\| '').toUpperCase() !== 'INPUT' \|\|
+
+**O que faz:** Restringe candidato a `<input>` real, normalizando tagName para caixa alta.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 035 — U03
+
+**Fonte:** String(element.type \|\| element.getAttribute?.('type') \|\| '').toLowerCase() !== 'file' \|\|
+
+**O que faz:** Confirma tipo `file` por propriedade ou atributo para cobrir DOM real e mocks.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 036 — U03
+
+**Fonte:** element.disabled \|\| closestComposed(element, USER_OR_MODEL)) return false;
+
+**O que faz:** Rejeita imediatamente qualquer elemento aninhado em turno user/model, fechando o principal falso positivo.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 037 — U03
+
+**Fonte:** const accept = String(element.accept \|\| element.getAttribute?.('accept') \|\| '').trim().toLowerCase();
+
+**O que faz:** Normaliza o atributo `accept` para decidir se o input pode receber a imagem da página.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 038 — U03
+
+**Fonte:** return !accept \|\| accept.includes('image/') \|\| accept.includes('*/*') \|\|
+
+**O que faz:** Aceita filtro explícito de MIME de imagem.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 039 — U03
+
+**Fonte:** /\.(?:png\|jpe?g\|webp\|gif\|bmp\|avif)(?:\s*,\|$)/.test(accept);
+
+**O que faz:** Aceita listas por extensão comuns de imagem quando o site não usa MIME no `accept`.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 040 — U03
+
+**Fonte:** }).sort((a, b) => Number(Boolean(closestComposed(b, COMPOSER))) - Number(Boolean(closestComposed(a, COMPOSER))));
+
+**O que faz:** Ordena candidatos para que input relacionado ao composer venha antes de um input global secundário.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 041 — U03
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U03 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Exclui elementos dentro de turnos user/model, rejeita inputs desabilitados e aceita `accept` vazio, `image/*`, `*/*` ou extensões de imagem conhecidas; ordena composer-first.
+
+**Por que foi implementado dessa forma:** O upload deve atuar no composer atual, não em controles pertencentes a mensagens históricas ou superfícies irrelevantes.
+
+**Por que uma implementação ingênua seria pior:** Selecionar o primeiro `input[type=file]` da página pode anexar no componente errado ou interagir com UI de resposta/histórico.
+
+### Linha 042 — U04
+
+**Fonte:** function evidenceReady(evidence) {
+
+**O que faz:** Declara o predicado que separa 'sinal observado' de 'attachment realmente pronto'.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 043 — U04
+
+**Fonte:** const img = evidence?.img;
+
+**O que faz:** Extrai imagem associada de forma nula-segura; sem `<img>` a evidência ainda não confirma.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 044 — U04
+
+**Fonte:** if (!img \|\| !domApi.getImageSource(img) \|\| img.complete === false \|\|
+
+**O que faz:** Recusa imagem cuja carga ainda está explicitamente incompleta.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 045 — U04
+
+**Fonte:** Number(img.naturalWidth \|\| 0) <= 0 \|\| Number(img.naturalHeight \|\| 0) <= 0) return false;
+
+**O que faz:** Exige dimensões naturais positivas para evitar confirmar placeholder/imagem ainda não decodificada.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 046 — U04
+
+**Fonte:** const attachmentRoot = closestComposed(evidence.el, ATTACHMENT) \|\| evidence.el;
+
+**O que faz:** Escolhe o container de attachment mais próximo para procurar indicadores locais de carregamento.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 047 — U04
+
+**Fonte:** return !domApi.findAllDeep(attachmentRoot, element =>
+
+**O que faz:** Retorna deste ponto de U04 o valor `!domApi.findAllDeep(attachmentRoot, element =>`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 048 — U04
+
+**Fonte:** element.matches?.('[aria-busy="true"], [role="progressbar"], mat-progress-spinner')
+
+**O que faz:** Recusa confirmação enquanto houver busy/progress/spinner no attachment, preservando ordem upload→submit.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 049 — U04
+
+**Fonte:** ).length;
+
+**O que faz:** Parte sintática/operacional de U04 — "Prontidão da evidência visual": `).length;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 050 — U04
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U04 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 051 — U04
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U04; não altera estado, mas delimita o bloco "Prontidão da evidência visual".
+
+**Como faz:** Exige `img`, source não vazio, `complete !== false`, dimensões naturais positivas e ausência de `aria-busy`, progressbar ou spinner dentro do attachment.
+
+**Por que foi implementado dessa forma:** A simples criação do container pode significar upload ainda pendente; confirmação precoce permitiria enviar prompt antes da imagem estar pronta.
+
+**Por que uma implementação ingênua seria pior:** Tratar qualquer preview como sucesso cria corrida entre upload e submit e pode gerar respostas sem a página de mangá anexada.
+
+### Linha 052 — U05
+
+**Fonte:** function listAttachmentEvidence(root) {
+
+**O que faz:** Declara coletor central de evidências usado por baseline, inspect e diagnóstico.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 053 — U05
+
+**Fonte:** const searchRoot = getSearchRoot(root);
+
+**O que faz:** Normaliza a raiz antes de varrer DOM e shadow roots.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 054 — U05
+
+**Fonte:** if (!searchRoot) return [];
+
+**O que faz:** Retorna coleção vazia, não exceção, quando a raiz inexiste; callers podem permanecer fail-closed.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 055 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 056 — U05
+
+**Fonte:** const evidence = [];
+
+**O que faz:** Inicializa lista ordenada de sinais encontrados.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 057 — U05
+
+**Fonte:** const seen = new Set();
+
+**O que faz:** Mantém identidade de nós já contabilizados para não duplicar evidência como container e imagem.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 058 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 059 — U05
+
+**Fonte:** const containers = domApi.findAllDeep(searchRoot, element => {
+
+**O que faz:** Varre profundamente todos os elementos e aplica heurística de container de attachment.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 060 — U05
+
+**Fonte:** const tag = String(element.tagName \|\| '').toLowerCase();
+
+**O que faz:** Normaliza tagName do candidato para comparação case-insensitive.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 061 — U05
+
+**Fonte:** const tid = String(
+
+**O que faz:** Normaliza `data-test-id`/`data-testid`, cobrindo variantes do atributo usadas pela UI.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 062 — U05
+
+**Fonte:** element.getAttribute?.('data-test-id') \|\|
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 063 — U05
+
+**Fonte:** element.getAttribute?.('data-testid') \|\|
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 064 — U05
+
+**Fonte:** ''
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `''`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 065 — U05
+
+**Fonte:** ).toLowerCase();
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `).toLowerCase();`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 066 — U05
+
+**Fonte:** const className = typeof element.className === 'string'
+
+**O que faz:** Lê classes somente quando representadas como string, evitando pressupor SVG/DOMToken peculiar.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 067 — U05
+
+**Fonte:** ? element.className.toLowerCase()
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `? element.className.toLowerCase()`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 068 — U05
+
+**Fonte:** : '';
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `: '';`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 069 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 070 — U05
+
+**Fonte:** return tag === 'file-preview' \|\|
+
+**O que faz:** Reconhece tags customizadas semanticamente fortes de preview/anexo.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 071 — U05
+
+**Fonte:** tag === 'attachment-card' \|\|
+
+**O que faz:** Reconhece tags customizadas semanticamente fortes de preview/anexo.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 072 — U05
+
+**Fonte:** tid.includes('attachment') \|\|
+
+**O que faz:** Reconhece testids de attachment/preview como sinal estrutural alternativo.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 073 — U05
+
+**Fonte:** tid.includes('preview') \|\|
+
+**O que faz:** Reconhece testids de attachment/preview como sinal estrutural alternativo.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 074 — U05
+
+**Fonte:** className.includes('file-preview') \|\|
+
+**O que faz:** Reconhece famílias de classe de preview/anexo quando tags/testids variam.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 075 — U05
+
+**Fonte:** className.includes('attachment-preview') \|\|
+
+**O que faz:** Reconhece famílias de classe de preview/anexo quando tags/testids variam.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 076 — U05
+
+**Fonte:** className.includes('image-preview') \|\|
+
+**O que faz:** Reconhece famílias de classe de preview/anexo quando tags/testids variam.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 077 — U05
+
+**Fonte:** className.includes('attachment-container');
+
+**O que faz:** Reconhece famílias de classe de preview/anexo quando tags/testids variam.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 078 — U05
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 079 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 080 — U05
+
+**Fonte:** for (const container of containers) {
+
+**O que faz:** Avalia cada container candidato antes de transformá-lo em evidência.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 081 — U05
+
+**Fonte:** if (!isAttachmentContext(container)) continue;
+
+**O que faz:** Descarta container fora do boundary do composer/attachment, inclusive respostas do modelo.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 082 — U05
+
+**Fonte:** let rect = null;
+
+**O que faz:** Declara estado local mutável de U05, limitado ao closure desta operação: `let rect = null;`.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 083 — U05
+
+**Fonte:** try { rect = container.getBoundingClientRect(); } catch (_e) {}
+
+**O que faz:** Mede visibilidade aproximada do container em bloco protegido porque mocks/nós podem lançar.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 084 — U05
+
+**Fonte:** if (!rect \|\| rect.width <= 20 \|\| rect.height <= 20) continue;
+
+**O que faz:** Descarta caixas minúsculas, reduzindo ícones/placeholders confundidos com preview.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 085 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 086 — U05
+
+**Fonte:** const img = domApi.findAllDeep(container, element => String(element.tagName \|\| '').toUpperCase() === 'IMG')[0] \|\| null;
+
+**O que faz:** Procura a primeira imagem inclusive dentro de Shadow DOM do próprio preview.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 087 — U05
+
+**Fonte:** evidence.push({
+
+**O que faz:** Materializa evidência de container com nó, imagem associada, tipo e seletor para diagnóstico.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 088 — U05
+
+**Fonte:** el: container,
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `el: container,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 089 — U05
+
+**Fonte:** img,
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `img,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 090 — U05
+
+**Fonte:** type: 'container',
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `type: 'container',`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 091 — U05
+
+**Fonte:** selector: String(container.tagName \|\| '').toLowerCase(),
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `selector: String(container.tagName // '').toLowerCase(),`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 092 — U05
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 093 — U05
+
+**Fonte:** seen.add(container);
+
+**O que faz:** Marca container já representado para deduplicação posterior.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 094 — U05
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 095 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 096 — U05
+
+**Fonte:** const images = domApi.findAllDeep(searchRoot, element =>
+
+**O que faz:** Inicia segunda passagem por imagens para casos sem container reconhecido.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 097 — U05
+
+**Fonte:** String(element.tagName \|\| '').toUpperCase() === 'IMG'
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `String(element.tagName // '').toUpperCase() === 'IMG'`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 098 — U05
+
+**Fonte:** );
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 099 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 100 — U05
+
+**Fonte:** for (const img of images) {
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `for (const img of images) {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 101 — U05
+
+**Fonte:** if (seen.has(img) \|\| !isAttachmentContext(img)) continue;
+
+**O que faz:** Evita duplicação e aplica novamente o boundary de contexto ao candidato de imagem.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 102 — U05
+
+**Fonte:** const src = domApi.getImageSource(img);
+
+**O que faz:** `dom.js` normaliza currentSrc/src/data-src antes da classificação da imagem.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 103 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 104 — U05
+
+**Fonte:** if (src.startsWith('blob:') \|\| (src.startsWith('data:image/') && src.length > 500)) {
+
+**O que faz:** Trata blob URL e data:image suficientemente grande como fortes sinais de mídia local anexada.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 105 — U05
+
+**Fonte:** evidence.push({
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `evidence.push({`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 106 — U05
+
+**Fonte:** el: img,
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `el: img,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 107 — U05
+
+**Fonte:** img,
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `img,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 108 — U05
+
+**Fonte:** type: 'blob-img',
+
+**O que faz:** Rotula evidência de imagem sem container como `blob-img` para telemetria/diagnóstico.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 109 — U05
+
+**Fonte:** selector: src.startsWith('blob:') ? 'img[src^="blob:"]' : 'img[src^="data:image/"]',
+
+**O que faz:** Trata blob URL e data:image suficientemente grande como fortes sinais de mídia local anexada.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 110 — U05
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 111 — U05
+
+**Fonte:** seen.add(img);
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `seen.add(img);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 112 — U05
+
+**Fonte:** continue;
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `continue;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 113 — U05
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 114 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 115 — U05
+
+**Fonte:** const parentArea = img.closest
+
+**O que faz:** Procura ancestral de área de input para uma terceira heurística restrita ao composer.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 116 — U05
+
+**Fonte:** ? img.closest('rich-textarea, .input-area, .chat-input, input-area')
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `? img.closest('rich-textarea, .input-area, .chat-input, input-area')`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 117 — U05
+
+**Fonte:** : null;
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `: null;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 118 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 119 — U05
+
+**Fonte:** if (parentArea && !domApi.isIgnoredGeminiImageSource(src)) {
+
+**O que faz:** Aceita imagem da área de input somente se `dom.js` não a classificar como avatar/branding/emoji.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 120 — U05
+
+**Fonte:** const width = Number(img.naturalWidth \|\| img.width \|\| 0);
+
+**O que faz:** Exige dimensões naturais positivas para evitar confirmar placeholder/imagem ainda não decodificada.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 121 — U05
+
+**Fonte:** const height = Number(img.naturalHeight \|\| img.height \|\| 0);
+
+**O que faz:** Exige dimensões naturais positivas para evitar confirmar placeholder/imagem ainda não decodificada.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 122 — U05
+
+**Fonte:** if (width > 20 && height > 20) {
+
+**O que faz:** Exige imagem maior que ícone para criar evidência `input-img`.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 123 — U05
+
+**Fonte:** evidence.push({
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `evidence.push({`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 124 — U05
+
+**Fonte:** el: img,
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `el: img,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 125 — U05
+
+**Fonte:** img,
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `img,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 126 — U05
+
+**Fonte:** type: 'input-img',
+
+**O que faz:** Rotula imagem útil da área de input quando não há container estrutural melhor.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 127 — U05
+
+**Fonte:** selector: 'input-area img',
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `selector: 'input-area img',`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 128 — U05
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 129 — U05
+
+**Fonte:** seen.add(img);
+
+**O que faz:** Parte sintática/operacional de U05 — "Coleta profunda de evidências de attachment": `seen.add(img);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 130 — U05
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 131 — U05
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 132 — U05
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 133 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 134 — U05
+
+**Fonte:** return evidence;
+
+**O que faz:** Retorna a coleção de evidências na ordem containers primeiro, imagens fallback depois.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 135 — U05
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U05 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 136 — U05
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U05; não altera estado, mas delimita o bloco "Coleta profunda de evidências de attachment".
+
+**Como faz:** Usa `domApi.findAllDeep`, deduplica com `Set`, exige contexto de attachment, tamanho visual mínimo para containers e aceita imagens blob/data ou imagens úteis dentro da área de input.
+
+**Por que foi implementado dessa forma:** A UI do Gemini muda entre tags, data-testid, classes e Shadow DOM; múltiplos sinais observáveis tornam o detector resiliente sem aceitar imagens de resposta.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único ou busca só por `<img>` teria muitos falsos negativos; aceitar qualquer imagem teria falsos positivos com avatar/resposta/model output.
+
+### Linha 137 — U06
+
+**Fonte:** function evidenceSignature(evidence) {
+
+**O que faz:** Declara assinatura estável usada para detectar mudança relevante desde o baseline.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 138 — U06
+
+**Fonte:** if (!evidence \|\| !evidence.el) return '';
+
+**O que faz:** Representa evidência inválida por assinatura vazia sem lançar.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 139 — U06
+
+**Fonte:** const element = evidence.el;
+
+**O que faz:** Fixa o nó cuja identidade servirá como chave do baseline.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 140 — U06
+
+**Fonte:** const image = evidence.img \|\| (
+
+**O que faz:** Declara dado local de U06 usado na sequência do contrato: `const image = evidence.img \|\| (`.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 141 — U06
+
+**Fonte:** element.querySelector ? element.querySelector('img') : null
+
+**O que faz:** Usa imagem já conhecida ou fallback DOM local quando o coletor não a forneceu.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 142 — U06
+
+**Fonte:** );
+
+**O que faz:** Parte sintática/operacional de U06 — "Assinatura, baseline e detecção de mudança": `);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 143 — U06
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U06; não altera estado, mas delimita o bloco "Assinatura, baseline e detecção de mudança".
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 144 — U06
+
+**Fonte:** const imageSource = image ? domApi.getImageSource(image) : '';
+
+**O que faz:** Inclui identidade da mídia na assinatura, permitindo detectar preview reutilizado com nova imagem.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 145 — U06
+
+**Fonte:** const dataTestId = String(
+
+**O que faz:** Inclui testid estrutural normalizado na assinatura.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 146 — U06
+
+**Fonte:** element.getAttribute?.('data-test-id') \|\|
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 147 — U06
+
+**Fonte:** element.getAttribute?.('data-testid') \|\|
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 148 — U06
+
+**Fonte:** ''
+
+**O que faz:** Parte sintática/operacional de U06 — "Assinatura, baseline e detecção de mudança": `''`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 149 — U06
+
+**Fonte:** );
+
+**O que faz:** Parte sintática/operacional de U06 — "Assinatura, baseline e detecção de mudança": `);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 150 — U06
+
+**Fonte:** const childCount = Number(element.childElementCount \|\| 0);
+
+**O que faz:** Inclui quantidade de filhos como indício de mudança estrutural do mesmo container.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 151 — U06
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U06; não altera estado, mas delimita o bloco "Assinatura, baseline e detecção de mudança".
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 152 — U06
+
+**Fonte:** // A assinatura ignora classe/style/dimensões: esses valores podem mudar
+
+**O que faz:** Comentário de contrato/manutenção: A assinatura ignora classe/style/dimensões: esses valores podem mudar.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 153 — U06
+
+**Fonte:** // apenas por animação, layout tardio ou carregamento de uma preview antiga.
+
+**O que faz:** Comentário de contrato/manutenção: apenas por animação, layout tardio ou carregamento de uma preview antiga..
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 154 — U06
+
+**Fonte:** // Confirmação exige mudança estrutural ou de identidade da mídia.
+
+**O que faz:** Comentário de contrato/manutenção: Confirmação exige mudança estrutural ou de identidade da mídia..
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 155 — U06
+
+**Fonte:** return [
+
+**O que faz:** Inicia vetor de componentes deliberadamente estáveis da assinatura.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 156 — U06
+
+**Fonte:** evidence.type \|\| '',
+
+**O que faz:** Inclui categoria de evidência na assinatura.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 157 — U06
+
+**Fonte:** evidence.selector \|\| '',
+
+**O que faz:** Inclui seletor descritivo na assinatura.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 158 — U06
+
+**Fonte:** dataTestId,
+
+**O que faz:** Inclui identificador de teste do container para detectar mudança de identidade estrutural.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 159 — U06
+
+**Fonte:** childCount,
+
+**O que faz:** Inclui mudança de filhos, permitindo reconhecer preview que ganhou mídia.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 160 — U06
+
+**Fonte:** imageSource,
+
+**O que faz:** Inclui URL/data source da imagem, principal identidade da mídia atual.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 161 — U06
+
+**Fonte:** ].join('\|');
+
+**O que faz:** Serializa os componentes com delimitador estável para comparação simples no Map.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 162 — U06
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U06 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 163 — U06
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U06; não altera estado, mas delimita o bloco "Assinatura, baseline e detecção de mudança".
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 164 — U06
+
+**Fonte:** function captureAttachmentBaseline(root) {
+
+**O que faz:** Declara snapshot pré-upload das assinaturas atuais.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 165 — U06
+
+**Fonte:** const signatures = new Map();
+
+**O que faz:** Usa Map por identidade de elemento para distinguir nó novo de nó reutilizado.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 166 — U06
+
+**Fonte:** for (const evidence of listAttachmentEvidence(root)) {
+
+**O que faz:** Captura toda evidência visível antes do primeiro dispatch.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 167 — U06
+
+**Fonte:** signatures.set(evidence.el, evidenceSignature(evidence));
+
+**O que faz:** Armazena a assinatura original daquele nó para comparação posterior.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 168 — U06
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U06 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 169 — U06
+
+**Fonte:** return { signatures };
+
+**O que faz:** Encapsula o Map em objeto extensível sem expor outro estado mutável.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 170 — U06
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U06 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 171 — U06
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U06; não altera estado, mas delimita o bloco "Assinatura, baseline e detecção de mudança".
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 172 — U06
+
+**Fonte:** function isEvidenceNewOrChanged(evidence, baseline) {
+
+**O que faz:** Declara comparação entre evidência atual e baseline.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 173 — U06
+
+**Fonte:** if (!baseline \|\| !(baseline.signatures instanceof Map)) return true;
+
+**O que faz:** Sem baseline válido, trata evidência como nova; callers sem baseline usam comportamento permissivo explícito.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 174 — U06
+
+**Fonte:** if (!baseline.signatures.has(evidence.el)) return true;
+
+**O que faz:** Nó inexistente no snapshot é definitivamente novo.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 175 — U06
+
+**Fonte:** return baseline.signatures.get(evidence.el) !== evidenceSignature(evidence);
+
+**O que faz:** Nó antigo só conta quando sua assinatura estrutural/mídia realmente mudou.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 176 — U06
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U06 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 177 — U06
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U06; não altera estado, mas delimita o bloco "Assinatura, baseline e detecção de mudança".
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 178 — U06
+
+**Fonte:** function findAttachmentThumbnailDeep(root, baseline = null) {
+
+**O que faz:** Declara consulta conveniente pela primeira evidência ou primeira evidência nova/alterada.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 179 — U06
+
+**Fonte:** const evidence = listAttachmentEvidence(root);
+
+**O que faz:** Declara dado local de U06 usado na sequência do contrato: `const evidence = listAttachmentEvidence(root);`.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 180 — U06
+
+**Fonte:** if (!baseline) return evidence[0] \|\| null;
+
+**O que faz:** Sem baseline retorna primeira evidência disponível; com baseline exige novidade.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 181 — U06
+
+**Fonte:** return evidence.find(item => isEvidenceNewOrChanged(item, baseline)) \|\| null;
+
+**O que faz:** Seleciona o primeiro sinal que passou pelo comparador anti-thumbnail-antigo.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 182 — U06
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U06 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 183 — U06
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U06; não altera estado, mas delimita o bloco "Assinatura, baseline e detecção de mudança".
+
+**Como faz:** A assinatura usa tipo, seletor, data-testid, quantidade de filhos e image source; ignora classe/style/dimensões; o baseline é `Map` por elemento.
+
+**Por que foi implementado dessa forma:** Animações/layout tardio de preview antigo não podem ser confundidos com o upload atual; mudança de mídia/estrutura é um sinal mais forte.
+
+**Por que uma implementação ingênua seria pior:** Comparar classe/style criaria confirmação espúria; comparar só presença do elemento aceitaria thumbnail antigo já existente.
+
+### Linha 184 — U07
+
+**Fonte:** function buildDataTransfer(file) {
+
+**O que faz:** Declara criação do payload transferível do arquivo.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 185 — U07
+
+**Fonte:** const DataTransferImpl = scope.DataTransfer;
+
+**O que faz:** Obtém construtor do próprio scope para funcionar em janela real e harness injetado.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 186 — U07
+
+**Fonte:** if (typeof DataTransferImpl === 'function') {
+
+**O que faz:** Só tenta construção nativa quando o runtime fornece construtor chamável.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 187 — U07
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U07; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 188 — U07
+
+**Fonte:** const transfer = new DataTransferImpl();
+
+**O que faz:** Cria DataTransfer nativo dentro de try porque algumas implementações expõem construtor não utilizável.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 189 — U07
+
+**Fonte:** transfer.items.add(file);
+
+**O que faz:** Insere o arquivo no DataTransfer nativo exatamente uma vez.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 190 — U07
+
+**Fonte:** return transfer;
+
+**O que faz:** Retorna payload nativo completo para paste/drop/input.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 191 — U07
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U07; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 192 — U07
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U07 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 193 — U07
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U07; não altera estado, mas delimita o bloco "Construção de DataTransfer".
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 194 — U07
+
+**Fonte:** // Fallback testável para runtimes sem DataTransfer. Ele continua útil para
+
+**O que faz:** Comentário de contrato/manutenção: Fallback testável para runtimes sem DataTransfer. Ele continua útil para.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 195 — U07
+
+**Fonte:** // eventos sintéticos; assignment em input.files pode rejeitá-lo e é tratado
+
+**O que faz:** Comentário de contrato/manutenção: eventos sintéticos; assignment em input.files pode rejeitá-lo e é tratado.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 196 — U07
+
+**Fonte:** // como uma tentativa falha, nunca como sucesso.
+
+**O que faz:** Comentário de contrato/manutenção: como uma tentativa falha, nunca como sucesso..
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 197 — U07
+
+**Fonte:** const files = [file];
+
+**O que faz:** Fallback mantém coleção mínima contendo o arquivo original.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 198 — U07
+
+**Fonte:** const items = [];
+
+**O que faz:** Fallback cria coleção `items` separada para simular API de DataTransfer.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 199 — U07
+
+**Fonte:** items.add = item => {
+
+**O que faz:** Implementa `items.add` mínimo e idempotente por identidade para o ambiente sem DataTransfer.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 200 — U07
+
+**Fonte:** if (!files.includes(item)) files.push(item);
+
+**O que faz:** Evita inserir o mesmo objeto de arquivo duas vezes no fallback.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 201 — U07
+
+**Fonte:** return item;
+
+**O que faz:** Retorna deste ponto de U07 o valor `item;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 202 — U07
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U07 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 203 — U07
+
+**Fonte:** return { files, items };
+
+**O que faz:** Expõe shape mínimo que os dispatchers deste módulo consomem.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 204 — U07
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U07 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 205 — U07
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U07; não altera estado, mas delimita o bloco "Construção de DataTransfer".
+
+**Como faz:** Tenta `new scope.DataTransfer()` e `items.add(file)`; em fallback mantém arrays `files/items` com `items.add` mínimo.
+
+**Por que foi implementado dessa forma:** Browser real usa `DataTransfer`; JSDOM e alguns runtimes de teste podem não oferecer implementação nativa.
+
+**Por que uma implementação ingênua seria pior:** Mockar fora do módulo esconderia o comportamento de fallback; considerar o fallback garantia de assignment em `input.files` seria incorreto, por isso falha continua sendo tratada como tentativa.
+
+### Linha 206 — U08
+
+**Fonte:** function createClipboardEvent(transfer) {
+
+**O que faz:** Declara fábrica de evento paste com payload transferível.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 207 — U08
+
+**Fonte:** if (typeof scope.ClipboardEvent === 'function') {
+
+**O que faz:** Prefere ClipboardEvent nativo quando disponível.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 208 — U08
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 209 — U08
+
+**Fonte:** return new scope.ClipboardEvent('paste', {
+
+**O que faz:** Cria paste real, bubbling/cancelable/composed, anexando `clipboardData`.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 210 — U08
+
+**Fonte:** bubbles: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `bubbles: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 211 — U08
+
+**Fonte:** cancelable: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `cancelable: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 212 — U08
+
+**Fonte:** composed: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `composed: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 213 — U08
+
+**Fonte:** clipboardData: transfer,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `clipboardData: transfer,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 214 — U08
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 215 — U08
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 216 — U08
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 217 — U08
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U08; não altera estado, mas delimita o bloco "Fábricas de eventos paste/drop".
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 218 — U08
+
+**Fonte:** const event = new scope.Event('paste', {
+
+**O que faz:** Fallback cria Event genérico de paste quando ClipboardEvent não pode ser construído.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 219 — U08
+
+**Fonte:** bubbles: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `bubbles: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 220 — U08
+
+**Fonte:** cancelable: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `cancelable: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 221 — U08
+
+**Fonte:** composed: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `composed: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 222 — U08
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 223 — U08
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 224 — U08
+
+**Fonte:** Object.defineProperty(event, 'clipboardData', {
+
+**O que faz:** Injeta `clipboardData` somente no fallback para preservar contrato dos handlers.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 225 — U08
+
+**Fonte:** value: transfer,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `value: transfer,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 226 — U08
+
+**Fonte:** configurable: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `configurable: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 227 — U08
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 228 — U08
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 229 — U08
+
+**Fonte:** return event;
+
+**O que faz:** Retorna deste ponto de U08 o valor `event;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 230 — U08
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 231 — U08
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U08; não altera estado, mas delimita o bloco "Fábricas de eventos paste/drop".
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 232 — U08
+
+**Fonte:** function createDropEvent(transfer) {
+
+**O que faz:** Declara fábrica equivalente para evento drop.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 233 — U08
+
+**Fonte:** if (typeof scope.DragEvent === 'function') {
+
+**O que faz:** Prefere DragEvent nativo quando disponível.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 234 — U08
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 235 — U08
+
+**Fonte:** return new scope.DragEvent('drop', {
+
+**O que faz:** Cria drop real com `dataTransfer` e propagação composed.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 236 — U08
+
+**Fonte:** bubbles: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `bubbles: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 237 — U08
+
+**Fonte:** cancelable: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `cancelable: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 238 — U08
+
+**Fonte:** composed: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `composed: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 239 — U08
+
+**Fonte:** dataTransfer: transfer,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `dataTransfer: transfer,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 240 — U08
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 241 — U08
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 242 — U08
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 243 — U08
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U08; não altera estado, mas delimita o bloco "Fábricas de eventos paste/drop".
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 244 — U08
+
+**Fonte:** const event = new scope.Event('drop', {
+
+**O que faz:** Fallback cria Event genérico de drop.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 245 — U08
+
+**Fonte:** bubbles: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `bubbles: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 246 — U08
+
+**Fonte:** cancelable: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `cancelable: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 247 — U08
+
+**Fonte:** composed: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `composed: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 248 — U08
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 249 — U08
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 250 — U08
+
+**Fonte:** Object.defineProperty(event, 'dataTransfer', {
+
+**O que faz:** Injeta payload `dataTransfer` no fallback para handlers de drop.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 251 — U08
+
+**Fonte:** value: transfer,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `value: transfer,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 252 — U08
+
+**Fonte:** configurable: true,
+
+**O que faz:** Parte sintática/operacional de U08 — "Fábricas de eventos paste/drop": `configurable: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 253 — U08
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 254 — U08
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U08; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 255 — U08
+
+**Fonte:** return event;
+
+**O que faz:** Retorna deste ponto de U08 o valor `event;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 256 — U08
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U08 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 257 — U08
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U08; não altera estado, mas delimita o bloco "Fábricas de eventos paste/drop".
+
+**Como faz:** Tenta construtores especializados com `bubbles/cancelable/composed`; no fallback cria `Event` e define `clipboardData`/`dataTransfer` via `Object.defineProperty` best-effort.
+
+**Por que foi implementado dessa forma:** O mesmo fluxo precisa funcionar em browsers e no ambiente de testes, inclusive atravessando Shadow DOM via eventos composed.
+
+**Por que uma implementação ingênua seria pior:** Usar apenas Event simples sem payload impediria handlers do Gemini de ler o arquivo; exigir construtor especializado quebraria em runtimes incompletos.
+
+### Linha 258 — U09
+
+**Fonte:** function focusForAttachment({ editor, editorRoot, windowRef = scope.window \|\| scope }) {
+
+**O que faz:** Declara preparação de foco antes de qualquer tentativa de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 259 — U09
+
+**Fonte:** let attempted = false;
+
+**O que faz:** Inicializa indicador de que ao menos uma operação de foco/evento foi tentada.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 260 — U09
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U09; não altera estado, mas delimita o bloco "Foco defensivo antes do upload".
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 261 — U09
+
+**Fonte:** for (const element of new Set([editor, editorRoot].filter(Boolean))) {
+
+**O que faz:** Deduplica editor e composer quando ambos referenciam o mesmo nó.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 262 — U09
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U09; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 263 — U09
+
+**Fonte:** element.focus?.({ preventScroll: true });
+
+**O que faz:** Tenta foco sem deslocar a página, reduzindo interferência visual no RPA.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 264 — U09
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 265 — U09
+
+**Fonte:** } catch (_e) {
+
+**O que faz:** Boundary de exceção best-effort dentro de U09; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 266 — U09
+
+**Fonte:** try { element.focus?.(); attempted = true; } catch (_e2) {}
+
+**O que faz:** Fallback para assinatura de focus simples quando `preventScroll` não é suportado.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 267 — U09
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U09 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 268 — U09
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U09; não altera estado, mas delimita o bloco "Foco defensivo antes do upload".
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 269 — U09
+
+**Fonte:** for (const type of ['focus', 'focusin']) {
+
+**O que faz:** Emite ambos os sinais de foco usados por frameworks para atualizar estado interno.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 270 — U09
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U09; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 271 — U09
+
+**Fonte:** const FocusEventImpl = scope.FocusEvent \|\| scope.Event;
+
+**O que faz:** Usa FocusEvent quando existe, caso contrário Event, preservando execução em JSDOM.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 272 — U09
+
+**Fonte:** element.dispatchEvent(new FocusEventImpl(type, {
+
+**O que faz:** Parte sintática/operacional de U09 — "Foco defensivo antes do upload": `element.dispatchEvent(new FocusEventImpl(type, {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 273 — U09
+
+**Fonte:** bubbles: true,
+
+**O que faz:** Parte sintática/operacional de U09 — "Foco defensivo antes do upload": `bubbles: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 274 — U09
+
+**Fonte:** composed: true,
+
+**O que faz:** Parte sintática/operacional de U09 — "Foco defensivo antes do upload": `composed: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 275 — U09
+
+**Fonte:** }));
+
+**O que faz:** Parte sintática/operacional de U09 — "Foco defensivo antes do upload": `}));`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 276 — U09
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 277 — U09
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U09; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 278 — U09
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U09 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 279 — U09
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U09 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 280 — U09
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U09; não altera estado, mas delimita o bloco "Foco defensivo antes do upload".
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 281 — U09
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U09; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 282 — U09
+
+**Fonte:** windowRef?.dispatchEvent?.(new scope.Event('focus'));
+
+**O que faz:** Também sinaliza foco na janela para fluxos que dependem do contexto ativo.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 283 — U09
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 284 — U09
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U09; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 285 — U09
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U09; não altera estado, mas delimita o bloco "Foco defensivo antes do upload".
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 286 — U09
+
+**Fonte:** return attempted;
+
+**O que faz:** Informa apenas se alguma ação de foco foi tentada; não declara que o browser concedeu foco real.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 287 — U09
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U09 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 288 — U09
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U09; não altera estado, mas delimita o bloco "Foco defensivo antes do upload".
+
+**Como faz:** Deduplica alvos com `Set`, tenta `focus({preventScroll:true})`, cai para `focus()`, despacha FocusEvent/Event e captura falhas individualmente.
+
+**Por que foi implementado dessa forma:** Handlers de paste/drop podem depender do foco real/observado; falhas de um mecanismo não devem impedir os demais mecanismos de upload.
+
+**Por que uma implementação ingênua seria pior:** Um único `focus()` sem fallback falharia silenciosamente em WebViews/implementações parciais; propagar exceção abortaria upload por detalhe de foco.
+
+### Linha 289 — U10
+
+**Fonte:** function dispatchPaste({ editor, editorRoot, root, transfer }) {
+
+**O que faz:** Declara tentativa de paste no editor atual.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 290 — U10
+
+**Fonte:** let attempted = false;
+
+**O que faz:** Inicializa indicador de que ao menos uma operação de foco/evento foi tentada.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 291 — U10
+
+**Fonte:** const targets = [editor \|\| editorRoot];
+
+**O que faz:** Escolhe editor prioritariamente e usa composer apenas como fallback.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 292 — U10
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U10; não altera estado, mas delimita o bloco "Dispatch isolado: paste, file input e drop".
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 293 — U10
+
+**Fonte:** for (const target of targets) {
+
+**O que faz:** Parte sintática/operacional de U10 — "Dispatch isolado: paste, file input e drop": `for (const target of targets) {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 294 — U10
+
+**Fonte:** if (!target \|\| typeof target.dispatchEvent !== 'function') continue;
+
+**O que faz:** Ignora alvo inválido/desconectado sem transformar erro de DOM em sucesso.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 295 — U10
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U10; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 296 — U10
+
+**Fonte:** target.dispatchEvent(createClipboardEvent(transfer));
+
+**O que faz:** Despacha paste contendo o arquivo; retorno do listener não é usado como confirmação.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 297 — U10
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 298 — U10
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U10; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 299 — U10
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U10 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 300 — U10
+
+**Fonte:** return attempted;
+
+**O que faz:** Retorna deste ponto de U10 o valor `attempted;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 301 — U10
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U10 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 302 — U10
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U10; não altera estado, mas delimita o bloco "Dispatch isolado: paste, file input e drop".
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 303 — U10
+
+**Fonte:** function assignFileInputs({ root, transfer }) {
+
+**O que faz:** Declara tentativa via o melhor `input[type=file]` descoberto.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 304 — U10
+
+**Fonte:** let attempted = false;
+
+**O que faz:** Inicializa indicador de que ao menos uma operação de foco/evento foi tentada.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 305 — U10
+
+**Fonte:** const searchRoot = getSearchRoot(root);
+
+**O que faz:** Normaliza a raiz antes de varrer DOM e shadow roots.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 306 — U10
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U10; não altera estado, mas delimita o bloco "Dispatch isolado: paste, file input e drop".
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 307 — U10
+
+**Fonte:** for (const input of findFileInputsDeep(searchRoot).slice(0, 1)) {
+
+**O que faz:** Limita a um único input para reduzir risco de anexos duplicados em controles paralelos.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 308 — U10
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U10; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 309 — U10
+
+**Fonte:** input.files = transfer.files;
+
+**O que faz:** Tenta atribuir FileList/coleção do transfer; pode lançar em runtimes que exigem FileList nativo.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 310 — U10
+
+**Fonte:** input.dispatchEvent(new scope.Event('input', { bubbles: true, composed: true }));
+
+**O que faz:** Notifica frameworks sobre mudança do valor do input antes do change.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 311 — U10
+
+**Fonte:** input.dispatchEvent(new scope.Event('change', { bubbles: true, composed: true }));
+
+**O que faz:** Dispara change, evento tradicional observado pelo uploader do site.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 312 — U10
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 313 — U10
+
+**Fonte:** } catch (_e) {}
+
+**O que faz:** Boundary de exceção best-effort dentro de U10; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 314 — U10
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U10 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 315 — U10
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U10; não altera estado, mas delimita o bloco "Dispatch isolado: paste, file input e drop".
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 316 — U10
+
+**Fonte:** return attempted;
+
+**O que faz:** Retorna deste ponto de U10 o valor `attempted;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 317 — U10
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U10 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 318 — U10
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U10; não altera estado, mas delimita o bloco "Dispatch isolado: paste, file input e drop".
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 319 — U10
+
+**Fonte:** function dispatchDrop({ editorRoot, transfer }) {
+
+**O que faz:** Declara tentativa de drop diretamente no composer.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 320 — U10
+
+**Fonte:** if (!editorRoot \|\| typeof editorRoot.dispatchEvent !== 'function') return false;
+
+**O que faz:** Recusa drop quando não há alvo despachável.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 321 — U10
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U10; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 322 — U10
+
+**Fonte:** editorRoot.dispatchEvent(createDropEvent(transfer));
+
+**O que faz:** Despacha drop com DataTransfer no composer sem interpretar o retorno como confirmação.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 323 — U10
+
+**Fonte:** return true;
+
+**O que faz:** Retorna deste ponto de U10 o valor `true;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 324 — U10
+
+**Fonte:** } catch (_e) {
+
+**O que faz:** Boundary de exceção best-effort dentro de U10; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 325 — U10
+
+**Fonte:** return false;
+
+**O que faz:** Retorna deste ponto de U10 o valor `false;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 326 — U10
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U10 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 327 — U10
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U10 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 328 — U10
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U10; não altera estado, mas delimita o bloco "Dispatch isolado: paste, file input e drop".
+
+**Como faz:** Paste despacha ClipboardEvent no editor; file input seleciona o melhor input profundo, atribui `transfer.files` e emite input/change; drop despacha DragEvent na raiz do composer.
+
+**Por que foi implementado dessa forma:** Gemini pode aceitar mecanismos diferentes conforme versão/estado da UI; fallback ordenado aumenta robustez sem declarar sucesso por dispatch.
+
+**Por que uma implementação ingênua seria pior:** Depender de um único método tornaria o RPA sensível a mudança de implementação; disparar todos sem observar sinal pode anexar a mesma imagem várias vezes.
+
+### Linha 329 — U11
+
+**Fonte:** function dispatchAttachmentAttempt({
+
+**O que faz:** Declara helper que tenta os três mecanismos e registra quais foram realmente despachados.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 330 — U11
+
+**Fonte:** editor,
+
+**O que faz:** Recebe editor atual onde paste pode ser despachado.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 331 — U11
+
+**Fonte:** editorRoot,
+
+**O que faz:** Parte sintática/operacional de U11 — "Tentativa agregada exportada": `editorRoot,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 332 — U11
+
+**Fonte:** root,
+
+**O que faz:** Parte sintática/operacional de U11 — "Tentativa agregada exportada": `root,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 333 — U11
+
+**Fonte:** transfer,
+
+**O que faz:** Parte sintática/operacional de U11 — "Tentativa agregada exportada": `transfer,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 334 — U11
+
+**Fonte:** includeDrop = true,
+
+**O que faz:** Parte sintática/operacional de U11 — "Tentativa agregada exportada": `includeDrop = true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 335 — U11
+
+**Fonte:** }) {
+
+**O que faz:** Parte sintática/operacional de U11 — "Tentativa agregada exportada": `}) {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 336 — U11
+
+**Fonte:** const methods = [];
+
+**O que faz:** Acumula nomes de mecanismos tentados para observabilidade.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 337 — U11
+
+**Fonte:** let attempted = false;
+
+**O que faz:** Inicializa indicador de que ao menos uma operação de foco/evento foi tentada.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 338 — U11
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U11; não altera estado, mas delimita o bloco "Tentativa agregada exportada".
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 339 — U11
+
+**Fonte:** if (dispatchPaste({ editor, editorRoot, root, transfer })) {
+
+**O que faz:** Registra `paste` somente quando o dispatch foi executado.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 340 — U11
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 341 — U11
+
+**Fonte:** methods.push('paste');
+
+**O que faz:** Adiciona marcador paste à telemetria da tentativa agregada.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 342 — U11
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U11 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 343 — U11
+
+**Fonte:** if (assignFileInputs({ root, transfer })) {
+
+**O que faz:** Tenta input de arquivo independentemente de paste, sem chamar isso de confirmação.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 344 — U11
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 345 — U11
+
+**Fonte:** methods.push('file_input');
+
+**O que faz:** Registra uso do input de arquivo.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 346 — U11
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U11 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 347 — U11
+
+**Fonte:** if (includeDrop && dispatchDrop({ editorRoot, transfer })) {
+
+**O que faz:** Permite desabilitar drop explicitamente e registra somente quando despachado.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 348 — U11
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 349 — U11
+
+**Fonte:** methods.push('drop');
+
+**O que faz:** Registra uso do mecanismo drop.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 350 — U11
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U11 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 351 — U11
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U11; não altera estado, mas delimita o bloco "Tentativa agregada exportada".
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 352 — U11
+
+**Fonte:** return { attempted, methods };
+
+**O que faz:** Retorna tentativa + lista de métodos; ausência de `confirmed` evita semântica enganosa.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 353 — U11
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U11 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 354 — U11
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U11; não altera estado, mas delimita o bloco "Tentativa agregada exportada".
+
+**Como faz:** Acumula `attempted` e nomes em array, respeitando `includeDrop`.
+
+**Por que foi implementado dessa forma:** Fornece helper reutilizável/diagnóstico sem confundir tentativa com confirmação.
+
+**Por que uma implementação ingênua seria pior:** Retornar apenas booleano perderia rastreabilidade de qual mecanismo atuou; chamar isso de sucesso quebraria o contrato central do arquivo.
+
+### Linha 355 — U12
+
+**Fonte:** function createAttachmentConfirmation({
+
+**O que faz:** Declara handshake observável, separado do dispatch que inicia o upload.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 356 — U12
+
+**Fonte:** root,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `root,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 357 — U12
+
+**Fonte:** baseline = captureAttachmentBaseline(root),
+
+**O que faz:** Por padrão captura snapshot imediatamente na criação, antes de observar mudanças.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 358 — U12
+
+**Fonte:** timeoutMs = 15000,
+
+**O que faz:** Define timeout padrão de 15 s; o jobRunner usa 20 s explicitamente.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 359 — U12
+
+**Fonte:** MutationObserverImpl = scope.MutationObserver,
+
+**O que faz:** Permite injeção do observer em testes e usa implementação real no browser.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 360 — U12
+
+**Fonte:** setTimeoutFn = scope.setTimeout?.bind(scope) \|\| setTimeout,
+
+**O que faz:** Injeta scheduler de timeout mantendo binding correto do scope.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 361 — U12
+
+**Fonte:** clearTimeoutFn = scope.clearTimeout?.bind(scope) \|\| clearTimeout,
+
+**O que faz:** Injeta cancelador correspondente para cleanup determinístico.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 362 — U12
+
+**Fonte:** } = {}) {
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `} = {}) {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 363 — U12
+
+**Fonte:** if (!root \|\| typeof MutationObserverImpl !== 'function') {
+
+**O que faz:** Sem raiz/observer não tenta fingir sucesso: devolve confirmação resolvida como falsa.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 364 — U12
+
+**Fonte:** const promise = Promise.resolve({ confirmed: false, evidence: null });
+
+**O que faz:** Materializa resultado fail-closed imediato para ambiente sem capacidade de observação.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 365 — U12
+
+**Fonte:** return {
+
+**O que faz:** Retorna deste ponto de U12 o valor `{`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 366 — U12
+
+**Fonte:** promise,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `promise,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 367 — U12
+
+**Fonte:** inspect: () => null,
+
+**O que faz:** No modo incapaz, inspect nunca inventa evidência.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 368 — U12
+
+**Fonte:** stop: () => false,
+
+**O que faz:** No modo incapaz, stop sinaliza que não havia handshake ativo para finalizar.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 369 — U12
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 370 — U12
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 371 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 372 — U12
+
+**Fonte:** let settled = false;
+
+**O que faz:** Guard idempotente impede dupla resolução por observer, timer, load ou stop concorrentes.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 373 — U12
+
+**Fonte:** let observer = null;
+
+**O que faz:** Mantém referência para desconectar MutationObserver no encerramento.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 374 — U12
+
+**Fonte:** let timer = null;
+
+**O que faz:** Mantém timeout principal para cancelamento.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 375 — U12
+
+**Fonte:** let resolvePromise = null;
+
+**O que faz:** Armazena resolver da Promise compartilhada pelo handshake.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 376 — U12
+
+**Fonte:** let observedEvidence = null;
+
+**O que faz:** Registra primeiro/último sinal novo mesmo ainda não pronto; isso bloqueia redispatch em attachFile.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 377 — U12
+
+**Fonte:** let pollTimer = null;
+
+**O que faz:** Mantém timer de polling periódico separado do timeout total.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 378 — U12
+
+**Fonte:** const eventRoots = new Set();
+
+**O que faz:** Rastreia raízes onde listeners load/error foram instalados para removê-los depois.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 379 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 380 — U12
+
+**Fonte:** const promise = new Promise(resolve => {
+
+**O que faz:** Cria Promise única resolvida apenas por `finish`.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 381 — U12
+
+**Fonte:** resolvePromise = resolve;
+
+**O que faz:** Captura resolver no closure do handshake.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 382 — U12
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 383 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 384 — U12
+
+**Fonte:** const finish = result => {
+
+**O que faz:** Centraliza transição terminal e todo cleanup, retornando false em segunda tentativa de encerramento.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 385 — U12
+
+**Fonte:** if (settled) return false;
+
+**O que faz:** Impede resolução/cleanup duplicado sob corrida entre timeout, observer e stop.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 386 — U12
+
+**Fonte:** settled = true;
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `settled = true;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 387 — U12
+
+**Fonte:** if (observer) {
+
+**O que faz:** Guarda concreta de U12: `if (observer) {`; restringe a execução ao estado previsto pelo contrato da unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 388 — U12
+
+**Fonte:** try { observer.disconnect(); } catch (_e) {}
+
+**O que faz:** Desconecta observação DOM assim que há resultado terminal.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 389 — U12
+
+**Fonte:** observer = null;
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `observer = null;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 390 — U12
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 391 — U12
+
+**Fonte:** if (timer !== null) {
+
+**O que faz:** Guarda concreta de U12: `if (timer !== null) {`; restringe a execução ao estado previsto pelo contrato da unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 392 — U12
+
+**Fonte:** try { clearTimeoutFn(timer); } catch (_e) {}
+
+**O que faz:** Cancela timeout total quando confirmação/stop acontece antes.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 393 — U12
+
+**Fonte:** timer = null;
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `timer = null;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 394 — U12
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 395 — U12
+
+**Fonte:** for (const target of eventRoots) {
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `for (const target of eventRoots) {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 396 — U12
+
+**Fonte:** target.removeEventListener?.('load', inspect, true);
+
+**O que faz:** Remove listeners de load registrados em cada raiz observada.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 397 — U12
+
+**Fonte:** target.removeEventListener?.('error', inspect, true);
+
+**O que faz:** Remove listeners de error correspondentes, evitando vazamento por job.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 398 — U12
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 399 — U12
+
+**Fonte:** eventRoots.clear();
+
+**O que faz:** Libera referências às raízes após remover listeners.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 400 — U12
+
+**Fonte:** if (pollTimer !== null) clearTimeoutFn(pollTimer);
+
+**O que faz:** Cancela polling pendente no mesmo encerramento.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 401 — U12
+
+**Fonte:** resolvePromise({ ...result, signalObserved: Boolean(observedEvidence) });
+
+**O que faz:** Resolve incluindo `signalObserved`, diferenciando 'nenhum sinal' de 'preview apareceu mas não ficou pronto'.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 402 — U12
+
+**Fonte:** return true;
+
+**O que faz:** Retorna deste ponto de U12 o valor `true;`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 403 — U12
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 404 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 405 — U12
+
+**Fonte:** const inspect = () => {
+
+**O que faz:** Declara inspeção síncrona reaproveitada por observer, listeners, polling e attachFile.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 406 — U12
+
+**Fonte:** if (settled) return null;
+
+**O que faz:** Após término, inspect não toca novamente no DOM nem altera resultado.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 407 — U12
+
+**Fonte:** const candidates = listAttachmentEvidence(root).filter(item => isEvidenceNewOrChanged(item, baseline));
+
+**O que faz:** Recalcula evidências e mantém apenas nós novos ou estruturalmente alterados desde baseline.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 408 — U12
+
+**Fonte:** const evidence = candidates.find(evidenceReady) \|\| candidates[0];
+
+**O que faz:** Prefere evidência pronta, mas retém sinal pendente para impedir redispatch duplicado.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 409 — U12
+
+**Fonte:** if (!evidence) return null;
+
+**O que faz:** Sem mudança relevante, permanece aguardando sem mudar estado.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 410 — U12
+
+**Fonte:** observedEvidence = evidence;
+
+**O que faz:** Memoriza sinal mesmo antes da prontidão; `hasSignal` usa este estado como anti-duplicação.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 411 — U12
+
+**Fonte:** if (evidenceReady(evidence)) finish({ confirmed: true, evidence });
+
+**O que faz:** Somente evidência nova/alterada **e pronta** resolve `confirmed:true`.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 412 — U12
+
+**Fonte:** return evidence;
+
+**O que faz:** Retorna a coleção de evidências na ordem containers primeiro, imagens fallback depois.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 413 — U12
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 414 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 415 — U12
+
+**Fonte:** const observeRoot = getSearchRoot(root);
+
+**O que faz:** Escolhe nó observável real a partir de Document/Element fornecido.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 416 — U12
+
+**Fonte:** observer = new MutationObserverImpl(inspect);
+
+**O que faz:** Liga todas as mutações relevantes ao mesmo verificador de estado.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 417 — U12
+
+**Fonte:** observer.observe(observeRoot, {
+
+**O que faz:** Observa inserção/remoção e atributos relevantes no subtree principal.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 418 — U12
+
+**Fonte:** childList: true,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `childList: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 419 — U12
+
+**Fonte:** subtree: true,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `subtree: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 420 — U12
+
+**Fonte:** attributes: true,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `attributes: true,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 421 — U12
+
+**Fonte:** attributeFilter: [
+
+**O que faz:** Restringe atributos observados a campos capazes de refletir mídia/visibilidade/identidade do preview.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 422 — U12
+
+**Fonte:** 'src',
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 423 — U12
+
+**Fonte:** 'data-src',
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 424 — U12
+
+**Fonte:** 'class',
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `'class',`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 425 — U12
+
+**Fonte:** 'style',
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `'style',`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 426 — U12
+
+**Fonte:** 'aria-hidden',
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 427 — U12
+
+**Fonte:** 'data-test-id',
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 428 — U12
+
+**Fonte:** 'data-testid',
+
+**O que faz:** Inclui atributo relevante na whitelist do observer para detectar transição do preview.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 429 — U12
+
+**Fonte:** ],
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `],`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 430 — U12
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 431 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 432 — U12
+
+**Fonte:** for (const target of [observeRoot, ...domApi.findAllDeep(observeRoot, element => Boolean(element.shadowRoot)).map(element => element.shadowRoot)]) {
+
+**O que faz:** Descobre shadow roots já existentes e também os observa explicitamente.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 433 — U12
+
+**Fonte:** if (target !== observeRoot) observer.observe(target, { childList: true, subtree: true, attributes: true });
+
+**O que faz:** Adiciona observação em cada ShadowRoot encontrado, pois MutationObserver da árvore externa não atravessa essa fronteira.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 434 — U12
+
+**Fonte:** target.addEventListener?.('load', inspect, true);
+
+**O que faz:** Escuta load em captura para reavaliar imagem que ficou pronta sem mutação estrutural adicional.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 435 — U12
+
+**Fonte:** target.addEventListener?.('error', inspect, true);
+
+**O que faz:** Escuta error para reavaliar/terminar por timeout sem assumir que mídia quebrada confirmou.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 436 — U12
+
+**Fonte:** eventRoots.add(target);
+
+**O que faz:** Registra a raiz para cleanup posterior dos listeners.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 437 — U12
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 438 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 439 — U12
+
+**Fonte:** timer = setTimeoutFn(
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `timer = setTimeoutFn(`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 440 — U12
+
+**Fonte:** () => finish({ confirmed: false, evidence: null }),
+
+**O que faz:** Timeout encerra fail-closed com evidence nula, mesmo que dispatch tenha ocorrido.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 441 — U12
+
+**Fonte:** timeoutMs
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `timeoutMs`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 442 — U12
+
+**Fonte:** );
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 443 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 444 — U12
+
+**Fonte:** const poll = () => {
+
+**O que faz:** Declara fallback de polling para mudanças não capturadas pelo observer/listeners.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 445 — U12
+
+**Fonte:** if (settled) return;
+
+**O que faz:** Guarda concreta de U12: `if (settled) return;`; restringe a execução ao estado previsto pelo contrato da unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 446 — U12
+
+**Fonte:** inspect();
+
+**O que faz:** Executa inspeção imediata; como baseline já existe, somente novidade/mudança pode ser aceita.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 447 — U12
+
+**Fonte:** if (!settled) pollTimer = setTimeoutFn(poll, 500);
+
+**O que faz:** Agenda inspeções a cada 500 ms enquanto não settled.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 448 — U12
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 449 — U12
+
+**Fonte:** pollTimer = setTimeoutFn(poll, 500);
+
+**O que faz:** Agenda inspeções a cada 500 ms enquanto não settled.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 450 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 451 — U12
+
+**Fonte:** // O baseline foi capturado antes; esta inspeção imediata só aceita algo
+
+**O que faz:** Comentário de contrato/manutenção: O baseline foi capturado antes; esta inspeção imediata só aceita algo.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 452 — U12
+
+**Fonte:** // novo/alterado, nunca um thumbnail antigo.
+
+**O que faz:** Comentário de contrato/manutenção: novo/alterado, nunca um thumbnail antigo..
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 453 — U12
+
+**Fonte:** inspect();
+
+**O que faz:** Executa inspeção imediata; como baseline já existe, somente novidade/mudança pode ser aceita.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 454 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 455 — U12
+
+**Fonte:** return {
+
+**O que faz:** Retorna deste ponto de U12 o valor `{`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 456 — U12
+
+**Fonte:** promise,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `promise,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 457 — U12
+
+**Fonte:** inspect,
+
+**O que faz:** Parte sintática/operacional de U12 — "Handshake observável de confirmação": `inspect,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 458 — U12
+
+**Fonte:** hasSignal: () => Boolean(observedEvidence),
+
+**O que faz:** Expõe presença de qualquer sinal novo para o orquestrador interromper novos dispatches antes da confirmação.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 459 — U12
+
+**Fonte:** stop() {
+
+**O que faz:** Expõe cancelamento explícito que passa pelo mesmo cleanup idempotente.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 460 — U12
+
+**Fonte:** return finish({ confirmed: false, evidence: null });
+
+**O que faz:** Retorna deste ponto de U12 o valor `finish({ confirmed: false, evidence: null });`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 461 — U12
+
+**Fonte:** },
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 462 — U12
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 463 — U12
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U12 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 464 — U12
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U12; não altera estado, mas delimita o bloco "Handshake observável de confirmação".
+
+**Como faz:** Captura baseline, instala `MutationObserver` na raiz e shadow roots existentes, registra listeners, faz polling a cada 500 ms e centraliza cleanup/resolução em `finish` idempotente.
+
+**Por que foi implementado dessa forma:** Nem toda atualização de preview dispara a mesma mutação no mesmo nó; combinar observer, load/error e polling reduz misses sem confirmar estado antigo.
+
+**Por que uma implementação ingênua seria pior:** Só MutationObserver pode perder mudanças internas/Shadow DOM tardias; só polling aumenta latência; sem cleanup timers/listeners poderiam vazar após cada job.
+
+### Linha 465 — U13
+
+**Fonte:** function waitForAttachment(options = {}) {
+
+**O que faz:** Declara wrapper Promise-only do handshake.
+
+**Como faz:** Delega integralmente a `createAttachmentConfirmation(options).promise`.
+
+**Por que foi implementado dessa forma:** Mantém API simples para espera passiva sem duplicar lógica.
+
+**Por que uma implementação ingênua seria pior:** Reimplementar espera em outro helper criaria dois critérios de confirmação divergentes.
+
+### Linha 466 — U13
+
+**Fonte:** return createAttachmentConfirmation(options).promise;
+
+**O que faz:** Reutiliza exatamente o mesmo mecanismo de confirmação, sem segundo critério.
+
+**Como faz:** Delega integralmente a `createAttachmentConfirmation(options).promise`.
+
+**Por que foi implementado dessa forma:** Mantém API simples para espera passiva sem duplicar lógica.
+
+**Por que uma implementação ingênua seria pior:** Reimplementar espera em outro helper criaria dois critérios de confirmação divergentes.
+
+### Linha 467 — U13
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U13 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Delega integralmente a `createAttachmentConfirmation(options).promise`.
+
+**Por que foi implementado dessa forma:** Mantém API simples para espera passiva sem duplicar lógica.
+
+**Por que uma implementação ingênua seria pior:** Reimplementar espera em outro helper criaria dois critérios de confirmação divergentes.
+
+### Linha 468 — U13
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U13; não altera estado, mas delimita o bloco "Wrapper waitForAttachment".
+
+**Como faz:** Delega integralmente a `createAttachmentConfirmation(options).promise`.
+
+**Por que foi implementado dessa forma:** Mantém API simples para espera passiva sem duplicar lógica.
+
+**Por que uma implementação ingênua seria pior:** Reimplementar espera em outro helper criaria dois critérios de confirmação divergentes.
+
+### Linha 469 — U14
+
+**Fonte:** async function attachFile({
+
+**O que faz:** Declara API principal de upload confirmável usada pelo jobRunner.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 470 — U14
+
+**Fonte:** file,
+
+**O que faz:** Recebe o `File` concreto criado a partir da página do mangá.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 471 — U14
+
+**Fonte:** editor,
+
+**O que faz:** Recebe editor atual onde paste pode ser despachado.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 472 — U14
+
+**Fonte:** editorRoot = editor,
+
+**O que faz:** Usa editor como raiz padrão quando o caller não fornece composer separado.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 473 — U14
+
+**Fonte:** getEditor = null,
+
+**O que faz:** Permite renovar editor entre tentativas após re-render do Gemini.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 474 — U14
+
+**Fonte:** getEditorRoot = null,
+
+**O que faz:** Permite renovar composer entre tentativas pelo mesmo motivo.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 475 — U14
+
+**Fonte:** dispatchMethodFn = null,
+
+**O que faz:** Permite um dispatcher externo/injetado por método; quando ausente usa dispatchers do isolated world.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 476 — U14
+
+**Fonte:** onAttempt = null,
+
+**O que faz:** Callback de observabilidade recebe cada método, sucesso de dispatch, motivo e world.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 477 — U14
+
+**Fonte:** root = scope.document,
+
+**O que faz:** Usa documento do content script como raiz padrão da evidência.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 478 — U14
+
+**Fonte:** timeoutMs = 15000,
+
+**O que faz:** Define timeout padrão de 15 s; o jobRunner usa 20 s explicitamente.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 479 — U14
+
+**Fonte:** retryAfterMs = 2500,
+
+**O que faz:** Define janela padrão de observação antes de tentar mecanismo seguinte.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 480 — U14
+
+**Fonte:** maxDispatches = 3,
+
+**O que faz:** Limita tentativas efetivamente despachadas ao máximo de três mecanismos.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 481 — U14
+
+**Fonte:** sleep = ms => new Promise(resolve => setTimeout(resolve, ms)),
+
+**O que faz:** Permite injetar espera determinística nos testes e usar setTimeout em produção.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 482 — U14
+
+**Fonte:** MutationObserverImpl = scope.MutationObserver,
+
+**O que faz:** Permite injeção do observer em testes e usa implementação real no browser.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 483 — U14
+
+**Fonte:** setTimeoutFn = scope.setTimeout?.bind(scope) \|\| setTimeout,
+
+**O que faz:** Injeta scheduler de timeout mantendo binding correto do scope.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 484 — U14
+
+**Fonte:** clearTimeoutFn = scope.clearTimeout?.bind(scope) \|\| clearTimeout,
+
+**O que faz:** Injeta cancelador correspondente para cleanup determinístico.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 485 — U14
+
+**Fonte:** } = {}) {
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `} = {}) {`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 486 — U14
+
+**Fonte:** if (!file \|\| !editor \|\| !root \|\| typeof MutationObserverImpl !== 'function') {
+
+**O que faz:** Valida pré-condições e capacidade de observação; entrada inválida retorna falha sem side effects.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 487 — U14
+
+**Fonte:** return {
+
+**O que faz:** Retorna deste ponto de U14 o valor `{`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 488 — U14
+
+**Fonte:** confirmed: false,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `confirmed: false,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 489 — U14
+
+**Fonte:** attempted: false,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `attempted: false,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 490 — U14
+
+**Fonte:** evidence: null,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `evidence: null,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 491 — U14
+
+**Fonte:** methodsAttempted: [],
+
+**O que faz:** Falha de pré-condição declara explicitamente que nenhum mecanismo foi tentado.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 492 — U14
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 493 — U14
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 494 — U14
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U14; não altera estado, mas delimita o bloco "Orquestração attachFile e anti-duplicação".
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 495 — U14
+
+**Fonte:** const baseline = captureAttachmentBaseline(root);
+
+**O que faz:** Por padrão captura snapshot imediatamente na criação, antes de observar mudanças.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 496 — U14
+
+**Fonte:** const confirmation = createAttachmentConfirmation({
+
+**O que faz:** Arma observer/timeout antes do primeiro dispatch para não perder preview muito rápido.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 497 — U14
+
+**Fonte:** root,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `root,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 498 — U14
+
+**Fonte:** baseline,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `baseline,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 499 — U14
+
+**Fonte:** timeoutMs,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `timeoutMs,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 500 — U14
+
+**Fonte:** MutationObserverImpl,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `MutationObserverImpl,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 501 — U14
+
+**Fonte:** setTimeoutFn,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `setTimeoutFn,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 502 — U14
+
+**Fonte:** clearTimeoutFn,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `clearTimeoutFn,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 503 — U14
+
+**Fonte:** });
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 504 — U14
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U14; não altera estado, mas delimita o bloco "Orquestração attachFile e anti-duplicação".
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 505 — U14
+
+**Fonte:** focusForAttachment({ editor, editorRoot });
+
+**O que faz:** Prepara foco inicial antes de construir/usar mecanismos de upload.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 506 — U14
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U14; não altera estado, mas delimita o bloco "Orquestração attachFile e anti-duplicação".
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 507 — U14
+
+**Fonte:** const transfer = buildDataTransfer(file);
+
+**O que faz:** Constrói payload único reutilizado pelos métodos deste attachment.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 508 — U14
+
+**Fonte:** const methodsAttempted = new Set();
+
+**O que faz:** Deduplica nomes de métodos efetivamente usados na resposta final.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 509 — U14
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U14; não altera estado, mas delimita o bloco "Orquestração attachFile e anti-duplicação".
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 510 — U14
+
+**Fonte:** let attempted = false;
+
+**O que faz:** Inicializa indicador de que ao menos uma operação de foco/evento foi tentada.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 511 — U14
+
+**Fonte:** const methods = [
+
+**O que faz:** Define ordem explícita `file_input`, depois `drop`, depois `paste` para esta API principal.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 512 — U14
+
+**Fonte:** ['file_input', () => assignFileInputs({ root, transfer })],
+
+**O que faz:** Primeiro tenta input nativo, geralmente caminho mais direto quando o controle existe.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 513 — U14
+
+**Fonte:** ['drop', () => dispatchDrop({ editorRoot, transfer })],
+
+**O que faz:** Segundo tenta drop no composer se o input não iniciou evidência.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 514 — U14
+
+**Fonte:** ['paste', () => dispatchPaste({ editor, editorRoot, root, transfer })],
+
+**O que faz:** Paste é último fallback da sequência principal.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 515 — U14
+
+**Fonte:** ];
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 516 — U14
+
+**Fonte:** let dispatchCount = 0;
+
+**O que faz:** Conta somente dispatches que retornaram `attempted:true`, não métodos ignorados.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 517 — U14
+
+**Fonte:** for (const [method, dispatch] of methods) {
+
+**O que faz:** Itera mecanismos em ordem estável, no máximo uma vez por entrada do array.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 518 — U14
+
+**Fonte:** if (dispatchCount >= maxDispatches) break;
+
+**O que faz:** Respeita limite configurado antes de iniciar método adicional.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 519 — U14
+
+**Fonte:** confirmation.inspect();
+
+**O que faz:** Reinspeciona DOM imediatamente antes/depois do dispatch para reduzir janela de corrida.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 520 — U14
+
+**Fonte:** // Uma preview pendente é sinal de upload em andamento, não autorização
+
+**O que faz:** Comentário de contrato/manutenção: Uma preview pendente é sinal de upload em andamento, não autorização.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 521 — U14
+
+**Fonte:** // para repetir a imagem por outro mecanismo.
+
+**O que faz:** Comentário de contrato/manutenção: para repetir a imagem por outro mecanismo..
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 522 — U14
+
+**Fonte:** if (confirmation.hasSignal()) break;
+
+**O que faz:** Interrompe métodos adicionais assim que surge preview novo/alterado, mesmo ainda carregando.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 523 — U14
+
+**Fonte:** const currentEditor = typeof getEditor === 'function' ? getEditor() : editor;
+
+**O que faz:** Renova referência ao editor via getter quando caller forneceu seletor live.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 524 — U14
+
+**Fonte:** const currentRoot = typeof getEditorRoot === 'function' ? getEditorRoot() : editorRoot;
+
+**O que faz:** Renova referência ao composer correspondente antes do método atual.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 525 — U14
+
+**Fonte:** if (!currentEditor \|\| !currentRoot \|\| currentEditor.isConnected === false \|\| currentRoot.isConnected === false) {
+
+**O que faz:** Recusa despachar em nó explicitamente desconectado; reporta motivo em vez de contar tentativa.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 526 — U14
+
+**Fonte:** onAttempt?.({ method, attempted: false, reason: 'editor_disconnected' });
+
+**O que faz:** Telemetria distingue ausência/re-render do editor de falha do mecanismo de upload.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 527 — U14
+
+**Fonte:** continue;
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `continue;`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 528 — U14
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 529 — U14
+
+**Fonte:** editor = currentEditor;
+
+**O que faz:** Substitui referência stale pelo editor live selecionado para esta tentativa.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 530 — U14
+
+**Fonte:** editorRoot = currentRoot;
+
+**O que faz:** Substitui raiz stale pelo composer live correspondente.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 531 — U14
+
+**Fonte:** focusForAttachment({ editor, editorRoot });
+
+**O que faz:** Prepara foco inicial antes de construir/usar mecanismos de upload.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 532 — U14
+
+**Fonte:** let dispatched = false;
+
+**O que faz:** Inicializa resultado do método atual como não despachado.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 533 — U14
+
+**Fonte:** let reason = null;
+
+**O que faz:** Inicializa diagnóstico opcional do dispatcher externo.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 534 — U14
+
+**Fonte:** try {
+
+**O que faz:** Boundary de exceção best-effort dentro de U14; uma falha desta integração não deve ser confundida com confirmação de upload.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 535 — U14
+
+**Fonte:** const result = typeof dispatchMethodFn === 'function' ? await dispatchMethodFn(method) : dispatch();
+
+**O que faz:** Escolhe dispatcher injetado assíncrono quando presente; caso contrário executa implementação isolada específica do método.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 536 — U14
+
+**Fonte:** dispatched = typeof result === 'object' ? result?.attempted === true : result === true;
+
+**O que faz:** Normaliza retorno booleano ou objeto do dispatcher em um único `dispatched` estrito.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 537 — U14
+
+**Fonte:** reason = typeof result === 'object' ? result?.reason \|\| null : null;
+
+**O que faz:** Propaga motivo estruturado apenas quando dispatcher externo o forneceu.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 538 — U14
+
+**Fonte:** } catch (_e) { reason = 'dispatch_failed'; }
+
+**O que faz:** Converte exceção do dispatcher em falha observável sem abortar imediatamente os próximos fallbacks.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 539 — U14
+
+**Fonte:** onAttempt?.({ method, attempted: dispatched, reason, world: dispatchMethodFn ? 'MAIN' : 'ISOLATED' });
+
+**O que faz:** Telemetria identifica se método veio do dispatcher injetado ou do content script isolated world.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 540 — U14
+
+**Fonte:** if (!dispatched) continue;
+
+**O que faz:** Método que não conseguiu dispatch não consome contador nem entra em `methodsAttempted`.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 541 — U14
+
+**Fonte:** attempted = true;
+
+**O que faz:** Marca que ao menos um mecanismo realmente foi disparado.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 542 — U14
+
+**Fonte:** dispatchCount += 1;
+
+**O que faz:** Consome uma unidade do limite somente após dispatch real.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 543 — U14
+
+**Fonte:** methodsAttempted.add(method);
+
+**O que faz:** Registra método efetivamente despachado uma única vez.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 544 — U14
+
+**Fonte:** confirmation.inspect();
+
+**O que faz:** Reinspeciona DOM imediatamente antes/depois do dispatch para reduzir janela de corrida.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 545 — U14
+
+**Fonte:** const early = await Promise.race([
+
+**O que faz:** Espera o primeiro entre confirmação terminal e janela de retry antes de considerar fallback seguinte.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 546 — U14
+
+**Fonte:** confirmation.promise.then(result => ({ kind: 'result', result })),
+
+**O que faz:** Converte resolução do handshake em resultado discriminado `kind:'result'`.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 547 — U14
+
+**Fonte:** sleep(retryAfterMs).then(() => ({ kind: 'next' })),
+
+**O que faz:** Abre janela de observação sem bloquear o timeout global da confirmação.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 548 — U14
+
+**Fonte:** ]);
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `]);`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 549 — U14
+
+**Fonte:** if (early.kind === 'result') {
+
+**O que faz:** Se confirmação/timeout encerrou durante a janela, retorna imediatamente sem novo mecanismo.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 550 — U14
+
+**Fonte:** return { ...early.result, attempted, methodsAttempted: Array.from(methodsAttempted) };
+
+**O que faz:** Retorna resultado terminal acrescentando histórico real de tentativas.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 551 — U14
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 552 — U14
+
+**Fonte:** confirmation.inspect();
+
+**O que faz:** Reinspeciona DOM imediatamente antes/depois do dispatch para reduzir janela de corrida.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 553 — U14
+
+**Fonte:** if (confirmation.hasSignal()) break;
+
+**O que faz:** Interrompe métodos adicionais assim que surge preview novo/alterado, mesmo ainda carregando.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 554 — U14
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 555 — U14
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U14; não altera estado, mas delimita o bloco "Orquestração attachFile e anti-duplicação".
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 556 — U14
+
+**Fonte:** const result = await confirmation.promise;
+
+**O que faz:** Depois do loop, aguarda handshake já armado até confirmação ou timeout total.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 557 — U14
+
+**Fonte:** return {
+
+**O que faz:** Retorna deste ponto de U14 o valor `{`, encerrando o ramo sem introduzir confirmação implícita.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 558 — U14
+
+**Fonte:** ...result,
+
+**O que faz:** Mescla `confirmed/evidence/signalObserved` com telemetria dos dispatches na resposta final.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 559 — U14
+
+**Fonte:** attempted,
+
+**O que faz:** Parte sintática/operacional de U14 — "Orquestração attachFile e anti-duplicação": `attempted,`; sua semântica é delimitada pelo contrato da unidade e não representa sucesso de upload por si só.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 560 — U14
+
+**Fonte:** methodsAttempted: Array.from(methodsAttempted),
+
+**O que faz:** Converte Set em array serializável preservando ordem dos métodos usados.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 561 — U14
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 562 — U14
+
+**Fonte:** }
+
+**O que faz:** Fecha/continua a estrutura sintática de U14 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 563 — U14
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U14; não altera estado, mas delimita o bloco "Orquestração attachFile e anti-duplicação".
+
+**Como faz:** Antes de cada dispatch chama `confirmation.inspect`; se já houver qualquer sinal novo (`hasSignal`) interrompe redisparo; usa getters para renovar editor/composer; limita `maxDispatches`; espera confirmação ou janela de retry via `Promise.race`.
+
+**Por que foi implementado dessa forma:** Uma preview pendente prova que algum mecanismo começou a agir, mas ainda não prova prontidão; parar novos dispatches evita duplicar a imagem enquanto a confirmação aguarda carregamento.
+
+**Por que uma implementação ingênua seria pior:** Repetir métodos até `confirmed` poderia anexar a mesma página 2–3 vezes; reutilizar nó desconectado falharia após re-render do Gemini; enviar prompt sem `confirmed` viola o fail-closed.
+
+### Linha 564 — U15
+
+**Fonte:** const api = {
+
+**O que faz:** Inicia superfície pública compartilhada por browser e CommonJS.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 565 — U15
+
+**Fonte:** findFileInputsDeep,
+
+**O que faz:** Exporta `findFileInputsDeep` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 566 — U15
+
+**Fonte:** listAttachmentEvidence,
+
+**O que faz:** Exporta `listAttachmentEvidence` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 567 — U15
+
+**Fonte:** captureAttachmentBaseline,
+
+**O que faz:** Exporta `captureAttachmentBaseline` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 568 — U15
+
+**Fonte:** findAttachmentThumbnailDeep,
+
+**O que faz:** Exporta `findAttachmentThumbnailDeep` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 569 — U15
+
+**Fonte:** buildDataTransfer,
+
+**O que faz:** Exporta `buildDataTransfer` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 570 — U15
+
+**Fonte:** focusForAttachment,
+
+**O que faz:** Exporta `focusForAttachment` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 571 — U15
+
+**Fonte:** dispatchPaste,
+
+**O que faz:** Exporta `dispatchPaste` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 572 — U15
+
+**Fonte:** assignFileInputs,
+
+**O que faz:** Exporta `assignFileInputs` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 573 — U15
+
+**Fonte:** dispatchDrop,
+
+**O que faz:** Exporta `dispatchDrop` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 574 — U15
+
+**Fonte:** dispatchAttachmentAttempt,
+
+**O que faz:** Exporta `dispatchAttachmentAttempt` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 575 — U15
+
+**Fonte:** createAttachmentConfirmation,
+
+**O que faz:** Exporta `createAttachmentConfirmation` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 576 — U15
+
+**Fonte:** waitForAttachment,
+
+**O que faz:** Exporta `waitForAttachment` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 577 — U15
+
+**Fonte:** attachFile,
+
+**O que faz:** Exporta `attachFile` como parte explícita da API de attachment.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 578 — U15
+
+**Fonte:** };
+
+**O que faz:** Fecha/continua a estrutura sintática de U15 sem alterar o contrato descrito para a unidade.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 579 — U15
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Separador visual dentro de U15; não altera estado, mas delimita o bloco "API pública e export dual browser/CommonJS".
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 580 — U15
+
+**Fonte:** scope.MangaTranslatorGeminiAttachment = api;
+
+**O que faz:** Publica a API global consumida por `content_gemini.js`/`job-runner.js` no content script.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 581 — U15
+
+**Fonte:** if (typeof module !== 'undefined' && module.exports) module.exports = api;
+
+**O que faz:** No CommonJS exporta o mesmo objeto real, permitindo que `attachment.test.js` execute esta implementação.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 582 — U15
+
+**Fonte:** })(typeof self !== 'undefined' ? self : globalThis);
+
+**O que faz:** Fecha a IIFE escolhendo `self` quando disponível e `globalThis` como fallback.
+
+**Como faz:** Monta objeto `api`, atribui ao `scope` e, quando `module.exports` existe, referencia o mesmo objeto.
+
+**Por que foi implementado dessa forma:** Manifest/content_gemini consomem global; Jest importa CommonJS; uma única implementação evita drift.
+
+**Por que uma implementação ingênua seria pior:** APIs distintas por ambiente poderiam fazer testes passarem sobre código diferente do executado no browser.
+
+### Linha 583 — U16
+
+**Fonte:** ␠ [linha vazia]
+
+**O que faz:** Newline terminal da fonte; preserva a equivalência editorial e fecha a rastreabilidade 583/583.
+
+**Como faz:** A fonte termina em `\n`, então `split('\n')` produz uma 583ª posição vazia.
+
+**Por que foi implementado dessa forma:** A Bíblia rastreia todas as posições físicas/editoriais, inclusive terminador.
+
+**Por que uma implementação ingênua seria pior:** Ignorar a posição terminal quebraria a contagem 583/583 usada pela auditoria.
+
+## 17. Análise por unidade
 
 ### U01 — linhas 1–14 — Modo estrito, IIFE e resolução da dependência DOM
 
@@ -1517,7 +8515,7 @@ O helper exportado `dispatchAttachmentAttempt` possui ordem própria paste → f
 
 **Por que uma implementação ingênua seria pior:** Ignorar a posição terminal quebraria a contagem 583/583 usada pela auditoria.
 
-## 17. Auditoria interna antes do fechamento
+## 18. Auditoria interna antes do fechamento
 
 - [x] Fonte integral copiada do blob `50092e4d7d71994f91236d271d3418507f10eade`.
 - [x] 582 linhas textuais + newline final = 583/583 posições rastreadas.
