@@ -1346,6 +1346,4126 @@ Nenhuma ocorrência textual foi tratada como prova. Em particular, os testes de 
 | 587 | U38 | <code>})(typeof self !== 'undefined' ? self : globalThis);</code> | Participa diretamente de Export global e CommonJS; esta linha executa/configura `})(typeof self !== 'undefined' ? self : globalThis);` no ponto exato da sequência descrita pela unidade U38. |
 | 588 | U38 | ⏎ [newline final] | Newline terminal: preserva a forma textual auditada do arquivo. |
 
+## Auditoria linha a linha canônica
+
+Esta seção existe também como contrato mecânico do gate estrutural. Cada posição aponta para a unidade semântica que contém as explicações de **o que faz, como faz, por que foi implementada assim e por que uma alternativa ingênua seria pior**.
+
+### Linha 001
+
+- **Fonte:** `'use strict';`
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Ativa semântica estrita para este script.
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 002
+
+- **Fonte:** `// gemini/observer.js — Observer orientado a eventos por job Gemini.`
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Comentário de projeto que explicita a intenção de Cabeçalho, strict mode e escopo IIFE: gemini/observer.js — Observer orientado a eventos por job Gemini.
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 003
+
+- **Fonte:** `//`
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Comentário de projeto que explicita a intenção de Cabeçalho, strict mode e escopo IIFE:
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 004
+
+- **Fonte:** `// Este módulo não envia mensagens nem clica na UI. Ele observa transições`
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Comentário de projeto que explicita a intenção de Cabeçalho, strict mode e escopo IIFE: Este módulo não envia mensagens nem clica na UI. Ele observa transições
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 005
+
+- **Fonte:** `// verificáveis e expõe Promises para confirmação de submit e resultado.`
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Comentário de projeto que explicita a intenção de Cabeçalho, strict mode e escopo IIFE: verificáveis e expõe Promises para confirmação de submit e resultado.
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 006
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Separação visual dentro de U01 (Cabeçalho, strict mode e escopo IIFE), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 007
+
+- **Fonte:** `(function(scope) {`
+- **Unidade semântica:** U01 — Cabeçalho, strict mode e escopo IIFE.
+- **Papel local:** Abre a IIFE e recebe o escopo global usado para injeção/exportação.
+- **Racional completo:** ver U01; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 008
+
+- **Fonte:** `  let selectorsApi = scope.MangaTranslatorGeminiSelectors || null;`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Declara `selectorsApi` para sustentar Aquisição de dependências e fail-fast seletivo; a expressão completa é `let selectorsApi = scope.MangaTranslatorGeminiSelectors &#124;&#124; null;`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 009
+
+- **Fonte:** `  let domApi = scope.MangaTranslatorGeminiDom || null;`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Declara `domApi` para sustentar Aquisição de dependências e fail-fast seletivo; a expressão completa é `let domApi = scope.MangaTranslatorGeminiDom &#124;&#124; null;`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 010
+
+- **Fonte:** `  let quarantineApi = scope.MangaTranslatorGeminiImageQuarantine || null;`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Declara `quarantineApi` para sustentar Aquisição de dependências e fail-fast seletivo; a expressão completa é `let quarantineApi = scope.MangaTranslatorGeminiImageQuarantine &#124;&#124; null;`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 011
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Separação visual dentro de U02 (Aquisição de dependências e fail-fast seletivo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 012
+
+- **Fonte:** `  if (typeof require === 'function') {`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Abre uma guarda decisória de Aquisição de dependências e fail-fast seletivo; a condição exata é `if (typeof require === 'function')`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 013
+
+- **Fonte:** `    if (!selectorsApi) {`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Abre uma guarda decisória de Aquisição de dependências e fail-fast seletivo; a condição exata é `if (!selectorsApi)`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 014
+
+- **Fonte:** `      try { selectorsApi = require('./selectors.js'); } catch (_e) {}`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Inicia região protegida porque esta etapa de Aquisição de dependências e fail-fast seletivo pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 015
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U02, preservando o escopo de Aquisição de dependências e fail-fast seletivo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 016
+
+- **Fonte:** `    if (!domApi) {`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Abre uma guarda decisória de Aquisição de dependências e fail-fast seletivo; a condição exata é `if (!domApi)`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 017
+
+- **Fonte:** `      try { domApi = require('./dom.js'); } catch (_e) {}`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Inicia região protegida porque esta etapa de Aquisição de dependências e fail-fast seletivo pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 018
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U02, preservando o escopo de Aquisição de dependências e fail-fast seletivo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 019
+
+- **Fonte:** `    if (!quarantineApi) {`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Abre uma guarda decisória de Aquisição de dependências e fail-fast seletivo; a condição exata é `if (!quarantineApi)`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 020
+
+- **Fonte:** `      try { quarantineApi = require('./image-quarantine.js'); } catch (_e) {}`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Inicia região protegida porque esta etapa de Aquisição de dependências e fail-fast seletivo pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 021
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U02, preservando o escopo de Aquisição de dependências e fail-fast seletivo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 022
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U02, preservando o escopo de Aquisição de dependências e fail-fast seletivo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 023
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Separação visual dentro de U02 (Aquisição de dependências e fail-fast seletivo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 024
+
+- **Fonte:** `  if (!selectorsApi || !selectorsApi.SELECTORS) {`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Abre uma guarda decisória de Aquisição de dependências e fail-fast seletivo; a condição exata é `if (!selectorsApi &#124;&#124; !selectorsApi.SELECTORS)`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 025
+
+- **Fonte:** `    throw new Error('MangaTranslatorGeminiSelectors indisponível');`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Participa diretamente de Aquisição de dependências e fail-fast seletivo; esta linha executa/configura `throw new Error('MangaTranslatorGeminiSelectors indisponível');` no ponto exato da sequência descrita pela unidade U02.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 026
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U02, preservando o escopo de Aquisição de dependências e fail-fast seletivo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 027
+
+- **Fonte:** `  if (!domApi) {`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Abre uma guarda decisória de Aquisição de dependências e fail-fast seletivo; a condição exata é `if (!domApi)`.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 028
+
+- **Fonte:** `    throw new Error('MangaTranslatorGeminiDom indisponível');`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Participa diretamente de Aquisição de dependências e fail-fast seletivo; esta linha executa/configura `throw new Error('MangaTranslatorGeminiDom indisponível');` no ponto exato da sequência descrita pela unidade U02.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 029
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U02 — Aquisição de dependências e fail-fast seletivo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U02, preservando o escopo de Aquisição de dependências e fail-fast seletivo.
+- **Racional completo:** ver U02; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 030
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Separação visual dentro de U03 (Alias de seletores e erros tipados), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 031
+
+- **Fonte:** `  const { SELECTORS } = selectorsApi;`
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Declara `{ SELECTORS }` para sustentar Alias de seletores e erros tipados; a expressão completa é `const { SELECTORS } = selectorsApi;`.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 032
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Separação visual dentro de U03 (Alias de seletores e erros tipados), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 033
+
+- **Fonte:** `  function createError(code, message) {`
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Abre a função `createError` responsável por alias de seletores e erros tipados.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 034
+
+- **Fonte:** `    const error = new Error(message || code);`
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Declara `error` para sustentar Alias de seletores e erros tipados; a expressão completa é `const error = new Error(message &#124;&#124; code);`.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 035
+
+- **Fonte:** `    error.code = code;`
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Atualiza estado usado por Alias de seletores e erros tipados: `error.code = code;`.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 036
+
+- **Fonte:** `    return error;`
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Retorna o valor/estado `error;` como saída desta decisão de Alias de seletores e erros tipados.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 037
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U03 — Alias de seletores e erros tipados.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U03, preservando o escopo de Alias de seletores e erros tipados.
+- **Racional completo:** ver U03; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 038
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Separação visual dentro de U04 (Consulta profunda segura), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 039
+
+- **Fonte:** `  function safeQueryAll(root, selector) {`
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Abre a função `safeQueryAll` responsável por consulta profunda segura.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 040
+
+- **Fonte:** `    if (!root || !selector) return [];`
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Abre uma guarda decisória de Consulta profunda segura; a condição exata é `if (!root &#124;&#124; !selector) return [];`.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 041
+
+- **Fonte:** `    return domApi.findAllDeep(root.body || root.documentElement || root, element =>`
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Retorna o valor/estado `domApi.findAllDeep(root.body &#124;&#124; root.documentElement &#124;&#124; root, element =>` como saída desta decisão de Consulta profunda segura.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 042
+
+- **Fonte:** `      element.nodeType === 1 && element.matches?.(selector)`
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Atualiza estado usado por Consulta profunda segura: `element.nodeType === 1 && element.matches?.(selector)`.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 043
+
+- **Fonte:** `    );`
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U04, preservando o escopo de Consulta profunda segura.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 044
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U04 — Consulta profunda segura.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U04, preservando o escopo de Consulta profunda segura.
+- **Racional completo:** ver U04; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 045
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Separação visual dentro de U05 (Reconhecimento restrito de URL de asset gerado), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 046
+
+- **Fonte:** `  function isGeneratedGeminiUrl(src) {`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Abre a função `isGeneratedGeminiUrl` responsável por reconhecimento restrito de url de asset gerado.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 047
+
+- **Fonte:** `    try {`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Inicia região protegida porque esta etapa de Reconhecimento restrito de URL de asset gerado pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 048
+
+- **Fonte:** `      const url = new URL(src);`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Declara `url` para sustentar Reconhecimento restrito de URL de asset gerado; a expressão completa é `const url = new URL(src);`.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 049
+
+- **Fonte:** `      return url.protocol === 'https:' &&`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Retorna o valor/estado `url.protocol === 'https:' &&` como saída desta decisão de Reconhecimento restrito de URL de asset gerado.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 050
+
+- **Fonte:** `        (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com')) &&`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Participa diretamente de Reconhecimento restrito de URL de asset gerado; esta linha executa/configura `(url.hostname === 'googleusercontent.com' &#124;&#124; url.hostname.endsWith('.googleusercontent.com')) &&` no ponto exato da sequência descrita pela unidade U05.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 051
+
+- **Fonte:** `        /\/(?:rd-)?gg-dl\//.test(url.pathname);`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Participa diretamente de Reconhecimento restrito de URL de asset gerado; esta linha executa/configura `/\/(?:rd-)?gg-dl\//.test(url.pathname);` no ponto exato da sequência descrita pela unidade U05.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 052
+
+- **Fonte:** `    } catch (_e) { return false; }`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Captura falha da etapa anterior de Reconhecimento restrito de URL de asset gerado; o módulo deliberadamente mantém operação best-effort quando indicado pelo código.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 053
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U05 — Reconhecimento restrito de URL de asset gerado.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U05, preservando o escopo de Reconhecimento restrito de URL de asset gerado.
+- **Racional completo:** ver U05; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 054
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Separação visual dentro de U06 (Contrato de criação, injeções e pré-condições), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 055
+
+- **Fonte:** `  function createGeminiObserver({`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Abre a função `createGeminiObserver` responsável por contrato de criação, injeções e pré-condições.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 056
+
+- **Fonte:** `    jobId,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Participa diretamente de Contrato de criação, injeções e pré-condições; esta linha executa/configura `jobId,` no ponto exato da sequência descrita pela unidade U06.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 057
+
+- **Fonte:** `    root = typeof document !== 'undefined' ? document : null,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `root = typeof document !== 'undefined' ? document : null,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 058
+
+- **Fonte:** `    editor = null,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `editor = null,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 059
+
+- **Fonte:** `    getEditor = null,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `getEditor = null,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 060
+
+- **Fonte:** `    ignoreImages = new Set(),`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `ignoreImages = new Set(),`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 061
+
+- **Fonte:** `    imageQuarantine = null,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `imageQuarantine = null,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 062
+
+- **Fonte:** `    onStateChange = null,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `onStateChange = null,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 063
+
+- **Fonte:** `    MutationObserverImpl = typeof MutationObserver !== 'undefined' ? MutationObserver : null,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `MutationObserverImpl = typeof MutationObserver !== 'undefined' ? MutationObserver : null,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 064
+
+- **Fonte:** `    setTimeoutFn = setTimeout,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `setTimeoutFn = setTimeout,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 065
+
+- **Fonte:** `    clearTimeoutFn = clearTimeout,`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `clearTimeoutFn = clearTimeout,`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 066
+
+- **Fonte:** `    queueMicrotaskFn = typeof queueMicrotask === 'function'`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Atualiza estado usado por Contrato de criação, injeções e pré-condições: `queueMicrotaskFn = typeof queueMicrotask === 'function'`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 067
+
+- **Fonte:** `      ? queueMicrotask`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Participa diretamente de Contrato de criação, injeções e pré-condições; esta linha executa/configura `? queueMicrotask` no ponto exato da sequência descrita pela unidade U06.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 068
+
+- **Fonte:** `      : callback => Promise.resolve().then(callback),`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Participa diretamente de Contrato de criação, injeções e pré-condições; esta linha executa/configura `: callback => Promise.resolve().then(callback),` no ponto exato da sequência descrita pela unidade U06.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 069
+
+- **Fonte:** `  } = {}) {`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Participa diretamente de Contrato de criação, injeções e pré-condições; esta linha executa/configura `} = {}) {` no ponto exato da sequência descrita pela unidade U06.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 070
+
+- **Fonte:** `    if (!jobId) throw new Error('jobId é obrigatório');`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Abre uma guarda decisória de Contrato de criação, injeções e pré-condições; a condição exata é `if (!jobId) throw new Error('jobId é obrigatório');`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 071
+
+- **Fonte:** `    if (!root) throw new Error('root é obrigatório');`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Abre uma guarda decisória de Contrato de criação, injeções e pré-condições; a condição exata é `if (!root) throw new Error('root é obrigatório');`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 072
+
+- **Fonte:** `    if (!MutationObserverImpl) throw new Error('MutationObserver indisponível');`
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Abre uma guarda decisória de Contrato de criação, injeções e pré-condições; a condição exata é `if (!MutationObserverImpl) throw new Error('MutationObserver indisponível');`.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 073
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U06 — Contrato de criação, injeções e pré-condições.
+- **Papel local:** Separação visual dentro de U06 (Contrato de criação, injeções e pré-condições), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U06; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 074
+
+- **Fonte:** `    const quarantine = imageQuarantine || quarantineApi?.createImageQuarantine?.({ dom: domApi });`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Declara `quarantine` para sustentar Quarentena e exclusividade por job; a expressão completa é `const quarantine = imageQuarantine &#124;&#124; quarantineApi?.createImageQuarantine?.({ dom: domApi });`.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 075
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Separação visual dentro de U07 (Quarentena e exclusividade por job), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 076
+
+- **Fonte:** `    const registryOwner = root.defaultView || root.ownerDocument?.defaultView || scope;`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Declara `registryOwner` para sustentar Quarentena e exclusividade por job; a expressão completa é `const registryOwner = root.defaultView &#124;&#124; root.ownerDocument?.defaultView &#124;&#124; scope;`.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 077
+
+- **Fonte:** `    registryOwner.__mtGeminiObservers = registryOwner.__mtGeminiObservers || {};`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Atualiza estado usado por Quarentena e exclusividade por job: `registryOwner.__mtGeminiObservers = registryOwner.__mtGeminiObservers &#124;&#124; {};`.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 078
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Separação visual dentro de U07 (Quarentena e exclusividade por job), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 079
+
+- **Fonte:** `    const existing = registryOwner.__mtGeminiObservers[jobId];`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Declara `existing` para sustentar Quarentena e exclusividade por job; a expressão completa é `const existing = registryOwner.__mtGeminiObservers[jobId];`.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 080
+
+- **Fonte:** `    if (existing && typeof existing.stop === 'function') {`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Abre uma guarda decisória de Quarentena e exclusividade por job; a condição exata é `if (existing && typeof existing.stop === 'function')`.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 081
+
+- **Fonte:** `      try { existing.stop(); } catch (_e) {}`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Inicia região protegida porque esta etapa de Quarentena e exclusividade por job pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 082
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U07 — Quarentena e exclusividade por job.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U07, preservando o escopo de Quarentena e exclusividade por job.
+- **Racional completo:** ver U07; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 083
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Separação visual dentro de U08 (Baseline de respostas, imagens e erros), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 084
+
+- **Fonte:** `    const initialResponses = new Set(safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT));`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Declara `initialResponses` para sustentar Baseline de respostas, imagens e erros; a expressão completa é `const initialResponses = new Set(safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT));`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 085
+
+- **Fonte:** `    const initialImageSources = new Set();`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Declara `initialImageSources` para sustentar Baseline de respostas, imagens e erros; a expressão completa é `const initialImageSources = new Set();`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 086
+
+- **Fonte:** `    safeQueryAll(root, 'img').forEach(img => {`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Participa diretamente de Baseline de respostas, imagens e erros; esta linha executa/configura `safeQueryAll(root, 'img').forEach(img => {` no ponto exato da sequência descrita pela unidade U08.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 087
+
+- **Fonte:** `      const src = domApi.getImageSource(img);`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Declara `src` para sustentar Baseline de respostas, imagens e erros; a expressão completa é `const src = domApi.getImageSource(img);`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 088
+
+- **Fonte:** `      if (src) initialImageSources.add(src);`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Abre uma guarda decisória de Baseline de respostas, imagens e erros; a condição exata é `if (src) initialImageSources.add(src);`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 089
+
+- **Fonte:** `    });`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Participa diretamente de Baseline de respostas, imagens e erros; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U08.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 090
+
+- **Fonte:** `    for (const src of ignoreImages || []) {`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Itera a coleção necessária a Baseline de respostas, imagens e erros; o cabeçalho do laço é `for (const src of ignoreImages &#124;&#124; []) {`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 091
+
+- **Fonte:** `      if (src) initialImageSources.add(src);`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Abre uma guarda decisória de Baseline de respostas, imagens e erros; a condição exata é `if (src) initialImageSources.add(src);`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 092
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U08, preservando o escopo de Baseline de respostas, imagens e erros.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 093
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Separação visual dentro de U08 (Baseline de respostas, imagens e erros), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 094
+
+- **Fonte:** `    const initialErrors = new Set();`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Declara `initialErrors` para sustentar Baseline de respostas, imagens e erros; a expressão completa é `const initialErrors = new Set();`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 095
+
+- **Fonte:** `    safeQueryAll(root, SELECTORS.ERROR).forEach(element => {`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Participa diretamente de Baseline de respostas, imagens e erros; esta linha executa/configura `safeQueryAll(root, SELECTORS.ERROR).forEach(element => {` no ponto exato da sequência descrita pela unidade U08.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 096
+
+- **Fonte:** `      if (!domApi.isElementVisible(element)) return;`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Abre uma guarda decisória de Baseline de respostas, imagens e erros; a condição exata é `if (!domApi.isElementVisible(element)) return;`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 097
+
+- **Fonte:** `      const text = String(element.innerText || element.textContent || '').trim();`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Declara `text` para sustentar Baseline de respostas, imagens e erros; a expressão completa é `const text = String(element.innerText &#124;&#124; element.textContent &#124;&#124; '').trim();`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 098
+
+- **Fonte:** `      if (text) initialErrors.add(text);`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Abre uma guarda decisória de Baseline de respostas, imagens e erros; a condição exata é `if (text) initialErrors.add(text);`.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 099
+
+- **Fonte:** `    });`
+- **Unidade semântica:** U08 — Baseline de respostas, imagens e erros.
+- **Papel local:** Participa diretamente de Baseline de respostas, imagens e erros; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U08.
+- **Racional completo:** ver U08; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 100
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U09 — Baseline do editor e botão Send.
+- **Papel local:** Separação visual dentro de U09 (Baseline do editor e botão Send), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U09; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 101
+
+- **Fonte:** `    const initialEditor = typeof getEditor === 'function' ? getEditor() : editor;`
+- **Unidade semântica:** U09 — Baseline do editor e botão Send.
+- **Papel local:** Declara `initialEditor` para sustentar Baseline do editor e botão Send; a expressão completa é `const initialEditor = typeof getEditor === 'function' ? getEditor() : editor;`.
+- **Racional completo:** ver U09; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 102
+
+- **Fonte:** `    const initialEditorText = String(initialEditor?.textContent || '').trim();`
+- **Unidade semântica:** U09 — Baseline do editor e botão Send.
+- **Papel local:** Declara `initialEditorText` para sustentar Baseline do editor e botão Send; a expressão completa é `const initialEditorText = String(initialEditor?.textContent &#124;&#124; '').trim();`.
+- **Racional completo:** ver U09; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 103
+
+- **Fonte:** `    const initialSendControls = safeQueryAll(root, SELECTORS.SEND)`
+- **Unidade semântica:** U09 — Baseline do editor e botão Send.
+- **Papel local:** Declara `initialSendControls` para sustentar Baseline do editor e botão Send; a expressão completa é `const initialSendControls = safeQueryAll(root, SELECTORS.SEND)`.
+- **Racional completo:** ver U09; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 104
+
+- **Fonte:** `      .filter(domApi.isElementVisible);`
+- **Unidade semântica:** U09 — Baseline do editor e botão Send.
+- **Papel local:** Participa diretamente de Baseline do editor e botão Send; esta linha executa/configura `.filter(domApi.isElementVisible);` no ponto exato da sequência descrita pela unidade U09.
+- **Racional completo:** ver U09; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 105
+
+- **Fonte:** `    const initialSendEnabled = initialSendControls.some(domApi.isControlEnabled);`
+- **Unidade semântica:** U09 — Baseline do editor e botão Send.
+- **Papel local:** Declara `initialSendEnabled` para sustentar Baseline do editor e botão Send; a expressão completa é `const initialSendEnabled = initialSendControls.some(domApi.isControlEnabled);`.
+- **Racional completo:** ver U09; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 106
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Separação visual dentro de U10 (Estado observável e conjuntos de waiters), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 107
+
+- **Fonte:** `    const state = {`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Declara `state` para sustentar Estado observável e conjuntos de waiters; a expressão completa é `const state = {`.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 108
+
+- **Fonte:** `      jobId,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `jobId,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 109
+
+- **Fonte:** `      initialResponseCount: initialResponses.size,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `initialResponseCount: initialResponses.size,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 110
+
+- **Fonte:** `      initialImageSources,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `initialImageSources,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 111
+
+- **Fonte:** `      responseContainer: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `responseContainer: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 112
+
+- **Fonte:** `      ready: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `ready: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 113
+
+- **Fonte:** `      submissionConfirmed: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `submissionConfirmed: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 114
+
+- **Fonte:** `      submissionReason: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `submissionReason: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 115
+
+- **Fonte:** `      generationActiveObserved: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `generationActiveObserved: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 116
+
+- **Fonte:** `      generationStarted: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `generationStarted: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 117
+
+- **Fonte:** `      generationFinished: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `generationFinished: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 118
+
+- **Fonte:** `      sendEnabledObserved: initialSendEnabled,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `sendEnabledObserved: initialSendEnabled,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 119
+
+- **Fonte:** `      resultImage: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `resultImage: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 120
+
+- **Fonte:** `      resultUrl: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `resultUrl: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 121
+
+- **Fonte:** `      error: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `error: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 122
+
+- **Fonte:** `      done: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `done: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 123
+
+- **Fonte:** `      cleanedUp: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `cleanedUp: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 124
+
+- **Fonte:** `      observer: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `observer: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 125
+
+- **Fonte:** `      responseObserver: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `responseObserver: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 126
+
+- **Fonte:** `      shadowRoots: new Set(),`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `shadowRoots: new Set(),` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 127
+
+- **Fonte:** `      inspectionTimer: null,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `inspectionTimer: null,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 128
+
+- **Fonte:** `      timers: new Set(),`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `timers: new Set(),` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 129
+
+- **Fonte:** `      inspectionScheduled: false,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `inspectionScheduled: false,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 130
+
+- **Fonte:** `      inspectCount: 0,`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Participa diretamente de Estado observável e conjuntos de waiters; esta linha executa/configura `inspectCount: 0,` no ponto exato da sequência descrita pela unidade U10.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 131
+
+- **Fonte:** `    };`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U10, preservando o escopo de Estado observável e conjuntos de waiters.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 132
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Separação visual dentro de U10 (Estado observável e conjuntos de waiters), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 133
+
+- **Fonte:** `    const submissionWaiters = new Set();`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Declara `submissionWaiters` para sustentar Estado observável e conjuntos de waiters; a expressão completa é `const submissionWaiters = new Set();`.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 134
+
+- **Fonte:** `    const resultWaiters = new Set();`
+- **Unidade semântica:** U10 — Estado observável e conjuntos de waiters.
+- **Papel local:** Declara `resultWaiters` para sustentar Estado observável e conjuntos de waiters; a expressão completa é `const resultWaiters = new Set();`.
+- **Racional completo:** ver U10; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 135
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Separação visual dentro de U11 (Emissão de estado tolerante a falhas), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 136
+
+- **Fonte:** `    function emitState(type, extra = {}) {`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Abre a função `emitState` responsável por emissão de estado tolerante a falhas.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 137
+
+- **Fonte:** `      if (typeof onStateChange !== 'function') return;`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Abre uma guarda decisória de Emissão de estado tolerante a falhas; a condição exata é `if (typeof onStateChange !== 'function') return;`.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 138
+
+- **Fonte:** `      try {`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Inicia região protegida porque esta etapa de Emissão de estado tolerante a falhas pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 139
+
+- **Fonte:** `        onStateChange(type, {`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `onStateChange(type, {` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 140
+
+- **Fonte:** `          jobId,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `jobId,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 141
+
+- **Fonte:** `          ...extra,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `...extra,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 142
+
+- **Fonte:** `          submissionConfirmed: state.submissionConfirmed,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `submissionConfirmed: state.submissionConfirmed,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 143
+
+- **Fonte:** `          generationActiveObserved: state.generationActiveObserved,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `generationActiveObserved: state.generationActiveObserved,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 144
+
+- **Fonte:** `          responseContainer: state.responseContainer,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `responseContainer: state.responseContainer,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 145
+
+- **Fonte:** `          resultUrl: state.resultUrl,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `resultUrl: state.resultUrl,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 146
+
+- **Fonte:** `          error: state.error,`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `error: state.error,` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 147
+
+- **Fonte:** `        });`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Participa diretamente de Emissão de estado tolerante a falhas; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U11.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 148
+
+- **Fonte:** `      } catch (_e) {}`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Captura falha da etapa anterior de Emissão de estado tolerante a falhas; o módulo deliberadamente mantém operação best-effort quando indicado pelo código.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 149
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U11 — Emissão de estado tolerante a falhas.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U11, preservando o escopo de Emissão de estado tolerante a falhas.
+- **Racional completo:** ver U11; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 150
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U12 — Remoção idempotente de timer.
+- **Papel local:** Separação visual dentro de U12 (Remoção idempotente de timer), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U12; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 151
+
+- **Fonte:** `    function removeTimer(timer) {`
+- **Unidade semântica:** U12 — Remoção idempotente de timer.
+- **Papel local:** Abre a função `removeTimer` responsável por remoção idempotente de timer.
+- **Racional completo:** ver U12; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 152
+
+- **Fonte:** `      if (timer === null || timer === undefined) return;`
+- **Unidade semântica:** U12 — Remoção idempotente de timer.
+- **Papel local:** Abre uma guarda decisória de Remoção idempotente de timer; a condição exata é `if (timer === null &#124;&#124; timer === undefined) return;`.
+- **Racional completo:** ver U12; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 153
+
+- **Fonte:** `      state.timers.delete(timer);`
+- **Unidade semântica:** U12 — Remoção idempotente de timer.
+- **Papel local:** Atualiza estado usado por Remoção idempotente de timer: `state.timers.delete(timer);`.
+- **Racional completo:** ver U12; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 154
+
+- **Fonte:** `      try { clearTimeoutFn(timer); } catch (_e) {}`
+- **Unidade semântica:** U12 — Remoção idempotente de timer.
+- **Papel local:** Inicia região protegida porque esta etapa de Remoção idempotente de timer pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U12; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 155
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U12 — Remoção idempotente de timer.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U12, preservando o escopo de Remoção idempotente de timer.
+- **Racional completo:** ver U12; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 156
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Separação visual dentro de U13 (Liquidação coletiva de waiters), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 157
+
+- **Fonte:** `    function settleWaiters(waiters, mode, payload) {`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Abre a função `settleWaiters` responsável por liquidação coletiva de waiters.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 158
+
+- **Fonte:** `      for (const waiter of Array.from(waiters)) {`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Itera a coleção necessária a Liquidação coletiva de waiters; o cabeçalho do laço é `for (const waiter of Array.from(waiters)) {`.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 159
+
+- **Fonte:** `        waiters.delete(waiter);`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Participa diretamente de Liquidação coletiva de waiters; esta linha executa/configura `waiters.delete(waiter);` no ponto exato da sequência descrita pela unidade U13.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 160
+
+- **Fonte:** `        removeTimer(waiter.timer);`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Participa diretamente de Liquidação coletiva de waiters; esta linha executa/configura `removeTimer(waiter.timer);` no ponto exato da sequência descrita pela unidade U13.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 161
+
+- **Fonte:** `        try {`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Inicia região protegida porque esta etapa de Liquidação coletiva de waiters pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 162
+
+- **Fonte:** `          if (mode === 'resolve') waiter.resolve(payload);`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Abre uma guarda decisória de Liquidação coletiva de waiters; a condição exata é `if (mode === 'resolve') waiter.resolve(payload);`.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 163
+
+- **Fonte:** `          else waiter.reject(payload);`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Participa diretamente de Liquidação coletiva de waiters; esta linha executa/configura `else waiter.reject(payload);` no ponto exato da sequência descrita pela unidade U13.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 164
+
+- **Fonte:** `        } catch (_e) {}`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Captura falha da etapa anterior de Liquidação coletiva de waiters; o módulo deliberadamente mantém operação best-effort quando indicado pelo código.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 165
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U13, preservando o escopo de Liquidação coletiva de waiters.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 166
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U13 — Liquidação coletiva de waiters.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U13, preservando o escopo de Liquidação coletiva de waiters.
+- **Racional completo:** ver U13; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 167
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Separação visual dentro de U14 (Confirmação monotônica de submission), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 168
+
+- **Fonte:** `    function confirmSubmission(reason) {`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Abre a função `confirmSubmission` responsável por confirmação monotônica de submission.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 169
+
+- **Fonte:** `      if (state.cleanedUp || state.done || state.submissionConfirmed) return false;`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Abre uma guarda decisória de Confirmação monotônica de submission; a condição exata é `if (state.cleanedUp &#124;&#124; state.done &#124;&#124; state.submissionConfirmed) return false;`.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 170
+
+- **Fonte:** `      state.submissionConfirmed = true;`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Atualiza estado usado por Confirmação monotônica de submission: `state.submissionConfirmed = true;`.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 171
+
+- **Fonte:** `      state.submissionReason = reason;`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Atualiza estado usado por Confirmação monotônica de submission: `state.submissionReason = reason;`.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 172
+
+- **Fonte:** `      emitState('submission_confirmed', { reason });`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Participa diretamente de Confirmação monotônica de submission; esta linha executa/configura `emitState('submission_confirmed', { reason });` no ponto exato da sequência descrita pela unidade U14.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 173
+
+- **Fonte:** `      settleWaiters(submissionWaiters, 'resolve', {`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Participa diretamente de Confirmação monotônica de submission; esta linha executa/configura `settleWaiters(submissionWaiters, 'resolve', {` no ponto exato da sequência descrita pela unidade U14.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 174
+
+- **Fonte:** `        confirmed: true,`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Participa diretamente de Confirmação monotônica de submission; esta linha executa/configura `confirmed: true,` no ponto exato da sequência descrita pela unidade U14.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 175
+
+- **Fonte:** `        reason,`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Participa diretamente de Confirmação monotônica de submission; esta linha executa/configura `reason,` no ponto exato da sequência descrita pela unidade U14.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 176
+
+- **Fonte:** `      });`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Participa diretamente de Confirmação monotônica de submission; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U14.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 177
+
+- **Fonte:** `      return true;`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Retorna o valor/estado `true;` como saída desta decisão de Confirmação monotônica de submission.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 178
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U14 — Confirmação monotônica de submission.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U14, preservando o escopo de Confirmação monotônica de submission.
+- **Racional completo:** ver U14; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 179
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Separação visual dentro de U15 (Marca de geração ativa), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 180
+
+- **Fonte:** `    function markGenerationActive(reason) {`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Abre a função `markGenerationActive` responsável por marca de geração ativa.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 181
+
+- **Fonte:** `      if (state.cleanedUp || state.done) return;`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Abre uma guarda decisória de Marca de geração ativa; a condição exata é `if (state.cleanedUp &#124;&#124; state.done) return;`.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 182
+
+- **Fonte:** `      const wasObserved = state.generationActiveObserved;`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Declara `wasObserved` para sustentar Marca de geração ativa; a expressão completa é `const wasObserved = state.generationActiveObserved;`.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 183
+
+- **Fonte:** `      state.generationActiveObserved = true;`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Atualiza estado usado por Marca de geração ativa: `state.generationActiveObserved = true;`.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 184
+
+- **Fonte:** `      state.generationStarted = true;`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Atualiza estado usado por Marca de geração ativa: `state.generationStarted = true;`.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 185
+
+- **Fonte:** `      if (!wasObserved) emitState('generation_started', { reason });`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Abre uma guarda decisória de Marca de geração ativa; a condição exata é `if (!wasObserved) emitState('generation_started',  reason });`.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 186
+
+- **Fonte:** `      if (!state.submissionConfirmed) confirmSubmission(reason === 'stop_visible' ? 'stop_visible' : 'generation_started');`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Abre uma guarda decisória de Marca de geração ativa; a condição exata é `if (!state.submissionConfirmed) confirmSubmission(reason === 'stop_visible' ? 'stop_visible' : 'generation_started');`.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 187
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U15 — Marca de geração ativa.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U15, preservando o escopo de Marca de geração ativa.
+- **Racional completo:** ver U15; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 188
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Separação visual dentro de U16 (Falha terminal por erro visível da UI), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 189
+
+- **Fonte:** `    function fail(errorText) {`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Abre a função `fail` responsável por falha terminal por erro visível da ui.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 190
+
+- **Fonte:** `      if (state.cleanedUp || state.done || state.error) return;`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Abre uma guarda decisória de Falha terminal por erro visível da UI; a condição exata é `if (state.cleanedUp &#124;&#124; state.done &#124;&#124; state.error) return;`.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 191
+
+- **Fonte:** `      state.error = String(errorText || 'Erro desconhecido do Gemini');`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Atualiza estado usado por Falha terminal por erro visível da UI: `state.error = String(errorText &#124;&#124; 'Erro desconhecido do Gemini');`.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 192
+
+- **Fonte:** `      state.done = true;`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Atualiza estado usado por Falha terminal por erro visível da UI: `state.done = true;`.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 193
+
+- **Fonte:** `      const error = createError('GEMINI_UI_ERROR', state.error);`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Declara `error` para sustentar Falha terminal por erro visível da UI; a expressão completa é `const error = createError('GEMINI_UI_ERROR', state.error);`.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 194
+
+- **Fonte:** `      emitState('ui_error', { error: state.error });`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Participa diretamente de Falha terminal por erro visível da UI; esta linha executa/configura `emitState('ui_error', { error: state.error });` no ponto exato da sequência descrita pela unidade U16.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 195
+
+- **Fonte:** `      settleWaiters(submissionWaiters, 'reject', error);`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Participa diretamente de Falha terminal por erro visível da UI; esta linha executa/configura `settleWaiters(submissionWaiters, 'reject', error);` no ponto exato da sequência descrita pela unidade U16.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 196
+
+- **Fonte:** `      settleWaiters(resultWaiters, 'reject', error);`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Participa diretamente de Falha terminal por erro visível da UI; esta linha executa/configura `settleWaiters(resultWaiters, 'reject', error);` no ponto exato da sequência descrita pela unidade U16.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 197
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U16 — Falha terminal por erro visível da UI.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U16, preservando o escopo de Falha terminal por erro visível da UI.
+- **Racional completo:** ver U16; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 198
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Separação visual dentro de U17 (Resultado terminal e resolução de waiters), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 199
+
+- **Fonte:** `    function setResult(image, url) {`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Abre a função `setResult` responsável por resultado terminal e resolução de waiters.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 200
+
+- **Fonte:** `      if (state.cleanedUp || state.done || !url) return false;`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Abre uma guarda decisória de Resultado terminal e resolução de waiters; a condição exata é `if (state.cleanedUp &#124;&#124; state.done &#124;&#124; !url) return false;`.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 201
+
+- **Fonte:** `      state.resultImage = image || null;`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Atualiza estado usado por Resultado terminal e resolução de waiters: `state.resultImage = image &#124;&#124; null;`.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 202
+
+- **Fonte:** `      state.resultUrl = url;`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Atualiza estado usado por Resultado terminal e resolução de waiters: `state.resultUrl = url;`.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 203
+
+- **Fonte:** `      state.done = true;`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Atualiza estado usado por Resultado terminal e resolução de waiters: `state.done = true;`.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 204
+
+- **Fonte:** `      emitState('result_image', { urlKind: String(url).split(':', 1)[0] || 'unknown' });`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Participa diretamente de Resultado terminal e resolução de waiters; esta linha executa/configura `emitState('result_image', { urlKind: String(url).split(':', 1)[0] &#124;&#124; 'unknown' });` no ponto exato da sequência descrita pela unidade U17.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 205
+
+- **Fonte:** `      settleWaiters(resultWaiters, 'resolve', {`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Participa diretamente de Resultado terminal e resolução de waiters; esta linha executa/configura `settleWaiters(resultWaiters, 'resolve', {` no ponto exato da sequência descrita pela unidade U17.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 206
+
+- **Fonte:** `        image: state.resultImage,`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Participa diretamente de Resultado terminal e resolução de waiters; esta linha executa/configura `image: state.resultImage,` no ponto exato da sequência descrita pela unidade U17.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 207
+
+- **Fonte:** `        url: state.resultUrl,`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Participa diretamente de Resultado terminal e resolução de waiters; esta linha executa/configura `url: state.resultUrl,` no ponto exato da sequência descrita pela unidade U17.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 208
+
+- **Fonte:** `      });`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Participa diretamente de Resultado terminal e resolução de waiters; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U17.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 209
+
+- **Fonte:** `      return true;`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Retorna o valor/estado `true;` como saída desta decisão de Resultado terminal e resolução de waiters.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 210
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U17 — Resultado terminal e resolução de waiters.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U17, preservando o escopo de Resultado terminal e resolução de waiters.
+- **Racional completo:** ver U17; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 211
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Separação visual dentro de U18 (Detecção de autoria explícita de modelo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 212
+
+- **Fonte:** `    function hasExplicitModelOwnership(element) {`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Abre a função `hasExplicitModelOwnership` responsável por detecção de autoria explícita de modelo.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 213
+
+- **Fonte:** `      if (!element || element.nodeType !== 1) return false;`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Abre uma guarda decisória de Detecção de autoria explícita de modelo; a condição exata é `if (!element &#124;&#124; element.nodeType !== 1) return false;`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 214
+
+- **Fonte:** `      const tag = String(element.tagName || '').toLowerCase();`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Declara `tag` para sustentar Detecção de autoria explícita de modelo; a expressão completa é `const tag = String(element.tagName &#124;&#124; '').toLowerCase();`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 215
+
+- **Fonte:** `      if (tag === 'model-response' || tag === 'bard-model-response') return true;`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Abre uma guarda decisória de Detecção de autoria explícita de modelo; a condição exata é `if (tag === 'model-response' &#124;&#124; tag === 'bard-model-response') return true;`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 216
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Separação visual dentro de U18 (Detecção de autoria explícita de modelo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 217
+
+- **Fonte:** `      const author = String(element.getAttribute?.('data-message-author') || '').toLowerCase();`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Declara `author` para sustentar Detecção de autoria explícita de modelo; a expressão completa é `const author = String(element.getAttribute?.('data-message-author') &#124;&#124; '').toLowerCase();`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 218
+
+- **Fonte:** `      if (author === 'model' || author === 'assistant') return true;`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Abre uma guarda decisória de Detecção de autoria explícita de modelo; a condição exata é `if (author === 'model' &#124;&#124; author === 'assistant') return true;`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 219
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Separação visual dentro de U18 (Detecção de autoria explícita de modelo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 220
+
+- **Fonte:** `      const role = String(element.getAttribute?.('data-turn-role') || '').toLowerCase();`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Declara `role` para sustentar Detecção de autoria explícita de modelo; a expressão completa é `const role = String(element.getAttribute?.('data-turn-role') &#124;&#124; '').toLowerCase();`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 221
+
+- **Fonte:** `      if (role === 'model' || role === 'assistant') return true;`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Abre uma guarda decisória de Detecção de autoria explícita de modelo; a condição exata é `if (role === 'model' &#124;&#124; role === 'assistant') return true;`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 222
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Separação visual dentro de U18 (Detecção de autoria explícita de modelo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 223
+
+- **Fonte:** `      const testId = String(`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Declara `testId` para sustentar Detecção de autoria explícita de modelo; a expressão completa é `const testId = String(`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 224
+
+- **Fonte:** `        element.getAttribute?.('data-test-id') ||`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Participa diretamente de Detecção de autoria explícita de modelo; esta linha executa/configura `element.getAttribute?.('data-test-id') &#124;&#124;` no ponto exato da sequência descrita pela unidade U18.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 225
+
+- **Fonte:** `        element.getAttribute?.('data-testid') ||`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Participa diretamente de Detecção de autoria explícita de modelo; esta linha executa/configura `element.getAttribute?.('data-testid') &#124;&#124;` no ponto exato da sequência descrita pela unidade U18.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 226
+
+- **Fonte:** `        ''`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Participa diretamente de Detecção de autoria explícita de modelo; esta linha executa/configura `''` no ponto exato da sequência descrita pela unidade U18.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 227
+
+- **Fonte:** `      ).toLowerCase();`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Participa diretamente de Detecção de autoria explícita de modelo; esta linha executa/configura `).toLowerCase();` no ponto exato da sequência descrita pela unidade U18.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 228
+
+- **Fonte:** `      if (testId.includes('model-response')) return true;`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Abre uma guarda decisória de Detecção de autoria explícita de modelo; a condição exata é `if (testId.includes('model-response')) return true;`.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 229
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Separação visual dentro de U18 (Detecção de autoria explícita de modelo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 230
+
+- **Fonte:** `      return tag === 'message-content' && element.classList?.contains('model');`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Retorna o valor/estado `tag === 'message-content' && element.classList?.contains('model');` como saída desta decisão de Detecção de autoria explícita de modelo.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 231
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U18 — Detecção de autoria explícita de modelo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U18, preservando o escopo de Detecção de autoria explícita de modelo.
+- **Racional completo:** ver U18; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 232
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Separação visual dentro de U19 (Barreira contra turnos de usuário), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 233
+
+- **Fonte:** `    function isBlockedByUserTurn(element) {`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Abre a função `isBlockedByUserTurn` responsável por barreira contra turnos de usuário.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 234
+
+- **Fonte:** `      const userTurn = domApi.getUserTurnContainer?.(element);`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Declara `userTurn` para sustentar Barreira contra turnos de usuário; a expressão completa é `const userTurn = domApi.getUserTurnContainer?.(element);`.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 235
+
+- **Fonte:** `      if (!userTurn) return false;`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Abre uma guarda decisória de Barreira contra turnos de usuário; a condição exata é `if (!userTurn) return false;`.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 236
+
+- **Fonte:** `      if (userTurn === element) return true;`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Abre uma guarda decisória de Barreira contra turnos de usuário; a condição exata é `if (userTurn === element) return true;`.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 237
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Separação visual dentro de U19 (Barreira contra turnos de usuário), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 238
+
+- **Fonte:** `      // O Gemini pode envolver um model turn real em um wrapper que também`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Comentário de projeto que explicita a intenção de Barreira contra turnos de usuário: O Gemini pode envolver um model turn real em um wrapper que também
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 239
+
+- **Fonte:** `      // casa com USER_TURN. Só atravessamos esse ancestral quando o próprio`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Comentário de projeto que explicita a intenção de Barreira contra turnos de usuário: casa com USER_TURN. Só atravessamos esse ancestral quando o próprio
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 240
+
+- **Fonte:** `      // candidato traz autoria explícita de modelo; wrappers genéricos`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Comentário de projeto que explicita a intenção de Barreira contra turnos de usuário: candidato traz autoria explícita de modelo; wrappers genéricos
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 241
+
+- **Fonte:** `      // continuam rejeitados para não capturar imagens do usuário.`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Comentário de projeto que explicita a intenção de Barreira contra turnos de usuário: continuam rejeitados para não capturar imagens do usuário.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 242
+
+- **Fonte:** `      return !hasExplicitModelOwnership(element);`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Retorna o valor/estado `!hasExplicitModelOwnership(element);` como saída desta decisão de Barreira contra turnos de usuário.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 243
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U19 — Barreira contra turnos de usuário.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U19, preservando o escopo de Barreira contra turnos de usuário.
+- **Racional completo:** ver U19; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 244
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Separação visual dentro de U20 (Aquisição do novo container de resposta), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 245
+
+- **Fonte:** `    function acquireResponseContainer() {`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Abre a função `acquireResponseContainer` responsável por aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 246
+
+- **Fonte:** `      if (state.responseContainer && state.responseContainer.isConnected !== false) {`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Abre uma guarda decisória de Aquisição do novo container de resposta; a condição exata é `if (state.responseContainer && state.responseContainer.isConnected !== false)`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 247
+
+- **Fonte:** `        return state.responseContainer;`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Retorna o valor/estado `state.responseContainer;` como saída desta decisão de Aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 248
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U20, preservando o escopo de Aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 249
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Separação visual dentro de U20 (Aquisição do novo container de resposta), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 250
+
+- **Fonte:** `      const responses = safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT);`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Declara `responses` para sustentar Aquisição do novo container de resposta; a expressão completa é `const responses = safeQueryAll(root, SELECTORS.MODEL_RESPONSE_STRICT);`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 251
+
+- **Fonte:** `      const candidates = responses.filter(element =>`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Declara `candidates` para sustentar Aquisição do novo container de resposta; a expressão completa é `const candidates = responses.filter(element =>`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 252
+
+- **Fonte:** `        !initialResponses.has(element) &&`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `!initialResponses.has(element) &&` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 253
+
+- **Fonte:** `        !isBlockedByUserTurn(element) && !domApi.isInsideInputArea(element)`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `!isBlockedByUserTurn(element) && !domApi.isInsideInputArea(element)` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 254
+
+- **Fonte:** `      );`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U20, preservando o escopo de Aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 255
+
+- **Fonte:** `      if (!candidates.length) return null;`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Abre uma guarda decisória de Aquisição do novo container de resposta; a condição exata é `if (!candidates.length) return null;`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 256
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Separação visual dentro de U20 (Aquisição do novo container de resposta), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 257
+
+- **Fonte:** `      const container = candidates[candidates.length - 1];`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Declara `container` para sustentar Aquisição do novo container de resposta; a expressão completa é `const container = candidates[candidates.length - 1];`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 258
+
+- **Fonte:** `      state.responseContainer = container;`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Atualiza estado usado por Aquisição do novo container de resposta: `state.responseContainer = container;`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 259
+
+- **Fonte:** `      state.generationStarted = true;`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Atualiza estado usado por Aquisição do novo container de resposta: `state.generationStarted = true;`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 260
+
+- **Fonte:** `      emitState('response_container', { responseIndex: responses.length - 1 });`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `emitState('response_container', { responseIndex: responses.length - 1 });` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 261
+
+- **Fonte:** `      markGenerationActive('response_created');`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `markGenerationActive('response_created');` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 262
+
+- **Fonte:** `      confirmSubmission('response_created');`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `confirmSubmission('response_created');` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 263
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Separação visual dentro de U20 (Aquisição do novo container de resposta), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 264
+
+- **Fonte:** `      if (state.responseObserver) {`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Abre uma guarda decisória de Aquisição do novo container de resposta; a condição exata é `if (state.responseObserver)`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 265
+
+- **Fonte:** `        try { state.responseObserver.disconnect(); } catch (_e) {}`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Inicia região protegida porque esta etapa de Aquisição do novo container de resposta pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 266
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U20, preservando o escopo de Aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 267
+
+- **Fonte:** `      state.responseObserver = new MutationObserverImpl(scheduleInspect);`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Atualiza estado usado por Aquisição do novo container de resposta: `state.responseObserver = new MutationObserverImpl(scheduleInspect);`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 268
+
+- **Fonte:** `      try {`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Inicia região protegida porque esta etapa de Aquisição do novo container de resposta pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 269
+
+- **Fonte:** `        state.responseObserver.observe(container, {`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Atualiza estado usado por Aquisição do novo container de resposta: `state.responseObserver.observe(container, {`.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 270
+
+- **Fonte:** `          childList: true,`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `childList: true,` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 271
+
+- **Fonte:** `          subtree: true,`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `subtree: true,` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 272
+
+- **Fonte:** `          characterData: true,`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `characterData: true,` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 273
+
+- **Fonte:** `          attributes: true,`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `attributes: true,` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 274
+
+- **Fonte:** `          attributeFilter: ['src', 'srcset', 'data-src', 'aria-hidden', 'style', 'class'],`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `attributeFilter: ['src', 'srcset', 'data-src', 'aria-hidden', 'style', 'class'],` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 275
+
+- **Fonte:** `        });`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Participa diretamente de Aquisição do novo container de resposta; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U20.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 276
+
+- **Fonte:** `      } catch (_e) {}`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Captura falha da etapa anterior de Aquisição do novo container de resposta; o módulo deliberadamente mantém operação best-effort quando indicado pelo código.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 277
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Separação visual dentro de U20 (Aquisição do novo container de resposta), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 278
+
+- **Fonte:** `      return container;`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Retorna o valor/estado `container;` como saída desta decisão de Aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 279
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U20 — Aquisição do novo container de resposta.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U20, preservando o escopo de Aquisição do novo container de resposta.
+- **Racional completo:** ver U20; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 280
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Separação visual dentro de U21 (Confirmação por consumo do editor), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 281
+
+- **Fonte:** `    function inspectEditor() {`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Abre a função `inspectEditor` responsável por confirmação por consumo do editor.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 282
+
+- **Fonte:** `      if (state.submissionConfirmed || !initialEditorText) return;`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Abre uma guarda decisória de Confirmação por consumo do editor; a condição exata é `if (state.submissionConfirmed &#124;&#124; !initialEditorText) return;`.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 283
+
+- **Fonte:** `      let current = null;`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Declara `current` para sustentar Confirmação por consumo do editor; a expressão completa é `let current = null;`.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 284
+
+- **Fonte:** `      try {`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Inicia região protegida porque esta etapa de Confirmação por consumo do editor pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 285
+
+- **Fonte:** `        current = typeof getEditor === 'function' ? getEditor() : editor;`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Atualiza estado usado por Confirmação por consumo do editor: `current = typeof getEditor === 'function' ? getEditor() : editor;`.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 286
+
+- **Fonte:** `      } catch (_e) {}`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Captura falha da etapa anterior de Confirmação por consumo do editor; o módulo deliberadamente mantém operação best-effort quando indicado pelo código.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 287
+
+- **Fonte:** `      if (!current) return;`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Abre uma guarda decisória de Confirmação por consumo do editor; a condição exata é `if (!current) return;`.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 288
+
+- **Fonte:** `      const currentText = String(current.textContent || '').trim();`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Declara `currentText` para sustentar Confirmação por consumo do editor; a expressão completa é `const currentText = String(current.textContent &#124;&#124; '').trim();`.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 289
+
+- **Fonte:** `      if (currentText.length === 0) confirmSubmission('editor_consumed');`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Abre uma guarda decisória de Confirmação por consumo do editor; a condição exata é `if (currentText.length === 0) confirmSubmission('editor_consumed');`.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 290
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U21 — Confirmação por consumo do editor.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U21, preservando o escopo de Confirmação por consumo do editor.
+- **Racional completo:** ver U21; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 291
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Separação visual dentro de U22 (Sinais de Stop, término e Send busy), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 292
+
+- **Fonte:** `    function inspectControls() {`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Abre a função `inspectControls` responsável por sinais de stop, término e send busy.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 293
+
+- **Fonte:** `      const visibleStop = domApi.findVisibleStopButton(root);`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Declara `visibleStop` para sustentar Sinais de Stop, término e Send busy; a expressão completa é `const visibleStop = domApi.findVisibleStopButton(root);`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 294
+
+- **Fonte:** `      if (visibleStop) {`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Abre uma guarda decisória de Sinais de Stop, término e Send busy; a condição exata é `if (visibleStop)`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 295
+
+- **Fonte:** `        markGenerationActive('stop_visible');`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `markGenerationActive('stop_visible');` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 296
+
+- **Fonte:** `      } else if (`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `} else if (` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 297
+
+- **Fonte:** `        state.generationActiveObserved &&`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Atualiza estado usado por Sinais de Stop, término e Send busy: `state.generationActiveObserved &&`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 298
+
+- **Fonte:** `        state.responseContainer &&`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Atualiza estado usado por Sinais de Stop, término e Send busy: `state.responseContainer &&`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 299
+
+- **Fonte:** `        state.responseContainer.isConnected !== false`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Atualiza estado usado por Sinais de Stop, término e Send busy: `state.responseContainer.isConnected !== false`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 300
+
+- **Fonte:** `      ) {`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `) {` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 301
+
+- **Fonte:** `        if (!state.generationFinished) {`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Abre uma guarda decisória de Sinais de Stop, término e Send busy; a condição exata é `if (!state.generationFinished)`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 302
+
+- **Fonte:** `          state.generationFinished = true;`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Atualiza estado usado por Sinais de Stop, término e Send busy: `state.generationFinished = true;`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 303
+
+- **Fonte:** `          emitState('generation_finished');`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `emitState('generation_finished');` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 304
+
+- **Fonte:** `        }`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U22, preservando o escopo de Sinais de Stop, término e Send busy.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 305
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U22, preservando o escopo de Sinais de Stop, término e Send busy.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 306
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Separação visual dentro de U22 (Sinais de Stop, término e Send busy), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 307
+
+- **Fonte:** `      const sendControls = safeQueryAll(root, SELECTORS.SEND)`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Declara `sendControls` para sustentar Sinais de Stop, término e Send busy; a expressão completa é `const sendControls = safeQueryAll(root, SELECTORS.SEND)`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 308
+
+- **Fonte:** `        .filter(domApi.isElementVisible);`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `.filter(domApi.isElementVisible);` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 309
+
+- **Fonte:** `      const hasEnabledSend = sendControls.some(domApi.isControlEnabled);`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Declara `hasEnabledSend` para sustentar Sinais de Stop, término e Send busy; a expressão completa é `const hasEnabledSend = sendControls.some(domApi.isControlEnabled);`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 310
+
+- **Fonte:** `      if (hasEnabledSend) state.sendEnabledObserved = true;`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Abre uma guarda decisória de Sinais de Stop, término e Send busy; a condição exata é `if (hasEnabledSend) state.sendEnabledObserved = true;`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 311
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Separação visual dentro de U22 (Sinais de Stop, término e Send busy), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 312
+
+- **Fonte:** `      // "Send busy" só é evidência de submit quando houve transição real.`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Comentário de projeto que explicita a intenção de Sinais de Stop, término e Send busy: "Send busy" só é evidência de submit quando houve transição real.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 313
+
+- **Fonte:** `      // Um botão que já nasceu disabled no baseline NÃO confirma envio.`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Comentário de projeto que explicita a intenção de Sinais de Stop, término e Send busy: Um botão que já nasceu disabled no baseline NÃO confirma envio.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 314
+
+- **Fonte:** `      const transitionedToBusy =`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Declara `transitionedToBusy` para sustentar Sinais de Stop, término e Send busy; a expressão completa é `const transitionedToBusy =`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 315
+
+- **Fonte:** `        state.sendEnabledObserved &&`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Atualiza estado usado por Sinais de Stop, término e Send busy: `state.sendEnabledObserved &&`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 316
+
+- **Fonte:** `        sendControls.length > 0 &&`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `sendControls.length > 0 &&` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 317
+
+- **Fonte:** `        sendControls.every(element => !domApi.isControlEnabled(element));`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `sendControls.every(element => !domApi.isControlEnabled(element));` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 318
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Separação visual dentro de U22 (Sinais de Stop, término e Send busy), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 319
+
+- **Fonte:** `      if (transitionedToBusy) {`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Abre uma guarda decisória de Sinais de Stop, término e Send busy; a condição exata é `if (transitionedToBusy)`.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 320
+
+- **Fonte:** `        confirmSubmission('send_busy');`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `confirmSubmission('send_busy');` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 321
+
+- **Fonte:** `        markGenerationActive('send_busy');`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Participa diretamente de Sinais de Stop, término e Send busy; esta linha executa/configura `markGenerationActive('send_busy');` no ponto exato da sequência descrita pela unidade U22.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 322
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U22, preservando o escopo de Sinais de Stop, término e Send busy.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 323
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U22 — Sinais de Stop, término e Send busy.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U22, preservando o escopo de Sinais de Stop, término e Send busy.
+- **Racional completo:** ver U22; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 324
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Separação visual dentro de U23 (Detecção diferencial de erros), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 325
+
+- **Fonte:** `    function inspectErrors() {`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Abre a função `inspectErrors` responsável por detecção diferencial de erros.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 326
+
+- **Fonte:** `      const errors = safeQueryAll(root, SELECTORS.ERROR);`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Declara `errors` para sustentar Detecção diferencial de erros; a expressão completa é `const errors = safeQueryAll(root, SELECTORS.ERROR);`.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 327
+
+- **Fonte:** `      for (const element of errors) {`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Itera a coleção necessária a Detecção diferencial de erros; o cabeçalho do laço é `for (const element of errors) {`.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 328
+
+- **Fonte:** `        if (!domApi.isElementVisible(element)) continue;`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Abre uma guarda decisória de Detecção diferencial de erros; a condição exata é `if (!domApi.isElementVisible(element)) continue;`.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 329
+
+- **Fonte:** `        const text = String(element.innerText || element.textContent || '').trim();`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Declara `text` para sustentar Detecção diferencial de erros; a expressão completa é `const text = String(element.innerText &#124;&#124; element.textContent &#124;&#124; '').trim();`.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 330
+
+- **Fonte:** `        if (!text || initialErrors.has(text)) continue;`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Abre uma guarda decisória de Detecção diferencial de erros; a condição exata é `if (!text &#124;&#124; initialErrors.has(text)) continue;`.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 331
+
+- **Fonte:** `        fail(text);`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Participa diretamente de Detecção diferencial de erros; esta linha executa/configura `fail(text);` no ponto exato da sequência descrita pela unidade U23.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 332
+
+- **Fonte:** `        return;`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Retorna o valor/estado `;` como saída desta decisão de Detecção diferencial de erros.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 333
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U23, preservando o escopo de Detecção diferencial de erros.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 334
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U23 — Detecção diferencial de erros.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U23, preservando o escopo de Detecção diferencial de erros.
+- **Racional completo:** ver U23; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 335
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Separação visual dentro de U24 (Força semântica da URL de imagem), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 336
+
+- **Fonte:** `    function strongImageUrl(src) {`
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Abre a função `strongImageUrl` responsável por força semântica da url de imagem.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 337
+
+- **Fonte:** `      return src.startsWith('blob:') ||`
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Retorna o valor/estado `src.startsWith('blob:') &#124;&#124;` como saída desta decisão de Força semântica da URL de imagem.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 338
+
+- **Fonte:** `        src.startsWith('data:image/') ||`
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Participa diretamente de Força semântica da URL de imagem; esta linha executa/configura `src.startsWith('data:image/') &#124;&#124;` no ponto exato da sequência descrita pela unidade U24.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 339
+
+- **Fonte:** `        isGeneratedGeminiUrl(src) ||`
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Participa diretamente de Força semântica da URL de imagem; esta linha executa/configura `isGeneratedGeminiUrl(src) &#124;&#124;` no ponto exato da sequência descrita pela unidade U24.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 340
+
+- **Fonte:** `        src.includes('gemini-result-image');`
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Participa diretamente de Força semântica da URL de imagem; esta linha executa/configura `src.includes('gemini-result-image');` no ponto exato da sequência descrita pela unidade U24.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 341
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U24 — Força semântica da URL de imagem.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U24, preservando o escopo de Força semântica da URL de imagem.
+- **Racional completo:** ver U24; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 342
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Separação visual dentro de U25 (Filtro de candidato de imagem), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 343
+
+- **Fonte:** `    function isCandidateImage(image) {`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Abre a função `isCandidateImage` responsável por filtro de candidato de imagem.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 344
+
+- **Fonte:** `      const src = domApi.getImageSource(image);`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Declara `src` para sustentar Filtro de candidato de imagem; a expressão completa é `const src = domApi.getImageSource(image);`.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 345
+
+- **Fonte:** `      if (!src || state.initialImageSources.has(src) || domApi.isIgnoredGeminiImageSource(src)) {`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Abre uma guarda decisória de Filtro de candidato de imagem; a condição exata é `if (!src &#124;&#124; state.initialImageSources.has(src) &#124;&#124; domApi.isIgnoredGeminiImageSource(src))`.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 346
+
+- **Fonte:** `        return false;`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Retorna o valor/estado `false;` como saída desta decisão de Filtro de candidato de imagem.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 347
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U25, preservando o escopo de Filtro de candidato de imagem.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 348
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Separação visual dentro de U25 (Filtro de candidato de imagem), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 349
+
+- **Fonte:** `      const width = Number(image.naturalWidth || image.width || 0);`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Declara `width` para sustentar Filtro de candidato de imagem; a expressão completa é `const width = Number(image.naturalWidth &#124;&#124; image.width &#124;&#124; 0);`.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 350
+
+- **Fonte:** `      const height = Number(image.naturalHeight || image.height || 0);`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Declara `height` para sustentar Filtro de candidato de imagem; a expressão completa é `const height = Number(image.naturalHeight &#124;&#124; image.height &#124;&#124; 0);`.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 351
+
+- **Fonte:** `      if (strongImageUrl(src)) return true;`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Abre uma guarda decisória de Filtro de candidato de imagem; a condição exata é `if (strongImageUrl(src)) return true;`.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 352
+
+- **Fonte:** `      if (image.complete === false && width <= 0 && height <= 0) return false;`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Abre uma guarda decisória de Filtro de candidato de imagem; a condição exata é `if (image.complete === false && width <= 0 && height <= 0) return false;`.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 353
+
+- **Fonte:** `      return width > 0 && height > 0;`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Retorna o valor/estado `width > 0 && height > 0;` como saída desta decisão de Filtro de candidato de imagem.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 354
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U25 — Filtro de candidato de imagem.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U25, preservando o escopo de Filtro de candidato de imagem.
+- **Racional completo:** ver U25; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 355
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Separação visual dentro de U26 (Diagnóstico deduplicado de rejeição), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 356
+
+- **Fonte:** `    const candidateDiagnostics = new WeakMap();`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Declara `candidateDiagnostics` para sustentar Diagnóstico deduplicado de rejeição; a expressão completa é `const candidateDiagnostics = new WeakMap();`.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 357
+
+- **Fonte:** `    function sourceType(src) {`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Abre a função `sourceType` responsável por diagnóstico deduplicado de rejeição.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 358
+
+- **Fonte:** `      return src.startsWith('blob:') ? 'blob' : src.startsWith('data:image/') ? 'data' :`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Retorna o valor/estado `src.startsWith('blob:') ? 'blob' : src.startsWith('data:image/') ? 'data' :` como saída desta decisão de Diagnóstico deduplicado de rejeição.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 359
+
+- **Fonte:** `        isGeneratedGeminiUrl(src) ? 'generated_google_asset' : 'remote';`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Participa diretamente de Diagnóstico deduplicado de rejeição; esta linha executa/configura `isGeneratedGeminiUrl(src) ? 'generated_google_asset' : 'remote';` no ponto exato da sequência descrita pela unidade U26.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 360
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U26, preservando o escopo de Diagnóstico deduplicado de rejeição.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 361
+
+- **Fonte:** `    function rejectCandidate(image, reason, src) {`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Abre a função `rejectCandidate` responsável por diagnóstico deduplicado de rejeição.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 362
+
+- **Fonte:** `      const signature = reason + '|' + src;`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Declara `signature` para sustentar Diagnóstico deduplicado de rejeição; a expressão completa é `const signature = reason + '&#124;' + src;`.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 363
+
+- **Fonte:** `      if (candidateDiagnostics.get(image) === signature) return;`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Abre uma guarda decisória de Diagnóstico deduplicado de rejeição; a condição exata é `if (candidateDiagnostics.get(image) === signature) return;`.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 364
+
+- **Fonte:** `      candidateDiagnostics.set(image, signature);`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Participa diretamente de Diagnóstico deduplicado de rejeição; esta linha executa/configura `candidateDiagnostics.set(image, signature);` no ponto exato da sequência descrita pela unidade U26.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 365
+
+- **Fonte:** `      emitState('result_candidate_rejected', { reason, sourceType: sourceType(src) });`
+- **Unidade semântica:** U26 — Diagnóstico deduplicado de rejeição.
+- **Papel local:** Participa diretamente de Diagnóstico deduplicado de rejeição; esta linha executa/configura `emitState('result_candidate_rejected', { reason, sourceType: sourceType(src) });` no ponto exato da sequência descrita pela unidade U26.
+- **Racional completo:** ver U26; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 366
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U27, preservando o escopo de Seleção segura do resultado.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 367
+
+- **Fonte:** `    function inspectResult() {`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre a função `inspectResult` responsável por seleção segura do resultado.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 368
+
+- **Fonte:** `      acquireResponseContainer();`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `acquireResponseContainer();` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 369
+
+- **Fonte:** `      if (!state.submissionConfirmed) return;`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if (!state.submissionConfirmed) return;`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 370
+
+- **Fonte:** `      const images = safeQueryAll(root, 'img');`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `images` para sustentar Seleção segura do resultado; a expressão completa é `const images = safeQueryAll(root, 'img');`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 371
+
+- **Fonte:** `      for (let index = images.length - 1; index >= 0; index -= 1) {`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Itera a coleção necessária a Seleção segura do resultado; o cabeçalho do laço é `for (let index = images.length - 1; index >= 0; index -= 1) {`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 372
+
+- **Fonte:** `        const image = images[index];`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `image` para sustentar Seleção segura do resultado; a expressão completa é `const image = images[index];`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 373
+
+- **Fonte:** `        if (!isCandidateImage(image) || image.isConnected === false) continue;`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if (!isCandidateImage(image) &#124;&#124; image.isConnected === false) continue;`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 374
+
+- **Fonte:** `        const src = domApi.getImageSource(image);`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `src` para sustentar Seleção segura do resultado; a expressão completa é `const src = domApi.getImageSource(image);`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 375
+
+- **Fonte:** `        const structuralReason = quarantine?.classifyStructuralInput?.(image);`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `structuralReason` para sustentar Seleção segura do resultado; a expressão completa é `const structuralReason = quarantine?.classifyStructuralInput?.(image);`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 376
+
+- **Fonte:** `        if (structuralReason) { rejectCandidate(image, structuralReason, src); continue; }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if (structuralReason)  rejectCandidate(image, structuralReason, src); continue; }`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 377
+
+- **Fonte:** `        const owner = domApi.getStrictModelResponseContainer(image);`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `owner` para sustentar Seleção segura do resultado; a expressão completa é `const owner = domApi.getStrictModelResponseContainer(image);`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 378
+
+- **Fonte:** `        if (owner && initialResponses.has(owner)) { rejectCandidate(image, 'old_model_turn', src); continue; }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if (owner && initialResponses.has(owner))  rejectCandidate(image, 'old_model_turn', src); continue; }`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 379
+
+- **Fonte:** `        const belongsToNewModelTurn = Boolean(owner && !initialResponses.has(owner));`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `belongsToNewModelTurn` para sustentar Seleção segura do resultado; a expressão completa é `const belongsToNewModelTurn = Boolean(owner && !initialResponses.has(owner));`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 380
+
+- **Fonte:** `        // Não aceitar blob/data órfão, nem tratar um message-content genérico`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Comentário de projeto que explicita a intenção de Seleção segura do resultado: Não aceitar blob/data órfão, nem tratar um message-content genérico
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 381
+
+- **Fonte:** `        // como prova de autoria. Só asset gerado e geração observada podem`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Comentário de projeto que explicita a intenção de Seleção segura do resultado: como prova de autoria. Só asset gerado e geração observada podem
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 382
+
+- **Fonte:** `        // usar o fallback sem um wrapper de autoria forte.`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Comentário de projeto que explicita a intenção de Seleção segura do resultado: usar o fallback sem um wrapper de autoria forte.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 383
+
+- **Fonte:** `        const trustedFallback = !owner && isGeneratedGeminiUrl(src) && state.generationActiveObserved;`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Declara `trustedFallback` para sustentar Seleção segura do resultado; a expressão completa é `const trustedFallback = !owner && isGeneratedGeminiUrl(src) && state.generationActiveObserved;`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 384
+
+- **Fonte:** `        if (!belongsToNewModelTurn && !trustedFallback) {`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if (!belongsToNewModelTurn && !trustedFallback)`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 385
+
+- **Fonte:** `          rejectCandidate(image, 'missing_model_owner', src); continue;`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `rejectCandidate(image, 'missing_model_owner', src); continue;` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 386
+
+- **Fonte:** `        }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U27, preservando o escopo de Seleção segura do resultado.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 387
+
+- **Fonte:** `        if ((src.startsWith('blob:') || src.startsWith('data:image/')) &&`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if ((src.startsWith('blob:') &#124;&#124; src.startsWith('data:image/')) &&`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 388
+
+- **Fonte:** `            (image.complete === false || Number(image.naturalWidth || 0) <= 0 || Number(image.naturalHeight || 0) <= 0)) {`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `(image.complete === false &#124;&#124; Number(image.naturalWidth &#124;&#124; 0) <= 0 &#124;&#124; Number(image.naturalHeight &#124;&#124; 0) <= 0)) {` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 389
+
+- **Fonte:** `          rejectCandidate(image, 'pending_model_media', src); continue;`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `rejectCandidate(image, 'pending_model_media', src); continue;` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 390
+
+- **Fonte:** `        }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U27, preservando o escopo de Seleção segura do resultado.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 391
+
+- **Fonte:** `        emitState('result_candidate_accepted', {`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `emitState('result_candidate_accepted', {` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 392
+
+- **Fonte:** `          reason: belongsToNewModelTurn ? 'new_model_turn' : 'generated_asset_after_generation',`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `reason: belongsToNewModelTurn ? 'new_model_turn' : 'generated_asset_after_generation',` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 393
+
+- **Fonte:** `          sourceType: sourceType(src), ownerTag: owner?.tagName?.toLowerCase() || null,`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `sourceType: sourceType(src), ownerTag: owner?.tagName?.toLowerCase() &#124;&#124; null,` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 394
+
+- **Fonte:** `        });`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Participa diretamente de Seleção segura do resultado; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U27.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 395
+
+- **Fonte:** `        if (setResult(image, src)) return;`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Abre uma guarda decisória de Seleção segura do resultado; a condição exata é `if (setResult(image, src)) return;`.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 396
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U27, preservando o escopo de Seleção segura do resultado.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 397
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U27 — Seleção segura do resultado.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U27, preservando o escopo de Seleção segura do resultado.
+- **Racional completo:** ver U27; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 398
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Separação visual dentro de U28 (Observação de DOM, Shadow DOM e eventos de mídia), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 399
+
+- **Fonte:** `    const imageEventRoots = new Set();`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Declara `imageEventRoots` para sustentar Observação de DOM, Shadow DOM e eventos de mídia; a expressão completa é `const imageEventRoots = new Set();`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 400
+
+- **Fonte:** `    const observationOptions = {`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Declara `observationOptions` para sustentar Observação de DOM, Shadow DOM e eventos de mídia; a expressão completa é `const observationOptions = {`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 401
+
+- **Fonte:** `      childList: true, subtree: true, characterData: true, attributes: true,`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Participa diretamente de Observação de DOM, Shadow DOM e eventos de mídia; esta linha executa/configura `childList: true, subtree: true, characterData: true, attributes: true,` no ponto exato da sequência descrita pela unidade U28.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 402
+
+- **Fonte:** `      attributeFilter: ['src', 'srcset', 'data-src', 'disabled', 'aria-disabled', 'aria-hidden', 'style', 'class'],`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Participa diretamente de Observação de DOM, Shadow DOM e eventos de mídia; esta linha executa/configura `attributeFilter: ['src', 'srcset', 'data-src', 'disabled', 'aria-disabled', 'aria-hidden', 'style', 'class'],` no ponto exato da sequência descrita pela unidade U28.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 403
+
+- **Fonte:** `    };`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U28, preservando o escopo de Observação de DOM, Shadow DOM e eventos de mídia.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 404
+
+- **Fonte:** `    function observeShadowRoots() {`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Abre a função `observeShadowRoots` responsável por observação de dom, shadow dom e eventos de mídia.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 405
+
+- **Fonte:** `      if (!state.observer) return;`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Abre uma guarda decisória de Observação de DOM, Shadow DOM e eventos de mídia; a condição exata é `if (!state.observer) return;`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 406
+
+- **Fonte:** `      const searchRoot = root.body || root.documentElement || root;`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Declara `searchRoot` para sustentar Observação de DOM, Shadow DOM e eventos de mídia; a expressão completa é `const searchRoot = root.body &#124;&#124; root.documentElement &#124;&#124; root;`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 407
+
+- **Fonte:** `      const targets = [searchRoot];`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Declara `targets` para sustentar Observação de DOM, Shadow DOM e eventos de mídia; a expressão completa é `const targets = [searchRoot];`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 408
+
+- **Fonte:** `      for (const host of domApi.findAllDeep(searchRoot, element => Boolean(element.shadowRoot))) {`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Itera a coleção necessária a Observação de DOM, Shadow DOM e eventos de mídia; o cabeçalho do laço é `for (const host of domApi.findAllDeep(searchRoot, element => Boolean(element.shadowRoot))) {`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 409
+
+- **Fonte:** `        if (!state.shadowRoots.has(host.shadowRoot)) {`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Abre uma guarda decisória de Observação de DOM, Shadow DOM e eventos de mídia; a condição exata é `if (!state.shadowRoots.has(host.shadowRoot))`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 410
+
+- **Fonte:** `          state.observer.observe(host.shadowRoot, observationOptions);`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Atualiza estado usado por Observação de DOM, Shadow DOM e eventos de mídia: `state.observer.observe(host.shadowRoot, observationOptions);`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 411
+
+- **Fonte:** `          state.shadowRoots.add(host.shadowRoot);`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Atualiza estado usado por Observação de DOM, Shadow DOM e eventos de mídia: `state.shadowRoots.add(host.shadowRoot);`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 412
+
+- **Fonte:** `        }`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U28, preservando o escopo de Observação de DOM, Shadow DOM e eventos de mídia.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 413
+
+- **Fonte:** `        targets.push(host.shadowRoot);`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Participa diretamente de Observação de DOM, Shadow DOM e eventos de mídia; esta linha executa/configura `targets.push(host.shadowRoot);` no ponto exato da sequência descrita pela unidade U28.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 414
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U28, preservando o escopo de Observação de DOM, Shadow DOM e eventos de mídia.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 415
+
+- **Fonte:** `      for (const target of targets) {`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Itera a coleção necessária a Observação de DOM, Shadow DOM e eventos de mídia; o cabeçalho do laço é `for (const target of targets) {`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 416
+
+- **Fonte:** `        if (imageEventRoots.has(target)) continue;`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Abre uma guarda decisória de Observação de DOM, Shadow DOM e eventos de mídia; a condição exata é `if (imageEventRoots.has(target)) continue;`.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 417
+
+- **Fonte:** `        target.addEventListener?.('load', scheduleInspect, true);`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Participa diretamente de Observação de DOM, Shadow DOM e eventos de mídia; esta linha executa/configura `target.addEventListener?.('load', scheduleInspect, true);` no ponto exato da sequência descrita pela unidade U28.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 418
+
+- **Fonte:** `        target.addEventListener?.('error', scheduleInspect, true);`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Participa diretamente de Observação de DOM, Shadow DOM e eventos de mídia; esta linha executa/configura `target.addEventListener?.('error', scheduleInspect, true);` no ponto exato da sequência descrita pela unidade U28.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 419
+
+- **Fonte:** `        imageEventRoots.add(target);`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Participa diretamente de Observação de DOM, Shadow DOM e eventos de mídia; esta linha executa/configura `imageEventRoots.add(target);` no ponto exato da sequência descrita pela unidade U28.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 420
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U28, preservando o escopo de Observação de DOM, Shadow DOM e eventos de mídia.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 421
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U28 — Observação de DOM, Shadow DOM e eventos de mídia.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U28, preservando o escopo de Observação de DOM, Shadow DOM e eventos de mídia.
+- **Racional completo:** ver U28; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 422
+
+- **Fonte:** `    function schedulePeriodicInspection() {`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Abre a função `schedulePeriodicInspection` responsável por inspeção periódica de segurança.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 423
+
+- **Fonte:** `      if (state.done || state.cleanedUp) return;`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Abre uma guarda decisória de Inspeção periódica de segurança; a condição exata é `if (state.done &#124;&#124; state.cleanedUp) return;`.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 424
+
+- **Fonte:** `      state.inspectionTimer = setTimeoutFn(() => {`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Atualiza estado usado por Inspeção periódica de segurança: `state.inspectionTimer = setTimeoutFn(() => {`.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 425
+
+- **Fonte:** `        state.timers.delete(state.inspectionTimer);`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Atualiza estado usado por Inspeção periódica de segurança: `state.timers.delete(state.inspectionTimer);`.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 426
+
+- **Fonte:** `        state.inspectionTimer = null;`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Atualiza estado usado por Inspeção periódica de segurança: `state.inspectionTimer = null;`.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 427
+
+- **Fonte:** `        inspect();`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Participa diretamente de Inspeção periódica de segurança; esta linha executa/configura `inspect();` no ponto exato da sequência descrita pela unidade U29.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 428
+
+- **Fonte:** `        schedulePeriodicInspection();`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Participa diretamente de Inspeção periódica de segurança; esta linha executa/configura `schedulePeriodicInspection();` no ponto exato da sequência descrita pela unidade U29.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 429
+
+- **Fonte:** `      }, 1250);`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Participa diretamente de Inspeção periódica de segurança; esta linha executa/configura `}, 1250);` no ponto exato da sequência descrita pela unidade U29.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 430
+
+- **Fonte:** `      state.timers.add(state.inspectionTimer);`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Atualiza estado usado por Inspeção periódica de segurança: `state.timers.add(state.inspectionTimer);`.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 431
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U29 — Inspeção periódica de segurança.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U29, preservando o escopo de Inspeção periódica de segurança.
+- **Racional completo:** ver U29; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 432
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Separação visual dentro de U30 (Pipeline ordenado de inspeção), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 433
+
+- **Fonte:** `    function inspect() {`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Abre a função `inspect` responsável por pipeline ordenado de inspeção.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 434
+
+- **Fonte:** `      if (state.cleanedUp || state.done) return;`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Abre uma guarda decisória de Pipeline ordenado de inspeção; a condição exata é `if (state.cleanedUp &#124;&#124; state.done) return;`.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 435
+
+- **Fonte:** `      state.inspectCount += 1;`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Atualiza estado usado por Pipeline ordenado de inspeção: `state.inspectCount += 1;`.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 436
+
+- **Fonte:** `      observeShadowRoots();`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Participa diretamente de Pipeline ordenado de inspeção; esta linha executa/configura `observeShadowRoots();` no ponto exato da sequência descrita pela unidade U30.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 437
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Separação visual dentro de U30 (Pipeline ordenado de inspeção), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 438
+
+- **Fonte:** `      inspectEditor();`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Participa diretamente de Pipeline ordenado de inspeção; esta linha executa/configura `inspectEditor();` no ponto exato da sequência descrita pela unidade U30.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 439
+
+- **Fonte:** `      if (state.cleanedUp || state.done) return;`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Abre uma guarda decisória de Pipeline ordenado de inspeção; a condição exata é `if (state.cleanedUp &#124;&#124; state.done) return;`.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 440
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Separação visual dentro de U30 (Pipeline ordenado de inspeção), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 441
+
+- **Fonte:** `      acquireResponseContainer();`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Participa diretamente de Pipeline ordenado de inspeção; esta linha executa/configura `acquireResponseContainer();` no ponto exato da sequência descrita pela unidade U30.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 442
+
+- **Fonte:** `      inspectControls();`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Participa diretamente de Pipeline ordenado de inspeção; esta linha executa/configura `inspectControls();` no ponto exato da sequência descrita pela unidade U30.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 443
+
+- **Fonte:** `      if (state.cleanedUp || state.done) return;`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Abre uma guarda decisória de Pipeline ordenado de inspeção; a condição exata é `if (state.cleanedUp &#124;&#124; state.done) return;`.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 444
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Separação visual dentro de U30 (Pipeline ordenado de inspeção), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 445
+
+- **Fonte:** `      inspectErrors();`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Participa diretamente de Pipeline ordenado de inspeção; esta linha executa/configura `inspectErrors();` no ponto exato da sequência descrita pela unidade U30.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 446
+
+- **Fonte:** `      if (state.cleanedUp || state.done) return;`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Abre uma guarda decisória de Pipeline ordenado de inspeção; a condição exata é `if (state.cleanedUp &#124;&#124; state.done) return;`.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 447
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Separação visual dentro de U30 (Pipeline ordenado de inspeção), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 448
+
+- **Fonte:** `      inspectResult();`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Participa diretamente de Pipeline ordenado de inspeção; esta linha executa/configura `inspectResult();` no ponto exato da sequência descrita pela unidade U30.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 449
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U30 — Pipeline ordenado de inspeção.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U30, preservando o escopo de Pipeline ordenado de inspeção.
+- **Racional completo:** ver U30; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 450
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Separação visual dentro de U31 (Coalescing por microtask), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 451
+
+- **Fonte:** `    function scheduleInspect() {`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Abre a função `scheduleInspect` responsável por coalescing por microtask.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 452
+
+- **Fonte:** `      if (state.cleanedUp || state.done || state.inspectionScheduled) return;`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Abre uma guarda decisória de Coalescing por microtask; a condição exata é `if (state.cleanedUp &#124;&#124; state.done &#124;&#124; state.inspectionScheduled) return;`.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 453
+
+- **Fonte:** `      state.inspectionScheduled = true;`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Atualiza estado usado por Coalescing por microtask: `state.inspectionScheduled = true;`.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 454
+
+- **Fonte:** `      queueMicrotaskFn(() => {`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Participa diretamente de Coalescing por microtask; esta linha executa/configura `queueMicrotaskFn(() => {` no ponto exato da sequência descrita pela unidade U31.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 455
+
+- **Fonte:** `        state.inspectionScheduled = false;`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Atualiza estado usado por Coalescing por microtask: `state.inspectionScheduled = false;`.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 456
+
+- **Fonte:** `        if (state.cleanedUp || state.done) return;`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Abre uma guarda decisória de Coalescing por microtask; a condição exata é `if (state.cleanedUp &#124;&#124; state.done) return;`.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 457
+
+- **Fonte:** `        inspect();`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Participa diretamente de Coalescing por microtask; esta linha executa/configura `inspect();` no ponto exato da sequência descrita pela unidade U31.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 458
+
+- **Fonte:** `      });`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Participa diretamente de Coalescing por microtask; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U31.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 459
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U31 — Coalescing por microtask.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U31, preservando o escopo de Coalescing por microtask.
+- **Racional completo:** ver U31; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 460
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Separação visual dentro de U32 (Start e registro do observer), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 461
+
+- **Fonte:** `    function start() {`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Abre a função `start` responsável por start e registro do observer.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 462
+
+- **Fonte:** `      if (state.cleanedUp || state.ready) return api;`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Abre uma guarda decisória de Start e registro do observer; a condição exata é `if (state.cleanedUp &#124;&#124; state.ready) return api;`.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 463
+
+- **Fonte:** `      const observeRoot = root.body || root.documentElement || root;`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Declara `observeRoot` para sustentar Start e registro do observer; a expressão completa é `const observeRoot = root.body &#124;&#124; root.documentElement &#124;&#124; root;`.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 464
+
+- **Fonte:** `      state.observer = new MutationObserverImpl(scheduleInspect);`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Atualiza estado usado por Start e registro do observer: `state.observer = new MutationObserverImpl(scheduleInspect);`.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 465
+
+- **Fonte:** `      state.observer.observe(observeRoot, observationOptions);`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Atualiza estado usado por Start e registro do observer: `state.observer.observe(observeRoot, observationOptions);`.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 466
+
+- **Fonte:** `      observeShadowRoots();`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Participa diretamente de Start e registro do observer; esta linha executa/configura `observeShadowRoots();` no ponto exato da sequência descrita pela unidade U32.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 467
+
+- **Fonte:** `      state.ready = true;`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Atualiza estado usado por Start e registro do observer: `state.ready = true;`.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 468
+
+- **Fonte:** `      registryOwner.__mtGeminiObservers[jobId] = api;`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Atualiza estado usado por Start e registro do observer: `registryOwner.__mtGeminiObservers[jobId] = api;`.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 469
+
+- **Fonte:** `      emitState('ready', { initialResponseCount: state.initialResponseCount });`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Participa diretamente de Start e registro do observer; esta linha executa/configura `emitState('ready', { initialResponseCount: state.initialResponseCount });` no ponto exato da sequência descrita pela unidade U32.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 470
+
+- **Fonte:** `      inspect();`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Participa diretamente de Start e registro do observer; esta linha executa/configura `inspect();` no ponto exato da sequência descrita pela unidade U32.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 471
+
+- **Fonte:** `      schedulePeriodicInspection();`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Participa diretamente de Start e registro do observer; esta linha executa/configura `schedulePeriodicInspection();` no ponto exato da sequência descrita pela unidade U32.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 472
+
+- **Fonte:** `      return api;`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Retorna o valor/estado `api;` como saída desta decisão de Start e registro do observer.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 473
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U32 — Start e registro do observer.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U32, preservando o escopo de Start e registro do observer.
+- **Racional completo:** ver U32; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 474
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Separação visual dentro de U33 (Promise de confirmação do submit), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 475
+
+- **Fonte:** `    function waitForSubmission(timeoutMs = 5000) {`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Abre a função `waitForSubmission` responsável por promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 476
+
+- **Fonte:** `      if (state.submissionConfirmed) {`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Abre uma guarda decisória de Promise de confirmação do submit; a condição exata é `if (state.submissionConfirmed)`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 477
+
+- **Fonte:** `        return Promise.resolve({`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Retorna o valor/estado `Promise.resolve({` como saída desta decisão de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 478
+
+- **Fonte:** `          confirmed: true,`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `confirmed: true,` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 479
+
+- **Fonte:** `          reason: state.submissionReason,`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `reason: state.submissionReason,` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 480
+
+- **Fonte:** `        });`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 481
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U33, preservando o escopo de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 482
+
+- **Fonte:** `      if (state.error) {`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Abre uma guarda decisória de Promise de confirmação do submit; a condição exata é `if (state.error)`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 483
+
+- **Fonte:** `        return Promise.reject(createError('GEMINI_UI_ERROR', state.error));`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Retorna o valor/estado `Promise.reject(createError('GEMINI_UI_ERROR', state.error));` como saída desta decisão de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 484
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U33, preservando o escopo de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 485
+
+- **Fonte:** `      if (state.cleanedUp || state.done) {`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Abre uma guarda decisória de Promise de confirmação do submit; a condição exata é `if (state.cleanedUp &#124;&#124; state.done)`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 486
+
+- **Fonte:** `        return Promise.reject(createError('OBSERVER_STOPPED', 'Observer já finalizado'));`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Retorna o valor/estado `Promise.reject(createError('OBSERVER_STOPPED', 'Observer já finalizado'));` como saída desta decisão de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 487
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U33, preservando o escopo de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 488
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Separação visual dentro de U33 (Promise de confirmação do submit), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 489
+
+- **Fonte:** `      return new Promise((resolve, reject) => {`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Retorna o valor/estado `new Promise((resolve, reject) => {` como saída desta decisão de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 490
+
+- **Fonte:** `        const waiter = { resolve, reject, timer: null };`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Declara `waiter` para sustentar Promise de confirmação do submit; a expressão completa é `const waiter = { resolve, reject, timer: null };`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 491
+
+- **Fonte:** `        waiter.timer = setTimeoutFn(() => {`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Atualiza estado usado por Promise de confirmação do submit: `waiter.timer = setTimeoutFn(() => {`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 492
+
+- **Fonte:** `          submissionWaiters.delete(waiter);`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `submissionWaiters.delete(waiter);` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 493
+
+- **Fonte:** `          state.timers.delete(waiter.timer);`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Atualiza estado usado por Promise de confirmação do submit: `state.timers.delete(waiter.timer);`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 494
+
+- **Fonte:** `          reject(createError('GEMINI_SUBMISSION_NOT_CONFIRMED', 'Envio não foi confirmado pela UI'));`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `reject(createError('GEMINI_SUBMISSION_NOT_CONFIRMED', 'Envio não foi confirmado pela UI'));` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 495
+
+- **Fonte:** `        }, timeoutMs);`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `}, timeoutMs);` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 496
+
+- **Fonte:** `        state.timers.add(waiter.timer);`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Atualiza estado usado por Promise de confirmação do submit: `state.timers.add(waiter.timer);`.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 497
+
+- **Fonte:** `        submissionWaiters.add(waiter);`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `submissionWaiters.add(waiter);` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 498
+
+- **Fonte:** `      });`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Participa diretamente de Promise de confirmação do submit; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U33.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 499
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U33 — Promise de confirmação do submit.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U33, preservando o escopo de Promise de confirmação do submit.
+- **Racional completo:** ver U33; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 500
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Separação visual dentro de U34 (Promise de resultado terminal), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 501
+
+- **Fonte:** `    function waitForResult(timeoutMs = 4 * 60 * 1000) {`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Abre a função `waitForResult` responsável por promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 502
+
+- **Fonte:** `      if (state.resultUrl) {`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Abre uma guarda decisória de Promise de resultado terminal; a condição exata é `if (state.resultUrl)`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 503
+
+- **Fonte:** `        return Promise.resolve({`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Retorna o valor/estado `Promise.resolve({` como saída desta decisão de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 504
+
+- **Fonte:** `          image: state.resultImage,`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `image: state.resultImage,` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 505
+
+- **Fonte:** `          url: state.resultUrl,`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `url: state.resultUrl,` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 506
+
+- **Fonte:** `        });`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 507
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U34, preservando o escopo de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 508
+
+- **Fonte:** `      if (state.error) {`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Abre uma guarda decisória de Promise de resultado terminal; a condição exata é `if (state.error)`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 509
+
+- **Fonte:** `        return Promise.reject(createError('GEMINI_UI_ERROR', state.error));`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Retorna o valor/estado `Promise.reject(createError('GEMINI_UI_ERROR', state.error));` como saída desta decisão de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 510
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U34, preservando o escopo de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 511
+
+- **Fonte:** `      if (state.cleanedUp || state.done) {`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Abre uma guarda decisória de Promise de resultado terminal; a condição exata é `if (state.cleanedUp &#124;&#124; state.done)`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 512
+
+- **Fonte:** `        return Promise.reject(createError('OBSERVER_STOPPED', 'Observer já finalizado'));`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Retorna o valor/estado `Promise.reject(createError('OBSERVER_STOPPED', 'Observer já finalizado'));` como saída desta decisão de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 513
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U34, preservando o escopo de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 514
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Separação visual dentro de U34 (Promise de resultado terminal), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 515
+
+- **Fonte:** `      return new Promise((resolve, reject) => {`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Retorna o valor/estado `new Promise((resolve, reject) => {` como saída desta decisão de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 516
+
+- **Fonte:** `        const waiter = { resolve, reject, timer: null };`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Declara `waiter` para sustentar Promise de resultado terminal; a expressão completa é `const waiter = { resolve, reject, timer: null };`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 517
+
+- **Fonte:** `        waiter.timer = setTimeoutFn(() => {`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Atualiza estado usado por Promise de resultado terminal: `waiter.timer = setTimeoutFn(() => {`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 518
+
+- **Fonte:** `          resultWaiters.delete(waiter);`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `resultWaiters.delete(waiter);` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 519
+
+- **Fonte:** `          state.timers.delete(waiter.timer);`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Atualiza estado usado por Promise de resultado terminal: `state.timers.delete(waiter.timer);`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 520
+
+- **Fonte:** `          reject(createError('GEMINI_RESULT_TIMEOUT', 'Tempo limite aguardando resultado do Gemini'));`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `reject(createError('GEMINI_RESULT_TIMEOUT', 'Tempo limite aguardando resultado do Gemini'));` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 521
+
+- **Fonte:** `        }, timeoutMs);`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `}, timeoutMs);` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 522
+
+- **Fonte:** `        state.timers.add(waiter.timer);`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Atualiza estado usado por Promise de resultado terminal: `state.timers.add(waiter.timer);`.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 523
+
+- **Fonte:** `        resultWaiters.add(waiter);`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `resultWaiters.add(waiter);` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 524
+
+- **Fonte:** `      });`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Participa diretamente de Promise de resultado terminal; esta linha executa/configura `});` no ponto exato da sequência descrita pela unidade U34.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 525
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U34 — Promise de resultado terminal.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U34, preservando o escopo de Promise de resultado terminal.
+- **Racional completo:** ver U34; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 526
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Separação visual dentro de U35 (Stop e cleanup completo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 527
+
+- **Fonte:** `    function stop() {`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Abre a função `stop` responsável por stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 528
+
+- **Fonte:** `      if (state.cleanedUp) return false;`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Abre uma guarda decisória de Stop e cleanup completo; a condição exata é `if (state.cleanedUp) return false;`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 529
+
+- **Fonte:** `      state.cleanedUp = true;`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Atualiza estado usado por Stop e cleanup completo: `state.cleanedUp = true;`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 530
+
+- **Fonte:** `      state.done = true;`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Atualiza estado usado por Stop e cleanup completo: `state.done = true;`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 531
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Separação visual dentro de U35 (Stop e cleanup completo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 532
+
+- **Fonte:** `      if (state.observer) {`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Abre uma guarda decisória de Stop e cleanup completo; a condição exata é `if (state.observer)`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 533
+
+- **Fonte:** `        try { state.observer.disconnect(); } catch (_e) {}`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Inicia região protegida porque esta etapa de Stop e cleanup completo pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 534
+
+- **Fonte:** `        state.observer = null;`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Atualiza estado usado por Stop e cleanup completo: `state.observer = null;`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 535
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U35, preservando o escopo de Stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 536
+
+- **Fonte:** `      if (state.responseObserver) {`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Abre uma guarda decisória de Stop e cleanup completo; a condição exata é `if (state.responseObserver)`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 537
+
+- **Fonte:** `        try { state.responseObserver.disconnect(); } catch (_e) {}`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Inicia região protegida porque esta etapa de Stop e cleanup completo pode falhar por DOM/API externa ao módulo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 538
+
+- **Fonte:** `        state.responseObserver = null;`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Atualiza estado usado por Stop e cleanup completo: `state.responseObserver = null;`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 539
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U35, preservando o escopo de Stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 540
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Separação visual dentro de U35 (Stop e cleanup completo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 541
+
+- **Fonte:** `      for (const target of imageEventRoots) {`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Itera a coleção necessária a Stop e cleanup completo; o cabeçalho do laço é `for (const target of imageEventRoots) {`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 542
+
+- **Fonte:** `        target.removeEventListener?.('load', scheduleInspect, true);`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Participa diretamente de Stop e cleanup completo; esta linha executa/configura `target.removeEventListener?.('load', scheduleInspect, true);` no ponto exato da sequência descrita pela unidade U35.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 543
+
+- **Fonte:** `        target.removeEventListener?.('error', scheduleInspect, true);`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Participa diretamente de Stop e cleanup completo; esta linha executa/configura `target.removeEventListener?.('error', scheduleInspect, true);` no ponto exato da sequência descrita pela unidade U35.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 544
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U35, preservando o escopo de Stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 545
+
+- **Fonte:** `      imageEventRoots.clear();`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Participa diretamente de Stop e cleanup completo; esta linha executa/configura `imageEventRoots.clear();` no ponto exato da sequência descrita pela unidade U35.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 546
+
+- **Fonte:** `      state.shadowRoots.clear();`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Atualiza estado usado por Stop e cleanup completo: `state.shadowRoots.clear();`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 547
+
+- **Fonte:** `      for (const timer of Array.from(state.timers)) removeTimer(timer);`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Itera a coleção necessária a Stop e cleanup completo; o cabeçalho do laço é `for (const timer of Array.from(state.timers)) removeTimer(timer);`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 548
+
+- **Fonte:** `      const stopped = createError('OBSERVER_STOPPED', 'Observer interrompido');`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Declara `stopped` para sustentar Stop e cleanup completo; a expressão completa é `const stopped = createError('OBSERVER_STOPPED', 'Observer interrompido');`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 549
+
+- **Fonte:** `      settleWaiters(submissionWaiters, 'reject', stopped);`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Participa diretamente de Stop e cleanup completo; esta linha executa/configura `settleWaiters(submissionWaiters, 'reject', stopped);` no ponto exato da sequência descrita pela unidade U35.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 550
+
+- **Fonte:** `      settleWaiters(resultWaiters, 'reject', stopped);`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Participa diretamente de Stop e cleanup completo; esta linha executa/configura `settleWaiters(resultWaiters, 'reject', stopped);` no ponto exato da sequência descrita pela unidade U35.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 551
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Separação visual dentro de U35 (Stop e cleanup completo), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 552
+
+- **Fonte:** `      if (registryOwner.__mtGeminiObservers?.[jobId] === api) {`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Abre uma guarda decisória de Stop e cleanup completo; a condição exata é `if (registryOwner.__mtGeminiObservers?.[jobId] === api)`.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 553
+
+- **Fonte:** `        delete registryOwner.__mtGeminiObservers[jobId];`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Remove a referência `registryOwner.__mtGeminiObservers[jobId]` como parte do cleanup/ownership.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 554
+
+- **Fonte:** `      }`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U35, preservando o escopo de Stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 555
+
+- **Fonte:** `      emitState('cleanup');`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Participa diretamente de Stop e cleanup completo; esta linha executa/configura `emitState('cleanup');` no ponto exato da sequência descrita pela unidade U35.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 556
+
+- **Fonte:** `      return true;`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Retorna o valor/estado `true;` como saída desta decisão de Stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 557
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U35 — Stop e cleanup completo.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U35, preservando o escopo de Stop e cleanup completo.
+- **Racional completo:** ver U35; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 558
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Separação visual dentro de U36 (Introspecção e aceitação manual), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 559
+
+- **Fonte:** `    function getState() {`
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Abre a função `getState` responsável por introspecção e aceitação manual.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 560
+
+- **Fonte:** `      return state;`
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Retorna o valor/estado `state;` como saída desta decisão de Introspecção e aceitação manual.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 561
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U36, preservando o escopo de Introspecção e aceitação manual.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 562
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Separação visual dentro de U36 (Introspecção e aceitação manual), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 563
+
+- **Fonte:** `    function acceptResult(image, url) {`
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Abre a função `acceptResult` responsável por introspecção e aceitação manual.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 564
+
+- **Fonte:** `      return setResult(image || null, url);`
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Retorna o valor/estado `setResult(image &#124;&#124; null, url);` como saída desta decisão de Introspecção e aceitação manual.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 565
+
+- **Fonte:** `    }`
+- **Unidade semântica:** U36 — Introspecção e aceitação manual.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U36, preservando o escopo de Introspecção e aceitação manual.
+- **Racional completo:** ver U36; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 566
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Separação visual dentro de U37 (API da instância), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 567
+
+- **Fonte:** `    const api = {`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Declara `api` para sustentar API da instância; a expressão completa é `const api = {`.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 568
+
+- **Fonte:** `      start,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `start,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 569
+
+- **Fonte:** `      stop,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `stop,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 570
+
+- **Fonte:** `      inspect,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `inspect,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 571
+
+- **Fonte:** `      scheduleInspect,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `scheduleInspect,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 572
+
+- **Fonte:** `      waitForSubmission,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `waitForSubmission,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 573
+
+- **Fonte:** `      waitForResult,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `waitForResult,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 574
+
+- **Fonte:** `      acceptResult,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `acceptResult,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 575
+
+- **Fonte:** `      getState,`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Participa diretamente de API da instância; esta linha executa/configura `getState,` no ponto exato da sequência descrita pela unidade U37.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 576
+
+- **Fonte:** `    };`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U37, preservando o escopo de API da instância.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 577
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Separação visual dentro de U37 (API da instância), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 578
+
+- **Fonte:** `    return api;`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Retorna o valor/estado `api;` como saída desta decisão de API da instância.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 579
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U37 — API da instância.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U37, preservando o escopo de API da instância.
+- **Racional completo:** ver U37; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 580
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Separação visual dentro de U38 (Export global e CommonJS), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 581
+
+- **Fonte:** `  const api = { createGeminiObserver };`
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Declara `api` para sustentar Export global e CommonJS; a expressão completa é `const api = { createGeminiObserver };`.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 582
+
+- **Fonte:** `  scope.MangaTranslatorGeminiObserver = api;`
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Atualiza estado usado por Export global e CommonJS: `scope.MangaTranslatorGeminiObserver = api;`.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 583
+
+- **Fonte:** ␠ [linha vazia]
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Separação visual dentro de U38 (Export global e CommonJS), mantendo legibilidade sem alterar execução.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 584
+
+- **Fonte:** `  if (typeof module !== 'undefined' && module.exports) {`
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Abre uma guarda decisória de Export global e CommonJS; a condição exata é `if (typeof module !== 'undefined' && module.exports)`.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 585
+
+- **Fonte:** `    module.exports = api;`
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Atualiza estado usado por Export global e CommonJS: `module.exports = api;`.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 586
+
+- **Fonte:** `  }`
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Fecha a estrutura iniciada nesta unidade U38, preservando o escopo de Export global e CommonJS.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 587
+
+- **Fonte:** `})(typeof self !== 'undefined' ? self : globalThis);`
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Participa diretamente de Export global e CommonJS; esta linha executa/configura `})(typeof self !== 'undefined' ? self : globalThis);` no ponto exato da sequência descrita pela unidade U38.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
+### Linha 588
+
+- **Fonte:** ⏎ [newline final]
+- **Unidade semântica:** U38 — Export global e CommonJS.
+- **Papel local:** Newline terminal: preserva a forma textual auditada do arquivo.
+- **Racional completo:** ver U38; a explicação daquela unidade cobre mecanismo, dependências, motivo arquitetural, alternativa ingênua e evidência automatizada aplicável a esta posição.
+
 ## 13. Unidades semânticas
 
 ### U01 — linhas 1–7: Cabeçalho, strict mode e escopo IIFE
