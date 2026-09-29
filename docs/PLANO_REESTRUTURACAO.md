@@ -51,7 +51,7 @@ A execução desta branch segue uma exceção operacional solicitada pelo manten
 
 ## Mapa de migração
 
-### Fase 0 — higiene e posicionamento
+### Fase 0 — higiene e posicionamento — **CONCLUÍDA**
 
 | Origem | Destino |
 |---|---|
@@ -123,6 +123,8 @@ Migração aplicada sem divisão de arquivos e sem alteração deliberada de ló
 - os caminhos planos antigos passam a ser proibidos pelo gate estrutural.
 
 A validação automatizada pós-migração continua delegada à GitHub Actions, conforme a política desta execução.
+
+**Status final da Fase 0:** concluída. Os blocos lógicos 0-A…0-G estão aplicados no estado final do repositório. Por decisão explícita do mantenedor, não é necessário reescrever o histórico para produzir exatamente um commit por bloco; a conclusão é determinada pelo estado estrutural e pelos gates, não pela forma histórica dos commits.
 
 ## Validação delegada à CI
 
@@ -257,7 +259,7 @@ O run GitHub Actions #1620 validou o HEAD `a942823c676a3bd4f7ba9106581c359162e57
 - CI Gate: success.
 
 Os diagnósticos pesados e o Fresh Developer Flow continuam intencionalmente condicionados a
-`workflow_dispatch`/push na `main`; a validação manual final permanece pendente antes da revisão.
+`workflow_dispatch`/push na `main`. A validação manual final foi concluída posteriormente no run #1624.
 
 
 ## Evidência final de PR — run #1621
@@ -276,6 +278,22 @@ O run #1621 validou o HEAD funcional/configuracional `0d19a20a030c16986ca4720d18
 - CI Gate: success;
 - branch: 37 commits à frente, 0 atrás da main, mergeable.
 
-A única validação obrigatória ainda pendente do plano é o `workflow_dispatch` final para executar
-os três diagnósticos pesados e o Fresh Developer Flow, pois esses jobs são intencionalmente skipped
-em `pull_request`.
+A validação obrigatória por `workflow_dispatch` foi concluída no run #1624 no HEAD `28dac01698db36d06c5b9d5aebee0240f0f1cde7`.
+
+
+## Evidência de encerramento — run #1624
+
+O `workflow_dispatch` final foi executado na branch `refactor/standardize-project-structure`, no HEAD `28dac01698db36d06c5b9d5aebee0240f0f1cde7`, e concluiu com **success**.
+
+Evidências confirmadas:
+
+- todos os **46 jobs** do workflow terminaram sem falha obrigatória;
+- `CI Gate`: success;
+- `Fresh Developer Flow`: success, incluindo checkout limpo, `npm ci` na raiz, instalação do Chromium, unit, integration, smoke, visual, E2E completo, coverage, `coverage:verify` e `npm test`;
+- `Background Leak Bisection`: success;
+- toda a matriz `Focused Project Leak`: success;
+- toda a matriz `Jest Worker Diagnostic`: success;
+- artefatos reais publicados: 18 diagnósticos Jest, 10 diagnósticos focused-project, 1 bisection de background, 5 blob reports E2E e 1 relatório de coverage;
+- Windows Portability, Node 20/22, Manifest, Syntax, Version Integrity, Smoke, Visual, Coverage, cinco shards E2E e E2E agregado: success.
+
+Com esse run, os requisitos técnicos e de validação da reestruturação estão concluídos. A Fase 0 é considerada concluída independentemente de o histórico antigo não ter exatamente um commit por subbloco 0-A…0-G.

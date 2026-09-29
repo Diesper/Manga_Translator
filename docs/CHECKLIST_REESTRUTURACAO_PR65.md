@@ -3,7 +3,7 @@
 > Branch: `refactor/standardize-project-structure`  
 > Plano-base: `TAREFA_REESTRUTURACAO_ATUALIZADA(1).md`  
 > Última auditoria antes deste checklist: HEAD `e720890cf34dc9437ee91f3b8172953497d69870`  
-> Evidência CI: workflow **MangaTranslator CI** run **#1589** / id `36521561968` — sucesso.
+> Evidência final da reestruturação: workflow **MangaTranslator CI** run manual **#1624** / id `36528813400` no HEAD `28dac01698db36d06c5b9d5aebee0240f0f1cde7` — sucesso.
 
 ## Estrutura
 
@@ -24,7 +24,7 @@
 - [x] README alinhado ao layout 0-G (`extension/content/cm-*` e `extension/shared/gtc-*`).
 - [x] Gate estrutural agora varre arquivos operacionais e rejeita referências aos caminhos legados removidos (equivalente automatizado ao `git grep` final do plano).
 - [x] O novo gate detectou e foi usado para corrigir referência documental obsoleta em `extension/content/content_gemini.js` (`extension/gemini/*` → `extension/content/gemini/*`).
-- [ ] ⚠️ Histórico da Fase 0 não está literalmente dividido em um commit por bloco 0-A…0-G; o resultado estrutural está aplicado, mas reescrever commits antigos agora aumentaria o risco sem alterar o estado final.
+- [x] Fase 0 concluída. Os blocos lógicos 0-A…0-G estão integralmente aplicados; por decisão do mantenedor, a segmentação histórica dos commits não é requisito de conclusão e não será reescrita artificialmente.
 
 ## Baselines comprovadas pela CI do PR
 
@@ -64,8 +64,8 @@
 - [x] Artefatos reais do run #1589 conferidos: 5 blob reports + relatório de coverage publicados e não expirados.
 - [x] Corrigido o writer do diagnóstico Jest para gravar o resumo agregado em `/.ci-results/` (antes ainda apontava para `tests/.ci-results/`).
 - [x] O contrato da CI agora protege explicitamente o caminho raiz dos diagnósticos Jest.
-- [ ] Executar os diagnósticos pesados via `workflow_dispatch` na branch para validar `.ci-results/` e uploads reais; no run de PR eles ficaram **skipped** por design.
-- [ ] Confirmar artefatos dos três diagnósticos pesados após o `workflow_dispatch`.
+- [x] Diagnósticos pesados executados via `workflow_dispatch` no run #1624, na branch correta e no HEAD `28dac016`; todas as matrizes finalizaram com `success`.
+- [x] Artefatos dos diagnósticos confirmados no run #1624: **18** `jest-worker-diagnostic-*`, **10** `focused-project-leak-*` e **1** `background-leak-bisection-*`, além de 5 blob reports E2E e 1 coverage report.
 
 ## Compatibilidade Windows/Linux
 
@@ -82,7 +82,7 @@
 - [x] `test:ci`, `test:smoke`, `test:visual`, `test:e2e`/shards e `test:coverage` funcionam a partir da raiz na CI.
 - [x] Criado job `fresh-developer-flow` para `workflow_dispatch`, em runner limpo, executando `npm ci` → unit → integration → smoke → visual → e2e → coverage → `npm test` na raiz.
 - [x] `CI Gate` exige `fresh-developer-flow=success` em `workflow_dispatch`.
-- [ ] Confirmar o `fresh-developer-flow` no disparo manual final.
+- [x] `fresh-developer-flow` confirmado no run #1624: checkout limpo, Node, `npm ci` na raiz, Chromium, unit, integration, smoke, visual, E2E completo, coverage, `coverage:verify` e `npm test` — todos com `success`.
 - [x] Implementada prova de inventário no `run-jest-ci.js`: `test:unit` e `test:integration` precisam ser disjuntos e sua união precisa cobrir exatamente todos os arquivos `.test.js` do gate total.
 - [x] O contrato protege os seletores canônicos de `test:unit` e `test:integration`.
 - [x] Run #1620: partição Jest comprovada — `unitFiles=96`, `integrationFiles=13`, união `109/109`; 109 suítes e 851 testes.
@@ -108,9 +108,9 @@
 ## Estado da PR
 
 - [x] PR #65 permanece aberta e mergeable.
-- [x] `main` permanece em `8d470f4`; branch está **37 commits à frente e 0 atrás**, merge-base `8d470f4`.
+- [x] No HEAD validado pelo run #1624, `main` permanecia em `8d470f4`; branch estava **38 commits à frente e 0 atrás**, merge-base `8d470f4`.
 - [x] CI do HEAD anterior `e720890cf34dc9437ee91f3b8172953497d69870` ficou verde.
 - [x] Run #1620 do HEAD `a942823` ficou completamente verde, incluindo `CI Gate`.
 - [x] Run #1621 do HEAD `0d19a20` ficou completamente verde após `--print-env` + mapa Fase 0, incluindo Windows Portability e CI Gate.
-- [x] Checklist/documentação atualizada após #1621; este commit final é somente documental.
+- [x] Run manual #1624 no HEAD `28dac016` concluiu com **46 jobs**, nenhum job obrigatório falhou, `Fresh Developer Flow=success` e `CI Gate=success`.
 - [ ] Não fazer merge automático.
