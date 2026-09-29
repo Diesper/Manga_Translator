@@ -41,25 +41,26 @@ Um arquivo só pode ser marcado como concluído quando sua Bíblia individual co
 ## Progresso
 
 - Total: **233**
-- Concluídos: **1**
+- Concluídos: **2**
 - Em andamento: **1**
-- Pendentes: **231**
-- Cobertura documental concluída: **0,43%**
-- Último concluído: `extension/manifest.json`
-- Arquivo atual: `extension/background.js`
-- Bíblia atual: `docs/biblia/extension/background.js/Bíblia.md`
+- Pendentes: **230**
+- Cobertura documental concluída: **0,86%**
+- Último concluído: `extension/background.js`
+- Arquivo atual: `extension/background/actions/calculate-visual-fingerprint.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md`
 
 ## Histórico de conclusão
 
-1. ✅ `extension/manifest.json` — Bíblia individual concluída no PR #66; SHA-base `841fe70c183350e4110bc8ff57ab69b157169c36`.
+1. ✅ `extension/manifest.json` — SHA-base `841fe70c183350e4110bc8ff57ab69b157169c36`.
+2. ✅ `extension/background.js` — SHA-base `667c05eb2d7adfca16a79d3e706c39a1e9398b72`.
 
 ## Fila
 
 | # | Estado | Arquivo | SHA-base | Bíblia individual |
 |---:|---|---|---|---|
 | 1 | ✅ CONCLUÍDO | `extension/manifest.json` | `841fe70c1833` | `docs/biblia/extension/manifest.json/Bíblia.md` |
-| 2 | 🟠 EM ANDAMENTO | `extension/background.js` | `667c05eb2d7a` | `docs/biblia/extension/background.js/Bíblia.md` |
-| 3 | ⬜ PENDENTE | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
+| 2 | ✅ CONCLUÍDO | `extension/background.js` | `667c05eb2d7a` | `docs/biblia/extension/background.js/Bíblia.md` |
+| 3 | 🟠 EM ANDAMENTO | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
 | 4 | ⬜ PENDENTE | `extension/background/actions/check-extraction-tab.js` | `9ee40474d8c5` | `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` |
 | 5 | ⬜ PENDENTE | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
 | 6 | ⬜ PENDENTE | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
