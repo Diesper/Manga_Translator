@@ -76,7 +76,7 @@ Ela não altera automaticamente:
 - o schema <code>visual-v4</code> do fingerprint;
 - o <code>DB_VERSION = 4</code> do banco GTC;
 - o <code>SM_DB_VERSION = 1</code> do StorageManager;
-- nomes de testes como <code>visual-v3</code>, que identificam famílias de teste;
+- versões internas de fingerprint como <code>visual-v3</code>, que fazem parte do formato de dados e não do layout de testes;
 - formatos de dados já persistidos que precisam continuar legíveis.
 
 Essas versões internas têm ciclo de vida próprio e só devem ser incrementadas
@@ -1653,16 +1653,17 @@ O gate `Unit + Integration` executa a mesma suíte em:
 - Node 20;
 - Node 22.
 
-Ambos usam `tests/ci/run-jest-ci.js`, que preserva o código de saída do Jest e também inspeciona stderr.
+Ambos usam `scripts/ci/run-jest-ci.js`, que preserva o código de saída do Jest e também inspeciona stderr.
 
 ## 18.4 Sintaxe
 
 O job de sintaxe percorre recursivamente:
 
 - `extension/**/*.js`;
-- todos os `tests/**/*.js`, incluindo infraestrutura de CI.
+- `tests/**/*.js`;
+- `scripts/**/*.js`.
 
-Isso impede que módulos extraídos ou scripts auxiliares escapem da validação.
+Isso impede que módulos da extensão, testes e tooling centralizado escapem da validação.
 
 ## 18.5 Manifest e versão
 
@@ -1730,7 +1731,7 @@ Falha externa do Codecov é reportada separadamente; nunca substitui o gate loca
 
 ## 18.9 CI Gate e ruleset
 
-`CI Gate` usa `if: always()` e só passa quando todos os gates obrigatórios concluíram com `success`:
+`CI Gate` usa `if: always() && !cancelled()` e avalia os gates obrigatórios sem transformar um workflow cancelado em falso vermelho:
 
 - Version Integrity;
 - JS Syntax Check;
