@@ -44,8 +44,8 @@
 - [x] 026 — `extension/background/jobs-dom-ack.js` → `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 027 — `extension/background/jobs-lifecycle.js` → `docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 028 — `extension/background/jobs-reconciliation.js` → `docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 029 — `extension/background/jobs-watchdog.js` → `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
-- [ ] 030 — `extension/background/log.js` → `docs/biblia/extension/background/log.js/Bíblia.md`
+- [x] 029 — `extension/background/jobs-watchdog.js` → `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 030 — `extension/background/log.js` → `docs/biblia/extension/background/log.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
 - [ ] 031 — `extension/background/router.js` → `docs/biblia/extension/background/router.js/Bíblia.md`
 - [ ] 032 — `extension/background/state.js` → `docs/biblia/extension/background/state.js/Bíblia.md`
 - [ ] 033 — `extension/background/tab-identity.js` → `docs/biblia/extension/background/tab-identity.js/Bíblia.md`
