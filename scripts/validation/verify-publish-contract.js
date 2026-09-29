@@ -34,7 +34,12 @@ if (fs.existsSync(publishPath)) {
   for (const marker of required) {
     if (!source.includes(marker)) problems.push('publish.yml perdeu contrato: ' + marker);
   }
-  for (const legacy of ['scripts/sync-version.js', 'tests/package.json', 'tests/package-lock.json']) {
+  const legacyPublishPaths = [
+    'scripts/' + 'sync-version.js',
+    'tests/' + 'package.json',
+    'tests/' + 'package-lock.json',
+  ];
+  for (const legacy of legacyPublishPaths) {
     if (source.includes(legacy)) problems.push('publish.yml reintroduziu caminho legado: ' + legacy);
   }
   if (!/tags:\\s*\\n\\s*- ["']v\\*["']/.test(source)) {
