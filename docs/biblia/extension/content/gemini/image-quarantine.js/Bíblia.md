@@ -157,18 +157,18 @@ Ele existe para compatibilidade. Em runtime com `crypto.subtle.digest`, o caminh
 
 ## 9. ⚠️ Lacunas de teste probatório específico
 
-1. **Web Crypto nativo não é exercitado pela suíte focal.** QUA-01 injeta `cryptoImpl:null`; falta fake de `subtle.digest` ou teste browser que prove a conversão `ArrayBuffer → hex`. Regressão: caminho de produção pode quebrar enquanto o fallback continua verde.
-2. **Fallback não é comparado a vetor SHA-256 conhecido.** QUA-01 prova consistência, independência de MIME e shape 64-hex, mas uma implementação hash internamente consistente e matematicamente errada ainda poderia passar. Teste necessário: `sha256BytesFallback([])`, `abc` e/ou bytes conhecidos contra digest canônico.
-3. **Data URL não-Base64 não tem assertion focal.** Faltam percent-encoded ASCII, UTF-8 com `TextEncoder` e fallback sem `TextEncoder`. Regressão: hash divergente por ambiente.
-4. **Ausência de `atobImpl` no caminho Base64 não é testada.** Falta provar a mensagem `Decodificador base64 indisponível`.
-5. **Base64 inválido/percent-encoding inválido não é testado.** Exceções do decoder podem mudar ou ser mascaradas.
-6. **`perceptualEvaluator` lançando erro não é testado.** O contrato atual é fail-open da telemetria, preservando decisão por hash.
-7. **`inputHash` não valida formato.** Um caller pode fornecer qualquer string truthy; o consumer atual fornece hash interno confiável, mas falta teste/guard de formato para uso isolado.
-8. **Branches de todos os seletores de attachment não são exercitados individualmente.** QUA-05/06 cobrem `file-preview`; não há assertions focais para `attachment-card`, data attributes e classes restantes.
-9. **Falha de `getRootNode` não é exercitada.** O catch existe, mas não há prova de que retorna miss sem crash.
-10. **Factory sem DOM não tem teste focal.** Falta assertion do erro `ImageQuarantine requer o módulo Gemini DOM`.
-11. **Export browser global não tem assertion focal.** CommonJS é provado pelo `require`; o manifest/gate prova ordem do arquivo, não que o global foi publicado corretamente.
-12. **Sem teste de imagem muito grande.** O fallback é O(n) e síncrono; falta limite/benchmark que detecte jank ou uso de memória excessivo.
+1. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — Web Crypto nativo.** QUA-01 injeta `cryptoImpl:null`; falta fake de `subtle.digest` ou teste browser que prove a conversão `ArrayBuffer → hex`. Regressão: caminho de produção pode quebrar enquanto o fallback continua verde.
+2. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — vetor SHA-256 canônico do fallback.** QUA-01 prova consistência, independência de MIME e shape 64-hex, mas uma implementação hash internamente consistente e matematicamente errada ainda poderia passar. Teste necessário: `sha256BytesFallback([])`, `abc` e/ou bytes conhecidos contra digest canônico.
+3. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — Data URL não-Base64.** Faltam percent-encoded ASCII, UTF-8 com `TextEncoder` e fallback sem `TextEncoder`. Regressão: hash divergente por ambiente.
+4. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — Base64 sem `atobImpl`.** Falta provar a mensagem `Decodificador base64 indisponível`.
+5. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — payload codificado inválido.** Exceções do decoder podem mudar ou ser mascaradas.
+6. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — falha do `perceptualEvaluator`.** O contrato atual é fail-open da telemetria, preservando decisão por hash.
+7. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — formato de `inputHash`.** Um caller pode fornecer qualquer string truthy; o consumer atual fornece hash interno confiável, mas falta teste/guard de formato para uso isolado.
+8. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — variantes restantes de `ATTACHMENT_SELECTOR`.** QUA-05/06 cobrem `file-preview`; não há assertions focais para `attachment-card`, data attributes e classes restantes.
+9. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — exceção de `getRootNode`.** O catch existe, mas não há prova de que retorna miss sem crash.
+10. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — factory sem DOM.** Falta assertion do erro `ImageQuarantine requer o módulo Gemini DOM`.
+11. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — publicação browser global.** CommonJS é provado pelo `require`; o manifest/gate prova ordem do arquivo, não que o global foi publicado corretamente.
+12. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO — imagem muito grande/performance do fallback.** O fallback é O(n) e síncrono; falta limite/benchmark que detecte jank ou uso de memória excessivo.
 
 ## 10. Análise crítica e riscos
 
