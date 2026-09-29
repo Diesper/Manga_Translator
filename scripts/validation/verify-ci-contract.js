@@ -18,6 +18,10 @@ const baseline = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'da
 const regressionMatrixPath = path.join(root, 'scripts', 'ci', 'data', 'regression-matrix.json');
 
 const problems = [];
+if (!workflow.includes('node scripts/validation/verify-repository-structure.js')) {
+  problems.push('CI Contract precisa executar o gate estrutural do repositório');
+}
+
 let regressionMatrix = null;
 try {
   regressionMatrix = JSON.parse(fs.readFileSync(regressionMatrixPath, 'utf8'));

@@ -68,6 +68,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - name: Validar estrutura canônica do repositório
+        run: node scripts/validation/verify-repository-structure.js
       - name: Validar contrato da própria CI
         run: node scripts/validation/verify-ci-contract.js
       - name: Testar verificador de coverage

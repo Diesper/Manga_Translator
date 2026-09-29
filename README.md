@@ -88,6 +88,7 @@ npm run test:coverage
 npm run test:coverage:verify
 npm run test:ci
 npm run validate
+npm run validate:structure
 npm run lint
 ```
 
@@ -116,6 +117,7 @@ Não é necessário usar `cd tests`, `npm --prefix tests`, BAT/PS1 wrappers ou r
 - **Baseline:** `scripts/ci/data/test-baseline.json`.
 - **Matriz de regressão:** `scripts/ci/data/regression-matrix.json`.
 - **Contrato da CI:** `scripts/validation/verify-ci-contract.js`.
+- **Contrato estrutural:** `scripts/validation/verify-repository-structure.js` impede a volta da arquitetura legada.
 
 O workflow `.github/workflows/ci.yml` executa npm a partir da raiz, mantém os cinco grupos E2E e preserva o gate agregado. Os diagnósticos pesados continuam condicionados a `workflow_dispatch` ou push na `main`.
 

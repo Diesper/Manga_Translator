@@ -126,3 +126,16 @@ A publicação continua empacotando somente `extension/` e copiando `docs/Docume
 6. sem mover manifest/entrypoints sem atualizar contratos e validar;
 7. títulos/tags/IDs protegidos pela matriz/CI não devem ser renomeados sem atualizar o contrato;
 8. documentação e workflow devem mudar junto com qualquer nova estrutura.
+
+
+## Gate estrutural
+
+`scripts/validation/verify-repository-structure.js` é executado no job `CI Contract` e impede reintroduções como:
+
+- segundo `package.json`/lockfile;
+- `tests/ci/`, `visual-v3/` ou fixtures aninhadas em `e2e/`;
+- BAT/PS1;
+- `working-directory: tests`, `cd tests` ou `npm --prefix tests`;
+- `findRoot` duplicado;
+- fallback em `process.cwd()` dentro dos testes;
+- ausência dos diretórios/configs canônicos.
