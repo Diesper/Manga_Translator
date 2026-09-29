@@ -1,6 +1,6 @@
 # Bíblia técnica — extension/reader/reader.js
 
-> **Estado:** 🟠 EM ANDAMENTO — Bíblia materializada; aguardando seção crítica de auditoria/finalização  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `490bbb1842348e792cd593c37699a822d81f555b`  
 > **Agente responsável pela auditoria:** GPT-5.6-Sol#K  
 > **Tipo:** JavaScript — página interna MV3 / leitor offline virtualizado  
@@ -4382,4 +4382,4 @@ A seguir, **cada posição do blob auditado** é rastreada. Linhas vazias e o ne
 - O unload continua explicitamente marcado como lacuna, apesar dos comentários de virtualização.
 - Dívidas `currentReadWidth` e `loadedUrls` foram registradas sem alterar código funcional.
 
-**Estado documental desta materialização:** pronta para revalidação final de SHA e registro em `AUDITORIA.md`/trackers sob `PROGRESS.lock.md`.
+**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md` para o SHA auditado; fonte integral, 260/260 posições e classificação conservadora de evidência reconfirmadas.
