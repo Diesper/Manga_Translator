@@ -79,8 +79,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 32 | `extension/background/state.js` | SHA `7570b545d5e9...` conferido; bloco integral exato | 267 linhas + newline final = 268/268 posições | API ativa/exports legados separados; patch/restore/sync diretos; mutate/tab replacement parcialmente provados; gaps explícitos | 17 unidades específicas + papel local por posição | ✅ APROVADO |
 | 33 | `extension/background/tab-identity.js` | SHA `008c9a054ae4...` conferido; bloco integral exato | 362 linhas + newline final = 363/363 posições | alias/cycle/TTL/journal/recovery/state+alarm migration provados; concorrência/journal por jobId como gaps | 18 unidades específicas + papel local por posição | ✅ APROVADO |
 | 34 | `extension/content/cm-auto-restore.js` | SHA `d20e7092652e...` conferido; bloco integral exato | 123 linhas + newline final = 124/124 posições | restore/observer/config/REG-10 provados no módulo real; fallback IndexedDB e gaps assíncronos explícitos | 12 unidades específicas + papel local por posição | ✅ APROVADO |
+| 35 | `extension/content/cm-chapter.js` | SHA `44b621d570b6...` conferido; bloco integral exato | 154 linhas + newline final = 155/155 posições | manager real/fallback legado provados; testes de dedup/cache espelho classificados; divergências e races explícitas | 13 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `cm-chapter.js` — criação e auditoria em 2026-09-29
+
+- wiring real via `load-content-script.js`/manifest e persistência do fallback legado ligados à suíte integrada;
+- testes `chapter-id-cache`, `chapter-id-rejection` e `chapter-dedup` classificados como simulações, não prova da fonte;
+- divergência entre `canonicalTitle` do teste de dedup e a implementação real explicitada;
+- riscos de deduplicação por hostname+título, concorrência de `chapterList`, fallback legado sem fila/await e cache de assets sem prova focal registrados;
+- SHA e 155/155 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `cm-auto-restore.js` — criação e auditoria em 2026-09-29
 
