@@ -43,6 +43,8 @@
 - [x] Corrigida a mutação do cenário de matriz: o marcador agora é realmente removido, em vez de permanecer como prefixo da string substituta.
 - [x] Criado `verify-test-policy.js` e `validate:test-policy` para bloquear `.skip`, `.only`, `test.todo`, `--forceExit`, `--passWithNoTests` e `|| true` em comandos de teste.
 - [x] O job `CI Contract` executa a política em todo run e o contrato protege sua presença.
+- [x] Adicionado self-test negativo da política: baseline válida passa e violações de `test.skip`, `--forceExit` e `|| true` precisam falhar.
+- [x] Adicionado `validate:publish` para proteger `publish.yml`, `extension/`, `docs/Documentação.md` e `scripts/release/sync-version.js`.
 - [ ] CI do novo HEAD precisa confirmar o novo self-test negativo.
 
 ## Integrações

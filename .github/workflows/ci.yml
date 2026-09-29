@@ -67,6 +67,10 @@ jobs:
         run: node scripts/validation/verify-ci-contract.js
       - name: Validar política anti-skip/escape-hatch
         run: npm run validate:test-policy
+      - name: Provar que a política anti-skip rejeita violações
+        run: npm run test:test-policy:infra
+      - name: Validar contrato de publicação
+        run: npm run validate:publish
       - name: Provar que o contrato da CI rejeita enfraquecimento
         run: npm run test:ci-contract:infra
       - name: Testar verificador de coverage

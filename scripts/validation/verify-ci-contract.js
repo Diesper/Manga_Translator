@@ -11,6 +11,8 @@ const coverageVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation'
 const coverageSelfTest = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage-selftest.js'), 'utf8');
 const repositoryStructureVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-repository-structure.js'), 'utf8');
 const testPolicyVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-test-policy.js'), 'utf8');
+const testPolicySelfTest = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-test-policy-selftest.js'), 'utf8');
+const publishContractVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-publish-contract.js'), 'utf8');
 const e2eReporter = fs.readFileSync(path.join(root, 'scripts', 'ci', 'playwright-gate-reporter.js'), 'utf8');
 const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
 const e2ePlanVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-e2e-shard-plan.js'), 'utf8');
@@ -33,6 +35,28 @@ if (!workflow.includes('npm run validate:test-policy')) {
 }
 if (pkg.scripts['validate:test-policy'] !== 'node scripts/validation/verify-test-policy.js') {
   problems.push('package.json#validate:test-policy precisa apontar para o verificador canônico');
+}
+if (!workflow.includes('npm run test:test-policy:infra')) {
+  problems.push('CI Contract precisa executar o self-test da política anti-skip');
+}
+if (pkg.scripts['test:test-policy:infra'] !== 'node scripts/validation/verify-test-policy-selftest.js') {
+  problems.push('package.json#test:test-policy:infra precisa executar o self-test canônico');
+}
+for (const marker of ['test.skip', '--forceExit em script npm', 'teste mascarado com || true']) {
+  if (!testPolicySelfTest.includes(marker)) {
+    problems.push('self-test da política não cobre cenário: ' + marker);
+  }
+}
+if (!workflow.includes('npm run validate:publish')) {
+  problems.push('CI Contract precisa executar o contrato de publicação');
+}
+if (pkg.scripts['validate:publish'] !== 'node scripts/validation/verify-publish-contract.js') {
+  problems.push('package.json#validate:publish precisa executar o verificador de publicação');
+}
+for (const marker of ['cp -R extension/.', 'docs/Documentação.md', 'scripts/release/sync-version.js']) {
+  if (!publishContractVerifier.includes(marker)) {
+    problems.push('verify-publish-contract.js não protege marcador de release: ' + marker);
+  }
 }
 for (const marker of ['.skip', '.only', 'test.todo', '--forceExit', '--passWithNoTests', '|| true']) {
   if (!testPolicyVerifier.includes(marker)) {
