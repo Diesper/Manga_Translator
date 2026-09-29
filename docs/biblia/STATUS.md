@@ -38,13 +38,13 @@ Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada a
 ## Progresso
 
 - Total: **233**
-- Concluídos: **7**
+- Concluídos: **8**
 - Em andamento: **1**
-- Pendentes: **225**
-- Cobertura documental concluída: **3,00%**
-- Último concluído: `extension/background/actions/deliver-result-from-tab.js`
-- Arquivo atual: `extension/background/actions/deliver-result-url.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md`
+- Pendentes: **224**
+- Cobertura documental concluída: **3,43%**
+- Último concluído: `extension/background/actions/deliver-result-url.js`
+- Arquivo atual: `extension/background/actions/deliver-result.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md`
 
 ## Histórico de conclusão
 
@@ -55,6 +55,7 @@ Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada a
 5. ✅ `extension/background/actions/claim-gemini-job.js` — SHA-base `f5c4643d291931f133a791a2deaa6eb94ef4500d`.
 6. ✅ `extension/background/actions/commit-result.js` — SHA-base `32270d1c4ade42b7e6decd5ef124d71745c2a5b0`.
 7. ✅ `extension/background/actions/deliver-result-from-tab.js` — SHA-base `59543c1359669ced02a1d05c251b272abaad6709`.
+8. ✅ `extension/background/actions/deliver-result-url.js` — SHA-base `91c50efe4764f56aac16aec2c91309e06db7d0ac`.
 
 ## Fila
 
@@ -67,8 +68,8 @@ Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada a
 | 5 | ✅ CONCLUÍDO | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
 | 6 | ✅ CONCLUÍDO | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
 | 7 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
-| 8 | 🟠 EM ANDAMENTO | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
-| 9 | ⬜ PENDENTE | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
+| 8 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
+| 9 | 🟠 EM ANDAMENTO | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
 | 10 | ⬜ PENDENTE | `extension/background/actions/download-chapter.js` | `8636a03c8a20` | `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md` |
 | 11 | ⬜ PENDENTE | `extension/background/actions/download-image.js` | `408102f057ab` | `docs/biblia/extension/background/actions/download-image.js/Bíblia.md` |
 | 12 | ⬜ PENDENTE | `extension/background/actions/export-all.js` | `6160a220094d` | `docs/biblia/extension/background/actions/export-all.js/Bíblia.md` |
