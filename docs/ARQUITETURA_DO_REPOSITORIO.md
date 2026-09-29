@@ -31,7 +31,7 @@ Somente material de teste:
 - `smoke/`: smoke tests;
 - `visual/`: runner visual/perceptual;
 - `e2e/`: specs Playwright;
-- `fixtures/`: fixtures servidas/consumidas pelos testes;
+- `fixtures/`: fixtures servidas/consumidas pelos testes; `manga-images.js` é a fonte única dos PNGs E2E;
 - `setup/`: geração/preparação de fixtures;
 - `helpers/`: helpers compartilhados, incluindo `repo-root.js`;
 - `mocks/`: mocks Jest.
@@ -70,7 +70,7 @@ Automação de versão e release. `sync-version.js` usa somente módulos nativos
 
 - npm: `/package.json` + `/package-lock.json`;
 - Jest: `/jest.config.js`;
-- Playwright: `/playwright.config.js`;
+- Playwright: `/playwright.config.js` (outputs em `/test-results/`);
 - merge de blob reports: `scripts/ci/playwright-merge.config.js` (config auxiliar de merge, não segunda configuração de execução E2E).
 
 ## Como adicionar testes

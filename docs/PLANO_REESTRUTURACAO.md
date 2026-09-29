@@ -90,7 +90,7 @@ A execução desta branch segue uma exceção operacional solicitada pelo manten
 | D1 launchers BAT/PS1 | removidos; Node/npm é o caminho oficial |
 | D2 prompt interativo E2E | runner interativo removido; `MANGA_E2E_BROWSER_MODE` continua consumido pelos specs |
 | D3 `Documentação.md` | mantido com nome/caminho estável |
-| D4 PNGs | arquivos versionados removidos; geração por `tests/setup/create-test-images.js` é a fonte |
+| D4 PNGs | arquivos versionados removidos; `tests/fixtures/manga-images.js` é a fonte única, compartilhada pelo servidor e pelo materializador |
 | D5 layout interno da extensão | **não executado** nesta rodada; exige baseline automatizada completa |
 | D6 JSON de dados | movidos para `scripts/ci/data/` |
 | D7 benchmark temporário | arquivado em `docs/historico/` |
@@ -127,3 +127,13 @@ A CI deve validar o comportamento após a reestruturação. Falha vermelha deve 
 ## Rollback
 
 Os commits foram mantidos em blocos temáticos para permitir revert seletivo sem desfazer toda a migração.
+
+
+## Endurecimento estrutural adicional
+
+Após a migração principal:
+- `scripts/validation/verify-repository-structure.js` passou a bloquear a reintrodução dos caminhos legados;
+- o Playwright grava `/test-results/` na raiz;
+- a CI chama `npm run lint` em vez de duplicar loops de `node --check` no YAML;
+- `playwright-merge.config.js` é permitido apenas como configuração auxiliar de reporter/merge;
+- as fixtures PNG possuem uma única definição determinística em `tests/fixtures/manga-images.js`.

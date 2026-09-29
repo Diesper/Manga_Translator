@@ -111,8 +111,8 @@ Não é necessário usar `cd tests`, `npm --prefix tests`, BAT/PS1 wrappers ou r
 - **Jest:** configuração canônica em `/jest.config.js`; projetos internos separam unitários e integração.
 - **Smoke:** `tests/smoke/`.
 - **Visual:** `tests/visual/`.
-- **Playwright:** configuração canônica em `/playwright.config.js`; E2E em `tests/e2e/`.
-- **Fixtures:** `tests/fixtures/`; imagens E2E são geradas por `tests/setup/create-test-images.js`.
+- **Playwright:** configuração canônica em `/playwright.config.js`; E2E em `tests/e2e/`; artefatos de execução em `/test-results/`.
+- **Fixtures:** `tests/fixtures/`; `tests/fixtures/manga-images.js` é a fonte única dos PNGs E2E e `tests/setup/create-test-images.js` apenas os materializa quando necessário.
 - **Coverage:** gerado em `/coverage/` e verificado por `scripts/validation/verify-coverage.js`.
 - **Baseline:** `scripts/ci/data/test-baseline.json`.
 - **Matriz de regressão:** `scripts/ci/data/regression-matrix.json`.
