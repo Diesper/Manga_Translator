@@ -1,7 +1,7 @@
 # Bíblia técnica — extension/content/gemini/temporary-chat.js
 
-> **Estado:** 🟠 EM ANDAMENTO — Bíblia integral concluída; fechamento global depende do mutex compartilhado  
-> **SHA auditado:** 40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc  
+> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE — documentação integral pronta; fechamento global depende do mutex compartilhado  
+> **SHA auditado:** `40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc`  
 > **Agente responsável pela auditoria:** GPT-5.6-Sol#J  
 > **Tipo:** JavaScript — content-script helper Gemini / RPA de conversa temporária  
 > **Linhas textuais:** **213**  
@@ -643,7 +643,3006 @@ A união das faixas é contínua e cobre **214/214 posições**, sem gaps nem so
 | 213 | U09 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha IIFE escolhendo self quando disponível e globalThis como fallback. |
 | 214 | U09 | ␠ [linha vazia] | Posição documental do newline final; preserva terminação POSIX do arquivo. |
 
-## 16. Análise por unidade — o que, como, por que e alternativa ingênua
+## 16. Cobertura linha a linha — 214/214
+
+### Linha 001 — U01
+
+**Fonte:** `'use strict';`
+
+**O que faz:** Ativa strict mode antes de qualquer mutação; reduz criação acidental de globais no content script clássico.
+
+**Como faz:** A unidade combina strict mode, IIFE e um vocabulário PT/EN mantido dentro do closure; somente a API final é publicada no scope.
+
+**Por que foi implementado dessa forma:** O content script é carregado como script clássico pelo Manifest V3, enquanto os testes precisam exercitar a mesma implementação sem criar um segundo adapter.
+
+**Por que uma implementação ingênua seria pior:** Globais soltos aumentariam colisões e uma lista baseada em uma única frase/localização quebraria com pequenas mudanças de copy.
+
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento real; a exaustividade de KEYWORDS não possui assertion isolada.
+
+### Linha 002 — U01
+
+**Fonte:** `// gemini/temporary-chat.js — Ativação verificável de conversa temporária.`
+
+**O que faz:** Declara a responsabilidade do módulo: ativar conversa temporária somente quando o estado puder ser verificado.
+
+**Como faz:** A unidade combina strict mode, IIFE e um vocabulário PT/EN mantido dentro do closure; somente a API final é publicada no scope.
+
+**Por que foi implementado dessa forma:** O content script é carregado como script clássico pelo Manifest V3, enquanto os testes precisam exercitar a mesma implementação sem criar um segundo adapter.
+
+**Por que uma implementação ingênua seria pior:** Globais soltos aumentariam colisões e uma lista baseada em uma única frase/localização quebraria com pequenas mudanças de copy.
+
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento real; a exaustividade de KEYWORDS não possui assertion isolada.
+
+### Linha 003 — U01
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U01 (Bootstrap, IIFE e vocabulário semântico); não produz efeito colateral.
+
+**Como faz:** A unidade combina strict mode, IIFE e um vocabulário PT/EN mantido dentro do closure; somente a API final é publicada no scope.
+
+**Por que foi implementado dessa forma:** O content script é carregado como script clássico pelo Manifest V3, enquanto os testes precisam exercitar a mesma implementação sem criar um segundo adapter.
+
+**Por que uma implementação ingênua seria pior:** Globais soltos aumentariam colisões e uma lista baseada em uma única frase/localização quebraria com pequenas mudanças de copy.
+
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento real; a exaustividade de KEYWORDS não possui assertion isolada.
+
+### Linha 004 — U01
+
+**Fonte:** `(function(scope) {`
+
+**O que faz:** Abre IIFE que recebe self/globalThis e mantém símbolos internos fora do namespace global.
+
+**Como faz:** A unidade combina strict mode, IIFE e um vocabulário PT/EN mantido dentro do closure; somente a API final é publicada no scope.
+
+**Por que foi implementado dessa forma:** O content script é carregado como script clássico pelo Manifest V3, enquanto os testes precisam exercitar a mesma implementação sem criar um segundo adapter.
+
+**Por que uma implementação ingênua seria pior:** Globais soltos aumentariam colisões e uma lista baseada em uma única frase/localização quebraria com pequenas mudanças de copy.
+
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento real; a exaustividade de KEYWORDS não possui assertion isolada.
+
+### Linha 005 — U01
+
+**Fonte:** `  const KEYWORDS = ['momentân', 'momentan', 'temporár', 'temporar', 'temporary'];`
+
+**O que faz:** Define radicais semânticos PT-BR/sem acento/EN usados para reconhecer rótulos que variam com locale.
+
+**Como faz:** A unidade combina strict mode, IIFE e um vocabulário PT/EN mantido dentro do closure; somente a API final é publicada no scope.
+
+**Por que foi implementado dessa forma:** O content script é carregado como script clássico pelo Manifest V3, enquanto os testes precisam exercitar a mesma implementação sem criar um segundo adapter.
+
+**Por que uma implementação ingênua seria pior:** Globais soltos aumentariam colisões e uma lista baseada em uma única frase/localização quebraria com pequenas mudanças de copy.
+
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento real; a exaustividade de KEYWORDS não possui assertion isolada.
+
+### Linha 006 — U02
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U02 (Normalização textual de um elemento); não produz efeito colateral.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 007 — U02
+
+**Fonte:** `  function textOf(element) {`
+
+**O que faz:** Declara normalizador textual único para todas as heurísticas semânticas.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 008 — U02
+
+**Fonte:** `    if (!element) return '';`
+
+**O que faz:** Fail-safe para elemento ausente: retorna string vazia, evitando dereference.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 009 — U02
+
+**Fonte:** `    return [`
+
+**O que faz:** Inicia vetor de fontes textuais/atributos que serão consolidadas.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 010 — U02
+
+**Fonte:** `      element.innerText,`
+
+**O que faz:** Inclui innerText, refletindo texto renderizado quando disponível.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 011 — U02
+
+**Fonte:** `      element.textContent,`
+
+**O que faz:** Inclui textContent como fallback quando innerText é ausente/incompleto.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 012 — U02
+
+**Fonte:** `      element.getAttribute && element.getAttribute('aria-label'),`
+
+**O que faz:** Inclui aria-label somente se getAttribute existir; cobre controles acessíveis sem texto visível.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 013 — U02
+
+**Fonte:** `      element.getAttribute && element.getAttribute('title'),`
+
+**O que faz:** Inclui title, útil para ícones/controles cujo significado está no tooltip.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 014 — U02
+
+**Fonte:** `      element.getAttribute && element.getAttribute('data-test-id'),`
+
+**O que faz:** Inclui data-test-id na representação textual, cobrindo identificadores usados pelo Gemini.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 015 — U02
+
+**Fonte:** `      element.getAttribute && element.getAttribute('data-testid'),`
+
+**O que faz:** Inclui variante data-testid para tolerar convenções alternativas do frontend.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 016 — U02
+
+**Fonte:** `    ].filter(Boolean).join(' ').trim().toLowerCase();`
+
+**O que faz:** Remove falsy, concatena, trim e lowercase; produz representação case-insensitive sem lançar por campos ausentes.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 017 — U02
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U02 (Normalização textual de um elemento) sem alterar por si só o estado do módulo.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 018 — U02
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U02 (Normalização textual de um elemento); não produz efeito colateral.
+
+**Como faz:** textOf agrega texto renderizado, textContent e atributos acessíveis/estruturais, remove valores ausentes, concatena, faz trim e normaliza caixa.
+
+**Por que foi implementado dessa forma:** O mesmo controle pode expor significado no texto, aria-label, title ou test-id conforme a versão do Gemini e o tipo de elemento.
+
+**Por que uma implementação ingênua seria pior:** Ler apenas textContent perderia controles iconográficos; confiar apenas em test-id acoplaria o RPA a markup interno mutável.
+
+**Evidência automatizada:** 🟨 EXECUTADO pelos testes de discovery; ⚠️ title/data-testid isolados e textOf(null) não têm prova focal.
+
+### Linha 019 — U03
+
+**Fonte:** `  function hasTemporarySemantics(element) {`
+
+**O que faz:** Declara predicado semântico compartilhado pela descoberta do botão e pelos indicadores de estado.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 020 — U03
+
+**Fonte:** `    const text = textOf(element);`
+
+**O que faz:** Obtém a representação normalizada uma única vez por elemento.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 021 — U03
+
+**Fonte:** `    return KEYWORDS.some(keyword => text.includes(keyword)) ||`
+
+**O que faz:** Aceita qualquer radical da whitelist; os radicais toleram flexões como temporária/temporarias.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 022 — U03
+
+**Fonte:** `      text.includes('conversa moment') ||`
+
+**O que faz:** Aceita a expressão portuguesa abreviada 'conversa moment...' mesmo se nenhum atributo contiver a keyword completa.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 023 — U03
+
+**Fonte:** `      text.includes('temp chat');`
+
+**O que faz:** Aceita a expressão inglesa compacta 'temp chat'.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 024 — U03
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U03 (Detecção de semântica de conversa temporária) sem alterar por si só o estado do módulo.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 025 — U03
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U03 (Detecção de semântica de conversa temporária); não produz efeito colateral.
+
+**Como faz:** hasTemporarySemantics aplica KEYWORDS e duas expressões compactas sobre a saída normalizada de textOf.
+
+**Por que foi implementado dessa forma:** Radicais toleram acentos, flexões e nomenclaturas 'temporária/momentânea/temporary' sem depender de uma frase inteira.
+
+**Por que uma implementação ingênua seria pior:** Igualdade literal com uma única tradução geraria falso negativo após qualquer mudança de locale ou copy.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para 'conversa momentânea' e aria-label 'temporary chat'; outras variantes permanecem lacunas.
+
+### Linha 026 — U04
+
+**Fonte:** `  function findInTree(root, predicate) {`
+
+**O que faz:** Declara DFS recursivo que atravessa árvore DOM e Shadow DOM aberto.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 027 — U04
+
+**Fonte:** `    if (!root) return null;`
+
+**O que faz:** Raiz nula encerra a busca com null em vez de lançar.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 028 — U04
+
+**Fonte:** `    try {`
+
+**O que faz:** Isola exceções lançadas pelo predicate para que um nó problemático não quebre toda a descoberta.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 029 — U04
+
+**Fonte:** `      if (predicate(root)) return root;`
+
+**O que faz:** Testa primeiro a própria raiz; permite retorno imediato e reduz travessia.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 030 — U04
+
+**Fonte:** `    } catch (_e) {}`
+
+**O que faz:** Absorve exceção do predicate; decisão é best-effort, não sucesso.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 031 — U04
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U04 (Travessia recursiva de DOM/Shadow DOM); não produz efeito colateral.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 032 — U04
+
+**Fonte:** `    try {`
+
+**O que faz:** Isola acesso/travessia de shadowRoot porque mocks ou custom elements podem lançar.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 033 — U04
+
+**Fonte:** `      if (root.shadowRoot) {`
+
+**O que faz:** Se houver ShadowRoot aberto, ele é visitado antes dos children light-DOM.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 034 — U04
+
+**Fonte:** `        const found = findInTree(root.shadowRoot, predicate);`
+
+**O que faz:** Recursa no ShadowRoot preservando o mesmo predicate.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 035 — U04
+
+**Fonte:** `        if (found) return found;`
+
+**O que faz:** Propaga imediatamente o primeiro match profundo.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 036 — U04
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U04 (Travessia recursiva de DOM/Shadow DOM) sem alterar por si só o estado do módulo.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 037 — U04
+
+**Fonte:** `    } catch (_e) {}`
+
+**O que faz:** Absorve falha de shadowRoot e continua pelo DOM comum.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 038 — U04
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U04 (Travessia recursiva de DOM/Shadow DOM); não produz efeito colateral.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 039 — U04
+
+**Fonte:** `    const children = root.children || [];`
+
+**O que faz:** Normaliza children ausente para array vazio.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 040 — U04
+
+**Fonte:** `    for (let index = 0; index < children.length; index += 1) {`
+
+**O que faz:** Percorre children em ordem DOM determinística.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 041 — U04
+
+**Fonte:** `      const found = findInTree(children[index], predicate);`
+
+**O que faz:** Recursa em cada filho.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 042 — U04
+
+**Fonte:** `      if (found) return found;`
+
+**O que faz:** Propaga o primeiro match encontrado.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 043 — U04
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U04 (Travessia recursiva de DOM/Shadow DOM) sem alterar por si só o estado do módulo.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 044 — U04
+
+**Fonte:** `    return null;`
+
+**O que faz:** Retorna null quando toda a subárvore foi varrida sem match.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 045 — U04
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U04 (Travessia recursiva de DOM/Shadow DOM) sem alterar por si só o estado do módulo.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 046 — U04
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U04 (Travessia recursiva de DOM/Shadow DOM); não produz efeito colateral.
+
+**Como faz:** findInTree testa a raiz, atravessa ShadowRoot aberto e depois children em DFS, isolando exceções de predicate e shadowRoot.
+
+**Por que foi implementado dessa forma:** Controles de interfaces modernas podem estar encapsulados em Web Components e uma falha local não deve derrubar a automação inteira.
+
+**Por que uma implementação ingênua seria pior:** querySelector no light DOM não atravessa Shadow DOM; abortar na primeira exceção transformaria um nó problemático em falha global.
+
+**Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para travessia por ShadowRoot e para os dois catches; o uso é coberto apenas indiretamente.
+
+### Linha 047 — U05
+
+**Fonte:** `  function findTempChatButton(root = document) {`
+
+**O que faz:** Declara a busca do controle, com document como root padrão no browser.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 048 — U05
+
+**Fonte:** `    const all = Array.from(root.querySelectorAll(`
+
+**O que faz:** Coleta de uma vez controles light-DOM plausivelmente clicáveis.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 049 — U05
+
+**Fonte:** `      'button, [role="button"], [role="switch"], a, div[tabindex], span[tabindex]'`
+
+**O que faz:** Whitelist inclui button, roles button/switch, links e div/span focáveis.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 050 — U05
+
+**Fonte:** `    ));`
+
+**O que faz:** Materializa NodeList em Array para iteração estável.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 051 — U05
+
+**Fonte:** `    for (const element of all) {`
+
+**O que faz:** Varre candidatos na ordem do documento.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 052 — U05
+
+**Fonte:** `      if (hasTemporarySemantics(element)) {`
+
+**O que faz:** Prioriza semântica humana/ARIA antes de test-id.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 053 — U05
+
+**Fonte:** `        return element.closest('button, [role="button"], [role="switch"], a') || element;`
+
+**O que faz:** Se o match for um descendente focável, sobe para o controle clicável mais próximo; senão usa o próprio nó.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 054 — U05
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U05 (Descoberta do controle de Temporary Chat) sem alterar por si só o estado do módulo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 055 — U05
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U05 (Descoberta do controle de Temporary Chat) sem alterar por si só o estado do módulo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 056 — U05
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U05 (Descoberta do controle de Temporary Chat); não produz efeito colateral.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 057 — U05
+
+**Fonte:** `    const selectors = [`
+
+**O que faz:** Inicia fallback por seletores estruturais conhecidos quando o texto não identifica o controle.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 058 — U05
+
+**Fonte:** `      'button[data-test-id="temp-chat-button"]',`
+
+**O que faz:** Selector exato de button com data-test-id=temp-chat-button.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 059 — U05
+
+**Fonte:** `      '[data-test-id="temp-chat-button"]',`
+
+**O que faz:** Selector exato permite o mesmo test-id em elemento não-button.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 060 — U05
+
+**Fonte:** `      'button[data-test-id*="temp-chat"]',`
+
+**O que faz:** Aceita data-test-id contendo temp-chat em button.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 061 — U05
+
+**Fonte:** `      '[data-test-id*="temp-chat"]',`
+
+**O que faz:** Aceita data-test-id contendo temp-chat em qualquer elemento.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 062 — U05
+
+**Fonte:** `      'button[data-testid*="temp-chat"]',`
+
+**O que faz:** Aceita variante data-testid contendo temp-chat em button.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 063 — U05
+
+**Fonte:** `      '[data-testid*="temp-chat"]',`
+
+**O que faz:** Aceita variante data-testid contendo temp-chat em qualquer elemento.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 064 — U05
+
+**Fonte:** `      'button[data-test-id*="moment"]',`
+
+**O que faz:** Aceita data-test-id contendo moment em button para nomenclatura momentary/momentânea.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 065 — U05
+
+**Fonte:** `      '[data-test-id*="moment"]',`
+
+**O que faz:** Aceita data-test-id contendo moment em qualquer elemento.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 066 — U05
+
+**Fonte:** `    ];`
+
+**O que faz:** Fecha a estrutura sintática da unidade U05 (Descoberta do controle de Temporary Chat) sem alterar por si só o estado do módulo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 067 — U05
+
+**Fonte:** `    for (const selector of selectors) {`
+
+**O que faz:** Varre seletores estruturais na ordem da whitelist.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 068 — U05
+
+**Fonte:** `      const element = root.querySelector(selector);`
+
+**O que faz:** Consulta um selector por vez no root fornecido.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 069 — U05
+
+**Fonte:** `      if (element) return element;`
+
+**O que faz:** Retorna imediatamente o primeiro elemento estrutural encontrado.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 070 — U05
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U05 (Descoberta do controle de Temporary Chat) sem alterar por si só o estado do módulo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 071 — U05
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U05 (Descoberta do controle de Temporary Chat); não produz efeito colateral.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 072 — U05
+
+**Fonte:** `    return findInTree(root.body || root, node => {`
+
+**O que faz:** Último fallback usa DFS profunda, inclusive Shadow DOM aberto.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 073 — U05
+
+**Fonte:** `      if (!node || !node.getAttribute) return false;`
+
+**O que faz:** Rejeita nós sem getAttribute antes de consultar atributos.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 074 — U05
+
+**Fonte:** `      if (!hasTemporarySemantics(node)) return false;`
+
+**O que faz:** Exige semântica de temporary chat no nó profundo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 075 — U05
+
+**Fonte:** `      const tag = String(node.tagName || '').toLowerCase();`
+
+**O que faz:** Normaliza tagName para comparação.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 076 — U05
+
+**Fonte:** `      const role = String(node.getAttribute('role') || '').toLowerCase();`
+
+**O que faz:** Normaliza role ARIA para comparação.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 077 — U05
+
+**Fonte:** `      return tag === 'button' || role === 'button' || role === 'switch' || tag === 'a';`
+
+**O que faz:** Aceita apenas superfícies efetivamente acionáveis: button, role button/switch ou link.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 078 — U05
+
+**Fonte:** `    });`
+
+**O que faz:** Fecha a estrutura sintática da unidade U05 (Descoberta do controle de Temporary Chat) sem alterar por si só o estado do módulo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 079 — U05
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U05 (Descoberta do controle de Temporary Chat) sem alterar por si só o estado do módulo.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 080 — U05
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U05 (Descoberta do controle de Temporary Chat); não produz efeito colateral.
+
+**Como faz:** findTempChatButton tenta primeiro controles semânticos, depois test-ids conhecidos e por fim a DFS profunda exigindo tag/role acionável.
+
+**Por que foi implementado dessa forma:** A redundância reduz dependência de um único markup, sem reintroduzir o antigo fallback por posição geométrica.
+
+**Por que uma implementação ingênua seria pior:** Um seletor único quebra com refactor do site; coordenadas podem clicar um controle completamente diferente depois de re-layout.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para texto, aria-label, data-test-id exato e ausência; ⚠️ seletores parciais e ancestor closest não são todos isolados.
+
+### Linha 081 — U06
+
+**Fonte:** `  function isAlreadyActive(button, root = document) {`
+
+**O que faz:** Declara verificador de estado; não presume que encontrar botão significa estado ativo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 082 — U06
+
+**Fonte:** `    if (button) {`
+
+**O que faz:** Só avalia sinais específicos do botão quando um botão foi encontrado.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 083 — U06
+
+**Fonte:** `      const text = textOf(button);`
+
+**O que faz:** Normaliza todo o conteúdo/atributos do botão.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 084 — U06
+
+**Fonte:** `      if (`
+
+**O que faz:** Inicia regra de ação inversa: rótulo de 'desativar' significa que o modo já está ativo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 085 — U06
+
+**Fonte:** `        (text.includes('desativar') || text.includes('turn off') || text.includes('disable')) &&`
+
+**O que faz:** Reconhece desativar/turn off/disable antes de procurar 'ativar', importante porque 'desativar' contém 'ativar'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 086 — U06
+
+**Fonte:** `        (hasTemporarySemantics(button) || text.includes('chat'))`
+
+**O que faz:** Exige também semântica temporária/chat para reduzir falso positivo de outro botão de desativar.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 087 — U06
+
+**Fonte:** `      ) {`
+
+**O que faz:** Parte operacional de U06 (Verificação fail-closed do estado ativo): Confirma estado ativo por ação inversa, atributos, indicadores, close control ou assinaturas de página.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 088 — U06
+
+**Fonte:** `        return true;`
+
+**O que faz:** Confirma ativo quando o próprio controle oferece a ação inversa de desligar.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 089 — U06
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 090 — U06
+
+**Fonte:** `      if (text.includes('ativar') || text.includes('turn on') || text.includes('enable')) return false;`
+
+**O que faz:** Rótulo explícito de ativar/turn on/enable força false cedo; evita interpretar atributos residuais como ativo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 091 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 092 — U06
+
+**Fonte:** `      if (button.getAttribute('aria-checked') === 'true') return true;`
+
+**O que faz:** aria-checked=true confirma switch marcado.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 093 — U06
+
+**Fonte:** `      if (button.getAttribute('aria-pressed') === 'true') return true;`
+
+**O que faz:** aria-pressed=true confirma toggle pressionado.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 094 — U06
+
+**Fonte:** `      if (button.getAttribute('data-state') === 'active') return true;`
+
+**O que faz:** data-state=active confirma estado exposto por frameworks.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 095 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 096 — U06
+
+**Fonte:** `      const className = String(button.className || '').toLowerCase();`
+
+**O que faz:** Normaliza className para procurar tokens de estado.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 097 — U06
+
+**Fonte:** `      if (/(^|\s)(active|selected|checked)(\s|$)/.test(className)) return true;`
+
+**O que faz:** Aceita tokens inteiros active/selected/checked, evitando substring em nomes de classe maiores.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 098 — U06
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 099 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 100 — U06
+
+**Fonte:** `    const indicators = root.querySelectorAll(`
+
+**O que faz:** Consulta indicadores conhecidos de temporary chat fora do botão.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 101 — U06
+
+**Fonte:** `      '[data-test-id*="moment"], [data-testid*="moment"], [data-test-id*="temp-chat"], [data-testid*="temp-chat"], .momentary-indicator, .temp-chat-indicator'`
+
+**O que faz:** Combina data-test-id/data-testid de moment/temp-chat e classes de indicador.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 102 — U06
+
+**Fonte:** `    );`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 103 — U06
+
+**Fonte:** `    for (const indicator of indicators) {`
+
+**O que faz:** Varre cada indicador encontrado.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 104 — U06
+
+**Fonte:** `      if (hasTemporarySemantics(indicator)) return true;`
+
+**O que faz:** Só considera indicador como prova se ele também tiver semântica temporária reconhecida.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 105 — U06
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 106 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 107 — U06
+
+**Fonte:** `    const closeControls = root.querySelectorAll('button[aria-label], [role="button"][aria-label]');`
+
+**O que faz:** Procura controles de fechar com aria-label, um forte indício de painel/estado temporário aberto.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 108 — U06
+
+**Fonte:** `    for (const control of closeControls) {`
+
+**O que faz:** Varre controles de fechamento candidatos.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 109 — U06
+
+**Fonte:** `      const label = String(control.getAttribute('aria-label') || '').trim().toLowerCase();`
+
+**O que faz:** Normaliza aria-label.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 110 — U06
+
+**Fonte:** `      const close = label.includes('fechar') || label.includes('close');`
+
+**O que faz:** Reconhece intenção de fechar em português/inglês.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 111 — U06
+
+**Fonte:** `      const temporary = KEYWORDS.some(keyword => label.includes(keyword));`
+
+**O que faz:** Exige keyword de temporary/momentary no mesmo label.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 112 — U06
+
+**Fonte:** `      if (close && temporary) return true;`
+
+**O que faz:** Confirma ativo apenas quando ambas as condições coexistem.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 113 — U06
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 114 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 115 — U06
+
+**Fonte:** `    const pageText = String(`
+
+**O que faz:** Inicia fallback de texto global da página para telas nativas do Gemini sem toggle facilmente identificável.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 116 — U06
+
+**Fonte:** `      root.body && (root.body.innerText || root.body.textContent) || ''`
+
+**O que faz:** Prefere innerText do body e cai para textContent; root sem body vira string vazia.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 117 — U06
+
+**Fonte:** `    ).replace(/\s+/g, ' ').trim().toLowerCase();`
+
+**O que faz:** Colapsa whitespace, trim e lowercase para comparação robusta de frases.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 118 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 119 — U06
+
+**Fonte:** `    const ptPassing =`
+
+**O que faz:** Define assinatura PT da tela 'só dando uma passadinha'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 120 — U06
+
+**Fonte:** `      (pageText.includes('só dando uma passadinha') || pageText.includes('so dando uma passadinha')) &&`
+
+**O que faz:** Aceita versão acentuada e sem acento da frase principal.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 121 — U06
+
+**Fonte:** `      (pageText.includes('não aparecem nas conversas recentes') || pageText.includes('nao aparecem nas conversas recentes'));`
+
+**O que faz:** Exige simultaneamente a frase de que conversas não aparecem em recentes, reduzindo falso positivo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 122 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 123 — U06
+
+**Fonte:** `    const ptHistory =`
+
+**O que faz:** Define assinatura PT alternativa baseada em histórico.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 124 — U06
+
+**Fonte:** `      (`
+
+**O que faz:** Parte operacional de U06 (Verificação fail-closed do estado ativo): Confirma estado ativo por ação inversa, atributos, indicadores, close control ou assinaturas de página.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 125 — U06
+
+**Fonte:** `        pageText.includes('conversas temporárias') ||`
+
+**O que faz:** Aceita 'conversas temporárias' acentuado.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 126 — U06
+
+**Fonte:** `        pageText.includes('conversas temporarias') ||`
+
+**O que faz:** Aceita equivalente sem acento.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 127 — U06
+
+**Fonte:** `        pageText.includes('conversas momentâneas') ||`
+
+**O que faz:** Aceita nomenclatura 'conversas momentâneas'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 128 — U06
+
+**Fonte:** `        pageText.includes('conversas momentaneas')`
+
+**O que faz:** Aceita equivalente sem acento.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 129 — U06
+
+**Fonte:** `      ) &&`
+
+**O que faz:** Parte operacional de U06 (Verificação fail-closed do estado ativo): Confirma estado ativo por ação inversa, atributos, indicadores, close control ou assinaturas de página.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 130 — U06
+
+**Fonte:** `      (pageText.includes('não aparecem no seu histórico') || pageText.includes('nao aparecem no seu historico'));`
+
+**O que faz:** Exige a segunda metade semântica 'não aparecem no seu histórico'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 131 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 132 — U06
+
+**Fonte:** `    const enPassing =`
+
+**O que faz:** Define assinatura equivalente em inglês.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 133 — U06
+
+**Fonte:** `      pageText.includes('just passing through') &&`
+
+**O que faz:** Exige 'just passing through'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 134 — U06
+
+**Fonte:** `      (`
+
+**O que faz:** Parte operacional de U06 (Verificação fail-closed do estado ativo): Confirma estado ativo por ação inversa, atributos, indicadores, close control ou assinaturas de página.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 135 — U06
+
+**Fonte:** `        pageText.includes("temporary chats don’t appear in recent chats") ||`
+
+**O que faz:** Aceita apóstrofo tipográfico em 'don’t'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 136 — U06
+
+**Fonte:** `        pageText.includes("temporary chats don't appear in recent chats")`
+
+**O que faz:** Aceita apóstrofo ASCII em 'don't'.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 137 — U06
+
+**Fonte:** `      );`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 138 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 139 — U06
+
+**Fonte:** `    return Boolean(ptPassing || ptHistory || enPassing);`
+
+**O que faz:** Retorna true apenas se uma assinatura completa PT/EN foi satisfeita.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 140 — U06
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U06 (Verificação fail-closed do estado ativo) sem alterar por si só o estado do módulo.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 141 — U06
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U06 (Verificação fail-closed do estado ativo); não produz efeito colateral.
+
+**Como faz:** isAlreadyActive cruza ação inversa, atributos ARIA/framework, classes, indicadores, botão de fechar e assinaturas completas de página PT/EN.
+
+**Por que foi implementado dessa forma:** O Gemini pode representar o modo como toggle, badge, painel ou tela dedicada; a ordem desativar→ativar evita o falso substring de 'desativar'.
+
+**Por que uma implementação ingênua seria pior:** Assumir que botão encontrado significa ativo ou confiar em um único atributo confundiria estado disponível com estado habilitado.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para indicador, aria-checked, texto ativar/desativar, banners PT/EN e close control; ⚠️ aria-pressed/data-state/classes isolados faltam.
+
+### Linha 142 — U07
+
+**Fonte:** `  function triggerClick(element) {`
+
+**O que faz:** Declara emissor de interação; retorno true significa tentativa de click não confirmação de modo.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 143 — U07
+
+**Fonte:** `    if (!element) return false;`
+
+**O que faz:** Elemento ausente não é acionável.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 144 — U07
+
+**Fonte:** `    try { element.focus({ preventScroll: true }); } catch (_e) {}`
+
+**O que faz:** Tenta foco sem scroll; falha de foco não bloqueia a tentativa.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 145 — U07
+
+**Fonte:** `    let rect = { left: 0, top: 0, width: 0, height: 0 };`
+
+**O que faz:** Inicializa retângulo neutro para coordenadas quando layout não está disponível.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 146 — U07
+
+**Fonte:** `    try { rect = element.getBoundingClientRect() || rect; } catch (_e) {}`
+
+**O que faz:** Obtém bounding rect best-effort.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 147 — U07
+
+**Fonte:** `    const clientX = rect.width > 0 ? rect.left + rect.width / 2 : 0;`
+
+**O que faz:** Usa centro horizontal quando há largura; caso contrário 0.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 148 — U07
+
+**Fonte:** `    const clientY = rect.height > 0 ? rect.top + rect.height / 2 : 0;`
+
+**O que faz:** Usa centro vertical quando há altura; caso contrário 0.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 149 — U07
+
+**Fonte:** `    const options = { bubbles: true, cancelable: true, view: window, clientX, clientY };`
+
+**O que faz:** Cria opções de eventos bubbling/cancelable com window e coordenadas.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 150 — U07
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U07 (Clique sintético defensivo); não produz efeito colateral.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 151 — U07
+
+**Fonte:** `    try { element.dispatchEvent(new PointerEvent('pointerdown', options)); } catch (_e) {}`
+
+**O que faz:** Despacha pointerdown best-effort.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 152 — U07
+
+**Fonte:** `    try { element.dispatchEvent(new MouseEvent('mousedown', options)); } catch (_e) {}`
+
+**O que faz:** Despacha mousedown best-effort para handlers legados.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 153 — U07
+
+**Fonte:** `    try { element.dispatchEvent(new PointerEvent('pointerup', options)); } catch (_e) {}`
+
+**O que faz:** Despacha pointerup best-effort.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 154 — U07
+
+**Fonte:** `    try { element.dispatchEvent(new MouseEvent('mouseup', options)); } catch (_e) {}`
+
+**O que faz:** Despacha mouseup best-effort.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 155 — U07
+
+**Fonte:** `    try { element.click(); } catch (_e) { return false; }`
+
+**O que faz:** Executa element.click(); se esse passo lançar, informa false mesmo que eventos preliminares tenham sido emitidos.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 156 — U07
+
+**Fonte:** `    return true;`
+
+**O que faz:** Retorna true quando click() não lançou; a confirmação real ainda será feita por ensureActive.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 157 — U07
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U07 (Clique sintético defensivo) sem alterar por si só o estado do módulo.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 158 — U07
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U07 (Clique sintético defensivo); não produz efeito colateral.
+
+**Como faz:** triggerClick tenta foco, calcula o centro do retângulo, despacha pointer/mouse down/up e finalmente chama click(), absorvendo falhas intermediárias.
+
+**Por que foi implementado dessa forma:** Frameworks podem escutar fases diferentes; ainda assim o retorno representa somente tentativa, deixando a prova de estado para ensureActive.
+
+**Por que uma implementação ingênua seria pior:** Um único dispatch pode não acionar a UI; tratar click sem exceção como ativação confirmada criaria falso sucesso de privacidade.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para a ordem dos cinco eventos; ⚠️ caminhos de erro, foco e coordenadas não possuem assertions específicas.
+
+### Linha 159 — U08
+
+**Fonte:** `  async function ensureActive({`
+
+**O que faz:** Declara handshake assíncrono principal.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 160 — U08
+
+**Fonte:** `    root = document,`
+
+**O que faz:** root padrão é document do content script.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 161 — U08
+
+**Fonte:** `    timeoutMs = 12000,`
+
+**O que faz:** Timeout padrão de 12 s limita polling/verificação.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 162 — U08
+
+**Fonte:** `    signal = null,`
+
+**O que faz:** Aceita AbortSignal opcional para cancelamento cooperativo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 163 — U08
+
+**Fonte:** `    sleep = ms => new Promise(resolve => setTimeout(resolve, ms)),`
+
+**O que faz:** sleep é injetável; produção usa setTimeout e testes substituem por função imediata.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 164 — U08
+
+**Fonte:** `  } = {}) {`
+
+**O que faz:** Permite chamada sem argumentos via objeto default vazio.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 165 — U08
+
+**Fonte:** `    const start = Date.now();`
+
+**O que faz:** Captura relógio de início para deadline.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 166 — U08
+
+**Fonte:** `    let clicked = false;`
+
+**O que faz:** clicked registra se click() foi aceito sem throw; também bloqueia novos cliques após primeira tentativa.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 167 — U08
+
+**Fonte:** `    let sawSemanticButton = false;`
+
+**O que faz:** sawSemanticButton diferencia ausência de controle de controle encontrado porém não acionável.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 168 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 169 — U08
+
+**Fonte:** `    while (Date.now() - start < timeoutMs) {`
+
+**O que faz:** Loop continua enquanto elapsed < timeout.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 170 — U08
+
+**Fonte:** `      if (signal && signal.aborted) {`
+
+**O que faz:** Verifica cancelamento a cada iteração antes de tocar no DOM.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 171 — U08
+
+**Fonte:** `        return { status: 'verification_failed', reason: 'aborted' };`
+
+**O que faz:** Abort retorna falha verificável explícita, não sucesso/unavailable.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 172 — U08
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U08 (Handshake ensureActive e anti-double-toggle) sem alterar por si só o estado do módulo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 173 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 174 — U08
+
+**Fonte:** `      const button = findTempChatButton(root);`
+
+**O que faz:** Redescobre o botão a cada iteração para tolerar re-render do Gemini.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 175 — U08
+
+**Fonte:** `      if (button) sawSemanticButton = true;`
+
+**O que faz:** Memoriza que em algum momento houve um controle semântico.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 176 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 177 — U08
+
+**Fonte:** `      if (isAlreadyActive(button, root)) {`
+
+**O que faz:** Reavalia o estado em toda iteração, inclusive depois do clique.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 178 — U08
+
+**Fonte:** `        return { status: clicked ? 'activated_verified' : 'already_active' };`
+
+**O que faz:** Retorna already_active sem clique ou activated_verified somente se houve clique e o estado depois foi observado como ativo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 179 — U08
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U08 (Handshake ensureActive e anti-double-toggle) sem alterar por si só o estado do módulo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 180 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 181 — U08
+
+**Fonte:** `      if (button && !clicked) {`
+
+**O que faz:** Só tenta clicar quando há botão e nenhum clique bem-sucedido anterior.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 182 — U08
+
+**Fonte:** `        clicked = triggerClick(button);`
+
+**O que faz:** Resultado de triggerClick controla se a operação entra no modo somente-observação.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 183 — U08
+
+**Fonte:** `        await sleep(600);`
+
+**O que faz:** Após tentativa de clique bem-sucedida, aguarda 600 ms para o DOM reagir.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 184 — U08
+
+**Fonte:** `        continue;`
+
+**O que faz:** Recomeça o loop para redescobrir controle/estado, evitando usar nó stale.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 185 — U08
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U08 (Handshake ensureActive e anti-double-toggle) sem alterar por si só o estado do módulo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 186 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 187 — U08
+
+**Fonte:** `      // Depois do clique, nunca clica novamente sem certeza: somente observa a`
+
+**O que faz:** Comentário documenta invariável anti-double-toggle.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 188 — U08
+
+**Fonte:** `      // transição. Isso elimina o risco de alternar ativo->inativo em loop.`
+
+**O que faz:** Explica por que o módulo não reclica após uma tentativa: evitar ativo→inativo por toggle.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 189 — U08
+
+**Fonte:** `      if (clicked) {`
+
+**O que faz:** Se houve clique, entra no caminho exclusivamente observacional.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 190 — U08
+
+**Fonte:** `        await sleep(250);`
+
+**O que faz:** Polling pós-clique usa 250 ms.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 191 — U08
+
+**Fonte:** `        continue;`
+
+**O que faz:** Continua sem voltar ao ramo de click.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 192 — U08
+
+**Fonte:** `      }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U08 (Handshake ensureActive e anti-double-toggle) sem alterar por si só o estado do módulo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 193 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 194 — U08
+
+**Fonte:** `      await sleep(500);`
+
+**O que faz:** Quando ainda não encontrou/clicou, polling de descoberta usa 500 ms.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 195 — U08
+
+**Fonte:** `    }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U08 (Handshake ensureActive e anti-double-toggle) sem alterar por si só o estado do módulo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 196 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 197 — U08
+
+**Fonte:** `    if (clicked) return { status: 'verification_failed', reason: 'state_not_verified' };`
+
+**O que faz:** Timeout após clique gera verification_failed/state_not_verified; jamais converte tentativa em sucesso.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 198 — U08
+
+**Fonte:** `    if (!sawSemanticButton) return { status: 'unavailable' };`
+
+**O que faz:** Timeout sem jamais ver controle gera unavailable, permitindo fallback de camada superior.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 199 — U08
+
+**Fonte:** `    return { status: 'verification_failed', reason: 'control_not_actionable' };`
+
+**O que faz:** Se viu controle mas nenhum click teve sucesso, classifica control_not_actionable.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 200 — U08
+
+**Fonte:** `  }`
+
+**O que faz:** Fecha a estrutura sintática da unidade U08 (Handshake ensureActive e anti-double-toggle) sem alterar por si só o estado do módulo.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 201 — U08
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U08 (Handshake ensureActive e anti-double-toggle); não produz efeito colateral.
+
+**Como faz:** ensureActive usa deadline, AbortSignal, redescoberta do botão, flags clicked/sawSemanticButton e polling com sleeps distintos antes/depois do clique.
+
+**Por que foi implementado dessa forma:** A UI reage de forma assíncrona e pode rerenderizar; depois do primeiro click bem-sucedido a função somente observa para não inverter o toggle.
+
+**Por que uma implementação ingênua seria pior:** Reclicar enquanto a UI está atrasada pode ligar e desligar o modo; sleep fixo seguido de sucesso aceitaria ativação que nunca ocorreu.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE para already_active, activated_verified, state_not_verified, unavailable e um único clique; ⚠️ aborted/control_not_actionable faltam.
+
+### Linha 202 — U09
+
+**Fonte:** `  const api = {`
+
+**O que faz:** Constrói API pública mínima.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 203 — U09
+
+**Fonte:** `    ensureActive,`
+
+**O que faz:** Exporta ensureActive.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 204 — U09
+
+**Fonte:** `    findInTree,`
+
+**O que faz:** Exporta findInTree para testes/diagnóstico.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 205 — U09
+
+**Fonte:** `    findTempChatButton,`
+
+**O que faz:** Exporta findTempChatButton.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 206 — U09
+
+**Fonte:** `    isAlreadyActive,`
+
+**O que faz:** Exporta isAlreadyActive.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 207 — U09
+
+**Fonte:** `    triggerClick,`
+
+**O que faz:** Exporta triggerClick.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 208 — U09
+
+**Fonte:** `    hasTemporarySemantics,`
+
+**O que faz:** Exporta hasTemporarySemantics.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 209 — U09
+
+**Fonte:** `  };`
+
+**O que faz:** Fecha a estrutura sintática da unidade U09 (Superfície pública e exports) sem alterar por si só o estado do módulo.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 210 — U09
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Separador visual dentro de U09 (Superfície pública e exports); não produz efeito colateral.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 211 — U09
+
+**Fonte:** `  scope.MangaTranslatorGeminiTemporaryChat = api;`
+
+**O que faz:** Publica API no namespace global esperado por content_gemini/job-runner.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 212 — U09
+
+**Fonte:** `  if (typeof module !== 'undefined' && module.exports) module.exports = api;`
+
+**O que faz:** Também exporta via CommonJS para Jest e ferramentas Node sem duplicar implementação.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 213 — U09
+
+**Fonte:** `})(typeof self !== 'undefined' ? self : globalThis);`
+
+**O que faz:** Fecha IIFE escolhendo self quando disponível e globalThis como fallback.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+### Linha 214 — U09
+
+**Fonte:** `␠ [linha vazia]`
+
+**O que faz:** Posição documental do newline final; preserva terminação POSIX do arquivo.
+
+**Como faz:** Um único objeto api referencia as funções e é publicado em MangaTranslatorGeminiTemporaryChat e, quando existente, module.exports.
+
+**Por que foi implementado dessa forma:** Browser e Jest devem consumir a mesma implementação e o composition root espera exatamente o global carregado pelo manifest.
+
+**Por que uma implementação ingênua seria pior:** Manter exports/adapters distintos permitiria drift: testes poderiam validar código diferente do executado na extensão.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE pelo require do arquivo real nas suítes; 🟨 a captura/injeção pelo content_gemini é evidência de integração.
+
+
+## 17. Análise por unidade — o que, como, por que e alternativa ingênua
 
 | Unidade | O que faz | Como faz | Por que assim | Por que uma implementação ingênua seria pior |
 |---|---|---|---|---|
@@ -657,7 +3656,7 @@ A união das faixas é contínua e cobre **214/214 posições**, sem gaps nem so
 | U08 | verifica transição | deadline, AbortSignal, redescoberta, um clique, polling e statuses distintos | evita double-toggle e separa ausência, inação e transição não verificada | loop que reclica pode desligar o modo; sleep fixo seguido de "sucesso" aceita UI atrasada/falha |
 | U09 | fornece API única | global browser + CommonJS sobre o mesmo objeto | runtime e Jest exercitam a mesma implementação | adapter duplicado pode divergir e testes passarem sem testar o código de produção |
 
-## 17. Relação com o consumidor e risco crítico
+## 18. Relação com o consumidor e risco crítico
 
 No job runner, a sequência real é:
 
@@ -670,7 +3669,7 @@ No job runner, a sequência real é:
 
 Portanto, unavailable tem um caminho de compensação por exclusão, enquanto verification_failed não tem o mesmo fallback. Se a tentativa de ativação falhar sem ficar "unavailable", o fluxo pode seguir sem prova de privacidade e sem exclusão posterior automática. Não há teste específico provando que essa política é intencional ou segura.
 
-## 18. Auditoria interna antes do fechamento
+## 19. Auditoria interna antes do fechamento
 
 - ✅ fonte relida diretamente de docs/project-bible;
 - ✅ SHA reconfirmado: 40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc;
