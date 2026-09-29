@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **24**
-- ✅ Concluídos auditados: **24**
+- Bíblias materializadas: **25**
+- ✅ Concluídos auditados: **25**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **209**
-- Cobertura realmente aprovada: **10,30%**
-- Cobertura apenas materializada: **10,30%**
-- Último aprovado: `extension/background/actions/start-batch.js`
-- Arquivo atual: `extension/background/actions/stop-batch.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md`
-- Fila normal em produção: `extension/background/actions/stop-batch.js`
+- ⬜ Ainda não materializados: **208**
+- Cobertura realmente aprovada: **10,73%**
+- Cobertura apenas materializada: **10,73%**
+- Último aprovado: `extension/background/actions/stop-batch.js`
+- Arquivo atual: `extension/background/jobs-dom-ack.js`
+- Bíblia atual: `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md`
+- Fila normal em produção: `extension/background/jobs-dom-ack.js`
 
 ## Auditoria de 2026-09-29
 
@@ -87,6 +87,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 22. ✅ `extension/background/actions/request-image-data.js`
 23. ✅ `extension/background/actions/set-debug-mode.js`
 24. ✅ `extension/background/actions/start-batch.js`
+25. ✅ `extension/background/actions/stop-batch.js`
 
 ### Revisão obrigatória
 
@@ -122,8 +123,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 22 | ✅ CONCLUÍDO | `extension/background/actions/request-image-data.js` | `249126232396` | `docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md` |
 | 23 | ✅ CONCLUÍDO | `extension/background/actions/set-debug-mode.js` | `92e4149b1bba` | `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md` |
 | 24 | ✅ CONCLUÍDO | `extension/background/actions/start-batch.js` | `b0ef70bf1c23` | `docs/biblia/extension/background/actions/start-batch.js/Bíblia.md` |
-| 25 | 🟠 EM ANDAMENTO | `extension/background/actions/stop-batch.js` | `e552d0a91109` | `docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md` |
-| 26 | ⬜ PENDENTE | `extension/background/jobs-dom-ack.js` | `07b4197a206f` | `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` |
+| 25 | ✅ CONCLUÍDO | `extension/background/actions/stop-batch.js` | `e552d0a91109` | `docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md` |
+| 26 | 🟠 EM ANDAMENTO | `extension/background/jobs-dom-ack.js` | `07b4197a206f` | `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` |
 | 27 | ⬜ PENDENTE | `extension/background/jobs-lifecycle.js` | `e4ab9f6c5472` | `docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md` |
 | 28 | ⬜ PENDENTE | `extension/background/jobs-reconciliation.js` | `f0f2370ba6b7` | `docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md` |
 | 29 | ⬜ PENDENTE | `extension/background/jobs-watchdog.js` | `c17b766d7fbc` | `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` |
