@@ -1,10 +1,16 @@
 # Status — Bíblia técnica por arquivo
 
-> Fonte de verdade do progresso. **Somente um arquivo pode estar EM ANDAMENTO por vez.** Um arquivo só vira CONCLUÍDO depois de sua Bíblia individual estar completa e revisada contra o código e os testes reais.
+> Fonte de verdade do progresso. Desde a auditoria de qualidade de 2026-09-29, **CONCLUÍDO significa Bíblia materializada + auditoria aprovada**. Criar um arquivo não basta.
 
 ## Objetivo
 
-Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada arquivo do corpus técnico, com fonte integral, análise contextual linha a linha e rastreabilidade de testes conservadora.
+Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte integral, análise contextual linha a linha, rastreabilidade conservadora de testes e uma auditoria separada que impeça falsos positivos de qualidade.
+
+## Arquivos de controle
+
+- `docs/biblia/STATUS.md` — estado operacional;
+- `docs/biblia/CHECKLIST.md` — somente arquivos auditados/aprovados recebem `[x]`;
+- `docs/biblia/AUDITORIA.md` — evidência e veredito da auditoria de qualidade.
 
 ## Corpus congelado
 
@@ -12,65 +18,78 @@ Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada a
 - Total: **233 arquivos**.
 - Inclui `extension/`, `tests/`, `scripts/`, `.github/workflows/` e configs canônicas da raiz.
 - Exclui `package-lock.json`, binários, dependências, artefatos e documentação.
-- Prioridade: os 60 arquivos distribuídos em `extension/`, depois tooling/CI/testes/configs.
 
 ## Estados
 
-- `PENDENTE`
-- `EM ANDAMENTO`
-- `CONCLUÍDO`
-- `BLOQUEADO`
+- `⬜ PENDENTE`: Bíblia ainda não materializada.
+- `🟠 EM ANDAMENTO`: único arquivo sendo escrito/revisado agora.
+- `🟣 REVISÃO DE QUALIDADE`: Bíblia existe, mas a auditoria encontrou falhas e ela não conta como concluída.
+- `✅ CONCLUÍDO`: Bíblia existe **e** passou em `AUDITORIA.md`.
+- `BLOQUEADO`: depende de evidência indisponível; o bloqueio deve ser descrito.
 
 ## Critério obrigatório de CONCLUÍDO
 
-1. identidade/SHA/papel;
-2. fonte integral;
-3. dependências/consumidores/efeitos colaterais;
-4. explicação específica, não template sintático;
-5. comentário de todas as linhas/unidades inseparáveis;
+1. identidade/SHA/papel corretos;
+2. fonte integral exata;
+3. cobertura documental de 100% das linhas/posições;
+4. dependências/consumidores/efeitos colaterais verdadeiros;
+5. explicação específica, não template que apenas repete a linha;
 6. o que faz, como faz, por que assim e risco de alternativa;
 7. invariantes/casos-limite;
-8. matriz de testes/gates;
-9. `⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO` onde faltar assertion/prova runtime;
-10. separar prova direta, gate estático, execução indireta e ausência de prova;
-11. revisão final sem trechos esquecidos.
+8. matriz de testes/gates baseada em assertions reais;
+9. `⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO` onde não houver prova direta;
+10. distinção entre prova direta, gate estático, execução indireta e ausência de prova;
+11. referências numéricas de linha corretas;
+12. aprovação explícita em `docs/biblia/AUDITORIA.md`.
 
-## Progresso
+## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Concluídos: **8**
-- Em andamento: **1**
-- Pendentes: **224**
-- Cobertura documental concluída: **3,43%**
-- Último concluído: `extension/background/actions/deliver-result-url.js`
-- Arquivo atual: `extension/background/actions/deliver-result.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md`
+- Bíblias materializadas: **8**
+- ✅ Concluídos auditados: **2**
+- 🟠 Em andamento: **1**
+- 🟣 Aguardando revisão de qualidade: **5**
+- ⬜ Ainda não materializados: **225**
+- Cobertura realmente aprovada: **0,86%**
+- Cobertura apenas materializada: **3,43%**
+- Último aprovado: `extension/background/actions/check-extraction-tab.js`
+- Arquivo atual: `extension/background.js`
+- Bíblia atual: `docs/biblia/extension/background.js/Bíblia.md`
+- Próximo arquivo novo após terminar todas as revisões: `extension/background/actions/deliver-result.js`
 
-## Histórico de conclusão
+## Auditoria de 2026-09-29
 
-1. ✅ `extension/manifest.json` — SHA-base `841fe70c183350e4110bc8ff57ab69b157169c36`.
-2. ✅ `extension/background.js` — SHA-base `667c05eb2d7adfca16a79d3e706c39a1e9398b72`.
-3. ✅ `extension/background/actions/calculate-visual-fingerprint.js` — SHA-base `ea474845cf9c6a6784e3ceb75298f0ac8df86e06`.
-4. ✅ `extension/background/actions/check-extraction-tab.js` — SHA-base `9ee40474d8c52da5e725ab04a2e325dd69830a51`.
-5. ✅ `extension/background/actions/claim-gemini-job.js` — SHA-base `f5c4643d291931f133a791a2deaa6eb94ef4500d`.
-6. ✅ `extension/background/actions/commit-result.js` — SHA-base `32270d1c4ade42b7e6decd5ef124d71745c2a5b0`.
-7. ✅ `extension/background/actions/deliver-result-from-tab.js` — SHA-base `59543c1359669ced02a1d05c251b272abaad6709`.
-8. ✅ `extension/background/actions/deliver-result-url.js` — SHA-base `91c50efe4764f56aac16aec2c91309e06db7d0ac`.
-8. ✅ `extension/background/actions/deliver-result-url.js` — SHA-base `91c50efe4764f56aac16aec2c91309e06db7d0ac`.
+A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satisfazer o padrão atual. Isso não apaga o trabalho já produzido; significa que essas Bíblias precisam ser corrigidas antes de receber `[x]` novamente.
+
+### Aprovados
+
+1. ✅ `extension/manifest.json`
+2. ✅ `extension/background/actions/check-extraction-tab.js`
+
+### Revisão obrigatória
+
+1. 🟠 `extension/background.js` — revisão atual.
+2. 🟣 `extension/background/actions/calculate-visual-fingerprint.js`
+3. 🟣 `extension/background/actions/claim-gemini-job.js`
+4. 🟣 `extension/background/actions/commit-result.js`
+5. 🟣 `extension/background/actions/deliver-result-from-tab.js`
+6. 🟣 `extension/background/actions/deliver-result-url.js`
+
+Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 
 ## Fila
 
 | # | Estado | Arquivo | SHA-base | Bíblia individual |
 |---:|---|---|---|---|
 | 1 | ✅ CONCLUÍDO | `extension/manifest.json` | `841fe70c1833` | `docs/biblia/extension/manifest.json/Bíblia.md` |
-| 2 | ✅ CONCLUÍDO | `extension/background.js` | `667c05eb2d7a` | `docs/biblia/extension/background.js/Bíblia.md` |
-| 3 | ✅ CONCLUÍDO | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
+| 2 | 🟠 EM ANDAMENTO | `extension/background.js` | `667c05eb2d7a` | `docs/biblia/extension/background.js/Bíblia.md` |
+| 3 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
 | 4 | ✅ CONCLUÍDO | `extension/background/actions/check-extraction-tab.js` | `9ee40474d8c5` | `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` |
-| 5 | ✅ CONCLUÍDO | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
-| 6 | ✅ CONCLUÍDO | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
-| 7 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
-| 8 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
-| 9 | 🟠 EM ANDAMENTO | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
+| 5 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
+| 6 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
+| 7 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
+| 8 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
+| 9 | ⬜ PENDENTE | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
 | 10 | ⬜ PENDENTE | `extension/background/actions/download-chapter.js` | `8636a03c8a20` | `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md` |
 | 11 | ⬜ PENDENTE | `extension/background/actions/download-image.js` | `408102f057ab` | `docs/biblia/extension/background/actions/download-image.js/Bíblia.md` |
 | 12 | ⬜ PENDENTE | `extension/background/actions/export-all.js` | `6160a220094d` | `docs/biblia/extension/background/actions/export-all.js/Bíblia.md` |
@@ -298,4 +317,10 @@ Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada a
 
 ## Regra de continuidade
 
-Retomar sempre pelo único `EM ANDAMENTO`. Só após sua conclusão marcar a caixa correspondente e mover o estado para o primeiro `PENDENTE`.
+1. Ler `AUDITORIA.md`, `STATUS.md` e `CHECKLIST.md`.
+2. Trabalhar somente no único `🟠 EM ANDAMENTO`.
+3. Se ele estiver em revisão, corrigir a Bíblia existente; não criar outra.
+4. Reauditar contra fonte e assertions reais.
+5. Somente após aprovação: mudar para `✅ CONCLUÍDO` e marcar `[x]`.
+6. Mover `🟠 EM ANDAMENTO` para o próximo item em revisão; somente quando não restar revisão voltar aos arquivos novos.
+7. Publicar no chat o resultado de cada reauditoria/conclusão.
