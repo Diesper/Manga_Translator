@@ -74,8 +74,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 27 | `extension/background/jobs-lifecycle.js` | SHA `e4ab9f6c5472...` conferido; bloco integral exato | 746 linhas + newline final = 747/747 posições | scheduler/FIFO/recovery/finalização/tab identity cobertos; integrações e lacunas separadas | 21 unidades específicas + rastreabilidade integral | ✅ APROVADO |
 | 28 | `extension/background/jobs-reconciliation.js` | SHA `f0f2370ba6b7...` conferido; bloco integral exato | 111 linhas + newline final = 112/112 posições | canonicalização/recovery/foreign/drop provados; smoke simulado separado; gap de sync vazio explícito | 12 unidades específicas + papel local por posição | ✅ APROVADO |
 | 29 | `extension/background/jobs-watchdog.js` | SHA `c17b766d7fbc...` conferido; bloco integral exato | 109 linhas + newline final = 110/110 posições | ordering finalize→cleanup provado; timeout integrado provado; arm/replacement e gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
+| 30 | `extension/background/log.js` | SHA `86d5f2f1229b...` conferido; bloco integral exato | 30 linhas + newline final = 31/31 posições | módulo não carregado no runtime atual; implementação inline equivalente/testes separados; risco de drift explícito | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `background/log.js` — criação e auditoria em 2026-09-29
+
+- confirmado que o arquivo não é carregado por `background.js` no SHA atual;
+- implementação inline duplicada de `log/_flushLog` no background foi diferenciada do módulo extraído;
+- testes PERF/retention foram classificados como prova da implementação inline equivalente, não deste arquivo;
+- perda de batch em erro de storage, fila presa após falha, concorrência de `_flushLog` e volatilidade MV3 explicitadas;
+- risco de drift entre duas implementações registrado;
+- SHA e 31/31 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `jobs-watchdog.js` — criação e auditoria em 2026-09-29
 
