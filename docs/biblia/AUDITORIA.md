@@ -59,8 +59,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 12 | `extension/background/actions/export-all.js` | SHA `6160a220094d...` conferido; bloco integral exato | 40 linhas + newline final = 41/41 posições | action/integrado/helper/mirror distinguidos; best-effort e erros explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 13 | `extension/background/actions/fetch-image-base64.js` | SHA `4a4825c36fdb...` conferido; bloco integral exato | 95 linhas + newline final = 96/96 posições | URL/auth/MIME/size/timeout provados; consumer/mirror/gaps separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
 | 14 | `extension/background/actions/force-send-activation.js` | SHA `cbeea5768301...` conferido; bloco integral exato | 70 linhas + newline final = 71/71 posições | branches minimized/aba provados; router/content/uso atual separados; gaps assíncronos explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
+| 15 | `extension/background/actions/get-tab-id.js` | SHA `2f3b26304ac1...` conferido; bloco integral exato | 17 linhas + newline final = 18/18 posições | action/router/compatibilidade integrada/consumidores separados | 5 unidades específicas + papel local por posição; gaps explícitos | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `get-tab-id.js` — criação e auditoria em 2026-09-29
+
+- retorno deriva exclusivamente de `context.sender.tab.id`, sem confiar no payload;
+- action real, router isolado e compatibilidade `legacyResponseActions` do background foram diferenciados;
+- consumidores reais em `content_gemini.js` e `content_manga.js` confirmados;
+- fallback legado do Gemini foi separado do fluxo moderno `CLAIM_GEMINI_JOB`;
+- gaps para sender/tab ausentes e source ampla foram explicitados;
+- SHA e 18/18 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `force-send-activation.js` — criação e auditoria em 2026-09-29
 
