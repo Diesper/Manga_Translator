@@ -48,15 +48,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **49**
-- ✅ Concluídos auditados: **41**
+- ✅ Concluídos auditados: **42**
 - 🟠 Em andamento: **10**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **184**
-- ⬜ Pendentes: **182**
+- ⬜ Pendentes: **181**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **17,60%**
+- Cobertura realmente aprovada: **18,03%**
 - Cobertura apenas materializada: **21,03%**
-- Último aprovado: `extension/content/gemini/dom.js`
+- Último aprovado: `extension/content/gemini/image-quarantine.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -68,7 +68,8 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#049 extension/content/gemini/temporary-chat.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md`
   - `#050 extension/content/inject.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/content/inject.js/Bíblia.md`
   - `#051 extension/options/options.html` — `GPT-5.6-Sol#D` — Bíblia: `docs/biblia/extension/options/options.html/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#052 extension/options/options.js`
+  - `#052 extension/options/options.js` — `GPT-5.6-Sol#F`
+- Menor índice pendente sem reserva no momento desta atualização: `#053 extension/popup/popup.html`
 
 ## Auditoria de 2026-09-29
 
@@ -171,7 +172,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 41 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#B | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
 | 42 | ✅ CONCLUÍDO | `extension/content/gemini/dom.js` | `d3694ea70cdd` | `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` |
 | 43 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#E | `extension/content/gemini/editor.js` | `0adbd4374758` | `docs/biblia/extension/content/gemini/editor.js/Bíblia.md` |
-| 44 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#F | `extension/content/gemini/image-quarantine.js` | `ddca93d17ca2` | `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` |
+| 44 | ✅ CONCLUÍDO | `extension/content/gemini/image-quarantine.js` | `ddca93d17ca2` | `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` |
 | 45 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#G | `extension/content/gemini/job-runner.js` | `1b16fd656e82` | `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md` |
 | 46 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#H | `extension/content/gemini/observer.js` | `59c5335e1b4f` | `docs/biblia/extension/content/gemini/observer.js/Bíblia.md` |
 | 47 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#I | `extension/content/gemini/result-extractor.js` | `a3efd499a0b0` | `docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md` |
@@ -179,7 +180,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 49 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/content/gemini/temporary-chat.js` | `40fbc8dc6acf` | `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` |
 | 50 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/content/inject.js` | `21f7f6cf9c94` | `docs/biblia/extension/content/inject.js/Bíblia.md` |
 | 51 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#D | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
-| 52 | ⬜ PENDENTE | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
+| 52 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#F | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
 | 53 | ⬜ PENDENTE | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
 | 54 | ⬜ PENDENTE | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | ⬜ PENDENTE | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
