@@ -78,8 +78,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 31 | `extension/background/router.js` | SHA `d9278e9e58e4...` conferido; bloco integral exato | 168 linhas + newline final = 169/169 posições | aliases/source/gates/sync/async provados; risco substring URL e lacunas explícitos | 15 unidades específicas + papel local por posição | ✅ APROVADO |
 | 32 | `extension/background/state.js` | SHA `7570b545d5e9...` conferido; bloco integral exato | 267 linhas + newline final = 268/268 posições | API ativa/exports legados separados; patch/restore/sync diretos; mutate/tab replacement parcialmente provados; gaps explícitos | 17 unidades específicas + papel local por posição | ✅ APROVADO |
 | 33 | `extension/background/tab-identity.js` | SHA `008c9a054ae4...` conferido; bloco integral exato | 362 linhas + newline final = 363/363 posições | alias/cycle/TTL/journal/recovery/state+alarm migration provados; concorrência/journal por jobId como gaps | 18 unidades específicas + papel local por posição | ✅ APROVADO |
+| 34 | `extension/content/cm-auto-restore.js` | SHA `d20e7092652e...` conferido; bloco integral exato | 123 linhas + newline final = 124/124 posições | restore/observer/config/REG-10 provados no módulo real; fallback IndexedDB e gaps assíncronos explícitos | 12 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `cm-auto-restore.js` — criação e auditoria em 2026-09-29
+
+- helper de testes confirmado carregando o módulo real na mesma ordem do `manifest.json`;
+- restore inicial, observer, novos nós, REG-10, disable global/site e bloqueio por imagem ligados às assertions reais;
+- implementação modular efetiva separada da duplicação inline residual em `content_manga.js`;
+- gaps de `data-original`, `apply()` async sem await/catch, caminho IndexedDB não-vazio, SPA/map e config explicitados;
+- SHA e 124/124 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `tab-identity.js` — criação e auditoria em 2026-09-29
 
