@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **19**
-- ✅ Concluídos auditados: **19**
+- Bíblias materializadas: **20**
+- ✅ Concluídos auditados: **20**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **214**
-- Cobertura realmente aprovada: **8,15%**
-- Cobertura apenas materializada: **8,15%**
-- Último aprovado: `extension/background/actions/refresh-job-watchdog.js`
-- Arquivo atual: `extension/background/actions/relay-progress.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md`
-- Fila normal em produção: `extension/background/actions/relay-progress.js`
+- ⬜ Ainda não materializados: **213**
+- Cobertura realmente aprovada: **8,58%**
+- Cobertura apenas materializada: **8,58%**
+- Último aprovado: `extension/background/actions/relay-progress.js`
+- Arquivo atual: `extension/background/actions/report-error.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/report-error.js/Bíblia.md`
+- Fila normal em produção: `extension/background/actions/report-error.js`
 
 ## Auditoria de 2026-09-29
 
@@ -82,6 +82,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 17. ✅ `extension/background/actions/open-existing-folder.js`
 18. ✅ `extension/background/actions/open-manga-root.js`
 19. ✅ `extension/background/actions/refresh-job-watchdog.js`
+20. ✅ `extension/background/actions/relay-progress.js`
 
 ### Revisão obrigatória
 
@@ -112,8 +113,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 17 | ✅ CONCLUÍDO | `extension/background/actions/open-existing-folder.js` | `59ef82cbf960` | `docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md` |
 | 18 | ✅ CONCLUÍDO | `extension/background/actions/open-manga-root.js` | `71c83df253cd` | `docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md` |
 | 19 | ✅ CONCLUÍDO | `extension/background/actions/refresh-job-watchdog.js` | `25f86a8dba57` | `docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md` |
-| 20 | 🟠 EM ANDAMENTO | `extension/background/actions/relay-progress.js` | `24e377893c71` | `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md` |
-| 21 | ⬜ PENDENTE | `extension/background/actions/report-error.js` | `ac239ea49544` | `docs/biblia/extension/background/actions/report-error.js/Bíblia.md` |
+| 20 | ✅ CONCLUÍDO | `extension/background/actions/relay-progress.js` | `24e377893c71` | `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md` |
+| 21 | 🟠 EM ANDAMENTO | `extension/background/actions/report-error.js` | `ac239ea49544` | `docs/biblia/extension/background/actions/report-error.js/Bíblia.md` |
 | 22 | ⬜ PENDENTE | `extension/background/actions/request-image-data.js` | `249126232396` | `docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md` |
 | 23 | ⬜ PENDENTE | `extension/background/actions/set-debug-mode.js` | `92e4149b1bba` | `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md` |
 | 24 | ⬜ PENDENTE | `extension/background/actions/start-batch.js` | `b0ef70bf1c23` | `docs/biblia/extension/background/actions/start-batch.js/Bíblia.md` |
