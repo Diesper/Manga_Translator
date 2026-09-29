@@ -41,8 +41,8 @@
 - [x] 023 — `extension/background/actions/set-debug-mode.js` → `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 024 — `extension/background/actions/start-batch.js` → `docs/biblia/extension/background/actions/start-batch.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 025 — `extension/background/actions/stop-batch.js` → `docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 026 — `extension/background/jobs-dom-ack.js` → `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
-- [ ] 027 — `extension/background/jobs-lifecycle.js` → `docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md`
+- [x] 026 — `extension/background/jobs-dom-ack.js` → `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 027 — `extension/background/jobs-lifecycle.js` → `docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
 - [ ] 028 — `extension/background/jobs-reconciliation.js` → `docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md`
 - [ ] 029 — `extension/background/jobs-watchdog.js` → `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md`
 - [ ] 030 — `extension/background/log.js` → `docs/biblia/extension/background/log.js/Bíblia.md`
