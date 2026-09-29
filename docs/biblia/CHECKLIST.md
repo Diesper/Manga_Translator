@@ -47,8 +47,8 @@
 - [x] 029 — `extension/background/jobs-watchdog.js` → `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 030 — `extension/background/log.js` → `docs/biblia/extension/background/log.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 031 — `extension/background/router.js` → `docs/biblia/extension/background/router.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 032 — `extension/background/state.js` → `docs/biblia/extension/background/state.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
-- [ ] 033 — `extension/background/tab-identity.js` → `docs/biblia/extension/background/tab-identity.js/Bíblia.md`
+- [x] 032 — `extension/background/state.js` → `docs/biblia/extension/background/state.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 033 — `extension/background/tab-identity.js` → `docs/biblia/extension/background/tab-identity.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
 - [ ] 034 — `extension/content/cm-auto-restore.js` → `docs/biblia/extension/content/cm-auto-restore.js/Bíblia.md`
 - [ ] 035 — `extension/content/cm-chapter.js` → `docs/biblia/extension/content/cm-chapter.js/Bíblia.md`
 - [ ] 036 — `extension/content/cm-dom-replace.js` → `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md`
