@@ -104,6 +104,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 47 | `extension/content/gemini/result-extractor.js` | SHA `a3efd499a0b0...` conferido; bloco integral exato | 413 linhas + newline final = 414/414 posições; 414 linhas de cobertura sequenciais | EXT-01..EXT-13 executam o módulo real; BGD-04/05/06/08/09/10/12/13/14 exercitam bridge/retry em integração real; action SW e mocks do runner classificados separadamente; lacunas específicas explícitas | 15 unidades específicas + papel local por posição + trust boundaries/riscos de MAIN bridge e rota autenticada documentados | ✅ APROVADO |
 | 49 | `extension/content/gemini/temporary-chat.js` | SHA `40fbc8dc6acf...` conferido; bloco integral exato | 213 linhas + newline final = 214/214 posições; 214 headings sequenciais | duas suítes unitárias executam o módulo real; discovery/estado/clique/anti-double-toggle ligados a assertions; job-runner mock e E2E separados como contrato/execução indireta; 16 lacunas específicas explícitas | 9 unidades específicas + papel local por posição; riscos de synthetic events, heurísticas DOM e `verification_failed` sem fallback de exclusão documentados | ✅ APROVADO |
 | 50 | `extension/content/inject.js` | SHA `21f7f6cf9c94...` reconfirmado; bloco integral exato | 472 linhas + newline final = 473/473 posições; 473 headings sequenciais; 0 fallbacks genéricos | testes `inject/*` classificados como espelho/gate; runner/result-extractor/rpa como consumers/execução indireta; nenhuma prova direta do MAIN-world inventada; 12 lacunas específicas explícitas | 15 unidades específicas + papel local por posição; riscos de rAF/idle IDs sintéticos, AudioContext sem cleanup, fetch/event trust boundary e submit duplicado documentados | ✅ APROVADO |
+| 56 | `extension/reader/reader.js` | SHA `490bbb184234...` reconfirmado; bloco integral byte/texto equivalente | 259 linhas + newline final = 260/260 posições; 260 headings sequenciais | `reader.ui`, `keyboard-nav` e `page-counter` executam a fonte real; `reader-offline.spec.js` prova fluxo MV3/IndexedDB/lazy-load em Chromium; unload, erros de SM_GET_PAGE, RAF e catches continuam como gaps explícitos | 17 unidades específicas + papel local por posição; storage bridge, trust boundaries, virtualização, estado morto e resíduos documentados | ✅ APROVADO |
 
 ### `temporary-chat.js` — criação e auditoria em 2026-09-29
 
@@ -113,6 +114,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 - mocks do job runner foram classificados como contrato do consumidor, e o E2E `temp_chat` como execução indireta, não prova de cada helper interno;
 - 16 lacunas foram mantidas explícitas, incluindo Shadow DOM, `aria-pressed`/`data-state`, abort, `control_not_actionable`, actionability/visibilidade e branches de erro;
 - a integração `verification_failed` → warning → continuação, sem o mesmo fallback de exclusão usado por `unavailable`, foi registrada como risco de privacidade a ser decidido/testado, sem alteração funcional.
+
+**Veredito:** ✅ APROVADO.
+
+### `reader.js` — criação e auditoria em 2026-09-29
+
+- SHA `490bbb1842348e792cd593c37699a822d81f555b` reconfirmado antes da aprovação;
+- fonte integral extraída da Bíblia e comparada ao blob atual: equivalência byte/texto confirmada;
+- 259 linhas textuais + newline final = 260/260 posições, com 260 headings `Linha N` sequenciais;
+- `reader.ui.test.js`, `keyboard-nav.test.js` e `page-counter.test.js` carregam a implementação real e sustentam UI, largura, close, estados vazios, teclado/fullscreen e lógica do contador;
+- `reader-offline.spec.js` executa a extensão MV3 real em Chromium e prova fluxo legado→migração/storage, índices esparsos, lazy load sob demanda, persistência de largura e navegação/contador;
+- evidências do background/storage manager foram classificadas como dependência/execução indireta quando não eram assertions focais do reader;
+- lacunas explícitas foram mantidas para unload/virtualização de memória, falha/retry de `SM_GET_PAGE`, race assíncrona, coalescência RAF/resize, catches de localStorage/fullscreen, payload malformado e cleanup;
+- dívida técnica registrada sem alteração funcional: `currentReadWidth` é escrito mas não lido; `loadedUrls` é criado e nunca usado, com comentário legado de objectURL divergente da implementação Data URL;
+- invariantes cobrem separação `arrayPos`/índice persistido, fallback numérico legado, preload sob demanda, retry, contador one-based e preservação de altura no unload.
 
 **Veredito:** ✅ APROVADO.
 
