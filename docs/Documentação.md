@@ -1,6 +1,6 @@
 # Manga Translator — Documentação Técnica Consolidada
 
-> **Bíblias técnicas por arquivo:** a documentação linha a linha não é mais um arquivo monolítico gerado. Cada arquivo do corpus recebe sua própria `Bíblia.md` em `docs/biblia/<caminho-do-arquivo>/Bíblia.md`. O progresso e a ordem obrigatória ficam em [`docs/biblia/STATUS.md`](./biblia/STATUS.md) e [`docs/biblia/CHECKLIST.md`](./biblia/CHECKLIST.md).
+> **Bíblias técnicas por arquivo:** a documentação linha a linha não é mais um arquivo monolítico gerado. Cada arquivo do corpus recebe sua própria `Bíblia.md` em `docs/biblia/<caminho-do-arquivo>/Bíblia.md`. O progresso e a ordem obrigatória ficam em [`docs/biblia/STATUS.md`](./biblia/STATUS.md), [`docs/biblia/CHECKLIST.md`](./biblia/CHECKLIST.md) e [`docs/biblia/AUDITORIA.md`](./biblia/AUDITORIA.md). `CONCLUÍDO` só é válido quando a Bíblia também está `✅ APROVADO` na auditoria.
 
 
 > **Documento canônico da arquitetura atual do Manga Translator.**
@@ -2204,7 +2204,7 @@ A reestruturação eliminou a organização em dois projetos npm e transformou a
 - `scripts/maintenance/`: diagnósticos pesados;
 - `scripts/release/`: versionamento/release;
 - `docs/Documentação.md`: documentação arquitetural canônica;
-- `docs/biblia/`: Bíblias técnicas individuais por arquivo, com `STATUS.md` e `CHECKLIST.md` controlando progresso.
+- `docs/biblia/`: Bíblias técnicas individuais por arquivo, com `STATUS.md`, `CHECKLIST.md` e `AUDITORIA.md`; somente Bíblias auditadas e aprovadas contam como concluídas.
 
 ## 22.2 Fase 0 concluída
 
