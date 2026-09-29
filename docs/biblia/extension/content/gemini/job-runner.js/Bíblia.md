@@ -18219,6 +18219,19 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 Nenhum desses achados foi corrigido nesta tarefa porque o escopo é documentação. O ponto mais importante para manutenção é preservar a ordem **attachment confirmado → observer instalado → submit confirmado → resultado validado → staging persistido → commit**.
 
+## Autoauditoria mecânica
+
+Validação adicional executada sobre a Bíblia materializada antes da aprovação global:
+
+- **SHA declarado:** `1b16fd656e82e64ef2d26977e061f87e469aa3ff`, igual ao blob atual de `extension/content/gemini/job-runner.js`.
+- **Fonte integral:** extraída do bloco `Fonte integral auditada` e comparada com o fonte; conteúdo idêntico.
+- **Posições da fonte:** **1472**.
+- **Headings `Linha N`:** **1472**, sequência estrita de 1 a 1472, sem lacunas nem sobreposição.
+- **Campos `Fonte`:** **1472/1472** conferidos contra a posição correspondente do arquivo real.
+- **Campos obrigatórios por posição:** `Fonte`, `O que faz`, `Como faz`, `Por que foi implementado dessa forma` e `Por que uma implementação ingênua seria pior` presentes em todos os 1472 blocos.
+- **Boilerplate proibido pelo gate:** nenhum dos padrões explicitamente rejeitados por `verify-repository-structure.js` foi encontrado fora do bloco de fonte integral.
+- **Testes:** a classificação decorre da leitura dos arquivos e assertions citados; esta tarefa documental não afirma que as suítes foram executadas nesta sessão.
+
 ## Checklist de conclusão desta Bíblia
 
 - [x] Identidade, SHA, tipo, linhas e agente registrados.
