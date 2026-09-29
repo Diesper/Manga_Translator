@@ -49,10 +49,10 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - Total: **233**
 - Bíblias materializadas: **54**
 - ✅ Concluídos auditados: **48**
-- 🟠 Em andamento: **11**
+- 🟠 Em andamento: **12**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **179**
-- ⬜ Pendentes: **174**
+- ⬜ Pendentes: **173**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **20,60%**
 - Cobertura apenas materializada: **23,18%**
@@ -69,7 +69,8 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
   - `#058 extension/shared/gtc-indexeddb.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
   - `#059 extension/shared/shared-ui.js` — `Agente L` — Bíblia: `docs/biblia/extension/shared/shared-ui.js/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#060 extension/shared/storage-manager.js`
+  - `#060 extension/shared/storage-manager.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/storage-manager.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#061 .gitignore`
 
 ## Auditoria de 2026-09-29
 
@@ -195,7 +196,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 57 | ✅ CONCLUÍDO | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
 | 58 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#K | `extension/shared/gtc-indexeddb.js` | `0c872f23a665` | `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` |
 | 59 | 🟠 EM ANDAMENTO — Agente L | `extension/shared/shared-ui.js` | `b284fb8eb0e8` | `docs/biblia/extension/shared/shared-ui.js/Bíblia.md` |
-| 60 | ⬜ PENDENTE | `extension/shared/storage-manager.js` | `d1cd5a2c83ed` | `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` |
+| 60 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/shared/storage-manager.js` | `d1cd5a2c83ed` | `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` |
 | 61 | ⬜ PENDENTE | `.gitignore` | `e48fc70b1acc` | `docs/biblia/.gitignore/Bíblia.md` |
 | 62 | ⬜ PENDENTE | `jest.config.js` | `f0b7c55a5c8c` | `docs/biblia/jest.config.js/Bíblia.md` |
 | 63 | ⬜ PENDENTE | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
