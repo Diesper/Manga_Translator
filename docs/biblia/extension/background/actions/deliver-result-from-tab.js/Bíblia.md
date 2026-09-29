@@ -1,6 +1,7 @@
 # Bíblia técnica — `extension/background/actions/deliver-result-from-tab.js`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
+> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
 > **SHA auditado:** `59543c1359669ced02a1d05c251b272abaad6709`  
 > **Linhas auditadas:** **104**  
 > **Teste direto:** `tests/unit/background/deliver-result-from-tab-action.test.js` (`263cb827e30468c377c5b1eb5863e90bd6cf26b0`).
@@ -1334,6 +1335,6 @@ A ordem é obrigatória: validar → reidratar → provar mapping do sender → 
 - Persistência antes de cleanup/finalização: **PROVADA**.
 - Independência de currentBatchId: **PROVADA**.
 - Lacunas de identidade/erro documentadas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **SIM**.
+- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
 
 **Próximo arquivo após atualizar STATUS/CHECKLIST:** `extension/background/actions/deliver-result-url.js`.
