@@ -1,6 +1,7 @@
 # Bíblia técnica — `extension/background/actions/calculate-visual-fingerprint.js`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
+> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
 > **SHA auditado:** `ea474845cf9c6a6784e3ceb75298f0ac8df86e06`  
 > **Linhas auditadas:** **130**  
 > **Teste real principal:** `tests/unit/background/calculate-visual-fingerprint-action.test.js` (`f51a0b629ac17be3eda349333192b9480494a07e`).  
@@ -1762,6 +1763,6 @@ O pipeline deliberadamente combina: amostra RGBA 8×8, dHash 9×8, wHash/pHash 3
 - Todas as linhas comentadas: **SIM**.
 - Teste real distinguido de simulação visual: **SIM**.
 - Lacunas explicitamente mantidas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **SIM**.
+- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
 
 **Próximo arquivo após atualizar o rastreador:** `extension/background/actions/check-extraction-tab.js`.
