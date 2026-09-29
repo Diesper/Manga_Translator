@@ -67,8 +67,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 20 | `extension/background/actions/relay-progress.js` | SHA `24e377893c71...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | destino explícito/fallback e transição running provados; ACK/erros/lacunas separados | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 21 | `extension/background/actions/report-error.js` | SHA `ac239ea49544...` conferido; bloco integral exato | 71 linhas + newline final = 72/72 posições | payload/ownership/identity/finalização provados; consumer/lifecycle separados; gaps explícitos | 9 unidades específicas + papel local por posição | ✅ APROVADO |
 | 22 | `extension/background/actions/request-image-data.js` | SHA `249126232396...` conferido; bloco integral exato | 32 linhas + newline final = 33/33 posições | relay/resposta/lastError provados; consumer/destino/compat separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 23 | `extension/background/actions/set-debug-mode.js` | SHA `92e4149b1bba...` conferido; bloco integral exato | 39 linhas + newline final = 40/40 posições | persistência/broadcast/validator provados; caller/consumer separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `set-debug-mode.js` — criação e auditoria em 2026-09-29
+
+- persistência de `debugMode:true`, broadcast multi-tab e rejeição de string ligados às assertions reais;
+- caller do popup e consumidor `content_manga` confirmados;
+- storage durável diferenciado do broadcast fire-and-forget;
+- gaps do caminho `false`, falhas de storage/query/sendMessage e source ampla explicitados;
+- SHA e 40/40 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `request-image-data.js` — criação e auditoria em 2026-09-29
 
