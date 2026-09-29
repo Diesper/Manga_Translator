@@ -14,8 +14,8 @@
 ## Arquivos (233)
 
 - [x] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md`
-- [ ] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md` **← EM ANDAMENTO**
-- [ ] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md`
+- [x] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md`
+- [ ] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` **← EM ANDAMENTO**
 - [ ] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md`
 - [ ] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md`
 - [ ] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md`
