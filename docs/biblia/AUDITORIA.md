@@ -106,6 +106,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 50 | `extension/content/inject.js` | SHA `21f7f6cf9c94...` reconfirmado; bloco integral exato | 472 linhas + newline final = 473/473 posições; 473 headings sequenciais; 0 fallbacks genéricos | testes `inject/*` classificados como espelho/gate; runner/result-extractor/rpa como consumers/execução indireta; nenhuma prova direta do MAIN-world inventada; 12 lacunas específicas explícitas | 15 unidades específicas + papel local por posição; riscos de rAF/idle IDs sintéticos, AudioContext sem cleanup, fetch/event trust boundary e submit duplicado documentados | ✅ APROVADO |
 | 56 | `extension/reader/reader.js` | SHA `490bbb184234...` reconfirmado; bloco integral byte/texto equivalente | 259 linhas + newline final = 260/260 posições; 260 headings sequenciais | `reader.ui`, `keyboard-nav` e `page-counter` executam a fonte real; `reader-offline.spec.js` prova fluxo MV3/IndexedDB/lazy-load em Chromium; unload, erros de SM_GET_PAGE, RAF e catches continuam como gaps explícitos | 17 unidades específicas + papel local por posição; storage bridge, trust boundaries, virtualização, estado morto e resíduos documentados | ✅ APROVADO |
 | 57 | `extension/shared/gtc-fingerprint.js` | SHA `fa014028d5e2...` reconfirmado; bloco integral exato | 770 linhas + newline final = 771/771 posições; 771 headings sequenciais; 0 fallbacks genéricos | unit `gtc/fingerprint.test.js` e suítes visuais carregam o módulo real; consumers SW/content/IDB classificados separadamente; gaps de hex inválido, comprimento, Unicode fallback, region opts e ID fallback explícitos | 16 unidades específicas + papel local por posição; contratos SHA/dHash/Haar/DCT/regional/strict/relaxed e invariantes de compatibilidade documentados | ✅ APROVADO |
+| 59 | `extension/shared/shared-ui.js` | SHA `b284fb8eb0e8...` reconfirmado; bloco integral exato | 350 linhas + newline final = 351/351 posições; 351 headings sequenciais; fonte integral conferida | `redo-confirmation.test.js` carrega o módulo real; integrações reais de Popup/Options exercitam Refazer/fallback legado; XSS específico prova escape no consumidor; gate de ordem separado; lacunas de restore moderno, erros de API e races explícitas | 12 unidades específicas + papel local por posição; trust boundaries, lifecycle MV3, migração parcial, overlay concorrente e risco sem `chapterId` documentados | ✅ APROVADO |
 
 ### `temporary-chat.js` — criação e auditoria em 2026-09-29
 
@@ -540,6 +541,19 @@ A integridade física foi reconfirmada:
 - 76 posições são cobertas;
 - permissões e APIs citadas possuem consumidores reais quando a Bíblia afirma uso;
 - ausência de assertions específicas para permissões/atributos não protegidos permanece explicitamente marcada.
+
+### `shared-ui.js` — auditoria aprovada em 2026-09-29
+
+- SHA `b284fb8eb0e8d30f34dc83642f07916d20012bf0` reconfirmado contra o blob do branch;
+- fonte integral exata e 351/351 posições documentais sequenciais;
+- `redo-confirmation.test.js` executa o módulo real e prova modal próprio, cancelamentos, preferência persistente, purga e mutex da mesma URL;
+- integrações de Popup e Options carregam `shared-ui.js` pelo HTML real e provam limpeza de restore legado, imagens/paths, bloqueio e GTC;
+- `resize-and-tabs.test.js` prova o vetor concreto de escape de markup no consumidor;
+- gate estático de ordem de carregamento e smoke de roteamento foram mantidos separados de prova comportamental;
+- lacunas explícitas incluem resposta moderna preenchida de `SM_LIST_RESTORE`, normalização de array, erros de runtime/storage, `skipConfirmation`, ausência de DOM, forma array, callbacks de UI e resposta GTC negativa;
+- riscos registrados sem alterar código: overlay concorrente pode deixar Promise pendente; ausência de `chapterId` pode remover o mesmo índice de capítulos não relacionados; migração parcial por capítulo pode esconder restores legados.
+
+**Veredito:** ✅ APROVADO.
 
 ## Motivos detalhados das revisões obrigatórias
 
