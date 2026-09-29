@@ -153,3 +153,9 @@ Após a migração principal:
 - a CI chama `npm run lint` em vez de duplicar loops de `node --check` no YAML;
 - `playwright-merge.config.js` é permitido apenas como configuração auxiliar de reporter/merge;
 - as fixtures PNG possuem uma única definição determinística em `tests/fixtures/manga-images.js`.
+
+
+## Checklist operacional do PR #65
+
+O acompanhamento item a item desta execução fica em `docs/CHECKLIST_REESTRUTURACAO_PR65.md`.
+A checklist deve ser atualizada a cada novo endurecimento ou evidência de CI, sem marcar como concluído o que ainda depende de `workflow_dispatch` ou de validação do novo HEAD.

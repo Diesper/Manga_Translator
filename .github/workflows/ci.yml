@@ -65,6 +65,8 @@ jobs:
         run: node scripts/validation/verify-repository-structure.js
       - name: Validar contrato da própria CI
         run: node scripts/validation/verify-ci-contract.js
+      - name: Provar que o contrato da CI rejeita enfraquecimento
+        run: npm run test:ci-contract:infra
       - name: Testar verificador de coverage
         run: node scripts/validation/verify-coverage-selftest.js
       - name: Testar gate E2E contra retries/flaky

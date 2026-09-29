@@ -313,6 +313,13 @@ if (!jestRunner.includes('hasForcedWorkerExit(jestStderr)')) {
 if (!workflow.includes('node scripts/validation/verify-jest-worker-warning-selftest.js')) {
   problems.push('CI Contract precisa testar a detecção de worker forçado');
 }
+
+if (!workflow.includes('npm run test:ci-contract:infra')) {
+  problems.push('CI Contract precisa executar o self-test negativo do próprio contrato');
+}
+if (pkg.scripts['test:ci-contract:infra'] !== 'node scripts/validation/verify-ci-contract-selftest.js') {
+  problems.push('package.json#test:ci-contract:infra precisa executar o self-test negativo do contrato');
+}
 if (jestRunner.includes("'--forceExit'") || jestRunner.includes('"--forceExit"')) {
   problems.push('run-jest-ci.js não pode mascarar open handles com --forceExit');
 }
