@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { loadFiles: loadBibleSourceFiles } = require('../docs/bible/project-files');
 
 const root = path.resolve(__dirname, '../..');
 const problems = [];
@@ -69,11 +70,27 @@ for (const required of [
   'scripts/validation/verify-ci-contract.js',
   'scripts/release/sync-version.js',
   'docs/Documentação.md',
+  'docs/Bíblia.md',
 ]) requirePresent(required);
 
 const docsFiles = walk(path.join(root, 'docs')).map(rel).sort();
-if (docsFiles.length !== 1 || docsFiles[0] !== 'docs/Documentação.md') {
-  problems.push('docs/ deve conter somente docs/Documentação.md; encontrados: ' + docsFiles.join(', '));
+const expectedDocsFiles = ['docs/Bíblia.md', 'docs/Documentação.md'].sort();
+if (JSON.stringify(docsFiles) !== JSON.stringify(expectedDocsFiles)) {
+  problems.push('docs/ deve conter somente docs/Documentação.md e docs/Bíblia.md; encontrados: ' + docsFiles.join(', '));
+}
+
+if (exists('docs/Bíblia.md')) {
+  const projectCodeLines = loadBibleSourceFiles()
+    .reduce((sum, file) => sum + file.lines.length, 0);
+  const bibleLines = fs.readFileSync(path.join(root, 'docs/Bíblia.md'), 'utf8')
+    .replace(/\\r\\n/g, '\\n')
+    .split('\\n').length;
+  if (bibleLines <= projectCodeLines) {
+    problems.push(
+      'docs/Bíblia.md precisa ter mais linhas que o corpus documentado; Bíblia=' 
+      + bibleLines + ', corpus=' + projectCodeLines
+    );
+  }
 }
 
 for (const forbidden of [
