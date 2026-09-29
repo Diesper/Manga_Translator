@@ -53,8 +53,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 6 | `extension/background/actions/commit-result.js` | SHA `32270d1c4ade...` reconfirmado; bloco integral exato | 106 linhas + newline final = 107/107 posições | journal/ownership/batch/persistência/finalize mapeados a assertions; retry do consumidor separado | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 | 7 | `extension/background/actions/deliver-result-from-tab.js` | SHA `59543c135966...` reconfirmado; bloco integral exato | 103 linhas + newline final = 104/104 posições | sucesso/retry/mapping/ownership/helper separados; mismatches e falhas de API mantidos como gaps | 11 unidades específicas + papel local por posição; fallback genérico removido | ✅ APROVADO |
 | 8 | `extension/background/actions/deliver-result-url.js` | SHA `91c50efe4764...` reconfirmado; bloco integral exato | 93 linhas + newline final = 94/94 posições | ownership/batch/URL/mapping ligados a assertions; blob/data e falhas de API mantidos como gaps | 11 unidades específicas + papel local por posição; fallback genérico removido | ✅ APROVADO |
+| 9 | `extension/background/actions/deliver-result.js` | SHA `3653bd10c2a0...` conferido; bloco integral exato | 87 linhas + newline final = 88/88 posições | três mismatches, ownership, staging e falhas ligados a assertions; helper/consumer separados | 10 unidades específicas + papel local por posição; gaps explícitos | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `deliver-result.js` — criação e auditoria em 2026-09-29
+
+- primeira Bíblia criada já sob o padrão pós-reauditoria;
+- batch/index/mangaTabId possuem casos diretos separados na suíte da action;
+- staging foi separado de commit/finalize e cruzado com `jobs-dom-ack` e `job-runner`;
+- `currentBatchId` divergente foi confirmado como não-autoritativo;
+- gaps explícitos para formato/tamanho de src, rejeições de dependências, fallbacks nullish, resposta parcial do helper e logs;
+- SHA e 88/88 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `deliver-result-url.js` — reauditoria aprovada em 2026-09-29
 

@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **8**
-- ✅ Concluídos auditados: **8**
+- Bíblias materializadas: **9**
+- ✅ Concluídos auditados: **9**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **225**
-- Cobertura realmente aprovada: **3,43%**
-- Cobertura apenas materializada: **3,43%**
-- Último aprovado: `extension/background/actions/deliver-result-url.js`
-- Arquivo atual: `extension/background/actions/deliver-result.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md`
-- Fila normal retomada em: `extension/background/actions/deliver-result.js`
+- ⬜ Ainda não materializados: **224**
+- Cobertura realmente aprovada: **3,86%**
+- Cobertura apenas materializada: **3,86%**
+- Último aprovado: `extension/background/actions/deliver-result.js`
+- Arquivo atual: `extension/background/actions/download-chapter.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md`
+- Fila normal em produção: `extension/background/actions/download-chapter.js`
 
 ## Auditoria de 2026-09-29
 
@@ -71,6 +71,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 6. ✅ `extension/background/actions/commit-result.js`
 7. ✅ `extension/background/actions/deliver-result-from-tab.js`
 8. ✅ `extension/background/actions/deliver-result-url.js`
+9. ✅ `extension/background/actions/deliver-result.js`
 
 ### Revisão obrigatória
 
@@ -90,8 +91,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 6 | ✅ CONCLUÍDO | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
 | 7 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
 | 8 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
-| 9 | 🟠 EM ANDAMENTO | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
-| 10 | ⬜ PENDENTE | `extension/background/actions/download-chapter.js` | `8636a03c8a20` | `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md` |
+| 9 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
+| 10 | 🟠 EM ANDAMENTO | `extension/background/actions/download-chapter.js` | `8636a03c8a20` | `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md` |
 | 11 | ⬜ PENDENTE | `extension/background/actions/download-image.js` | `408102f057ab` | `docs/biblia/extension/background/actions/download-image.js/Bíblia.md` |
 | 12 | ⬜ PENDENTE | `extension/background/actions/export-all.js` | `6160a220094d` | `docs/biblia/extension/background/actions/export-all.js/Bíblia.md` |
 | 13 | ⬜ PENDENTE | `extension/background/actions/fetch-image-base64.js` | `4a4825c36fdb` | `docs/biblia/extension/background/actions/fetch-image-base64.js/Bíblia.md` |
