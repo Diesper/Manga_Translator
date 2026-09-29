@@ -1,7 +1,7 @@
 // content_gemini.js — Manga Translator
 //
 // Bootstrap/orquestração do worker Gemini.
-// Implementação detalhada vive em extension/gemini/*.js.
+// Implementação detalhada vive em extension/content/gemini/*.js.
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 

@@ -21,6 +21,7 @@
 - [x] Documentação histórica movida para `docs/historico/`.
 - [x] README alinhado ao layout 0-G (`extension/content/cm-*` e `extension/shared/gtc-*`).
 - [x] Gate estrutural agora varre arquivos operacionais e rejeita referências aos caminhos legados removidos (equivalente automatizado ao `git grep` final do plano).
+- [x] O novo gate detectou e foi usado para corrigir referência documental obsoleta em `extension/content/content_gemini.js` (`extension/gemini/*` → `extension/content/gemini/*`).
 - [ ] ⚠️ Histórico da Fase 0 não está literalmente dividido em um commit por bloco 0-A…0-G; o resultado estrutural está aplicado, mas reescrever commits antigos agora aumentaria o risco sem alterar o estado final.
 
 ## Baselines comprovadas pela CI do PR
