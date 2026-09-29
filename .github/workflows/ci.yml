@@ -35,19 +35,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Verificar sintaxe de todos os arquivos JS da extensão
-        run: |
-          echo "Verificando sintaxe dos arquivos da extensão..."
-          node --check scripts/release/sync-version.js
-          find extension -name "*.js" -type f | sort | while read f; do
-            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
-          done
-      - name: Verificar sintaxe dos arquivos de teste e tooling
-        run: |
-          echo "Verificando sintaxe de tests/ e scripts/..."
-          find tests scripts -type f -name "*.js" | sort | while read f; do
-            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
-          done
+      - name: Verificar sintaxe JavaScript
+        run: npm run lint
 
   manifest-validation:
     name: Manifest Validation
@@ -55,6 +44,10 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
       - name: Validar manifest.json
         run: npm run validate:manifest
 
