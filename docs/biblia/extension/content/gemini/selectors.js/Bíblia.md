@@ -81,7 +81,7 @@ Isso reduz dependência de texto visual e mantém compatibilidade com UI localiz
 | `ERROR` contém role=alert | assertion `toContain('[role="alert"]')` | ✅ PROVADO DIRETAMENTE |
 | `STOP` alimenta `findVisibleStopButton` | DOM test cria Stop oculto/visível e compara retorno | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
 | strict model ownership | observer/dom tests usam `model-response`, autoria assistant/model e assertam resultado/container | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
-| user-turn rejeita imagem clonada | OBS-17 cria `user-query` e exige `resultUrl=null` + reason `user_turn` | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
+| user-turn rejeita imagem clonada | OBS-15 cria `user-query` e exige `resultUrl=null` + reason `user_turn` | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
 | SEND participa do baseline/transição de submit | OBS-13 cria `aria-label="Send message"` e verifica disabled baseline versus transição | 🟨 EXECUTADO INDIRETAMENTE pelo Observer real |
 | ordem de carga selectors → dom → ... | manifest e gate estrutural listam a ordem explicitamente | 🟦 GATE ESTÁTICO ESPECÍFICO |
 | `EDITOR_ROOT`, `FILE_INPUT`, `ATTACHMENT_CONTAINER` | nenhum assertion/consumer específico localizado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
