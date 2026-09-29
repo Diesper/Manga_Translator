@@ -15,12 +15,8 @@
 const path = require('path');
 const fs   = require('fs');
 // Portable root finder — works regardless of where this file is placed in the tree.
-function _findRoot(d) {
-    if (fs.existsSync(path.join(d, 'extension', 'manifest.json'))) return d;
-    const p = path.dirname(d);
-    return p === d ? process.cwd() : _findRoot(p);
-}
-const ROOT = _findRoot(__dirname);
+const { findRepoRoot } = require('./repo-root');
+const ROOT = findRepoRoot(__dirname);
 
 
 const GTC_FINGERPRINT_PATH = path.join(ROOT, 'extension/gtc-fingerprint.js');

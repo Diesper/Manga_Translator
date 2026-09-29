@@ -3,13 +3,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { TextEncoder } = require('util');
 
-function findRoot(dir) {
-    if (fs.existsSync(path.join(dir, 'extension', 'manifest.json'))) return dir;
-    const parent = path.dirname(dir);
-    return parent === dir ? process.cwd() : findRoot(parent);
-}
-
-const ROOT = findRoot(__dirname);
+const { findRepoRoot } = require('../../helpers/repo-root');
+const ROOT = findRepoRoot(__dirname);
 
 Object.defineProperty(global, 'crypto', {
     value: crypto.webcrypto,
