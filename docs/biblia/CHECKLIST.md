@@ -1,22 +1,22 @@
 # Checklist — Bíblia técnica por arquivo
 
-> Checklist operacional. Este arquivo espelha o inventário do `STATUS.md`, mas em formato de conclusão binária. A caixa só pode ser marcada depois de cumprir **todos** os critérios de conclusão definidos no status.
+> A caixa só é marcada **depois** da Bíblia individual cumprir todos os critérios do `STATUS.md`.
 
 ## Regras de processo
 
-- [x] Não usar gerador de comentários genéricos para declarar um arquivo concluído.
-- [x] Não tratar mera ocorrência de nome/símbolo em teste como prova.
-- [x] Não tratar arquivo de teste/gate como automaticamente correto.
-- [x] Sempre registrar lacunas de teste explicitamente.
-- [x] Manter exatamente um arquivo em andamento no `STATUS.md`.
-- [x] Atualizar este checklist somente **depois** de finalizar a Bíblia individual correspondente.
+- [x] Não usar comentários genéricos para declarar conclusão.
+- [x] Não tratar ocorrência textual em teste como prova.
+- [x] Não tratar teste/gate como automaticamente correto.
+- [x] Registrar lacunas de teste.
+- [x] Manter exatamente um arquivo em andamento.
+- [x] Atualizar checklist somente após terminar a Bíblia.
 
 ## Arquivos (233)
 
 - [x] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md`
 - [x] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md`
-- [ ] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` **← EM ANDAMENTO**
-- [ ] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md`
+- [x] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md`
+- [ ] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` **← EM ANDAMENTO**
 - [ ] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md`
 - [ ] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md`
 - [ ] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md`
