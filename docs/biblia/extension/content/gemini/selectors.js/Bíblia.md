@@ -80,6 +80,8 @@ Isso reduz dependência de texto visual e mantém compatibilidade com UI localiz
 | `RESPONSE` contém model-response | assertion `toContain('model-response')` | ✅ PROVADO DIRETAMENTE |
 | `ERROR` contém role=alert | assertion `toContain('[role="alert"]')` | ✅ PROVADO DIRETAMENTE |
 | `STOP` alimenta `findVisibleStopButton` | DOM test cria Stop oculto/visível e compara retorno | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
+| STOP participa da confirmação de geração | OBS-01/OBS-02 usam `aria-label="Stop generating"`; oculto não confirma, visível gera `stop_visible` | 🟨 EXECUTADO INDIRETAMENTE pelo Observer real |
+| ERROR participa do fail-fast de UI | OBS-07/OBS-08 usam `role="alert"`; erro oculto é ignorado e erro visível rejeita com `GEMINI_UI_ERROR` | 🟨 EXECUTADO INDIRETAMENTE pelo Observer real |
 | strict model ownership | observer/dom tests usam `model-response`, autoria assistant/model e assertam resultado/container | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
 | user-turn rejeita imagem clonada | OBS-15 cria `user-query` e exige `resultUrl=null` + reason `user_turn` | 🟨 EXECUTADO INDIRETAMENTE pelo consumer real |
 | SEND participa do baseline/transição de submit | OBS-13 cria `aria-label="Send message"` e verifica disabled baseline versus transição | 🟨 EXECUTADO INDIRETAMENTE pelo Observer real |
