@@ -42,7 +42,7 @@ if (fs.existsSync(publishPath)) {
   for (const legacy of legacyPublishPaths) {
     if (source.includes(legacy)) problems.push('publish.yml reintroduziu caminho legado: ' + legacy);
   }
-  if (!/tags:\\s*\\n\\s*- ["']v\\*["']/.test(source)) {
+  if (!/tags:\s*\n\s*-\s*["']v\*["']/.test(source)) {
     problems.push('publish.yml precisa continuar aceitando tags v*');
   }
 }

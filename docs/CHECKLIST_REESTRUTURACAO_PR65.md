@@ -45,6 +45,7 @@
 - [x] O job `CI Contract` executa a política em todo run e o contrato protege sua presença.
 - [x] Adicionado self-test negativo da política: baseline válida passa e violações de `test.skip`, `--forceExit` e `|| true` precisam falhar.
 - [x] Adicionado `validate:publish` para proteger `publish.yml`, `extension/`, `docs/Documentação.md` e `scripts/release/sync-version.js`.
+- [x] Corrigido falso negativo do `validate:publish`: o regex de `tags: - "v*"` agora interpreta whitespace/newline de verdade, em vez de procurar barras invertidas literais.
 - [ ] CI do novo HEAD precisa confirmar o novo self-test negativo.
 
 ## Integrações
