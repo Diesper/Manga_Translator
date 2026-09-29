@@ -49,17 +49,19 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - Total: **233**
 - Bíblias materializadas: **38**
 - ✅ Concluídos auditados: **38**
-- 🟠 Em andamento: **1**
+- 🟠 Em andamento: **3**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **195**
-- ⬜ Pendentes: **194**
+- ⬜ Pendentes: **192**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **16,31%**
 - Cobertura apenas materializada: **16,31%**
 - Último aprovado: `extension/content/content_gemini.js`
 - Arquivos atualmente em andamento:
   - `#039 extension/content/content_manga.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/content/content_manga.js/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta migração: `#040 extension/content/gemini/attachment.js`
+  - `#040 extension/content/gemini/attachment.js` — `GPT-5.6-Sol#C` — Bíblia: `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md`
+  - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#042 extension/content/gemini/dom.js`
 
 ## Auditoria de 2026-09-29
 
@@ -155,8 +157,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 37 | ✅ CONCLUÍDO | `extension/content/cm-gtc-client.js` | `95d062f41b9f` | `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` |
 | 38 | ✅ CONCLUÍDO | `extension/content/content_gemini.js` | `55bc83afe31a` | `docs/biblia/extension/content/content_gemini.js/Bíblia.md` |
 | 39 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/content/content_manga.js` | `a8b3698019f6` | `docs/biblia/extension/content/content_manga.js/Bíblia.md` |
-| 40 | ⬜ PENDENTE | `extension/content/gemini/attachment.js` | `50092e4d7d71` | `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` |
-| 41 | ⬜ PENDENTE | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
+| 40 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#C | `extension/content/gemini/attachment.js` | `50092e4d7d71` | `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` |
+| 41 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#B | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
 | 42 | ⬜ PENDENTE | `extension/content/gemini/dom.js` | `d3694ea70cdd` | `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` |
 | 43 | ⬜ PENDENTE | `extension/content/gemini/editor.js` | `0adbd4374758` | `docs/biblia/extension/content/gemini/editor.js/Bíblia.md` |
 | 44 | ⬜ PENDENTE | `extension/content/gemini/image-quarantine.js` | `ddca93d17ca2` | `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` |
