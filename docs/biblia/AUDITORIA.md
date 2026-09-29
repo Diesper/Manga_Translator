@@ -81,8 +81,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 34 | `extension/content/cm-auto-restore.js` | SHA `d20e7092652e...` conferido; bloco integral exato | 123 linhas + newline final = 124/124 posições | restore/observer/config/REG-10 provados no módulo real; fallback IndexedDB e gaps assíncronos explícitos | 12 unidades específicas + papel local por posição | ✅ APROVADO |
 | 35 | `extension/content/cm-chapter.js` | SHA `44b621d570b6...` conferido; bloco integral exato | 154 linhas + newline final = 155/155 posições | manager real/fallback legado provados; testes de dedup/cache espelho classificados; divergências e races explícitas | 13 unidades específicas + papel local por posição | ✅ APROVADO |
 | 36 | `extension/content/cm-dom-replace.js` | SHA `d3fc72032dbd...` conferido; bloco integral exato | 189 linhas + newline final = 190/190 posições | filtros/limites/twin backdrop/replacement/overlay provados; URL normalization e gaps específicos separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
+| 37 | `extension/content/cm-gtc-client.js` | SHA `95d062f41b9f...` conferido; bloco integral exato | 161 linhas + newline final = 162/162 posições | fingerprint/queries correlacionadas/pipeline real provados; fallback legado/save/regional e simulações separados | 15 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `cm-gtc-client.js` — criação e auditoria em 2026-09-29
+
+- ordem real de carga `gtc-fingerprint → cm-gtc-client → content_manga` confirmada no manifest/harness;
+- pipeline real visual-v4 ligado a CALCULATE_VISUAL_FINGERPRINT e queries V2 strict/crop/relaxed;
+- consultas perceptuais correlacionadas separadas das APIs legadas de listas independentes;
+- simulações visuais inline classificadas como complemento, não prova do módulo;
+- fallback legado de storage, save fallback e regional edge cases mantidos como lacunas específicas;
+- SHA e 162/162 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `cm-dom-replace.js` — criação e auditoria em 2026-09-29
 
