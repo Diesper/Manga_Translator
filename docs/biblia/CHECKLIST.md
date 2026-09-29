@@ -1,27 +1,30 @@
 # Checklist — Bíblia técnica por arquivo
 
-> A caixa só é marcada **depois** da Bíblia individual cumprir todos os critérios do `STATUS.md`.
+> Desde 2026-09-29, `[x]` significa **Bíblia auditada e aprovada**, não apenas arquivo criado. O veredito detalhado fica em `AUDITORIA.md`.
 
-## Regras de processo
+## Regras de qualidade
 
-- [x] Não usar comentários genéricos para declarar conclusão.
-- [x] Não tratar ocorrência textual em teste como prova.
-- [x] Não tratar teste/gate como automaticamente correto.
-- [x] Registrar lacunas de teste.
-- [x] Manter exatamente um arquivo em andamento.
-- [x] Atualizar checklist somente após terminar a Bíblia.
+- [x] SHA declarado precisa corresponder ao fonte real.
+- [x] Fonte integral precisa ser exata.
+- [x] Toda linha/posição precisa estar documentada.
+- [x] Explicação genérica que apenas repete a linha reprova a auditoria.
+- [x] Evidência verde exige assertion realmente ligada ao comportamento.
+- [x] Execução indireta não pode ser chamada de prova direta.
+- [x] Simulação não pode ser tratada como teste do arquivo real.
+- [x] Código sem prova específica precisa de aviso explícito.
+- [x] STATUS, CHECKLIST e AUDITORIA precisam concordar.
 
 ## Arquivos (233)
 
-- [x] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md`
-- [x] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md`
-- [x] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md`
-- [x] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md`
-- [x] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md`
-- [x] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md`
-- [x] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md`
-- [x] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md`
-- [ ] 009 — `extension/background/actions/deliver-result.js` → `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` **← EM ANDAMENTO** **← EM ANDAMENTO**
+- [x] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md` **← EM ANDAMENTO — REVISÃO DE QUALIDADE**
+- [ ] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [x] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [ ] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [ ] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [ ] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [ ] 009 — `extension/background/actions/deliver-result.js` → `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md`
 - [ ] 010 — `extension/background/actions/download-chapter.js` → `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md`
 - [ ] 011 — `extension/background/actions/download-image.js` → `docs/biblia/extension/background/actions/download-image.js/Bíblia.md`
 - [ ] 012 — `extension/background/actions/export-all.js` → `docs/biblia/extension/background/actions/export-all.js/Bíblia.md`
