@@ -89,6 +89,12 @@
 - [x] C31 confirmado por leitura: os três specs E2E consomem `MANGA_E2E_BROWSER_MODE`.
 - [x] C01/C02/C04 confirmados por leitura do `sync-version.js` e `publish.yml`.
 
+## Eficiência da CI sem perda de gates
+
+- [x] `push` automático restrito à `main`; branches com PR usam `pull_request` e deixam de disparar duas suítes idênticas por commit.
+- [x] `workflow_dispatch` permanece disponível para validação manual de qualquer branch.
+- [x] Contrato protege `push: main`, `pull_request` e `workflow_dispatch`.
+
 ## Estado da PR
 
 - [x] PR #65 permanece aberta e mergeable.

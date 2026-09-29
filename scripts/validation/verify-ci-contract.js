@@ -179,6 +179,12 @@ for (const diagnosticJob of [
 if (!/cancel-in-progress:\s*\$\{\{\s*github\.ref\s*!=\s*'refs\/heads\/main'\s*\}\}/.test(workflow)) {
   problems.push('concurrency: execuções da main não podem ser canceladas por um merge posterior');
 }
+if (!/push:\s*\n\s*branches:\s*\n\s*- main/.test(workflow)) {
+  problems.push('workflow deve executar push automático somente na main para não duplicar o mesmo commit de PR');
+}
+if (!/^\s{2}pull_request:\s*$/m.test(workflow) || !/^\s{2}workflow_dispatch:\s*$/m.test(workflow)) {
+  problems.push('workflow precisa preservar pull_request e workflow_dispatch');
+}
 
 if (regressionMatrix) {
   const entries = Array.isArray(regressionMatrix.regressions)
