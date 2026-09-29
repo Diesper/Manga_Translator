@@ -75,8 +75,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 28 | `extension/background/jobs-reconciliation.js` | SHA `f0f2370ba6b7...` conferido; bloco integral exato | 111 linhas + newline final = 112/112 posições | canonicalização/recovery/foreign/drop provados; smoke simulado separado; gap de sync vazio explícito | 12 unidades específicas + papel local por posição | ✅ APROVADO |
 | 29 | `extension/background/jobs-watchdog.js` | SHA `c17b766d7fbc...` conferido; bloco integral exato | 109 linhas + newline final = 110/110 posições | ordering finalize→cleanup provado; timeout integrado provado; arm/replacement e gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 30 | `extension/background/log.js` | SHA `86d5f2f1229b...` conferido; bloco integral exato | 30 linhas + newline final = 31/31 posições | módulo não carregado no runtime atual; implementação inline equivalente/testes separados; risco de drift explícito | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 31 | `extension/background/router.js` | SHA `d9278e9e58e4...` conferido; bloco integral exato | 168 linhas + newline final = 169/169 posições | aliases/source/gates/sync/async provados; risco substring URL e lacunas explícitos | 15 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `background/router.js` — criação e auditoria em 2026-09-29
+
+- aliases, sources básicos, gate de origem, validator, sync/async e contextFactory ligados às assertions focais;
+- adapter de respostas legadas mantido separado do router;
+- classificação Gemini por substring da URL inteira identificada como boundary permissivo;
+- ausência de collision guard no registry, canonical action direta, throw de validator e GTC/SM sem prova focal explicitados;
+- storage facade e possibilidade de contextFactory sobrescrever sender documentadas;
+- SHA e 169/169 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `background/log.js` — criação e auditoria em 2026-09-29
 
