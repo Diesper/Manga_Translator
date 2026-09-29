@@ -1,6 +1,7 @@
 # Bíblia técnica — `extension/background/actions/deliver-result-url.js`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
+> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
 > **SHA auditado:** `91c50efe4764f56aac16aec2c91309e06db7d0ac`  
 > **Linhas auditadas:** **94**  
 > **Teste direto:** `tests/unit/background/deliver-result-url-action.test.js` (`09a0f891434bccf30dbc6e0d244e8f18a40a17d9`).
@@ -1252,6 +1253,6 @@ O contrato evita depender de `currentBatchId`. O teste prova que um job real de 
 - Independência de `currentBatchId`: **PROVADA**.
 - Registro + state transition + sync: **PROVADOS**.
 - Lacunas de URL/erro documentadas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **SIM**.
+- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
 
 **Próximo arquivo somente depois de atualizar STATUS/CHECKLIST:** `extension/background/actions/deliver-result.js`.
