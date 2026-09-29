@@ -101,6 +101,18 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 **Veredito:** ✅ APROVADO.
 
 | 47 | `extension/content/gemini/result-extractor.js` | SHA `a3efd499a0b0...` conferido; bloco integral exato | 413 linhas + newline final = 414/414 posições; 414 linhas de cobertura sequenciais | EXT-01..EXT-13 executam o módulo real; BGD-04/05/06/08/09/10/12/13/14 exercitam bridge/retry em integração real; action SW e mocks do runner classificados separadamente; lacunas específicas explícitas | 15 unidades específicas + papel local por posição + trust boundaries/riscos de MAIN bridge e rota autenticada documentados | ✅ APROVADO |
+| 49 | `extension/content/gemini/temporary-chat.js` | SHA `40fbc8dc6acf...` conferido; bloco integral exato | 213 linhas + newline final = 214/214 posições; 214 headings sequenciais | duas suítes unitárias executam o módulo real; discovery/estado/clique/anti-double-toggle ligados a assertions; job-runner mock e E2E separados como contrato/execução indireta; 16 lacunas específicas explícitas | 9 unidades específicas + papel local por posição; riscos de synthetic events, heurísticas DOM e `verification_failed` sem fallback de exclusão documentados | ✅ APROVADO |
+
+### `temporary-chat.js` — criação e auditoria em 2026-09-29
+
+- SHA `40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc` e fonte integral reconfirmados;
+- 213 linhas + newline final = 214/214 posições, com 214 headings `Linha N` sequenciais;
+- `temporary-chat-v2.test.js` e `temp-chat-activator.test.js` importam a implementação real e provam discovery semântico, estados PT/EN, sequência de eventos, `already_active`, `activated_verified`, `state_not_verified`, `unavailable` e anti-double-toggle;
+- mocks do job runner foram classificados como contrato do consumidor, e o E2E `temp_chat` como execução indireta, não prova de cada helper interno;
+- 16 lacunas foram mantidas explícitas, incluindo Shadow DOM, `aria-pressed`/`data-state`, abort, `control_not_actionable`, actionability/visibilidade e branches de erro;
+- a integração `verification_failed` → warning → continuação, sem o mesmo fallback de exclusão usado por `unavailable`, foi registrada como risco de privacidade a ser decidido/testado, sem alteração funcional.
+
+**Veredito:** ✅ APROVADO.
 
 ## Correções já aplicadas pela auditoria
 
