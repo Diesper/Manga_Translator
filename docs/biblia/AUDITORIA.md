@@ -62,8 +62,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 15 | `extension/background/actions/get-tab-id.js` | SHA `2f3b26304ac1...` conferido; bloco integral exato | 17 linhas + newline final = 18/18 posições | action/router/compatibilidade integrada/consumidores separados | 5 unidades específicas + papel local por posição; gaps explícitos | ✅ APROVADO |
 | 16 | `extension/background/actions/log-entry.js` | SHA `d57e1a25531b...` conferido; bloco integral exato | 50 linhas + newline final = 51/51 posições | happy path direto; validator/logger/emissores separados; gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 17 | `extension/background/actions/open-existing-folder.js` | SHA `59ef82cbf960...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | anchor/path/marker separados; regex real provada; assimetria exists explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 18 | `extension/background/actions/open-manga-root.js` | SHA `71c83df253cd...` conferido; bloco integral exato | 19 linhas + newline final = 20/20 posições | wiring direto provado; helper e popup separados; gaps explícitos | 5 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `open-manga-root.js` — criação e auditoria em 2026-09-29
+
+- delegação `handleMarkerAndShow(null, resolve)` ligada aos testes diretos da action;
+- sucesso e erro do helper são preservados;
+- helper real de marker e caller no popup foram verificados separadamente;
+- gaps para helper ausente, callback que não chega e source ampla foram explicitados;
+- SHA e 20/20 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `open-existing-folder.js` — criação e auditoria em 2026-09-29
 
