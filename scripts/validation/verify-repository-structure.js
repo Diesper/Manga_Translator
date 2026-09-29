@@ -83,8 +83,8 @@ if (exists('docs/Bíblia.md')) {
   const projectCodeLines = loadBibleSourceFiles()
     .reduce((sum, file) => sum + file.lines.length, 0);
   const bibleLines = fs.readFileSync(path.join(root, 'docs/Bíblia.md'), 'utf8')
-    .replace(/\\r\\n/g, '\\n')
-    .split('\\n').length;
+    .replace(/\r\n/g, '\n')
+    .split('\n').length;
   if (bibleLines <= projectCodeLines) {
     problems.push(
       'docs/Bíblia.md precisa ter mais linhas que o corpus documentado; Bíblia=' 
