@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **30**
-- ✅ Concluídos auditados: **30**
+- Bíblias materializadas: **31**
+- ✅ Concluídos auditados: **31**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **203**
-- Cobertura realmente aprovada: **12,88%**
-- Cobertura apenas materializada: **12,88%**
-- Último aprovado: `extension/background/log.js`
-- Arquivo atual: `extension/background/router.js`
-- Bíblia atual: `docs/biblia/extension/background/router.js/Bíblia.md`
-- Fila normal em produção: `extension/background/router.js`
+- ⬜ Ainda não materializados: **202**
+- Cobertura realmente aprovada: **13,30%**
+- Cobertura apenas materializada: **13,30%**
+- Último aprovado: `extension/background/router.js`
+- Arquivo atual: `extension/background/state.js`
+- Bíblia atual: `docs/biblia/extension/background/state.js/Bíblia.md`
+- Fila normal em produção: `extension/background/state.js`
 
 ## Auditoria de 2026-09-29
 
@@ -93,6 +93,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 28. ✅ `extension/background/jobs-reconciliation.js`
 29. ✅ `extension/background/jobs-watchdog.js`
 30. ✅ `extension/background/log.js`
+31. ✅ `extension/background/router.js`
 
 ### Revisão obrigatória
 
@@ -134,8 +135,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 28 | ✅ CONCLUÍDO | `extension/background/jobs-reconciliation.js` | `f0f2370ba6b7` | `docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md` |
 | 29 | ✅ CONCLUÍDO | `extension/background/jobs-watchdog.js` | `c17b766d7fbc` | `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` |
 | 30 | ✅ CONCLUÍDO | `extension/background/log.js` | `86d5f2f1229b` | `docs/biblia/extension/background/log.js/Bíblia.md` |
-| 31 | 🟠 EM ANDAMENTO | `extension/background/router.js` | `d9278e9e58e4` | `docs/biblia/extension/background/router.js/Bíblia.md` |
-| 32 | ⬜ PENDENTE | `extension/background/state.js` | `7570b545d5e9` | `docs/biblia/extension/background/state.js/Bíblia.md` |
+| 31 | ✅ CONCLUÍDO | `extension/background/router.js` | `d9278e9e58e4` | `docs/biblia/extension/background/router.js/Bíblia.md` |
+| 32 | 🟠 EM ANDAMENTO | `extension/background/state.js` | `7570b545d5e9` | `docs/biblia/extension/background/state.js/Bíblia.md` |
 | 33 | ⬜ PENDENTE | `extension/background/tab-identity.js` | `008c9a054ae4` | `docs/biblia/extension/background/tab-identity.js/Bíblia.md` |
 | 34 | ⬜ PENDENTE | `extension/content/cm-auto-restore.js` | `d20e7092652e` | `docs/biblia/extension/content/cm-auto-restore.js/Bíblia.md` |
 | 35 | ⬜ PENDENTE | `extension/content/cm-chapter.js` | `44b621d570b6` | `docs/biblia/extension/content/cm-chapter.js/Bíblia.md` |
