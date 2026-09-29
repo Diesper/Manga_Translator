@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/gemini/dom.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#D`  
 > **SHA auditado:** `d3694ea70cdd97b64e483884895a458993791714`  
 > **Tipo:** helper JavaScript de DOM para content script Gemini + módulo CommonJS de testes  
@@ -5740,4 +5740,4 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 - Assertions diretas separadas de execução indireta e mocks.
 - Lacunas de fallback/erro não foram promovidas a prova.
 - Nenhuma alteração funcional foi feita em `extension/content/gemini/dom.js`.
-- O arquivo deve permanecer **EM ANDAMENTO — REVISÃO DE QUALIDADE** até a atualização serializada de AUDITORIA/STATUS/CHECKLIST e a verificação final de SHA/ownership.
+- O arquivo foi finalizado após revalidação de SHA/ownership e aprovação serializada em AUDITORIA/STATUS/CHECKLIST.
