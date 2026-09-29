@@ -107,6 +107,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 56 | `extension/reader/reader.js` | SHA `490bbb184234...` reconfirmado; bloco integral byte/texto equivalente | 259 linhas + newline final = 260/260 posições; 260 headings sequenciais | `reader.ui`, `keyboard-nav` e `page-counter` executam a fonte real; `reader-offline.spec.js` prova fluxo MV3/IndexedDB/lazy-load em Chromium; unload, erros de SM_GET_PAGE, RAF e catches continuam como gaps explícitos | 17 unidades específicas + papel local por posição; storage bridge, trust boundaries, virtualização, estado morto e resíduos documentados | ✅ APROVADO |
 | 57 | `extension/shared/gtc-fingerprint.js` | SHA `fa014028d5e2...` reconfirmado; bloco integral exato | 770 linhas + newline final = 771/771 posições; 771 headings sequenciais; 0 fallbacks genéricos | unit `gtc/fingerprint.test.js` e suítes visuais carregam o módulo real; consumers SW/content/IDB classificados separadamente; gaps de hex inválido, comprimento, Unicode fallback, region opts e ID fallback explícitos | 16 unidades específicas + papel local por posição; contratos SHA/dHash/Haar/DCT/regional/strict/relaxed e invariantes de compatibilidade documentados | ✅ APROVADO |
 | 59 | `extension/shared/shared-ui.js` | SHA `b284fb8eb0e8...` reconfirmado; bloco integral exato | 350 linhas + newline final = 351/351 posições; 351 headings sequenciais; fonte integral conferida | `redo-confirmation.test.js` carrega o módulo real; integrações reais de Popup/Options exercitam Refazer/fallback legado; XSS específico prova escape no consumidor; gate de ordem separado; lacunas de restore moderno, erros de API e races explícitas | 12 unidades específicas + papel local por posição; trust boundaries, lifecycle MV3, migração parcial, overlay concorrente e risco sem `chapterId` documentados | ✅ APROVADO |
+| 61 | `.gitignore` | SHA `e48fc70b1acc...` reconfirmado; bloco integral exato | 37 linhas + newline final = 38/38 posições; 38 headings sequenciais | gate estrutural prova presença de `.jest-cache*/`, `.ci-results/`, `all-blob-reports/` e `dist/`; produtores Jest/Playwright/CI/publish/fixtures cruzados; demais patterns mantidos como contrato/lacuna sem inventar `git check-ignore` | explicação específica por glob + segurança `.env`, portabilidade, artifacts, fixtures e tradeoffs; comentário editorial stale registrado | ✅ APROVADO |
 
 ### `temporary-chat.js` — criação e auditoria em 2026-09-29
 
@@ -552,6 +553,17 @@ A integridade física foi reconfirmada:
 - gate estático de ordem de carregamento e smoke de roteamento foram mantidos separados de prova comportamental;
 - lacunas explícitas incluem resposta moderna preenchida de `SM_LIST_RESTORE`, normalização de array, erros de runtime/storage, `skipConfirmation`, ausência de DOM, forma array, callbacks de UI e resposta GTC negativa;
 - riscos registrados sem alterar código: overlay concorrente pode deixar Promise pendente; ausência de `chapterId` pode remover o mesmo índice de capítulos não relacionados; migração parcial por capítulo pode esconder restores legados.
+
+**Veredito:** ✅ APROVADO.
+
+### `.gitignore` — auditoria aprovada em 2026-09-29
+
+- SHA `e48fc70b1acc14aabb245f0db1820bc6c7a2849e` reconfirmado;
+- fonte integral e 38/38 posições documentais conferidas;
+- `verify-repository-structure.js` prova estaticamente quatro regras críticas: `.jest-cache*/`, `.ci-results/`, `all-blob-reports/` e `dist/`;
+- `jest.config.js`, `playwright.config.js`, CI, publish e gerador de fixtures confirmam produtores concretos dos principais artefatos;
+- regras sem teste de `git check-ignore` foram classificadas como contrato operacional ou lacuna, não como prova direta;
+- riscos/documentação crítica: `.env.production` não coberto, regras defensivas `playwright-report/` e `.nyc_output/`, IDEs ignoradas integralmente e comentário “Sistema Operacional e Editores” abrangendo indevidamente CI/build/fixtures.
 
 **Veredito:** ✅ APROVADO.
 
