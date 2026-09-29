@@ -1,5 +1,8 @@
 # Manga Translator — Documentação Técnica Consolidada
 
+> **Bíblia técnica:** para a leitura integral do projeto, com o código documentado linha por linha, justificativas de implementação e marcação explícita de trechos sem prova de teste rastreável, consulte [`docs/Bíblia.md`](./Bíblia.md).
+
+
 > **Documento canônico da arquitetura atual do Manga Translator.**
 >
 > **Fonte única da versão:** `package.json`. O Manifest, os metadados de teste, a UI e os artefatos de release são derivados dessa fonte.
