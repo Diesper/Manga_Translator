@@ -7,7 +7,6 @@ const { spawnSync } = require('child_process');
 const { FORCED_WORKER_EXIT, hasForcedWorkerExit } = require('../ci/jest-worker-warning');
 
 const repoRoot = path.resolve(__dirname, '../..');
-const testsRoot = path.join(repoRoot, 'tests');
 const jestBin = path.join(repoRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 const outDir = path.join(repoRoot, '.ci-results', 'jest-worker-diagnostic');
 
@@ -174,7 +173,7 @@ const aggregateName = filter
   ? 'jest-worker-diagnostic-' + filter + '.json'
   : 'jest-worker-diagnostic.json';
 fs.writeFileSync(
-  path.join(testsRoot, '.ci-results', aggregateName),
+  path.join(repoRoot, '.ci-results', aggregateName),
   JSON.stringify(aggregate, null, 2) + '\n'
 );
 
@@ -194,8 +193,8 @@ if (commandFailures.length) {
   );
 }
 
-// O caller decide se isto bloqueia a pipeline. Na CI normal, o step é
-// continue-on-error e os artifacts continuam disponíveis para investigação.
+// O caller decide se isto bloqueia a pipeline. Nos jobs de diagnóstico da CI,
+// uma reprodução/falha é bloqueante; os artefatos são publicados com always().
 if (leaks.length || commandFailures.length) {
   process.exitCode = 2;
 }

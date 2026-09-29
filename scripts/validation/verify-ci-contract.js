@@ -13,6 +13,7 @@ const e2eReporter = fs.readFileSync(path.join(root, 'scripts', 'ci', 'playwright
 const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
 const e2ePlanVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-e2e-shard-plan.js'), 'utf8');
 const e2eGroupRunner = fs.readFileSync(path.join(root, 'scripts', 'ci', 'run-e2e-group.js'), 'utf8');
+const jestWorkerDiagnostic = fs.readFileSync(path.join(root, 'scripts', 'maintenance', 'diagnose-jest-workers.js'), 'utf8');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'test-baseline.json'), 'utf8'));
 const regressionMatrixPath = path.join(root, 'scripts', 'ci', 'data', 'regression-matrix.json');
@@ -180,6 +181,13 @@ if (/MANGA_E2E_WORKERS:\s*['"]?\d+/.test(e2eShard)) {
 }
 if (!e2eGroupRunner.includes('MANGA_E2E_WORKERS: String(group.workers)')) {
   problems.push('run-e2e-group.js precisa aplicar workers do plano como fonte única de verdade');
+}
+
+if (!jestWorkerDiagnostic.includes("path.join(repoRoot, '.ci-results', aggregateName)")) {
+  problems.push('diagnose-jest-workers.js precisa gravar o resumo agregado em /.ci-results');
+}
+if (jestWorkerDiagnostic.includes("path.join(testsRoot, '.ci-results'")) {
+  problems.push('diagnose-jest-workers.js não pode reintroduzir tests/.ci-results');
 }
 if (e2eShard.includes('--shard=')) {
   problems.push('e2e-shard: não deve voltar ao sharding automático por contagem');

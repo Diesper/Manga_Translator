@@ -46,6 +46,8 @@
 - [x] `publish.yml` continua apontando para `extension/` e documentação canônica.
 - [x] Nome `MangaTranslator CI` e IDs principais de jobs preservados.
 - [x] Coverage e blob reports foram exercitados em run real.
+- [x] Corrigido o writer do diagnóstico Jest para gravar o resumo agregado em `/.ci-results/` (antes ainda apontava para `tests/.ci-results/`).
+- [x] O contrato da CI agora protege explicitamente o caminho raiz dos diagnósticos Jest.
 - [ ] Executar os diagnósticos pesados via `workflow_dispatch` na branch para validar `.ci-results/` e uploads reais; no run de PR eles ficaram **skipped** por design.
 - [ ] Confirmar artefatos dos três diagnósticos pesados após o `workflow_dispatch`.
 
