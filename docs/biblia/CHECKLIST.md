@@ -13,6 +13,8 @@
 - [x] Simulação não pode ser tratada como teste do arquivo real.
 - [x] Código sem prova específica precisa de aviso explícito.
 - [x] STATUS, CHECKLIST e AUDITORIA precisam concordar.
+- [x] Cada `🟠 EM ANDAMENTO — <AGENTE>` precisa de reserva ativa do mesmo agente.
+- [x] Um agente pode possuir no máximo uma reserva ativa e um arquivo pode possuir no máximo um proprietário.
 
 ## Arquivos (233)
 
@@ -54,7 +56,7 @@
 - [x] 036 — `extension/content/cm-dom-replace.js` → `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 037 — `extension/content/cm-gtc-client.js` → `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 038 — `extension/content/content_gemini.js` → `docs/biblia/extension/content/content_gemini.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
+- [ ] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
 - [ ] 040 — `extension/content/gemini/attachment.js` → `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md`
 - [ ] 041 — `extension/content/gemini/deletion.js` → `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
 - [ ] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md`
@@ -249,3 +251,11 @@
 - [ ] 231 — `tests/visual/integration.visual.js` → `docs/biblia/tests/visual/integration.visual.js/Bíblia.md`
 - [ ] 232 — `tests/visual/run-all.js` → `docs/biblia/tests/visual/run-all.js/Bíblia.md`
 - [ ] 233 — `tests/visual/runner.js` → `docs/biblia/tests/visual/runner.js/Bíblia.md`
+
+## Continuidade multiagente
+
+- `[x]` continua significando somente **Bíblia auditada e aprovada**.
+- Arquivos em andamento permanecem `[ ]` e usam `**← EM ANDAMENTO — <AGENTE>**`.
+- O marcador de agente deve corresponder exatamente ao proprietário de `docs/biblia/.reservas/<arquivo>.lock.md`.
+- É permitido haver vários marcadores `EM ANDAMENTO`, desde que sejam arquivos diferentes e nenhum agente apareça em mais de uma reserva ativa.
+- Alterações de STATUS/CHECKLIST/AUDITORIA/PR devem ser serializadas por `docs/biblia/.coordination/PROGRESS.lock.md`.
