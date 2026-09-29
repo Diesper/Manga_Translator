@@ -71,8 +71,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 24 | `extension/background/actions/start-batch.js` | SHA `b0ef70bf1c23...` conferido; bloco integral exato | 21 linhas + newline final = 22/22 posições | validator/delegação diretos; FIFO/idempotência/orchestrator separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 25 | `extension/background/actions/stop-batch.js` | SHA `e552d0a91109...` conferido; bloco integral exato | 18 linhas + newline final = 19/19 posições | validator/delegação diretos; cleanup/FIFO/orchestrator separados; ausência de sender ownership explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 26 | `extension/background/jobs-dom-ack.js` | SHA `07b4197a206f...` conferido; bloco integral exato | 89 linhas + newline final = 90/90 posições | ACK/staging/timeout/runtime error provados; simulação smoke separada; riscos de ACK permissivo/ordenação explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
+| 27 | `extension/background/jobs-lifecycle.js` | SHA `e4ab9f6c5472...` conferido; bloco integral exato | 746 linhas + newline final = 747/747 posições | scheduler/FIFO/recovery/finalização/tab identity cobertos; integrações e lacunas separadas | 21 unidades específicas + rastreabilidade integral | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `jobs-lifecycle.js` — criação e auditoria em 2026-09-29
+
+- scheduler, FIFO, completion claim e recovery ligados à suíte que importa o módulo real;
+- finalização durável/journal e erros tardios ligados aos testes integrados do background;
+- alias antes da persistência e tab canonical ligados ao teste direto de lifecycle;
+- riscos de concorrência em updateJobState, clamp ausente de maxConcurrentJobs, fallback incompleto de minimized_window e timers MV3 explicitados;
+- dependência `delay` identificada como residual/não utilizada;
+- SHA e 747/747 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `jobs-dom-ack.js` — criação e auditoria em 2026-09-29
 
