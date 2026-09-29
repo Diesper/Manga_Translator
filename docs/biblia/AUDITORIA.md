@@ -66,8 +66,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 19 | `extension/background/actions/refresh-job-watchdog.js` | SHA `25f86a8dba57...` conferido; bloco integral exato | 86 linhas + newline final = 87/87 posições | ownership/jobIndex/canonicalização ligados a assertions; consumer/helpers separados; gaps explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 | 20 | `extension/background/actions/relay-progress.js` | SHA `24e377893c71...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | destino explícito/fallback e transição running provados; ACK/erros/lacunas separados | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 21 | `extension/background/actions/report-error.js` | SHA `ac239ea49544...` conferido; bloco integral exato | 71 linhas + newline final = 72/72 posições | payload/ownership/identity/finalização provados; consumer/lifecycle separados; gaps explícitos | 9 unidades específicas + papel local por posição | ✅ APROVADO |
+| 22 | `extension/background/actions/request-image-data.js` | SHA `249126232396...` conferido; bloco integral exato | 32 linhas + newline final = 33/33 posições | relay/resposta/lastError provados; consumer/destino/compat separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `request-image-data.js` — criação e auditoria em 2026-09-29
+
+- relay de mangaTabId/index e preservação da resposta ligados ao teste direto;
+- conversão de `chrome.runtime.lastError` para `{error}` ligada a assertion específica;
+- consumidor `job-runner`, destino `content_manga` e adaptador legado do background separados da action;
+- ausência de validator/ownership e superfície ampla de source explicitadas;
+- retries atribuídos corretamente ao consumidor, não à action;
+- SHA e 33/33 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `report-error.js` — criação e auditoria em 2026-09-29
 
