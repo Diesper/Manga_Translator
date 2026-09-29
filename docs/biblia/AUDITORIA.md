@@ -80,8 +80,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 33 | `extension/background/tab-identity.js` | SHA `008c9a054ae4...` conferido; bloco integral exato | 362 linhas + newline final = 363/363 posições | alias/cycle/TTL/journal/recovery/state+alarm migration provados; concorrência/journal por jobId como gaps | 18 unidades específicas + papel local por posição | ✅ APROVADO |
 | 34 | `extension/content/cm-auto-restore.js` | SHA `d20e7092652e...` conferido; bloco integral exato | 123 linhas + newline final = 124/124 posições | restore/observer/config/REG-10 provados no módulo real; fallback IndexedDB e gaps assíncronos explícitos | 12 unidades específicas + papel local por posição | ✅ APROVADO |
 | 35 | `extension/content/cm-chapter.js` | SHA `44b621d570b6...` conferido; bloco integral exato | 154 linhas + newline final = 155/155 posições | manager real/fallback legado provados; testes de dedup/cache espelho classificados; divergências e races explícitas | 13 unidades específicas + papel local por posição | ✅ APROVADO |
+| 36 | `extension/content/cm-dom-replace.js` | SHA `d3fc72032dbd...` conferido; bloco integral exato | 189 linhas + newline final = 190/190 posições | filtros/limites/twin backdrop/replacement/overlay provados; URL normalization e gaps específicos separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `cm-dom-replace.js` — criação e auditoria em 2026-09-29
+
+- GET_PAGE_IMAGES real ligado a filtros de banidas, pequenas, traduzidas e limites dinâmicos;
+- Twin Backdrop Sync ligado à suíte real de Reddit/backdrop;
+- replacement real ligado a limpeza de picture/lazy attrs e overlays vermelho/verde;
+- normalização Reddit/Imgur e ramos heurísticos sem assertion focal mantidos como lacunas;
+- riscos de lower-case de pathname/query, varredura O(N) por replacement e cleanup efêmero explicitados;
+- SHA e 190/190 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `cm-chapter.js` — criação e auditoria em 2026-09-29
 
