@@ -26,6 +26,8 @@ jobs:
           node-version: 20.x
       - name: Verificar fonte única de versão
         run: npm run version:check
+      - name: Validar metadados derivados da release
+        run: node scripts/release/sync-version.js --print-env
 
   syntax-check:
     name: JS Syntax Check

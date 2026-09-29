@@ -240,3 +240,21 @@ Observações:
 | C39 | Tratado | wrappers BAT/PS1 foram removidos; Node/npm na raiz é o caminho oficial documentado. |
 | C40 | Tratado | `.gitignore` cobre caches Jest, `.ci-results`, blobs agregados, dist e outputs da raiz. |
 | C41 | Tratado | textos defasados principais foram atualizados; novo gate de paths já encontrou e corrigiu uma referência pré-0-G residual. |
+
+
+## Evidência adicional — run #1620
+
+O run GitHub Actions #1620 validou o HEAD `a942823c676a3bd4f7ba9106581c359162e573d3`:
+
+- CI Contract: success;
+- Version Integrity / Syntax / Manifest / Smoke / Visual: success;
+- Unit + Integration Node 20 e 22: success;
+- partição Jest: 96 arquivos unit + 13 integration = 109/109;
+- Jest: 109 suítes / 851 testes / skipped=0 / todo=0;
+- cinco shards E2E e gate agregado: success;
+- Code Coverage: success;
+- Windows Portability: success, incluindo validate, Jest, smoke, visual, coverage e normalização de paths;
+- CI Gate: success.
+
+Os diagnósticos pesados e o Fresh Developer Flow continuam intencionalmente condicionados a
+`workflow_dispatch`/push na `main`; a validação manual final permanece pendente antes da revisão.

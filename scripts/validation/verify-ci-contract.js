@@ -107,6 +107,14 @@ for (const job of requiredJobs) {
   if (!jobBlock(job)) problems.push('job obrigatório ausente: ' + job);
 }
 
+const versionIntegrity = jobBlock('version-integrity');
+if (!versionIntegrity.includes('run: npm run version:check')) {
+  problems.push('version-integrity precisa executar npm run version:check');
+}
+if (!versionIntegrity.includes('run: node scripts/release/sync-version.js --print-env')) {
+  problems.push('version-integrity precisa executar sync-version.js --print-env');
+}
+
 
 const freshDeveloperFlow = jobBlock('fresh-developer-flow');
 if (!freshDeveloperFlow.includes("github.event_name == 'workflow_dispatch'")) {

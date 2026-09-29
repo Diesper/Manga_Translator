@@ -19,6 +19,7 @@
 - [x] Descoberta de raiz centralizada em `tests/helpers/repo-root.js`.
 - [x] Layout interno 0-G de `extension/` aplicado sem mover `extension/`, `manifest.json` ou `background.js`.
 - [x] Documentação histórica movida para `docs/historico/`.
+- [x] Mapa lógico 0-A…0-G registrado em `docs/ARQUITETURA_DO_REPOSITORIO.md`.
 - [x] README alinhado ao layout 0-G (`extension/content/cm-*` e `extension/shared/gtc-*`).
 - [x] Gate estrutural agora varre arquivos operacionais e rejeita referências aos caminhos legados removidos (equivalente automatizado ao `git grep` final do plano).
 - [x] O novo gate detectou e foi usado para corrigir referência documental obsoleta em `extension/content/content_gemini.js` (`extension/gemini/*` → `extension/content/gemini/*`).
@@ -46,15 +47,18 @@
 - [x] Adicionado self-test negativo da política: baseline válida passa e violações de `test.skip`, `--forceExit` e `|| true` precisam falhar.
 - [x] Adicionado `validate:publish` para proteger `publish.yml`, `extension/`, `docs/Documentação.md` e `scripts/release/sync-version.js`.
 - [x] Corrigido falso negativo do `validate:publish`: o regex de `tags: - "v*"` agora interpreta whitespace/newline de verdade, em vez de procurar barras invertidas literais.
-- [ ] CI do novo HEAD precisa confirmar o novo self-test negativo.
+- [x] Run #1620 confirmou o CI Contract e todos os self-tests negativos no HEAD `a942823`.
 
 ## Integrações
 
 - [x] `npm run version:check` aprovado pelo job Version Integrity.
+- [x] `Version Integrity` agora também executa `node scripts/release/sync-version.js --print-env`; o contrato protege essa etapa.
 - [x] `version-sync.test.js` está incluído na suíte Jest verde.
 - [x] `publish.yml` continua apontando para `extension/` e documentação canônica.
 - [x] Nome `MangaTranslator CI` e IDs principais de jobs preservados.
+- [x] `recover-cancelled-ci.yml` confirmado byte-for-byte idêntico à `main`.
 - [x] Coverage e blob reports foram exercitados em run real.
+- [x] Artefatos reais do run #1589 conferidos: 5 blob reports + relatório de coverage publicados e não expirados.
 - [x] Corrigido o writer do diagnóstico Jest para gravar o resumo agregado em `/.ci-results/` (antes ainda apontava para `tests/.ci-results/`).
 - [x] O contrato da CI agora protege explicitamente o caminho raiz dos diagnósticos Jest.
 - [ ] Executar os diagnósticos pesados via `workflow_dispatch` na branch para validar `.ci-results/` e uploads reais; no run de PR eles ficaram **skipped** por design.
@@ -67,7 +71,7 @@
 - [x] `CI Gate` exige sucesso do Windows em todo run normal.
 - [x] O primeiro run Windows chegou até `validate` e confirmou estrutura, política de testes, publicação e CI Contract antes de expor incompatibilidade CRLF no self-test.
 - [x] Self-test do CI Contract normaliza CRLF/LF no sandbox, tornando a mutação negativa portátil.
-- [ ] Confirmar o novo gate Windows verde no HEAD atual.
+- [x] Run #1620: `Windows Portability` verde — `npm ci`, `validate`, Jest completo, smoke, visual, coverage e verificação de paths/LCOV.
 
 ## Interface de desenvolvedor novo
 
@@ -78,7 +82,7 @@
 - [ ] Confirmar o `fresh-developer-flow` no disparo manual final.
 - [x] Implementada prova de inventário no `run-jest-ci.js`: `test:unit` e `test:integration` precisam ser disjuntos e sua união precisa cobrir exatamente todos os arquivos `.test.js` do gate total.
 - [x] O contrato protege os seletores canônicos de `test:unit` e `test:integration`.
-- [ ] CI do novo HEAD precisa confirmar a nova prova de partição.
+- [x] Run #1620: partição Jest comprovada — `unitFiles=96`, `integrationFiles=13`, união `109/109`; 109 suítes e 851 testes.
 
 ## Comparação antes × depois
 
@@ -103,5 +107,6 @@
 - [x] PR #65 permanece aberta e mergeable.
 - [x] `main` estava em `8d470f4`, o mesmo base do PR, na última auditoria.
 - [x] CI do HEAD anterior `e720890cf34dc9437ee91f3b8172953497d69870` ficou verde.
-- [ ] CI do novo HEAD após este endurecimento precisa ficar verde.
+- [x] Run #1620 do HEAD `a942823` ficou completamente verde, incluindo `CI Gate`.
+- [ ] CI do novo HEAD após o último endurecimento (`--print-env` + documentação Fase 0) precisa ficar verde.
 - [ ] Não fazer merge automático.

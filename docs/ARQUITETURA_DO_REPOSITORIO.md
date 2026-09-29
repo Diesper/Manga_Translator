@@ -128,6 +128,24 @@ A publicação continua empacotando somente `extension/` e copiando `docs/Docume
 8. documentação e workflow devem mudar junto com qualquer nova estrutura.
 
 
+## Mapa lógico da Fase 0
+
+A reestruturação segue estes blocos lógicos, preservados como referência para manutenção e rollback:
+
+| Bloco | Responsabilidade | Resultado canônico |
+|---|---|---|
+| 0-A | higiene da raiz e `.gitignore` | documentos soltos removidos da raiz; outputs/caches ignorados |
+| 0-B | documentação | `docs/historico/` separa material histórico de `docs/Documentação.md` |
+| 0-C | tooling de CI | `tests/ci/` migra para `scripts/ci/`, `scripts/validation/` e `scripts/maintenance/` |
+| 0-D | testes visuais | `tests/visual-v3/` vira `tests/visual/`, mantendo o contrato Passed/Failed/Total |
+| 0-E | fixtures E2E | fixtures vão para `tests/fixtures/` e geração para `tests/setup/`; PNGs passam a ter fonte determinística única |
+| 0-F | release/versionamento | `scripts/sync-version.js` vira `scripts/release/sync-version.js` e passa a usar o projeto npm da raiz |
+| 0-G | layout da extensão | content/shared/popup/options/reader agrupados sem mover `extension/`, `manifest.json` ou `background.js` |
+
+O histórico real desta PR não reescreve commits antigos para forçar artificialmente um commit
+separado por cada rótulo 0-A…0-G. O mapa acima descreve a responsabilidade arquitetural de
+cada bloco e os commits temáticos permanecem revertíveis sem alterar o estado funcional.
+
 ## Gate estrutural
 
 `scripts/validation/verify-repository-structure.js` é executado no job `CI Contract` e impede reintroduções como:
