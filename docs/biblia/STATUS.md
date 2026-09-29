@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **36**
-- ✅ Concluídos auditados: **36**
+- Bíblias materializadas: **37**
+- ✅ Concluídos auditados: **37**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **197**
-- Cobertura realmente aprovada: **15,45%**
-- Cobertura apenas materializada: **15,45%**
-- Último aprovado: `extension/content/cm-dom-replace.js`
-- Arquivo atual: `extension/content/cm-gtc-client.js`
-- Bíblia atual: `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md`
-- Fila normal em produção: `extension/content/cm-gtc-client.js`
+- ⬜ Ainda não materializados: **196**
+- Cobertura realmente aprovada: **15,88%**
+- Cobertura apenas materializada: **15,88%**
+- Último aprovado: `extension/content/cm-gtc-client.js`
+- Arquivo atual: `extension/content/content_gemini.js`
+- Bíblia atual: `docs/biblia/extension/content/content_gemini.js/Bíblia.md`
+- Fila normal em produção: `extension/content/content_gemini.js`
 
 ## Auditoria de 2026-09-29
 
@@ -99,6 +99,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 34. ✅ `extension/content/cm-auto-restore.js`
 35. ✅ `extension/content/cm-chapter.js`
 36. ✅ `extension/content/cm-dom-replace.js`
+37. ✅ `extension/content/cm-gtc-client.js`
 
 ### Revisão obrigatória
 
@@ -146,8 +147,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 34 | ✅ CONCLUÍDO | `extension/content/cm-auto-restore.js` | `d20e7092652e` | `docs/biblia/extension/content/cm-auto-restore.js/Bíblia.md` |
 | 35 | ✅ CONCLUÍDO | `extension/content/cm-chapter.js` | `44b621d570b6` | `docs/biblia/extension/content/cm-chapter.js/Bíblia.md` |
 | 36 | ✅ CONCLUÍDO | `extension/content/cm-dom-replace.js` | `d3fc72032dbd` | `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` |
-| 37 | 🟠 EM ANDAMENTO | `extension/content/cm-gtc-client.js` | `95d062f41b9f` | `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` |
-| 38 | ⬜ PENDENTE | `extension/content/content_gemini.js` | `55bc83afe31a` | `docs/biblia/extension/content/content_gemini.js/Bíblia.md` |
+| 37 | ✅ CONCLUÍDO | `extension/content/cm-gtc-client.js` | `95d062f41b9f` | `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` |
+| 38 | 🟠 EM ANDAMENTO | `extension/content/content_gemini.js` | `55bc83afe31a` | `docs/biblia/extension/content/content_gemini.js/Bíblia.md` |
 | 39 | ⬜ PENDENTE | `extension/content/content_manga.js` | `a8b3698019f6` | `docs/biblia/extension/content/content_manga.js/Bíblia.md` |
 | 40 | ⬜ PENDENTE | `extension/content/gemini/attachment.js` | `50092e4d7d71` | `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` |
 | 41 | ⬜ PENDENTE | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
