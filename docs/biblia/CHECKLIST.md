@@ -2,19 +2,19 @@
 
 > Checklist operacional. Este arquivo espelha o inventário do `STATUS.md`, mas em formato de conclusão binária. A caixa só pode ser marcada depois de cumprir **todos** os critérios de conclusão definidos no status.
 
-## Regras
+## Regras de processo
 
-- [ ] Não usar gerador de comentários genéricos para declarar um arquivo concluído.
-- [ ] Não tratar mera ocorrência de nome/símbolo em teste como prova.
-- [ ] Não tratar arquivo de teste/gate como automaticamente correto.
-- [ ] Sempre registrar lacunas de teste explicitamente.
-- [ ] Manter exatamente um arquivo em andamento no `STATUS.md`.
-- [ ] Atualizar este checklist somente **depois** de finalizar a Bíblia individual correspondente.
+- [x] Não usar gerador de comentários genéricos para declarar um arquivo concluído.
+- [x] Não tratar mera ocorrência de nome/símbolo em teste como prova.
+- [x] Não tratar arquivo de teste/gate como automaticamente correto.
+- [x] Sempre registrar lacunas de teste explicitamente.
+- [x] Manter exatamente um arquivo em andamento no `STATUS.md`.
+- [x] Atualizar este checklist somente **depois** de finalizar a Bíblia individual correspondente.
 
 ## Arquivos (233)
 
-- [ ] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md`
-- [ ] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md`
+- [x] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md`
+- [ ] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md` **← EM ANDAMENTO**
 - [ ] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md`
 - [ ] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md`
 - [ ] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md`
