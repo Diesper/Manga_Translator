@@ -73,8 +73,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 26 | `extension/background/jobs-dom-ack.js` | SHA `07b4197a206f...` conferido; bloco integral exato | 89 linhas + newline final = 90/90 posições | ACK/staging/timeout/runtime error provados; simulação smoke separada; riscos de ACK permissivo/ordenação explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 | 27 | `extension/background/jobs-lifecycle.js` | SHA `e4ab9f6c5472...` conferido; bloco integral exato | 746 linhas + newline final = 747/747 posições | scheduler/FIFO/recovery/finalização/tab identity cobertos; integrações e lacunas separadas | 21 unidades específicas + rastreabilidade integral | ✅ APROVADO |
 | 28 | `extension/background/jobs-reconciliation.js` | SHA `f0f2370ba6b7...` conferido; bloco integral exato | 111 linhas + newline final = 112/112 posições | canonicalização/recovery/foreign/drop provados; smoke simulado separado; gap de sync vazio explícito | 12 unidades específicas + papel local por posição | ✅ APROVADO |
+| 29 | `extension/background/jobs-watchdog.js` | SHA `c17b766d7fbc...` conferido; bloco integral exato | 109 linhas + newline final = 110/110 posições | ordering finalize→cleanup provado; timeout integrado provado; arm/replacement e gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `jobs-watchdog.js` — criação e auditoria em 2026-09-29
+
+- ordem `finalizeJob → cleanup extraction tabs` ligada ao teste direto;
+- persistência/timeout/cleanup real ligados ao batch-lifecycle integrado;
+- naming por jobId e canonicalização pós-write documentados;
+- race legada sem jobId após replacement explicitada;
+- gaps de arm/clear, erros assíncronos e retorno antecipado do handler explicitados;
+- SHA e 110/110 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `jobs-reconciliation.js` — criação e auditoria em 2026-09-29
 
