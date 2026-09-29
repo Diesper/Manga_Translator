@@ -40,6 +40,7 @@
 - [x] Selftests de coverage, reporter E2E e worker-warning presentes.
 - [x] Implementado self-test negativo do contrato em `scripts/validation/verify-ci-contract-selftest.js`.
 - [x] O self-test negativo cobre três enfraquecimentos: job obrigatório removido, `forbidOnly` desativado e marcador da matriz de regressão removido.
+- [x] Corrigida a mutação do cenário de matriz: o marcador agora é realmente removido, em vez de permanecer como prefixo da string substituta.
 - [x] Criado `verify-test-policy.js` e `validate:test-policy` para bloquear `.skip`, `.only`, `test.todo`, `--forceExit`, `--passWithNoTests` e `|| true` em comandos de teste.
 - [x] O job `CI Contract` executa a política em todo run e o contrato protege sua presença.
 - [ ] CI do novo HEAD precisa confirmar o novo self-test negativo.

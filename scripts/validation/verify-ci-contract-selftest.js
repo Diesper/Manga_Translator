@@ -108,7 +108,7 @@ expectContractFailure(
     );
     if (!entry) throw new Error('Matriz de regressão não contém entrada testável');
     const target = path.join(sandbox, entry.file);
-    replaceRequired(target, entry.markers[0], entry.markers[0] + '__REMOVED_FOR_SELFTEST__');
+    replaceRequired(target, entry.markers[0], '__MARKER_REMOVED_FOR_CI_CONTRACT_SELFTEST__');
   },
   'marcador obrigatório ausente'
 );
