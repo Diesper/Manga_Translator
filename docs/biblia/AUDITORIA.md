@@ -50,11 +50,21 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 3 | `extension/background/actions/calculate-visual-fingerprint.js` | SHA `ea474845cf9c...` reconfirmado; bloco integral exato | 129 linhas + newline final = 130/130 posições | prova direta, background integrado, consumidor e simulação visual separados; gaps de erro/capabilities explícitos | 14 unidades específicas + papel local por posição; fallback genérico removido | ✅ APROVADO |
 | 4 | `extension/background/actions/check-extraction-tab.js` | SHA correto; bloco integral exato | corrigido para 26/26 posições | hit/miss e roteamento têm evidência real; lacunas de ordem/sender ausente continuam explícitas | específica ao mapping/ownership da aba | ✅ APROVADO |
 | 5 | `extension/background/actions/claim-gemini-job.js` | SHA `f5c4643d2919...` reconfirmado; bloco integral exato | 102 linhas + newline final = 103/103 posições | prova da action, router, TabIdentity e consumidor separadas; gaps de ownership/erro explícitos | 13 unidades específicas + papel local por posição | ✅ APROVADO |
-| 6 | `extension/background/actions/commit-result.js` | SHA correto; bloco integral exato | 107/107; nenhuma divergência | testes reais provam commit, persistência, batch, ownership e journal; porém “coberta direta ou estruturalmente ... quando aplicável” é vago e não classificável por linha | boa semântica geral, evidência precisa ser refeita | 🟣 REVISÃO OBRIGATÓRIA |
+| 6 | `extension/background/actions/commit-result.js` | SHA `32270d1c4ade...` reconfirmado; bloco integral exato | 106 linhas + newline final = 107/107 posições | journal/ownership/batch/persistência/finalize mapeados a assertions; retry do consumidor separado | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 | 7 | `extension/background/actions/deliver-result-from-tab.js` | SHA correto; bloco integral exato | 104/104; nenhuma divergência | testes reais cobrem sucesso/retry/sender/payload, mas rótulos verdes são herdados por faixa | 40 linhas ainda usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 | 8 | `extension/background/actions/deliver-result-url.js` | SHA correto; bloco integral exato | 94/94; nenhuma divergência | testes reais cobrem ownership, batch, URL e registro; alguns rótulos verdes continuam aplicados por faixa | 17 linhas usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 
 ## Correções já aplicadas pela auditoria
+
+### `commit-result.js` — reauditoria aprovada em 2026-09-29
+
+- validação, ownership, journal idempotente, batch, gate de persistência, transição e finalize foram mapeados separadamente;
+- RUN-13/RUN-14 do job runner foram classificados como prova do consumidor, não da action;
+- foi explicitado que o gate aceita `resultPersisted === true` **ou** `state === 'dom_applied'`;
+- gaps registrados: marker inválido/expirado/fromError, falha de storage, batch omitido, fallbacks de ids e rejeições de update/finalize;
+- SHA e 107/107 posições foram reconfirmados.
+
+**Veredito:** ✅ APROVADO.
 
 ### `claim-gemini-job.js` — reauditoria aprovada em 2026-09-29
 
@@ -126,13 +136,9 @@ A reprovação anterior foi resolvida pela reauditoria acima. O arquivo está **
 
 A classificação genérica anterior foi substituída por evidência por comportamento. O arquivo está **✅ APROVADO**.
 
-### `commit-result.js`
+### `commit-result.js` — histórico resolvido
 
-A suíte direta prova vários contratos importantes, mas a frase:
-
-> “coberta direta ou estruturalmente ... quando aplicável”
-
-não satisfaz a exigência de rastreabilidade. Cada linha/comportamento precisa ser classificado em uma categoria verificável.
+A evidência vaga anterior foi substituída por classificação por comportamento. O arquivo está **✅ APROVADO**.
 
 ### `deliver-result-from-tab.js`
 
@@ -152,9 +158,8 @@ A produção de novos arquivos fica **pausada** até que as Bíblias materializa
 
 Ordem de revisão:
 
-1. `extension/background/actions/commit-result.js`;
-2. `extension/background/actions/deliver-result-from-tab.js`;
-3. `extension/background/actions/deliver-result-url.js`.
+1. `extension/background/actions/deliver-result-from-tab.js`;
+2. `extension/background/actions/deliver-result-url.js`.
 
 Somente depois de todas essas revisões voltará a fila normal em:
 
