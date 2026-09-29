@@ -60,8 +60,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 13 | `extension/background/actions/fetch-image-base64.js` | SHA `4a4825c36fdb...` conferido; bloco integral exato | 95 linhas + newline final = 96/96 posições | URL/auth/MIME/size/timeout provados; consumer/mirror/gaps separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
 | 14 | `extension/background/actions/force-send-activation.js` | SHA `cbeea5768301...` conferido; bloco integral exato | 70 linhas + newline final = 71/71 posições | branches minimized/aba provados; router/content/uso atual separados; gaps assíncronos explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 15 | `extension/background/actions/get-tab-id.js` | SHA `2f3b26304ac1...` conferido; bloco integral exato | 17 linhas + newline final = 18/18 posições | action/router/compatibilidade integrada/consumidores separados | 5 unidades específicas + papel local por posição; gaps explícitos | ✅ APROVADO |
+| 16 | `extension/background/actions/log-entry.js` | SHA `d57e1a25531b...` conferido; bloco integral exato | 50 linhas + newline final = 51/51 posições | happy path direto; validator/logger/emissores separados; gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `log-entry.js` — criação e auditoria em 2026-09-29
+
+- encaminhamento real para o logger central ligado à suíte `actions-low-risk.test.js`;
+- validação de tipos foi documentada como código sem prova focal, em vez de receber rótulo verde por herança;
+- emissores reais `content_manga.js` e `content_gemini.js` confirmados;
+- ACK síncrono foi separado da persistência assíncrona da fila em `background/log.js`;
+- gaps de payload, source ampla e falhas de logger/storage explicitados;
+- SHA e 51/51 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `get-tab-id.js` — criação e auditoria em 2026-09-29
 
