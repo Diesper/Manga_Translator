@@ -834,10 +834,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0026
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **modos anti-throttle e sessionStorage**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o objeto `RAF_CADENCE_MS`.  
+**Como faz:** Conclui a tabela que mapeia minimal/balanced/legacy para 250/100/50 ms.  
+**Por que assim:** A cadência fica centralizada em uma única tabela consumida pelo scheduler.  
+**Risco/alternativa:** Sem fechamento correto a tabela não existiria e o script nem seria sintaticamente válido.  
 **Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0027
@@ -879,10 +879,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0031
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **modos anti-throttle e sessionStorage**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o objeto `FOCUS_CADENCE_MS`.  
+**Como faz:** Conclui o mapa 0/5000/1000 ms usado por `refreshFocusEscalation`.  
+**Por que assim:** Mantém a política de foco separada da política de rAF.  
+**Risco/alternativa:** Misturar as duas cadências dificultaria ajustar performance sem alterar foco.  
 **Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — cadências/modes são verificadas como texto; runner real prova emissão dos modos, não aplicação aqui.
 
 ### Linha 0032
@@ -1212,10 +1212,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0068
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **foco sintético e escalada periódica**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o `FocusEvent('focusin', ...)` e a chamada `document.dispatchEvent`.  
+**Como faz:** Finaliza o objeto de opções com `bubbles/composed` e entrega o focusin ao document.  
+**Por que assim:** O focusin precisa atravessar a árvore para alcançar handlers do app.  
+**Risco/alternativa:** Evento não bubbling/composed pode não alcançar listeners do Gemini.  
 **Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0069
@@ -1230,10 +1230,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0070
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **foco sintético e escalada periódica**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha a arrow function `dispatchFocusEvents`.  
+**Como faz:** Termina a rotina que emite focus em window, document e focusin em sequência.  
+**Por que assim:** Agrupar os três eventos garante que todos os pulsos usem o mesmo conjunto.  
+**Risco/alternativa:** Duplicar essa sequência em cada caller aumentaria divergência.  
 **Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0071
@@ -1437,19 +1437,19 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0093
 
 **Fonte:** `'mangaTranslatorAntiThrottleMode',`  
-**O que faz:** Avalia a expressão específica `'mangaTranslatorAntiThrottleMode',` dentro de **foco sintético e escalada periódica**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fornece a chave `'mangaTranslatorAntiThrottleMode'` ao `sessionStorage.setItem`.  
+**Como faz:** É o primeiro argumento da gravação de modo persistido naquela sessão.  
+**Por que assim:** Nome estável permite restaurar a escalada após reload do worker.  
+**Risco/alternativa:** Chave variável/inconsistente faria a leitura anterior nunca encontrar o valor.  
 **Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0094
 
 **Fonte:** `antiThrottleMode`  
-**O que faz:** Avalia a expressão específica `antiThrottleMode` dentro de **foco sintético e escalada periódica**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fornece `antiThrottleMode` como valor persistido no sessionStorage.  
+**Como faz:** É o segundo argumento do `setItem`, gravando exatamente o modo já normalizado.  
+**Por que assim:** Persistir o valor normalizado evita reintroduzir modos inválidos no reload.  
+**Risco/alternativa:** Gravar `nextMode` bruto permitiria valor fora da allowlist.  
 **Evidência:** 🟦 GATE ESTÁTICO + 🟨 consumidor — política é verificada estaticamente e o runner prova evento de mudança de modo.
 
 ### Linha 0095
@@ -1725,10 +1725,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0125
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **API pública de anti-throttle**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o objeto público `window.__mangaTranslatorAntiThrottle`.  
+**Como faz:** Conclui a API com `getMode`, `setMode` e `pulse` exposta deliberadamente ao MAIN world.  
+**Por que assim:** A API mínima oferece diagnóstico/controle sem expor mapas e timers internos.  
+**Risco/alternativa:** Expor estado interno aumentaria acoplamento e possibilidade de corrupção pela página.  
 **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — runner real emite SET_MODE; listener real deste arquivo não é exercitado diretamente.
 
 ### Linha 0126
@@ -1977,10 +1977,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0153
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **rAF híbrido e fallback temporal**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha a substituição de `window.requestAnimationFrame`.  
+**Como faz:** Termina a função que registra ID/callback, tenta rAF nativo e retorna o ID local.  
+**Por que assim:** O override precisa preservar a assinatura pública da API.  
+**Risco/alternativa:** Um wrapper sem retorno de ID quebraria callers que cancelam frames.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0154
@@ -2040,10 +2040,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0160
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **rAF híbrido e fallback temporal**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha a substituição de `window.cancelAnimationFrame`.  
+**Como faz:** Termina o cancelamento que remove o ID do Map e tenta a API nativa.  
+**Por que assim:** O Map é a garantia local de que a callback não será entregue pelo fallback.  
+**Risco/alternativa:** Só chamar o cancel nativo não cancelaria a fila sintética.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0161
@@ -2130,10 +2130,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0170
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **rAF híbrido e fallback temporal**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha `flushRaf`.  
+**Como faz:** Termina a drenagem que copia o Map, limpa a fila e invoca cada callback com o mesmo timestamp.  
+**Por que assim:** Um flush atômico separa callbacks deste tick dos registrados durante sua execução.  
+**Risco/alternativa:** Iterar diretamente no Map poderia misturar callbacks novos no tick corrente.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0171
@@ -2202,10 +2202,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0178
 
 **Fonte:** `}, cadence);`  
-**O que faz:** Avalia a expressão específica `}, cadence);` dentro de **rAF híbrido e fallback temporal**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o callback de `setTimeout` e passa `cadence` como atraso.  
+**Como faz:** Depois de `flushRaf`, agenda recursivamente o próximo ciclo no intervalo do modo atual.  
+**Por que assim:** A recursão por setTimeout permite que mudança de modo afete o tick seguinte.  
+**Risco/alternativa:** `setInterval` fixo exigiria recriação explícita ao trocar de modo.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — testes antigos usam espelho setInterval/stub e divergem da implementação Map+setTimeout atual.
 
 ### Linha 0179
@@ -2364,19 +2364,19 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0196
 
 **Fonte:** `const requestedTimeout =`  
-**O que faz:** Avalia a expressão específica `const requestedTimeout =` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Inicia a declaração multilinha `requestedTimeout`.  
+**Como faz:** A expressão ternária das linhas seguintes decide entre `options.timeout` e o budget do modo.  
+**Por que assim:** Separar timeout pedido de `maxWait` permite limitar sem perder a intenção do caller.  
+**Risco/alternativa:** Usar diretamente `options.timeout` poderia esperar mais do que a política anti-throttle aceita.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0197
 
 **Fonte:** `options && typeof options.timeout === 'number'`  
-**O que faz:** Avalia a expressão específica `options && typeof options.timeout === 'number'` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** É a condição da ternária que valida `options.timeout` como número.  
+**Como faz:** Somente quando `options` existe e `timeout` é numérico a linha seguinte usa o valor fornecido.  
+**Por que assim:** Evita ler propriedade ausente e rejeita tipos não numéricos.  
+**Risco/alternativa:** Aceitar string/undefined poderia produzir delay inesperado.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0198
@@ -2463,10 +2463,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0207
 
 **Fonte:** `cb({`  
-**O que faz:** Avalia a expressão específica `cb({` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Invoca a callback idle `cb` com um deadline sintético.  
+**Como faz:** Abre o objeto que fornece `didTimeout` e `timeRemaining` ao consumidor.  
+**Por que assim:** Callers de `requestIdleCallback` esperam um objeto compatível com `IdleDeadline`.  
+**Risco/alternativa:** Chamar sem deadline quebraria código que lê essas propriedades.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0208
@@ -2490,19 +2490,19 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0210
 
 **Fonte:** `0,`  
-**O que faz:** Avalia a expressão específica `0,` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Passa `0` como limite inferior de `Math.max` no cálculo de `timeRemaining`.  
+**Como faz:** Garante que o tempo restante sintético nunca fique negativo.  
+**Por que assim:** A API nativa não deve anunciar orçamento negativo.  
+**Risco/alternativa:** Valor negativo pode fazer consumers tomarem decisões inválidas.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0211
 
 **Fonte:** `modeBudget - (performance.now() % modeBudget)`  
-**O que faz:** Avalia a expressão específica `modeBudget - (performance.now() % modeBudget)` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Calcula o orçamento restante como `modeBudget - (performance.now() % modeBudget)`.  
+**Como faz:** Usa a posição dentro da janela de cadência para estimar tempo até o próximo budget.  
+**Por que assim:** Fornece valor variável e não um número fixo arbitrário.  
+**Risco/alternativa:** Um valor constante não refletiria a cadência ativa.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0212
@@ -2535,10 +2535,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0215
 
 **Fonte:** `}, maxWait);`  
-**O que faz:** Avalia a expressão específica `}, maxWait);` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o callback fallback de idle e agenda-o com `maxWait`.  
+**Como faz:** O segundo argumento do `setTimeout` limita a espera ao menor entre timeout pedido e budget do modo.  
+**Por que assim:** Isso impede que idle fique indefinidamente preso em background.  
+**Risco/alternativa:** Usar o maior valor contrariaria a função de fallback anti-throttle.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0216
@@ -2643,10 +2643,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0227
 
 **Fonte:** `}, options);`  
-**O que faz:** Avalia a expressão específica `}, options);` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha a callback passada ao `origIdle` e encaminha `options`.  
+**Como faz:** A API nativa recebe as mesmas opções que o caller forneceu, enquanto a callback elimina o fallback timer antes de entregar.  
+**Por que assim:** Preserva semântica nativa quando o navegador consegue executar idle normalmente.  
+**Risco/alternativa:** Ignorar options mudaria timeout/prioridade esperados pelo caller.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0228
@@ -2679,10 +2679,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0231
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **requestIdleCallback adaptativo**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o override de `window.requestIdleCallback`.  
+**Como faz:** Termina a função que combina timer fallback, idle nativo e ID local.  
+**Por que assim:** O override mantém interface compatível com callers existentes.  
+**Risco/alternativa:** Não devolver o ID local impediria cancelamento pela API substituída.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — não há execução direta desta implementação.
 
 ### Linha 0232
@@ -2769,10 +2769,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0241
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **AudioContext silencioso após gesto confiável**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o override de `window.cancelIdleCallback`.  
+**Como faz:** Termina a rotina que cancela timer do Map e tenta cancelar a callback nativa.  
+**Por que assim:** As duas camadas precisam ser tratadas para impedir entrega tardia.  
+**Risco/alternativa:** Cancelar só uma camada deixaria a outra capaz de disparar.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0242
@@ -2949,10 +2949,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0261
 
 **Fonte:** `};`  
-**O que faz:** Avalia a expressão específica `};` dentro de **AudioContext silencioso após gesto confiável**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha a função `activateAudio`.  
+**Como faz:** Termina a rotina que, após gesto confiável, cria o grafo silencioso e remove os listeners de ativação.  
+**Por que assim:** A função deve executar no máximo uma ativação lógica por Document.  
+**Risco/alternativa:** Manter listeners depois da ativação causaria chamadas redundantes.  
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — nenhuma suíte gera gesto real `isTrusted` no arquivo MAIN.
 
 ### Linha 0262
@@ -3489,10 +3489,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0321
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN de prompt**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o `ClipboardEvent('paste', ...)` e sua entrega ao editor.  
+**Como faz:** Conclui o objeto com `clipboardData: dt` e despacha paste bubbling/cancelable/composed.  
+**Por que assim:** O editor pode depender do evento de clipboard para atualizar seu modelo interno.  
+**Risco/alternativa:** Só mudar DOM pode deixar estado de Quill divergente.  
 **Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0322
@@ -3705,10 +3705,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0345
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN de prompt**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o primeiro `InputEvent`, do tipo `beforeinput`.  
+**Como faz:** Conclui as opções `insertText`/`data:text` e despacha a fase anterior à mutação percebida pelo editor.  
+**Por que assim:** Frameworks podem observar beforeinput separadamente de input.  
+**Risco/alternativa:** Omitir a fase pode reduzir compatibilidade com editores controlados.  
 **Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0346
@@ -3732,10 +3732,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0348
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN de prompt**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o segundo `InputEvent`, do tipo `input`.  
+**Como faz:** Entrega a notificação principal de inserção com o mesmo texto e flags de propagação.  
+**Por que assim:** `input` é o sinal padrão de que o conteúdo editável mudou.  
+**Risco/alternativa:** Sem ele o framework pode não sincronizar seu state.  
 **Evidência:** 🟨 consumidor real + simulação da outra ponta — CG-23/24 prova emissão e fallback do runner; listener real não é carregado.
 
 ### Linha 0349
@@ -4047,10 +4047,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0383
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN autenticada de imagem**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o `CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT')` de sucesso.  
+**Como faz:** Finaliza `detail` com `requestId` e `dataUrl` e entrega a resposta ao isolated world.  
+**Por que assim:** RequestId correlaciona a resposta certa quando há fetches concorrentes.  
+**Risco/alternativa:** Resposta sem correlação poderia satisfazer a requisição errada.  
 **Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0384
@@ -4083,10 +4083,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0387
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **ponte MAIN autenticada de imagem**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o `CustomEvent('MANGA_TRANSLATOR_FETCH_IMAGE_RESULT')` de erro.  
+**Como faz:** Finaliza `detail` com o mesmo requestId e uma mensagem de erro normalizada.  
+**Por que assim:** O consumidor precisa distinguir falha da ausência de resposta/timeout.  
+**Risco/alternativa:** Silenciar erro atrasaria fallback e perderia diagnóstico.  
 **Evidência:** 🟨 protocolo provado; implementação MAIN indireta — requestId/erro/timeout são provados com responder simulado em safe-background-delete/result-extractor.
 
 ### Linha 0388
@@ -4254,10 +4254,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0406
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **fallback de submit**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o `KeyboardEvent('keydown')` enviado ao `rich-textarea`.  
+**Como faz:** Conclui os campos Enter/keyCode/which e despacha o evento no wrapper principal.  
+**Por que assim:** Algumas versões do Gemini escutam Enter no wrapper, não no editor interno.  
+**Risco/alternativa:** Enviar só no editor profundo pode não iniciar submit.  
 **Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0407
@@ -4335,10 +4335,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0415
 
 **Fonte:** `}));`  
-**O que faz:** Avalia a expressão específica `}));` dentro de **fallback de submit**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha o `KeyboardEvent('keydown')` enviado a cada editor profundo.  
+**Como faz:** Entrega Enter em cada contenteditable/ql-editor encontrado pelo traversal.  
+**Por que assim:** Serve de fallback quando o wrapper não processa Enter.  
+**Risco/alternativa:** Não cobrir Shadow/editores internos reduziria robustez após mudanças do DOM.  
 **Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0416
@@ -4578,10 +4578,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0442
 
 **Fonte:** `!!btn.querySelector('mat-icon, svg, [data-icon-name*="send"], [data-icon-name*="arrow"]');`  
-**O que faz:** Avalia a expressão específica `!!btn.querySelector('mat-icon, svg, [data-icon-name*="send"], [data-icon-name*="arrow"]');` dentro de **fallback de submit**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Define `hasSendIcon` procurando texto de envio ou elementos `mat-icon/svg/data-icon-name`.  
+**Como faz:** A expressão combina indícios textuais e existência de ícone dentro do botão candidato.  
+**Por que assim:** O Gemini pode trocar labels/classes mantendo um ícone visual de envio.  
+**Risco/alternativa:** A condição é ampla: qualquer SVG com label vazio pode virar falso positivo; por isso há lacuna dedicada.  
 **Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0443
@@ -4641,10 +4641,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0449
 
 **Fonte:** `(hasSendIcon && (label.includes('enviar') \|\| label.includes('send') \|\| label === ''));`  
-**O que faz:** Avalia a expressão específica `(hasSendIcon && (label.includes('enviar') \|\| label.includes('send') \|\| label === ''));` dentro de **fallback de submit**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha a expressão booleana `isSend` com o caso de ícone + label contendo enviar/send ou vazio.  
+**Como faz:** É o último fallback da heurística depois de labels, tooltips, test-id e class exatos.  
+**Por que assim:** Permite reconhecer versões do botão sem rótulo acessível.  
+**Risco/alternativa:** O caso `label === ''` aumenta risco de classificar botão genérico com SVG.  
 **Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0450
@@ -4668,19 +4668,19 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0452
 
 **Fonte:** `!btn.hasAttribute('disabled') &&`  
-**O que faz:** Avalia a expressão específica `!btn.hasAttribute('disabled') &&` dentro de **fallback de submit**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Continua a expressão `enabled` exigindo ausência do atributo HTML `disabled`.  
+**Como faz:** Complementa o teste `btn.disabled !== true` para componentes que usam apenas atributo.  
+**Por que assim:** Evita clicar controles semanticamente desabilitados.  
+**Risco/alternativa:** Checar apenas a propriedade pode falhar em web components/custom elements.  
 **Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0453
 
 **Fonte:** `btn.getAttribute('aria-disabled') !== 'true';`  
-**O que faz:** Avalia a expressão específica `btn.getAttribute('aria-disabled') !== 'true';` dentro de **fallback de submit**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Finaliza `enabled` exigindo `aria-disabled !== 'true'`.  
+**Como faz:** Acrescenta o estado de acessibilidade à validação de disponibilidade do botão.  
+**Por que assim:** Muitos componentes modernos sinalizam desabilitado só por ARIA.  
+**Risco/alternativa:** Ignorar ARIA pode disparar clique em controle visualmente desabilitado.  
 **Evidência:** 🟨 consumidor provado; ⚠️ listener MAIN sem prova direta — rpa-flow prova emissão do evento, não a heurística Enter+botão desta implementação.
 
 ### Linha 0454
@@ -4839,10 +4839,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A evidênci
 ### Linha 0471
 
 **Fonte:** `})();`  
-**O que faz:** Avalia a expressão específica `})();` dentro de **log final e fechamento**.  
-**Como faz:** A linha completa ou compõe o valor/condição iniciado nas posições vizinhas e mantém os mesmos dados em escopo.  
-**Por que assim:** Sua posição preserva a ordem necessária do protocolo local; o significado exato está explícito nos identificadores exibidos.  
-**Risco/alternativa:** Reordenar a expressão pode mudar precedência, alvo ou momento do side effect.  
+**O que faz:** Fecha e invoca imediatamente a IIFE do arquivo.  
+**Como faz:** O `})();` termina o escopo privado e executa todo o bootstrap uma única vez na carga do content script.  
+**Por que assim:** IIFE permite instalação imediata sem exportar variáveis internas.  
+**Risco/alternativa:** Sem invocação o código ficaria apenas declarado e nenhuma ponte seria instalada.  
 **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — MV3 pode carregar o script, mas não há assertion do log final.
 
 ### Linha 0472
