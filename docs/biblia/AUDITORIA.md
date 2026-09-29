@@ -57,8 +57,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 10 | `extension/background/actions/download-chapter.js` | SHA `8636a03c8a20...` conferido; bloco integral exato | 34 linhas + newline final = 35/35 posições | action/reuso/download provados; marker e gaps diferenciados | 6 unidades específicas + papel local por posição; lacunas explícitas | ✅ APROVADO |
 | 11 | `extension/background/actions/download-image.js` | SHA `408102f057ab...` conferido; bloco integral exato | 31 linhas + newline final = 32/32 posições | happy path/action + helper/integrado separados; erros mantidos como gaps | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 12 | `extension/background/actions/export-all.js` | SHA `6160a220094d...` conferido; bloco integral exato | 40 linhas + newline final = 41/41 posições | action/integrado/helper/mirror distinguidos; best-effort e erros explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
+| 13 | `extension/background/actions/fetch-image-base64.js` | SHA `4a4825c36fdb...` conferido; bloco integral exato | 95 linhas + newline final = 96/96 posições | URL/auth/MIME/size/timeout provados; consumer/mirror/gaps separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `fetch-image-base64.js` — criação e auditoria em 2026-09-29
+
+- URL/protocolo, sessão Gemini dupla, MIME, HTTP, tamanho e timeout ligados às assertions reais;
+- registrado que 50 MiB é checado após materializar Blob e que FileReader fica fora do timeout de 30 s;
+- mirror histórico separado da action real;
+- gaps de FileReader/blob/router/redirect/MIME explicitados;
+- SHA e 96/96 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `export-all.js` — criação e auditoria em 2026-09-29
 
