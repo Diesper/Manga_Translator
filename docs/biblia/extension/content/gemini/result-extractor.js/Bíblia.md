@@ -668,7 +668,7 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 57 | U04 | <code>        typeof pageWindow.removeEventListener !== 'function' &#124;&#124;</code> | Exige remoção de listener, condição necessária para cleanup após settle. |
 | 58 | U04 | <code>        typeof pageWindow.dispatchEvent !== 'function' &#124;&#124;</code> | Exige dispatch de evento para emitir a solicitação. |
 | 59 | U04 | <code>        typeof CustomEventImpl !== 'function'</code> | Exige construtor CustomEvent para transportar `requestId` e URL. |
-| 60 | U04 | <code>      ) {</code> | Parte operacional de U04 — Bridge MAIN-world por CustomEvent: `) {`. No conjunto da unidade, esta linha ajuda a pede ao script MAIN-world que faça o fetch no contexto da página, correlacionando request/response. |
+| 60 | U04 | <code>      ) {</code> | Fecha a condição composta que valida todas as primitivas do bridge; somente se qualquer requisito falhar o ramo retorna `Bridge MAIN-world indisponível`. |
 | 61 | U04 | <code>        return Promise.reject(new Error('Bridge MAIN-world indisponível'));</code> | Falha fechado quando qualquer primitiva do bridge está ausente. |
 | 62 | U04 | <code>      }</code> | Fecha a estrutura sintática atual de U04 sem introduzir novo efeito além do contrato da unidade. |
 | 63 | U04 | ␠ [linha vazia] | Separador visual de U04 — Bridge MAIN-world por CustomEvent; não altera estado nem fluxo. |
@@ -698,7 +698,7 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 87 | U04 | ␠ [linha vazia] | Separador visual de U04 — Bridge MAIN-world por CustomEvent; não altera estado nem fluxo. |
 | 88 | U04 | <code>          if (detail.dataUrl) {</code> | Aceita qualquer `detail.dataUrl` truthy; não valida prefixo/MIME neste boundary. |
 | 89 | U04 | <code>            finish(null, detail.dataUrl);</code> | Finaliza com sucesso mantendo o `dataUrl` fornecido pelo MAIN world. |
-| 90 | U04 | <code>          } else {</code> | Parte operacional de U04 — Bridge MAIN-world por CustomEvent: `} else {`. No conjunto da unidade, esta linha ajuda a pede ao script MAIN-world que faça o fetch no contexto da página, correlacionando request/response. |
+| 90 | U04 | <code>          } else {</code> | Seleciona o ramo de erro quando a resposta correlacionada não contém `dataUrl` truthy. |
 | 91 | U04 | <code>            finish(new Error(detail.error &#124;&#124; 'Página Gemini não retornou a imagem'));</code> | Sem dataUrl, transforma mensagem remota em Error, com fallback textual previsível. |
 | 92 | U04 | <code>          }</code> | Fecha a estrutura sintática atual de U04 sem introduzir novo efeito além do contrato da unidade. |
 | 93 | U04 | <code>        };</code> | Fecha a estrutura sintática atual de U04 sem introduzir novo efeito além do contrato da unidade. |
@@ -711,7 +711,7 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 100 | U04 | <code>          );</code> | Fecha a estrutura sintática atual de U04 sem introduzir novo efeito além do contrato da unidade. |
 | 101 | U04 | <code>          pageWindow.dispatchEvent(new CustomEventImpl('MANGA_TRANSLATOR_FETCH_IMAGE', {</code> | Emite evento `MANGA_TRANSLATOR_FETCH_IMAGE` que o script MAIN-world deve consumir. |
 | 102 | U04 | <code>            detail: { requestId, url },</code> | Payload contém requestId e URL completa; isso cria uma fronteira de confiança com o contexto da página. |
-| 103 | U04 | <code>          }));</code> | Parte operacional de U04 — Bridge MAIN-world por CustomEvent: `}));`. No conjunto da unidade, esta linha ajuda a pede ao script MAIN-world que faça o fetch no contexto da página, correlacionando request/response. |
+| 103 | U04 | <code>          }));</code> | Fecha a construção do `CustomEvent` e a chamada de `dispatchEvent`, completando a emissão atômica da solicitação MAIN-world. |
 | 104 | U04 | <code>        } catch (error) {</code> | Captura a exceção da operação anterior em U04, permitindo pede ao script MAIN-world que faça o fetch no contexto da página, correlacionando request/response sem encerrar o módulo abruptamente. |
 | 105 | U04 | <code>          finish(error);</code> | Qualquer exceção síncrona de listener/timer/dispatch converge em `finish`, garantindo cleanup. |
 | 106 | U04 | <code>        }</code> | Fecha a estrutura sintática atual de U04 sem introduzir novo efeito além do contrato da unidade. |
@@ -732,12 +732,12 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 121 | U05 | <code>            }</code> | Fecha a estrutura sintática atual de U05 sem introduzir novo efeito além do contrato da unidade. |
 | 122 | U05 | <code>            if (response &amp;&amp; response.dataUrl) {</code> | Só considera sucesso quando a resposta existe e traz `dataUrl` truthy. |
 | 123 | U05 | <code>              resolve(response.dataUrl);</code> | Resolve com o payload convertido retornado pelo background. |
-| 124 | U05 | <code>              return;</code> | Parte operacional de U05 — Bridge runtime → Service Worker: `return;`. No conjunto da unidade, esta linha ajuda a encapsula chrome.runtime.sendMessage e transforma callbacks/lastError em Promise. |
+| 124 | U05 | <code>              return;</code> | Retorna imediatamente após resolver com Data URL para impedir que a mesma resposta seja rejeitada pelo fallback logo abaixo. |
 | 125 | U05 | <code>            }</code> | Fecha a estrutura sintática atual de U05 sem introduzir novo efeito além do contrato da unidade. |
 | 126 | U05 | <code>            reject(new Error((response &amp;&amp; response.error) &#124;&#124; fallbackError));</code> | Sem dataUrl, rejeita com `response.error` ou fallbackError; não silencía resposta inválida. |
 | 127 | U05 | <code>          });</code> | Fecha a estrutura sintática atual de U05 sem introduzir novo efeito além do contrato da unidade. |
 | 128 | U05 | <code>        } catch (error) {</code> | Captura exceção síncrona de `sendMessage`/mock e a transforma em rejeição. |
-| 129 | U05 | <code>          reject(error);</code> | Parte operacional de U05 — Bridge runtime → Service Worker: `reject(error);`. No conjunto da unidade, esta linha ajuda a encapsula chrome.runtime.sendMessage e transforma callbacks/lastError em Promise. |
+| 129 | U05 | <code>          reject(error);</code> | Rejeita a Promise com a exceção síncrona capturada em torno de `runtime.sendMessage`. |
 | 130 | U05 | <code>        }</code> | Fecha a estrutura sintática atual de U05 sem introduzir novo efeito além do contrato da unidade. |
 | 131 | U05 | <code>      });</code> | Fecha a estrutura sintática atual de U05 sem introduzir novo efeito além do contrato da unidade. |
 | 132 | U05 | <code>    }</code> | Fecha a estrutura sintática atual de U05 sem introduzir novo efeito além do contrato da unidade. |
@@ -782,11 +782,11 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 171 | U08 | <code>      }</code> | Fecha a estrutura sintática atual de U08 sem introduzir novo efeito além do contrato da unidade. |
 | 172 | U08 | ␠ [linha vazia] | Separador visual de U08 — Telemetria de estágio; não altera estado nem fluxo. |
 | 173 | U08 | <code>      sendLog(</code> | Entrega o evento ao logger injetado; exceções do logger não são capturadas por este helper. |
-| 174 | U08 | <code>        level,</code> | Passa/expõe o identificador `level` como parte do contrato de U08; seu valor foi definido no contexto imediatamente superior. |
+| 174 | U08 | <code>        level,</code> | Encaminha a severidade recebida por `logExtractionStage` ao logger, preservando distinção info/warn entre sucesso e falha. |
 | 175 | U08 | <code>        'GEMINI_EXTRACT_STAGE',</code> | Usa action_name estável `GEMINI_EXTRACT_STAGE` para consulta e testes. |
 | 176 | U08 | <code>        error</code> | Seleciona mensagem conforme sucesso ou falha. |
-| 177 | U08 | <code>          ? `Etapa ${stage} falhou durante a extração.`</code> | Parte operacional de U08 — Telemetria de estágio: `? 'Etapa ${stage} falhou durante a extração.'`. No conjunto da unidade, esta linha ajuda a emite telemetria correlacionável de sucesso/falha por estágio. |
-| 178 | U08 | <code>          : `Etapa ${stage} concluiu a extração.`,</code> | Parte operacional de U08 — Telemetria de estágio: `: 'Etapa ${stage} concluiu a extração.',`. No conjunto da unidade, esta linha ajuda a emite telemetria correlacionável de sucesso/falha por estágio. |
+| 177 | U08 | <code>          ? `Etapa ${stage} falhou durante a extração.`</code> | Mensagem de telemetria específica de falha; inclui o nome do estágio sem anexar a mensagem bruta do erro. |
+| 178 | U08 | <code>          : `Etapa ${stage} concluiu a extração.`,</code> | Mensagem de telemetria específica de sucesso; usa o mesmo action name e payload estruturado do ramo de falha. |
 | 179 | U08 | <code>        extra</code> | Anexa o objeto extra correlacionado ao log. |
 | 180 | U08 | <code>      );</code> | Fecha a estrutura sintática atual de U08 sem introduzir novo efeito além do contrato da unidade. |
 | 181 | U08 | <code>    }</code> | Fecha a estrutura sintática atual de U08 sem introduzir novo efeito além do contrato da unidade. |
@@ -895,19 +895,19 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 284 | U12 | <code>    }</code> | Fecha a estrutura sintática atual de U12 sem introduzir novo efeito além do contrato da unidade. |
 | 285 | U12 | ␠ [linha vazia] | Separador visual de U12 — Dispatcher por tipo de URL/modo; não altera estado nem fluxo. |
 | 286 | U13 | <code>    async function extractResultImageWithRetry(</code> | Declara wrapper de retry sobre a cadeia completa, não apenas sobre um fetch isolado. |
-| 287 | U13 | <code>      resultImageElement,</code> | Passa/expõe o identificador `resultImageElement` como parte do contrato de U13; seu valor foi definido no contexto imediatamente superior. |
-| 288 | U13 | <code>      resultUrl,</code> | Passa/expõe o identificador `resultUrl` como parte do contrato de U13; seu valor foi definido no contexto imediatamente superior. |
-| 289 | U13 | <code>      executionMode,</code> | Passa/expõe o identificador `executionMode` como parte do contrato de U13; seu valor foi definido no contexto imediatamente superior. |
+| 287 | U13 | <code>      resultImageElement,</code> | Parâmetro do retry: elemento IMG já selecionado pelo observer; será reutilizado por canvas em cada tentativa. |
+| 288 | U13 | <code>      resultUrl,</code> | Parâmetro do retry: URL candidata original/elevada; determina data/blob/http e a classificação de asset gerado. |
+| 289 | U13 | <code>      executionMode,</code> | Parâmetro do retry: modo de execução; influencia a escolha entre cadeia Gemini e fetch legado. |
 | 290 | U13 | <code>      maxAttempts = 4,</code> | Padrão máximo de quatro tentativas; caller de produção também passa 4 explicitamente. |
 | 291 | U13 | <code>      retryDelayMs = 1000,</code> | Delay padrão de 1 s entre tentativas subsequentes. |
-| 292 | U13 | <code>      logContext = {}</code> | Parte operacional de U13 — Retry da cadeia completa: `logContext = {}`. No conjunto da unidade, esta linha ajuda a repete toda a cadeia, preservando o último erro e atrasando tentativas subsequentes. |
-| 293 | U13 | <code>    ) {</code> | Parte operacional de U13 — Retry da cadeia completa: `) {`. No conjunto da unidade, esta linha ajuda a repete toda a cadeia, preservando o último erro e atrasando tentativas subsequentes. |
+| 292 | U13 | <code>      logContext = {}</code> | Recebe contexto opcional de correlação para propagar jobIdPrefix/batchIdPrefix/index por todas as tentativas. |
+| 293 | U13 | <code>    ) {</code> | Fecha a lista de parâmetros de `extractResultImageWithRetry` e abre seu corpo assíncrono. |
 | 294 | U13 | <code>      let lastError = null;</code> | Mantém a última exceção para relançá-la se todas as tentativas falharem. |
 | 295 | U13 | ␠ [linha vazia] | Separador visual de U13 — Retry da cadeia completa; não altera estado nem fluxo. |
 | 296 | U13 | <code>      for (let attempt = 0; attempt &lt; maxAttempts; attempt += 1) {</code> | Executa tentativas de 0 até `maxAttempts - 1`. |
 | 297 | U13 | <code>        if (attempt &gt; 0) {</code> | Não dorme nem loga retry antes da primeira tentativa. |
 | 298 | U13 | <code>          sendLog(</code> | Emite log de retry antes das passagens 2+. |
-| 299 | U13 | <code>            'warn',</code> | Parte operacional de U13 — Retry da cadeia completa: `'warn',`. No conjunto da unidade, esta linha ajuda a repete toda a cadeia, preservando o último erro e atrasando tentativas subsequentes. |
+| 299 | U13 | <code>            'warn',</code> | Define severidade `warn` para anunciar uma repetição da cadeia; retry é esperado mas operacionalmente relevante. |
 | 300 | U13 | <code>            'GEMINI_EXTRACT_RETRY_ALL',</code> | Usa action estável `GEMINI_EXTRACT_RETRY_ALL`. |
 | 301 | U13 | <code>            'Repetindo toda a cadeia de extração por possível instabilidade.',</code> | Mensagem explicita que toda a cadeia será repetida por instabilidade. |
 | 302 | U13 | <code>            {</code> | Delimitador estrutural de U13; organiza o bloco que repete toda a cadeia, preservando o último erro e atrasando tentativas subsequentes. |
@@ -921,9 +921,9 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 310 | U13 | ␠ [linha vazia] | Separador visual de U13 — Retry da cadeia completa; não altera estado nem fluxo. |
 | 311 | U13 | <code>        try {</code> | Abre boundary de exceção em U13; falhas da operação seguinte são convertidas no caminho de fallback/erro definido pela unidade. |
 | 312 | U13 | <code>          return await extractResultImage(</code> | Repete `extractResultImage` inteiro e retorna no primeiro sucesso. |
-| 313 | U13 | <code>            resultImageElement,</code> | Passa/expõe o identificador `resultImageElement` como parte do contrato de U13; seu valor foi definido no contexto imediatamente superior. |
-| 314 | U13 | <code>            resultUrl,</code> | Passa/expõe o identificador `resultUrl` como parte do contrato de U13; seu valor foi definido no contexto imediatamente superior. |
-| 315 | U13 | <code>            executionMode,</code> | Passa/expõe o identificador `executionMode` como parte do contrato de U13; seu valor foi definido no contexto imediatamente superior. |
+| 313 | U13 | <code>            resultImageElement,</code> | Repassa o mesmo elemento de resultado para cada nova execução da cadeia completa. |
+| 314 | U13 | <code>            resultUrl,</code> | Repassa a mesma URL de resultado, evitando que o retry altere silenciosamente o recurso alvo. |
+| 315 | U13 | <code>            executionMode,</code> | Repassa o mesmo executionMode para que retries mantenham semântica idêntica à primeira tentativa. |
 | 316 | U13 | <code>            attempt,</code> | Passa o número da tentativa para logs internos. |
 | 317 | U13 | <code>            logContext</code> | Preserva contexto de correlação em todos os estágios. |
 | 318 | U13 | <code>          );</code> | Fecha a estrutura sintática atual de U13 sem introduzir novo efeito além do contrato da unidade. |
@@ -936,22 +936,22 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 325 | U13 | <code>    }</code> | Fecha a estrutura sintática atual de U13 sem introduzir novo efeito além do contrato da unidade. |
 | 326 | U13 | ␠ [linha vazia] | Separador visual de U13 — Retry da cadeia completa; não altera estado nem fluxo. |
 | 327 | U14 | <code>    async function extractOrAuxiliaryFallback({</code> | Declara API de alto nível que adiciona fallback auxiliar somente após retries. |
-| 328 | U14 | <code>      resultImageElement,</code> | Passa/expõe o identificador `resultImageElement` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 329 | U14 | <code>      resultUrl,</code> | Passa/expõe o identificador `resultUrl` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 330 | U14 | <code>      executionMode,</code> | Passa/expõe o identificador `executionMode` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
+| 328 | U14 | <code>      resultImageElement,</code> | Argumento de alto nível: elemento IMG usado pelas rotas de canvas durante a tentativa direta. |
+| 329 | U14 | <code>      resultUrl,</code> | Argumento de alto nível: URL que será extraída ou entregue ao fallback auxiliar se necessário. |
+| 330 | U14 | <code>      executionMode,</code> | Argumento de alto nível: modo de execução que governa a rota inicial do dispatcher. |
 | 331 | U14 | <code>      maxAttempts = 4,</code> | Mantém padrão de quatro tentativas também nesta camada pública. |
 | 332 | U14 | <code>      retryDelayMs = 1000,</code> | Mantém delay padrão de 1 s. |
 | 333 | U14 | <code>      onAuxiliaryFallback = null,</code> | Fallback auxiliar é opcional e injetado pelo orquestrador; módulo não conhece criação de abas. |
 | 334 | U14 | <code>      logContext = {},</code> | Contexto de log permanece opcional e desacoplado do modelo de job. |
-| 335 | U14 | <code>    } = {}) {</code> | Parte operacional de U14 — Fallback auxiliar terminal: `} = {}) {`. No conjunto da unidade, esta linha ajuda a só transfere ao fallback auxiliar depois de esgotar tentativas diretas e registrar diagnóstico. |
+| 335 | U14 | <code>    } = {}) {</code> | Fecha a desestruturação opcional de argumentos de `extractOrAuxiliaryFallback`; chamada sem objeto continua válida. |
 | 336 | U14 | <code>      try {</code> | Inicia tentativa da rota direta/retry. |
 | 337 | U14 | <code>        const dataUrl = await extractResultImageWithRetry(</code> | Espera o wrapper de retry concluir. |
-| 338 | U14 | <code>          resultImageElement,</code> | Passa/expõe o identificador `resultImageElement` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 339 | U14 | <code>          resultUrl,</code> | Passa/expõe o identificador `resultUrl` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 340 | U14 | <code>          executionMode,</code> | Passa/expõe o identificador `executionMode` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 341 | U14 | <code>          maxAttempts,</code> | Passa/expõe o identificador `maxAttempts` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 342 | U14 | <code>          retryDelayMs,</code> | Passa/expõe o identificador `retryDelayMs` como parte do contrato de U14; seu valor foi definido no contexto imediatamente superior. |
-| 343 | U14 | <code>          logContext</code> | Parte operacional de U14 — Fallback auxiliar terminal: `logContext`. No conjunto da unidade, esta linha ajuda a só transfere ao fallback auxiliar depois de esgotar tentativas diretas e registrar diagnóstico. |
+| 338 | U14 | <code>          resultImageElement,</code> | Encaminha o elemento ao wrapper de retry; o fallback auxiliar não depende dele, apenas da URL. |
+| 339 | U14 | <code>          resultUrl,</code> | Encaminha a URL ao retry e preserva o mesmo valor para diagnóstico/fallback. |
+| 340 | U14 | <code>          executionMode,</code> | Encaminha o executionMode para todas as tentativas diretas. |
+| 341 | U14 | <code>          maxAttempts,</code> | Encaminha limite configurado de tentativas; produção usa quatro. |
+| 342 | U14 | <code>          retryDelayMs,</code> | Encaminha delay entre tentativas; produção usa 1000 ms. |
+| 343 | U14 | <code>          logContext</code> | Encaminha o contexto de correlação ao wrapper de retry para preservar telemetria por job. |
 | 344 | U14 | <code>        );</code> | Fecha a estrutura sintática atual de U14 sem introduzir novo efeito além do contrato da unidade. |
 | 345 | U14 | <code>        return {</code> | Em sucesso, devolve objeto discriminado `kind:'extracted'`. |
 | 346 | U14 | <code>          kind: 'extracted',</code> | Tag explícita permite ao job-runner distinguir extração local de transferência auxiliar. |
@@ -960,7 +960,7 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 349 | U14 | <code>        };</code> | Fecha a estrutura sintática atual de U14 sem introduzir novo efeito além do contrato da unidade. |
 | 350 | U14 | <code>      } catch (error) {</code> | Somente entra aqui quando todas as rotas/retries lançaram. |
 | 351 | U14 | <code>        sendLog(</code> | Registra diagnóstico agregado antes de considerar o fallback auxiliar. |
-| 352 | U14 | <code>          'warn',</code> | Parte operacional de U14 — Fallback auxiliar terminal: `'warn',`. No conjunto da unidade, esta linha ajuda a só transfere ao fallback auxiliar depois de esgotar tentativas diretas e registrar diagnóstico. |
+| 352 | U14 | <code>          'warn',</code> | Define severidade `warn` do diagnóstico terminal após esgotar todas as rotas diretas. |
 | 353 | U14 | <code>          'GEMINI_EXTRACT_DIAGNOSTIC',</code> | Usa action `GEMINI_EXTRACT_DIAGNOSTIC`. |
 | 354 | U14 | <code>          'Todas as rotas sem aba auxiliar falharam; diagnóstico registrado.',</code> | Mensagem deixa explícito que rotas sem aba auxiliar foram esgotadas. |
 | 355 | U14 | <code>          {</code> | Delimitador estrutural de U14; organiza o bloco que só transfere ao fallback auxiliar depois de esgotar tentativas diretas e registrar diagnóstico. |
@@ -974,7 +974,7 @@ A tabela abaixo cobre **todas as 414 posições**, inclusive linhas vazias e o n
 | 363 | U14 | <code>        );</code> | Fecha a estrutura sintática atual de U14 sem introduzir novo efeito além do contrato da unidade. |
 | 364 | U14 | ␠ [linha vazia] | Separador visual de U14 — Fallback auxiliar terminal; não altera estado nem fluxo. |
 | 365 | U14 | <code>        sendLog(</code> | Emite segundo evento anunciando uso do último recurso. |
-| 366 | U14 | <code>          'warn',</code> | Parte operacional de U14 — Fallback auxiliar terminal: `'warn',`. No conjunto da unidade, esta linha ajuda a só transfere ao fallback auxiliar depois de esgotar tentativas diretas e registrar diagnóstico. |
+| 366 | U14 | <code>          'warn',</code> | Define severidade `warn` do evento que anuncia entrada no fallback auxiliar. |
 | 367 | U14 | <code>          'GEMINI_AUXILIARY_FALLBACK',</code> | Usa action `GEMINI_AUXILIARY_FALLBACK`. |
 | 368 | U14 | <code>          'Último recurso: usando aba auxiliar. Este não é o comportamento padrão e deve ser investigado.',</code> | Mensagem trata aba auxiliar como exceção operacional a investigar, não caminho normal. |
 | 369 | U14 | <code>          {</code> | Delimitador estrutural de U14; organiza o bloco que só transfere ao fallback auxiliar depois de esgotar tentativas diretas e registrar diagnóstico. |
