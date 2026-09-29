@@ -54,10 +54,10 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 | Comportamento | Evidência lida | Classificação |
 |---|---|---|
 | visível vs `display:none` / `aria-hidden` | `dom-modules.test.js` | ✅ PROVADO DIRETAMENTE |
-| disabled / aria-disabled sem mutar | `dom-modules.test.js` + SEND-05/06 | ✅ DIRETO + 🟨 INTEGRAÇÃO |
+| disabled / aria-disabled sem mutar | `dom-modules.test.js` + SEND-05/06 | ✅ PROVADO DIRETAMENTE |
 | Shadow DOM em deep scan | `dom-modules.test.js` | ✅ PROVADO DIRETAMENTE |
 | editor ql/contenteditable | `dom-modules.test.js` | ✅ PROVADO DIRETAMENTE |
-| data-src, avatar blacklist, model ownership | `dom-modules.test.js` | ✅ PROVADO DIRETAMENTE, porém parcial nos fallbacks |
+| data-src, avatar blacklist, model ownership | `dom-modules.test.js` | 🟨 EXECUTADO INDIRETAMENTE |
 | Send ignora Stop/feedback e prefere Send message | `dom-modules.test.js` | ✅ PROVADO DIRETAMENTE |
 | Stop oculto vs visível | `dom-modules.test.js` | ✅ PROVADO DIRETAMENTE |
 | model ownership dentro de Shadow DOM | OBS-14/OBS-19 | 🟨 EXECUTADO INDIRETAMENTE com assertion do consumidor |
@@ -690,7 +690,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
 
 ### Linha 012
 
@@ -704,7 +704,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
 
 ### Linha 013
 
@@ -732,7 +732,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
 
 ### Linha 015
 
@@ -746,7 +746,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 016
 
@@ -760,7 +760,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 017
 
@@ -774,7 +774,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 018
 
@@ -788,7 +788,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 019
 
@@ -802,7 +802,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 020
 
@@ -816,7 +816,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 021
 
@@ -830,7 +830,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 022
 
@@ -844,7 +844,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 023
 
@@ -858,7 +858,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 024
 
@@ -872,7 +872,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 025
 
@@ -886,7 +886,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste cobre o caminho `display:none`; `visibility:hidden/collapse` e exceções de computed style não recebem assertion isolada.
 
 ### Linha 026
 
@@ -900,7 +900,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa `isElementVisible` com Element real, visível e oculto.
 
 ### Linha 027
 
@@ -914,7 +914,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
 
 ### Linha 028
 
@@ -928,7 +928,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
 
 ### Linha 029
 
@@ -942,7 +942,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
 
 ### Linha 030
 
@@ -956,7 +956,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
 
 ### Linha 031
 
@@ -970,7 +970,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
 
 ### Linha 032
 
@@ -984,7 +984,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e seleção de controles não podem tratar placeholders/controles ocultos como estado real. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não cobre todos os conceitos de visibilidade do navegador, como opacity, clipping ou ancestrais fora de layout.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste fornece `getBoundingClientRect()` positivo e espera `true`; fallbacks por offset/clientRects não são isolados.
 
 ### Linha 033
 
@@ -2104,7 +2104,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 113
 
@@ -2118,7 +2118,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 114
 
@@ -2132,7 +2132,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 115
 
@@ -2146,7 +2146,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 116
 
@@ -2160,7 +2160,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 117
 
@@ -2174,7 +2174,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 118
 
@@ -2188,7 +2188,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 119
 
@@ -2202,7 +2202,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 120
 
@@ -2216,7 +2216,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** imagens lazy podem expor URL apenas em data-src e consumidores precisam de uma identidade estável. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: um getter com assignment em img.src tem side effect e pode iniciar carregamento/requisição.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o teste usa `dataset.src` e verifica a URL retornada; precedência `currentSrc`, `getAttribute(src)` e falhas não são isoladas.
 
 ### Linha 121
 
@@ -2258,7 +2258,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** result extraction não deve escolher avatar/favicon/emoji como tradução gerada. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: substring ampla pode rejeitar URL legítima que contenha termos como profile em caminho/query.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
 
 ### Linha 124
 
@@ -2272,7 +2272,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** result extraction não deve escolher avatar/favicon/emoji como tradução gerada. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: substring ampla pode rejeitar URL legítima que contenha termos como profile em caminho/query.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
 
 ### Linha 125
 
@@ -2356,7 +2356,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** result extraction não deve escolher avatar/favicon/emoji como tradução gerada. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: substring ampla pode rejeitar URL legítima que contenha termos como profile em caminho/query.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
 
 ### Linha 131
 
@@ -2370,7 +2370,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** result extraction não deve escolher avatar/favicon/emoji como tradução gerada. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: substring ampla pode rejeitar URL legítima que contenha termos como profile em caminho/query.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — o mesmo teste diferencia avatar de URL normal; nem todos os termos individuais da blacklist são parametrizados.
 
 ### Linha 132
 
@@ -2902,7 +2902,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 170
 
@@ -2916,7 +2916,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 171
 
@@ -2930,7 +2930,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 172
 
@@ -2944,7 +2944,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 173
 
@@ -2958,7 +2958,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 174
 
@@ -2972,7 +2972,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 175
 
@@ -2986,7 +2986,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 176
 
@@ -3000,7 +3000,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 177
 
@@ -3014,7 +3014,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 178
 
@@ -3028,7 +3028,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 179
 
@@ -3042,7 +3042,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 180
 
@@ -3056,7 +3056,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 181
 
@@ -3070,7 +3070,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 182
 
@@ -3084,7 +3084,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 183
 
@@ -3098,7 +3098,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 184
 
@@ -3112,7 +3112,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** Observer e quarantine precisam distinguir resultado do modelo de upload/turno do usuário. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: mudança de markup do Gemini pode criar falso negativo; seletor amplo demais criaria falso positivo mais perigoso.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE / 🟨 INTEGRAÇÃO** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules` prova `<model-response>` como ownership; OBS-14 e OBS-19 exercitam ownership estrito através de Shadow DOM/wrapper aninhado.
 
 ### Linha 185
 
@@ -3952,7 +3952,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 245
 
@@ -3966,7 +3966,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 246
 
@@ -3980,7 +3980,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 247
 
@@ -3994,7 +3994,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 248
 
@@ -4008,7 +4008,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 249
 
@@ -4022,7 +4022,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 250
 
@@ -4036,7 +4036,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 251
 
@@ -4050,7 +4050,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 252
 
@@ -4064,7 +4064,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 253
 
@@ -4078,7 +4078,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 254
 
@@ -4092,7 +4092,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 255
 
@@ -4106,7 +4106,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 256
 
@@ -4120,7 +4120,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 257
 
@@ -4134,7 +4134,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 258
 
@@ -4148,7 +4148,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 259
 
@@ -4162,7 +4162,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 260
 
@@ -4176,7 +4176,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 261
 
@@ -4190,7 +4190,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 262
 
@@ -4204,7 +4204,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 263
 
@@ -4218,7 +4218,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 264
 
@@ -4232,7 +4232,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 265
 
@@ -4246,7 +4246,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 266
 
@@ -4260,7 +4260,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 267
 
@@ -4274,7 +4274,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 268
 
@@ -4288,7 +4288,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 269
 
@@ -4302,7 +4302,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 270
 
@@ -4316,7 +4316,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 271
 
@@ -4330,7 +4330,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 272
 
@@ -4344,7 +4344,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 273
 
@@ -4358,7 +4358,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 274
 
@@ -4372,7 +4372,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 275
 
@@ -4386,7 +4386,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 276
 
@@ -4400,7 +4400,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 277
 
@@ -4414,7 +4414,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 278
 
@@ -4428,7 +4428,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 279
 
@@ -4442,7 +4442,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 280
 
@@ -4456,7 +4456,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 281
 
@@ -4470,7 +4470,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 282
 
@@ -4484,7 +4484,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 283
 
@@ -4498,7 +4498,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 284
 
@@ -4512,7 +4512,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 285
 
@@ -4526,7 +4526,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 286
 
@@ -4540,7 +4540,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 287
 
@@ -4554,7 +4554,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 288
 
@@ -4568,7 +4568,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 289
 
@@ -4582,7 +4582,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 290
 
@@ -4596,7 +4596,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 291
 
@@ -4610,7 +4610,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 292
 
@@ -4624,7 +4624,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 293
 
@@ -4638,7 +4638,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 294
 
@@ -4652,7 +4652,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 295
 
@@ -4666,7 +4666,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 296
 
@@ -4680,7 +4680,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 297
 
@@ -4694,7 +4694,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 298
 
@@ -4708,7 +4708,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 299
 
@@ -4722,7 +4722,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (NÚCLEO)** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
+**Evidência:** **✅ PROVADO DIRETAMENTE** — o teste cria Stop, Send feedback e Send message e exige escolha do Send legítimo; variantes de label/icon/test-id não são todas isoladas.
 
 ### Linha 300
 
@@ -4736,7 +4736,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 301
 
@@ -4932,7 +4932,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 315
 
@@ -5268,7 +5268,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 339
 
@@ -5282,7 +5282,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 340
 
@@ -5296,7 +5296,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** o Gemini muda labels/classes e precisa de redundância para automação resiliente. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: não filtra visibilidade no próprio helper; fallbacks textual/geométrico podem escolher controle incorreto quando o markup muda.
 
-**Evidência:** **✅ PROVADO DIRETAMENTE (PARCIAL)** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — `dom-modules.test.js` executa o helper e valida prioridade semântica/blacklist; visibilidade, disabled e todos os fallbacks permanecem parcialmente descobertos.
 
 ### Linha 341
 
@@ -5380,7 +5380,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 347
 
@@ -5394,7 +5394,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 348
 
@@ -5408,7 +5408,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 349
 
@@ -5422,7 +5422,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 350
 
@@ -5436,7 +5436,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 351
 
@@ -5450,7 +5450,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 352
 
@@ -5464,7 +5464,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 353
 
@@ -5478,7 +5478,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 354
 
@@ -5492,7 +5492,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 355
 
@@ -5506,7 +5506,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 356
 
@@ -5520,7 +5520,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 357
 
@@ -5534,7 +5534,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 358
 
@@ -5548,7 +5548,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 359
 
@@ -5562,7 +5562,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 360
 
@@ -5576,7 +5576,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 361
 
@@ -5590,7 +5590,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 362
 
@@ -5604,7 +5604,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 363
 
@@ -5618,7 +5618,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 364
 
@@ -5632,7 +5632,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 365
 
@@ -5646,7 +5646,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 366
 
@@ -5660,7 +5660,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 367
 
@@ -5674,7 +5674,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 368
 
@@ -5688,7 +5688,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 369
 
@@ -5702,7 +5702,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 370
 
@@ -5716,7 +5716,7 @@ O arquivo não lê credenciais nem envia dados pela rede. O risco principal é *
 
 **Por que desta forma:** content scripts clássicos compartilham globals; Jest precisa de require. Uma implementação mais ingênua aqui aumentaria o risco descrito para a unidade: helpers exportados mas sem consumidores, como getModelResponseContainer/isUserTurnImage, podem acumular dívida técnica.
 
-**Evidência:** **🟨 EXECUTADO INDIRETAMENTE / 🟦 WIRING** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
+**Evidência:** **🟨 EXECUTADO INDIRETAMENTE** — as suítes importam o módulo real e o manifest/harness dependem da API global/CommonJS; nem cada propriedade exportada tem assertion própria.
 
 ### Linha 371
 
