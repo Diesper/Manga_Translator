@@ -16,6 +16,7 @@ const staticFiles = [
   'jest.config.js',
   'scripts/validation/verify-coverage.js',
   'scripts/validation/verify-coverage-selftest.js',
+  'scripts/validation/verify-repository-structure.js',
   'scripts/ci/playwright-gate-reporter.js',
   'scripts/ci/data/e2e-shard-plan.json',
   'scripts/validation/verify-e2e-shard-plan.js',

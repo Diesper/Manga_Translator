@@ -204,6 +204,59 @@ if (JSON.stringify(extensionRootFiles) !== JSON.stringify(['background.js', 'man
 }
 
 const tracked = walk(root, { ignore: new Set(['.git', 'node_modules', 'coverage', 'playwright-report', 'test-results', 'dist', 'build', '.ci-results', 'blob-report', 'all-blob-reports']) });
+const legacyReferenceMarkers = [
+  'tests/ci/',
+  'tests/package.json',
+  'tests/package-lock.json',
+  'tests/jest.config.js',
+  'tests/jest.coverage.config.js',
+  'tests/jest.background-diagnostic.config.js',
+  'tests/playwright.config.js',
+  'tests/visual-v3/',
+  'tests/e2e/fixtures/',
+  'scripts/sync-version.js',
+  'extension/content_manga.js',
+  'extension/content_gemini.js',
+  'extension/inject.js',
+  'extension/gemini/',
+  'extension/gtc-fingerprint.js',
+  'extension/gtc-indexeddb.js',
+  'extension/storage-manager.js',
+  'extension/shared-ui.js',
+  'extension/popup.html',
+  'extension/popup.js',
+  'extension/options.html',
+  'extension/options.js',
+  'extension/reader.html',
+  'extension/reader.js',
+];
+
+const legacyScanExcluded = new Set([
+  'scripts/validation/verify-repository-structure.js',
+  'scripts/validation/verify-ci-contract.js',
+]);
+const operationalTextFiles = tracked.filter((file) => {
+  const relative = rel(file);
+  if (legacyScanExcluded.has(relative)) return false;
+  if (!/\.(?:js|json|ya?ml|html)$/i.test(relative)) return false;
+  return (
+    relative.startsWith('extension/') ||
+    relative.startsWith('tests/') ||
+    relative.startsWith('scripts/') ||
+    relative.startsWith('.github/workflows/') ||
+    relative === 'package.json'
+  );
+});
+for (const file of operationalTextFiles) {
+  const relative = rel(file);
+  const source = fs.readFileSync(file, 'utf8');
+  for (const marker of legacyReferenceMarkers) {
+    if (source.includes(marker)) {
+      problems.push('referência operacional legada em ' + relative + ': ' + marker);
+    }
+  }
+}
+
 const packageJsons = tracked.filter((file) => path.basename(file) === 'package.json').map(rel);
 const lockfiles = tracked.filter((file) => path.basename(file) === 'package-lock.json').map(rel);
 if (packageJsons.length !== 1 || packageJsons[0] !== 'package.json') {

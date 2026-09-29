@@ -9,6 +9,7 @@ const playwright = fs.readFileSync(path.join(root, 'playwright.config.js'), 'utf
 const coverageConfig = fs.readFileSync(path.join(root, 'jest.config.js'), 'utf8');
 const coverageVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage.js'), 'utf8');
 const coverageSelfTest = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-coverage-selftest.js'), 'utf8');
+const repositoryStructureVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-repository-structure.js'), 'utf8');
 const e2eReporter = fs.readFileSync(path.join(root, 'scripts', 'ci', 'playwright-gate-reporter.js'), 'utf8');
 const e2ePlan = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
 const e2ePlanVerifier = fs.readFileSync(path.join(root, 'scripts', 'validation', 'verify-e2e-shard-plan.js'), 'utf8');
@@ -21,6 +22,10 @@ const regressionMatrixPath = path.join(root, 'scripts', 'ci', 'data', 'regressio
 const problems = [];
 if (!workflow.includes('node scripts/validation/verify-repository-structure.js')) {
   problems.push('CI Contract precisa executar o gate estrutural do repositório');
+}
+if (!repositoryStructureVerifier.includes('legacyReferenceMarkers') ||
+    !repositoryStructureVerifier.includes('referência operacional legada')) {
+  problems.push('gate estrutural precisa varrer referências operacionais aos caminhos legados');
 }
 
 let regressionMatrix = null;
