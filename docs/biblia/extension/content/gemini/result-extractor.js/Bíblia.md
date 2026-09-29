@@ -28,6 +28,7 @@ A separação em fábrica mantém o módulo testável: `content_gemini.js` cria 
 - **Background:** as duas rotas SW usam `FETCH_IMAGE_AS_BASE64`, mapeada pelo router para `background/actions/fetch-image-base64.js`.
 - **Action real:** `fetch-image-base64.js` aceita apenas HTTP(S), limita resposta a MIME `image/*`, 50 MB e 30 s; quando `geminiSession:true`, exige host `googleusercontent.com`/subdomínio e sender da aba `https://gemini.google.com/`.
 - **Teste direto principal:** `tests/unit/content-gemini/result-extractor.test.js` usa `require(RESULT_EXTRACTOR_PATH)` dentro de `jest.isolateModules`, portanto executa a implementação real deste arquivo.
+- **Integração real do bridge/fluxo:** `tests/unit/content-gemini/safe-background-delete.test.js` carrega os módulos Gemini reais via `loadContentGeminiModule()` e chama wrappers que delegam à instância real deste extractor; BGD-04/05/06/08/09/10/12/13/14 exercitam bridge MAIN, correlação, timeout, cadeia, logs e retry.
 - **Teste do boundary SW:** `tests/unit/background/fetch-image-base64-action.test.js` executa router + action reais; prova as restrições do lado background, não a lógica interna deste módulo.
 
 ## 3. Fluxo de dados e ordem de extração
@@ -64,7 +65,7 @@ A rota `fetchImageThroughBackground` não envia a flag e, no action real, usa cr
 
 `fetchImageThroughGeminiPage` coloca `{requestId, url}` em um `CustomEvent` no `window`. A resposta é aceita quando o evento `MANGA_TRANSLATOR_FETCH_IMAGE_RESULT` traz o mesmo `requestId` e um `dataUrl` truthy.
 
-Esse é um boundary de confiança: o contexto da página pode observar eventos DOM. O `requestId` evita mistura acidental entre requisições concorrentes, mas **não é autenticação criptográfica**. Uma página capaz de observar a solicitação também pode conhecer o ID e tentar emitir uma resposta forjada. Além disso, este módulo não verifica que `detail.dataUrl` começa com `data:image/`.
+Esse é um boundary de confiança: o contexto da página pode observar eventos DOM. O produtor canônico em `extension/content/inject.js` faz `fetch(..., {credentials:'include', cache:'no-store'})`, exige `response.ok`, converte o body em Blob e rejeita MIME que não comece com `image/` antes de emitir a resposta. Porém, o consumidor deste arquivo só verifica `requestId` + `dataUrl` truthy. O `requestId` evita mistura acidental entre requisições concorrentes — inclusive há teste BGD-08 para ID incorreto — mas **não é autenticação criptográfica**. Uma página capaz de observar a solicitação também pode conhecer o ID e tentar emitir um evento de resposta forjado; esse evento alternativo não passa necessariamente pela validação de MIME do produtor canônico.
 
 ### 5.3 Logs
 
@@ -97,6 +98,16 @@ O fallback auxiliar é chamado no máximo uma vez por invocação de `extractOrA
 | EXT-11 | 404–421 | `rd-gg-dl`: MAIN só vem depois da falha da sessão autenticada | ✅ PROVADO DIRETAMENTE |
 | EXT-12 | 423–446 | HTTP comum em `temp_chat` preserva SW legado sem sessão | ✅ PROVADO DIRETAMENTE |
 | EXT-13 | 448–488 | logs de estágio/retry/diagnóstico preservam jobIdPrefix/batchIdPrefix/index | ✅ PROVADO DIRETAMENTE |
+| BGD-04 | safe-background-delete 66–80 | wrapper real do bridge resolve a Data URL correlacionada pelo requestId correto | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-05 | 82–96 | erro retornado pelo MAIN world é propagado pelo wrapper real | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-06 | 98–112 | imagem nula faz canvas falhar e a cadeia real obtém resultado pelo MAIN bridge | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-08 | 124–141 | resposta com outro requestId é ignorada; a resposta correta posterior vence | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-09 | 143–148 | ausência de resposta produz timeout com mensagem esperada | ✅ PROVADO DIRETAMENTE PARA O TIMEOUT; remoção do listener não recebe assertion específica |
+| BGD-10 | 150–174 | após erro do MAIN, a rota real envia FETCH_IMAGE_AS_BASE64 com geminiSession:true | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-12 | 191–222 | falhas de canvas/MAIN/SW produzem estágios e classes de falha esperadas | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-13 | 224–256 | retry real repete a cadeia e recupera falha transitória na segunda chamada SW | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| BGD-14 | 258–283 | retries diretos são repetidos antes do erro terminal | ✅ PROVADO DIRETAMENTE EM INTEGRAÇÃO REAL |
+| resolution-elevation | 249–313 | pipeline real eleva URL para =s0 antes de FETCH_IMAGE_AS_BASE64 e entrega Data URL | 🟨 EXECUTADO INDIRETAMENTE NO FLUXO, com assertions de boundary |
 | action `FETCH_IMAGE_AS_BASE64` | teste separado do background | host/sender autenticado, MIME, 50 MB, timeout, HTTP e protocolos | ✅ PROVADO DIRETAMENTE **DO ACTION**, evidência complementar ao boundary deste arquivo |
 | `job-runner.test.js` | usa mock de `resultExtractor` | contrato do consumidor | 🟨 EXECUTADO POR CONTRATO/MOCK; não prova internals deste módulo |
 | ordem no manifest | lista estática de scripts | arquivo carregado antes do runner/bootstrap | 🟦 GATE ESTÁTICO/ESTRUTURAL |
@@ -106,12 +117,12 @@ O fallback auxiliar é chamado no máximo uma vez por invocação de `extractOrA
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para imagem ausente/incompleta em `imageElementToDataUrl`, `document` ausente e `canvas.getContext('2d') === null`.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `canvas.toDataURL` lançar separadamente de `drawImage`.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para bridge MAIN-world sem `window`/listener/dispatch/CustomEvent.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para timeout real do bridge, resposta tardia depois do timeout e remoção efetiva do listener.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para evento com `requestId` incorreto ser ignorado antes de uma resposta correta.
+- ✅ O timeout do bridge é provado por BGD-09; permanece ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para resposta tardia depois do timeout e para assertion direta de remoção efetiva do listener.
+- ✅ BGD-08 prova que evento com `requestId` incorreto é ignorado antes de uma resposta correta; permanece ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para duas requisições concorrentes reais disputando eventos.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para colisão de `requestId` em duas extrações concorrentes.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para resposta MAIN-world com `dataUrl` truthy porém não-imagem/malformada.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para runtime ausente, `runtime.lastError`, `sendMessage` lançar e resposta sem `dataUrl`.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** unitário para todas as classes de `getExtractionFailureKind`; EXT-13 prova correlação, não exaustividade da taxonomia.
+- 🟨 BGD-12 prova concretamente `http`, `network` e um caso `unknown` dentro do fluxo real; ainda ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** exaustivo para todas as classes de `getExtractionFailureKind`, especialmente `canvas_or_cors` e `timeout` via essa função.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para FileReader ausente, construtor que lança, `onerror` e `readAsDataURL` que lança.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para Blob fetch com resposta anômala/não-imagem; o ramo não valida `response.ok` nem MIME.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para URLs inválidas, HTTP não-HTTPS e googleusercontent sem `gg-dl` em `isGeneratedGeminiAsset`.
@@ -130,7 +141,7 @@ Consequência: para uma URL como `https://example.test/result.png` em `backgroun
 
 ### 9.2 Bridge MAIN-world não autentica resposta
 
-O `requestId` é correlação, não autenticação. Como a solicitação expõe o próprio ID no evento DOM, o contexto da página potencialmente pode forjar um evento de resposta com o mesmo ID. O módulo também aceita qualquer `detail.dataUrl` truthy. Uma implementação mais defensiva precisaria validar esquema/prefixo/tamanho e, se possível, reduzir a confiança no dado retornado do MAIN world.
+BGD-08 prova corretamente que um `requestId` diferente é ignorado. O produtor canônico em `inject.js` também valida HTTP e MIME antes de converter a resposta. Mesmo assim, o `requestId` continua sendo **correlação**, não autenticação: ele é exposto no evento de solicitação e o consumidor aceita qualquer `detail.dataUrl` truthy com o ID esperado. Uma implementação mais defensiva validaria ao menos o esquema/prefixo/tamanho no lado consumidor e reduziria a confiança em eventos que não possam ser vinculados ao produtor canônico.
 
 ### 9.3 Telemetria pode interferir no caminho feliz
 
