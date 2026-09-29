@@ -62,7 +62,7 @@
 - [x] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 043 — `extension/content/gemini/editor.js` → `docs/biblia/extension/content/gemini/editor.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#E**
 - [x] 044 — `extension/content/gemini/image-quarantine.js` → `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 045 — `extension/content/gemini/job-runner.js` → `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#G**
+- [x] 045 — `extension/content/gemini/job-runner.js` → `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 046 — `extension/content/gemini/observer.js` → `docs/biblia/extension/content/gemini/observer.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#H**
 - [x] 047 — `extension/content/gemini/result-extractor.js` → `docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 048 — `extension/content/gemini/selectors.js` → `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#C**
@@ -72,7 +72,7 @@
 - [ ] 052 — `extension/options/options.js` → `docs/biblia/extension/options/options.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#F**
 - [ ] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#I**
 - [ ] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#J**
-- [ ] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md`
+- [ ] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#G**
 - [ ] 056 — `extension/reader/reader.js` → `docs/biblia/extension/reader/reader.js/Bíblia.md`
 - [ ] 057 — `extension/shared/gtc-fingerprint.js` → `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md`
 - [ ] 058 — `extension/shared/gtc-indexeddb.js` → `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
