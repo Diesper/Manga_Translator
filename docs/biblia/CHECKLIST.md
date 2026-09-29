@@ -78,7 +78,7 @@
 - [ ] 058 — `extension/shared/gtc-indexeddb.js` → `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#K**
 - [x] 059 — `extension/shared/shared-ui.js` → `docs/biblia/extension/shared/shared-ui.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 060 — `extension/shared/storage-manager.js` → `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
-- [ ] 061 — `.gitignore` → `docs/biblia/.gitignore/Bíblia.md`
+- [ ] 061 — `.gitignore` → `docs/biblia/.gitignore/Bíblia.md` **← EM ANDAMENTO — Agente L**
 - [ ] 062 — `jest.config.js` → `docs/biblia/jest.config.js/Bíblia.md`
 - [ ] 063 — `package.json` → `docs/biblia/package.json/Bíblia.md`
 - [ ] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md`
