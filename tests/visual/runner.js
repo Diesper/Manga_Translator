@@ -1,7 +1,7 @@
 'use strict';
 const RESET = '\x1b[0m', GREEN = '\x1b[32m', RED = '\x1b[31m';
 const YELLOW = '\x1b[33m', CYAN = '\x1b[36m', DIM = '\x1b[2m', BOLD = '\x1b[1m';
-const baseline = require('../ci/test-baseline.json');
+const baseline = require('../../scripts/ci/data/test-baseline.json');
 
 const results = { pass: 0, fail: 0, skip: 0, errors: [] };
 let _currentSuite = '(root)', _suiteDepth = 0;

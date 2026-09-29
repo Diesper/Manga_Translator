@@ -315,9 +315,9 @@ jobs:
         with:
           name: jest-worker-diagnostic-${{ matrix.case }}-${{ github.sha }}
           path: |
-             .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
-             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
-             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+            .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
 
@@ -360,9 +360,9 @@ jobs:
         with:
           name: focused-project-leak-${{ matrix.case }}-${{ github.sha }}
           path: |
-             .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
-             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
-             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+            .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
 
@@ -395,8 +395,8 @@ jobs:
         with:
           name: background-leak-bisection-${{ github.sha }}
           path: |
-             .ci-results/background-leak-diagnostic.json
-             .ci-results/background-leak-diagnostic/
+            .ci-results/background-leak-diagnostic.json
+            .ci-results/background-leak-diagnostic/
           retention-days: 7
 
 
