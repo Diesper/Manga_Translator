@@ -57,9 +57,9 @@
 - [x] 037 — `extension/content/cm-gtc-client.js` → `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 038 — `extension/content/content_gemini.js` → `docs/biblia/extension/content/content_gemini.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
-- [ ] 040 — `extension/content/gemini/attachment.js` → `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#C**
+- [x] 040 — `extension/content/gemini/attachment.js` → `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 041 — `extension/content/gemini/deletion.js` → `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#B**
-- [ ] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md`
+- [ ] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#D**
 - [ ] 043 — `extension/content/gemini/editor.js` → `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
 - [ ] 044 — `extension/content/gemini/image-quarantine.js` → `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md`
 - [ ] 045 — `extension/content/gemini/job-runner.js` → `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md`
