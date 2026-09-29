@@ -63,8 +63,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 16 | `extension/background/actions/log-entry.js` | SHA `d57e1a25531b...` conferido; bloco integral exato | 50 linhas + newline final = 51/51 posições | happy path direto; validator/logger/emissores separados; gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 17 | `extension/background/actions/open-existing-folder.js` | SHA `59ef82cbf960...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | anchor/path/marker separados; regex real provada; assimetria exists explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 18 | `extension/background/actions/open-manga-root.js` | SHA `71c83df253cd...` conferido; bloco integral exato | 19 linhas + newline final = 20/20 posições | wiring direto provado; helper e popup separados; gaps explícitos | 5 unidades específicas + papel local por posição | ✅ APROVADO |
+| 19 | `extension/background/actions/refresh-job-watchdog.js` | SHA `25f86a8dba57...` conferido; bloco integral exato | 86 linhas + newline final = 87/87 posições | ownership/jobIndex/canonicalização ligados a assertions; consumer/helpers separados; gaps explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `refresh-job-watchdog.js` — criação e auditoria em 2026-09-29
+
+- ownership baseada em sender + jobIndex durável documentada;
+- ids de manga/index/Gemini enviados pelo request registrados como não-autoritativos;
+- consumidor `job-runner` e helper `jobs-watchdog` separados da prova direta da action;
+- canonicalização por `TabIdentity` cruzada com a implementação real;
+- gaps de validator, job ausente, dependências, aliases e telemetria explicitados;
+- SHA e 87/87 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `open-manga-root.js` — criação e auditoria em 2026-09-29
 
