@@ -48,6 +48,7 @@ const requiredJobs = [
   'jest-worker-diagnostic',
   'focused-project-leak-diagnostic',
   'background-leak-bisection',
+  'fresh-developer-flow',
   'ci-gate',
 ];
 
@@ -67,6 +68,33 @@ function jobBlock(id) {
 
 for (const job of requiredJobs) {
   if (!jobBlock(job)) problems.push('job obrigatório ausente: ' + job);
+}
+
+
+const freshDeveloperFlow = jobBlock('fresh-developer-flow');
+if (!freshDeveloperFlow.includes("github.event_name == 'workflow_dispatch'")) {
+  problems.push('fresh-developer-flow deve executar no workflow_dispatch pré-revisão');
+}
+for (const marker of [
+  'run: npm ci',
+  'run: npm run test:unit',
+  'run: npm run test:integration',
+  'run: npm run test:smoke',
+  'run: npm run test:visual',
+  'npm run test:e2e',
+  'run: npm run test:coverage',
+  'run: npm run test:coverage:verify',
+  'run: npm test',
+]) {
+  if (!freshDeveloperFlow.includes(marker)) {
+    problems.push('fresh-developer-flow não preserva a sequência oficial: ' + marker);
+  }
+}
+if (!freshDeveloperFlow.includes('playwright install chromium --with-deps --no-shell')) {
+  problems.push('fresh-developer-flow precisa instalar Chromium antes do E2E');
+}
+if (!freshDeveloperFlow.includes('xvfb-run --auto-servernum -- npm run test:e2e')) {
+  problems.push('fresh-developer-flow precisa executar o E2E da extensão com Xvfb no Linux');
 }
 
 for (const diagnosticJob of [
@@ -251,6 +279,8 @@ for (const marker of [
   'check "Jest Worker Diagnostic" "$JEST_WORKER_DIAGNOSTIC"',
   'check "Focused Project Leak" "$FOCUSED_PROJECT_LEAK"',
   'check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"',
+  'FRESH_DEVELOPER_FLOW',
+  'check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"',
 ]) {
   if (!gate.includes(marker)) {
     problems.push('ci-gate: proteção pós-merge incompleta, marcador ausente: ' + marker);

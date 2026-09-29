@@ -58,7 +58,9 @@
 
 - [x] Jobs da CI executam `npm ci` a partir da raiz.
 - [x] `test:ci`, `test:smoke`, `test:visual`, `test:e2e`/shards e `test:coverage` funcionam a partir da raiz na CI.
-- [ ] Executar a sequência integral do plano como um único fluxo de “clone novo”: `npm ci` → unit → integration → smoke → visual → e2e → coverage → `npm test`.
+- [x] Criado job `fresh-developer-flow` para `workflow_dispatch`, em runner limpo, executando `npm ci` → unit → integration → smoke → visual → e2e → coverage → `npm test` na raiz.
+- [x] `CI Gate` exige `fresh-developer-flow=success` em `workflow_dispatch`.
+- [ ] Confirmar o `fresh-developer-flow` no disparo manual final.
 - [x] Implementada prova de inventário no `run-jest-ci.js`: `test:unit` e `test:integration` precisam ser disjuntos e sua união precisa cobrir exatamente todos os arquivos `.test.js` do gate total.
 - [x] O contrato protege os seletores canônicos de `test:unit` e `test:integration`.
 - [ ] CI do novo HEAD precisa confirmar a nova prova de partição.

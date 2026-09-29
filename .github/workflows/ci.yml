@@ -395,6 +395,45 @@ jobs:
           retention-days: 7
 
 
+  fresh-developer-flow:
+    name: Fresh Developer Flow
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout limpo
+        uses: actions/checkout@v4
+        with:
+          clean: true
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Instalar dependências a partir da raiz
+        run: npm ci
+      - name: Instalar Chromium para o fluxo E2E
+        run: npx playwright install chromium --with-deps --no-shell
+      - name: Testes unitários
+        run: npm run test:unit
+      - name: Testes de integração
+        run: npm run test:integration
+      - name: Smoke
+        run: npm run test:smoke
+      - name: Visual
+        run: npm run test:visual
+      - name: E2E completo
+        run: xvfb-run --auto-servernum -- npm run test:e2e
+        env:
+          CI: true
+      - name: Coverage
+        run: npm run test:coverage
+      - name: Verificar integridade do coverage
+        run: npm run test:coverage:verify
+      - name: Entry point oficial npm test
+        run: npm test
+
+
   ci-gate:
     name: CI Gate
     # Avalia falhas reais e jobs skipped, mas não ressuscita o gate quando o
@@ -417,6 +456,7 @@ jobs:
       - jest-worker-diagnostic
       - focused-project-leak-diagnostic
       - background-leak-bisection
+      - fresh-developer-flow
     steps:
       - name: Exigir execução e sucesso de todos os gates
         env:
@@ -434,6 +474,7 @@ jobs:
           JEST_WORKER_DIAGNOSTIC: ${{ needs.jest-worker-diagnostic.result }}
           FOCUSED_PROJECT_LEAK: ${{ needs.focused-project-leak-diagnostic.result }}
           BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
+          FRESH_DEVELOPER_FLOW: ${{ needs.fresh-developer-flow.result }}
         run: |
           failed=0
           check() {
@@ -464,6 +505,13 @@ jobs:
             check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"
           else
             echo "ℹ️ Diagnósticos pesados não são obrigatórios neste evento; serão obrigatórios em push para main."
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "🔒 workflow_dispatch: fluxo completo de desenvolvedor novo é obrigatório."
+            check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"
+          else
+            echo "ℹ️ Fresh Developer Flow é exercitado no workflow_dispatch pré-revisão."
           fi
 
           exit "$failed"

@@ -175,3 +175,19 @@ extension/
 `extension/background/` continuam estáveis. Mover arquivos entre os demais
 subdiretórios exige atualizar Manifest, importScripts/require, HTML,
 `chrome.runtime.getURL`, testes e thresholds no mesmo commit.
+
+
+## Validação de ambiente novo
+
+O workflow `MangaTranslator CI` possui o job `fresh-developer-flow`, executado em
+`workflow_dispatch` antes da revisão final. Em um runner efêmero e checkout limpo,
+ele instala dependências exclusivamente pela raiz e executa a interface pública de
+desenvolvimento na ordem:
+
+`npm ci` → `test:unit` → `test:integration` → `test:smoke` →
+`test:visual` → `test:e2e` → `test:coverage` → `test:coverage:verify` →
+`npm test`.
+
+Esse job existe para detectar dependências ocultas de diretório atual, arquivos
+gerados previamente ou wrappers locais. O `CI Gate` o torna obrigatório quando o
+workflow é disparado manualmente.
