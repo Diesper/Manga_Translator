@@ -61,8 +61,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 14 | `extension/background/actions/force-send-activation.js` | SHA `cbeea5768301...` conferido; bloco integral exato | 70 linhas + newline final = 71/71 posições | branches minimized/aba provados; router/content/uso atual separados; gaps assíncronos explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 | 15 | `extension/background/actions/get-tab-id.js` | SHA `2f3b26304ac1...` conferido; bloco integral exato | 17 linhas + newline final = 18/18 posições | action/router/compatibilidade integrada/consumidores separados | 5 unidades específicas + papel local por posição; gaps explícitos | ✅ APROVADO |
 | 16 | `extension/background/actions/log-entry.js` | SHA `d57e1a25531b...` conferido; bloco integral exato | 50 linhas + newline final = 51/51 posições | happy path direto; validator/logger/emissores separados; gaps explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
+| 17 | `extension/background/actions/open-existing-folder.js` | SHA `59ef82cbf960...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | anchor/path/marker separados; regex real provada; assimetria exists explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `open-existing-folder.js` — criação e auditoria em 2026-09-29
+
+- branches de anchorId, busca por folderPath e marker documentados separadamente;
+- escape de metacaracteres ligado aos testes reais de regex;
+- helper de marker separado do wiring da action;
+- assimetria entre anchorId (`exists:true`) e busca por path (primeiro resultado sem validar `exists/state`) registrada;
+- gaps de payload, APIs Chrome e múltiplos resultados explicitados;
+- SHA e 39/39 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `log-entry.js` — criação e auditoria em 2026-09-29
 
