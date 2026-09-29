@@ -64,8 +64,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 17 | `extension/background/actions/open-existing-folder.js` | SHA `59ef82cbf960...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | anchor/path/marker separados; regex real provada; assimetria exists explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 18 | `extension/background/actions/open-manga-root.js` | SHA `71c83df253cd...` conferido; bloco integral exato | 19 linhas + newline final = 20/20 posições | wiring direto provado; helper e popup separados; gaps explícitos | 5 unidades específicas + papel local por posição | ✅ APROVADO |
 | 19 | `extension/background/actions/refresh-job-watchdog.js` | SHA `25f86a8dba57...` conferido; bloco integral exato | 86 linhas + newline final = 87/87 posições | ownership/jobIndex/canonicalização ligados a assertions; consumer/helpers separados; gaps explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
+| 20 | `extension/background/actions/relay-progress.js` | SHA `24e377893c71...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | destino explícito/fallback e transição running provados; ACK/erros/lacunas separados | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `relay-progress.js` — criação e auditoria em 2026-09-29
+
+- relay explícito e fallback `activeMangaTabId` ligados aos testes integrados;
+- mutação `gemini_job_<senderTabId>` → `running` ligada à suíte real;
+- ACK do router separado da entrega visual fire-and-forget;
+- consumers em `content_gemini.js`/`job-runner.js` confirmados;
+- gaps de payload, source ampla, sender ausente e falhas de storage/tabs explicitados;
+- SHA e 39/39 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `refresh-job-watchdog.js` — criação e auditoria em 2026-09-29
 
