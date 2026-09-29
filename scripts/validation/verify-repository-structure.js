@@ -71,6 +71,7 @@ for (const required of [
   'docs/Documentação.md',
   'docs/biblia/STATUS.md',
   'docs/biblia/CHECKLIST.md',
+  'docs/biblia/AUDITORIA.md',
 ]) requirePresent(required);
 
 const docsRootEntries = fs.readdirSync(path.join(root, 'docs'), { withFileTypes: true })
@@ -92,26 +93,34 @@ if (fs.existsSync(bibleRoot)) {
   const allowedControlFiles = new Set([
     'docs/biblia/STATUS.md',
     'docs/biblia/CHECKLIST.md',
+    'docs/biblia/AUDITORIA.md',
   ]);
   const unexpectedBibleFiles = bibleFiles.filter(file =>
     !allowedControlFiles.has(file) && !file.endsWith('/Bíblia.md')
   );
   if (unexpectedBibleFiles.length) {
     problems.push(
-      'docs/biblia/ só pode conter STATUS.md, CHECKLIST.md e Bíblias individuais; inesperados: '
+      'docs/biblia/ só pode conter STATUS.md, CHECKLIST.md, AUDITORIA.md e Bíblias individuais; inesperados: '
       + unexpectedBibleFiles.join(', ')
     );
   }
 
   const statusSource = fs.readFileSync(path.join(bibleRoot, 'STATUS.md'), 'utf8');
   const checklistSource = fs.readFileSync(path.join(bibleRoot, 'CHECKLIST.md'), 'utf8');
+  const auditSource = fs.readFileSync(path.join(bibleRoot, 'AUDITORIA.md'), 'utf8');
+
   const completedFromStatus = new Set(
     [...statusSource.matchAll(/\|\s*\d+\s*\|\s*✅ CONCLUÍDO\s*\|\s*`([^`]+)`/g)]
+      .map(match => match[1])
+  );
+  const reviewFromStatus = new Set(
+    [...statusSource.matchAll(/\|\s*\d+\s*\|\s*🟣 REVISÃO DE QUALIDADE\s*\|\s*`([^`]+)`/g)]
       .map(match => match[1])
   );
   const inProgress = [...statusSource.matchAll(
     /\|\s*\d+\s*\|\s*🟠 EM ANDAMENTO\s*\|\s*`([^`]+)`/g
   )].map(match => match[1]);
+
   if (inProgress.length !== 1) {
     problems.push(
       'docs/biblia/STATUS.md precisa ter exatamente um arquivo EM ANDAMENTO; encontrados: '
@@ -123,16 +132,43 @@ if (fs.existsSync(bibleRoot)) {
     [...checklistSource.matchAll(/^- \[x\]\s+\d+\s+—\s+`([^`]+)`/gm)]
       .map(match => match[1])
   );
+  const approvedFromAudit = new Set(
+    [...auditSource.matchAll(/^\|\s*\d+\s*\|\s*`([^`]+)`\s*\|.*\|\s*✅ APROVADO\s*\|$/gm)]
+      .map(match => match[1])
+  );
+  const reviewFromAudit = new Set(
+    [...auditSource.matchAll(/^\|\s*\d+\s*\|\s*`([^`]+)`\s*\|.*\|\s*🟣 REVISÃO OBRIGATÓRIA\s*\|$/gm)]
+      .map(match => match[1])
+  );
+
   const sortedStatusDone = [...completedFromStatus].sort();
   const sortedChecklistDone = [...completedFromChecklist].sort();
+  const sortedAuditApproved = [...approvedFromAudit].sort();
+
   if (JSON.stringify(sortedStatusDone) !== JSON.stringify(sortedChecklistDone)) {
     problems.push('STATUS.md e CHECKLIST.md divergem sobre quais Bíblias estão concluídas');
   }
+  if (JSON.stringify(sortedStatusDone) !== JSON.stringify(sortedAuditApproved)) {
+    problems.push('STATUS.md não pode marcar CONCLUÍDO sem ✅ APROVADO correspondente em AUDITORIA.md');
+  }
 
-  for (const sourcePath of completedFromStatus) {
+  const auditReviewExpected = new Set([...reviewFromStatus, ...inProgress]);
+  const sortedAuditReviewExpected = [...auditReviewExpected].sort();
+  const sortedAuditReviewActual = [...reviewFromAudit].sort();
+  if (JSON.stringify(sortedAuditReviewExpected) !== JSON.stringify(sortedAuditReviewActual)) {
+    problems.push('STATUS.md e AUDITORIA.md divergem sobre Bíblias em revisão de qualidade');
+  }
+
+  const materializedStates = new Set([
+    ...completedFromStatus,
+    ...reviewFromStatus,
+    ...inProgress,
+  ]);
+
+  for (const sourcePath of materializedStates) {
     const expectedBible = 'docs/biblia/' + sourcePath + '/Bíblia.md';
     if (!exists(expectedBible)) {
-      problems.push('arquivo marcado CONCLUÍDO sem Bíblia individual: ' + sourcePath);
+      problems.push('estado materializado sem Bíblia individual: ' + sourcePath);
     }
   }
 
@@ -140,8 +176,11 @@ if (fs.existsSync(bibleRoot)) {
   for (const bibleFile of individualBibles) {
     const sourcePath = bibleFile
       .slice('docs/biblia/'.length, -'/Bíblia.md'.length);
-    if (!completedFromStatus.has(sourcePath)) {
-      problems.push('Bíblia individual existe sem estado CONCLUÍDO no STATUS.md: ' + sourcePath);
+    if (!materializedStates.has(sourcePath)) {
+      problems.push(
+        'Bíblia individual existe sem estado CONCLUÍDO/EM ANDAMENTO/REVISÃO no STATUS.md: '
+        + sourcePath
+      );
     }
   }
 }
