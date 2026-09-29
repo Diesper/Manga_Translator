@@ -69,8 +69,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 22 | `extension/background/actions/request-image-data.js` | SHA `249126232396...` conferido; bloco integral exato | 32 linhas + newline final = 33/33 posições | relay/resposta/lastError provados; consumer/destino/compat separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 23 | `extension/background/actions/set-debug-mode.js` | SHA `92e4149b1bba...` conferido; bloco integral exato | 39 linhas + newline final = 40/40 posições | persistência/broadcast/validator provados; caller/consumer separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 24 | `extension/background/actions/start-batch.js` | SHA `b0ef70bf1c23...` conferido; bloco integral exato | 21 linhas + newline final = 22/22 posições | validator/delegação diretos; FIFO/idempotência/orchestrator separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 25 | `extension/background/actions/stop-batch.js` | SHA `e552d0a91109...` conferido; bloco integral exato | 18 linhas + newline final = 19/19 posições | validator/delegação diretos; cleanup/FIFO/orchestrator separados; ausência de sender ownership explícita | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `stop-batch.js` — criação e auditoria em 2026-09-29
+
+- batchId string e rejeição de tipo inválido ligados ao teste direto;
+- ausência de sender no repasse ao orchestrator documentada como diferença crítica de START_BATCH;
+- semântica de batchId omitido/falsy → currentBatchId global explicitada;
+- cleanup de lote ativo, remoção de pendente e promoção FIFO atribuídos ao orchestrator/testes integrados;
+- gaps de string vazia/whitespace, source ampla e ownership explicitados;
+- SHA e 19/19 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `start-batch.js` — criação e auditoria em 2026-09-29
 
