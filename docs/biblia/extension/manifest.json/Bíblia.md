@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/manifest.json`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA em 2026-09-29.  
 > **Arquivo-fonte:** `extension/manifest.json`  
 > **SHA do conteúdo auditado:** `841fe70c183350e4110bc8ff57ab69b157169c36`  
 > **Linhas auditadas:** 75 linhas de conteúdo + newline final.  
