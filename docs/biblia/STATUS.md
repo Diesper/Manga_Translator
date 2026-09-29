@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **21**
-- ✅ Concluídos auditados: **21**
+- Bíblias materializadas: **22**
+- ✅ Concluídos auditados: **22**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **212**
-- Cobertura realmente aprovada: **9,01%**
-- Cobertura apenas materializada: **9,01%**
-- Último aprovado: `extension/background/actions/report-error.js`
-- Arquivo atual: `extension/background/actions/request-image-data.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md`
-- Fila normal em produção: `extension/background/actions/request-image-data.js`
+- ⬜ Ainda não materializados: **211**
+- Cobertura realmente aprovada: **9,44%**
+- Cobertura apenas materializada: **9,44%**
+- Último aprovado: `extension/background/actions/request-image-data.js`
+- Arquivo atual: `extension/background/actions/set-debug-mode.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md`
+- Fila normal em produção: `extension/background/actions/set-debug-mode.js`
 
 ## Auditoria de 2026-09-29
 
@@ -84,6 +84,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 19. ✅ `extension/background/actions/refresh-job-watchdog.js`
 20. ✅ `extension/background/actions/relay-progress.js`
 21. ✅ `extension/background/actions/report-error.js`
+22. ✅ `extension/background/actions/request-image-data.js`
 
 ### Revisão obrigatória
 
@@ -116,8 +117,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 19 | ✅ CONCLUÍDO | `extension/background/actions/refresh-job-watchdog.js` | `25f86a8dba57` | `docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md` |
 | 20 | ✅ CONCLUÍDO | `extension/background/actions/relay-progress.js` | `24e377893c71` | `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md` |
 | 21 | ✅ CONCLUÍDO | `extension/background/actions/report-error.js` | `ac239ea49544` | `docs/biblia/extension/background/actions/report-error.js/Bíblia.md` |
-| 22 | 🟠 EM ANDAMENTO | `extension/background/actions/request-image-data.js` | `249126232396` | `docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md` |
-| 23 | ⬜ PENDENTE | `extension/background/actions/set-debug-mode.js` | `92e4149b1bba` | `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md` |
+| 22 | ✅ CONCLUÍDO | `extension/background/actions/request-image-data.js` | `249126232396` | `docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md` |
+| 23 | 🟠 EM ANDAMENTO | `extension/background/actions/set-debug-mode.js` | `92e4149b1bba` | `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md` |
 | 24 | ⬜ PENDENTE | `extension/background/actions/start-batch.js` | `b0ef70bf1c23` | `docs/biblia/extension/background/actions/start-batch.js/Bíblia.md` |
 | 25 | ⬜ PENDENTE | `extension/background/actions/stop-batch.js` | `e552d0a91109` | `docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md` |
 | 26 | ⬜ PENDENTE | `extension/background/jobs-dom-ack.js` | `07b4197a206f` | `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` |
