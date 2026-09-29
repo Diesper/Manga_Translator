@@ -259,6 +259,12 @@ if (!playwright.includes('./scripts/ci/playwright-gate-reporter.js')) {
 if (pkg.scripts['test:e2e:group'] !== 'node scripts/ci/run-e2e-group.js') {
   problems.push('package.json#test:e2e:group precisa usar o runner de grupos explícitos');
 }
+if (pkg.scripts['pretest:e2e'] !== 'npm run test:images') {
+  problems.push('package.json#pretest:e2e precisa preparar fixtures pela fonte única');
+}
+if (pkg.scripts['pretest:e2e:group'] !== 'npm run test:images') {
+  problems.push('package.json#pretest:e2e:group precisa preparar fixtures pela fonte única');
+}
 if (pkg.scripts['test:e2e:plan'] !== 'node scripts/validation/verify-e2e-shard-plan.js') {
   problems.push('package.json#test:e2e:plan precisa verificar o inventário dos shards');
 }

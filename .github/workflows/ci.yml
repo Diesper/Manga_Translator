@@ -201,8 +201,6 @@ jobs:
         run: npm ci
       - name: Instalar Chromium sem headless shell redundante
         run: npx playwright install chromium --with-deps --no-shell
-      - name: Criar imagens de teste
-        run: npm run test:images
       - name: Rodar grupo E2E ${{ matrix.group }}
         run: xvfb-run --auto-servernum -- npm run test:e2e:group -- "${{ matrix.group }}"
         env:
