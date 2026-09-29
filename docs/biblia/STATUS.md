@@ -49,10 +49,10 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - Total: **233**
 - Bíblias materializadas: **52**
 - ✅ Concluídos auditados: **46**
-- 🟠 Em andamento: **9**
+- 🟠 Em andamento: **11**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **181**
-- ⬜ Pendentes: **178**
+- ⬜ Pendentes: **176**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **19,74%**
 - Cobertura apenas materializada: **22,32%**
@@ -67,7 +67,9 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#053 extension/popup/popup.html` — `GPT-5.6-Sol#I` — Bíblia: `docs/biblia/extension/popup/popup.html/Bíblia.md`
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#056 extension/reader/reader.js`
+  - `#056 extension/reader/reader.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/reader/reader.js/Bíblia.md`
+  - `#057 extension/shared/gtc-fingerprint.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#058 extension/shared/gtc-indexeddb.js`
 
 ## Auditoria de 2026-09-29
 
@@ -187,8 +189,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 53 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#I | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
 | 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#G | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
-| 56 | ⬜ PENDENTE | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
-| 57 | ⬜ PENDENTE | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
+| 56 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#K | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
+| 57 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
 | 58 | ⬜ PENDENTE | `extension/shared/gtc-indexeddb.js` | `0c872f23a665` | `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` |
 | 59 | ⬜ PENDENTE | `extension/shared/shared-ui.js` | `b284fb8eb0e8` | `docs/biblia/extension/shared/shared-ui.js/Bíblia.md` |
 | 60 | ⬜ PENDENTE | `extension/shared/storage-manager.js` | `d1cd5a2c83ed` | `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` |
