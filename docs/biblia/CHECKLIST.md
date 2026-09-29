@@ -54,7 +54,7 @@
 - [x] 036 — `extension/content/cm-dom-replace.js` → `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 037 — `extension/content/cm-gtc-client.js` → `docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 038 — `extension/content/content_gemini.js` → `docs/biblia/extension/content/content_gemini.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO** **← EM ANDAMENTO — CRIAÇÃO**
+- [ ] 039 — `extension/content/content_manga.js` → `docs/biblia/extension/content/content_manga.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
 - [ ] 040 — `extension/content/gemini/attachment.js` → `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md`
 - [ ] 041 — `extension/content/gemini/deletion.js` → `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
 - [ ] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md`
