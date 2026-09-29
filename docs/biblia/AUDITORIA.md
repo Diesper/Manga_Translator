@@ -46,7 +46,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | # | Arquivo | Integridade fonte | Cobertura de linhas | Evidência/testes | Especificidade | Resultado |
 |---:|---|---|---|---|---|---|
 | 1 | `extension/manifest.json` | SHA correto; bloco integral exato | 76/76 posições documentadas | categorias diretas/gate/indiretas/lacunas distinguíveis; referências verificadas | específica ao Manifest e aos consumidores | ✅ APROVADO |
-| 2 | `extension/background.js` | SHA correto; bloco integral exato | 1252/1252; nenhuma divergência física | muitas faixas usam prova funcional de seção como evidência de linha | 305 linhas usam fallback “executa a instrução específica”; só 28 formas normalizadas distintas em “Como faz” para 1252 linhas | 🟣 REVISÃO OBRIGATÓRIA |
+| 2 | `extension/background.js` | SHA `667c05eb2d7a...` reconfirmado; bloco integral exato | 1251 linhas + newline final = 1252/1252 posições | evidência classificada por comportamento/unidade; simulação SM separada de prova direta | 32 unidades específicas + papel local por posição; fallback genérico anterior removido | ✅ APROVADO |
 | 3 | `extension/background/actions/calculate-visual-fingerprint.js` | SHA correto; bloco integral exato | 130/130; nenhuma divergência | existem testes reais fortes, porém linhas estruturais recebem `✅ PROVADO` pelo resultado da faixa, não por assertion daquela linha | 15 linhas ainda caem no fallback “executa a instrução específica” | 🟣 REVISÃO OBRIGATÓRIA |
 | 4 | `extension/background/actions/check-extraction-tab.js` | SHA correto; bloco integral exato | corrigido para 26/26 posições | hit/miss e roteamento têm evidência real; lacunas de ordem/sender ausente continuam explícitas | específica ao mapping/ownership da aba | ✅ APROVADO |
 | 5 | `extension/background/actions/claim-gemini-job.js` | SHA correto; bloco integral exato | 103/103; nenhuma divergência | testes reais provam allowlist, SOURCE_DENIED, mismatch e alias, mas a frase de evidência verde é repetida genericamente em todas as linhas | semântica em geral boa, classificação de prova não é linha-específica | 🟣 REVISÃO OBRIGATÓRIA |
@@ -55,6 +55,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 8 | `extension/background/actions/deliver-result-url.js` | SHA correto; bloco integral exato | 94/94; nenhuma divergência | testes reais cobrem ownership, batch, URL e registro; alguns rótulos verdes continuam aplicados por faixa | 17 linhas usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 
 ## Correções já aplicadas pela auditoria
+
+### `background.js` — reauditoria aprovada em 2026-09-29
+
+- 1252 posições agora apontam para **32 unidades estruturais específicas** e possuem papel local concreto;
+- evidência passou a ser classificada na unidade/comportamento realmente sustentado pelas assertions;
+- o fallback textual genérico anterior e a etiqueta verde repetida por linha foram eliminados;
+- `smoke-06-sm-message-routing.js` foi rebaixado corretamente para **simulação complementar**;
+- gaps explícitos: bridge SM real, importScripts/order, onReplaced real, `downloadImagesAndShow`, timers longos MV3 e falhas de reconciliação;
+- achados: `armFinalizationMarkerCleanup` sem consumidor local e comentário PR0 de replacement desatualizado;
+- SHA/fonte/1252 posições reconfirmados.
+
+**Veredito:** ✅ APROVADO para `667c05eb2d7adfca16a79d3e706c39a1e9398b72`.
+
 
 ### `check-extraction-tab.js`
 
@@ -77,16 +90,9 @@ A integridade física foi reconfirmada:
 
 ## Motivos detalhados das revisões obrigatórias
 
-### `background.js`
+### `background.js` — histórico resolvido
 
-A Bíblia é fisicamente completa, mas ainda não satisfaz o padrão de **extremo detalhamento sem templates**:
-
-- 305 linhas reutilizam a forma “executa a instrução específica”;
-- essas linhas reaproveitam uma justificativa de seção, em vez de explicar a semântica precisa da instrução;
-- 974 ocorrências de “PROVA FUNCIONAL” aparecem no documento porque a evidência da seção é repetida por linha;
-- um teste que prova o comportamento de uma função não prova automaticamente cada declaração, delimitador, log, assignment ou fallback da função.
-
-Para aprovação, cada uma dessas linhas precisa receber descrição concreta e a evidência precisa ser reclassificada conservadoramente.
+A reprovação anterior foi resolvida pela reauditoria acima. O arquivo está **✅ APROVADO**.
 
 ### `calculate-visual-fingerprint.js`
 
@@ -138,12 +144,11 @@ A produção de novos arquivos fica **pausada** até que as Bíblias materializa
 
 Ordem de revisão:
 
-1. `extension/background.js`;
-2. `extension/background/actions/calculate-visual-fingerprint.js`;
-3. `extension/background/actions/claim-gemini-job.js`;
-4. `extension/background/actions/commit-result.js`;
-5. `extension/background/actions/deliver-result-from-tab.js`;
-6. `extension/background/actions/deliver-result-url.js`.
+1. `extension/background/actions/calculate-visual-fingerprint.js`;
+2. `extension/background/actions/claim-gemini-job.js`;
+3. `extension/background/actions/commit-result.js`;
+4. `extension/background/actions/deliver-result-from-tab.js`;
+5. `extension/background/actions/deliver-result-url.js`.
 
 Somente depois de todas essas revisões voltará a fila normal em:
 
