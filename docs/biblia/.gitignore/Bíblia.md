@@ -1,6 +1,6 @@
 # Bíblia técnica — .gitignore
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE ATIVA  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `e48fc70b1acc14aabb245f0db1820bc6c7a2849e`  
 > **Agente responsável pela auditoria:** Agente L  
 > **Tipo:** configuração Git — exclusão de dependências, segredos e artefatos gerados  
@@ -674,4 +674,4 @@ tests/fixtures/manga-images/*.png
 - Regras sem assertion focal permanecem classificadas conservadoramente.
 - Nenhuma alteração funcional foi feita no `.gitignore`.
 
-**Estado documental desta materialização:** 🟠 EM ANDAMENTO — pronta para promoção somente após auditoria e atualização serializada dos rastreadores compartilhados.
+**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md` para o SHA auditado; fonte integral, 38/38 posições e classificação conservadora entre gate/contrato/lacuna foram reconfirmadas.
