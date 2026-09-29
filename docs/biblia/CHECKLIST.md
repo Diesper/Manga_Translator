@@ -18,9 +18,9 @@
 
 - [x] 001 — `extension/manifest.json` → `docs/biblia/extension/manifest.json/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 002 — `extension/background.js` → `docs/biblia/extension/background.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` **← EM ANDAMENTO — REVISÃO DE QUALIDADE**
+- [x] 003 — `extension/background/actions/calculate-visual-fingerprint.js` → `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [ ] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` **← EM ANDAMENTO — REVISÃO DE QUALIDADE**
 - [ ] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
 - [ ] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
 - [ ] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**

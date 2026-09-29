@@ -47,7 +47,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 |---:|---|---|---|---|---|---|
 | 1 | `extension/manifest.json` | SHA correto; bloco integral exato | 76/76 posições documentadas | categorias diretas/gate/indiretas/lacunas distinguíveis; referências verificadas | específica ao Manifest e aos consumidores | ✅ APROVADO |
 | 2 | `extension/background.js` | SHA `667c05eb2d7a...` reconfirmado; bloco integral exato | 1251 linhas + newline final = 1252/1252 posições | evidência classificada por comportamento/unidade; simulação SM separada de prova direta | 32 unidades específicas + papel local por posição; fallback genérico anterior removido | ✅ APROVADO |
-| 3 | `extension/background/actions/calculate-visual-fingerprint.js` | SHA correto; bloco integral exato | 130/130; nenhuma divergência | existem testes reais fortes, porém linhas estruturais recebem `✅ PROVADO` pelo resultado da faixa, não por assertion daquela linha | 15 linhas ainda caem no fallback “executa a instrução específica” | 🟣 REVISÃO OBRIGATÓRIA |
+| 3 | `extension/background/actions/calculate-visual-fingerprint.js` | SHA `ea474845cf9c...` reconfirmado; bloco integral exato | 129 linhas + newline final = 130/130 posições | prova direta, background integrado, consumidor e simulação visual separados; gaps de erro/capabilities explícitos | 14 unidades específicas + papel local por posição; fallback genérico removido | ✅ APROVADO |
 | 4 | `extension/background/actions/check-extraction-tab.js` | SHA correto; bloco integral exato | corrigido para 26/26 posições | hit/miss e roteamento têm evidência real; lacunas de ordem/sender ausente continuam explícitas | específica ao mapping/ownership da aba | ✅ APROVADO |
 | 5 | `extension/background/actions/claim-gemini-job.js` | SHA correto; bloco integral exato | 103/103; nenhuma divergência | testes reais provam allowlist, SOURCE_DENIED, mismatch e alias, mas a frase de evidência verde é repetida genericamente em todas as linhas | semântica em geral boa, classificação de prova não é linha-específica | 🟣 REVISÃO OBRIGATÓRIA |
 | 6 | `extension/background/actions/commit-result.js` | SHA correto; bloco integral exato | 107/107; nenhuma divergência | testes reais provam commit, persistência, batch, ownership e journal; porém “coberta direta ou estruturalmente ... quando aplicável” é vago e não classificável por linha | boa semântica geral, evidência precisa ser refeita | 🟣 REVISÃO OBRIGATÓRIA |
@@ -55,6 +55,18 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 8 | `extension/background/actions/deliver-result-url.js` | SHA correto; bloco integral exato | 94/94; nenhuma divergência | testes reais cobrem ownership, batch, URL e registro; alguns rótulos verdes continuam aplicados por faixa | 17 linhas usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 
 ## Correções já aplicadas pela auditoria
+
+### `calculate-visual-fingerprint.js` — reauditoria aprovada em 2026-09-29
+
+- 130/130 posições reconfirmadas contra SHA `ea474845cf9c6a6784e3ceb75298f0ac8df86e06`;
+- explicação reorganizada em 14 unidades de comportamento, sem herdar “✅” para delimitadores/declarações;
+- `calculate-visual-fingerprint-action.test.js` e `test_bg59.test.js` tratados como prova da implementação real;
+- `background-fingerprint.visual.js` reclassificado corretamente como **simulação complementar**;
+- lacunas adicionadas para parse inválido, HTTP não-2xx, decode/canvas, API parcial, imagem quadrada, timeout/tamanho e privacidade da URL;
+- risco de `allowedSources:any` + fetch HTTP(S), log “visual-v3” stale e ausência de timeout/size guard registrados.
+
+**Veredito:** ✅ APROVADO.
+
 
 ### `background.js` — reauditoria aprovada em 2026-09-29
 
@@ -94,14 +106,9 @@ A integridade física foi reconfirmada:
 
 A reprovação anterior foi resolvida pela reauditoria acima. O arquivo está **✅ APROVADO**.
 
-### `calculate-visual-fingerprint.js`
+### `calculate-visual-fingerprint.js` — histórico resolvido
 
-Os testes reais são bons, mas a documentação mistura “comportamento da faixa provado” com “linha provada”. Exemplo: declarações/try/catch dentro da validação recebem `✅ PROVADO` porque os testes rejeitam URLs, embora a assertion não prove individualmente cada linha. A solução é:
-
-- manter a explicação do comportamento;
-- classificar a linha como execução indireta quando apropriado;
-- reservar prova direta para valores/efeitos realmente assertados;
-- substituir os 15 fallbacks genéricos por explicações específicas.
+A reprovação anterior foi resolvida pela reauditoria acima. O arquivo está **✅ APROVADO**.
 
 ### `claim-gemini-job.js`
 
@@ -144,11 +151,10 @@ A produção de novos arquivos fica **pausada** até que as Bíblias materializa
 
 Ordem de revisão:
 
-1. `extension/background/actions/calculate-visual-fingerprint.js`;
-2. `extension/background/actions/claim-gemini-job.js`;
-3. `extension/background/actions/commit-result.js`;
-4. `extension/background/actions/deliver-result-from-tab.js`;
-5. `extension/background/actions/deliver-result-url.js`.
+1. `extension/background/actions/claim-gemini-job.js`;
+2. `extension/background/actions/commit-result.js`;
+3. `extension/background/actions/deliver-result-from-tab.js`;
+4. `extension/background/actions/deliver-result-url.js`.
 
 Somente depois de todas essas revisões voltará a fila normal em:
 
