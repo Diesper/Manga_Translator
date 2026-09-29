@@ -1,14 +1,14 @@
 # Manga Translator — Documentação Técnica Consolidada
 
-> **Bíblia técnica:** para a leitura integral do projeto, com o código documentado linha por linha, justificativas de implementação e marcação explícita de trechos sem prova de teste rastreável, consulte [`docs/Bíblia.md`](./Bíblia.md).
+> **Bíblias técnicas por arquivo:** a documentação linha a linha não é mais um arquivo monolítico gerado. Cada arquivo do corpus recebe sua própria `Bíblia.md` em `docs/biblia/<caminho-do-arquivo>/Bíblia.md`. O progresso e a ordem obrigatória ficam em [`docs/biblia/STATUS.md`](./biblia/STATUS.md) e [`docs/biblia/CHECKLIST.md`](./biblia/CHECKLIST.md).
 
 
 > **Documento canônico da arquitetura atual do Manga Translator.**
 >
 > **Fonte única da versão:** `package.json`. O Manifest, os metadados de teste, a UI e os artefatos de release são derivados dessa fonte.
 >
-> Esta é a **única documentação canônica** do projeto. Ela descreve a arquitetura,
-> o runtime, os testes, a CI, o release e as decisões de manutenção vigentes.
+> Este arquivo continua sendo a **documentação canônica da arquitetura vigente**. As Bíblias em `docs/biblia/` são análises subordinadas por arquivo — não fontes arquiteturais concorrentes — e registram código integral, justificativas e lacunas de teste.
+>
 > Conteúdo ainda válido dos antigos documentos separados e do histórico de PRs foi
 > incorporado aqui; planos já executados, benchmarks superados, paths antigos e
 > hipóteses de investigação encerradas foram descartados.
@@ -2203,7 +2203,8 @@ A reestruturação eliminou a organização em dois projetos npm e transformou a
 - `scripts/validation/`: gates e self-tests de infraestrutura;
 - `scripts/maintenance/`: diagnósticos pesados;
 - `scripts/release/`: versionamento/release;
-- `docs/Documentação.md`: documentação única.
+- `docs/Documentação.md`: documentação arquitetural canônica;
+- `docs/biblia/`: Bíblias técnicas individuais por arquivo, com `STATUS.md` e `CHECKLIST.md` controlando progresso.
 
 ## 22.2 Fase 0 concluída
 
@@ -2233,7 +2234,8 @@ A conclusão da Fase 0 é definida pelo estado estrutural e pelos gates. O hist�
 | jobs com `working-directory: tests` | 9 | **0** |
 | finders locais de raiz | ≥30 | **0** |
 | tooling em `tests/ci/` | 22 itens | **0** |
-| documentos em `docs/` | múltiplos + histórico | **1 canônico** |
+| documentação arquitetural canônica | múltiplos + histórico | **1 (`docs/Documentação.md`)** |
+| documentação linha a linha | documentos dispersos/monólito gerado | **Bíblias individuais controladas em `docs/biblia/`** |
 
 A configuração `scripts/ci/playwright-merge.config.js` não conta como segunda configuração de execução: o gate estrutural proíbe nela `testDir`, `outputDir`, workers, retries, projects, webServer e launchOptions.
 
