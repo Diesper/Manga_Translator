@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **15**
-- ✅ Concluídos auditados: **15**
+- Bíblias materializadas: **16**
+- ✅ Concluídos auditados: **16**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **218**
-- Cobertura realmente aprovada: **6,44%**
-- Cobertura apenas materializada: **6,44%**
-- Último aprovado: `extension/background/actions/get-tab-id.js`
-- Arquivo atual: `extension/background/actions/log-entry.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/log-entry.js/Bíblia.md`
-- Fila normal em produção: `extension/background/actions/log-entry.js`
+- ⬜ Ainda não materializados: **217**
+- Cobertura realmente aprovada: **6,87%**
+- Cobertura apenas materializada: **6,87%**
+- Último aprovado: `extension/background/actions/log-entry.js`
+- Arquivo atual: `extension/background/actions/open-existing-folder.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md`
+- Fila normal em produção: `extension/background/actions/open-existing-folder.js`
 
 ## Auditoria de 2026-09-29
 
@@ -78,6 +78,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 13. ✅ `extension/background/actions/fetch-image-base64.js`
 14. ✅ `extension/background/actions/force-send-activation.js`
 15. ✅ `extension/background/actions/get-tab-id.js`
+16. ✅ `extension/background/actions/log-entry.js`
 
 ### Revisão obrigatória
 
@@ -104,8 +105,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 13 | ✅ CONCLUÍDO | `extension/background/actions/fetch-image-base64.js` | `4a4825c36fdb` | `docs/biblia/extension/background/actions/fetch-image-base64.js/Bíblia.md` |
 | 14 | ✅ CONCLUÍDO | `extension/background/actions/force-send-activation.js` | `cbeea5768301` | `docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md` |
 | 15 | ✅ CONCLUÍDO | `extension/background/actions/get-tab-id.js` | `2f3b26304ac1` | `docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md` |
-| 16 | 🟠 EM ANDAMENTO | `extension/background/actions/log-entry.js` | `d57e1a25531b` | `docs/biblia/extension/background/actions/log-entry.js/Bíblia.md` |
-| 17 | ⬜ PENDENTE | `extension/background/actions/open-existing-folder.js` | `59ef82cbf960` | `docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md` |
+| 16 | ✅ CONCLUÍDO | `extension/background/actions/log-entry.js` | `d57e1a25531b` | `docs/biblia/extension/background/actions/log-entry.js/Bíblia.md` |
+| 17 | 🟠 EM ANDAMENTO | `extension/background/actions/open-existing-folder.js` | `59ef82cbf960` | `docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md` |
 | 18 | ⬜ PENDENTE | `extension/background/actions/open-manga-root.js` | `71c83df253cd` | `docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md` |
 | 19 | ⬜ PENDENTE | `extension/background/actions/refresh-job-watchdog.js` | `25f86a8dba57` | `docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md` |
 | 20 | ⬜ PENDENTE | `extension/background/actions/relay-progress.js` | `24e377893c71` | `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md` |
