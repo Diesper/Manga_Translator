@@ -1,7 +1,8 @@
 # Bíblia técnica — `extension/background.js`
 
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** 🟠 **EM ANDAMENTO — REVISÃO DE QUALIDADE**.  
+> **Auditoria:** reprovada em 2026-09-29; 305 linhas ainda usam fallback genérico e a evidência precisa ser reclassificada de modo conservador. Ver `docs/biblia/AUDITORIA.md`.
 > **Arquivo-fonte:** `extension/background.js`  
 > **SHA auditado:** `667c05eb2d7adfca16a79d3e706c39a1e9398b72`  
 > **Linhas auditadas:** **1252**  
@@ -15658,6 +15659,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 - Explicação de arquitetura, dependências e alternativas: **SIM**.
 - Evidência de teste separada de mera menção textual: **SIM**.
 - Lacunas de teste preservadas como avisos: **SIM**.
-- Arquivo apto a ser marcado `CONCLUÍDO`: **SIM**.
+- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE EM ANDAMENTO**.
 
 **Próximo arquivo permitido somente após atualização do STATUS/CHECKLIST:** `extension/background/actions/calculate-visual-fingerprint.js`.
