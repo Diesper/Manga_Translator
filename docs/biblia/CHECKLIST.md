@@ -20,8 +20,8 @@
 - [x] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md`
 - [x] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md`
 - [x] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md`
-- [ ] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` **← EM ANDAMENTO**
-- [ ] 009 — `extension/background/actions/deliver-result.js` → `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md`
+- [x] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md`
+- [ ] 009 — `extension/background/actions/deliver-result.js` → `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` **← EM ANDAMENTO**
 - [ ] 010 — `extension/background/actions/download-chapter.js` → `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md`
 - [ ] 011 — `extension/background/actions/download-image.js` → `docs/biblia/extension/background/actions/download-image.js/Bíblia.md`
 - [ ] 012 — `extension/background/actions/export-all.js` → `docs/biblia/extension/background/actions/export-all.js/Bíblia.md`
