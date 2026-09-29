@@ -113,6 +113,20 @@ Todos esses eventos são sintéticos e têm isTrusted=false. Uma mudança do Gem
 | E2E em mode=temp_chat | translation-flow executa extensão real nesse modo, mas não isola todos os sinais desta API | 🟨 EXECUTADO INDIRETAMENTE |
 | job-runner aceita dependency TemporaryChat | job-runner.test usa jest.fn e testa guarda de dependências | 🟨 CONTRATO COM MOCK; NÃO PROVA ESTE MÓDULO |
 
+### 9.1 Arquivos de prova efetivamente abertos
+
+| Arquivo | SHA lido | Evidência conferida |
+|---|---|---|
+| `tests/unit/content-gemini/temporary-chat-v2.test.js` | `bdf7146fac7f...` | módulo real via `require`; TEMP-01…TEMP-05 e anti-double-toggle, com assertions de status/clique |
+| `tests/unit/content-gemini/temp-chat-activator.test.js` | `f9418a4301c9...` | discovery semântico, estados PT/EN, close control, ordem dos eventos e `ensureActive` |
+| `extension/content/gemini/job-runner.js` | `1b16fd656e82...` | guarda da dependência, chamada de `ensureActive`, mapeamento de status e política de exclusão |
+| `extension/content/content_gemini.js` | `55bc83afe31a...` | captura global, guarda e injeção de `temporaryChatApi` |
+| `extension/manifest.json` | `841fe70c1833...` | ordem real de carregamento |
+| `tests/unit/content-gemini/job-runner.test.js` | `feae92421dd9...` | mock/contrato do consumidor; não usado como prova interna deste módulo |
+| `tests/e2e/translation-flow.spec.js` | `db1da42c48ff...` | execução integrada em `temp_chat`; não tratada como assertion focal dos helpers |
+
+A classificação acima deriva das assertions efetivamente lidas, não de mera ocorrência textual de símbolos.
+
 ## 10. Lacunas de teste
 
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para textOf(null), title e data-testid como fonte semântica isolada.
