@@ -47,15 +47,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **52**
+- Bíblias materializadas: **54**
 - ✅ Concluídos auditados: **47**
-- 🟠 Em andamento: **11**
+- 🟠 Em andamento: **12**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **181**
-- ⬜ Pendentes: **175**
+- ⬜ Ainda não materializados: **179**
+- ⬜ Pendentes: **174**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **20,17%**
-- Cobertura apenas materializada: **22,32%**
+- Cobertura apenas materializada: **23,18%**
 - Último aprovado: `extension/reader/reader.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
@@ -69,7 +69,8 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
   - `#057 extension/shared/gtc-fingerprint.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md`
   - `#058 extension/shared/gtc-indexeddb.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#059 extension/shared/shared-ui.js`
+  - `#059 extension/shared/shared-ui.js` — `Agente L` — Bíblia: `docs/biblia/extension/shared/shared-ui.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#060 extension/shared/storage-manager.js`
 
 ## Auditoria de 2026-09-29
 
