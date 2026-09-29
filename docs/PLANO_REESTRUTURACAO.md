@@ -193,3 +193,50 @@ Observações:
 - A segunda config Playwright é somente `scripts/ci/playwright-merge.config.js`; o gate estrutural proíbe nela `testDir`, `outputDir`, workers, retries, projects, webServer e launchOptions, evitando que vire uma segunda configuração de execução.
 - A queda de branches em relação ao valor de referência prévio não reduz o gate: o piso protegido continua 71% e o run observado ficou em 71,52%.
 - As contagens de Jest, visual, smoke e E2E não foram inferidas por arquivos; foram extraídas do GitHub Actions.
+
+
+## Acoplamentos C01–C41 — evidência individual
+
+| ID | Status | Evidência atual |
+|---|---|---|
+| C01 | Tratado | `sync-version.js` usa `package-lock.json` da raiz e `packages[""].version`; não depende mais de `tests/package*.json`. |
+| C02 | Tratado | `DEFAULT_ROOT = path.resolve(__dirname, '../..')` após mover para `scripts/release/`. |
+| C03 | Tratado | `version-sync.test.js` foi atualizado para o caminho `scripts/release/sync-version.js`; suíte Jest verde. |
+| C04 | Tratado | `publish.yml` continua empacotando `extension/.`, copia `docs/Documentação.md` e usa o versionamento sem dependências externas. |
+| C05 | Tratado | `docs/Documentação.md` preservou nome e caminho. |
+| C06 | Tratado | workflow continua com `name: MangaTranslator CI`; recovery permanece separado. |
+| C07 | Tratado | IDs/nome dos 14 jobs históricos foram preservados; jobs novos são aditivos e o contrato verifica dependências do gate. |
+| C08 | Tratado | parser `jobBlock()` continua exigindo IDs de job com dois espaços; YAML não foi reformatado para outra estrutura. |
+| C09 | Tratado | literais críticos foram migrados junto com paths; shards, Codecov, diagnósticos, gate e nomes de scripts consumidos pela CI continuam protegidos. |
+| C10 | Tratado | contrato aponta para configs canônicas da raiz e reporter em `scripts/ci/`, preservando `forbidOnly`, paralelismo, retries e coverage V8. |
+| C11 | Tratado | matriz de regressão permanece canônica em `scripts/ci/data/regression-matrix.json`; paths de selftests migrados sem renomear marcadores. |
+| C12 | Tratado | jobs sem `npm ci` executam validadores escritos somente com módulos nativos do Node. |
+| C13 | Tratado | `npm run lint` percorre `extension`, `tests` e `scripts`; tooling movido continua no syntax-check. |
+| C14 | Tratado | cache, coverage, blob, test-results e `.ci-results` apontam para a raiz; `working-directory: tests` foi eliminado. |
+| C15 | Tratado | `continue-on-error` permanece somente em uploads/integrações não-gate; passos de teste são bloqueantes. |
+| C16 | Tratado | Jest consolidado em `/jest.config.js`, com projects, environments, timeouts e modo coverage. |
+| C17 | Tratado | thresholds obsoletos da antiga config não viraram novo gate; o gate efetivo segue `verify-coverage.js` + baseline. |
+| C18 | Tratado | inventário total continua em `test:ci`; scripts unit/integration não aplicam indevidamente a baseline total. |
+| C19 | Tratado | `test:unit` seleciona apenas projetos unitários; `test:integration` apenas integration; `run-jest-ci` prova união/disjunção. |
+| C20 | Tratado | `run-all-tests.js` e `--forceExit` removidos; runner CI reprova aviso de worker forçado. |
+| C21 | Tratado | coverage está na raiz, exige 56 arquivos, LCOV + summary e thresholds críticos; run #1589 aprovou 56/56. |
+| C22 | Tratado | `extension/background.js` permaneceu no mesmo caminho, preservando o loader textual. |
+| C23 | Tratado | service worker segue `background.js`; `importScripts` foi atualizado somente para subpaths internos do 0-G. |
+| C24 | Tratado | descoberta de raiz centralizada em `tests/helpers/repo-root.js`; gate proíbe finders locais e `process.cwd()` nos testes. |
+| C25 | Tratado | profundidade das categorias de testes foi preservada; referências à extensão foram atualizadas atomicamente no 0-G. |
+| C26 | Tratado | `tests/mocks/` e `tests/helpers/` permaneceram em locais canônicos. |
+| C27 | Tratado | visual foi migrado para `tests/visual/`; formato `Passed/Failed/Total` e baseline 224 foram preservados. |
+| C28 | Não definido | O registro original salta de C27 para C29; não há requisito C28 a migrar. |
+| C29 | Tratado | Playwright canônico na raiz: `testDir ./tests/e2e`, output raiz, reporter em `scripts/ci/`, extensão resolvida pela raiz. |
+| C30 | Tratado | cinco grupos explícitos 1/3/4/4/9, 21 testes e workers vindos do JSON continuam protegidos pelo contrato. |
+| C31 | Tratado | runner interativo antigo removido; `MANGA_E2E_BROWSER_MODE` é consumido pelos três specs E2E. |
+| C32 | Tratado | Chromium `--with-deps --no-shell`, Xvfb, blobs e merge-reports foram preservados; nenhum headless experimental substituiu o gate. |
+| C33 | Tratado | PNGs versionados removidos; `tests/fixtures/manga-images.js` é a única definição determinística, materializada por `tests/setup/create-test-images.js`. |
+| C34 | Tratado | mock server e página/imagens usam `tests/fixtures/`; E2E 21/21 comprova o conjunto integrado. |
+| C35 | Tratado | Manifest foi atualizado atomicamente para content/popup/options; gate estrutural verifica a ordem/caminhos do 0-G. |
+| C36 | Tratado | `extension/` e `extension/manifest.json` não foram movidos/renomeados. |
+| C37 | Tratado | fingerprint foi movido para `extension/shared/` e os usos no content script e service worker foram atualizados. |
+| C38 | Tratado | HTML, `runtime.getURL`, executeScript e referências de UI foram migrados para popup/options/reader/content; testes passaram no run verde. |
+| C39 | Tratado | wrappers BAT/PS1 foram removidos; Node/npm na raiz é o caminho oficial documentado. |
+| C40 | Tratado | `.gitignore` cobre caches Jest, `.ci-results`, blobs agregados, dist e outputs da raiz. |
+| C41 | Tratado | textos defasados principais foram atualizados; novo gate de paths já encontrou e corrigiu uma referência pré-0-G residual. |

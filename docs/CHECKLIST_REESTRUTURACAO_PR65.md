@@ -78,6 +78,12 @@
 - [x] 2 → 1 package.json; 3 → 1 configs Jest; 12 → 0 BAT/PS1; 9 → 0 jobs com working-directory em tests; ≥30 → 0 finders locais.
 - [x] Baselines funcionais permaneceram acima dos mínimos protegidos.
 
+## Acoplamentos frágeis
+
+- [x] C01–C41 detalhados individualmente em `docs/PLANO_REESTRUTURACAO.md`, com C28 explicitamente marcado como inexistente no registro original.
+- [x] C31 confirmado por leitura: os três specs E2E consomem `MANGA_E2E_BROWSER_MODE`.
+- [x] C01/C02/C04 confirmados por leitura do `sync-version.js` e `publish.yml`.
+
 ## Estado da PR
 
 - [x] PR #65 permanece aberta e mergeable.
