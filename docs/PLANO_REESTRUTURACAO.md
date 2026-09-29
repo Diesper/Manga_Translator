@@ -159,3 +159,37 @@ Após a migração principal:
 
 O acompanhamento item a item desta execução fica em `docs/CHECKLIST_REESTRUTURACAO_PR65.md`.
 A checklist deve ser atualizada a cada novo endurecimento ou evidência de CI, sem marcar como concluído o que ainda depende de `workflow_dispatch` ou de validação do novo HEAD.
+
+
+## Comparação estrutural — Etapa 25
+
+Medições do estado anterior vêm da pré-auditoria do plano; o estado posterior foi conferido na árvore real do PR #65 e, para testes/cobertura, no run verde #1589.
+
+| Métrica | Antes | Depois |
+|---|---:|---:|
+| `package.json` funcionais | 2 | **1** |
+| `package-lock.json` | 1 em `tests/` | **1 na raiz** |
+| Configs Jest | 3 | **1** |
+| Configs Playwright | 2 | **2** (1 execução + 1 auxiliar de merge, limitada a reporter) |
+| Runners/tool runners de teste | 6 | **4** (`run-jest-ci`, `run-e2e-group`, smoke e visual; sem duplicação equivalente) |
+| BAT/PS1 | 12 | **0** |
+| Scripts npm | 35 (9 + 26) | **34 em um único package.json** |
+| Jobs com `working-directory: tests` | 9 | **0** |
+| Cópias locais de `findRoot/_findRoot` | ≥ 30 | **0** (helper canônico) |
+| Tooling dentro de `tests/ci` + configs/runners antigos | 22 | **0** |
+| Documentos soltos na raiz | 2 | **0** |
+| Suítes Jest | ≥ 108 | **109** |
+| Testes Jest | ≥ 848 | **851** |
+| Testes visuais | ≥ 224 | **224** |
+| E2E | 21 | **21/21; skipped=0; flaky=0** |
+| Smoke | 6 arquivos | **6 arquivos** |
+| Coverage statements | ref. 79,44% | **79,55%** |
+| Coverage branches | ref. 71,85% | **71,52%** (acima do piso de 71%) |
+| Coverage functions | ref. 82,50% | **83,04%** |
+| Coverage lines | ref. 79,44% | **79,55%** |
+| Arquivos instrumentados | ≥ 56 | **56** |
+
+Observações:
+- A segunda config Playwright é somente `scripts/ci/playwright-merge.config.js`; o gate estrutural proíbe nela `testDir`, `outputDir`, workers, retries, projects, webServer e launchOptions, evitando que vire uma segunda configuração de execução.
+- A queda de branches em relação ao valor de referência prévio não reduz o gate: o piso protegido continua 71% e o run observado ficou em 71,52%.
+- As contagens de Jest, visual, smoke e E2E não foram inferidas por arquivos; foram extraídas do GitHub Actions.

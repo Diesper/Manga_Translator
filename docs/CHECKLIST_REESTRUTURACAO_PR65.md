@@ -63,6 +63,12 @@
 - [x] O contrato protege os seletores canônicos de `test:unit` e `test:integration`.
 - [ ] CI do novo HEAD precisa confirmar a nova prova de partição.
 
+## Comparação antes × depois
+
+- [x] Etapa 25 registrada em `docs/PLANO_REESTRUTURACAO.md` com métricas estruturais reais da árvore do PR e números da CI.
+- [x] 2 → 1 package.json; 3 → 1 configs Jest; 12 → 0 BAT/PS1; 9 → 0 jobs com working-directory em tests; ≥30 → 0 finders locais.
+- [x] Baselines funcionais permaneceram acima dos mínimos protegidos.
+
 ## Estado da PR
 
 - [x] PR #65 permanece aberta e mergeable.
