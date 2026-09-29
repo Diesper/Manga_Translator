@@ -6,7 +6,6 @@
   "scripts": {
     "test": "npm run test:ci && npm run test:smoke && npm run test:visual",
     "test:all": "npm run test && npm run test:e2e && npm run test:coverage && npm run test:coverage:verify",
-    "test:fast": "npm run test:ci",
     "test:unit": "jest --config jest.config.js --selectProjects background gtc content-scripts popup reader manifest shared-ui",
     "test:unit:gtc": "jest --config jest.config.js --selectProjects gtc",
     "test:unit:background": "jest --config jest.config.js --selectProjects background",
@@ -26,7 +25,6 @@
     "mock:server": "node tests/fixtures/gemini-mock-server.js",
     "test:ci": "node scripts/ci/run-jest-ci.js",
     "test:coverage": "node scripts/ci/run-jest-ci.js --coverage",
-    "test:coverage:ci": "npm run test:coverage && npm run test:coverage:verify",
     "test:coverage:verify": "node scripts/validation/verify-coverage.js",
     "test:coverage:infra": "node scripts/validation/verify-coverage-selftest.js",
     "test:watch": "jest --config jest.config.js --watch --selectProjects background gtc content-scripts popup reader manifest shared-ui",
