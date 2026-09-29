@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/gemini/observer.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — `GPT-5.6-Sol#H`  
+> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE — `GPT-5.6-Sol#H`  
 > **SHA auditado:** `59c5335e1b4fd6b2877988cde9816f1c0b290b35`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#H`  
 > **Tipo:** JavaScript de content script / módulo Gemini orientado a eventos  
