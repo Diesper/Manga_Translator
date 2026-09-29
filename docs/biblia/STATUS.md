@@ -45,17 +45,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **28**
-- ✅ Concluídos auditados: **28**
+- Bíblias materializadas: **29**
+- ✅ Concluídos auditados: **29**
 - 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **205**
-- Cobertura realmente aprovada: **12,02%**
-- Cobertura apenas materializada: **12,02%**
-- Último aprovado: `extension/background/jobs-reconciliation.js`
-- Arquivo atual: `extension/background/jobs-watchdog.js`
-- Bíblia atual: `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md`
-- Fila normal em produção: `extension/background/jobs-watchdog.js`
+- ⬜ Ainda não materializados: **204**
+- Cobertura realmente aprovada: **12,45%**
+- Cobertura apenas materializada: **12,45%**
+- Último aprovado: `extension/background/jobs-watchdog.js`
+- Arquivo atual: `extension/background/log.js`
+- Bíblia atual: `docs/biblia/extension/background/log.js/Bíblia.md`
+- Fila normal em produção: `extension/background/log.js`
 
 ## Auditoria de 2026-09-29
 
@@ -91,6 +91,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 26. ✅ `extension/background/jobs-dom-ack.js`
 27. ✅ `extension/background/jobs-lifecycle.js`
 28. ✅ `extension/background/jobs-reconciliation.js`
+29. ✅ `extension/background/jobs-watchdog.js`
 
 ### Revisão obrigatória
 
@@ -130,8 +131,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 26 | ✅ CONCLUÍDO | `extension/background/jobs-dom-ack.js` | `07b4197a206f` | `docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md` |
 | 27 | ✅ CONCLUÍDO | `extension/background/jobs-lifecycle.js` | `e4ab9f6c5472` | `docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md` |
 | 28 | ✅ CONCLUÍDO | `extension/background/jobs-reconciliation.js` | `f0f2370ba6b7` | `docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md` |
-| 29 | 🟠 EM ANDAMENTO | `extension/background/jobs-watchdog.js` | `c17b766d7fbc` | `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` |
-| 30 | ⬜ PENDENTE | `extension/background/log.js` | `86d5f2f1229b` | `docs/biblia/extension/background/log.js/Bíblia.md` |
+| 29 | ✅ CONCLUÍDO | `extension/background/jobs-watchdog.js` | `c17b766d7fbc` | `docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md` |
+| 30 | 🟠 EM ANDAMENTO | `extension/background/log.js` | `86d5f2f1229b` | `docs/biblia/extension/background/log.js/Bíblia.md` |
 | 31 | ⬜ PENDENTE | `extension/background/router.js` | `d9278e9e58e4` | `docs/biblia/extension/background/router.js/Bíblia.md` |
 | 32 | ⬜ PENDENTE | `extension/background/state.js` | `7570b545d5e9` | `docs/biblia/extension/background/state.js/Bíblia.md` |
 | 33 | ⬜ PENDENTE | `extension/background/tab-identity.js` | `008c9a054ae4` | `docs/biblia/extension/background/tab-identity.js/Bíblia.md` |
