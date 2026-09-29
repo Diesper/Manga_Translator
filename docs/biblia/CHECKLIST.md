@@ -61,7 +61,7 @@
 - [ ] 041 — `extension/content/gemini/deletion.js` → `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#B**
 - [x] 042 — `extension/content/gemini/dom.js` → `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 043 — `extension/content/gemini/editor.js` → `docs/biblia/extension/content/gemini/editor.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#E**
-- [ ] 044 — `extension/content/gemini/image-quarantine.js` → `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#F**
+- [x] 044 — `extension/content/gemini/image-quarantine.js` → `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 045 — `extension/content/gemini/job-runner.js` → `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#G**
 - [ ] 046 — `extension/content/gemini/observer.js` → `docs/biblia/extension/content/gemini/observer.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#H**
 - [ ] 047 — `extension/content/gemini/result-extractor.js` → `docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#I**
@@ -69,7 +69,7 @@
 - [ ] 049 — `extension/content/gemini/temporary-chat.js` → `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#J**
 - [ ] 050 — `extension/content/inject.js` → `docs/biblia/extension/content/inject.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
 - [ ] 051 — `extension/options/options.html` → `docs/biblia/extension/options/options.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#D**
-- [ ] 052 — `extension/options/options.js` → `docs/biblia/extension/options/options.js/Bíblia.md`
+- [ ] 052 — `extension/options/options.js` → `docs/biblia/extension/options/options.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#F**
 - [ ] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md`
 - [ ] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md`
 - [ ] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md`
