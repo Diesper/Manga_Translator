@@ -49,12 +49,24 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 2 | `extension/background.js` | SHA `667c05eb2d7a...` reconfirmado; bloco integral exato | 1251 linhas + newline final = 1252/1252 posições | evidência classificada por comportamento/unidade; simulação SM separada de prova direta | 32 unidades específicas + papel local por posição; fallback genérico anterior removido | ✅ APROVADO |
 | 3 | `extension/background/actions/calculate-visual-fingerprint.js` | SHA `ea474845cf9c...` reconfirmado; bloco integral exato | 129 linhas + newline final = 130/130 posições | prova direta, background integrado, consumidor e simulação visual separados; gaps de erro/capabilities explícitos | 14 unidades específicas + papel local por posição; fallback genérico removido | ✅ APROVADO |
 | 4 | `extension/background/actions/check-extraction-tab.js` | SHA correto; bloco integral exato | corrigido para 26/26 posições | hit/miss e roteamento têm evidência real; lacunas de ordem/sender ausente continuam explícitas | específica ao mapping/ownership da aba | ✅ APROVADO |
-| 5 | `extension/background/actions/claim-gemini-job.js` | SHA correto; bloco integral exato | 103/103; nenhuma divergência | testes reais provam allowlist, SOURCE_DENIED, mismatch e alias, mas a frase de evidência verde é repetida genericamente em todas as linhas | semântica em geral boa, classificação de prova não é linha-específica | 🟣 REVISÃO OBRIGATÓRIA |
+| 5 | `extension/background/actions/claim-gemini-job.js` | SHA `f5c4643d2919...` reconfirmado; bloco integral exato | 102 linhas + newline final = 103/103 posições | prova da action, router, TabIdentity e consumidor separadas; gaps de ownership/erro explícitos | 13 unidades específicas + papel local por posição | ✅ APROVADO |
 | 6 | `extension/background/actions/commit-result.js` | SHA correto; bloco integral exato | 107/107; nenhuma divergência | testes reais provam commit, persistência, batch, ownership e journal; porém “coberta direta ou estruturalmente ... quando aplicável” é vago e não classificável por linha | boa semântica geral, evidência precisa ser refeita | 🟣 REVISÃO OBRIGATÓRIA |
 | 7 | `extension/background/actions/deliver-result-from-tab.js` | SHA correto; bloco integral exato | 104/104; nenhuma divergência | testes reais cobrem sucesso/retry/sender/payload, mas rótulos verdes são herdados por faixa | 40 linhas ainda usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 | 8 | `extension/background/actions/deliver-result-url.js` | SHA correto; bloco integral exato | 94/94; nenhuma divergência | testes reais cobrem ownership, batch, URL e registro; alguns rótulos verdes continuam aplicados por faixa | 17 linhas usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 
 ## Correções já aplicadas pela auditoria
+
+### `claim-gemini-job.js` — reauditoria aprovada em 2026-09-29
+
+- sanitização/allowlist de campos mapeada ao teste que prova ausência de `signedUrl` e `internalOnly`;
+- SOURCE_DENIED separado da autorização forte por sender.tab.id + job/index;
+- jobId mismatch, aba manual e alias/replacement ligados às assertions específicas;
+- tab-identity e consumer tests tratados como evidência de helper/consumidor, não automaticamente como prova da action;
+- gaps explícitos para ensureInitialized, sender inválido, whitespace jobId, canonical mismatch, migration/storage failure e logs;
+- SHA e 103/103 posições reconfirmados.
+
+**Veredito:** ✅ APROVADO.
+
 
 ### `calculate-visual-fingerprint.js` — reauditoria aprovada em 2026-09-29
 
@@ -110,20 +122,9 @@ A reprovação anterior foi resolvida pela reauditoria acima. O arquivo está **
 
 A reprovação anterior foi resolvida pela reauditoria acima. O arquivo está **✅ APROVADO**.
 
-### `claim-gemini-job.js`
+### `claim-gemini-job.js` — histórico resolvido
 
-A descrição semântica é forte, mas a mesma frase:
-
-> “✅ quando coberta pelos cenários diretos acima...”
-
-é usada em todas as linhas. Isso não permite saber se uma linha está diretamente provada, apenas executada ou não coberta. A Bíblia deve mapear cada comportamento aos casos:
-
-- allowlist/sanitização;
-- jobId divergente;
-- aba manual;
-- source denied;
-- alias/replacement;
-- caminhos não testados.
+A classificação genérica anterior foi substituída por evidência por comportamento. O arquivo está **✅ APROVADO**.
 
 ### `commit-result.js`
 
@@ -151,10 +152,9 @@ A produção de novos arquivos fica **pausada** até que as Bíblias materializa
 
 Ordem de revisão:
 
-1. `extension/background/actions/claim-gemini-job.js`;
-2. `extension/background/actions/commit-result.js`;
-3. `extension/background/actions/deliver-result-from-tab.js`;
-4. `extension/background/actions/deliver-result-url.js`.
+1. `extension/background/actions/commit-result.js`;
+2. `extension/background/actions/deliver-result-from-tab.js`;
+3. `extension/background/actions/deliver-result-url.js`.
 
 Somente depois de todas essas revisões voltará a fila normal em:
 

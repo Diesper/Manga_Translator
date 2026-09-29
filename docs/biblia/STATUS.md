@@ -46,15 +46,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **8**
-- ✅ Concluídos auditados: **4**
+- ✅ Concluídos auditados: **5**
 - 🟠 Em andamento: **1**
-- 🟣 Aguardando revisão de qualidade: **3**
+- 🟣 Aguardando revisão de qualidade: **2**
 - ⬜ Ainda não materializados: **225**
-- Cobertura realmente aprovada: **1,72%**
+- Cobertura realmente aprovada: **2,15%**
 - Cobertura apenas materializada: **3,43%**
-- Último aprovado: `extension/background/actions/calculate-visual-fingerprint.js`
-- Arquivo atual: `extension/background/actions/claim-gemini-job.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md`
+- Último aprovado: `extension/background/actions/claim-gemini-job.js`
+- Arquivo atual: `extension/background/actions/commit-result.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md`
 - Próximo arquivo novo após terminar todas as revisões: `extension/background/actions/deliver-result.js`
 
 ## Auditoria de 2026-09-29
@@ -67,13 +67,13 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 2. ✅ `extension/background.js`
 3. ✅ `extension/background/actions/calculate-visual-fingerprint.js`
 4. ✅ `extension/background/actions/check-extraction-tab.js`
+5. ✅ `extension/background/actions/claim-gemini-job.js`
 
 ### Revisão obrigatória
 
-1. 🟠 `extension/background/actions/claim-gemini-job.js` — revisão atual.
-2. 🟣 `extension/background/actions/commit-result.js`
-3. 🟣 `extension/background/actions/deliver-result-from-tab.js`
-4. 🟣 `extension/background/actions/deliver-result-url.js`
+1. 🟠 `extension/background/actions/commit-result.js` — revisão atual.
+2. 🟣 `extension/background/actions/deliver-result-from-tab.js`
+3. 🟣 `extension/background/actions/deliver-result-url.js`
 
 Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 
@@ -85,8 +85,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 2 | ✅ CONCLUÍDO | `extension/background.js` | `667c05eb2d7a` | `docs/biblia/extension/background.js/Bíblia.md` |
 | 3 | ✅ CONCLUÍDO | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
 | 4 | ✅ CONCLUÍDO | `extension/background/actions/check-extraction-tab.js` | `9ee40474d8c5` | `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` |
-| 5 | 🟠 EM ANDAMENTO | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
-| 6 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
+| 5 | ✅ CONCLUÍDO | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
+| 6 | 🟠 EM ANDAMENTO | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
 | 7 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
 | 8 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
 | 9 | ⬜ PENDENTE | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |

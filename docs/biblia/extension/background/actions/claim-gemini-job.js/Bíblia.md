@@ -1,38 +1,125 @@
 # Bíblia técnica — `extension/background/actions/claim-gemini-job.js`
 
-> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
-> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
+> **Estado:** ✅ REAUDITADO E APROVÁVEL.  
 > **SHA auditado:** `f5c4643d291931f133a791a2deaa6eb94ef4500d`  
-> **Linhas auditadas:** **103**  
-> **Teste direto:** `tests/unit/background/claim-gemini-job-action.test.js` (`0cb6cb2f100d7493abfdf4038546e8be747289f1`).
+> **Tipo:** action de runtime — autorização/claim de job Gemini.  
+> **Linhas textuais:** **102**.  
+> **Posições documentais:** **103** com newline final.  
+> **Teste direto principal:** `tests/unit/background/claim-gemini-job-action.test.js` — `0cb6cb2f100d7493abfdf4038546e8be747289f1`.
 
 ## 1. Papel arquitetural
 
-Esta action é uma **fronteira de autorização e minimização de dados**. Uma aba do Gemini não recebe automaticamente um job só por estar em `gemini.google.com`: ela precisa reivindicar um job que pertença à sua identidade de aba. O protocolo tenta primeiro a chave direta `gemini_job_<canonicalTabId>` e, quando houve `tabs.onReplaced`, usa `jobIndex` + aliases apenas para provar que o job esperado continua pertencendo à aba canônica antes de migrar o ownership.
+Esta action é a ponte de bootstrap entre a aba Gemini e o job persistido no background. Ela **não procura um job qualquer**: o claim precisa estar ancorado no sender real, no tabId canônico e, quando fornecido, no jobId esperado que veio da URL gerenciada.
 
-O helper `safeJob` é tão importante quanto a verificação de ownership: ele aplica uma **allowlist de campos**. O teste contém propositalmente `signedUrl` e `internalOnly` no registro interno e prova que eles não chegam ao content script. Isso evita que o contrato externo cresça acidentalmente quando novos dados internos forem adicionados ao job.
+Há dois caminhos válidos:
 
-## 2. O que os testes provam
+1. **direto** — existe `gemini_job_<canonicalSenderTabId>`;
+2. **alias/replacement** — a chave direta falta, mas o jobId está no índice e o serviço de identidade prova que o tab antigo e o sender atual representam a mesma aba lógica; então a identidade é migrada e relida.
 
-- ✅ claim direto retorna exatamente os campos permitidos;
-- ✅ `signedUrl` e `internalOnly` não vazam;
-- ✅ jobId divergente é rejeitado mesmo na aba correta;
-- ✅ aba Gemini manual sem job recebe `job:null`;
-- ✅ origem não-Gemini é bloqueada pelo router com `SOURCE_DENIED`;
-- ✅ replacement/alias 100→200 consegue claim legítimo e migra `jobIndex` + storage;
-- ✅ chave antiga é removida e chave canônica nova contém o job migrado.
+A resposta é deliberadamente sanitizada por `safeJob`.
 
-### Lacunas preservadas
+## 2. Trust boundary e segurança
 
-- ⚠️ não há teste focal para `sender` sem `tab` dentro do executor (o router normalmente bloqueia/evita esse cenário antes);
-- ⚠️ não há teste focal para `context.state.jobIndex` em formato inválido/null;
-- ⚠️ não há teste focal onde `resolveCanonicalTabId` produz ownership divergente sem existir job direto;
-- ⚠️ não há teste focal de falha/rejeição de `migrateTabIdentity`; a action propagaria a exceção ao router;
-- ⚠️ `ensureInitialized` é opcional neste arquivo e o teste direto não injeta a função, portanto o caminho com await é coberto mais fortemente quando a action roda pelo background completo.
+### Origem
+O router só permite source `gemini`. No router atual, essa classificação vem do URL do sender (Gemini e também o caminho local de desenvolvimento previsto pelo router).
 
-## 3. Fonte integral
+### Ownership forte
+A origem sozinha não autoriza o job. O claim combina:
+- sender.tab.id fornecido pelo runtime;
+- canonicalização por TabIdentity;
+- chave durável ou índice;
+- jobId esperado quando existe.
 
-```javascript
+### Minimização de dados
+`safeJob` é uma allowlist. O teste injeta `signedUrl` e `internalOnly` no storage e prova que ambos não aparecem na resposta.
+
+### Sem full scan
+Quando a chave direta falta, o fallback exige jobId e `state.jobIndex`; a action não faz `storage.get(null)`.
+
+## 3. Lifecycle MV3 e tab replacement
+
+`ensureInitialized` é chamado no contexto real para reidratar/reconciliar estado. Replacement de aba é resolvido por `resolveCanonicalTabId`. Se o índice ainda aponta para o tab antigo, `migrateTabIdentity` move a identidade durável e a action faz **read-after-write** da chave canônica antes de responder.
+
+Isso evita devolver um job “virtualmente migrado” enquanto storage/índice ainda estão inconsistentes.
+
+## 4. Consumidor
+
+`extension/content/content_gemini.js`:
+- lê jobId da URL;
+- envia `CLAIM_GEMINI_JOB`;
+- faz retry limitado quando há jobId gerenciado;
+- se recebe `{ok:true, job:null}` em aba manual, fica inerte;
+- abre keep-alive somente depois de claim válido.
+
+`tests/unit/content-gemini/claim-bootstrap-keepalive.test.js` prova esse comportamento do consumidor, mas não a implementação desta action.
+
+## 5. Matriz de evidência
+
+| Fonte | Classificação | O que prova |
+|---|---|---|
+| `claim-gemini-job-action.test.js` | ✅ PROVADO DIRETAMENTE | Action real + router/state/tab-identity: sanitização/allowlist, jobId mismatch, aba manual, SOURCE_DENIED e alias/replacement com migração de storage/índice. |
+| `router.test.js` — `d7c33bc525e1683acabff44389c5d51471cc7037` | ✅ PROVADO DIRETAMENTE DO ROUTER | identifySource e bloqueio de origem antes de execute; complementa a prova SOURCE_DENIED específica da action. |
+| `tab-identity.test.js` — `1f2dd52513037f061613d04453a961fbaeddef84` | ✅ PROVADO DIRETAMENTE DO HELPER | chains, journal, recovery, alias expirado e migração; não substitui teste da action. |
+| `claim-bootstrap-keepalive.test.js` — `6e6adc2747b0974feec368fedb3652da79dc49b5` | 🟨 PROVA DO CONSUMIDOR | claim null mantém aba manual inerte; claim válido abre keep-alive; retry limitado por jobId. Runtime responder é mockado, então não prova esta action. |
+
+## 6. Lacunas de teste
+
+### ensureInitialized
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** de que a action chama/aguarda `ensureInitialized` no contexto real nem de sua rejeição.
+
+### sender inválido
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para sender sem tab, tab.id null/string/NaN.
+
+### jobId vazio/whitespace
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO**. A action trata string whitespace como expectedJobId truthy; o consumidor normal trimma o valor da URL, mas callers alternativos poderiam enviar espaços.
+
+### fallback sem TabIdentity
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `context.tabIdentity` ausente.
+
+### índice sem match
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para expectedJobId presente + jobIndex válido, porém sem entry correspondente.
+
+### ownership canônico divergente
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** do ramo em que o índice encontra o jobId, mas a identidade canônica do entry pertence a outra aba.
+
+### falha/resultado incompleto da migração
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `migrateTabIdentity` rejeitando, chave pós-migração ausente ou jobId diferente após a migração.
+
+### storage failure
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `context.storage.get` rejeitando. O router converteria rejeição da action em INTERNAL_ERROR, mas essa propriedade específica não é focalmente testada.
+
+### logs
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para TAB_CLAIM_DIRECT/TAB_CLAIM_ALIAS e truncamento de jobId.
+
+## 7. Análise crítica
+
+1. **Minimização está correta e comprovada:** allowlist de campos evita vazamento futuro acidental.
+2. **jobId whitespace:** a action não aplica trim, embora o consumidor normal aplique. Endurecer isso exigiria mudança funcional separada.
+3. **allowedSources protege pouco sozinho:** URL do sender classifica origem; o ownership tab-scoped é a defesa principal.
+4. **Read-after-write pós-migração é robusto:** não confia apenas na Promise de migrate.
+5. **Falhas de storage/identity propagam:** não há catch local; o router responde INTERNAL_ERROR. Isso evita falso claim, mas observabilidade específica é limitada.
+6. **Aba manual sem job fica inerte:** não existe full scan para “achar algo para fazer”.
+
+## 8. Invariantes
+
+1. Source não-Gemini deve ser bloqueada antes de execute.
+2. sender.tab.id deve continuar vindo do runtime, nunca do payload.
+3. Claim direto só pode ler a chave do sender canônico.
+4. expectedJobId divergente deve falhar mesmo na aba correta.
+5. Miss direto sem jobId não pode virar full scan.
+6. Fallback por índice deve exigir jobId explícito.
+7. jobId encontrado no índice não basta; identidade canônica também deve coincidir.
+8. Replacement legítimo deve poder migrar oldTabId → newTabId.
+9. Após migração, storage canônico deve ser relido/revalidado.
+10. Resposta deve passar por safeJob/allowlist.
+11. Campos internos futuros não podem vazar automaticamente.
+12. Aba manual sem job deve continuar recebendo job:null.
+13. Logs não devem carregar prompt/signedUrl/internal payload.
+14. Alterar a política de origem do router exige reavaliar esta fronteira.
+
+## 9. Fonte integral
+
+~~~javascript
 'use strict';
 // background/actions/claim-gemini-job.js — Claim seguro de job pela aba Gemini.
 
@@ -135,1188 +222,285 @@ O helper `safeJob` é tão importante quanto a verificação de ownership: ele a
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
+~~~
+
+## 10. Rastreabilidade 103/103
+
+| Posição | Unidade | Fonte | Papel local |
+|---:|---|---|---|
+| 001 | U01 | 'use strict'; | Ativa strict mode para a action. |
+| 002 | U01 | // background/actions/claim-gemini-job.js — Claim seguro de job pela aba Gemini. | Comentário de U01: “background/actions/claim-gemini-job.js — Claim seguro de job pela aba Gemini.”; registra intenção sem executar. |
+| 003 | U01 | ␠ [linha vazia] | Separador visual de U01 (Cabeçalho); sem alteração de estado/controle. |
+| 004 | U02 | (function(scope) { | Completa a expressão de U02 com `(function(scope) {`, fornecendo parte concreta do contrato/condição iniciado nas linhas adjacentes. |
+| 005 | U02 |   function safeJob(job, canonicalTabId) { | Declara o sanitizador que transforma registro interno em contrato IPC mínimo. |
+| 006 | U02 |     if (!job) return null; | Retorna null imediatamente quando não há registro, evitando dereference. |
+| 007 | U02 |     return { | Abre objeto de retorno de U02. |
+| 008 | U02 |       jobId: job.jobId, | Expõe jobId necessário para correlacionar mensagens/retries do job. |
+| 009 | U02 |       batchId: job.batchId, | Expõe batchId necessário para manter identidade do lote. |
+| 010 | U02 |       mangaTabId: job.mangaTabId, | Expõe a aba do leitor que receberá progresso/resultado. |
+| 011 | U02 |       index: job.index, | Expõe o índice da página dentro do lote. |
+| 012 | U02 |       prompt: job.prompt, | Expõe o prompt necessário ao runner Gemini. |
+| 013 | U02 |       executionMode: job.executionMode, | Expõe o modo de execução usado pelo runner/cleanup. |
+| 014 | U02 |       geminiTabId: canonicalTabId, | Substitui qualquer tabId interno pelo canonicalTabId já verificado. |
+| 015 | U02 |       windowId: job.windowId, | Expõe windowId quando necessário ao modo de janela, sem campos internos adicionais. |
+| 016 | U02 |     }; | Fecha a estrutura sintática da unidade U02. |
+| 017 | U02 |   } | Fecha a estrutura sintática da unidade U02. |
+| 018 | U02 | ␠ [linha vazia] | Separador visual de U02 (safeJob e minimização de dados); sem alteração de estado/controle. |
+| 019 | U03 |   scope.MangaTranslatorRouter.registerAction({ | Registra a definição no MangaTranslatorRouter. |
+| 020 | U03 |     name: 'claim-gemini-job', | Define o nome canônico resolvido do alias CLAIM_GEMINI_JOB. |
+| 021 | U03 |     meta: { | Completa a expressão de U03 com `meta: {`, fornecendo parte concreta do contrato/condição iniciado nas linhas adjacentes. |
+| 022 | U03 |       allowedSources: ['gemini'], | Restringe o router a origem classificada como Gemini antes de execute. |
+| 023 | U03 |     }, | Fecha a estrutura sintática da unidade U03. |
+| 024 | U03 | ␠ [linha vazia] | Separador visual de U03 (Registro e allowlist de origem); sem alteração de estado/controle. |
+| 025 | U04 |     async execute(request, context) { | Abre executor assíncrono de claim. |
+| 026 | U04 |       if (context && typeof context.ensureInitialized === 'function') { | Checa se o contexto real oferece reidratação antes de usá-la; mantém harness parcial compatível. |
+| 027 | U04 |         await context.ensureInitialized(); | Reidrata/reconcilia estado durável antes do claim no background real. |
+| 028 | U04 |       } | Fecha a estrutura sintática da unidade U04. |
+| 029 | U04 | ␠ [linha vazia] | Separador visual de U04 (Inicialização e identidade do sender); sem alteração de estado/controle. |
+| 030 | U04 |       const senderTabId = context && context.sender && context.sender.tab | Começa extração defensiva do tabId vindo de context.sender. |
+| 031 | U04 |         ? context.sender.tab.id | Seleciona sender.tab.id fornecido pelo runtime como identidade de aba. |
+| 032 | U04 |         : null; | Usa null quando sender/tab não existe, levando à rejeição inteira logo abaixo. |
+| 033 | U04 |       if (!Number.isInteger(senderTabId)) return { job: null }; | Exige tabId inteiro; sender sem identidade válida recebe job:null. |
+| 034 | U05 | ␠ [linha vazia] | Separador visual de U05 (jobId esperado e canonicalização do sender); sem alteração de estado/controle. |
+| 035 | U05 |       const expectedJobId = typeof request.jobId === 'string' && request.jobId | Normaliza request.jobId somente quando é string truthy. |
+| 036 | U05 |         ? request.jobId | Seleciona o jobId recebido como restrição adicional do claim. |
+| 037 | U05 |         : null; | Usa null quando sender/tab não existe, levando à rejeição inteira logo abaixo. |
+| 038 | U05 |       const tabIdentity = context.tabIdentity; | Obtém serviço de canonicalização/migração injetado pelo background. |
+| 039 | U05 |       const canonicalSenderTabId = tabIdentity | Começa resolução da identidade canônica do sender. |
+| 040 | U05 |         ? await tabIdentity.resolveCanonicalTabId(senderTabId) | Resolve alias/replacement do sender para o tabId canônico. |
+| 041 | U05 |         : senderTabId; | Sem TabIdentity, mantém o tabId original como fallback compatível. |
+| 042 | U06 | ␠ [linha vazia] | Separador visual de U06 (Claim direto por chave durável); sem alteração de estado/controle. |
+| 043 | U06 |       const directKey = `gemini_job_${canonicalSenderTabId}`; | Constrói a única chave durável direta `gemini_job_<tab canônico>`. |
+| 044 | U06 |       const directData = await context.storage.get([directKey]); | Busca somente a chave do sender canônico em storage. |
+| 045 | U06 |       const directJob = directData && directData[directKey]; | Extrai o registro direto retornado para decisão de ownership. |
+| 046 | U06 |       if (directJob) { | Entra no caminho rápido somente quando existe job persistido exatamente para essa aba. |
+| 047 | U06 |         if (expectedJobId && directJob.jobId !== expectedJobId) { | Rejeita URL/request que exige job diferente do registro dessa aba. |
+| 048 | U06 |           context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por jobId divergente', { | Registra rejeição de claim sem expor conteúdo completo do job. |
+| 049 | U06 |             tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 050 | U06 |           }); | Fecha a estrutura sintática da unidade U06. |
+| 051 | U06 |           return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 052 | U06 |         } | Fecha a estrutura sintática da unidade U06. |
+| 053 | U06 |         context.log('info', 'bg', 'TAB_CLAIM_DIRECT', 'Job reivindicado por chave direta', { | Registra que a autorização veio da chave direta do sender. |
+| 054 | U06 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 055 | U06 |           jobIdPrefix: String(directJob.jobId \|\| '').slice(0, 8), | Loga somente prefixo de oito caracteres do jobId para correlação minimizada. |
+| 056 | U07 |         }); | Fecha a estrutura sintática da unidade U07. |
+| 057 | U07 |         return { job: safeJob(directJob, canonicalSenderTabId) }; | Sanitiza o registro direto antes de atravessar IPC. |
+| 058 | U07 |       } | Fecha a estrutura sintática da unidade U07. |
+| 059 | U07 | ␠ [linha vazia] | Separador visual de U07 (Sucesso direto e observabilidade); sem alteração de estado/controle. |
+| 060 | U07 |       if (!expectedJobId \|\| !context.state \|\| !Array.isArray(context.state.jobIndex)) { | Bloqueia fallback por índice sem jobId esperado ou sem índice de estado válido. |
+| 061 | U07 |         context.log('info', 'bg', 'TAB_CLAIM_REJECTED', 'Nenhum job elegível para claim', { | Registra rejeição de claim sem expor conteúdo completo do job. |
+| 062 | U07 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 063 | U07 |         }); | Fecha a estrutura sintática da unidade U07. |
+| 064 | U07 |         return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 065 | U08 |       } | Fecha a estrutura sintática da unidade U08. |
+| 066 | U08 | ␠ [linha vazia] | Separador visual de U08 (Pré-condições do fallback por índice); sem alteração de estado/controle. |
+| 067 | U08 |       const indexed = context.state.jobIndex.find(entry => | Procura no jobIndex o entry cujo jobId coincide estritamente com expectedJobId. |
+| 068 | U08 |         entry && entry.jobId === expectedJobId | Filtra entries nulos e exige igualdade estrita de jobId. |
+| 069 | U08 |       ); | Fecha a estrutura sintática da unidade U08. |
+| 070 | U08 |       if (!indexed) return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 071 | U08 | ␠ [linha vazia] | Separador visual de U08 (Pré-condições do fallback por índice); sem alteração de estado/controle. |
+| 072 | U08 |       const canonicalIndexedTabId = tabIdentity | Começa canonicalização do tabId armazenado no índice. |
+| 073 | U09 |         ? await tabIdentity.resolveCanonicalTabId(indexed.geminiTabId) | Resolve aliases do tabId indexado antes de comparar ownership. |
+| 074 | U09 |         : indexed.geminiTabId; | Sem serviço de identidade, usa o tabId original do índice. |
+| 075 | U09 | ␠ [linha vazia] | Separador visual de U09 (Busca indexada e canonicalização do job); sem alteração de estado/controle. |
+| 076 | U09 |       if (canonicalIndexedTabId !== canonicalSenderTabId) { | Exige igualdade entre identidade canônica do job e do sender. |
+| 077 | U09 |         context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por ownership de aba', { | Registra rejeição de claim sem expor conteúdo completo do job. |
+| 078 | U09 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 079 | U09 |           indexedTabId: canonicalIndexedTabId, | Registra no warning o tabId canônico esperado pelo índice para diagnóstico. |
+| 080 | U09 |         }); | Fecha a estrutura sintática da unidade U09. |
+| 081 | U10 |         return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 082 | U10 |       } | Fecha a estrutura sintática da unidade U10. |
+| 083 | U10 | ␠ [linha vazia] | Separador visual de U10 (Verificação de ownership canônico); sem alteração de estado/controle. |
+| 084 | U10 |       if (tabIdentity && indexed.geminiTabId !== canonicalSenderTabId) { | Detecta que o índice ainda usa id antigo embora ambos resolvam para o sender canônico. |
+| 085 | U10 |         await tabIdentity.migrateTabIdentity(indexed.geminiTabId, canonicalSenderTabId, { | Executa migração durável do id antigo para o id canônico novo antes de responder. |
+| 086 | U10 |           jobId: expectedJobId, | Expõe jobId necessário para correlacionar mensagens/retries do job. |
+| 087 | U10 |         }); | Fecha a estrutura sintática da unidade U10. |
+| 088 | U10 |       } | Fecha a estrutura sintática da unidade U10. |
+| 089 | U11 | ␠ [linha vazia] | Separador visual de U11 (Migração após alias); sem alteração de estado/controle. |
+| 090 | U11 |       const migratedKey = `gemini_job_${canonicalSenderTabId}`; | Reconstrói a chave durável esperada após a migração. |
+| 091 | U11 |       const migratedData = await context.storage.get([migratedKey]); | Relê storage no tabId canônico para validar o efeito persistido. |
+| 092 | U11 |       const migratedJob = migratedData && migratedData[migratedKey]; | Extrai o job pós-migração para revalidação. |
+| 093 | U11 |       if (!migratedJob \|\| migratedJob.jobId !== expectedJobId) return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 094 | U11 | ␠ [linha vazia] | Separador visual de U11 (Migração após alias); sem alteração de estado/controle. |
+| 095 | U12 |       context.log('info', 'bg', 'TAB_CLAIM_ALIAS', 'Job reivindicado após resolver alias', { | Registra sucesso obtido após resolução/migração de alias. |
+| 096 | U12 |         tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 097 | U12 |         jobIdPrefix: expectedJobId.slice(0, 8), | Loga somente prefixo de oito caracteres do jobId para correlação minimizada. |
+| 098 | U12 |       }); | Fecha a estrutura sintática da unidade U12. |
+| 099 | U12 |       return { job: safeJob(migratedJob, canonicalSenderTabId) }; | Sanitiza o registro migrado antes de devolvê-lo. |
+| 100 | U12 |     }, | Fecha a estrutura sintática da unidade U12. |
+| 101 | U12 |   }); | Fecha a estrutura sintática da unidade U12. |
+| 102 | U12 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha IIFE escolhendo self no worker e globalThis no fallback de testes. |
+| 103 | U13 | ⏎ [newline final] | Preserva o newline terminal do blob; sem efeito runtime. |
 
-```
+## 11. Análise por unidade
 
-## 4. Comentário linha por linha
+### U01 — linhas/posição 1–3: Cabeçalho
 
-### Linha 001
-<code>'use strict';</code>
+**O que faz:** Ativa strict mode e registra a intenção: claim seguro de job por uma aba Gemini.
 
-**O que faz:** ativa strict mode no módulo.
+**Como faz:** Diretiva + comentário antes da IIFE.
 
-**Como faz:** é interpretada antes da IIFE.
+**Por que desta forma:** A action é uma fronteira de ownership e merece contrato explícito.
 
-**Por que assim / por que alternativa ingênua é pior:** evita globais acidentais ao manipular identidade de aba e payload de job.
+**Por que uma implementação ingênua seria pior:** Sem contexto, uma refatoração pode confundir claim com busca global de jobs.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento da action real; sem assertion isolada.
 
-### Linha 002
-<code>// background/actions/claim-gemini-job.js — Claim seguro de job pela aba Gemini.</code>
+### U02 — linhas/posição 4–18: safeJob e minimização de dados
 
-**O que faz:** documenta a intenção local: “background/actions/claim-gemini-job.js — Claim seguro de job pela aba Gemini.”.
+**O que faz:** Constrói o único shape de job que pode atravessar o IPC para content_gemini.
 
-**Como faz:** mantém a decisão ao lado do mecanismo de claim que ela descreve.
+**Como faz:** Copia apenas jobId, batchId, mangaTabId, index, prompt, executionMode, canonical geminiTabId e windowId; retorna null para job ausente.
 
-**Por que assim / por que alternativa ingênua é pior:** claims incorretos podem automatizar uma aba manual; perder contexto aumenta risco de enfraquecer uma barreira de segurança.
+**Por que desta forma:** O registro durável pode conter campos internos/URLs/tokens que o content script não precisa conhecer.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Por que uma implementação ingênua seria pior:** Retornar `{...job}` vaza novos campos internos automaticamente e aumenta acoplamento/risco de segredo.
 
-### Linha 003
-<code>␠ [linha vazia]</code>
+**Evidência:** ✅ PROVADO DIRETAMENTE — teste de claim direto exige exatamente o contrato e verifica ausência de `signedUrl`/`internalOnly`. ⚠️ safeJob(null) não tem caso focal.
 
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
+### U03 — linhas/posição 19–24: Registro e allowlist de origem
 
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
+**O que faz:** Registra `claim-gemini-job` e limita execução a fontes classificadas como `gemini` pelo router.
 
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
+**Como faz:** meta.allowedSources=['gemini']; o router bloqueia antes de execute quando identifySource não classifica o sender como Gemini.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Por que desta forma:** Reduz superfície: popup/content/external não devem sequer tentar reivindicar jobs Gemini.
 
-### Linha 004
-<code>(function(scope) {</code>
+**Por que uma implementação ingênua seria pior:** allowedSources:any exporia endpoint de claim para todos os contexts; fazer a checagem só dentro da action duplicaria lógica do router.
 
-**O que faz:** abre IIFE compatível com Service Worker e Jest.
+**Evidência:** ✅ PROVADO DIRETAMENTE — origem reader recebe SOURCE_DENIED, keepAlive=false e execute não produz job. Router.test prova genericamente bloqueio pré-execução.
 
-**Como faz:** recebe `self` ou `globalThis` na última linha.
+### U04 — linhas/posição 25–33: Inicialização e identidade do sender
 
-**Por que assim / por que alternativa ingênua é pior:** evita poluir o escopo global além do registro intencional no router.
+**O que faz:** Reidrata o background quando a dependência existe e extrai sender.tab.id, rejeitando sender sem tabId inteiro.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Como faz:** ensureInitialized é opcional para compatibilidade de testes; senderTabId usa cadeia defensiva e Number.isInteger.
 
-### Linha 005
-<code>  function safeJob(job, canonicalTabId) {</code>
+**Por que desta forma:** No MV3, índice/aliases precisam estar reconciliados antes do claim; tabId fornecido pelo Chrome é a âncora de ownership.
 
-**O que faz:** declara o sanitizador de job devolvido ao content script Gemini.
+**Por que uma implementação ingênua seria pior:** Confiar em tabId do request permitiria spoofing; aceitar null/string abriria chaves storage ambíguas.
 
-**Como faz:** recebe o registro interno e o tabId canônico e constrói um objeto novo com allowlist de campos.
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para ensureInitialized, sender sem tab, tab.id string/null. Os testes diretos sempre usam tabId inteiro e context de teste sem ensureInitialized.
 
-**Por que assim / por que alternativa ingênua é pior:** retornar o objeto interno inteiro poderia vazar `signedUrl`, flags internas ou futuros segredos; o teste prova explicitamente que campos não allowlisted não vazam.
+### U05 — linhas/posição 34–41: jobId esperado e canonicalização do sender
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**O que faz:** Obtém jobId opcional do request e resolve o tabId do sender para a identidade canônica quando TabIdentity existe.
 
-### Linha 006
-<code>    if (!job) return null;</code>
+**Como faz:** expectedJobId só aceita string truthy; resolveCanonicalTabId acompanha aliases/replacements; sem serviço usa senderTabId.
 
-**O que faz:** preserva `null` quando não existe job.
+**Por que desta forma:** jobId na URL protege contra aba correta com job antigo; canonicalização mantém ownership após chrome.tabs.onReplaced.
 
-**Como faz:** retorno antecipado impede acesso a propriedades de valor ausente.
+**Por que uma implementação ingênua seria pior:** Usar tabId antigo literalmente perderia job após replacement; usar jobId sem vínculo com sender permitiria takeover por outra aba.
 
-**Por que assim / por que alternativa ingênua é pior:** fabricar objeto vazio confundiria 'nenhum claim' com job existente mas incompleto.
+**Evidência:** ✅ PROVADO DIRETAMENTE no cenário TAB-06 para canonicalização por alias; ⚠️ fallback sem tabIdentity e jobId vazio/whitespace não têm caso focal.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+### U06 — linhas/posição 42–55: Claim direto por chave durável
 
-### Linha 007
-<code>    return {</code>
+**O que faz:** Procura `gemini_job_<canonicalSenderTabId>` e, se existir, opcionalmente exige correspondência do expectedJobId.
 
-**O que faz:** executa a instrução `return {` dentro do protocolo de claim.
+**Como faz:** storage.get lê uma única chave; mismatch loga TAB_CLAIM_REJECTED e retorna null; match segue para sucesso direto.
 
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
+**Por que desta forma:** Chave tab-scoped é o caminho mais barato e forte: liga metadata de sender a um registro persistido sem full scan.
 
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
+**Por que uma implementação ingênua seria pior:** Varrer storage por jobId aumenta custo e permitiria encontrar job de outra aba; ignorar expectedJobId permite que URL stale reivindique job diferente.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Evidência:** ✅ PROVADO DIRETAMENTE — claim direto retorna job sanitizado; TAB-10 rejeita jobId divergente na mesma aba. ⚠️ storage.get rejeitando/retornando shape inválido não tem teste.
 
-### Linha 008
-<code>      jobId: job.jobId,</code>
+### U07 — linhas/posição 56–64: Sucesso direto e observabilidade
 
-**O que faz:** expõe a identidade lógica do job ao worker Gemini.
+**O que faz:** Loga TAB_CLAIM_DIRECT e retorna safeJob com geminiTabId canônico.
 
-**Como faz:** copia somente `job.jobId`.
+**Como faz:** Log usa tabId e prefixo de 8 chars do jobId; retorno passa pelo sanitizador.
 
-**Por que assim / por que alternativa ingênua é pior:** o content script precisa vincular mensagens futuras ao job correto; omiti-lo impediria ownership verificável.
+**Por que desta forma:** Telemetria distingue caminho direto do caminho alias e minimiza ID nos logs.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Por que uma implementação ingênua seria pior:** Retornar directJob cru quebraria minimização; logar jobId completo aumenta exposição desnecessária.
 
-### Linha 009
-<code>      batchId: job.batchId,</code>
+**Evidência:** ✅ PROVADO DIRETAMENTE para o objeto retornado/sanitização. ⚠️ Log TAB_CLAIM_DIRECT e truncamento não têm assertion focal.
 
-**O que faz:** expõe o batch ao qual o job pertence.
+### U08 — linhas/posição 65–72: Pré-condições do fallback por índice
 
-**Como faz:** copia o campo permitido para o contrato externo.
+**O que faz:** Só tenta recuperar por índice quando há expectedJobId e state.jobIndex válido; caso contrário rejeita de forma inerte.
 
-**Por que assim / por que alternativa ingênua é pior:** batchId é necessário para impedir que finalização tardia de lote antigo afete lote atual.
+**Como faz:** Guarda combinada loga TAB_CLAIM_REJECTED e retorna job:null.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Por que desta forma:** Sem jobId explícito não há identidade suficiente para procurar em índice após miss da chave direta; isso impede full scan/claim oportunista de aba manual.
 
-### Linha 010
-<code>      mangaTabId: job.mangaTabId,</code>
+**Por que uma implementação ingênua seria pior:** Escolher primeiro job do índice para aba manual poderia sequestrar trabalho; iterar storage sem jobId aumenta superfície e custo.
 
-**O que faz:** expõe a aba de mangá de destino.
+**Evidência:** ✅ PROVADO DIRETAMENTE — TAB-11, aba Gemini manual sem job, recebe job:null. ⚠️ state ausente/jobIndex não-array com expectedJobId não tem caso focal.
 
-**Como faz:** copia o ID já validado/persistido pelo lifecycle.
+### U09 — linhas/posição 73–80: Busca indexada e canonicalização do job
 
-**Por que assim / por que alternativa ingênua é pior:** derivar destino da aba Gemini seria incorreto porque origem e destino são contextos distintos.
+**O que faz:** Encontra no índice o entry com expectedJobId e resolve o geminiTabId indexado para identidade canônica.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Como faz:** Array.find é estrito em jobId; miss retorna null; resolveCanonicalTabId é aplicado ao tabId do entry.
 
-### Linha 011
-<code>      index: job.index,</code>
+**Por que desta forma:** O índice é o journal leve que permite recuperar job cuja chave ainda está no tabId antigo sem ler todo storage.
 
-**O que faz:** expõe o índice da imagem/página dentro do lote.
+**Por que uma implementação ingênua seria pior:** Comparação frouxa pode colidir IDs; pular canonicalização trataria alias legítimo como ownership divergente.
 
-**Como faz:** preserva o índice persistido no job.
+**Evidência:** ✅ PROVADO DIRETAMENTE pelo cenário TAB-06, que parte de jobIndex no tabId antigo. ⚠️ expectedJobId não encontrado no índice não tem cenário focal separado.
 
-**Por que assim / por que alternativa ingênua é pior:** recalcular pela ordem atual da fila poderia mudar após concorrência/reidratação.
+### U10 — linhas/posição 81–88: Verificação de ownership canônico
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**O que faz:** Recusa o claim se o tabId canônico do job indexado não coincide com o tabId canônico do sender.
 
-### Linha 012
-<code>      prompt: job.prompt,</code>
+**Como faz:** Comparação estrita; mismatch loga sender/indexed ids e retorna null.
 
-**O que faz:** expõe o prompt associado especificamente a este job.
+**Por que desta forma:** jobId sozinho não é segredo/autorização suficiente; ownership exige vínculo entre job e aba.
 
-**Como faz:** copia o prompt do registro durável.
+**Por que uma implementação ingênua seria pior:** Aceitar qualquer aba que saiba jobId permitiria uma aba Gemini paralela reivindicar trabalho alheio.
 
-**Por que assim / por que alternativa ingênua é pior:** ler configuração global neste ponto poderia usar prompt alterado depois que o batch começou.
+**Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para este ramo de mismatch canônico. O teste de jobId mismatch é no caminho direto e não substitui esta propriedade.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+### U11 — linhas/posição 89–94: Migração após alias
 
-### Linha 013
-<code>      executionMode: job.executionMode,</code>
+**O que faz:** Quando o índice ainda aponta para tabId antigo mas o sender canônico é o novo, migra identidade duravelmente.
 
-**O que faz:** expõe o modo de execução escolhido para o job.
+**Como faz:** migrateTabIdentity(old,new,{jobId}) é awaited antes de reler storage.
 
-**Como faz:** copia o valor persistido.
+**Por que desta forma:** Evita devolver job enquanto storage/índice ainda possuem ownership dividido; a migração tem journal no módulo TabIdentity.
 
-**Por que assim / por que alternativa ingênua é pior:** decidir modo novamente na aba poderia divergir do planejamento feito no background.
+**Por que uma implementação ingênua seria pior:** Só alterar o objeto retornado esconderia inconsistência persistida e quebraria mensagens/finalização posteriores.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Evidência:** ✅ PROVADO DIRETAMENTE — TAB-06 exige índice migrado para 200, chave antiga removida e `gemini_job_200` criada. tab-identity.test aprofunda journal/chain/recovery.
 
-### Linha 014
-<code>      geminiTabId: canonicalTabId,</code>
+### U12 — linhas/posição 95–102: Verificação pós-migração e retorno alias
 
-**O que faz:** expõe o tabId canônico, não necessariamente o ID histórico armazenado.
+**O que faz:** Relê a chave canônica depois da migração, exige jobId correspondente, loga TAB_CLAIM_ALIAS e devolve safeJob.
 
-**Como faz:** usa o resultado da resolução de aliases.
+**Como faz:** storage.get da migratedKey confirma o efeito durável em vez de confiar apenas no retorno da migração.
 
-**Por que assim / por que alternativa ingênua é pior:** após `tabs.onReplaced`, devolver o ID antigo quebraria ownership e mensagens subsequentes.
+**Por que desta forma:** Read-after-write valida que o claim final está ancorado no estado persistido canônico.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Por que uma implementação ingênua seria pior:** Retornar o entry antigo do índice após migração poderia usar dados stale/incompletos; não revalidar jobId aceitaria migração concorrente para outro job.
 
-### Linha 015
-<code>      windowId: job.windowId,</code>
+**Evidência:** ✅ PROVADO DIRETAMENTE — TAB-06 exige job retornado com geminiTabId novo e storage migrado. ⚠️ migrated key ausente/jobId divergente e falha de migration/storage não têm casos focais.
 
-**O que faz:** expõe a janela associada quando aplicável.
+### U13 — linhas/posição 103–103: Newline final
 
-**Como faz:** copia somente o campo necessário.
+**O que faz:** Documenta o newline terminal do blob.
 
-**Por que assim / por que alternativa ingênua é pior:** outros metadados internos de janela não são enviados, reduzindo superfície do contrato.
+**Como faz:** Posição separada das 102 linhas textuais.
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+**Por que desta forma:** Mantém equivalência física no padrão de auditoria.
 
-### Linha 016
-<code>    };</code>
+**Por que uma implementação ingênua seria pior:** Omitir a posição produziria 102/103 disfarçado.
 
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
+**Evidência:** 🟦 GATE DOCUMENTAL.
 
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
 
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
+## 12. Revisão final
 
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
+- [x] SHA/fonte integral conferidos;
+- [x] 102 linhas + newline = 103/103 posições;
+- [x] safeJob/sanitização documentados;
+- [x] source allowlist separado de ownership;
+- [x] caminho direto e alias separados;
+- [x] prova da action, helper e consumidor diferenciadas;
+- [x] lacunas explícitas, sem evidência verde genérica;
+- [x] invariantes MV3/security definidos;
+- [x] nenhum código funcional alterado.
 
-### Linha 017
-<code>  }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 018
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 019
-<code>  scope.MangaTranslatorRouter.registerAction({</code>
-
-**O que faz:** registra a action no roteador modular.
-
-**Como faz:** fornece nome, política de origem e executor.
-
-**Por que assim / por que alternativa ingênua é pior:** centralizar autorização no router evita que cada action implemente identificação de origem de maneira divergente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 020
-<code>    name: 'claim-gemini-job',</code>
-
-**O que faz:** define o nome canônico da action.
-
-**Como faz:** é o destino do alias `CLAIM_GEMINI_JOB` em `ACTION_MAP`.
-
-**Por que assim / por que alternativa ingênua é pior:** divergência entre alias e nome tornaria o protocolo inacessível.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 021
-<code>    meta: {</code>
-
-**O que faz:** executa a instrução `meta: {` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 022
-<code>      allowedSources: ['gemini'],</code>
-
-**O que faz:** restringe o claim a remetentes classificados como Gemini.
-
-**Como faz:** o router bloqueia qualquer source fora da allowlist antes de `execute`.
-
-**Por que assim / por que alternativa ingênua é pior:** permitir `content`, `popup` ou externo seria pior porque outro contexto poderia tentar reivindicar dados de jobs que não lhe pertencem.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 023
-<code>    },</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 024
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 025
-<code>    async execute(request, context) {</code>
-
-**O que faz:** define o protocolo assíncrono de reivindicação.
-
-**Como faz:** usa awaits para inicialização, canonicalização, storage e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** claim depende de estado durável e aliases; callbacks soltos aumentariam risco de responder antes de ownership ser decidido.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 026
-<code>      if (context &amp;&amp; typeof context.ensureInitialized === 'function') {</code>
-
-**O que faz:** verifica se a barreira de inicialização está disponível.
-
-**Como faz:** faz feature detection para compatibilidade de testes/contextos mínimos.
-
-**Por que assim / por que alternativa ingênua é pior:** chamar incondicionalmente quebraria o teste direto cujo contextFactory não injeta essa função; omiti-la quando presente permitiria ler estado não reidratado.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 027
-<code>        await context.ensureInitialized();</code>
-
-**O que faz:** aguarda reidratação/reconciliação do background antes do claim.
-
-**Como faz:** bloqueia esta execução até a barreira resolver.
-
-**Por que assim / por que alternativa ingênua é pior:** ler jobIndex/storage antes poderia rejeitar job válido logo após o worker acordar.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 028
-<code>      }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 029
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 030
-<code>      const senderTabId = context &amp;&amp; context.sender &amp;&amp; context.sender.tab</code>
-
-**O que faz:** inicia extração segura do tabId real do remetente.
-
-**Como faz:** não confia em `request` para definir a aba que está fazendo claim.
-
-**Por que assim / por que alternativa ingênua é pior:** ownership deve ser ancorado no metadata fornecido pelo runtime, não em input controlado pelo chamador.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 031
-<code>        ? context.sender.tab.id</code>
-
-**O que faz:** seleciona `sender.tab.id` quando existe.
-
-**Como faz:** usa guarda completa contra context/sender/tab ausentes.
-
-**Por que assim / por que alternativa ingênua é pior:** acessar diretamente poderia lançar em mensagens de popup/externas; embora essas origens já sejam negadas, a action mantém defesa local.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 032
-<code>        : null;</code>
-
-**O que faz:** executa a instrução `: null;` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 033
-<code>      if (!Number.isInteger(senderTabId)) return { job: null };</code>
-
-**O que faz:** rejeita sender sem tabId inteiro válido.
-
-**Como faz:** retorna `job:null` antes de qualquer leitura de storage.
-
-**Por que assim / por que alternativa ingênua é pior:** tentar formar `gemini_job_null`/undefined poderia gerar lookup indevido ou claim ambíguo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 034
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 035
-<code>      const expectedJobId = typeof request.jobId === 'string' &amp;&amp; request.jobId</code>
-
-**O que faz:** normaliza o jobId solicitado para string não vazia ou `null`.
-
-**Como faz:** aceita somente `typeof === 'string'` e truthy.
-
-**Por que assim / por que alternativa ingênua é pior:** coerção automática de números/objetos tornaria comparações de ownership menos estritas.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 036
-<code>        ? request.jobId</code>
-
-**O que faz:** executa a instrução `? request.jobId` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 037
-<code>        : null;</code>
-
-**O que faz:** executa a instrução `: null;` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 038
-<code>      const tabIdentity = context.tabIdentity;</code>
-
-**O que faz:** captura a API de canonicalização injetada pelo background.
-
-**Como faz:** mantém a dependência explícita no context.
-
-**Por que assim / por que alternativa ingênua é pior:** buscar global diretamente acoplaria a action ao bootstrap e dificultaria teste isolado.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 039
-<code>      const canonicalSenderTabId = tabIdentity</code>
-
-**O que faz:** resolve a identidade canônica da aba remetente.
-
-**Como faz:** usa `resolveCanonicalTabId` quando disponível, senão preserva senderTabId.
-
-**Por que assim / por que alternativa ingênua é pior:** isto permite sobreviver a substituição de aba sem abrir claim para aba arbitrária.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 040
-<code>        ? await tabIdentity.resolveCanonicalTabId(senderTabId)</code>
-
-**O que faz:** executa a instrução `? await tabIdentity.resolveCanonicalTabId(senderTabId)` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 041
-<code>        : senderTabId;</code>
-
-**O que faz:** executa a instrução `: senderTabId;` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 042
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 043
-<code>      const directKey = `gemini_job_${canonicalSenderTabId}`;</code>
-
-**O que faz:** constrói a chave durável do job associada ao tabId canônico.
-
-**Como faz:** usa o namespace `gemini_job_<tabId>`.
-
-**Por que assim / por que alternativa ingênua é pior:** lookup direto é a prova de ownership mais forte e evita varrer storage inteiro.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 044
-<code>      const directData = await context.storage.get([directKey]);</code>
-
-**O que faz:** lê somente a chave direta do job.
-
-**Como faz:** aguarda storage scoped à chave.
-
-**Por que assim / por que alternativa ingênua é pior:** carregar todo `chrome.storage.local` poderia puxar Base64 e estado volumoso para memória e aumentar superfície de dados.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 045
-<code>      const directJob = directData &amp;&amp; directData[directKey];</code>
-
-**O que faz:** extrai o registro da resposta do storage.
-
-**Como faz:** mantém `undefined` quando a chave não existe.
-
-**Por que assim / por que alternativa ingênua é pior:** não inventa fallback ainda; o caminho de alias é deliberadamente separado.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 046
-<code>      if (directJob) {</code>
-
-**O que faz:** entra no caminho de claim direto quando a chave canônica existe.
-
-**Como faz:** prioriza ownership por chave antes de consultar índice/aliases.
-
-**Por que assim / por que alternativa ingênua é pior:** isso é mais simples e forte que aceitar qualquer jobId encontrado no índice.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 047
-<code>        if (expectedJobId &amp;&amp; directJob.jobId !== expectedJobId) {</code>
-
-**O que faz:** rejeita quando o chamador declara jobId que não corresponde ao job real da própria aba.
-
-**Como faz:** compara estritamente IDs antes de retornar qualquer conteúdo.
-
-**Por que assim / por que alternativa ingênua é pior:** sem essa guarda uma URL/manual tab poderia apresentar jobId antigo/errado e ainda receber o job atual da aba.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 048
-<code>          context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por jobId divergente', {</code>
-
-**O que faz:** registra rejeição de claim com motivo operacional.
-
-**Como faz:** usa evento estável e apenas IDs necessários nos metadados.
-
-**Por que assim / por que alternativa ingênua é pior:** logs de segurança permitem diagnosticar tentativa legítima após replacement sem expor payload completo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 049
-<code>            tabId: canonicalSenderTabId,</code>
-
-**O que faz:** executa a instrução `tabId: canonicalSenderTabId,` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 050
-<code>          });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 051
-<code>          return { job: null };</code>
-
-**O que faz:** nega o claim sem lançar exceção.
-
-**Como faz:** retorna contrato normal `job:null`.
-
-**Por que assim / por que alternativa ingênua é pior:** claim inexistente/negado é condição esperada para abas manuais; erro excepcional causaria retries/logs indevidos.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 052
-<code>        }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 053
-<code>        context.log('info', 'bg', 'TAB_CLAIM_DIRECT', 'Job reivindicado por chave direta', {</code>
-
-**O que faz:** registra claim direto bem-sucedido.
-
-**Como faz:** inclui tabId e somente prefixo do jobId.
-
-**Por que assim / por que alternativa ingênua é pior:** prefixo é suficiente para correlação diagnóstica e reduz exposição do identificador completo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 054
-<code>          tabId: canonicalSenderTabId,</code>
-
-**O que faz:** executa a instrução `tabId: canonicalSenderTabId,` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 055
-<code>          jobIdPrefix: String(directJob.jobId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução `jobIdPrefix: String(directJob.jobId || '').slice(0, 8),` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 056
-<code>        });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 057
-<code>        return { job: safeJob(directJob, canonicalSenderTabId) };</code>
-
-**O que faz:** retorna versão sanitizada do job direto.
-
-**Como faz:** passa o tabId canônico para substituir qualquer ID histórico do objeto.
-
-**Por que assim / por que alternativa ingênua é pior:** retornar registro bruto violaria a allowlist comprovada pelo teste.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 058
-<code>      }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 059
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 060
-<code>      if (!expectedJobId || !context.state || !Array.isArray(context.state.jobIndex)) {</code>
-
-**O que faz:** bloqueia fallback por índice quando faltam jobId explícito ou índice confiável.
-
-**Como faz:** exige ambos antes de procurar alias.
-
-**Por que assim / por que alternativa ingênua é pior:** fallback mais permissivo poderia deixar aba manual 'descobrir' job apenas por proximidade/estado.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 061
-<code>        context.log('info', 'bg', 'TAB_CLAIM_REJECTED', 'Nenhum job elegível para claim', {</code>
-
-**O que faz:** registra rejeição de claim com motivo operacional.
-
-**Como faz:** usa evento estável e apenas IDs necessários nos metadados.
-
-**Por que assim / por que alternativa ingênua é pior:** logs de segurança permitem diagnosticar tentativa legítima após replacement sem expor payload completo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 062
-<code>          tabId: canonicalSenderTabId,</code>
-
-**O que faz:** executa a instrução `tabId: canonicalSenderTabId,` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 063
-<code>        });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 064
-<code>        return { job: null };</code>
-
-**O que faz:** nega o claim sem lançar exceção.
-
-**Como faz:** retorna contrato normal `job:null`.
-
-**Por que assim / por que alternativa ingênua é pior:** claim inexistente/negado é condição esperada para abas manuais; erro excepcional causaria retries/logs indevidos.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 065
-<code>      }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 066
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 067
-<code>      const indexed = context.state.jobIndex.find(entry =&gt;</code>
-
-**O que faz:** procura no índice somente entrada cujo `jobId` é exatamente o esperado.
-
-**Como faz:** usa comparação estrita e não considera URL/prompt/index.
-
-**Por que assim / por que alternativa ingênua é pior:** jobId é o vínculo lógico que permite encontrar o tabId histórico sem diminuir ownership.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 068
-<code>        entry &amp;&amp; entry.jobId === expectedJobId</code>
-
-**O que faz:** executa a instrução `entry && entry.jobId === expectedJobId` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 069
-<code>      );</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 070
-<code>      if (!indexed) return { job: null };</code>
-
-**O que faz:** nega o claim sem lançar exceção.
-
-**Como faz:** retorna contrato normal `job:null`.
-
-**Por que assim / por que alternativa ingênua é pior:** claim inexistente/negado é condição esperada para abas manuais; erro excepcional causaria retries/logs indevidos.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 071
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 072
-<code>      const canonicalIndexedTabId = tabIdentity</code>
-
-**O que faz:** resolve também o tabId armazenado no índice para sua identidade canônica.
-
-**Como faz:** aplica a mesma função de canonicalização aos dois lados da comparação.
-
-**Por que assim / por que alternativa ingênua é pior:** comparar sender canônico com ID histórico cru rejeitaria replacements legítimos.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 073
-<code>        ? await tabIdentity.resolveCanonicalTabId(indexed.geminiTabId)</code>
-
-**O que faz:** executa a instrução `? await tabIdentity.resolveCanonicalTabId(indexed.geminiTabId)` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 074
-<code>        : indexed.geminiTabId;</code>
-
-**O que faz:** executa a instrução `: indexed.geminiTabId;` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 075
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 076
-<code>      if (canonicalIndexedTabId !== canonicalSenderTabId) {</code>
-
-**O que faz:** impõe igualdade de ownership entre job indexado e aba remetente após canonicalização.
-
-**Como faz:** usa comparação estrita de IDs.
-
-**Por que assim / por que alternativa ingênua é pior:** jobId sozinho não basta: uma outra aba que conhecesse o ID não deve poder reivindicar o job.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 077
-<code>        context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por ownership de aba', {</code>
-
-**O que faz:** registra rejeição de claim com motivo operacional.
-
-**Como faz:** usa evento estável e apenas IDs necessários nos metadados.
-
-**Por que assim / por que alternativa ingênua é pior:** logs de segurança permitem diagnosticar tentativa legítima após replacement sem expor payload completo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 078
-<code>          tabId: canonicalSenderTabId,</code>
-
-**O que faz:** executa a instrução `tabId: canonicalSenderTabId,` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 079
-<code>          indexedTabId: canonicalIndexedTabId,</code>
-
-**O que faz:** inclui no log o tabId canônico esperado para explicar a rejeição.
-
-**Como faz:** não envia essa informação ao caller; fica apenas na telemetria do background.
-
-**Por que assim / por que alternativa ingênua é pior:** expor detalhes de ownership na resposta não é necessário para uma aba rejeitada.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 080
-<code>        });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 081
-<code>        return { job: null };</code>
-
-**O que faz:** nega o claim sem lançar exceção.
-
-**Como faz:** retorna contrato normal `job:null`.
-
-**Por que assim / por que alternativa ingênua é pior:** claim inexistente/negado é condição esperada para abas manuais; erro excepcional causaria retries/logs indevidos.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 082
-<code>      }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 083
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 084
-<code>      if (tabIdentity &amp;&amp; indexed.geminiTabId !== canonicalSenderTabId) {</code>
-
-**O que faz:** detecta quando o claim legítimo chegou por uma aba substituta.
-
-**Como faz:** só migra depois de jobId e ownership canônico já terem sido validados.
-
-**Por que assim / por que alternativa ingênua é pior:** migrar antes dessas provas permitiria rekey provocado por claimant incorreto.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 085
-<code>        await tabIdentity.migrateTabIdentity(indexed.geminiTabId, canonicalSenderTabId, {</code>
-
-**O que faz:** migra storage, índice e aliases do tabId histórico para o canônico.
-
-**Como faz:** passa também `jobId` como restrição de migração.
-
-**Por que assim / por que alternativa ingênua é pior:** copiar apenas a chave do job manualmente deixaria watchdog/índice/outros recursos presos ao ID antigo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-**⚠️ Comentário extra:** esta linha possui lógica defensiva/caminho de borda que não é isoladamente provado por uma assertion específica em todos os estados possíveis.
-
-### Linha 086
-<code>          jobId: expectedJobId,</code>
-
-**O que faz:** executa a instrução `jobId: expectedJobId,` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 087
-<code>        });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 088
-<code>      }</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 089
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 090
-<code>      const migratedKey = `gemini_job_${canonicalSenderTabId}`;</code>
-
-**O que faz:** reconstrói a chave direta já no tabId canônico após migração.
-
-**Como faz:** não reutiliza o objeto `indexed` como se fosse o job completo.
-
-**Por que assim / por que alternativa ingênua é pior:** o índice contém metadados reduzidos; o payload seguro deve vir do registro durável real.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 091
-<code>      const migratedData = await context.storage.get([migratedKey]);</code>
-
-**O que faz:** relê o storage depois da migração.
-
-**Como faz:** confirma o efeito durável antes de devolver o job.
-
-**Por que assim / por que alternativa ingênua é pior:** assumir que a migração funcionou sem releitura poderia emitir claim mesmo após falha parcial.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 092
-<code>      const migratedJob = migratedData &amp;&amp; migratedData[migratedKey];</code>
-
-**O que faz:** extrai o job da nova chave canônica.
-
-**Como faz:** mantém ausente se a migração não materializou o registro.
-
-**Por que assim / por que alternativa ingênua é pior:** esta é a última barreira antes de liberar dados ao content script.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 093
-<code>      if (!migratedJob || migratedJob.jobId !== expectedJobId) return { job: null };</code>
-
-**O que faz:** nega o claim sem lançar exceção.
-
-**Como faz:** retorna contrato normal `job:null`.
-
-**Por que assim / por que alternativa ingênua é pior:** claim inexistente/negado é condição esperada para abas manuais; erro excepcional causaria retries/logs indevidos.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 094
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 095
-<code>      context.log('info', 'bg', 'TAB_CLAIM_ALIAS', 'Job reivindicado após resolver alias', {</code>
-
-**O que faz:** registra sucesso pelo caminho de alias/replacement.
-
-**Como faz:** distingue telemetria de claim direto.
-
-**Por que assim / por que alternativa ingênua é pior:** separar eventos ajuda detectar frequência de replacements e regressões de migração.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 096
-<code>        tabId: canonicalSenderTabId,</code>
-
-**O que faz:** executa a instrução `tabId: canonicalSenderTabId,` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 097
-<code>        jobIdPrefix: expectedJobId.slice(0, 8),</code>
-
-**O que faz:** executa a instrução `jobIdPrefix: expectedJobId.slice(0, 8),` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 098
-<code>      });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 099
-<code>      return { job: safeJob(migratedJob, canonicalSenderTabId) };</code>
-
-**O que faz:** retorna o job migrado usando a mesma allowlist do caminho direto.
-
-**Como faz:** normaliza ambos os caminhos num único contrato.
-
-**Por que assim / por que alternativa ingênua é pior:** dois formatos de resposta para direct/alias fariam content_gemini depender do histórico da aba.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 100
-<code>    },</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 101
-<code>  });</code>
-
-**O que faz:** fecha o escopo sintático aberto nas linhas anteriores.
-
-**Como faz:** preserva fronteiras entre sanitização, descriptor e IIFE.
-
-**Por que assim / por que alternativa ingênua é pior:** mover delimitadores pode colocar validações fora do executor ou expor helpers globalmente.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 102
-<code>})(typeof self !== 'undefined' ? self : globalThis);</code>
-
-**O que faz:** executa a instrução `})(typeof self !== 'undefined' ? self : globalThis);` dentro do protocolo de claim.
-
-**Como faz:** usa estado/storage/identidade preparados pelas linhas anteriores.
-
-**Por que assim / por que alternativa ingênua é pior:** a ordem validation→canonicalização→lookup direto→fallback indexado→ownership→migração→releitura é parte da segurança; reordenar pode permitir claim incorreto ou falso negativo.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-### Linha 103
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa duas etapas do protocolo de claim sem efeito de runtime.
-
-**Como faz:** não executa expressão; serve como fronteira visual entre validação, lookup e migração.
-
-**Por que assim / por que alternativa ingênua é pior:** neste fluxo de segurança, separar etapas torna ownership e retornos precoces mais auditáveis.
-
-**Evidência:** ✅ quando coberta pelos cenários diretos acima; onde a linha pertence a um caminho de borda não exercitado, vale o aviso conservador abaixo.
-
-## 5. Invariantes
-
-1. Nunca aceitar tabId fornecido pelo request como prova de ownership.
-2. `allowedSources` deve continuar restrito a Gemini enquanto esta action libera dados de job.
-3. JobId divergente deve ser rejeitado mesmo se a chave direta da aba existir.
-4. Conhecer `jobId` sem possuir o tabId canônico correspondente nunca pode ser suficiente.
-5. Migração de alias só pode ocorrer depois de provar jobId + ownership canônico.
-6. Após migração, reler storage e revalidar jobId antes de responder.
-7. `safeJob` deve permanecer allowlist; nunca trocar por `{...job}`.
-8. Campos internos novos não entram automaticamente no contrato externo.
-9. Direct claim e alias claim devem devolver o mesmo shape seguro.
-
-## 6. Resultado
-
-- Fonte integral: **SIM**.
-- Todas as linhas comentadas: **SIM**.
-- Segurança de origem: **PROVADA**.
-- Ownership direto e por alias: **PROVADOS**.
-- Minimização de dados: **PROVADA explicitamente**.
-- Lacunas de borda registradas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
-
-**Próximo arquivo após atualização do rastreador:** `extension/background/actions/commit-result.js`.
+**Veredito documental:** aprovada para `f5c4643d291931f133a791a2deaa6eb94ef4500d`.
