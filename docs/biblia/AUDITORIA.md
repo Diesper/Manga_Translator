@@ -68,8 +68,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 21 | `extension/background/actions/report-error.js` | SHA `ac239ea49544...` conferido; bloco integral exato | 71 linhas + newline final = 72/72 posições | payload/ownership/identity/finalização provados; consumer/lifecycle separados; gaps explícitos | 9 unidades específicas + papel local por posição | ✅ APROVADO |
 | 22 | `extension/background/actions/request-image-data.js` | SHA `249126232396...` conferido; bloco integral exato | 32 linhas + newline final = 33/33 posições | relay/resposta/lastError provados; consumer/destino/compat separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 | 23 | `extension/background/actions/set-debug-mode.js` | SHA `92e4149b1bba...` conferido; bloco integral exato | 39 linhas + newline final = 40/40 posições | persistência/broadcast/validator provados; caller/consumer separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 24 | `extension/background/actions/start-batch.js` | SHA `b0ef70bf1c23...` conferido; bloco integral exato | 21 linhas + newline final = 22/22 posições | validator/delegação diretos; FIFO/idempotência/orchestrator separados; gaps explícitos | 6 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `start-batch.js` — criação e auditoria em 2026-09-29
+
+- validação de `images/index` e repasse de `request + sender` ligados ao teste direto;
+- reidratação/FIFO/idempotência atribuídos corretamente ao orchestrator `background.js::startBatch`;
+- sender tab documentado como fonte preferida de mangaTabId;
+- testes integrados de FIFO, idempotência e concorrência classificados separadamente da action;
+- gaps de lista vazia, índices, batchId, prompt e source ampla explicitados;
+- SHA e 22/22 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `set-debug-mode.js` — criação e auditoria em 2026-09-29
 
