@@ -1,58 +1,56 @@
 # Status — Bíblia técnica por arquivo
 
-> Esta é a fonte de verdade do progresso da documentação técnica linha a linha.
-> Regra de execução: **somente um arquivo pode estar EM ANDAMENTO por vez**. Um arquivo só muda para CONCLUÍDO depois que sua própria `Bíblia.md` estiver completa, revisada contra o conteúdo real e com rastreabilidade de testes explícita e conservadora.
+> Fonte de verdade do progresso. **Somente um arquivo pode estar EM ANDAMENTO por vez.** Um arquivo só vira CONCLUÍDO depois de sua Bíblia individual estar completa e revisada contra o código e os testes reais.
 
 ## Objetivo
 
-Substituir a antiga `docs/Bíblia.md` monolítica por uma Bíblia independente para cada arquivo do corpus técnico. Cada Bíblia deve explicar o arquivo no contexto real do projeto, reproduzir o conteúdo integralmente, explicar cada linha/bloco sem templates genéricos e distinguir prova real de teste de simples referência textual.
+Substituir a antiga Bíblia monolítica por uma Bíblia independente para cada arquivo do corpus técnico, com fonte integral, análise contextual linha a linha e rastreabilidade de testes conservadora.
 
-## Corpus congelado para esta rodada
+## Corpus congelado
 
-- Base do inventário: `main` no início da reestruturação do PR #66.
-- Arquivos elegíveis: **233**.
-- Inclui: `extension/`, `tests/`, `scripts/`, `.github/workflows/` e configs canônicas da raiz.
-- Exclui: `package-lock.json`, binários, dependências, artefatos gerados e documentação.
-- Prioridade: primeiro os **60 arquivos executáveis/distribuídos em `extension/`**, depois configuração/tooling/CI/testes.
+- Base: `main` no início da reestruturação do PR #66.
+- Total: **233 arquivos**.
+- Inclui `extension/`, `tests/`, `scripts/`, `.github/workflows/` e configs canônicas da raiz.
+- Exclui `package-lock.json`, binários, dependências, artefatos e documentação.
+- Prioridade: os 60 arquivos distribuídos em `extension/`, depois tooling/CI/testes/configs.
 
-## Estados permitidos
+## Estados
 
-- `PENDENTE`: ainda não iniciado.
-- `EM ANDAMENTO`: único arquivo que pode estar sendo documentado agora.
-- `CONCLUÍDO`: Bíblia individual finalizada e revisada.
-- `BLOQUEADO`: depende de evidência externa/arquivo ausente; deve explicar o bloqueio.
+- `PENDENTE`
+- `EM ANDAMENTO`
+- `CONCLUÍDO`
+- `BLOQUEADO`
 
 ## Critério obrigatório de CONCLUÍDO
 
-Um arquivo só pode ser marcado como concluído quando sua Bíblia individual contém:
-
-1. identidade, SHA e papel arquitetural;
-2. conteúdo-fonte integral, sem omissões;
-3. mapa de dependências, consumidores, efeitos colaterais e dados;
-4. explicação específica do comportamento, não apenas definição sintática;
-5. análise linha por linha ou por unidade inseparável com referência exata às linhas;
-6. explicação de **o que faz**, **como faz**, **por que existe assim** e **o que piora/quebra se for alterado ingenuamente**;
-7. riscos, invariantes, casos-limite e contratos;
-8. matriz de evidência de testes/gates;
-9. aviso explícito `⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO` para cada comportamento/configuração sem assertion ou prova runtime suficientemente ligada;
-10. distinção entre `PROVADO`, `EXECUTADO INDIRETAMENTE`, `GATE ESTÁTICO` e `SEM PROVA`;
-11. revisão final garantindo que nenhum trecho do arquivo ficou sem comentário.
+1. identidade/SHA/papel;
+2. fonte integral;
+3. dependências/consumidores/efeitos colaterais;
+4. explicação específica, não template sintático;
+5. comentário de todas as linhas/unidades inseparáveis;
+6. o que faz, como faz, por que assim e risco de alternativa;
+7. invariantes/casos-limite;
+8. matriz de testes/gates;
+9. `⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO` onde faltar assertion/prova runtime;
+10. separar prova direta, gate estático, execução indireta e ausência de prova;
+11. revisão final sem trechos esquecidos.
 
 ## Progresso
 
 - Total: **233**
-- Concluídos: **2**
+- Concluídos: **3**
 - Em andamento: **1**
-- Pendentes: **230**
-- Cobertura documental concluída: **0,86%**
-- Último concluído: `extension/background.js`
-- Arquivo atual: `extension/background/actions/calculate-visual-fingerprint.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md`
+- Pendentes: **229**
+- Cobertura documental concluída: **1,29%**
+- Último concluído: `extension/background/actions/calculate-visual-fingerprint.js`
+- Arquivo atual: `extension/background/actions/check-extraction-tab.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md`
 
 ## Histórico de conclusão
 
 1. ✅ `extension/manifest.json` — SHA-base `841fe70c183350e4110bc8ff57ab69b157169c36`.
 2. ✅ `extension/background.js` — SHA-base `667c05eb2d7adfca16a79d3e706c39a1e9398b72`.
+3. ✅ `extension/background/actions/calculate-visual-fingerprint.js` — SHA-base `ea474845cf9c6a6784e3ceb75298f0ac8df86e06`.
 
 ## Fila
 
@@ -60,8 +58,8 @@ Um arquivo só pode ser marcado como concluído quando sua Bíblia individual co
 |---:|---|---|---|---|
 | 1 | ✅ CONCLUÍDO | `extension/manifest.json` | `841fe70c1833` | `docs/biblia/extension/manifest.json/Bíblia.md` |
 | 2 | ✅ CONCLUÍDO | `extension/background.js` | `667c05eb2d7a` | `docs/biblia/extension/background.js/Bíblia.md` |
-| 3 | 🟠 EM ANDAMENTO | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
-| 4 | ⬜ PENDENTE | `extension/background/actions/check-extraction-tab.js` | `9ee40474d8c5` | `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` |
+| 3 | ✅ CONCLUÍDO | `extension/background/actions/calculate-visual-fingerprint.js` | `ea474845cf9c` | `docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md` |
+| 4 | 🟠 EM ANDAMENTO | `extension/background/actions/check-extraction-tab.js` | `9ee40474d8c5` | `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` |
 | 5 | ⬜ PENDENTE | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
 | 6 | ⬜ PENDENTE | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
 | 7 | ⬜ PENDENTE | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
@@ -294,4 +292,4 @@ Um arquivo só pode ser marcado como concluído quando sua Bíblia individual co
 
 ## Regra de continuidade
 
-Ao retomar o trabalho, ler primeiro este arquivo. O próximo alvo é sempre o único `EM ANDAMENTO`; se não houver nenhum, selecionar o primeiro `PENDENTE` da tabela. Nunca iniciar dois arquivos simultaneamente e nunca antecipar `CONCLUÍDO` para aumentar a porcentagem.
+Retomar sempre pelo único `EM ANDAMENTO`. Só após sua conclusão marcar a caixa correspondente e mover o estado para o primeiro `PENDENTE`.
