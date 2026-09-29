@@ -34,8 +34,8 @@
 - [x] 016 — `extension/background/actions/log-entry.js` → `docs/biblia/extension/background/actions/log-entry.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 017 — `extension/background/actions/open-existing-folder.js` → `docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 018 — `extension/background/actions/open-manga-root.js` → `docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 019 — `extension/background/actions/refresh-job-watchdog.js` → `docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
-- [ ] 020 — `extension/background/actions/relay-progress.js` → `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md`
+- [x] 019 — `extension/background/actions/refresh-job-watchdog.js` → `docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 020 — `extension/background/actions/relay-progress.js` → `docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md` **← EM ANDAMENTO — CRIAÇÃO**
 - [ ] 021 — `extension/background/actions/report-error.js` → `docs/biblia/extension/background/actions/report-error.js/Bíblia.md`
 - [ ] 022 — `extension/background/actions/request-image-data.js` → `docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md`
 - [ ] 023 — `extension/background/actions/set-debug-mode.js` → `docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md`
