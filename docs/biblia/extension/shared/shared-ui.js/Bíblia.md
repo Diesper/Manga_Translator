@@ -1,6 +1,6 @@
 # Bíblia técnica — extension/shared/shared-ui.js
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE ATIVA  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `b284fb8eb0e8d30f34dc83642f07916d20012bf0`  
 > **Agente responsável pela auditoria:** Agente L  
 > **Tipo:** JavaScript — utilitários globais de UI para páginas internas MV3  
@@ -5426,4 +5426,4 @@ Object.assign(scope, {
 - Lacunas não foram promovidas por mera ocorrência textual.
 - Foram registrados sem alteração funcional os riscos de overlay concorrente, over-delete sem `chapterId`, migração parcial, resposta GTC negativa ignorada e falta de checagem de erro de storage.
 
-**Estado documental desta materialização:** 🟠 EM ANDAMENTO — conteúdo integral e auditoria técnica preparados; a promoção a `✅ CONCLUÍDO` depende da seção crítica compartilhada com `AUDITORIA.md`, `STATUS.md`, `CHECKLIST.md` e PR #66.
+**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md` para o SHA auditado; fonte integral, 351/351 posições, consumidores, riscos e classificação conservadora de evidência foram reconfirmados.
