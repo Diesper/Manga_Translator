@@ -395,6 +395,34 @@ jobs:
           retention-days: 7
 
 
+  windows-portability:
+    name: Windows Portability
+    runs-on: windows-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Instalar dependências
+        run: npm ci
+      - name: Validar contratos e paths
+        run: npm run validate
+      - name: Jest completo
+        run: npm run test:ci
+      - name: Smoke
+        run: npm run test:smoke
+      - name: Visual
+        run: npm run test:visual
+      - name: Coverage
+        run: npm run test:coverage
+      - name: Verificar coverage e normalização de paths
+        run: npm run test:coverage:verify
+
+
   fresh-developer-flow:
     name: Fresh Developer Flow
     if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -456,6 +484,7 @@ jobs:
       - jest-worker-diagnostic
       - focused-project-leak-diagnostic
       - background-leak-bisection
+      - windows-portability
       - fresh-developer-flow
     steps:
       - name: Exigir execução e sucesso de todos os gates
@@ -474,6 +503,7 @@ jobs:
           JEST_WORKER_DIAGNOSTIC: ${{ needs.jest-worker-diagnostic.result }}
           FOCUSED_PROJECT_LEAK: ${{ needs.focused-project-leak-diagnostic.result }}
           BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
+          WINDOWS_PORTABILITY: ${{ needs.windows-portability.result }}
           FRESH_DEVELOPER_FLOW: ${{ needs.fresh-developer-flow.result }}
         run: |
           failed=0
@@ -497,6 +527,7 @@ jobs:
           check "Code Coverage" "$COVERAGE"
           check "E2E Shards" "$E2E_SHARDS"
           check "E2E Tests" "$E2E"
+          check "Windows Portability" "$WINDOWS_PORTABILITY"
 
           if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
             echo "🔒 Verificação completa pós-merge/manual: diagnósticos pesados são obrigatórios."

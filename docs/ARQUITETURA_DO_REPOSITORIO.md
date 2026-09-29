@@ -191,3 +191,12 @@ desenvolvimento na ordem:
 Esse job existe para detectar dependências ocultas de diretório atual, arquivos
 gerados previamente ou wrappers locais. O `CI Gate` o torna obrigatório quando o
 workflow é disparado manualmente.
+
+
+## Portabilidade Windows
+
+Além dos jobs Linux, a CI possui o gate `windows-portability` em
+`windows-latest`. Ele executa instalação limpa, validações estruturais, Jest,
+smoke, visual e coverage. A verificação de coverage no Windows protege também a
+normalização de caminhos LCOV e impede que a arquitetura dependa silenciosamente
+de separadores POSIX ou de um diretório de trabalho específico.

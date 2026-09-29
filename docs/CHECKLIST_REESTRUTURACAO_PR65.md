@@ -54,6 +54,13 @@
 - [ ] Executar os diagnósticos pesados via `workflow_dispatch` na branch para validar `.ci-results/` e uploads reais; no run de PR eles ficaram **skipped** por design.
 - [ ] Confirmar artefatos dos três diagnósticos pesados após o `workflow_dispatch`.
 
+## Compatibilidade Windows/Linux
+
+- [x] Adicionado gate `Windows Portability` em `windows-latest`.
+- [x] O gate Windows executa `npm ci`, `validate`, Jest completo, smoke, visual e coverage + verificação de paths.
+- [x] `CI Gate` exige sucesso do Windows em todo run normal.
+- [ ] Confirmar o novo gate Windows verde no HEAD atual.
+
 ## Interface de desenvolvedor novo
 
 - [x] Jobs da CI executam `npm ci` a partir da raiz.

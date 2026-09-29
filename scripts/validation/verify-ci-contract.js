@@ -48,6 +48,7 @@ const requiredJobs = [
   'jest-worker-diagnostic',
   'focused-project-leak-diagnostic',
   'background-leak-bisection',
+  'windows-portability',
   'fresh-developer-flow',
   'ci-gate',
 ];
@@ -183,10 +184,28 @@ if (regressionMatrix) {
   }
 }
 
-for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e-shard', 'e2e']) {
+for (const job of ['smoke', 'visual', 'unit-and-integration', 'coverage', 'e2e-shard', 'e2e', 'windows-portability']) {
   const block = jobBlock(job);
   if (/^    continue-on-error:\s*true\s*$/m.test(block)) {
     problems.push(job + ': job funcional não pode usar continue-on-error: true');
+  }
+}
+
+const windowsPortability = jobBlock('windows-portability');
+if (!windowsPortability.includes('runs-on: windows-latest')) {
+  problems.push('windows-portability precisa executar em windows-latest');
+}
+for (const marker of [
+  'run: npm ci',
+  'run: npm run validate',
+  'run: npm run test:ci',
+  'run: npm run test:smoke',
+  'run: npm run test:visual',
+  'run: npm run test:coverage',
+  'run: npm run test:coverage:verify',
+]) {
+  if (!windowsPortability.includes(marker)) {
+    problems.push('windows-portability não cobre contrato obrigatório: ' + marker);
   }
 }
 
@@ -279,6 +298,7 @@ for (const marker of [
   'check "Jest Worker Diagnostic" "$JEST_WORKER_DIAGNOSTIC"',
   'check "Focused Project Leak" "$FOCUSED_PROJECT_LEAK"',
   'check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"',
+  'WINDOWS_PORTABILITY',
   'FRESH_DEVELOPER_FLOW',
   'check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"',
 ]) {
