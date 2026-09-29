@@ -22,8 +22,8 @@
 - [x] 004 — `extension/background/actions/check-extraction-tab.js` → `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 005 — `extension/background/actions/claim-gemini-job.js` → `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 006 — `extension/background/actions/commit-result.js` → `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` **← EM ANDAMENTO — REVISÃO DE QUALIDADE**
-- [ ] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` **⚠️ REVISÃO DE QUALIDADE**
+- [x] 007 — `extension/background/actions/deliver-result-from-tab.js` → `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 008 — `extension/background/actions/deliver-result-url.js` → `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` **← EM ANDAMENTO — REVISÃO DE QUALIDADE**
 - [ ] 009 — `extension/background/actions/deliver-result.js` → `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md`
 - [ ] 010 — `extension/background/actions/download-chapter.js` → `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md`
 - [ ] 011 — `extension/background/actions/download-image.js` → `docs/biblia/extension/background/actions/download-image.js/Bíblia.md`

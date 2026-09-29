@@ -51,10 +51,21 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 4 | `extension/background/actions/check-extraction-tab.js` | SHA correto; bloco integral exato | corrigido para 26/26 posições | hit/miss e roteamento têm evidência real; lacunas de ordem/sender ausente continuam explícitas | específica ao mapping/ownership da aba | ✅ APROVADO |
 | 5 | `extension/background/actions/claim-gemini-job.js` | SHA `f5c4643d2919...` reconfirmado; bloco integral exato | 102 linhas + newline final = 103/103 posições | prova da action, router, TabIdentity e consumidor separadas; gaps de ownership/erro explícitos | 13 unidades específicas + papel local por posição | ✅ APROVADO |
 | 6 | `extension/background/actions/commit-result.js` | SHA `32270d1c4ade...` reconfirmado; bloco integral exato | 106 linhas + newline final = 107/107 posições | journal/ownership/batch/persistência/finalize mapeados a assertions; retry do consumidor separado | 10 unidades específicas + papel local por posição | ✅ APROVADO |
-| 7 | `extension/background/actions/deliver-result-from-tab.js` | SHA correto; bloco integral exato | 104/104; nenhuma divergência | testes reais cobrem sucesso/retry/sender/payload, mas rótulos verdes são herdados por faixa | 40 linhas ainda usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
+| 7 | `extension/background/actions/deliver-result-from-tab.js` | SHA `59543c135966...` reconfirmado; bloco integral exato | 103 linhas + newline final = 104/104 posições | sucesso/retry/mapping/ownership/helper separados; mismatches e falhas de API mantidos como gaps | 11 unidades específicas + papel local por posição; fallback genérico removido | ✅ APROVADO |
 | 8 | `extension/background/actions/deliver-result-url.js` | SHA correto; bloco integral exato | 94/94; nenhuma divergência | testes reais cobrem ownership, batch, URL e registro; alguns rótulos verdes continuam aplicados por faixa | 17 linhas usam fallback “executa a instrução concreta” | 🟣 REVISÃO OBRIGATÓRIA |
 
 ## Correções já aplicadas pela auditoria
+
+### `deliver-result-from-tab.js` — reauditoria aprovada em 2026-09-29
+
+- sender→mapping, ownership, identidade mapping↔job, staging, retry, cleanup e finalize foram separados em unidades verificáveis;
+- prova direta da action foi separada de helper DOM ACK, lifecycle e consumer retry;
+- mismatches de batch/index/mangaTabId permaneceram explicitamente sem prova focal;
+- foram registrados gaps para ownership negativo, Data URL incompleto/grande, resposta staged parcial, `tabs.remove`/`syncState`/`finalizeJob` falhando e fallbacks nullish;
+- foi registrado que `tabs.remove` é best-effort, não awaited, e `lastError` é ignorado;
+- SHA e 104/104 posições foram reconfirmados.
+
+**Veredito:** ✅ APROVADO.
 
 ### `commit-result.js` — reauditoria aprovada em 2026-09-29
 
@@ -140,13 +151,9 @@ A classificação genérica anterior foi substituída por evidência por comport
 
 A evidência vaga anterior foi substituída por classificação por comportamento. O arquivo está **✅ APROVADO**.
 
-### `deliver-result-from-tab.js`
+### `deliver-result-from-tab.js` — histórico resolvido
 
-A suíte prova o protocolo principal, porém:
-
-- 40 linhas ainda usam comentário genérico;
-- várias linhas recebem “✅” apenas por pertencer à mesma faixa do teste;
-- os mismatches individuais de batch/index/mangaTabId e algumas falhas de API não têm teste focal e precisam permanecer claramente amarelos/vermelhos.
+A documentação genérica e os rótulos herdados por faixa foram substituídos por evidência por comportamento. O arquivo está **✅ APROVADO**.
 
 ### `deliver-result-url.js`
 
@@ -158,8 +165,7 @@ A produção de novos arquivos fica **pausada** até que as Bíblias materializa
 
 Ordem de revisão:
 
-1. `extension/background/actions/deliver-result-from-tab.js`;
-2. `extension/background/actions/deliver-result-url.js`.
+1. `extension/background/actions/deliver-result-url.js`.
 
 Somente depois de todas essas revisões voltará a fila normal em:
 

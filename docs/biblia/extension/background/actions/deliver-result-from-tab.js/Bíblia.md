@@ -1,35 +1,113 @@
 # Bíblia técnica — `extension/background/actions/deliver-result-from-tab.js`
 
-> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
-> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
+> **Estado:** ✅ REAUDITADO E APROVÁVEL.  
 > **SHA auditado:** `59543c1359669ced02a1d05c251b272abaad6709`  
-> **Linhas auditadas:** **104**  
-> **Teste direto:** `tests/unit/background/deliver-result-from-tab-action.test.js` (`263cb827e30468c377c5b1eb5863e90bd6cf26b0`).
+> **Tipo:** action assíncrona — ingestão de resultado de aba auxiliar.  
+> **Linhas textuais:** **103**.  
+> **Posições documentais:** **104** contando newline final.  
+> **Teste direto principal:** `tests/unit/background/deliver-result-from-tab-action.test.js` — `263cb827e30468c377c5b1eb5863e90bd6cf26b0`.
 
 ## 1. Papel arquitetural
 
-Esta action reconecta o resultado produzido por uma aba auxiliar ao job Gemini original. Ela não usa `currentBatchId` global como autoridade, porque um resultado auxiliar de um lote anterior ainda pode ser legítimo enquanto outro lote já foi promovido.
+Esta action recebe a imagem já extraída por uma aba auxiliar, mas **não confia nos campos de identidade enviados por essa aba**. O vínculo autoritativo vem de `sender.tab.id → state.extractionTabs[senderTabId]`, depois é cruzado novamente com o job Gemini vivo via `assertJobOwnership`.
 
-A ordem é obrigatória: validar → reidratar → provar mapping do sender → provar ownership do job → cruzar batch/index/mangaTabId → stage com ACK → preservar recursos em falha → remover aba/mapping em sucesso → sincronizar → finalizar.
+O arquivo foi desenhado para aceitar um resultado legítimo mesmo quando `state.currentBatchId` já aponta para outro lote. O que importa é a identidade persistida do job ao qual aquela aba auxiliar pertence.
 
-## 2. Evidência real
+## 2. Protocolo real
 
-- ✅ payload sem jobId e src que não é Data URL são rejeitados antes de `ensureInitialized`;
-- ✅ jobId diferente do mapping retorna `sender_mismatch` sem remover/finalizar;
-- ✅ o sucesso usa `finalizeOnAck:false`, remove a aba auxiliar, apaga o mapping e finaliza só depois;
-- ✅ falha de persistência mantém aba/mapping/job vivos para retry;
-- ✅ um `currentBatchId` global diferente não invalida o resultado auxiliar real.
+1. Valida jobId e prefixo de Data URL de imagem.
+2. Reidrata o background.
+3. Liga o sender real ao mapping de `extractionTabs`.
+4. Confirma que o job Gemini do mapping ainda está vivo/owned.
+5. Compara batch/index/mangaTabId mapping↔job.
+6. Faz staging no leitor com `finalizeOnAck:false`.
+7. Se staging falha, preserva aba/mapping/job para retry.
+8. Se staging é aceito, remove a aba auxiliar, remove mapping e sincroniza estado.
+9. Finaliza o job como sucesso.
+10. Responde staged/persisted/committed.
 
-### Lacunas
+## 3. Trust boundary e minimização
 
-- ⚠️ falta caso focal de ownership=false com mapping válido;
-- ⚠️ batchId, index e mangaTabId divergentes não são testados separadamente;
-- ⚠️ falta caso `ok:true,persisted:false`;
-- ⚠️ erro de `tabs.remove`, `syncState` ou `finalizeJob` não possui cenário focal nesta suíte.
+Apesar de `allowedSources:['any']`, uma origem não obtém autoridade simplesmente enviando `geminiTabId`, `mangaTabId`, `index` ou `batchId`: a action ignora esses campos do request para identidade. Somente `request.jobId` é comparado com o mapping do sender e `request.src` é usado como resultado.
 
-## 3. Fonte integral
+`src` precisa começar com um Data URL `data:image/...;base64,`, mas a validação é apenas estrutural: não há decodificação/validação do Base64, limite de bytes nem allowlist restrita de MIME. Isso é uma lacuna de robustez/DoS, não evidência de quebra funcional já observada.
 
-```javascript
+## 4. Relação com o helper de ACK
+
+`jobs-dom-ack.js` com `finalizeOnAck:false` envia `UPDATE_IMAGE`, persiste `state:'dom_applied'`/`resultPersisted:true` quando considera o ACK positivo e **não** chama finalize. A action então executa seu próprio cleanup da aba auxiliar e finalização.
+
+O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal não depende de um objeto parcial. Mesmo assim, o teste focal da action não cobre um mock `{ok:true}` sem `persisted`, e a condição local aceitaria esse objeto.
+
+## 5. Consumidor e retry
+
+`content_manga.js` envia `IMAGE_READY_FROM_NEW_TAB` com os dados recebidos de `CHECK_IF_EXTRACTION_TAB`. Se o ACK do background não confirmar persistência, ele redefine `imageDelivered=false` e agenda nova tentativa; após ACK persistido encerra a extração.
+
+`tests/unit/content-manga/extraction-and-handlers-real.test.js` prova esse retry do consumidor com runtime responder mockado. Isso complementa, mas não substitui, a prova direta da action.
+
+## 6. Matriz de evidência
+
+| Fonte | Classificação | O que realmente prova |
+|---|---|---|
+| `deliver-result-from-tab-action.test.js` | ✅ PROVADO DIRETAMENTE | Payload inválido antes de reidratar, mapping/jobId mismatch, sucesso completo, independência de `currentBatchId`, falha de staging preservando aba/mapping e finalize somente após sucesso. |
+| `jobs-dom-ack-staging.test.js` — `5db47daff53026aa778944c999d7dc922f35ecad` | ✅ PROVADO DIRETAMENTE DO HELPER | `finalizeOnAck:false`, persistência `dom_applied/resultPersisted`, ACK negativo, timeout e runtime error sem finalize. |
+| `process-finalize-real.test.js` — `abb1b936fadf0e309933e39b4b705116eb320a1f` | ✅ PROVADO DIRETAMENTE DO LIFECYCLE | Finalize real, marcador durável, contabilidade/cleanup e casos de restart; prova o helper chamado depois do staging. |
+| `extraction-and-handlers-real.test.js` — `038961e8228c7b5f1a87023a739ad5f33288423b` | 🟨 PROVA DO CONSUMIDOR | ACK persistido encerra; ACK não confirmado repete exatamente a entrega. A resposta do background é mockada. |
+
+## 7. Lacunas de teste e riscos
+
+### Ownership negativo
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `ownership.owns=false`/`ownership.job=null` depois de um mapping válido.
+
+### Mismatches individuais
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para batchId divergente, index divergente e mangaTabId divergente. O teste de jobId forjado falha antes e não prova `identityMismatch`.
+
+### Data URL incompleto/grande
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** e sem limite funcional para Base64 vazio/malformado, MIME incomum ou payload muito grande.
+
+### Staged parcial
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `null/undefined`, `{ok:true,persisted:false}` isolado e `{ok:true}` sem campo `persisted`. O helper real oferece shape completo, mas a action depende desse contrato implícito.
+
+### Remoção da aba auxiliar
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `chrome.runtime.lastError`, exceção síncrona de `tabs.remove` ou aba que permanece aberta. O código inicia a remoção, ignora `lastError` e continua apagando mapping/finalizando.
+
+### sync/finalize rejeitando
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `syncState()` ou `finalizeJob()` rejeitando.
+
+### Fallbacks nullish
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para job sem mangaTabId/index/batchId usando valores do mapping.
+
+### Logs
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `AUX_RESULT_JOB_IDENTITY_MISMATCH`, `AUX_RESULT_STAGED_DURABLY` e metadata truncada.
+
+## 8. Análise crítica
+
+1. **A action não depende de `currentBatchId` global**, e isso é explicitamente provado.
+2. **O request não controla destino/índice/batch:** essas identidades vêm do mapping e depois do job persistido.
+3. **A remoção da aba é best-effort e não awaited.** Se `tabs.remove` falhar, o mapping já será removido e o job poderá ser finalizado, deixando uma aba auxiliar órfã.
+4. **A regex de `src` é só um gate de prefixo**, não uma validação de Base64/tamanho.
+5. **O helper de ACK é a garantia efetiva de persistência.** A action aceita o contrato do helper e faz cleanup somente depois dele.
+6. **Falha de staging preserva retry:** essa é a propriedade mais importante para evitar perda de resultado.
+
+## 9. Invariantes
+
+1. Payload inválido falha antes de `ensureInitialized`.
+2. sender.tab.id, não campos de tab do payload, ancora a aba auxiliar.
+3. Mapping ausente ou jobId divergente nunca chega ao delivery.
+4. Mapping válido ainda precisa de ownership vivo do job Gemini.
+5. `currentBatchId` global não invalida um job auxiliar real por si só.
+6. Batch/index/mangaTabId divergentes entre mapping e job devem falhar.
+7. Valores persistidos do job prevalecem sobre mapping nos argumentos de staging/finalize.
+8. Staging usa `finalizeOnAck:false`.
+9. Falha/ACK não persistido não remove aba, mapping nem finaliza job.
+10. Cleanup do mapping acontece somente depois de staging aceito.
+11. Estado do mapping é sincronizado antes do finalize.
+12. Finalização usa `fromError=false`.
+13. Resposta positiva só ocorre depois de `finalizeJob` awaited.
+14. Logs não devem incluir o Data URL/Base64.
+
+## 10. Fonte integral
+
+~~~javascript
 'use strict';
 // background/actions/deliver-result-from-tab.js -- Entrega resultado da aba auxiliar sem depender de currentBatchId.
 
@@ -134,1207 +212,260 @@ A ordem é obrigatória: validar → reidratar → provar mapping do sender → 
   });
 })(typeof self !== 'undefined' ? self : globalThis);
 
-```
+~~~
+
+## 11. Rastreabilidade 104/104
+
+| Posição | Unidade | Fonte | Papel local |
+|---:|---|---|---|
+| 001 | U01 | 'use strict'; | Ativa strict mode para a action. |
+| 002 | U01 | // background/actions/deliver-result-from-tab.js -- Entrega resultado da aba auxiliar sem depender de currentBatchId. | Comentário de U01: “background/actions/deliver-result-from-tab.js -- Entrega resultado da aba auxiliar sem depender de currentBatchId.”; registra intenção sem executar. |
+| 003 | U01 | ␠ [linha vazia] | Separador visual de U01 (Cabeçalho e intenção); não altera estado, IPC ou controle. |
+| 004 | U02 | (function(scope) { | Completa a expressão de U02 com `(function(scope) {`, fornecendo argumento, propriedade ou condição das linhas contíguas. |
+| 005 | U02 |   scope.MangaTranslatorRouter.registerAction({ | Registra a definição no MangaTranslatorRouter. |
+| 006 | U02 |     name: 'deliver-result-from-tab', | Define o nome canônico do alias `IMAGE_READY_FROM_NEW_TAB`. |
+| 007 | U02 |     meta: { allowedSources: ['any'] }, | Permite qualquer source classificada pelo router; a autorização forte usa senderTabId + mapping + ownership. |
+| 008 | U02 | ␠ [linha vazia] | Separador visual de U02 (Registro, origem e validação do payload); não altera estado, IPC ou controle. |
+| 009 | U02 |     validate(request) { | Abre a validação executada antes de reidratar/tocar estado. |
+| 010 | U02 |       if (typeof request.jobId !== 'string' \|\| request.jobId.trim().length === 0) { | Exige jobId string com conteúdo não-whitespace. |
+| 011 | U02 |         return { code: 'INVALID_PAYLOAD', message: 'jobId é obrigatório' }; | Retorna INVALID_PAYLOAD estável para jobId inválido. |
+| 012 | U02 |       } | Fecha a estrutura sintática da unidade U02. |
+| 013 | U02 |       if (typeof request.src !== 'string' \|\| !/^data:image\/[a-z0-9.+-]+;base64,/i.test(request.src)) { | Exige string cujo prefixo corresponde a Data URL de imagem Base64. |
+| 014 | U02 |         return { code: 'INVALID_PAYLOAD', message: 'src de resultado inválido' }; | Retorna INVALID_PAYLOAD antes de qualquer efeito quando src não passa a regex. |
+| 015 | U02 |       } | Fecha a estrutura sintática da unidade U02. |
+| 016 | U02 |       return null; | Indica ao router que a validação terminou sem erro. |
+| 017 | U02 |     }, | Fecha a estrutura sintática da unidade U02. |
+| 018 | U02 | ␠ [linha vazia] | Separador visual de U02 (Registro, origem e validação do payload); não altera estado, IPC ou controle. |
+| 019 | U03 |     async execute(request, context) { | Abre o executor assíncrono da entrega auxiliar. |
+| 020 | U03 |       await context.ensureInitialized(); | Reidrata/reconcilia o background antes de consultar mapping/job. |
+| 021 | U03 |       const senderTabId = context.sender && context.sender.tab ? context.sender.tab.id : null; | Extrai tabId do sender runtime; nenhum tabId do payload é usado como autoridade. |
+| 022 | U03 |       const mapping = senderTabId !== null && context.state.extractionTabs[senderTabId]; | Busca `extractionTabs[senderTabId]`; sem sender válido o resultado é falsy. |
+| 023 | U03 | ␠ [linha vazia] | Separador visual de U03 (Reidratação e vínculo sender → extraction mapping); não altera estado, IPC ou controle. |
+| 024 | U03 |       if (!mapping \|\| mapping.jobId !== request.jobId) { | Exige mapping existente e mesmo jobId do request. |
+| 025 | U03 |         context.log('warn', 'bg', 'SENDER_MISMATCH', | Registra rejeição de origem/ownership auxiliar incompatível. |
+| 026 | U03 |           'Resultado de aba temporária descartado: mapeamento ou job incompatível.', { | Descreve a rejeição específica do vínculo sender→mapping. |
+| 027 | U03 |             jobId: String(request.jobId \|\| '').slice(0, 8), | Loga somente prefixo de oito caracteres do jobId solicitado. |
+| 028 | U03 |           }); | Fecha a estrutura sintática da unidade U03. |
+| 029 | U03 |         return { ok: false, reason: 'sender_mismatch' }; | Falha fechada sem delivery, cleanup ou finalize. |
+| 030 | U03 |       } | Fecha a estrutura sintática da unidade U03. |
+| 031 | U03 | ␠ [linha vazia] | Separador visual de U03 (Reidratação e vínculo sender → extraction mapping); não altera estado, IPC ou controle. |
+| 032 | U04 |       const { mangaTabId, index, geminiTabId, jobId, batchId } = mapping; | Extrai do mapping interno as identidades usadas no restante do fluxo. |
+| 033 | U04 |       const ownership = await new Promise(resolve => { | Adapta `assertJobOwnership` callback-based para `await`. |
+| 034 | U04 |         context.assertJobOwnership({ tab: { id: geminiTabId } }, jobId, (owns, tabId, job) => { | Valida o job usando o geminiTabId e jobId do mapping, não os do request. |
+| 035 | U04 |           resolve({ owns, tabId, job }); | Materializa o resultado de ownership para as guardas seguintes. |
+| 036 | U04 |         }); | Fecha a estrutura sintática da unidade U04. |
+| 037 | U04 |       }); | Fecha a estrutura sintática da unidade U04. |
+| 038 | U04 | ␠ [linha vazia] | Separador visual de U04 (Ownership do job Gemini); não altera estado, IPC ou controle. |
+| 039 | U04 |       if (!ownership.owns \|\| !ownership.job) { | Rejeita mapping stale cujo job Gemini não está mais vivo/owned. |
+| 040 | U04 |         context.log('warn', 'bg', 'SENDER_MISMATCH', | Registra rejeição de origem/ownership auxiliar incompatível. |
+| 041 | U04 |           'Resultado de aba temporária descartado: job do Gemini não está mais ativo.', { | Explica no log a rejeição por job inativo. |
+| 042 | U04 |             jobId: String(jobId \|\| '').slice(0, 8), | Loga somente prefixo do jobId interno. |
+| 043 | U04 |           }); | Fecha a estrutura sintática da unidade U04. |
+| 044 | U04 |         return { ok: false, reason: 'sender_mismatch' }; | Falha fechada sem delivery, cleanup ou finalize. |
+| 045 | U04 |       } | Fecha a estrutura sintática da unidade U04. |
+| 046 | U05 | ␠ [linha vazia] | Separador visual de U05 (Reconciliação de identidade com o job persistido); não altera estado, IPC ou controle. |
+| 047 | U05 |       const job = ownership.job; | Adota o job persistido/owned como autoridade final. |
+| 048 | U05 |       const identityMismatch = | Inicia a composição das três verificações de identidade mapping↔job. |
+| 049 | U05 |         (batchId && job.batchId && batchId !== job.batchId) \|\| | Compara batchId apenas quando mapping e job possuem valor truthy. |
+| 050 | U05 |         (Number.isInteger(index) && Number.isInteger(job.index) && index !== job.index) \|\| | Compara index somente quando ambos os lados são inteiros. |
+| 051 | U05 |         (mangaTabId && job.mangaTabId && mangaTabId !== job.mangaTabId); | Compara mangaTabId quando ambos são truthy. |
+| 052 | U05 | ␠ [linha vazia] | Separador visual de U05 (Reconciliação de identidade com o job persistido); não altera estado, IPC ou controle. |
+| 053 | U05 |       if (identityMismatch) { | Entra na rejeição se qualquer dimensão de identidade divergir. |
+| 054 | U05 |         context.log('error', 'bg', 'AUX_RESULT_JOB_IDENTITY_MISMATCH', | Registra mismatch mapping↔job persistido. |
+| 055 | U05 |           'Resultado auxiliar rejeitado: identidade não corresponde ao job persistido.', { | Descreve o erro de identidade persistida. |
+| 056 | U05 |             jobId: String(jobId \|\| '').slice(0, 8), | Loga somente prefixo do jobId interno. |
+| 057 | U05 |             expectedBatchId: String(job.batchId \|\| '').slice(0, 8), | Loga prefixo do batchId esperado pelo job. |
+| 058 | U05 |             receivedBatchId: String(batchId \|\| '').slice(0, 8), | Loga prefixo do batchId recebido do mapping. |
+| 059 | U05 |           }); | Fecha a estrutura sintática da unidade U05. |
+| 060 | U05 |         return { ok: false, reason: 'job_identity_mismatch' }; | Retorna razão específica sem staged delivery/cleanup. |
+| 061 | U05 |       } | Fecha a estrutura sintática da unidade U05. |
+| 062 | U05 | ␠ [linha vazia] | Separador visual de U05 (Reconciliação de identidade com o job persistido); não altera estado, IPC ou controle. |
+| 063 | U06 |       const staged = await context.deliverResultToManga({ | Inicia staging durável no leitor e aguarda o ACK do helper. |
+| 064 | U06 |         mangaTabId: job.mangaTabId ?? mangaTabId, | Prefere mangaTabId persistido; mapping é apenas fallback nullish. |
+| 065 | U06 |         index: job.index ?? index, | Prefere index persistido; mapping é fallback nullish. |
+| 066 | U06 |         src: request.src, | Entrega exatamente o Data URL validado; não usa URL externa. |
+| 067 | U06 |         jobId, | Propaga o jobId do mapping já validado. |
+| 068 | U06 |         batchId: job.batchId ?? batchId, | Prefere batchId persistido ao mapping. |
+| 069 | U06 |         geminiTabId: ownership.tabId, | Usa o tabId confirmado pelo ownership para atualização de estado. |
+| 070 | U06 |         finalizeOnAck: false, | Impede o helper de finalizar automaticamente; esta action controla o cleanup/finalize depois. |
+| 071 | U06 |       }); | Fecha a estrutura sintática da unidade U06. |
+| 072 | U06 | ␠ [linha vazia] | Separador visual de U06 (Staging durável no leitor); não altera estado, IPC ou controle. |
+| 073 | U07 |       if (!staged?.ok \|\| staged.persisted === false) { | Rejeita staging sem `ok` truthy ou com persistência explicitamente falsa. |
+| 074 | U07 |         context.log('error', 'bg', 'AUX_RESULT_STAGE_FAILED', | Registra falha de ACK/persistência para orientar retry. |
+| 075 | U07 |           'Resultado da aba auxiliar não recebeu ACK de persistência; aba mantida para retry.', { | Explica que a aba auxiliar será preservada para retry. |
+| 076 | U07 |             jobId: String(jobId \|\| '').slice(0, 8), | Loga somente prefixo do jobId interno. |
+| 077 | U07 |             reason: staged?.reason \|\| 'unknown', | Propaga a razão do helper no log/resposta, com fallback seguro. |
+| 078 | U07 |           }); | Fecha a estrutura sintática da unidade U07. |
+| 079 | U07 |         return { ok: false, reason: staged?.reason \|\| 'stage_failed' }; | Propaga a razão do helper no log/resposta, com fallback seguro. |
+| 080 | U07 |       } | Fecha a estrutura sintática da unidade U07. |
+| 081 | U07 | ␠ [linha vazia] | Separador visual de U07 (Falha de staging e retry); não altera estado, IPC ou controle. |
+| 082 | U08 |       if (senderTabId !== null) { | Executa cleanup tab-scoped quando há senderTabId. |
+| 083 | U08 |         chrome.tabs.remove(senderTabId, () => { if (chrome.runtime.lastError) {} }); | Solicita remoção da aba auxiliar; callback apenas consome `lastError` e não espera confirmação. |
+| 084 | U08 |         delete context.state.extractionTabs[senderTabId]; | Remove o mapping auxiliar da cópia de estado depois do staging aceito. |
+| 085 | U08 |       } | Fecha a estrutura sintática da unidade U08. |
+| 086 | U08 |       await context.syncState(); | Persiste a remoção do mapping antes do log/finalização. |
+| 087 | U08 | ␠ [linha vazia] | Separador visual de U08 (Cleanup da aba auxiliar e persistência do mapping); não altera estado, IPC ou controle. |
+| 088 | U09 |       context.log('success', 'bg', 'AUX_RESULT_STAGED_DURABLY', | Registra que o staging foi considerado durável e o job está pronto para finalize. |
+| 089 | U09 |         'Resultado auxiliar foi persistido; job agora pode ser finalizado com segurança.', { | Mensagem de sucesso sem incluir a imagem/Base64. |
+| 090 | U09 |           jobId: String(jobId \|\| '').slice(0, 8), | Loga somente prefixo do jobId interno. |
+| 091 | U09 |           batchId: String(job.batchId \|\| batchId \|\| '').slice(0, 8), | Loga prefixo do batch persistido, com fallback ao mapping. |
+| 092 | U09 |         }); | Fecha a estrutura sintática da unidade U09. |
+| 093 | U09 | ␠ [linha vazia] | Separador visual de U09 (Telemetria do staging durável); não altera estado, IPC ou controle. |
+| 094 | U10 |       await context.finalizeJob( | Aguarda a finalização segura do job depois do cleanup/sync. |
+| 095 | U10 |         ownership.tabId, | Passa ao finalize o tabId confirmado pelo ownership. |
+| 096 | U10 |         job.mangaTabId ?? mangaTabId, | Finaliza no mangaTabId persistido, usando mapping apenas como fallback. |
+| 097 | U10 |         false | Marca a finalização como sucesso (`fromError=false`). |
+| 098 | U10 |       ); | Fecha a estrutura sintática da unidade U10. |
+| 099 | U10 | ␠ [linha vazia] | Separador visual de U10 (Finalização do job e resposta); não altera estado, IPC ou controle. |
+| 100 | U10 |       return { staged: true, persisted: true, committed: true }; | Responde que staging, persistência e commit concluíram com sucesso. |
+| 101 | U10 |     }, | Fecha a estrutura sintática da unidade U10. |
+| 102 | U10 |   }); | Fecha a estrutura sintática da unidade U10. |
+| 103 | U10 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha a IIFE usando `self` no worker e `globalThis` no harness. |
+| 104 | U11 | ⏎ [newline final] | Preserva o newline terminal do blob; posição editorial sem efeito runtime. |
 
-## 4. Comentário linha por linha
+## 12. Análise por unidade
 
-### Linha 001 — Registro e validação
-<code>'use strict';</code>
+### U01 — linhas/posição 1–3: Cabeçalho e intenção
 
-**O que faz:** ativa strict mode no módulo.
+**O que faz:** Ativa strict mode e declara que esta action recebe o resultado produzido por uma aba auxiliar de extração.
 
-**Como faz:** o motor interpreta a diretiva antes da IIFE.
+**Como faz:** A diretiva precede a IIFE; o comentário destaca que a validação não depende de `currentBatchId` global.
 
-**Por que assim / alternativa pior:** reduz erros silenciosos e globais acidentais.
+**Por que desta forma:** Aba auxiliar pode terminar depois que outro batch virou o lote corrente; sua identidade correta está no mapping/job persistido.
 
-**Evidência:** ✅ validação direta
+**Por que uma implementação ingênua seria pior:** Usar `currentBatchId` global como autoridade descartaria resultados legítimos de batch anterior ainda vivo.
 
-### Linha 002 — Registro e validação
-<code>// background/actions/deliver-result-from-tab.js -- Entrega resultado da aba auxiliar sem depender de currentBatchId.</code>
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE pelo carregamento da action real; a independência de currentBatchId é provada em U03/U05 pelo teste direto.
 
-**O que faz:** registra a intenção/limitação desta etapa: background/actions/deliver-result-from-tab.js -- Entrega resultado da aba auxiliar sem depender de currentBatchId.
+### U02 — linhas/posição 4–18: Registro, origem e validação do payload
 
-**Como faz:** é comentário local sem efeito de runtime.
+**O que faz:** Registra `deliver-result-from-tab`, aceita qualquer source classificada pelo router, exige jobId e um Data URL de imagem com prefixo Base64.
 
-**Por que assim / alternativa pior:** preserva a razão arquitetural junto do código e evita regressão por simplificação ingênua.
+**Como faz:** `validate()` checa jobId string não vazia e regex `data:image/<mime>;base64,` antes de qualquer reidratação.
 
-**Evidência:** ✅ validação direta
+**Por que desta forma:** A action precisa rejeitar payload obviamente inválido antes de tocar estado; a autorização forte vem do mapping da própria sender tab, não do payload.
 
-### Linha 003 — Registro e validação
-<code>␠ [linha vazia]</code>
+**Por que uma implementação ingênua seria pior:** Confiar em mangaTabId/index/geminiTabId enviados pelo caller permitiria forjar identidade; aceitar URL remota faria o background tratar origem não persistida como resultado pronto.
 
-**O que faz:** separa visualmente as etapas sem executar comportamento.
+**Evidência:** ✅ PROVADO DIRETAMENTE — testes rejeitam jobId ausente e `src` HTTP antes de `ensureInitialized`. ⚠️ A regex só valida o prefixo: payload Base64 vazio/malformado, MIME extremo e tamanho máximo não têm testes nem limite funcional.
 
-**Como faz:** não há operação de runtime.
+### U03 — linhas/posição 19–31: Reidratação e vínculo sender → extraction mapping
 
-**Por que assim / alternativa pior:** impede payload inválido de acordar o fluxo de lifecycle ou tocar no estado.
+**O que faz:** Reidrata o background e exige que `sender.tab.id` tenha um entry em `state.extractionTabs` com o mesmo jobId do request.
 
-**Evidência:** ✅ validação direta
+**Como faz:** O senderTabId vem do contexto runtime; mapping é lido por essa chave; ausência ou jobId divergente loga `SENDER_MISMATCH` e falha fechada.
 
-### Linha 004 — Registro e validação
-<code>(function(scope) {</code>
+**Por que desta forma:** O mapping foi criado pelo fluxo interno e contém mangaTabId/index/geminiTabId/batchId confiáveis; isso impede usar os campos homônimos do payload como autoridade.
 
-**O que faz:** executa a instrução concreta desta etapa: (function(scope) {
+**Por que uma implementação ingênua seria pior:** Aceitar request.geminiTabId/mangaTabId/index permitiria uma aba arbitrária redirecionar resultado para outro job.
 
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
+**Evidência:** ✅ PROVADO DIRETAMENTE — `rejeita job diferente do mapeamento...` verifica zero remove/sync/finalize e `sender_mismatch`. ✅ O teste de currentBatchId mostra que a decisão usa mapping/job real, não lote global. ⚠️ Sender sem tab/id inválido e mapping ausente isoladamente não têm casos focais.
 
-**Por que assim / alternativa pior:** impede payload inválido de acordar o fluxo de lifecycle ou tocar no estado.
+### U04 — linhas/posição 32–45: Ownership do job Gemini
 
-**Evidência:** ✅ validação direta
+**O que faz:** Extrai a identidade do mapping e exige que o job Gemini indicado ainda esteja vivo e pertencente à aba Gemini persistida.
 
-### Linha 005 — Registro e validação
-<code>  scope.MangaTranslatorRouter.registerAction({</code>
+**Como faz:** `assertJobOwnership` é chamado com sender sintético `{tab:{id:geminiTabId}}` e jobId do mapping; callback é convertido para Promise; falha retorna `sender_mismatch`.
 
-**O que faz:** registra o descriptor no roteador modular.
+**Por que desta forma:** Mapping auxiliar sozinho pode ficar stale; cruzá-lo com o job vivo impede resultado tardio depois de cancelamento/finalização.
 
-**Como faz:** usa a API central MangaTranslatorRouter.
+**Por que uma implementação ingênua seria pior:** Confiar apenas em extractionTabs permitiria aba auxiliar antiga gravar resultado depois que o job foi removido ou substituído.
 
-**Por que assim / alternativa pior:** evita duplicar dispatch no listener global.
+**Evidência:** 🟨 O caminho de ownership positivo é executado pelos testes de sucesso/retry. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `ownership.owns=false`, `ownership.job=null` e para rejeição/erro do helper.
 
-**Evidência:** ✅ validação direta
+### U05 — linhas/posição 46–62: Reconciliação de identidade com o job persistido
 
-### Linha 006 — Registro e validação
-<code>    name: 'deliver-result-from-tab',</code>
+**O que faz:** Compara batchId, index e mangaTabId do mapping contra o job retornado pelo ownership e rejeita qualquer divergência aplicável.
 
-**O que faz:** define o nome canônico da action.
+**Como faz:** `identityMismatch` é OR de três guardas: batch quando ambos truthy, index quando ambos inteiros, mangaTabId quando ambos truthy; mismatch loga IDs de batch e retorna `job_identity_mismatch`.
 
-**Como faz:** o alias IMAGE_READY_FROM_NEW_TAB resolve para este nome.
+**Por que desta forma:** Mesmo mapping com jobId correto pode estar stale/corrompido; o job persistido é a autoridade final para destino/posição/lote.
 
-**Por que assim / alternativa pior:** alias e nome precisam permanecer sincronizados.
+**Por que uma implementação ingênua seria pior:** Pular essas comparações permitiria entregar imagem no índice ou leitor errado; usar currentBatchId seria uma comparação contra a entidade errada.
 
-**Evidência:** ✅ validação direta
+**Evidência:** ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para mismatch de batch, index ou mangaTabId. O teste de jobId forjado falha antes, em U03, e não prova esta unidade. Também não há casos para campos ausentes/falsy que desativam cada comparação.
 
-### Linha 007 — Registro e validação
-<code>    meta: { allowedSources: ['any'] },</code>
+### U06 — linhas/posição 63–72: Staging durável no leitor
 
-**O que faz:** permite origens variadas porque a aba auxiliar pode estar em CDN.
+**O que faz:** Entrega a imagem ao leitor usando valores do job persistido como prioridade e desabilita finalização automática no helper.
 
-**Como faz:** usa allowedSources:any; segurança real vem do mapping+ownership.
+**Como faz:** `deliverResultToManga` recebe mangaTabId/index/batch do job com fallback ao mapping, `src` validado, jobId, ownership.tabId e `finalizeOnAck:false`.
 
-**Por que assim / alternativa pior:** restringir apenas por classificação de URL bloquearia resultados legítimos.
+**Por que desta forma:** A action quer controlar cleanup da aba auxiliar e só finalizar depois do ACK de persistência; valores persistidos prevalecem sobre mapping possivelmente antigo.
 
-**Evidência:** ✅ validação direta
+**Por que uma implementação ingênua seria pior:** `finalizeOnAck:true` poderia finalizar antes de remover/sincronizar extractionTabs; priorizar payload/mapping sobre job vivo aumenta risco de destino stale.
 
-### Linha 008 — Registro e validação
-<code>␠ [linha vazia]</code>
+**Evidência:** ✅ PROVADO DIRETAMENTE — sucesso exige `finalizeOnAck:false`, geminiTabId 17 e jobId correto. `jobs-dom-ack-staging.test.js` prova que esse modo grava `dom_applied/resultPersisted` e não finaliza o job. ⚠️ Fallbacks nullish de mangaTabId/index/batch não têm casos focais.
 
-**O que faz:** separa visualmente as etapas sem executar comportamento.
+### U07 — linhas/posição 73–81: Falha de staging e retry
 
-**Como faz:** não há operação de runtime.
+**O que faz:** Mantém aba auxiliar/mapping/job vivos quando o helper não confirma sucesso/persistência.
 
-**Por que assim / alternativa pior:** impede payload inválido de acordar o fluxo de lifecycle ou tocar no estado.
+**Como faz:** Rejeita se `staged.ok` não é truthy ou se `staged.persisted === false`; loga razão e retorna erro sem cleanup/finalize.
 
-**Evidência:** ✅ validação direta
+**Por que desta forma:** O content script auxiliar possui retry de entrega; remover a aba antes de persistência confirmada perderia a única cópia disponível.
 
-### Linha 009 — Registro e validação
-<code>    validate(request) {</code>
+**Por que uma implementação ingênua seria pior:** Tratar ACK negativo como sucesso causaria perda silenciosa; finalizar o job bloquearia retry.
 
-**O que faz:** abre a validação síncrona do request.
+**Evidência:** ✅ PROVADO DIRETAMENTE — `falha de persistência mantém aba auxiliar e job vivos para retry`. 🟨 O consumer `extraction-and-handlers-real.test.js` prova que ACK não confirmado repete `IMAGE_READY_FROM_NEW_TAB`. ⚠️ Não há teste focal para `staged=null/undefined`, `{ok:true,persisted:false}` separado nem `{ok:true}` sem campo persisted.
 
-**Como faz:** o router executa o validator antes do executor assíncrono.
+### U08 — linhas/posição 82–87: Cleanup da aba auxiliar e persistência do mapping
 
-**Por que assim / alternativa pior:** entrada inválida deve falhar antes de reidratação/efeitos colaterais.
+**O que faz:** Após staging aceito, solicita remoção da aba auxiliar, remove seu mapping em memória e sincroniza estado.
 
-**Evidência:** ✅ validação direta
+**Como faz:** `chrome.tabs.remove` é fire-and-forget; `lastError` é lido e ignorado; o entry é deletado e `syncState()` é awaited.
 
-### Linha 010 — Registro e validação
-<code>      if (typeof request.jobId !== 'string' || request.jobId.trim().length === 0) {</code>
+**Por que desta forma:** A aba auxiliar não é mais necessária depois que o leitor persistiu o resultado; remover o mapping evita reentrega posterior.
 
-**O que faz:** valida ou utiliza o jobId que liga o resultado ao job esperado.
+**Por que uma implementação ingênua seria pior:** Manter mapping/aba permitiria retries duplicados após sucesso; porém ignorar falha de remoção pode deixar uma aba órfã ainda aberta.
 
-**Como faz:** usa comparação de string estrita e/ou comparação com o mapping.
+**Evidência:** ✅ PROVADO DIRETAMENTE — sucesso verifica `tabs.remove(82)`, deletion do mapping e depois finalização; o teste não afirma explicitamente a ordem de `syncState`. ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `chrome.runtime.lastError`, exceção síncrona de remove ou rejeição de `syncState`. A remoção não é awaited.
 
-**Por que assim / alternativa pior:** jobId frouxo permitiria uma aba auxiliar associar-se ao trabalho errado.
+### U09 — linhas/posição 88–93: Telemetria do staging durável
 
-**Evidência:** ✅ validação direta
+**O que faz:** Registra `AUX_RESULT_STAGED_DURABLY` com prefixos de job/batch depois de sincronizar o mapping.
 
-### Linha 011 — Registro e validação
-<code>        return { code: 'INVALID_PAYLOAD', message: 'jobId é obrigatório' };</code>
+**Como faz:** Log success usa jobId e batch persistido/fallback truncados a oito caracteres.
 
-**O que faz:** executa a instrução concreta desta etapa: return { code: 'INVALID_PAYLOAD', message: 'jobId é obrigatório' };
+**Por que desta forma:** Separa claramente staging confirmado de falhas/retries sem logar o Data URL.
 
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
+**Por que uma implementação ingênua seria pior:** Logar `src` exporia Base64 e ampliaria muito o volume; omitir evento dificulta diagnóstico de transição.
 
-**Por que assim / alternativa pior:** impede payload inválido de acordar o fluxo de lifecycle ou tocar no estado.
+**Evidência:** 🟨 EXECUTADO no caminho de sucesso, mas ⚠️ não há assertion focal para o evento ou metadata.
 
-**Evidência:** ✅ validação direta
+### U10 — linhas/posição 94–103: Finalização do job e resposta
 
-### Linha 012 — Registro e validação
-<code>      }</code>
+**O que faz:** Finaliza o job Gemini como sucesso somente depois do staging/cleanup/sync e responde que o resultado foi staged, persisted e committed.
 
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
+**Como faz:** `finalizeJob(ownership.tabId, job.mangaTabId ?? mangaTabId, false)` é awaited; depois retorna três flags true; a IIFE fecha com self/globalThis.
 
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
+**Por que desta forma:** Garante que a resposta positiva represente o protocolo completo e que `fromError=false` aplique contabilidade de sucesso.
 
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
+**Por que uma implementação ingênua seria pior:** Responder antes de finalize permite caller encerrar enquanto cleanup falha; usar request.mangaTabId poderia redirecionar finalização.
 
-**Evidência:** ✅ validação direta
+**Evidência:** ✅ PROVADO DIRETAMENTE — sucesso exige `finalizeJob(17,33,false)` e resposta `{staged:true,persisted:true,committed:true}`. `process-finalize-real.test.js` prova cleanup/finalização real do helper. ⚠️ Rejeição de finalizeJob e fallback mangaTabId não têm testes focais.
 
-### Linha 013 — Registro e validação
-<code>      if (typeof request.src !== 'string' || !/^data:image\/[a-z0-9.+-]+;base64,/i.test(request.src)) {</code>
+### U11 — linhas/posição 104–104: Newline final
 
-**O que faz:** valida ou encaminha a imagem resultante.
+**O que faz:** Documenta a posição editorial do newline terminal.
 
-**Como faz:** aceita somente Data URL de imagem base64 antes do stage.
+**Como faz:** É contada separadamente das 103 linhas textuais.
 
-**Por que assim / alternativa pior:** uma URL remota reintroduziria rede e não provaria os bytes que foram extraídos.
+**Por que desta forma:** Mantém equivalência física exigida pela auditoria.
 
-**Evidência:** ✅ validação direta
+**Por que uma implementação ingênua seria pior:** Ignorar o newline produziria falso 100% documental.
 
-### Linha 014 — Registro e validação
-<code>        return { code: 'INVALID_PAYLOAD', message: 'src de resultado inválido' };</code>
+**Evidência:** 🟦 GATE DOCUMENTAL.
 
-**O que faz:** executa a instrução concreta desta etapa: return { code: 'INVALID_PAYLOAD', message: 'src de resultado inválido' };
+## 13. Revisão final
 
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
+- [x] SHA/fonte integral reconfirmados;
+- [x] 103 linhas + newline = 104/104 posições;
+- [x] 11 unidades estruturais sem gaps;
+- [x] comentários genéricos da versão anterior eliminados;
+- [x] evidência da action/helper/lifecycle/consumidor separada;
+- [x] mismatches sem teste mantidos como lacunas, não como prova verde;
+- [x] risco de remoção best-effort e validação superficial de Data URL registrado;
+- [x] nenhum código funcional alterado.
 
-**Por que assim / alternativa pior:** impede payload inválido de acordar o fluxo de lifecycle ou tocar no estado.
-
-**Evidência:** ✅ validação direta
-
-### Linha 015 — Registro e validação
-<code>      }</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ validação direta
-
-### Linha 016 — Registro e validação
-<code>      return null;</code>
-
-**O que faz:** executa a instrução concreta desta etapa: return null;
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** impede payload inválido de acordar o fluxo de lifecycle ou tocar no estado.
-
-**Evidência:** ✅ validação direta
-
-### Linha 017 — Registro e validação
-<code>    },</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ validação direta
-
-### Linha 018 — Mapping da aba auxiliar
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** vincula o sender físico ao job registrado, sem confiar em IDs enviados no request.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 019 — Mapping da aba auxiliar
-<code>    async execute(request, context) {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: async execute(request, context) {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** vincula o sender físico ao job registrado, sem confiar em IDs enviados no request.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 020 — Mapping da aba auxiliar
-<code>      await context.ensureInitialized();</code>
-
-**O que faz:** aguarda a reidratação do background.
-
-**Como faz:** usa await antes de ler extractionTabs.
-
-**Por que assim / alternativa pior:** sem isso um worker recém-acordado pode produzir falso mismatch.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 021 — Mapping da aba auxiliar
-<code>      const senderTabId = context.sender &amp;&amp; context.sender.tab ? context.sender.tab.id : null;</code>
-
-**O que faz:** trabalha com o tabId real do remetente.
-
-**Como faz:** o ID vem de context.sender.tab, não do payload.
-
-**Por que assim / alternativa pior:** o metadata do runtime é uma prova de origem mais forte que um ID fornecido pela própria mensagem.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 022 — Mapping da aba auxiliar
-<code>      const mapping = senderTabId !== null &amp;&amp; context.state.extractionTabs[senderTabId];</code>
-
-**O que faz:** trabalha com o tabId real do remetente.
-
-**Como faz:** o ID vem de context.sender.tab, não do payload.
-
-**Por que assim / alternativa pior:** o metadata do runtime é uma prova de origem mais forte que um ID fornecido pela própria mensagem.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 023 — Mapping da aba auxiliar
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** vincula o sender físico ao job registrado, sem confiar em IDs enviados no request.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 024 — Mapping da aba auxiliar
-<code>      if (!mapping || mapping.jobId !== request.jobId) {</code>
-
-**O que faz:** valida ou utiliza o jobId que liga o resultado ao job esperado.
-
-**Como faz:** usa comparação de string estrita e/ou comparação com o mapping.
-
-**Por que assim / alternativa pior:** jobId frouxo permitiria uma aba auxiliar associar-se ao trabalho errado.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 025 — Mapping da aba auxiliar
-<code>        context.log('warn', 'bg', 'SENDER_MISMATCH',</code>
-
-**O que faz:** registra rejeição de remetente/job incompatível.
-
-**Como faz:** emite warning estruturado com identidade reduzida.
-
-**Por que assim / alternativa pior:** rejeições precisam ser observáveis sem remover recursos de outro job.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 026 — Mapping da aba auxiliar
-<code>          'Resultado de aba temporária descartado: mapeamento ou job incompatível.', {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: 'Resultado de aba temporária descartado: mapeamento ou job incompatível.', {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** vincula o sender físico ao job registrado, sem confiar em IDs enviados no request.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 027 — Mapping da aba auxiliar
-<code>            jobId: String(request.jobId || '').slice(0, 8),</code>
-
-**O que faz:** valida ou utiliza o jobId que liga o resultado ao job esperado.
-
-**Como faz:** usa comparação de string estrita e/ou comparação com o mapping.
-
-**Por que assim / alternativa pior:** jobId frouxo permitiria uma aba auxiliar associar-se ao trabalho errado.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 028 — Mapping da aba auxiliar
-<code>          });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 029 — Mapping da aba auxiliar
-<code>        return { ok: false, reason: 'sender_mismatch' };</code>
-
-**O que faz:** executa a instrução concreta desta etapa: return { ok: false, reason: 'sender_mismatch' };
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** vincula o sender físico ao job registrado, sem confiar em IDs enviados no request.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 030 — Mapping da aba auxiliar
-<code>      }</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ sender/mapping direto
-
-### Linha 031 — Ownership do job Gemini
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 032 — Ownership do job Gemini
-<code>      const { mangaTabId, index, geminiTabId, jobId, batchId } = mapping;</code>
-
-**O que faz:** executa a instrução concreta desta etapa: const { mangaTabId, index, geminiTabId, jobId, batchId } = mapping;
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 033 — Ownership do job Gemini
-<code>      const ownership = await new Promise(resolve =&gt; {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: const ownership = await new Promise(resolve => {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 034 — Ownership do job Gemini
-<code>        context.assertJobOwnership({ tab: { id: geminiTabId } }, jobId, (owns, tabId, job) =&gt; {</code>
-
-**O que faz:** confirma que o job Gemini original ainda pertence ao tabId registrado.
-
-**Como faz:** adapta a API de ownership baseada em callback para Promise.
-
-**Por que assim / alternativa pior:** mapping auxiliar sozinho não deve ressuscitar/finalizar job morto.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 035 — Ownership do job Gemini
-<code>          resolve({ owns, tabId, job });</code>
-
-**O que faz:** executa a instrução concreta desta etapa: resolve({ owns, tabId, job });
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 036 — Ownership do job Gemini
-<code>        });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 037 — Ownership do job Gemini
-<code>      });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 038 — Ownership do job Gemini
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 039 — Ownership do job Gemini
-<code>      if (!ownership.owns || !ownership.job) {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: if (!ownership.owns || !ownership.job) {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 040 — Ownership do job Gemini
-<code>        context.log('warn', 'bg', 'SENDER_MISMATCH',</code>
-
-**O que faz:** registra rejeição de remetente/job incompatível.
-
-**Como faz:** emite warning estruturado com identidade reduzida.
-
-**Por que assim / alternativa pior:** rejeições precisam ser observáveis sem remover recursos de outro job.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 041 — Ownership do job Gemini
-<code>          'Resultado de aba temporária descartado: job do Gemini não está mais ativo.', {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: 'Resultado de aba temporária descartado: job do Gemini não está mais ativo.', {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 042 — Ownership do job Gemini
-<code>            jobId: String(jobId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: jobId: String(jobId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba auxiliar transporta o resultado, mas o job original continua sendo a autoridade de lifecycle.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 043 — Ownership do job Gemini
-<code>          });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** 🟨 ownership positivo; negativo não isolado
-
-### Linha 044 — Identidade cruzada
-<code>        return { ok: false, reason: 'sender_mismatch' };</code>
-
-**O que faz:** executa a instrução concreta desta etapa: return { ok: false, reason: 'sender_mismatch' };
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 045 — Identidade cruzada
-<code>      }</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 046 — Identidade cruzada
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 047 — Identidade cruzada
-<code>      const job = ownership.job;</code>
-
-**O que faz:** executa a instrução concreta desta etapa: const job = ownership.job;
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 048 — Identidade cruzada
-<code>      const identityMismatch =</code>
-
-**O que faz:** constrói ou aplica a barreira de identidade composta.
-
-**Como faz:** compara batchId, index e mangaTabId entre mapping e job persistido.
-
-**Por que assim / alternativa pior:** jobId sozinho não impede mistura entre página/lote/destino.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 049 — Identidade cruzada
-<code>        (batchId &amp;&amp; job.batchId &amp;&amp; batchId !== job.batchId) ||</code>
-
-**O que faz:** executa a instrução concreta desta etapa: (batchId && job.batchId && batchId !== job.batchId) ||
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 050 — Identidade cruzada
-<code>        (Number.isInteger(index) &amp;&amp; Number.isInteger(job.index) &amp;&amp; index !== job.index) ||</code>
-
-**O que faz:** executa a instrução concreta desta etapa: (Number.isInteger(index) && Number.isInteger(job.index) && index !== job.index) ||
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 051 — Identidade cruzada
-<code>        (mangaTabId &amp;&amp; job.mangaTabId &amp;&amp; mangaTabId !== job.mangaTabId);</code>
-
-**O que faz:** executa a instrução concreta desta etapa: (mangaTabId && job.mangaTabId && mangaTabId !== job.mangaTabId);
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 052 — Identidade cruzada
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 053 — Identidade cruzada
-<code>      if (identityMismatch) {</code>
-
-**O que faz:** constrói ou aplica a barreira de identidade composta.
-
-**Como faz:** compara batchId, index e mangaTabId entre mapping e job persistido.
-
-**Por que assim / alternativa pior:** jobId sozinho não impede mistura entre página/lote/destino.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 054 — Identidade cruzada
-<code>        context.log('error', 'bg', 'AUX_RESULT_JOB_IDENTITY_MISMATCH',</code>
-
-**O que faz:** executa a instrução concreta desta etapa: context.log('error', 'bg', 'AUX_RESULT_JOB_IDENTITY_MISMATCH',
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 055 — Identidade cruzada
-<code>          'Resultado auxiliar rejeitado: identidade não corresponde ao job persistido.', {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: 'Resultado auxiliar rejeitado: identidade não corresponde ao job persistido.', {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 056 — Identidade cruzada
-<code>            jobId: String(jobId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: jobId: String(jobId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 057 — Identidade cruzada
-<code>            expectedBatchId: String(job.batchId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: expectedBatchId: String(job.batchId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 058 — Identidade cruzada
-<code>            receivedBatchId: String(batchId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: receivedBatchId: String(batchId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** batch, índice e mangaTabId evitam aplicar um resultado correto ao destino/lote errado.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 059 — Identidade cruzada
-<code>          });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** 🟨 implementação explícita; divergências individuais sem casos próprios
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 060 — Stage e ACK
-<code>        return { ok: false, reason: 'job_identity_mismatch' };</code>
-
-**O que faz:** executa a instrução concreta desta etapa: return { ok: false, reason: 'job_identity_mismatch' };
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 061 — Stage e ACK
-<code>      }</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 062 — Stage e ACK
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 063 — Stage e ACK
-<code>      const staged = await context.deliverResultToManga({</code>
-
-**O que faz:** entrega a imagem ao content script de mangá e aguarda ACK.
-
-**Como faz:** usa a fronteira de DOM ACK com identidades já verificadas.
-
-**Por que assim / alternativa pior:** cleanup antes do ACK perderia o caminho de retry e poderia contabilizar sucesso sem persistência.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 064 — Stage e ACK
-<code>        mangaTabId: job.mangaTabId ?? mangaTabId,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: mangaTabId: job.mangaTabId ?? mangaTabId,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 065 — Stage e ACK
-<code>        index: job.index ?? index,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: index: job.index ?? index,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 066 — Stage e ACK
-<code>        src: request.src,</code>
-
-**O que faz:** valida ou encaminha a imagem resultante.
-
-**Como faz:** aceita somente Data URL de imagem base64 antes do stage.
-
-**Por que assim / alternativa pior:** uma URL remota reintroduziria rede e não provaria os bytes que foram extraídos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 067 — Stage e ACK
-<code>        jobId,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: jobId,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 068 — Stage e ACK
-<code>        batchId: job.batchId ?? batchId,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: batchId: job.batchId ?? batchId,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 069 — Stage e ACK
-<code>        geminiTabId: ownership.tabId,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: geminiTabId: ownership.tabId,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** o resultado precisa ser aplicado/persistido antes de qualquer liberação de recursos.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 070 — Stage e ACK
-<code>        finalizeOnAck: false,</code>
-
-**O que faz:** desativa finalização automática dentro do ACK.
-
-**Como faz:** define finalizeOnAck como false.
-
-**Por que assim / alternativa pior:** esta action precisa limpar e sincronizar a aba auxiliar antes de finalizar o job.
-
-**Evidência:** ✅ stage/flags provados
-
-### Linha 071 — Falha preserva retry
-<code>      });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ retry provado
-
-### Linha 072 — Falha preserva retry
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** um ACK negativo não pode destruir a aba auxiliar nem finalizar o job.
-
-**Evidência:** ✅ retry provado
-
-### Linha 073 — Falha preserva retry
-<code>      if (!staged?.ok || staged.persisted === false) {</code>
-
-**O que faz:** avalia ou devolve o resultado do stage/persistência.
-
-**Como faz:** usa flags ok/persisted e motivo normalizado.
-
-**Por que assim / alternativa pior:** somente resultado durável pode avançar para cleanup/finalização.
-
-**Evidência:** ✅ retry provado
-
-### Linha 074 — Falha preserva retry
-<code>        context.log('error', 'bg', 'AUX_RESULT_STAGE_FAILED',</code>
-
-**O que faz:** executa a instrução concreta desta etapa: context.log('error', 'bg', 'AUX_RESULT_STAGE_FAILED',
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** um ACK negativo não pode destruir a aba auxiliar nem finalizar o job.
-
-**Evidência:** ✅ retry provado
-
-### Linha 075 — Falha preserva retry
-<code>          'Resultado da aba auxiliar não recebeu ACK de persistência; aba mantida para retry.', {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: 'Resultado da aba auxiliar não recebeu ACK de persistência; aba mantida para retry.', {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** um ACK negativo não pode destruir a aba auxiliar nem finalizar o job.
-
-**Evidência:** ✅ retry provado
-
-### Linha 076 — Falha preserva retry
-<code>            jobId: String(jobId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: jobId: String(jobId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** um ACK negativo não pode destruir a aba auxiliar nem finalizar o job.
-
-**Evidência:** ✅ retry provado
-
-### Linha 077 — Falha preserva retry
-<code>            reason: staged?.reason || 'unknown',</code>
-
-**O que faz:** avalia ou devolve o resultado do stage/persistência.
-
-**Como faz:** usa flags ok/persisted e motivo normalizado.
-
-**Por que assim / alternativa pior:** somente resultado durável pode avançar para cleanup/finalização.
-
-**Evidência:** ✅ retry provado
-
-### Linha 078 — Falha preserva retry
-<code>          });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ retry provado
-
-### Linha 079 — Falha preserva retry
-<code>        return { ok: false, reason: staged?.reason || 'stage_failed' };</code>
-
-**O que faz:** avalia ou devolve o resultado do stage/persistência.
-
-**Como faz:** usa flags ok/persisted e motivo normalizado.
-
-**Por que assim / alternativa pior:** somente resultado durável pode avançar para cleanup/finalização.
-
-**Evidência:** ✅ retry provado
-
-### Linha 080 — Falha preserva retry
-<code>      }</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ retry provado
-
-### Linha 081 — Cleanup durável
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 082 — Cleanup durável
-<code>      if (senderTabId !== null) {</code>
-
-**O que faz:** trabalha com o tabId real do remetente.
-
-**Como faz:** o ID vem de context.sender.tab, não do payload.
-
-**Por que assim / alternativa pior:** o metadata do runtime é uma prova de origem mais forte que um ID fornecido pela própria mensagem.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 083 — Cleanup durável
-<code>        chrome.tabs.remove(senderTabId, () =&gt; { if (chrome.runtime.lastError) {} });</code>
-
-**O que faz:** trabalha com o tabId real do remetente.
-
-**Como faz:** o ID vem de context.sender.tab, não do payload.
-
-**Por que assim / alternativa pior:** o metadata do runtime é uma prova de origem mais forte que um ID fornecido pela própria mensagem.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 084 — Cleanup durável
-<code>        delete context.state.extractionTabs[senderTabId];</code>
-
-**O que faz:** trabalha com o tabId real do remetente.
-
-**Como faz:** o ID vem de context.sender.tab, não do payload.
-
-**Por que assim / alternativa pior:** o metadata do runtime é uma prova de origem mais forte que um ID fornecido pela própria mensagem.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 085 — Cleanup durável
-<code>      }</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 086 — Cleanup durável
-<code>      await context.syncState();</code>
-
-**O que faz:** persiste o cleanup do mapping.
-
-**Como faz:** aguarda a sincronização antes da finalização.
-
-**Por que assim / alternativa pior:** suspensão do worker antes do sync poderia ressuscitar mapping removido.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-**⚠️ Comentário extra:** existe pelo menos uma variante de borda/erro desta linha que não possui assertion focal própria.
-
-### Linha 087 — Cleanup durável
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 088 — Cleanup durável
-<code>      context.log('success', 'bg', 'AUX_RESULT_STAGED_DURABLY',</code>
-
-**O que faz:** executa a instrução concreta desta etapa: context.log('success', 'bg', 'AUX_RESULT_STAGED_DURABLY',
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 089 — Cleanup durável
-<code>        'Resultado auxiliar foi persistido; job agora pode ser finalizado com segurança.', {</code>
-
-**O que faz:** executa a instrução concreta desta etapa: 'Resultado auxiliar foi persistido; job agora pode ser finalizado com segurança.', {
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 090 — Cleanup durável
-<code>          jobId: String(jobId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: jobId: String(jobId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 091 — Cleanup durável
-<code>          batchId: String(job.batchId || batchId || '').slice(0, 8),</code>
-
-**O que faz:** executa a instrução concreta desta etapa: batchId: String(job.batchId || batchId || '').slice(0, 8),
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 092 — Cleanup durável
-<code>        });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 093 — Cleanup durável
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 094 — Cleanup durável
-<code>      await context.finalizeJob(</code>
-
-**O que faz:** finaliza o job original somente no fim do protocolo.
-
-**Como faz:** delegação centralizada recebe tabId de ownership, mangaTabId e fromError=false.
-
-**Por que assim / alternativa pior:** duplicar cleanup/contadores nesta action quebraria idempotência do lifecycle.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 095 — Cleanup durável
-<code>        ownership.tabId,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: ownership.tabId,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 096 — Cleanup durável
-<code>        job.mangaTabId ?? mangaTabId,</code>
-
-**O que faz:** executa a instrução concreta desta etapa: job.mangaTabId ?? mangaTabId,
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** a aba e seu mapping só são removidos depois da persistência, e a remoção é sincronizada.
-
-**Evidência:** ✅ cleanup pós-persistência provado
-
-### Linha 097 — Finalização
-<code>        false</code>
-
-**O que faz:** executa a instrução concreta desta etapa: false
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** finalizeJob só roda depois de todas as provas e do cleanup auxiliar.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 098 — Finalização
-<code>      );</code>
-
-**O que faz:** executa a instrução concreta desta etapa: );
-
-**Como faz:** usa os dados já validados pelas linhas vizinhas.
-
-**Por que assim / alternativa pior:** finalizeJob só roda depois de todas as provas e do cleanup auxiliar.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 099 — Finalização
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** finalizeJob só roda depois de todas as provas e do cleanup auxiliar.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 100 — Finalização
-<code>      return { staged: true, persisted: true, committed: true };</code>
-
-**O que faz:** avalia ou devolve o resultado do stage/persistência.
-
-**Como faz:** usa flags ok/persisted e motivo normalizado.
-
-**Por que assim / alternativa pior:** somente resultado durável pode avançar para cleanup/finalização.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 101 — Finalização
-<code>    },</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 102 — Finalização
-<code>  });</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 103 — Finalização
-<code>})(typeof self !== 'undefined' ? self : globalThis);</code>
-
-**O que faz:** fecha a estrutura aberta nas linhas anteriores.
-
-**Como faz:** preserva o escopo de guardas, executor e IIFE.
-
-**Por que assim / alternativa pior:** mover o fechamento pode colocar cleanup fora das condições de segurança.
-
-**Evidência:** ✅ finalização provada
-
-### Linha 104 — Finalização
-<code>␠ [linha vazia]</code>
-
-**O que faz:** separa visualmente as etapas sem executar comportamento.
-
-**Como faz:** não há operação de runtime.
-
-**Por que assim / alternativa pior:** finalizeJob só roda depois de todas as provas e do cleanup auxiliar.
-
-**Evidência:** ✅ finalização provada
-
-## 5. Invariantes
-
-1. Sender real precisa possuir mapping do mesmo jobId.
-2. Mapping auxiliar não substitui ownership do job Gemini.
-3. `currentBatchId` global não invalida sozinho um resultado auxiliar.
-4. Batch/index/mangaTabId são cruzados antes do DOM.
-5. `finalizeOnAck` permanece `false`.
-6. Falha de persistência preserva recursos para retry.
-7. Cleanup só ocorre após persistência e é sincronizado antes de `finalizeJob`.
-
-## 6. Resultado
-
-- Fonte integral: **SIM**.
-- Todas as linhas comentadas: **SIM**.
-- Persistência antes de cleanup/finalização: **PROVADA**.
-- Independência de currentBatchId: **PROVADA**.
-- Lacunas de identidade/erro documentadas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
-
-**Próximo arquivo após atualizar STATUS/CHECKLIST:** `extension/background/actions/deliver-result-url.js`.
+**Veredito documental:** aprovada para `59543c1359669ced02a1d05c251b272abaad6709`.

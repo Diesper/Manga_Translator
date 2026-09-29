@@ -46,15 +46,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **8**
-- ✅ Concluídos auditados: **6**
+- ✅ Concluídos auditados: **7**
 - 🟠 Em andamento: **1**
-- 🟣 Aguardando revisão de qualidade: **1**
+- 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **225**
-- Cobertura realmente aprovada: **2,58%**
+- Cobertura realmente aprovada: **3,00%**
 - Cobertura apenas materializada: **3,43%**
-- Último aprovado: `extension/background/actions/commit-result.js`
-- Arquivo atual: `extension/background/actions/deliver-result-from-tab.js`
-- Bíblia atual: `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md`
+- Último aprovado: `extension/background/actions/deliver-result-from-tab.js`
+- Arquivo atual: `extension/background/actions/deliver-result-url.js`
+- Bíblia atual: `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md`
 - Próximo arquivo novo após terminar todas as revisões: `extension/background/actions/deliver-result.js`
 
 ## Auditoria de 2026-09-29
@@ -69,11 +69,11 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 4. ✅ `extension/background/actions/check-extraction-tab.js`
 5. ✅ `extension/background/actions/claim-gemini-job.js`
 6. ✅ `extension/background/actions/commit-result.js`
+7. ✅ `extension/background/actions/deliver-result-from-tab.js`
 
 ### Revisão obrigatória
 
-1. 🟠 `extension/background/actions/deliver-result-from-tab.js` — revisão atual.
-2. 🟣 `extension/background/actions/deliver-result-url.js`
+1. 🟠 `extension/background/actions/deliver-result-url.js` — revisão atual.
 
 Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 
@@ -87,8 +87,8 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 4 | ✅ CONCLUÍDO | `extension/background/actions/check-extraction-tab.js` | `9ee40474d8c5` | `docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md` |
 | 5 | ✅ CONCLUÍDO | `extension/background/actions/claim-gemini-job.js` | `f5c4643d2919` | `docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md` |
 | 6 | ✅ CONCLUÍDO | `extension/background/actions/commit-result.js` | `32270d1c4ade` | `docs/biblia/extension/background/actions/commit-result.js/Bíblia.md` |
-| 7 | 🟠 EM ANDAMENTO | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
-| 8 | 🟣 REVISÃO DE QUALIDADE | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
+| 7 | ✅ CONCLUÍDO | `extension/background/actions/deliver-result-from-tab.js` | `59543c135966` | `docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md` |
+| 8 | 🟠 EM ANDAMENTO | `extension/background/actions/deliver-result-url.js` | `91c50efe4764` | `docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md` |
 | 9 | ⬜ PENDENTE | `extension/background/actions/deliver-result.js` | `3653bd10c2a0` | `docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md` |
 | 10 | ⬜ PENDENTE | `extension/background/actions/download-chapter.js` | `8636a03c8a20` | `docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md` |
 | 11 | ⬜ PENDENTE | `extension/background/actions/download-image.js` | `408102f057ab` | `docs/biblia/extension/background/actions/download-image.js/Bíblia.md` |
