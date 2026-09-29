@@ -2,6 +2,7 @@ const { test, expect, chromium } = require('@playwright/test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { findRepoRoot } = require('../helpers/repo-root');
 
 function getBrowserModeConfig() {
     const rawMode = String(process.env.MANGA_E2E_BROWSER_MODE || 'stealth').trim().toLowerCase();
@@ -15,15 +16,7 @@ function getBrowserModeConfig() {
 }
 
 function getExtensionPath(startDir) {
-    let dir = startDir;
-
-    while (dir !== path.parse(dir).root) {
-        const candidate = path.join(dir, 'extension');
-        if (fs.existsSync(path.join(candidate, 'manifest.json'))) return candidate;
-        dir = path.dirname(dir);
-    }
-
-    return path.join(process.cwd(), 'extension');
+    return path.join(findRepoRoot(startDir), 'extension');
 }
 
 async function getBackgroundWorker(context) {
@@ -117,7 +110,7 @@ async function seedReaderChapter(backgroundWorker, {
 
 async function getReaderUrl(backgroundWorker, chapterId) {
     return backgroundWorker.evaluate(async requestedChapterId => {
-        return `${chrome.runtime.getURL('reader.html')}?id=${encodeURIComponent(requestedChapterId)}`;
+        return `${chrome.runtime.getURL('reader/reader.html')}?id=${encodeURIComponent(requestedChapterId)}`;
     }, chapterId);
 }
 

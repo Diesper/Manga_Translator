@@ -26,12 +26,8 @@ if (typeof global.structuredClone !== 'function') {
 
 require('fake-indexeddb/auto');
 
-function _findRoot(d) {
-    if (fs.existsSync(path.join(d, 'extension', 'manifest.json'))) return d;
-    const p = path.dirname(d);
-    return p === d ? process.cwd() : _findRoot(p);
-}
-const ROOT = _findRoot(__dirname);
+const { findRepoRoot } = require('../../helpers/repo-root');
+const ROOT = findRepoRoot(__dirname);
 
 Object.defineProperty(global, 'crypto', {
     value: crypto.webcrypto,
@@ -41,8 +37,8 @@ global.TextEncoder = TextEncoder;
 
 const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));
 const { getRuntimeMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
-const { createIndexedDbRepository, createGtcRuntimeHandler } = require(path.join(ROOT, 'extension/gtc-indexeddb.js'));
-const { createFingerprintFromDescriptor } = require(path.join(ROOT, 'extension/gtc-fingerprint.js'));
+const { createIndexedDbRepository, createGtcRuntimeHandler } = require(path.join(ROOT, 'extension/shared/gtc-indexeddb.js'));
+const { createFingerprintFromDescriptor } = require(path.join(ROOT, 'extension/shared/gtc-fingerprint.js'));
 
 function cleanUrl(urlStr) {
     if (!urlStr || urlStr.startsWith('data:')) return null;

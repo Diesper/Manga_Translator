@@ -2,16 +2,16 @@ const path = require('path');
 
 const { getRuntimeMock, getStorageMock } = require('../../mocks/chrome-api.mock.js');
 
-const CONTENT_GEMINI_PATH = path.resolve(__dirname, '../../../extension/content_gemini.js');
-const GEMINI_SELECTORS_PATH = path.resolve(__dirname, '../../../extension/gemini/selectors.js');
-const GEMINI_DOM_PATH = path.resolve(__dirname, '../../../extension/gemini/dom.js');
-const GEMINI_OBSERVER_PATH = path.resolve(__dirname, '../../../extension/gemini/observer.js');
-const GEMINI_EDITOR_PATH = path.resolve(__dirname, '../../../extension/gemini/editor.js');
-const GEMINI_ATTACHMENT_PATH = path.resolve(__dirname, '../../../extension/gemini/attachment.js');
-const GEMINI_TEMP_CHAT_PATH = path.resolve(__dirname, '../../../extension/gemini/temporary-chat.js');
-const GEMINI_RESULT_EXTRACTOR_PATH = path.resolve(__dirname, '../../../extension/gemini/result-extractor.js');
-const GEMINI_DELETION_PATH = path.resolve(__dirname, '../../../extension/gemini/deletion.js');
-const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/gemini/job-runner.js');
+const CONTENT_GEMINI_PATH = path.resolve(__dirname, '../../../extension/content/content_gemini.js');
+const GEMINI_SELECTORS_PATH = path.resolve(__dirname, '../../../extension/content/gemini/selectors.js');
+const GEMINI_DOM_PATH = path.resolve(__dirname, '../../../extension/content/gemini/dom.js');
+const GEMINI_OBSERVER_PATH = path.resolve(__dirname, '../../../extension/content/gemini/observer.js');
+const GEMINI_EDITOR_PATH = path.resolve(__dirname, '../../../extension/content/gemini/editor.js');
+const GEMINI_ATTACHMENT_PATH = path.resolve(__dirname, '../../../extension/content/gemini/attachment.js');
+const GEMINI_TEMP_CHAT_PATH = path.resolve(__dirname, '../../../extension/content/gemini/temporary-chat.js');
+const GEMINI_RESULT_EXTRACTOR_PATH = path.resolve(__dirname, '../../../extension/content/gemini/result-extractor.js');
+const GEMINI_DELETION_PATH = path.resolve(__dirname, '../../../extension/content/gemini/deletion.js');
+const GEMINI_JOB_RUNNER_PATH = path.resolve(__dirname, '../../../extension/content/gemini/job-runner.js');
 const COVERAGE_MODE = process.env.COVERAGE_MODE === '1';
 
 function setWindowLocation(pathname = '/app/chat-1') {

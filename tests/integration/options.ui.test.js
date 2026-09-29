@@ -27,8 +27,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(4);
@@ -53,8 +53,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
 
     test('salva o prompt editado e mostra feedback de sucesso', async () => {
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
 
@@ -78,8 +78,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(4);
@@ -114,8 +114,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(6);
@@ -164,8 +164,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(6);
@@ -230,8 +230,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(6);
@@ -264,8 +264,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         await storageMock.set({ geminiExecutionMode: 'background_delete' });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(4);
@@ -294,8 +294,8 @@ describe('OP-01/OP-02/OP-03/OP-04/OP-05/OP-06/OP-07/OP-08/OP-09/OP-10/OP-11/OP-1
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/options.html',
-            scriptPath: 'extension/options.js',
+            htmlPath: 'extension/options/options.html',
+            scriptPath: 'extension/options/options.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(5);

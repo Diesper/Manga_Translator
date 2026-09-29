@@ -1,17 +1,13 @@
 # Dependências
 node_modules/
-tests/node_modules/
 
 # Logs e arquivos de depuração
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-tests/jest_stderr.txt
-tests/jest_stdout.txt
 
 # Resultados e relatórios de testes
-tests/test-results/
 test-results/
 playwright-report/
 blob-report/
@@ -34,3 +30,8 @@ desktop.ini
 *.njsproj
 *.sln
 *.sw?
+.jest-cache*/
+.ci-results/
+all-blob-reports/
+dist/
+tests/fixtures/manga-images/*.png

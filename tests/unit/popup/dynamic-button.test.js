@@ -50,8 +50,8 @@ describe('popup.js - Botão de Tradução Dinâmico Real', () => {
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 

@@ -46,8 +46,8 @@ describe('RD-14/RD-15/RD-16/RD-17/RD-18: reader.js - Navegação por Teclado Rea
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_nav',
             fireDOMContentLoaded: true,
         });

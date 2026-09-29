@@ -77,8 +77,8 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -130,8 +130,8 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -197,8 +197,8 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -215,7 +215,7 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
 
         const readerTabId = [...tabsMock._tabs.keys()].find(id => !tabIdsBeforeRead.has(id));
         expect(readerTabId).toBeDefined();
-        expect(tabsMock._tabs.get(readerTabId).url).toBe('chrome-extension://test-extension-id/reader.html?id=chap_1');
+        expect(tabsMock._tabs.get(readerTabId).url).toBe('chrome-extension://test-extension-id/reader/reader.html?id=chap_1');
 
         document.querySelector('.btn-open-chap-folder').click();
         await flushAsyncTasks(8);
@@ -244,8 +244,8 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -283,8 +283,8 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         await storageMock.set({ enabledDomains: [host], geminiExecutionMode: 'background_delete' });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(10);

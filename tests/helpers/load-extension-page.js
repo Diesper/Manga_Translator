@@ -1,13 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-function findRoot(dir) {
-    if (fs.existsSync(path.join(dir, 'extension', 'manifest.json'))) return dir;
-    const parent = path.dirname(dir);
-    return parent === dir ? process.cwd() : findRoot(parent);
-}
-
-const ROOT = findRoot(__dirname);
+const { findRepoRoot } = require('./repo-root');
+const ROOT = findRepoRoot(__dirname);
 
 function stripExternalScripts(html) {
     return html.replace(/<script\b[^>]*src=["'][^"']+["'][^>]*>\s*<\/script>/gi, '');

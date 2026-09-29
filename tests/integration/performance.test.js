@@ -13,7 +13,7 @@ const {
 const {
     createIndexedDbRepository,
     createInMemoryRepository,
-} = require('../../extension/gtc-indexeddb.js');
+} = require('../../extension/shared/gtc-indexeddb.js');
 
 if (typeof globalThis.structuredClone !== 'function') {
     globalThis.structuredClone = value => JSON.parse(JSON.stringify(value));
@@ -271,8 +271,8 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
 
         const heapBefore = process.memoryUsage ? process.memoryUsage().heapUsed : 0;
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 

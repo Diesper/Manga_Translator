@@ -18,7 +18,7 @@ const {
     PHASH_MATCH_THRESHOLD_RELAXED,
     WHASH_REJECT_THRESHOLD_RELAXED,
     PHASH_REJECT_THRESHOLD_RELAXED,
-} = require('../../../extension/gtc-fingerprint.js');
+} = require('../../../extension/shared/gtc-fingerprint.js');
 
 function sha256Utf8(input) {
     return crypto.createHash('sha256').update(String(input), 'utf8').digest('hex');

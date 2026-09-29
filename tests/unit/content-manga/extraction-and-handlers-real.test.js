@@ -3,12 +3,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { TextEncoder } = require('util');
 
-function _findRoot(d) {
-    if (fs.existsSync(path.join(d, 'extension', 'manifest.json'))) return d;
-    const p = path.dirname(d);
-    return p === d ? process.cwd() : _findRoot(p);
-}
-const ROOT = _findRoot(__dirname);
+const { findRepoRoot } = require('../../helpers/repo-root');
+const ROOT = findRepoRoot(__dirname);
 
 Object.defineProperty(global, 'crypto', {
     value: crypto.webcrypto,
@@ -16,9 +12,9 @@ Object.defineProperty(global, 'crypto', {
 });
 global.TextEncoder = TextEncoder;
 
-const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content_manga.js');
-const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/cm-gtc-client.js');
-const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/cm-dom-replace.js');
+const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js');
+const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/content/cm-gtc-client.js');
+const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/content/cm-dom-replace.js');
 const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));
 const { getRuntimeMock, getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
 

@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-const TEMP_PATH = path.resolve(__dirname, '../../../extension/gemini/temporary-chat.js');
+const TEMP_PATH = path.resolve(__dirname, '../../../extension/content/gemini/temporary-chat.js');
 
 function loadTempChat() {
   let api;

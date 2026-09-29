@@ -3,7 +3,7 @@
 const {
   parseNumericSemver,
   deriveVersionInfo,
-} = require('../../../scripts/sync-version');
+} = require('../../../scripts/release/sync-version');
 
 describe('versionamento centralizado', () => {
   test('6.5.0 gera Manifest 6.5 e release v6.5.0', () => {
@@ -42,7 +42,7 @@ describe('versionamento centralizado', () => {
     );
 
     expect(workflow).toContain('docs/Documentação.md');
-    expect(workflow).toContain('scripts/sync-version.js --print-env');
+    expect(workflow).toContain('scripts/release/sync-version.js --print-env');
     expect(workflow).toContain('${RELEASE_BASENAME}');
     expect(workflow).toContain('${DOC_ARTIFACT}');
     expect(workflow).not.toMatch(/Manga-Translator-v\d/);

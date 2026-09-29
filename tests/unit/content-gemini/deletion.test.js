@@ -5,7 +5,7 @@ const { getStorageMock } = require('../../mocks/chrome-api.mock.js');
 
 const DELETION_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/deletion.js'
+  '../../../extension/content/gemini/deletion.js'
 );
 
 function loadModule() {

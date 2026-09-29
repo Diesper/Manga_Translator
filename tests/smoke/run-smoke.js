@@ -2,7 +2,7 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const baseline = require('../ci/test-baseline.json');
+const baseline = require('../../scripts/ci/data/test-baseline.json');
 
 const files = fs.readdirSync(__dirname)
     .filter(f => /^smoke-\d+.*\.js$/.test(f))

@@ -88,11 +88,11 @@ if (typeof importScripts === 'function') {
         //   - pHash   (visual-v3 — DCT, 32×32 → 64 hex / 256 bits)
         //   - Regional hashes (visual-v3 — 4 cantos, 48×48)
         //   - matchPerceptualHashes / Relaxed (decisão combinada wHash+pHash)
-        importScripts('gtc-fingerprint.js');
-        importScripts('gtc-indexeddb.js');
+        importScripts('shared/gtc-fingerprint.js');
+        importScripts('shared/gtc-indexeddb.js');
         // storage-manager.js roda SÓ aqui: o banco de páginas/assets precisa da
         // origem da extensão. Num content script ele criaria um banco por site.
-        importScripts('storage-manager.js');
+        importScripts('shared/storage-manager.js');
         if (typeof self !== 'undefined' && self.MangaTranslatorGtcIndexedDb) {
             gtcIndexedDbApi = self.MangaTranslatorGtcIndexedDb;
         }
@@ -137,10 +137,10 @@ if (typeof importScripts === 'function') {
         require('./background/actions/stop-batch.js');
     } catch (e) {}
     try {
-        gtcIndexedDbApi = require('./gtc-indexeddb.js');
+        gtcIndexedDbApi = require('./shared/gtc-indexeddb.js');
     } catch (e) {}
     try {
-        storageManagerApi = require('./storage-manager.js');
+        storageManagerApi = require('./shared/storage-manager.js');
     } catch (e) {}
 }
 

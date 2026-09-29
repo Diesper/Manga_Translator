@@ -17,6 +17,7 @@ const { test, expect, chromium } = require('@playwright/test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { findRepoRoot } = require('../helpers/repo-root');
 
 function getBrowserModeConfig() {
     const rawMode = String(process.env.MANGA_E2E_BROWSER_MODE || 'stealth').trim().toLowerCase();
@@ -30,15 +31,7 @@ function getBrowserModeConfig() {
 }
 
 function getExtensionPath(startDir) {
-    let dir = startDir;
-
-    while (dir !== path.parse(dir).root) {
-        const candidate = path.join(dir, 'extension');
-        if (fs.existsSync(path.join(candidate, 'manifest.json'))) return candidate;
-        dir = path.dirname(dir);
-    }
-
-    return path.join(process.cwd(), 'extension');
+    return path.join(findRepoRoot(startDir), 'extension');
 }
 
 let extensionId = null;
@@ -69,7 +62,7 @@ async function getBackgroundWorker(context) {
         const workerPromise = context.waitForEvent('serviceworker', { timeout: 15000 })
             .catch(() => null);
         wakePage = await context.newPage();
-        await wakePage.goto(`chrome-extension://${extensionId}/popup.html`, {
+        await wakePage.goto(`chrome-extension://${extensionId}/popup/popup.html`, {
             waitUntil: 'domcontentloaded',
             timeout: 10000,
         });

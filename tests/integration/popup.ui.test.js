@@ -76,8 +76,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -115,8 +115,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         const closeSpy = jest.spyOn(window, 'close').mockImplementation(() => {});
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -168,8 +168,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -235,8 +235,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -284,8 +284,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -376,8 +376,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -423,8 +423,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
 
@@ -455,8 +455,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         await storageMock.set({ enabledDomains: [] });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -485,8 +485,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -539,8 +539,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         await storageMock.set({ enabledDomains: ['reader.test'] });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);
@@ -570,8 +570,8 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/popup.html',
-            scriptPath: 'extension/popup.js',
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
             fireDOMContentLoaded: true,
         });
         await flushAsyncTasks(8);

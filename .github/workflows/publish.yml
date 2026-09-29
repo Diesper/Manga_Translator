@@ -30,7 +30,7 @@ jobs:
 
       - name: Derivar metadados da release
         shell: bash
-        run: node scripts/sync-version.js --print-env >> "$GITHUB_ENV"
+        run: node scripts/release/sync-version.js --print-env >> "$GITHUB_ENV"
 
       - name: Validar tag quando disparado por tag
         shell: bash

@@ -4,7 +4,7 @@ const path = require('path');
 
 const RESULT_EXTRACTOR_PATH = path.resolve(
   __dirname,
-  '../../../extension/gemini/result-extractor.js'
+  '../../../extension/content/gemini/result-extractor.js'
 );
 
 function loadModule() {

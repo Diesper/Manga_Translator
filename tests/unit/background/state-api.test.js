@@ -1,13 +1,8 @@
 const path = require('path');
 const fs = require('fs');
 
-function findRoot(directory) {
-    if (fs.existsSync(path.join(directory, 'extension', 'manifest.json'))) return directory;
-    const parent = path.dirname(directory);
-    return parent === directory ? process.cwd() : findRoot(parent);
-}
-
-const ROOT = findRoot(__dirname);
+const { findRepoRoot } = require('../../helpers/repo-root');
+const ROOT = findRepoRoot(__dirname);
 const STATE_PATH = path.join(ROOT, 'extension/background/state.js');
 const { getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
 

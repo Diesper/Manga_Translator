@@ -46,8 +46,8 @@ describe('RD-20/RD-21/RD-22: reader.js - Contador de Página e Progresso Real', 
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_count',
             fireDOMContentLoaded: true,
         });
@@ -92,8 +92,8 @@ describe('RD-20/RD-21/RD-22: reader.js - Contador de Página e Progresso Real', 
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_equal',
             fireDOMContentLoaded: true,
         });
@@ -121,8 +121,8 @@ describe('RD-20/RD-21/RD-22: reader.js - Contador de Página e Progresso Real', 
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_visibility',
             fireDOMContentLoaded: true,
         });
@@ -154,8 +154,8 @@ describe('RD-20/RD-21/RD-22: reader.js - Contador de Página e Progresso Real', 
         });
 
         await loadExtensionPage({
-            htmlPath: 'extension/reader.html',
-            scriptPath: 'extension/reader.js',
+            htmlPath: 'extension/reader/reader.html',
+            scriptPath: 'extension/reader/reader.js',
             url: 'https://extension.test/reader.html?id=chap_empty',
             fireDOMContentLoaded: true,
         });

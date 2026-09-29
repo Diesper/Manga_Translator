@@ -4,14 +4,16 @@
 >
 > **Fonte única da versão:** `package.json`. O Manifest, os metadados de teste, a UI e os artefatos de release são derivados dessa fonte.
 >
-> Esta documentação descreve a arquitetura que existe no código atual do projeto.
-> Ela substitui, como fonte operacional de verdade, a documentação incremental da
-> série v5.x. O arquivo anterior permanece apenas como registro histórico das
-> etapas de refatoração.
+> Esta é a **única documentação canônica** do projeto. Ela descreve a arquitetura,
+> o runtime, os testes, a CI, o release e as decisões de manutenção vigentes.
+> Conteúdo ainda válido dos antigos documentos separados e do histórico de PRs foi
+> incorporado aqui; planos já executados, benchmarks superados, paths antigos e
+> hipóteses de investigação encerradas foram descartados.
 >
-> **Data da consolidação:** 26/09/2026.
-> **Atualização funcional:** 27/09/2026 — revisão 2 aprovada manualmente + hardening automatizado do PR #47.
-> Consulte [a documentação da versão funcional](DOCUMENTACAO_VERSAO_FUNCIONAL.md) para separar a evidência manual histórica da validação automatizada atual.
+> **Consolidação original:** 26/09/2026.
+> **Consolidação documental final:** 29/09/2026 — reestruturação do PR #65 concluída.
+> **Validação final da reestruturação:** MangaTranslator CI #1624, `workflow_dispatch`,
+> HEAD `28dac01698db36d06c5b9d5aebee0240f0f1cde7`, conclusão `success`.
 >
 > **Escopo da auditoria:** manifesto, Service Worker, módulos de background,
 > content scripts, cache perceptual, IndexedDB, persistência de capítulos,
@@ -42,11 +44,13 @@
 19. [Falhas esperadas e diagnóstico](#19-falhas-esperadas-e-diagnóstico)
 20. [Regras de manutenção](#20-regras-de-manutenção)
 21. [Mudanças documentais da v6.5](#21-mudanças-documentais-da-v65)
-22. [Apêndice A — Inventário dos módulos](#apêndice-a--inventário-dos-módulos)
-23. [Apêndice B — Matriz IPC](#apêndice-b--matriz-ipc)
-24. [Apêndice C — Armazenamento e chaves](#apêndice-c--armazenamento-e-chaves)
-25. [Apêndice D — Invariantes arquiteturais](#apêndice-d--invariantes-arquiteturais)
-26. [Apêndice E — Conteúdo antigo removido da fonte principal](#apêndice-e--conteúdo-antigo-removido-da-fonte-principal)
+22. [Arquitetura do repositório e reestruturação PR #65](#22-arquitetura-do-repositório-e-reestruturação-pr-65)
+23. [Consolidação das documentações anteriores](#23-consolidação-das-documentações-anteriores)
+24. [Apêndice A — Inventário dos módulos](#apêndice-a--inventário-dos-módulos)
+25. [Apêndice B — Matriz IPC](#apêndice-b--matriz-ipc)
+26. [Apêndice C — Armazenamento e chaves](#apêndice-c--armazenamento-e-chaves)
+27. [Apêndice D — Invariantes arquiteturais](#apêndice-d--invariantes-arquiteturais)
+28. [Apêndice E — Conteúdo antigo removido da fonte principal](#apêndice-e--conteúdo-antigo-removido-da-fonte-principal)
 
 ---
 
@@ -63,20 +67,21 @@ Isso significa:
   com a versão do produto;
 - comentários históricos que não alteram o contrato atual são tratados como
   histórico, não como arquitetura;
-- o código em <code>main</code> prevalece sobre qualquer texto antigo.
+- o código versionado, as configurações canônicas e os gates automatizados prevalecem sobre qualquer narrativa histórica;
+- `docs/Documentação.md` é o único arquivo documental mantido em `docs/`; não criar documentação paralela para registrar estado operacional.
 
 ## 1.1 O que significa "v6.5"
 
 A v6.5 é o marco desta documentação técnica consolidada. A consolidação começou no PR 13 após a refatoração Gemini RPA V2 e foi atualizada para incorporar o estado funcional/hardening do PR #47.
 
-O marco v6.5 também torna o versionamento do produto automático: `package.json` contém a versão SemVer canônica, enquanto `manifest.json` e os metadados de teste são sincronizados por `scripts/sync-version.js`.
+O marco v6.5 mantém o versionamento do produto automático: `package.json` contém a versão SemVer canônica; `manifest.json` e o lockfile raiz são sincronizados por `scripts/release/sync-version.js`.
 
 Ela não altera automaticamente:
 
 - o schema <code>visual-v4</code> do fingerprint;
 - o <code>DB_VERSION = 4</code> do banco GTC;
 - o <code>SM_DB_VERSION = 1</code> do StorageManager;
-- nomes de testes como <code>visual-v3</code>, que identificam famílias de teste;
+- versões internas de fingerprint como <code>visual-v3</code>, que fazem parte do formato de dados e não do layout de testes;
 - formatos de dados já persistidos que precisam continuar legíveis.
 
 Essas versões internas têm ciclo de vida próprio e só devem ser incrementadas
@@ -104,7 +109,7 @@ quando o respectivo schema mudar.
 
 ## 2.2 Baseline funcional conhecido
 
-O baseline operacional atual é definido por `tests/ci/test-baseline.json` e pelos gates descritos na seção 18:
+O baseline operacional atual é definido por `scripts/ci/data/test-baseline.json` e pelos gates descritos na seção 18:
 
 - **108 suítes Jest**;
 - **mínimo de 848 testes Jest**;
@@ -116,9 +121,11 @@ O baseline operacional atual é definido por `tests/ci/test-baseline.json` e pel
 - **56 arquivos instrumentados** no coverage;
 - `CI Gate` obrigatório.
 
-O PR #47 também protege o warning de worker forçado como falha real, mantém thresholds críticos de coverage e valida a matriz `tests/ci/regression-matrix.json`.
+O PR #47 também protege o warning de worker forçado como falha real, mantém thresholds críticos de coverage e valida a matriz `scripts/ci/data/regression-matrix.json`.
 
-A revisão funcional 2 continua sendo a evidência manual disponível: 21 traduções (sete temporárias, sete minimizadas e sete normais) em quatro lotes completos, com 21 renovações de watchdog e 14 exclusões verificadas. Essa evidência é anterior a parte do hardening posterior e não substitui os testes automatizados. Veja [o resumo de validação](VALIDACAO_REVISAO_2.json).
+A revisão funcional 2 continua sendo a evidência manual histórica disponível: 21 traduções (sete temporárias, sete minimizadas e sete normais) em quatro lotes completos, com 21 solicitações/aceites/confirmações de renovação do watchdog. Nas extrações observadas, 12 concluíram pelo Service Worker com sessão, sete pelo fetch da página como último recurso e duas pelo canvas; normal/minimizado registraram 14 exclusões confirmadas. Essa evidência é anterior a parte do hardening posterior e não substitui os testes automatizados.
+
+No fechamento da reestruturação, o run manual #1624 observou **109 suítes / 851 testes Jest**, 224 visuais, 6 smoke, 21/21 E2E, 56 arquivos de coverage, Windows Portability e todos os diagnósticos pesados em verde. Os valores 108/848 acima permanecem como pisos contratuais mínimos, não como contagem máxima.
 
 Para rastreabilidade histórica, o run #663 no commit `446f003` havia aprovado 98 suítes / 716 testes Jest e 22 E2E. Esses números não são mais o baseline atual.
 
@@ -144,86 +151,58 @@ Esses itens pertencem ao histórico de estabilização da série v5.x.
 
 ~~~text
 MangaTranslator/
+├── package.json
+├── package-lock.json
+├── jest.config.js
+├── playwright.config.js
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
+│       ├── ci.yml
+│       ├── publish.yml
+│       └── recover-cancelled-ci.yml
 ├── docs/
-│   ├── DOCUMENTACAO_v5.1.1_ATUALIZACAO.md   # histórico
-│   └── Documentação.md                       # fonte técnica canônica, nome estável
+│   └── Documentação.md
 ├── extension/
 │   ├── manifest.json
 │   ├── background.js
 │   ├── background/
-│   │   ├── log.js
-│   │   ├── router.js
-│   │   ├── state.js
-│   │   ├── jobs-dom-ack.js
-│   │   ├── jobs-lifecycle.js
-│   │   ├── jobs-reconciliation.js
-│   │   ├── jobs-watchdog.js
-│   │   └── actions/
-│   │       ├── calculate-visual-fingerprint.js
-│   │       ├── check-extraction-tab.js
-│   │       ├── deliver-result-from-tab.js
-│   │       ├── deliver-result-url.js
-│   │       ├── deliver-result.js
-│   │       ├── download-chapter.js
-│   │       ├── download-image.js
-│   │       ├── export-all.js
-│   │       ├── fetch-image-base64.js
-│   │       ├── force-send-activation.js
-│   │       ├── get-tab-id.js
-│   │       ├── log-entry.js
-│   │       ├── open-existing-folder.js
-│   │       ├── open-manga-root.js
-│   │       ├── relay-progress.js
-│   │       ├── report-error.js
-│   │       ├── request-image-data.js
-│   │       ├── set-debug-mode.js
-│   │       ├── start-batch.js
-│   │       └── stop-batch.js
-│   ├── cm-auto-restore.js
-│   ├── cm-chapter.js
-│   ├── cm-dom-replace.js
-│   ├── cm-gtc-client.js
-│   ├── content_manga.js
-│   ├── content_gemini.js
-│   ├── gemini/
-│   │   ├── selectors.js
-│   │   ├── dom.js
-│   │   ├── observer.js
-│   │   ├── editor.js
-│   │   ├── temporary-chat.js
-│   │   ├── attachment.js
-│   │   ├── result-extractor.js
-│   │   ├── deletion.js
-│   │   └── job-runner.js
-│   ├── gtc-fingerprint.js
-│   ├── gtc-indexeddb.js
-│   ├── inject.js
-│   ├── storage-manager.js
-│   ├── shared-ui.js
-│   ├── popup.html
-│   ├── popup.js
-│   ├── options.html
-│   ├── options.js
-│   ├── reader.html
-│   └── reader.js
+│   ├── content/
+│   │   ├── content_manga.js
+│   │   ├── content_gemini.js
+│   │   ├── inject.js
+│   │   ├── cm-*.js
+│   │   └── gemini/
+│   ├── shared/
+│   │   ├── gtc-fingerprint.js
+│   │   ├── gtc-indexeddb.js
+│   │   ├── storage-manager.js
+│   │   └── shared-ui.js
+│   ├── popup/
+│   ├── options/
+│   └── reader/
 ├── tests/
-│   ├── e2e/
+│   ├── unit/
 │   ├── integration/
 │   ├── smoke/
-│   ├── unit/
-│   ├── visual-v3/
-│   ├── run-all-tests.js
-│   ├── package.json
-│   └── package-lock.json
-├── package.json
-├── run.ps1
-├── run.bat
-├── run-smoke.ps1
-└── run-smoke.bat
+│   ├── visual/
+│   ├── e2e/
+│   ├── fixtures/
+│   ├── helpers/
+│   ├── mocks/
+│   └── setup/
+└── scripts/
+    ├── ci/
+    │   └── data/
+    ├── validation/
+    ├── maintenance/
+    └── release/
 ~~~
+
+A raiz é o único projeto Node/npm e concentra as configurações de Jest e Playwright.
+Tooling de CI não vive mais em `tests/`; testes contêm apenas código de teste,
+fixtures, mocks, helpers e setup. `extension/` e `extension/manifest.json`
+permanecem nos mesmos caminhos para preservar o contrato MV3.
+
 
 ## 3.1 Divisão por responsabilidade
 
@@ -231,9 +210,9 @@ A extensão possui cinco blocos arquiteturais principais:
 
 1. **orquestração MV3** — background, estado, lifecycle, watchdog e router;
 2. **captura e aplicação na página de mangá** — módulos <code>cm-*</code> +
-   <code>content_manga.js</code>;
-3. **automação do Gemini** — <code>inject.js</code>,
-   <code>content_gemini.js</code> e módulos de <code>gemini/</code>;
+   <code>content/content_manga.js</code>;
+3. **automação do Gemini** — <code>content/inject.js</code>,
+   <code>content/content_gemini.js</code> e módulos de <code>content/gemini/</code>;
 4. **persistência e cache** — StorageManager + GTC;
 5. **interfaces da extensão** — popup, opções, shared-ui e reader.
 
@@ -268,17 +247,17 @@ precisa operar em leitores de mangá hospedados em domínios arbitrários.
 
 Em todas as URLs compatíveis, o manifesto injeta nesta ordem:
 
-1. <code>gtc-fingerprint.js</code>;
-2. <code>cm-gtc-client.js</code>;
-3. <code>cm-dom-replace.js</code>;
-4. <code>cm-chapter.js</code>;
-5. <code>cm-auto-restore.js</code>;
-6. <code>content_manga.js</code>.
+1. <code>shared/gtc-fingerprint.js</code>;
+2. <code>content/cm-gtc-client.js</code>;
+3. <code>content/cm-dom-replace.js</code>;
+4. <code>content/cm-chapter.js</code>;
+5. <code>content/cm-auto-restore.js</code>;
+6. <code>content/content_manga.js</code>.
 
 Essa ordem é um contrato.
 
 Os módulos <code>cm-*</code> preparam APIs menores e
-<code>content_manga.js</code> atua como orquestrador e fachada compatível com
+<code>content/content_manga.js</code> atua como orquestrador e fachada compatível com
 call sites ainda existentes.
 
 ## 4.3 Scripts do Gemini
@@ -299,18 +278,18 @@ o manifesto injeta:
 
 Em <strong>document_idle</strong>, a ordem é:
 
-1. <code>gemini/selectors.js</code>;
-2. <code>gemini/dom.js</code>;
-3. <code>gemini/observer.js</code>;
-4. <code>gemini/editor.js</code>;
-5. <code>gemini/attachment.js</code>;
-6. <code>gemini/temporary-chat.js</code>;
-7. <code>gemini/result-extractor.js</code>;
-8. <code>gemini/deletion.js</code>;
-9. <code>gemini/job-runner.js</code>;
-10. <code>content_gemini.js</code>.
+1. <code>content/gemini/selectors.js</code>;
+2. <code>content/gemini/dom.js</code>;
+3. <code>content/gemini/observer.js</code>;
+4. <code>content/gemini/editor.js</code>;
+5. <code>content/gemini/attachment.js</code>;
+6. <code>content/gemini/temporary-chat.js</code>;
+7. <code>content/gemini/result-extractor.js</code>;
+8. <code>content/gemini/deletion.js</code>;
+9. <code>content/gemini/job-runner.js</code>;
+10. <code>content/content_gemini.js</code>.
 
-<code>content_gemini.js</code> é o bootstrap: claim, keep-alive, wiring e
+<code>content/content_gemini.js</code> é o bootstrap: claim, keep-alive, wiring e
 handlers. A execução detalhada do job pertence a <code>job-runner.js</code>.
 
 ## 4.4 Por que a injeção é estática
@@ -358,9 +337,9 @@ No ambiente real de Service Worker, são importados primeiro:
 
 Depois são importados:
 
-- <code>gtc-fingerprint.js</code>;
-- <code>gtc-indexeddb.js</code>;
-- <code>storage-manager.js</code>.
+- <code>shared/gtc-fingerprint.js</code>;
+- <code>shared/gtc-indexeddb.js</code>;
+- <code>shared/storage-manager.js</code>.
 
 ## 5.3 Fail-fast
 
@@ -512,6 +491,8 @@ O pipeline possui dois prazos separados:
 
 O watchdog é armado desde a abertura da aba. No primeiro início de geração observado naquela execução, o runner envia `REFRESH_JOB_WATCHDOG`; o background valida jobId, índice durável e identidade canônica da aba antes de renovar por cinco minutos. Sem esse evento, o prazo inicial permanece. Não há renovação contínua por heartbeat.
 
+A observabilidade dessa renovação usa `GEMINI_WATCHDOG_REFRESH_REQUESTED`, `JOB_WATCHDOG_REFRESH`, `GEMINI_WATCHDOG_REFRESH_CONFIRMED` e `GEMINI_WATCHDOG_REFRESH_FAILED`. Falha na renovação não inventa sucesso nem cancela automaticamente a geração: o watchdog previamente armado continua valendo.
+
 A espera terminal continua em quatro minutos por padrão. A margem global reduz a competição entre preparação, geração e limpeza, sem garantir duração ilimitada de rede/recuperação. O timeout aguarda `finalizeJob` antes de continuar a limpeza das abas de extração.
 
 O watchdog usa:
@@ -569,7 +550,7 @@ Para um hit válido:
 
 Para misses:
 
-1. <code>content_manga.js</code> envia START_BATCH com um <code>batchId</code> próprio;
+1. <code>content/content_manga.js</code> envia START_BATCH com um <code>batchId</code> próprio;
 2. se não existe lote ativo, o background promove esse lote imediatamente;
 3. se já existe A ativo, B/C/D/E/F/G/... são aceitos em <code>pendingBatches</code> e preservados em ordem FIFO;
 4. o lote ativo mantém seus próprios <code>jobQueue</code>, contadores e resultados; a chegada de lotes posteriores não reescreve seu estado;
@@ -779,7 +760,7 @@ O banco:
 
 pertence à origem da extensão.
 
-O módulo <code>storage-manager.js</code> não deve ser injetado como content
+O módulo <code>shared/storage-manager.js</code> não deve ser injetado como content
 script.
 
 ## 9.2 Por que
@@ -924,7 +905,7 @@ Essa versão 4 é do schema do cache, não do MangaTranslator.
 
 ## 10.3 Algoritmos principais
 
-<code>gtc-fingerprint.js</code> implementa:
+<code>shared/gtc-fingerprint.js</code> implementa:
 
 - SHA/fingerprint determinístico;
 - dHash;
@@ -1000,14 +981,14 @@ Código novo deve preferir a API correlacionada.
 
 ## 11.1 Composição
 
-A responsabilidade antes concentrada em <code>content_manga.js</code> já possui
+A responsabilidade antes concentrada em <code>content/content_manga.js</code> já possui
 módulos auxiliares:
 
-### cm-gtc-client.js
+### content/cm-gtc-client.js
 
 Responsável pela fronteira de cache/fingerprint.
 
-### cm-dom-replace.js
+### content/cm-dom-replace.js
 
 Responsável por:
 
@@ -1016,7 +997,7 @@ Responsável por:
 - filtragem de backdrop;
 - substituição no DOM.
 
-### cm-chapter.js
+### content/cm-chapter.js
 
 Responsável por:
 
@@ -1025,7 +1006,7 @@ Responsável por:
 - persistência de página;
 - escrita serializada por capítulo.
 
-### cm-auto-restore.js
+### content/cm-auto-restore.js
 
 Responsável por:
 
@@ -1034,7 +1015,7 @@ Responsável por:
 - aplicação automática;
 - reação a mudanças no storage.
 
-### content_manga.js
+### content/content_manga.js
 
 Continua responsável por:
 
@@ -1072,7 +1053,7 @@ largura e a altura mínimas configuradas. Os valores padrão são **300 × 400 p
 preservando o comportamento das instalações existentes.
 
 Os limites são persistidos em `chrome.storage.local` nas chaves
-`imageMinWidth` e `imageMinHeight`. O `content_manga.js` os mantém em memória e
+`imageMinWidth` e `imageMinHeight`. O `content/content_manga.js` os mantém em memória e
 reage a mudanças no storage, portanto uma alteração feita no popup passa a
 valer para `GET_PAGE_IMAGES` e para a seleção do botão flutuante sem recarregar
 a página.
@@ -1173,7 +1154,7 @@ aba).
 
 ## 12.2 Bootstrap e Job Runner
 
-<code>content_gemini.js</code> contém apenas infraestrutura:
+<code>content/content_gemini.js</code> contém apenas infraestrutura:
 
 - claim;
 - keep-alive sob demanda;
@@ -1181,7 +1162,7 @@ aba).
 - handlers de runtime;
 - chamada de <code>jobRunner.run(job)</code>.
 
-<code>gemini/job-runner.js</code> coordena, nessa ordem:
+<code>content/gemini/job-runner.js</code> coordena, nessa ordem:
 
 1. recovery pendente de deletion;
 2. aquisição da imagem da aba do mangá;
@@ -1198,7 +1179,7 @@ aba).
 
 ## 12.3 Conversa temporária
 
-<code>gemini/temporary-chat.js</code> usa somente identificação semântica
+<code>content/gemini/temporary-chat.js</code> usa somente identificação semântica
 (texto, aria-label, test-id, estado e indicadores conhecidos), em português e
 inglês.
 
@@ -1212,7 +1193,7 @@ repetidamente.
 
 ## 12.4 Attachment
 
-<code>gemini/attachment.js</code> separa tentativa de confirmação. O runner espera editor editável, conectado e estável por até 12 s e renova os alvos entre métodos. A ordem é input de arquivo → drop → paste, com intervalo de 3,5 s e janela total de confirmação de 20 s.
+<code>content/gemini/attachment.js</code> separa tentativa de confirmação. O runner espera editor editável, conectado e estável por até 12 s e renova os alvos entre métodos. A ordem é input de arquivo → drop → paste, com intervalo de 3,5 s e janela total de confirmação de 20 s.
 
 O baseline exige evidência nova/alterada ligada ao composer/attachment UI. Um sinal parcial interrompe novos dispatches; confirmação exige preview carregada, dimensões naturais positivas e ausência de processamento pendente. Mensagens do usuário/modelo não confirmam anexo. Sem confirmação, <code>GEMINI_ATTACHMENT_NOT_CONFIRMED</code> bloqueia o prompt.
 
@@ -1220,8 +1201,8 @@ O runner não ativa fisicamente aba/janela para recuperar upload. O paste da ima
 
 ## 12.5 Editor e submit
 
-<code>gemini/editor.js</code> manipula o editor e o submit, enquanto
-<code>gemini/observer.js</code> é a fonte de verdade para confirmação.
+<code>content/gemini/editor.js</code> manipula o editor e o submit, enquanto
+<code>content/gemini/observer.js</code> é a fonte de verdade para confirmação.
 
 O pipeline não considera click, Enter ou CustomEvent como sucesso de envio.
 Cada um é apenas uma tentativa. O submit só é confirmado quando o Observer
@@ -1236,28 +1217,32 @@ O Observer é instalado antes do submit e mantém baseline de fontes e respostas
 
 O módulo atravessa Shadow DOM aberto, observa src/data-src/srcset e eventos de carga/erro e inspeciona a cada 1,25 s enquanto a tarefa está ativa. Blob/data de resultado precisam estar carregados. Sem autoria estrita, o fallback exige URL HTTPS de asset gerado do Google e geração observada; imagem órfã genérica não basta.
 
-Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa. <code>gemini/image-quarantine.js</code> também exclui imagens estruturalmente ligadas à entrada da seleção automática/manual e compara SHA-256 dos bytes antes da entrega. Igualdade exata produz <code>GEMINI_RESULT_MATCHES_INPUT</code>; similaridade perceptual não bloqueia resultados.
+Erros visíveis da UI produzem <code>GEMINI_UI_ERROR</code>; ausência de resultado na espera terminal produz <code>GEMINI_RESULT_TIMEOUT</code>. Logs de aceitação/rejeição incluem motivo e prefixo da tarefa.
+
+A quarentena em <code>content/gemini/image-quarantine.js</code> adiciona duas barreiras contra devolver o próprio anexo como tradução:
+
+1. **classificação estrutural** — composer, preview/file attachment e turno do usuário são entrada e não podem ser resultado automático nem seleção manual;
+2. **identidade exata** — antes da entrega, SHA-256 é calculado sobre os bytes decodificados da entrada e do candidato. Igualdade exata produz <code>GEMINI_RESULT_MATCHES_INPUT</code> e bloqueia a entrega.
+
+Trocar apenas o MIME de uma Data URL não contorna a igualdade porque o hash ignora o cabeçalho e usa os bytes. Similaridade perceptual é apenas telemetria e não bloqueia uma tradução válida. Os eventos operacionais são <code>GEMINI_INPUT_QUARANTINE_READY</code>, <code>GEMINI_RESULT_REJECTED</code>, <code>GEMINI_RESULT_MATCHES_INPUT</code> e <code>GEMINI_QUARANTINE_HASH_UNAVAILABLE</code>.
 
 ## 12.7 Resolução e extração
 
 Quando o resultado usa CDN do Google e o formato permite, a URL é elevada para
 <code>=s0</code> antes da extração.
 
-`gemini/result-extractor.js` utiliza:
+`content/gemini/result-extractor.js` utiliza:
 
 - Data URL: retorno direto;
 - Blob URL: fetch local + FileReader;
-- assets HTTPS gerados reconhecidos do Google, em qualquer modo: canvas → SW autenticado → MAIN como último recurso;
+- assets HTTPS gerados reconhecidos do Google, em qualquer modo: canvas → Service Worker com <code>FETCH_IMAGE_AS_BASE64</code> e <code>geminiSession:true</code> → fetch pela página Gemini como último recurso;
 - demais URLs HTTP: caminhos históricos por modo, sem reordenação.
 
-A cadeia completa pode ser repetida até quatro vezes. Somente depois de esgotar
-as rotas diretas o módulo aciona o fallback auxiliar por callback e registra
-<code>GEMINI_EXTRACT_DIAGNOSTIC</code> /
-<code>GEMINI_AUXILIARY_FALLBACK</code>.
+A rota autenticada do Service Worker continua sujeita à validação de host do background e não acrescenta permissões. Os logs distinguem <code>service_worker_session</code> de <code>gemini_page_fetch_last_resort</code>. A cadeia completa pode ser repetida até quatro vezes. Somente depois de esgotar as rotas diretas o módulo aciona o fallback auxiliar por callback e registra <code>GEMINI_EXTRACT_DIAGNOSTIC</code> / <code>GEMINI_AUXILIARY_FALLBACK</code>.
 
 ## 12.8 Deletion e recovery
 
-<code>gemini/deletion.js</code> concentra:
+<code>content/gemini/deletion.js</code> concentra:
 
 - lock idempotente de exclusão;
 - localização da conversa pelo chatId atual;
@@ -1293,7 +1278,7 @@ tokens e campos equivalentes não devem ser persistidos no log.
 
 ## 13.1 Papel de inject.js
 
-<code>inject.js</code> roda no mundo MAIN porque precisa atuar no mesmo contexto
+<code>content/inject.js</code> roda no mundo MAIN porque precisa atuar no mesmo contexto
 JavaScript da página para a ponte de prompt, submit e fetch autenticado.
 
 A guarda de isolamento exige uma aba marcada pelo MangaTranslator; uma aba
@@ -1347,7 +1332,7 @@ respostas concorrentes.
 
 # 14. Popup, opções, UI compartilhada e Reader
 
-## 14.1 popup.js
+## 14.1 popup/popup.js
 
 O popup concentra:
 
@@ -1394,7 +1379,7 @@ caixas de diálogo adicionais”** não bloqueia a operação. A preferência
 novamente** grava `false`. A operação também possui trava por `cleanUrl` para
 impedir duas purgas concorrentes por duplo clique.
 
-## 14.2 options.js
+## 14.2 options/options.js
 
 A página de opções concentra:
 
@@ -1408,7 +1393,7 @@ A página de opções concentra:
 - modo do Gemini, usando a mesma chave <code>geminiExecutionMode</code> do popup;
 - limpeza de entradas salvas.
 
-## 14.3 shared-ui.js
+## 14.3 shared/shared-ui.js
 
 Funções compartilhadas incluem:
 
@@ -1559,7 +1544,7 @@ Uso de <code>innerHTML</code> com conteúdo externo deve ser evitado.
 
 Tudo que roda em MAIN deve ser tratado como superfície sensível.
 
-A guarda de isolamento de <code>inject.js</code> é parte da fronteira de
+A guarda de isolamento de <code>content/inject.js</code> é parte da fronteira de
 segurança e estabilidade.
 
 ## 16.6 &lt;all_urls&gt;
@@ -1666,7 +1651,7 @@ A suíte atual possui:
 
 ## 18.2 Baseline obrigatório
 
-O arquivo `tests/ci/test-baseline.json` é contrato, não estatística informativa.
+O arquivo `scripts/ci/data/test-baseline.json` é contrato, não estatística informativa.
 
 | Camada | Piso atual |
 |---|---:|
@@ -1690,16 +1675,17 @@ O gate `Unit + Integration` executa a mesma suíte em:
 - Node 20;
 - Node 22.
 
-Ambos usam `tests/ci/run-jest-ci.js`, que preserva o código de saída do Jest e também inspeciona stderr.
+Ambos usam `scripts/ci/run-jest-ci.js`, que preserva o código de saída do Jest e também inspeciona stderr.
 
 ## 18.4 Sintaxe
 
 O job de sintaxe percorre recursivamente:
 
 - `extension/**/*.js`;
-- todos os `tests/**/*.js`, incluindo infraestrutura de CI.
+- `tests/**/*.js`;
+- `scripts/**/*.js`.
 
-Isso impede que módulos extraídos ou scripts auxiliares escapem da validação.
+Isso impede que módulos da extensão, testes e tooling centralizado escapem da validação.
 
 ## 18.5 Manifest e versão
 
@@ -1742,6 +1728,18 @@ Portanto `failed -> passed` não é considerado verde.
 
 Os cenários críticos incluem FIFO multi-lote, `minimized_window`, `background_delete`, attachment gate, ownership do resultado, resposta rápida e aba Gemini manual inerte.
 
+O plano canônico em `scripts/ci/data/e2e-shard-plan.json` divide os 21 testes em cinco grupos explícitos e auditáveis:
+
+| Grupo | Testes | Workers |
+|---|---:|---:|
+| `fifo` | 1 | 1 |
+| `attachment` | 3 | 3 |
+| `medium-a` | 4 | 2 |
+| `medium-b` | 4 | 2 |
+| `fast` | 9 | 3 |
+
+`verify-e2e-shard-plan.js` exige união exata do inventário e interseção vazia entre grupos. Os cinco jobs publicam blob reports que são mesclados pelo gate agregado. Os benchmarks antigos usados para chegar a essa partição não são contrato atual; o JSON e o gate 21/21 são a fonte de verdade.
+
 ## 18.8 Cobertura
 
 Coverage é gate local real. O job executa Jest/V8 e depois `verify-coverage.js`.
@@ -1753,7 +1751,7 @@ Pisos globais:
 - functions: 80%;
 - lines: 78%.
 
-Arquivos críticos têm pisos próprios. Entre eles, `extension/gemini/job-runner.js` exige no mínimo 87% statements, 64% branches, 80% functions e 87% lines.
+Arquivos críticos têm pisos próprios. Entre eles, `extension/content/gemini/job-runner.js` exige no mínimo 87% statements, 64% branches, 80% functions e 87% lines.
 
 O verificador reprova, entre outros:
 
@@ -1767,7 +1765,7 @@ Falha externa do Codecov é reportada separadamente; nunca substitui o gate loca
 
 ## 18.9 CI Gate e ruleset
 
-`CI Gate` usa `if: always()` e só passa quando todos os gates obrigatórios concluíram com `success`:
+`CI Gate` usa `if: always() && !cancelled()` e avalia os gates obrigatórios sem transformar um workflow cancelado em falso vermelho:
 
 - Version Integrity;
 - JS Syntax Check;
@@ -1783,7 +1781,7 @@ O ruleset ativo da `main` exige os contextos reais, incluindo `CI Gate`, com str
 
 ## 18.10 Matriz de regressões obrigatórias
 
-`tests/ci/regression-matrix.json` é a lista machine-readable dos bugs críticos que precisam conservar teste.
+`scripts/ci/data/regression-matrix.json` é a lista machine-readable dos bugs críticos que precisam conservar teste.
 
 O `CI Contract` valida para cada entrada:
 
@@ -1833,6 +1831,16 @@ Runs substituídos de PRs e branches de trabalho podem continuar sendo cancelado
 A `main` é diferente: `cancel-in-progress` é desativado para `refs/heads/main`. Se dois merges acontecerem em sequência, a verificação do primeiro não é cancelada pelo segundo; cada commit integrado mantém sua própria execução completa.
 
 O `CI Contract` protege tanto a condição de execução dos diagnósticos quanto esta regra de concurrency.
+
+## 18.13 Ambiente novo e portabilidade Windows
+
+O job `Fresh Developer Flow`, obrigatório em `workflow_dispatch`, prova a interface pública do repositório em runner efêmero e checkout limpo:
+
+`npm ci` → unit → integration → smoke → visual → E2E completo → coverage → `coverage:verify` → `npm test`.
+
+O run #1624 executou toda essa sequência com `success`, incluindo instalação do Chromium a partir do projeto da raiz. No mesmo run, toda a matriz `Jest Worker Diagnostic`, toda a matriz `Focused Project Leak` e `Background Leak Bisection` passaram e publicaram 18 + 10 + 1 artefatos de diagnóstico, além de cinco blob reports E2E e um relatório de coverage.
+
+O job `Windows Portability` roda em `windows-latest` e cobre instalação limpa, validações estruturais, Jest, smoke, visual, coverage e normalização dos paths LCOV. Isso impede que a arquitetura dependa silenciosamente de separadores POSIX, CRLF/LF ou de um diretório de trabalho específico.
 
 ---
 
@@ -1948,12 +1956,12 @@ Ao preparar uma nova versão:
 2. executar <code>npm run version:sync</code>;
 3. executar <code>npm run version:check</code>.
 
-<code>scripts/sync-version.js</code> deriva e valida:
+<code>scripts/release/sync-version.js</code> deriva e valida:
 
 - <code>extension/manifest.json#version</code>;
-- <code>tests/package.json#version</code>;
-- <code>tests/package-lock.json#version</code>;
-- <code>tests/package-lock.json#packages[""].version</code>.
+- <code>package-lock.json#version</code>;
+- <code>package-lock.json#packages[""].version</code>;
+- a existência da documentação canônica e do workflow de publicação.
 
 Para versões cujo patch é zero, a versão Chromium pode omitir o último zero
 (<code>6.5.0 → 6.5</code>). Quando existe patch, ele é preservado
@@ -2020,6 +2028,22 @@ Fallback antigo precisa ter:
 - cenário de atualização suportado.
 
 Sem isso, deve ser removido junto com testes e documentação.
+
+## 20.10 Invariantes do repositório
+
+A raiz é a única interface de desenvolvimento e manutenção:
+
+- exatamente um `package.json` e um `package-lock.json`, ambos na raiz;
+- uma configuração Jest canônica: `/jest.config.js`;
+- uma configuração Playwright de execução canônica: `/playwright.config.js`;
+- `scripts/ci/playwright-merge.config.js` é somente auxiliar de reporter/merge;
+- tooling geral não volta para `tests/ci/`;
+- testes não criam cópias locais de `findRoot` nem dependem de `process.cwd()`;
+- BAT/PS1 não são a interface oficial;
+- `extension/`, `extension/manifest.json` e `extension/background.js` permanecem entrypoints estáveis;
+- `docs/Documentação.md` é a única documentação do diretório `docs/`.
+
+`scripts/validation/verify-repository-structure.js` transforma essas regras em gate e deve ser atualizado junto com qualquer mudança estrutural deliberada.
 
 ---
 
@@ -2149,11 +2173,134 @@ As mudanças funcionais incluem:
 - E2E sem skipped/flaky/retry recuperado;
 - coverage V8 com thresholds globais e críticos;
 - `CI Gate` agregado e ruleset da `main` alinhado aos checks reais;
-- diagnósticos caros de leak disponíveis somente sob demanda.
+- diagnósticos pesados de leak executados por `workflow_dispatch` e obrigatoriamente em todo push da `main`; em PRs comuns permanecem condicionais para não duplicar custo.
 
-A causa-raiz final do worker leak foi um timer de 4 s do arquivo `_anchor.png` que podia sobreviver ao teardown. O teste `REG-WORKER-4S` e a matriz `tests/ci/regression-matrix.json` tornam esse e os demais incidentes críticos regressões obrigatórias.
+A causa-raiz final do worker leak foi um timer de 4 s do arquivo `_anchor.png` que podia sobreviver ao teardown. O teste `REG-WORKER-4S` e a matriz `scripts/ci/data/regression-matrix.json` tornam esse e os demais incidentes críticos regressões obrigatórias.
 
 O baseline vigente passa a ser 108 suítes / 848 testes Jest, 21 E2E, 224 visuais, 6 smoke e 56 arquivos instrumentados de coverage, com skipped/TODO/flaky iguais a zero.
+
+---
+
+# 22. Arquitetura do repositório e reestruturação PR #65
+
+A reestruturação eliminou a organização em dois projetos npm e transformou a raiz na única interface de desenvolvimento. Não há wrappers de compatibilidade apontando para um projeto antigo em `tests/`.
+
+## 22.1 Diretórios canônicos
+
+- `extension/`: código distribuído da extensão Chromium Manifest V3;
+- `tests/unit/`: Jest unitário;
+- `tests/integration/`: Jest de integração;
+- `tests/smoke/`: smoke tests;
+- `tests/visual/`: testes visuais/perceptuais;
+- `tests/e2e/`: specs Playwright;
+- `tests/fixtures/`: fixtures compartilhadas; `manga-images.js` é a fonte determinística dos PNGs E2E;
+- `tests/setup/`: materialização/preparação de fixtures;
+- `tests/helpers/` e `tests/mocks/`: infraestrutura compartilhada de teste;
+- `scripts/ci/`: runners e dados de CI;
+- `scripts/validation/`: gates e self-tests de infraestrutura;
+- `scripts/maintenance/`: diagnósticos pesados;
+- `scripts/release/`: versionamento/release;
+- `docs/Documentação.md`: documentação única.
+
+## 22.2 Fase 0 concluída
+
+Os blocos lógicos 0-A…0-G estão concluídos:
+
+| Bloco | Resultado |
+|---|---|
+| 0-A | higiene da raiz, outputs/caches ignorados e documentos soltos removidos |
+| 0-B | documentação consolidada em um único arquivo canônico |
+| 0-C | tooling de `tests/ci/` migrado para `scripts/ci`, `scripts/validation` e `scripts/maintenance` |
+| 0-D | `tests/visual-v3/` migrado para `tests/visual/` |
+| 0-E | fixtures E2E centralizadas em `tests/fixtures/` e geração em `tests/setup/` |
+| 0-F | versionamento movido para `scripts/release/sync-version.js`, usando o npm da raiz |
+| 0-G | layout interno da extensão organizado em `content/`, `shared/`, `popup/`, `options/` e `reader/`, sem mover Manifest/background |
+
+A conclusão da Fase 0 é definida pelo estado estrutural e pelos gates. O histórico antigo não foi reescrito artificialmente para produzir exatamente um commit por subbloco.
+
+## 22.3 Antes e depois
+
+| Métrica | Antes | Estado consolidado |
+|---|---:|---:|
+| `package.json` funcionais | 2 | **1** |
+| `package-lock.json` | 1 em `tests/` | **1 na raiz** |
+| configs Jest | 3 | **1** |
+| configs Playwright de execução | 2 | **1** |
+| BAT/PS1 | 12 | **0** |
+| jobs com `working-directory: tests` | 9 | **0** |
+| finders locais de raiz | ≥30 | **0** |
+| tooling em `tests/ci/` | 22 itens | **0** |
+| documentos em `docs/` | múltiplos + histórico | **1 canônico** |
+
+A configuração `scripts/ci/playwright-merge.config.js` não conta como segunda configuração de execução: o gate estrutural proíbe nela `testDir`, `outputDir`, workers, retries, projects, webServer e launchOptions.
+
+## 22.4 Gates estruturais e política de testes
+
+O gate estrutural reprova, entre outros:
+
+- segundo projeto npm/lockfile;
+- `tests/ci/`, `tests/visual-v3/` e fixtures antigas dentro de `tests/e2e/`;
+- `working-directory: tests`, `cd tests` e `npm --prefix tests`;
+- BAT/PS1;
+- paths planos antigos da extensão;
+- `findRoot` duplicado ou fallback em `process.cwd()` nos testes;
+- divergência entre Manifest, background, páginas internas e o layout canônico.
+
+A política de testes também bloqueia `.skip`, `.only`, `test.todo`, `--forceExit`, `--passWithNoTests` e mascaramento de comandos de teste com `|| true`. Self-tests negativos provam que os validadores realmente ficam vermelhos quando seus contratos são enfraquecidos.
+
+## 22.5 Release e versão
+
+`package.json#version` é a fonte manual única. `scripts/release/sync-version.js` sincroniza/valida Manifest, lockfile e metadados derivados; `--print-env` expõe `PACKAGE_VERSION`, `MANIFEST_VERSION`, `DISPLAY_VERSION`, `RELEASE_TAG`, `RELEASE_BASENAME` e `DOC_ARTIFACT`.
+
+O workflow de publicação empacota apenas `extension/` e esta documentação. Nenhuma documentação histórica participa da descoberta ou do release.
+
+## 22.6 Evidência final do PR #65
+
+O `workflow_dispatch` #1624, no HEAD `28dac01698db36d06c5b9d5aebee0240f0f1cde7`, concluiu com `success`:
+
+- 46 jobs no workflow, sem falha obrigatória;
+- `CI Gate`: success;
+- Fresh Developer Flow completo: success;
+- Node 20/22: success;
+- Windows Portability: success;
+- 109 suítes / 851 testes Jest observados;
+- 224/224 visuais;
+- 6 smoke;
+- 21/21 E2E, cinco grupos, 0 skipped e 0 flaky;
+- 56 arquivos de coverage;
+- todos os diagnósticos de worker/leak e bisection: success;
+- 35 artefatos publicados no run: 18 diagnósticos Jest, 10 focused-project, 1 bisection, 5 blobs E2E e 1 coverage.
+
+A branch validada estava 38 commits à frente e 0 atrás da `main` antes dos commits documentais finais. Nenhum merge automático faz parte deste registro.
+
+---
+
+# 23. Consolidação das documentações anteriores
+
+Em 29/09/2026 todos os documentos separados de `docs/` foram auditados. A política resultante é **uma documentação canônica**. O conteúdo útil foi incorporado às seções correspondentes deste arquivo; arquivos de planejamento, histórico e benchmark deixam de existir como fontes paralelas.
+
+| Documento anterior | Conteúdo válido preservado | Conteúdo descartado |
+|---|---|---|
+| `ARQUITETURA_DO_REPOSITORIO.md` | raiz npm única, diretórios canônicos, gates, Fase 0, Windows/Fresh Developer Flow | duplicação da documentação arquitetural |
+| `CHECKLIST_REESTRUTURACAO_PR65.md` | estado final, run #1624, métricas e conclusão da Fase 0 | checklist incremental por commit |
+| `PLANO_REESTRUTURACAO.md` | mapa 0-A…0-G, decisões estruturais, antes/depois e acoplamentos resolvidos | plano de migração já executado |
+| `MELHORIAS_EXTRACAO_E_PRAZO.md` | ordem canvas → SW autenticado → página, watchdog 5 min, eventos e evidência manual | instruções de revisão/PR e paths antigos |
+| `QUARENTENA_DE_IMAGEM.md` | classificação estrutural, SHA-256 exato, eventos e cobertura | documento separado |
+| `historico/COBERTURA_TESTES_REVISAO_2.md` | princípio de cobrir regressões reais sem reduzir gates | contagens e execução intermediárias |
+| `historico/DOCUMENTACAO_VERSAO_FUNCIONAL.md` | contratos funcionais aprovados dos modos Gemini, extração e prazos | orientação baseada no estado anterior à consolidação |
+| `historico/DOCUMENTACAO_v5.1.1_ATUALIZACAO.md` | fundamentos ainda vigentes de persistência, jobs, GTC, IPC e MV3 | paths, baselines, incidentes e instruções v5.x |
+| `historico/E2E_5_SHARDS_PR48.md` | cinco grupos explícitos 1/3/4/4/9 e união exata | tempos antigos; o JSON atual é a fonte de verdade |
+| `historico/PLANO_CORRECAO_PENDENCIAS_PR47.md` | causa-raiz do worker leak e necessidade de gates bloqueantes | etapas de investigação já encerradas |
+| `historico/PLANO_FINALIZACAO_PENDENCIAS_PR47.md` | metodologia de isolamento que originou os diagnósticos atuais | hipóteses H1–H6 e passos temporários já resolvidos |
+| `historico/PR48_TEMP_BENCHMARK_RESULTS.md` | decisão de não enfraquecer assertions/gates ao otimizar E2E | benchmarks temporários superados |
+| `historico/README.md` | distinção entre histórico e estado atual | índice histórico separado, agora desnecessário |
+| `historico/REGRESSOES_PR47.md` | matriz de regressões, timer de 4 s, worker gate e política pós-merge | paths/contagens intermediários |
+| `historico/VALIDACAO_REVISAO_2.json` | snapshot manual de 21 traduções e rotas de extração | arquivo de evidência separado |
+| `historico/VERIFICACAO_COMPLETA_POS_MERGE.md` | diagnósticos bloqueantes em push da main e concurrency sem cancelamento | documento separado |
+| `historico/projeto.md` | motivação para shards explícitos e otimização sem perda de cobertura | roadmap/tempos antigos de performance |
+| `historico/status.md` | contratos finais da refatoração Gemini RPA V2 | rastreador de PRs e runs antigos |
+
+A partir desta consolidação, novos fatos arquiteturais, operacionais ou de manutenção devem ser adicionados **neste arquivo**, substituindo o texto anterior quando o contrato mudar. Não criar um novo “plano”, “status”, “atualização de versão” ou “documentação complementar” para descrever o estado vigente.
 
 ---
 
@@ -2277,23 +2424,23 @@ Cancela lote alvo.
 
 ## A.3 Página de mangá
 
-### cm-gtc-client.js
+### content/cm-gtc-client.js
 
 Cliente de cache/fingerprint.
 
-### cm-dom-replace.js
+### content/cm-dom-replace.js
 
 Descoberta e substituição de imagem.
 
-### cm-chapter.js
+### content/cm-chapter.js
 
 Persistência e identidade de capítulo.
 
-### cm-auto-restore.js
+### content/cm-auto-restore.js
 
 Restauração automática.
 
-### content_manga.js
+### content/content_manga.js
 
 Orquestrador e integração com UI/runtime.
 
@@ -2303,44 +2450,44 @@ Orquestrador e integração com UI/runtime.
 
 Script MAIN de anti-throttling progressivo e pontes com a página.
 
-### content_gemini.js
+### content/content_gemini.js
 
 Bootstrap leve: claim, keep-alive, wiring e handlers.
 
-### gemini/
+### content/gemini/
 
 Módulos de seletores/DOM, Observer V3, editor, Temporary Chat, attachment,
 extração de resultado, deletion/recovery e Job Runner.
 
 ## A.5 Persistência
 
-### storage-manager.js
+### shared/storage-manager.js
 
 Banco de páginas, restore e assets.
 
-### gtc-fingerprint.js
+### shared/gtc-fingerprint.js
 
 Algoritmos de fingerprint.
 
-### gtc-indexeddb.js
+### shared/gtc-indexeddb.js
 
 Repositório e handler do cache global.
 
 ## A.6 UI
 
-### popup.js
+### popup/popup.js
 
 Interface principal.
 
-### options.js
+### options/options.js
 
 Configuração completa.
 
-### shared-ui.js
+### shared/shared-ui.js
 
 Funções compartilhadas.
 
-### reader.js
+### reader/reader.js
 
 Leitor offline/lazy.
 
@@ -2543,15 +2690,13 @@ Foi retirado do caminho principal:
 - rótulos v4.0/v5.1 usados como identificação atual de arquivos;
 - inconsistência de versão entre tests/package.json e tests/package-lock.json.
 
-O histórico antigo pode continuar consultado no arquivo v5.1.1, mas novas
-mudanças devem ser documentadas aqui ou em documento posterior que substitua
-explicitamente este arquivo como fonte canônica.
+Os documentos antigos foram removidos após a consolidação. Os contratos ainda válidos foram incorporados a este arquivo; conteúdo obsoleto permanece apenas no histórico Git, não como documentação ativa. Toda mudança futura deve atualizar esta fonte canônica em vez de criar uma documentação paralela.
 
 ---
 
 ## Encerramento
 
-Esta documentação consolida a arquitetura modularizada e estabilizada do PR 13 e o marco v6.5:
+Esta documentação consolida a arquitetura modularizada, o marco v6.5, o hardening do PR #47, os cinco shards do PR #48 e a reestruturação final do PR #65:
 
 - Service Worker MV3 com estado durável;
 - lifecycle separado;

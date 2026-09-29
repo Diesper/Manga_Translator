@@ -8,6 +8,8 @@ concurrency:
 
 on:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -24,6 +26,8 @@ jobs:
           node-version: 20.x
       - name: Verificar fonte única de versão
         run: npm run version:check
+      - name: Validar metadados derivados da release
+        run: node scripts/release/sync-version.js --print-env
 
   syntax-check:
     name: JS Syntax Check
@@ -35,19 +39,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Verificar sintaxe de todos os arquivos JS da extensão
-        run: |
-          echo "Verificando sintaxe dos arquivos da extensão..."
-          node --check scripts/sync-version.js
-          find extension -name "*.js" -type f | sort | while read f; do
-            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
-          done
-      - name: Verificar sintaxe dos arquivos de teste e CI
-        run: |
-          echo "Verificando sintaxe dos testes..."
-          find tests -type f -name "*.js" | sort | while read f; do
-            node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
-          done
+      - name: Verificar sintaxe JavaScript
+        run: npm run lint
 
   manifest-validation:
     name: Manifest Validation
@@ -55,20 +48,12 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
       - name: Validar manifest.json
-        run: |
-          node -e "
-            const fs = require('fs');
-            const manifest = JSON.parse(fs.readFileSync('extension/manifest.json', 'utf8'));
-            const required = ['manifest_version', 'name', 'version', 'permissions'];
-            required.forEach(field => {
-              if (!manifest[field]) { console.error('Falta campo: ' + field); process.exit(1); }
-            });
-            if (manifest.manifest_version !== 3) {
-              console.error('manifest_version deve ser 3'); process.exit(1);
-            }
-            console.log('✅ manifest.json válido:', manifest.name, 'v' + manifest.version);
-          "
+        run: npm run validate:manifest
 
   ci-contract:
     name: CI Contract
@@ -80,21 +65,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - name: Validar estrutura canônica do repositório
+        run: node scripts/validation/verify-repository-structure.js
       - name: Validar contrato da própria CI
-        run: node tests/ci/verify-ci-contract.js
+        run: node scripts/validation/verify-ci-contract.js
+      - name: Validar política anti-skip/escape-hatch
+        run: npm run validate:test-policy
+      - name: Provar que a política anti-skip rejeita violações
+        run: npm run test:test-policy:infra
+      - name: Validar contrato de publicação
+        run: npm run validate:publish
+      - name: Provar que o contrato da CI rejeita enfraquecimento
+        run: npm run test:ci-contract:infra
       - name: Testar verificador de coverage
-        run: node tests/ci/verify-coverage-selftest.js
+        run: node scripts/validation/verify-coverage-selftest.js
       - name: Testar gate E2E contra retries/flaky
-        run: node tests/ci/playwright-gate-reporter-selftest.js
+        run: node scripts/validation/playwright-gate-reporter-selftest.js
       - name: Testar detecção de worker Jest forçado
-        run: node tests/ci/verify-jest-worker-warning-selftest.js
+        run: node scripts/validation/verify-jest-worker-warning-selftest.js
 
   smoke:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -103,7 +95,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Rodar testes de fumaça
@@ -112,9 +104,6 @@ jobs:
   visual:
     name: Visual Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -123,11 +112,11 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Rodar testes visuais perceptuais
-        run: npm run test:visual-v3
+        run: npm run test:visual
 
   unit-and-integration:
     name: Unit + Integration (${{ matrix.node-version }})
@@ -136,9 +125,6 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -147,7 +133,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Rodar Jest com verificação de inventário
@@ -156,9 +142,6 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -167,7 +150,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Gerar coverage com Jest/V8
@@ -194,7 +177,7 @@ jobs:
         continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./tests/coverage/lcov.info
+          files: ./coverage/lcov.info
           flags: unittests
           name: manga-translator-coverage
           fail_ci_if_error: true
@@ -207,7 +190,7 @@ jobs:
         continue-on-error: true
         with:
           name: coverage-report-${{ github.sha }}
-          path: tests/coverage/
+          path: coverage/
           retention-days: 30
 
   e2e-shard:
@@ -217,9 +200,6 @@ jobs:
       fail-fast: false
       matrix:
         group: [fifo, attachment, medium-a, medium-b, fast]
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -228,13 +208,11 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Instalar Chromium sem headless shell redundante
         run: npx playwright install chromium --with-deps --no-shell
-      - name: Criar imagens de teste
-        run: npm run test:images
       - name: Rodar grupo E2E ${{ matrix.group }}
         run: xvfb-run --auto-servernum -- npm run test:e2e:group -- "${{ matrix.group }}"
         env:
@@ -246,7 +224,7 @@ jobs:
         if: ${{ always() && !cancelled() }}
         with:
           name: blob-report-${{ matrix.group }}-${{ github.sha }}
-          path: tests/blob-report/
+          path: blob-report/
           retention-days: 1
           if-no-files-found: warn
       - name: Upload artefatos de falha do shard
@@ -255,7 +233,7 @@ jobs:
         continue-on-error: true
         with:
           name: playwright-failure-shard-${{ matrix.group }}-${{ github.sha }}
-          path: tests/test-results/
+          path: test-results/
           retention-days: 7
           if-no-files-found: ignore
 
@@ -266,9 +244,6 @@ jobs:
     needs:
       - e2e-shard
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -277,7 +252,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências para merge dos relatórios
         run: npm ci
       - name: Verificar cobertura exata do plano de 5 shards
@@ -285,7 +260,7 @@ jobs:
       - name: Baixar blob reports dos shards
         uses: actions/download-artifact@v4
         with:
-          path: tests/all-blob-reports
+          path: all-blob-reports
           pattern: blob-report-*-${{ github.sha }}
           merge-multiple: true
       - name: Conferir inventário de blobs
@@ -294,7 +269,7 @@ jobs:
           find all-blob-reports -maxdepth 1 -type f -name '*.zip' -print
           test "$(find all-blob-reports -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 5
       - name: Mesclar shards e aplicar gate global E2E
-        run: npx playwright merge-reports --config=ci/playwright-merge.config.js ./all-blob-reports
+        run: npx playwright merge-reports --config=scripts/ci/playwright-merge.config.js ./all-blob-reports
         env:
           CI: true
 
@@ -325,9 +300,6 @@ jobs:
           - combo-background-content
           - combo-background-integration
           - combo-background-jsdom
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -336,7 +308,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Executar diagnóstico ${{ matrix.case }}
@@ -348,9 +320,9 @@ jobs:
         with:
           name: jest-worker-diagnostic-${{ matrix.case }}-${{ github.sha }}
           path: |
-            tests/.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+            .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
 
@@ -373,9 +345,6 @@ jobs:
           - combo-background-content
           - combo-background-integration
           - combo-background-jsdom
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -384,7 +353,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Executar ${{ matrix.case }}
@@ -396,9 +365,9 @@ jobs:
         with:
           name: focused-project-leak-${{ matrix.case }}-${{ github.sha }}
           path: |
-            tests/.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+            .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
 
@@ -406,9 +375,6 @@ jobs:
     name: Background Leak Bisection
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -417,7 +383,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Reduzir conjunto de testes de background que mantém worker vivo
@@ -434,9 +400,76 @@ jobs:
         with:
           name: background-leak-bisection-${{ github.sha }}
           path: |
-            tests/.ci-results/background-leak-diagnostic.json
-            tests/.ci-results/background-leak-diagnostic/
+            .ci-results/background-leak-diagnostic.json
+            .ci-results/background-leak-diagnostic/
           retention-days: 7
+
+
+  windows-portability:
+    name: Windows Portability
+    runs-on: windows-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Instalar dependências
+        run: npm ci
+      - name: Validar contratos e paths
+        run: npm run validate
+      - name: Jest completo
+        run: npm run test:ci
+      - name: Smoke
+        run: npm run test:smoke
+      - name: Visual
+        run: npm run test:visual
+      - name: Coverage
+        run: npm run test:coverage
+      - name: Verificar coverage e normalização de paths
+        run: npm run test:coverage:verify
+
+
+  fresh-developer-flow:
+    name: Fresh Developer Flow
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout limpo
+        uses: actions/checkout@v4
+        with:
+          clean: true
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Instalar dependências a partir da raiz
+        run: npm ci
+      - name: Instalar Chromium para o fluxo E2E
+        run: npx playwright install chromium --with-deps --no-shell
+      - name: Testes unitários
+        run: npm run test:unit
+      - name: Testes de integração
+        run: npm run test:integration
+      - name: Smoke
+        run: npm run test:smoke
+      - name: Visual
+        run: npm run test:visual
+      - name: E2E completo
+        run: xvfb-run --auto-servernum -- npm run test:e2e
+        env:
+          CI: true
+      - name: Coverage
+        run: npm run test:coverage
+      - name: Verificar integridade do coverage
+        run: npm run test:coverage:verify
+      - name: Entry point oficial npm test
+        run: npm test
 
 
   ci-gate:
@@ -461,6 +494,8 @@ jobs:
       - jest-worker-diagnostic
       - focused-project-leak-diagnostic
       - background-leak-bisection
+      - windows-portability
+      - fresh-developer-flow
     steps:
       - name: Exigir execução e sucesso de todos os gates
         env:
@@ -478,6 +513,8 @@ jobs:
           JEST_WORKER_DIAGNOSTIC: ${{ needs.jest-worker-diagnostic.result }}
           FOCUSED_PROJECT_LEAK: ${{ needs.focused-project-leak-diagnostic.result }}
           BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
+          WINDOWS_PORTABILITY: ${{ needs.windows-portability.result }}
+          FRESH_DEVELOPER_FLOW: ${{ needs.fresh-developer-flow.result }}
         run: |
           failed=0
           check() {
@@ -500,6 +537,7 @@ jobs:
           check "Code Coverage" "$COVERAGE"
           check "E2E Shards" "$E2E_SHARDS"
           check "E2E Tests" "$E2E"
+          check "Windows Portability" "$WINDOWS_PORTABILITY"
 
           if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
             echo "🔒 Verificação completa pós-merge/manual: diagnósticos pesados são obrigatórios."
@@ -508,6 +546,13 @@ jobs:
             check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"
           else
             echo "ℹ️ Diagnósticos pesados não são obrigatórios neste evento; serão obrigatórios em push para main."
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "🔒 workflow_dispatch: fluxo completo de desenvolvedor novo é obrigatório."
+            check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"
+          else
+            echo "ℹ️ Fresh Developer Flow é exercitado no workflow_dispatch pré-revisão."
           fi
 
           exit "$failed"
