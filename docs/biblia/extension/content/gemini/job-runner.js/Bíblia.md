@@ -105,7 +105,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-00 cria o runner real com combinações de dependências e as demais suítes injetam mocks reais nos pontos de fronteira.
 
-### Linhas 0039–0049
+### Linhas 0039–0050
 
 **O que faz.** Rejeita três classes de dependências ausentes e inicializa `activeObserver` como estado por instância.
 
@@ -113,7 +113,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-00 cobre os três grupos de validação.
 
-### Linhas 0051–0055
+### Linhas 0051–0056
 
 **O que faz.** Mapeia `minimized_window` e `background_delete` para anti-throttle `balanced`; demais modos usam `minimal`.
 
@@ -121,7 +121,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-06.
 
-### Linhas 0057–0073
+### Linhas 0057–0074
 
 **O que faz.** Normaliza `minimal|balanced|legacy`, publica `MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE` via `CustomEvent` e degrada graciosamente sem dispatcher.
 
@@ -129,7 +129,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-07 e RUN-07A verificam normalização, eventos e ausência de dispatcher.
 
-### Linhas 0075–0083
+### Linhas 0075–0084
 
 **O que faz.** Adapta `chrome.storage.local.get` callback para Promise e devolve `{}` em exceção síncrona.
 
@@ -137,7 +137,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — há uso indireto; falta teste do caminho de exceção e de `lastError`.
 
-### Linhas 0085–0099
+### Linhas 0085–0100
 
 **O que faz.** Localiza o composer editável vivo atravessando DOM profundo, filtra elementos invisíveis/desabilitados e exclui contenteditables dentro de mensagens já renderizadas.
 
@@ -145,7 +145,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — os fluxos RPA exercitam seleção; não há teste unitário isolado de todas as exclusões.
 
-### Linhas 0101–0118
+### Linhas 0101–0119
 
 **O que faz.** Espera estabilidade do par editor/composer por pelo menos 750 ms e nunca aceita antes de 1,5 s; consulta a cada 250 ms e falha com `GEMINI_COMPOSER_NOT_READY`.
 
@@ -153,7 +153,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — a busca estável participa do RPA, mas o timeout/código `GEMINI_COMPOSER_NOT_READY` não aparece em teste.
 
-### Linhas 0120–0130
+### Linhas 0120–0131
 
 **O que faz.** Captura telemetria de contexto do anexo: conectividade, tag do composer, quantidade de inputs e evidências de preview.
 
@@ -161,7 +161,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — logs são produzidos nos testes de attachment gate; os campos do snapshot não têm assertions individuais.
 
-### Linhas 0132–0153
+### Linhas 0132–0154
 
 **O que faz.** Valida data URL, extrai MIME, decodifica Base64, converte bytes para `Uint8Array` e cria `File`.
 
@@ -169,7 +169,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-01 e RUN-01B cobrem sucesso, formato inválido e APIs ausentes.
 
-### Linhas 0155–0172
+### Linhas 0155–0173
 
 **O que faz.** Implementa `queryAllDeep`: prefere `domApi.findAllDeep`, filtra apenas elementos que suportam `matches`, tolera seletor inválido e cai para `querySelectorAll`.
 
@@ -177,7 +177,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — múltiplos fluxos reais dependem dele; exceções e fallback não recebem assertions dedicadas.
 
-### Linhas 0174–0177
+### Linhas 0174–0178
 
 **O que faz.** `queryFirstDeep` reutiliza `queryAllDeep` e retorna primeiro match ou `null`.
 
@@ -185,7 +185,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE.
 
-### Linhas 0179–0189
+### Linhas 0179–0190
 
 **O que faz.** Coleta `shadowRoot` abertos de elementos encontrados por `findAllDeep`, removendo falsy e tolerando erro.
 
@@ -193,7 +193,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE no efeito — RUN-04B insere editor dentro de Shadow DOM e espera resolução; o `catch` isolado não é provado.
 
-### Linhas 0191–0244
+### Linhas 0191–0245
 
 **O que faz.** `waitForElement` resolve imediatamente se já existe; senão cria `MutationObserver`, observa root e shadow roots, acompanha novos roots, usa timeout e garante `finish` idempotente com cancelamento/desconexão.
 
@@ -201,7 +201,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-04 e RUN-04B; ⚠️ o caso 'MutationObserver ausente' não tem assertion específica.
 
-### Linhas 0246–0256
+### Linhas 0246–0257
 
 **O que faz.** Delegadores para `domApi.getImageSource`, `isIgnoredGeminiImageSource` e `isModelResponseImage`.
 
@@ -209,7 +209,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE.
 
-### Linhas 0258–0281
+### Linhas 0258–0282
 
 **O que faz.** Tenta clicar, em ordem, cartões/botões/imagens de resposta do modelo; sobe para elemento clicável e continua se um clique lança.
 
@@ -217,7 +217,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-COV-01 e RUN-COV-02.
 
-### Linhas 0283–0318
+### Linhas 0283–0319
 
 **O que faz.** Classifica imagem como provável resultado: bloqueia input estrutural, sources ignoradas/preexistentes; aceita autoria explícita, padrões conhecidos de URL/blob e, como fallback, dimensões mínimas/área.
 
@@ -225,7 +225,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-09 bloqueia preview; plan-rpa cobre preexistente/avatar/pequena e aceita 60x1024; E2E ownership valida clone/órfã/resultado.
 
-### Linhas 0320–0327
+### Linhas 0320–0328
 
 **O que faz.** Critério manual é mais permissivo que o automático, mas ainda recusa input estrutural, source ignorada e imagem sem dimensões mínimas.
 
@@ -233,7 +233,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-09 e caso do painel manual em `plan-rpa-edge-cases.test.js`.
 
-### Linhas 0329–0344
+### Linhas 0329–0345
 
 **O que faz.** Enumera todas as IMG profundas, força lazy images para eager, promove `data-src` e filtra por `isLikelyGeneratedImage`.
 
@@ -241,7 +241,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — painel 'Usar última' e fluxos RPA exercitam; não há assertion sobre `loading=eager`.
 
-### Linhas 0346–0365
+### Linhas 0346–0366
 
 **O que faz.** Registra URL manual no window, entrega ao observer ativo, atualiza HUD e emite log sanitizado via `getUrlLogMetadata`.
 
@@ -249,7 +249,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-05; `rpa-flow` também verifica redaction de URL em logs de resultado.
 
-### Linhas 0367–0385
+### Linhas 0367–0386
 
 **O que faz.** Remove painel, listener de captura e outlines/data attributes de imagens marcadas.
 
@@ -257,7 +257,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — cleanup ocorre no `finally`; não há assertion completa de todos os resíduos.
 
-### Linhas 0387–0508
+### Linhas 0387–0509
 
 **O que faz.** Cria HUD manual, registra qualquer uso como erro grave de automação, oferece 'Usar última' e modo de seleção por clique com `composedPath`, marca candidatas e remove listener/outlines após escolha.
 
@@ -265,7 +265,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-07B verifica logs de intervenção; `plan-rpa-edge-cases` verifica seleção manual e entrega do resultado.
 
-### Linhas 0510–0595
+### Linhas 0510–0596
 
 **O que faz.** Injeta prompt no editor: foca nós, tenta API Quill, substitui filhos DOM, dispara `beforeinput/input/change`, espelha `value` quando aplicável e retorna se texto final tem tamanho mínimo.
 
@@ -273,7 +273,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — muitos fluxos confirmam `PROMPT_INJECTED`/submit, mas `setPromptInEditor` não possui teste unitário direto; a ordem 'mutação antes de beforeinput' é compatibilidade frágil.
 
-### Linhas 0597–0607
+### Linhas 0597–0608
 
 **O que faz.** Preserva conversa somente para erro em `background_delete` quando `debugMode` está true.
 
@@ -281,7 +281,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — `safe-background-delete.test.js` chama a função exportada com debug true/false.
 
-### Linhas 0609–0620
+### Linhas 0609–0621
 
 **O que faz.** Wrapper resiliente de `runtime.sendMessage` que retorna resposta ou `null` em `lastError`/exceção.
 
@@ -289,7 +289,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE; faltam assertions isoladas para exceção e `lastError`.
 
-### Linhas 0622–0633
+### Linhas 0622–0634
 
 **O que faz.** Solicita `REQUEST_IMAGE_DATA` até 5 vezes, aguardando 1 s entre falhas; retorna assim que houver `srcData` ou `null` após esgotar tentativas.
 
@@ -297,7 +297,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — falhas de payload são cobertas; não há teste específico contando cinco tentativas sem resposta.
 
-### Linhas 0635–0654
+### Linhas 0635–0655
 
 **O que faz.** `assertStage` transforma invariantes de etapas em logs `TEST_FAIL_STEP_n` + exceção ou `TEST_PASS_STEP_n`.
 
@@ -305,7 +305,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — RPA cobre falhas e sucessos de etapas, mas não cada log de cada step.
 
-### Linhas 0656–0670
+### Linhas 0656–0671
 
 **O que faz.** Entrada `run`: exige job, reseta anti-throttle para minimal, obtém geminiTabId, tenta recuperação de deleção pendente antes de abrir keepalive e encerra cedo se recovery foi tratado.
 
@@ -321,7 +321,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE parcialmente — RUN-03 verifica open/close; conteúdo exato do debug log não é assertado.
 
-### Linhas 0680–0704
+### Linhas 0680–0705
 
 **O que faz.** Cria scroll assist a cada 2 s para manter UI recente/imagens em viewport e `stopScrollAssist` idempotente.
 
@@ -329,7 +329,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE no cleanup — REG-12/CG-19/CG-40 verifica `clearInterval`; detalhes de scroll não têm assertion.
 
-### Linhas 0706–0740
+### Linhas 0706–0741
 
 **O que faz.** `deliverWithSecureDeletion` diferencia modos: em temp_chat pode apagar fire-and-forget e entregar; em background/minimized pode preservar erro em debug ou exigir `deleteOrScheduleRecovery` antes da entrega final.
 
@@ -337,7 +337,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — safe-delete/deletion e fluxos de erro cobrem partes; falta teste unitário deste helper para todas as combinações.
 
-### Linhas 0742–0757
+### Linhas 0742–0758
 
 **O que faz.** Segundo wrapper de runtime preserva razão de falha em objeto `{ok:false, reason}` em vez de `null`.
 
@@ -345,7 +345,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE.
 
-### Linhas 0759–0808
+### Linhas 0759–0809
 
 **O que faz.** `stageAndCommitResult` exige ACK de staging/persistência, depois envia `GEMINI_RESULT_COMMIT` até 3 vezes sem reenviar imagem; falha com códigos distintos e loga staging/commit.
 
@@ -353,7 +353,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-12 prova ordem e ausência de deleção antes do commit; RUN-13 bloqueia commit quando staging falha; RUN-14 prova 3 commits e apenas 1 staging. ⚠️ `RESULT_COMMIT_FAILED` após as 3 falhas não tem assertion específica.
 
-### Linhas 0810–0850
+### Linhas 0810–0851
 
 **O que faz.** Inicia scroll assist; solicita imagem, valida presença e prefixo `data:image/`, salva em `job.srcData`, tenta SHA-256 exato via quarentena e degrada para filtro estrutural se hash falhar.
 
@@ -361,7 +361,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE/INDIRETAMENTE — CG-16 e CG-17 cobrem falta/payload inválido; RUN-10/11 cobrem comparação final; caminho de falha inicial do hash só é logado, sem teste dedicado.
 
-### Linhas 0852–0865
+### Linhas 0852–0866
 
 **O que faz.** Espera editor por até 20 s e rejeita editor ausente/desabilitado.
 
@@ -369,7 +369,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — REG-12/CG-19/CG-40 cobre editor desabilitado e cleanup; waitForElement tem RUN-04/04B.
 
-### Linhas 0867–0887
+### Linhas 0867–0888
 
 **O que faz.** Tenta focar editor/janela com eventos compatíveis; carrega `geminiExecutionMode` do storage quando job não traz; escolhe anti-throttle estável.
 
@@ -377,7 +377,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE — modos são exercitados em unit/E2E; sequência exata de focus não é assertada.
 
-### Linhas 0889–0951
+### Linhas 0889–0952
 
 **O que faz.** Para `temp_chat`, chama `temporaryChatApi.ensureActive`, traduz estados em flags, loga status, espera 1,5 s após ativação/already-active e transforma falha de verificação/exceção em warning em vez de abortar.
 
@@ -393,7 +393,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** 🟨 EXECUTADO INDIRETAMENTE; timeout de estabilidade é lacuna específica.
 
-### Linhas 0961–1003
+### Linhas 0961–1004
 
 **O que faz.** Executa `attachmentApi.attachFile` com alvos renováveis, timeout 20 s, retry 3,5 s, máximo 3 dispatches; gera telemetria e bloqueia completamente prompt/submit se `confirmed` for falso.
 
@@ -401,7 +401,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — CG-21 e E2E `REG attachment gate` verificam STARTED→REJECTED→SUBMIT_BLOCKED e ausência de prompt/submit; caso de sucesso verifica ATTACHMENT_CONFIRMED.
 
-### Linhas 1005–1022
+### Linhas 1005–1023
 
 **O que faz.** Escolhe prompt do job ou fallback em português; fallback vazio gera log de erro sem expor o texto completo.
 
@@ -409,7 +409,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — CG-25 verifica fallback e que o log expõe só `fallbackLength`.
 
-### Linhas 1024–1056
+### Linhas 1024–1057
 
 **O que faz.** Re-resolve editor/editable vivo, emite `MANGA_TRANSLATOR_SET_PROMPT`, injeta prompt, valida comprimento >=5 e loga somente `promptLen`.
 
@@ -417,7 +417,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE no efeito — RPA confirma prompt/submit e redaction; ⚠️ retorno booleano de `setPromptInEditor` é ignorado e não testado isoladamente.
 
-### Linhas 1058–1120
+### Linhas 1058–1121
 
 **O que faz.** Congela `ignoreImages` antes do submit, cria observer real antes de enviar, atualiza HUD/logs de candidato e no primeiro `generation_started` solicita uma única renovação de watchdog.
 
@@ -425,7 +425,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-08 verifica uma única renovação e ACK; E2E resposta rápida prova que resultado imediato não se perde; ownership E2E cobre aceitação/rejeição.
 
-### Linhas 1122–1203
+### Linhas 1122–1204
 
 **O que faz.** Publica observer global da instância, chama `editorApi.submitWithConfirmation` com até 2 tentativas, troca para anti-throttle legacy só no retry, oferece fallback MAIN-world e converte ausência de confirmação em erro específico; restaura modo estável após sucesso.
 
@@ -433,7 +433,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — `rpa-flow` CG-30/39 verifica fallback MAIN-world; E2E `submit ignorado` exige `GEMINI_SUBMISSION_NOT_CONFIRMED` em tempo curto; editor-submit testa colaborador.
 
-### Linhas 1205–1230
+### Linhas 1205–1231
 
 **O que faz.** Mostra progresso, cria HUD manual, calcula quando conversa deve ser removida, escolhe timeout configurável (default 4 min) e inicia ticker de progresso de 5 s.
 
@@ -441,7 +441,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE no timeout — CG-36 injeta 80 ms e obtém `result_timeout`; ⚠️ contador/ticker em si não tem assertion.
 
-### Linhas 1232–1280
+### Linhas 1232–1281
 
 **O que faz.** Espera resultado no observer; traduz `GEMINI_UI_ERROR` e `GEMINI_RESULT_TIMEOUT` em entrega de erro com eventual deleção segura e sempre limpa o progress timer.
 
@@ -449,7 +449,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — CG-27/35 e CG-36. Achado: a mensagem enviada no timeout diz literalmente `Tempo limite (4 min)` mesmo quando timeout configurado é diferente.
 
-### Linhas 1282–1307
+### Linhas 1282–1308
 
 **O que faz.** Valida esquema do resultUrl (`http|blob|data:image`), loga metadados sanitizados e eleva URLs Google `=sN` para `=s0`.
 
@@ -457,7 +457,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — `resolution-elevation.test.js` valida `=s1024/=s512 → =s0` e uso no fluxo; RPA cobre URLs HTTP/blob.
 
-### Linhas 1309–1341
+### Linhas 1309–1342
 
 **O que faz.** Delegação ao `resultExtractor.extractOrAuxiliaryFallback`; no fallback registra `GEMINI_RESULT_URL` e exige ACK `extractionRegistered` antes de considerar a aba auxiliar responsável.
 
@@ -465,7 +465,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE no sucesso — CG-30/39 verifica `GEMINI_RESULT_URL`; ⚠️ `AUXILIARY_REGISTRATION_FAILED` não possui teste específico.
 
-### Linhas 1343–1381
+### Linhas 1343–1382
 
 **O que faz.** Para resultado extraído em data URL, executa quarentena final comparando elemento/bytes/hash do input; bloqueia match exato, tolera falha de hashing não conclusiva e só então faz staging+commit.
 
@@ -481,7 +481,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE — RUN-03 e RUN-10/13 verificam status/código e mensagem `GEMINI_ERROR`; várias integrações exercitam.
 
-### Linhas 1411–1441
+### Linhas 1411–1443
 
 **O que faz.** `finally` restaura anti-throttle mínimo, para observer, remove referência global, scroll/ticker externo, keepalive, HUD, listener manual e outlines restantes.
 
@@ -489,7 +489,7 @@ As faixas abaixo são contíguas, cobrem **0001–1472 sem lacunas** e tratam bl
 
 **Evidência de teste.** ✅ PROVADO DIRETAMENTE parcialmente — RUN-03 verifica closeKeepAlive; REG-12 verifica clearInterval. ⚠️ não há uma assertion única cobrindo todos os resíduos do finally.
 
-### Linhas 1444–1465
+### Linhas 1444–1467
 
 **O que faz.** Expõe API do runner: `run` e helpers testáveis/compatíveis.
 
