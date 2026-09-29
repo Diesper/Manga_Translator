@@ -38,3 +38,4 @@ desktop.ini
 .ci-results/
 all-blob-reports/
 dist/
+tests/fixtures/manga-images/*.png

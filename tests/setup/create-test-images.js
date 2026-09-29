@@ -13,7 +13,7 @@ const fs   = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 
-const outDir = path.join(__dirname, 'manga-images');
+const outDir = path.join(__dirname, '..', 'fixtures', 'manga-images');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
 function createPng(width, height, [r, g, b]) {

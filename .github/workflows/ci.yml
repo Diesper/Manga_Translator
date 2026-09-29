@@ -38,14 +38,14 @@ jobs:
       - name: Verificar sintaxe de todos os arquivos JS da extensão
         run: |
           echo "Verificando sintaxe dos arquivos da extensão..."
-          node --check scripts/sync-version.js
+          node --check scripts/release/sync-version.js
           find extension -name "*.js" -type f | sort | while read f; do
             node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
           done
-      - name: Verificar sintaxe dos arquivos de teste e CI
+      - name: Verificar sintaxe dos arquivos de teste e tooling
         run: |
-          echo "Verificando sintaxe dos testes..."
-          find tests -type f -name "*.js" | sort | while read f; do
+          echo "Verificando sintaxe de tests/ e scripts/..."
+          find tests scripts -type f -name "*.js" | sort | while read f; do
             node --check "$f" && echo "✅ $f" || (echo "❌ $f" && exit 1)
           done
 
@@ -56,19 +56,7 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
       - name: Validar manifest.json
-        run: |
-          node -e "
-            const fs = require('fs');
-            const manifest = JSON.parse(fs.readFileSync('extension/manifest.json', 'utf8'));
-            const required = ['manifest_version', 'name', 'version', 'permissions'];
-            required.forEach(field => {
-              if (!manifest[field]) { console.error('Falta campo: ' + field); process.exit(1); }
-            });
-            if (manifest.manifest_version !== 3) {
-              console.error('manifest_version deve ser 3'); process.exit(1);
-            }
-            console.log('✅ manifest.json válido:', manifest.name, 'v' + manifest.version);
-          "
+        run: npm run validate:manifest
 
   ci-contract:
     name: CI Contract
@@ -81,20 +69,17 @@ jobs:
         with:
           node-version: 20.x
       - name: Validar contrato da própria CI
-        run: node tests/ci/verify-ci-contract.js
+        run: node scripts/validation/verify-ci-contract.js
       - name: Testar verificador de coverage
-        run: node tests/ci/verify-coverage-selftest.js
+        run: node scripts/validation/verify-coverage-selftest.js
       - name: Testar gate E2E contra retries/flaky
-        run: node tests/ci/playwright-gate-reporter-selftest.js
+        run: node scripts/validation/playwright-gate-reporter-selftest.js
       - name: Testar detecção de worker Jest forçado
-        run: node tests/ci/verify-jest-worker-warning-selftest.js
+        run: node scripts/validation/verify-jest-worker-warning-selftest.js
 
   smoke:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -103,7 +88,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Rodar testes de fumaça
@@ -112,9 +97,6 @@ jobs:
   visual:
     name: Visual Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -123,11 +105,11 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Rodar testes visuais perceptuais
-        run: npm run test:visual-v3
+        run: npm run test:visual
 
   unit-and-integration:
     name: Unit + Integration (${{ matrix.node-version }})
@@ -136,9 +118,6 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -147,7 +126,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Rodar Jest com verificação de inventário
@@ -156,9 +135,6 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -167,7 +143,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Gerar coverage com Jest/V8
@@ -194,7 +170,7 @@ jobs:
         continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./tests/coverage/lcov.info
+          files: ./coverage/lcov.info
           flags: unittests
           name: manga-translator-coverage
           fail_ci_if_error: true
@@ -207,7 +183,7 @@ jobs:
         continue-on-error: true
         with:
           name: coverage-report-${{ github.sha }}
-          path: tests/coverage/
+          path: coverage/
           retention-days: 30
 
   e2e-shard:
@@ -217,9 +193,6 @@ jobs:
       fail-fast: false
       matrix:
         group: [fifo, attachment, medium-a, medium-b, fast]
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -228,7 +201,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Instalar Chromium sem headless shell redundante
@@ -246,7 +219,7 @@ jobs:
         if: ${{ always() && !cancelled() }}
         with:
           name: blob-report-${{ matrix.group }}-${{ github.sha }}
-          path: tests/blob-report/
+          path: blob-report/
           retention-days: 1
           if-no-files-found: warn
       - name: Upload artefatos de falha do shard
@@ -266,9 +239,6 @@ jobs:
     needs:
       - e2e-shard
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -277,7 +247,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências para merge dos relatórios
         run: npm ci
       - name: Verificar cobertura exata do plano de 5 shards
@@ -285,7 +255,7 @@ jobs:
       - name: Baixar blob reports dos shards
         uses: actions/download-artifact@v4
         with:
-          path: tests/all-blob-reports
+          path: all-blob-reports
           pattern: blob-report-*-${{ github.sha }}
           merge-multiple: true
       - name: Conferir inventário de blobs
@@ -294,7 +264,7 @@ jobs:
           find all-blob-reports -maxdepth 1 -type f -name '*.zip' -print
           test "$(find all-blob-reports -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 5
       - name: Mesclar shards e aplicar gate global E2E
-        run: npx playwright merge-reports --config=ci/playwright-merge.config.js ./all-blob-reports
+        run: npx playwright merge-reports --config=scripts/ci/playwright-merge.config.js ./all-blob-reports
         env:
           CI: true
 
@@ -325,9 +295,6 @@ jobs:
           - combo-background-content
           - combo-background-integration
           - combo-background-jsdom
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -336,7 +303,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Executar diagnóstico ${{ matrix.case }}
@@ -348,9 +315,9 @@ jobs:
         with:
           name: jest-worker-diagnostic-${{ matrix.case }}-${{ github.sha }}
           path: |
-            tests/.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+             .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
 
@@ -373,9 +340,6 @@ jobs:
           - combo-background-content
           - combo-background-integration
           - combo-background-jsdom
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -384,7 +348,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Executar ${{ matrix.case }}
@@ -396,9 +360,9 @@ jobs:
         with:
           name: focused-project-leak-${{ matrix.case }}-${{ github.sha }}
           path: |
-            tests/.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
-            tests/.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
+             .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json
+             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json
+             .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log
           retention-days: 7
 
 
@@ -406,9 +370,6 @@ jobs:
     name: Background Leak Bisection
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -417,7 +378,7 @@ jobs:
         with:
           node-version: 20.x
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
       - name: Reduzir conjunto de testes de background que mantém worker vivo
@@ -434,8 +395,8 @@ jobs:
         with:
           name: background-leak-bisection-${{ github.sha }}
           path: |
-            tests/.ci-results/background-leak-diagnostic.json
-            tests/.ci-results/background-leak-diagnostic/
+             .ci-results/background-leak-diagnostic.json
+             .ci-results/background-leak-diagnostic/
           retention-days: 7
 
 

@@ -14,12 +14,12 @@ const PRODUCT_VERSION = ROOT_PACKAGE_VERSION.endsWith('.0')
     console.log('═'.repeat(60));
 
     // Load all suites — sync tests run immediately, async (ita) enqueue serially
-    require('./gtc-fingerprint.visual-v3.js');
-    require('./gtc-indexeddb.visual-v3.js');
-    require('./background-fingerprint.visual-v3.js');
-    require('./content-manga-pipeline.visual-v3.js');
-    require('./integration.visual-v3.js');
-    require('./visual-v4-crop.visual-v3.js');
+    require('./gtc-fingerprint.visual.js');
+    require('./gtc-indexeddb.visual.js');
+    require('./background-fingerprint.visual.js');
+    require('./content-manga-pipeline.visual.js');
+    require('./integration.visual.js');
+    require('./crop.visual.js');
 
     // Await the serial queue (all ita tests)
     const { getAsyncQueue, printSummary } = require('./runner.js');
