@@ -1,6 +1,7 @@
 # Bíblia técnica — `extension/background/actions/claim-gemini-job.js`
 
-> **Estado:** CONCLUÍDO nesta Bíblia individual.  
+> **Estado:** 🟣 **REVISÃO DE QUALIDADE — NÃO CONCLUÍDO**.  
+> **Auditoria:** reprovada em 2026-09-29; ver `docs/biblia/AUDITORIA.md` para os motivos e o protocolo de correção.
 > **SHA auditado:** `f5c4643d291931f133a791a2deaa6eb94ef4500d`  
 > **Linhas auditadas:** **103**  
 > **Teste direto:** `tests/unit/background/claim-gemini-job-action.test.js` (`0cb6cb2f100d7493abfdf4038546e8be747289f1`).
@@ -1316,6 +1317,6 @@ O helper `safeJob` é tão importante quanto a verificação de ownership: ele a
 - Ownership direto e por alias: **PROVADOS**.
 - Minimização de dados: **PROVADA explicitamente**.
 - Lacunas de borda registradas: **SIM**.
-- Arquivo apto a `CONCLUÍDO`: **SIM**.
+- Arquivo apto a `CONCLUÍDO`: **NÃO — REVISÃO DE QUALIDADE OBRIGATÓRIA**.
 
 **Próximo arquivo após atualização do rastreador:** `extension/background/actions/commit-result.js`.
