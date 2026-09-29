@@ -48,15 +48,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **54**
-- ✅ Concluídos auditados: **47**
-- 🟠 Em andamento: **12**
+- ✅ Concluídos auditados: **48**
+- 🟠 Em andamento: **11**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **179**
 - ⬜ Pendentes: **174**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **20,17%**
+- Cobertura realmente aprovada: **20,60%**
 - Cobertura apenas materializada: **23,18%**
-- Último aprovado: `extension/reader/reader.js`
+- Último aprovado: `extension/shared/gtc-fingerprint.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -67,7 +67,6 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#053 extension/popup/popup.html` — `GPT-5.6-Sol#I` — Bíblia: `docs/biblia/extension/popup/popup.html/Bíblia.md`
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
-  - `#057 extension/shared/gtc-fingerprint.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md`
   - `#058 extension/shared/gtc-indexeddb.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
   - `#059 extension/shared/shared-ui.js` — `Agente L` — Bíblia: `docs/biblia/extension/shared/shared-ui.js/Bíblia.md`
 - Menor índice pendente sem reserva no momento desta atualização: `#060 extension/shared/storage-manager.js`
@@ -125,6 +124,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 45. ✅ `extension/content/gemini/job-runner.js`
 46. ✅ `extension/content/inject.js`
 47. ✅ `extension/reader/reader.js`
+48. ✅ `extension/shared/gtc-fingerprint.js`
 
 ### Revisão obrigatória
 
@@ -191,10 +191,10 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 53 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#I | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
 | 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#G | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
-| 56 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#K | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
-| 57 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
-| 58 | ⬜ PENDENTE | `extension/shared/gtc-indexeddb.js` | `0c872f23a665` | `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` |
-| 59 | ⬜ PENDENTE | `extension/shared/shared-ui.js` | `b284fb8eb0e8` | `docs/biblia/extension/shared/shared-ui.js/Bíblia.md` |
+| 56 | ✅ CONCLUÍDO | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
+| 57 | ✅ CONCLUÍDO | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
+| 58 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#K | `extension/shared/gtc-indexeddb.js` | `0c872f23a665` | `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` |
+| 59 | 🟠 EM ANDAMENTO — Agente L | `extension/shared/shared-ui.js` | `b284fb8eb0e8` | `docs/biblia/extension/shared/shared-ui.js/Bíblia.md` |
 | 60 | ⬜ PENDENTE | `extension/shared/storage-manager.js` | `d1cd5a2c83ed` | `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` |
 | 61 | ⬜ PENDENTE | `.gitignore` | `e48fc70b1acc` | `docs/biblia/.gitignore/Bíblia.md` |
 | 62 | ⬜ PENDENTE | `jest.config.js` | `f0b7c55a5c8c` | `docs/biblia/jest.config.js/Bíblia.md` |
