@@ -82,8 +82,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 35 | `extension/content/cm-chapter.js` | SHA `44b621d570b6...` conferido; bloco integral exato | 154 linhas + newline final = 155/155 posições | manager real/fallback legado provados; testes de dedup/cache espelho classificados; divergências e races explícitas | 13 unidades específicas + papel local por posição | ✅ APROVADO |
 | 36 | `extension/content/cm-dom-replace.js` | SHA `d3fc72032dbd...` conferido; bloco integral exato | 189 linhas + newline final = 190/190 posições | filtros/limites/twin backdrop/replacement/overlay provados; URL normalization e gaps específicos separados | 11 unidades específicas + papel local por posição | ✅ APROVADO |
 | 37 | `extension/content/cm-gtc-client.js` | SHA `95d062f41b9f...` conferido; bloco integral exato | 161 linhas + newline final = 162/162 posições | fingerprint/queries correlacionadas/pipeline real provados; fallback legado/save/regional e simulações separados | 15 unidades específicas + papel local por posição | ✅ APROVADO |
+| 38 | `extension/content/content_gemini.js` | SHA `55bc83afe31a...` conferido; bloco integral exato | 461 linhas + newline final = 462/462 posições | claim moderno/fallback legado/keep-alive/deleting_urls/deletion handler provados; DO_SEND_NOW e sanitização focal mantidos como gaps | 18 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `content_gemini.js` — criação e auditoria em 2026-09-29
+
+- composition root separado explicitamente da lógica interna de `content/gemini/*.js`;
+- keep-alive ligado a assertions diretas de abertura, fechamento e reconexão única;
+- claim moderno, retry e fallback legado sem full scan ligados às suites reais;
+- gate `deleting_urls` e handler `DELETE_CONVERSATION` ligados a provas reais;
+- receiver `DO_SEND_NOW`, sanitização focal e alguns ramos de erro mantidos como lacunas;
+- SHA e 462/462 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `cm-gtc-client.js` — criação e auditoria em 2026-09-29
 
