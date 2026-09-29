@@ -1,6 +1,6 @@
 # Bíblia técnica — jest.config.js
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE ATIVA  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`  
 > **Agente responsável pela auditoria:** Agente L  
 > **Tipo:** configuração Jest canônica da raiz  
@@ -1490,4 +1490,4 @@ module.exports = {
 - Ambiente/setup/cache/timeout não receberam promoção indevida para prova direta.
 - Nenhum código funcional/config foi alterado.
 
-**Estado documental desta materialização:** 🟠 EM ANDAMENTO — pronta para promoção após auditoria e reconciliação serializada dos rastreadores.
+**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md`; fonte integral, 91/91 posições e força das evidências foram reconfirmadas para o SHA auditado.
