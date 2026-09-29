@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/gemini/image-quarantine.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — GPT-5.6-Sol#F — REVISÃO DE QUALIDADE EM CURSO  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `ddca93d17ca2934a9e95dba96a87283be4e9b9a3`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#F`  
 > **Tipo:** JavaScript de runtime/content script Gemini + módulo CommonJS de teste  
@@ -3284,4 +3284,4 @@ Recompressão, resize ou metadata incorporada podem alterar bytes de uma imagem 
 - [x] Segurança/privacidade, Shadow DOM, encoding, custo do fallback e fail-open do consumidor registrados.
 - [x] Nenhum código funcional alterado.
 
-**Veredito documental local:** a Bíblia está materialmente pronta para aprovação compartilhada do SHA `ddca93d17ca2934a9e95dba96a87283be4e9b9a3`; enquanto o mutex global estiver ocupado, ela permanece **EM ANDAMENTO** e não deve ser contada como concluída.
+**Veredito:** ✅ APROVADO para `ddca93d17ca2934a9e95dba96a87283be4e9b9a3` — fonte integral, 216/216 posições, consumidores/testes reais e lacunas conservadoras conferidos.
