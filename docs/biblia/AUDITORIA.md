@@ -56,8 +56,19 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 9 | `extension/background/actions/deliver-result.js` | SHA `3653bd10c2a0...` conferido; bloco integral exato | 87 linhas + newline final = 88/88 posições | três mismatches, ownership, staging e falhas ligados a assertions; helper/consumer separados | 10 unidades específicas + papel local por posição; gaps explícitos | ✅ APROVADO |
 | 10 | `extension/background/actions/download-chapter.js` | SHA `8636a03c8a20...` conferido; bloco integral exato | 34 linhas + newline final = 35/35 posições | action/reuso/download provados; marker e gaps diferenciados | 6 unidades específicas + papel local por posição; lacunas explícitas | ✅ APROVADO |
 | 11 | `extension/background/actions/download-image.js` | SHA `408102f057ab...` conferido; bloco integral exato | 31 linhas + newline final = 32/32 posições | happy path/action + helper/integrado separados; erros mantidos como gaps | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 12 | `extension/background/actions/export-all.js` | SHA `6160a220094d...` conferido; bloco integral exato | 40 linhas + newline final = 41/41 posições | action/integrado/helper/mirror distinguidos; best-effort e erros explícitos | 7 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `export-all.js` — criação e auditoria em 2026-09-29
+
+- guard vazio e prefixos ligados à suíte real;
+- `export-guard.test.js` reclassificado como mirror, não prova direta;
+- semântica best-effort e `lastCompletedId` documentados;
+- gaps para payload/item inválido, falhas, timeout, todos-falham e show;
+- SHA e 41/41 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `download-image.js` — criação e auditoria em 2026-09-29
 
