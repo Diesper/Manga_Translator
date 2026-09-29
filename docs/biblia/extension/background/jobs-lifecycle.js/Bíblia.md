@@ -107,7 +107,7 @@ Quando `fromError=true` e a URL ainda não contém `/app/<id>`, o módulo entend
 - Ownership usa sender + job persistido, não apenas campos do payload.
 - `DELETE_CONVERSATION` só é disparado depois da finalização pós-persistência, protegendo os bytes traduzidos.
 
-## Casos-limite e riscos
+## Lacunas de teste, casos-limite e riscos
 
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `maxConcurrentJobs` negativo ou enorme. `parseInt(value)||1` não faz clamp; `-1` é truthy e pode bloquear o scheduler porque `activeJobsCount >= -1` será verdadeiro.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `windows.create` retornar uma janela sem tabs e `tabs.query` retornar vazio sem lançar. O código cai para `tabs.create`, mas a janela vazia recém-criada não é removida porque cleanup desse windowId só acontece no `catch`.
