@@ -52,10 +52,14 @@ function createSandbox() {
 
 function replaceRequired(filePath, before, after) {
   const source = fs.readFileSync(filePath, 'utf8');
-  if (!source.includes(before)) {
+  // O checkout do GitHub Actions pode materializar CRLF no Windows.
+  // O sandbox é descartável, então normalizamos para LF antes das mutações
+  // para testar o contrato, não a política local de line endings.
+  const normalized = source.replace(/\r\n/g, '\n');
+  if (!normalized.includes(before)) {
     throw new Error('Self-test não encontrou marcador a remover em ' + filePath + ': ' + before);
   }
-  fs.writeFileSync(filePath, source.replace(before, after), 'utf8');
+  fs.writeFileSync(filePath, normalized.replace(before, after), 'utf8');
 }
 
 function expectContractFailure(name, mutate, expectedMessage) {

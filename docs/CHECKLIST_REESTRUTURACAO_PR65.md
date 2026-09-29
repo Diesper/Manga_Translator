@@ -65,6 +65,8 @@
 - [x] Adicionado gate `Windows Portability` em `windows-latest`.
 - [x] O gate Windows executa `npm ci`, `validate`, Jest completo, smoke, visual e coverage + verificação de paths.
 - [x] `CI Gate` exige sucesso do Windows em todo run normal.
+- [x] O primeiro run Windows chegou até `validate` e confirmou estrutura, política de testes, publicação e CI Contract antes de expor incompatibilidade CRLF no self-test.
+- [x] Self-test do CI Contract normaliza CRLF/LF no sandbox, tornando a mutação negativa portátil.
 - [ ] Confirmar o novo gate Windows verde no HEAD atual.
 
 ## Interface de desenvolvedor novo
