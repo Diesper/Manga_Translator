@@ -48,15 +48,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **52**
-- ✅ Concluídos auditados: **46**
+- ✅ Concluídos auditados: **47**
 - 🟠 Em andamento: **11**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **181**
-- ⬜ Pendentes: **176**
+- ⬜ Pendentes: **175**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **19,74%**
+- Cobertura realmente aprovada: **20,17%**
 - Cobertura apenas materializada: **22,32%**
-- Último aprovado: `extension/content/inject.js`
+- Último aprovado: `extension/reader/reader.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -67,9 +67,9 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#053 extension/popup/popup.html` — `GPT-5.6-Sol#I` — Bíblia: `docs/biblia/extension/popup/popup.html/Bíblia.md`
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
-  - `#056 extension/reader/reader.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/reader/reader.js/Bíblia.md`
   - `#057 extension/shared/gtc-fingerprint.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#058 extension/shared/gtc-indexeddb.js`
+  - `#058 extension/shared/gtc-indexeddb.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#059 extension/shared/shared-ui.js`
 
 ## Auditoria de 2026-09-29
 
@@ -123,6 +123,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 44. ✅ `extension/content/gemini/image-quarantine.js`
 45. ✅ `extension/content/gemini/job-runner.js`
 46. ✅ `extension/content/inject.js`
+47. ✅ `extension/reader/reader.js`
 
 ### Revisão obrigatória
 
