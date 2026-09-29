@@ -65,8 +65,20 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 18 | `extension/background/actions/open-manga-root.js` | SHA `71c83df253cd...` conferido; bloco integral exato | 19 linhas + newline final = 20/20 posições | wiring direto provado; helper e popup separados; gaps explícitos | 5 unidades específicas + papel local por posição | ✅ APROVADO |
 | 19 | `extension/background/actions/refresh-job-watchdog.js` | SHA `25f86a8dba57...` conferido; bloco integral exato | 86 linhas + newline final = 87/87 posições | ownership/jobIndex/canonicalização ligados a assertions; consumer/helpers separados; gaps explícitos | 10 unidades específicas + papel local por posição | ✅ APROVADO |
 | 20 | `extension/background/actions/relay-progress.js` | SHA `24e377893c71...` conferido; bloco integral exato | 38 linhas + newline final = 39/39 posições | destino explícito/fallback e transição running provados; ACK/erros/lacunas separados | 6 unidades específicas + papel local por posição | ✅ APROVADO |
+| 21 | `extension/background/actions/report-error.js` | SHA `ac239ea49544...` conferido; bloco integral exato | 71 linhas + newline final = 72/72 posições | payload/ownership/identity/finalização provados; consumer/lifecycle separados; gaps explícitos | 9 unidades específicas + papel local por posição | ✅ APROVADO |
 
 ## Correções já aplicadas pela auditoria
+
+### `report-error.js` — criação e auditoria em 2026-09-29
+
+- validação de `jobId`/erro, ownership e batchId forjado ligados aos testes diretos;
+- job persistido documentado como fonte autoritativa mesmo quando `currentBatchId` mudou;
+- finalização real sem aba do mangá confirmada em `process-finalize-real.test.js`;
+- consumer `job-runner` e lifecycle real diferenciados da prova da action;
+- gaps de index/mangaTabId, storage/finalize e truthiness das comparações explicitados;
+- SHA e 72/72 posições conferidos.
+
+**Veredito:** ✅ APROVADO.
 
 ### `relay-progress.js` — criação e auditoria em 2026-09-29
 
