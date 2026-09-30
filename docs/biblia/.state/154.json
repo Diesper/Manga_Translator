@@ -32,7 +32,7 @@
     },
     {
       "id": "154-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/lifecycle-alarms-real.test.js",
       "found_while_auditing": "tests/unit/background/lifecycle-alarms-real.test.js",
@@ -45,7 +45,12 @@
       "expected_auditor_action": "Confirmar ausência de cobertura e adicionar regressão se o comportamento for requisito.",
       "possible_regression": "Instalação/atualização pode sobrescrever prompt persistido sem a suíte detectar.",
       "impact": "Preferência/configuração do usuário pode ser perdida.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "148-003",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "SUPERSEDED por 148-003. O branch de defaultPrompt pré-existente já está centralizado em 148-003.",
+      "auditor_recommended_action": "Acompanhar 148-003."
     },
     {
       "id": "154-003",
