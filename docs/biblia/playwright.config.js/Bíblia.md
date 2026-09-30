@@ -421,7 +421,7 @@ module.exports = defineConfig({
 
 **Por que uma implementação ingênua seria pior:** Defaults implícitos ou divergentes poderiam omitir testes, aumentar flakiness ou tornar duração e concorrência imprevisíveis.
 
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — `verify-e2e-shard-plan.js` executa a CLI real com este config e exige cobertura exata dos 21 testes pelos cinco grupos.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — `verify-e2e-shard-plan.js` carrega este config real e o caminho atual produz o inventário de 21 testes, mas não existe assertion que exija literalmente `testDir: './tests/e2e'`.
 
 ### Linha 17
 
