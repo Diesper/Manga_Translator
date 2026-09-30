@@ -32,7 +32,7 @@
     },
     {
       "id": "170-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "tests/unit/background/tab-identity.test.js",
@@ -45,11 +45,16 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Resolução pode terminar em identidade parcial/arbitrária.",
       "impact": "Robustez da canonicalização.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "SUPERSEDED por 033-001. MAX_ALIAS_HOPS/TAB_ALIAS_MAX_HOPS já está centralizado no request canônico de tab-identity.",
+      "auditor_recommended_action": "Acompanhar 033-001.",
+      "superseded_by": "033-001"
     },
     {
       "id": "170-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "tests/unit/background/tab-identity.test.js",
@@ -62,7 +67,12 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Retry infinito ou tentativa de migrar identidades inválidas após restart.",
       "impact": "Durabilidade/recuperação do Service Worker.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "SUPERSEDED por 033-004. Guards de recovery para journal ausente/completed/IDs inválidos já estão centralizados nesse request.",
+      "auditor_recommended_action": "Acompanhar 033-004.",
+      "superseded_by": "033-004"
     }
   ],
   "document_quality": {
