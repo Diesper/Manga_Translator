@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "093-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_SETUP_ROBUSTNESS",
       "target_file": "tests/e2e/reader-offline.spec.js",
       "found_while_auditing": "tests/e2e/reader-offline.spec.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir a política de erro do setup antes de qualquer alteração externa.",
       "possible_regression": "Um teste pode passar consumindo páginas ou metadata deixadas por execução anterior.",
       "impact": "Confiabilidade do E2E e isolamento entre casos.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — mesmo padrão fail-open do reset. Erro de transaction no IndexedDB resolve a Promise e exceções são engolidas, permitindo reader E2E iniciar com estado residual.",
+      "auditor_recommended_action": "Propagar falha de cleanup ou verificar estado limpo antes do seed; adicionar cenário de erro de IndexedDB."
     },
     {
       "id": "093-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/e2e/reader-offline.spec.js",
       "found_while_auditing": "tests/e2e/reader-offline.spec.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Confirmar que a migração é um contrato desejado e adicionar cobertura específica em mudança autorizada separada.",
       "possible_regression": "A migração/IndexedDB pode quebrar e o E2E continuar verde enquanto dados legados ainda existirem.",
       "impact": "Compatibilidade futura e confiança no caminho de storage novo.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — a assertion final não isola a migração. O teste semeia dados e abre `reader.js`; a mesma UI pode ser montada pelo fallback legado se o índice/migração IndexedDB falhar. Não há assertion de que o caminho novo foi usado.",
+      "auditor_recommended_action": "Após seed/migração, verificar storage-manager/IndexedDB e ausência/uso controlado do legado, além da UI."
     },
     {
       "id": "093-003",
