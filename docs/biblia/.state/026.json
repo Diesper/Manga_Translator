@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "026-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STATE_CONSISTENCY_REVIEW",
       "target_file": "extension/background/jobs-dom-ack.js",
       "found_while_auditing": "extension/background/jobs-dom-ack.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar consistência de stage/commit em alteração separada.",
       "possible_regression": "Resultado não persistido pode ser tratado como persistido por commit/recovery.",
       "impact": "Durabilidade e segurança do protocolo stage → commit.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — inconsistência funcional confirmada. Quando a resposta é `{ok:true,persisted:false}`, o callback não entra no branch `response.ok===false` e chama `settle(true,...)`. O branch `ok` grava `state:'dom_applied', resultPersisted:true`; porém a resposta externa calcula `persisted: ok && response?.persisted !== false`, resultando `false`. Estado persistido e resposta divergem.",
+      "auditor_recommended_action": "Tratar `persisted:false` como falha de staging antes de gravar `resultPersisted:true`, ou separar explicitamente domApplied de persisted; adicionar teste focal."
     },
     {
       "id": "026-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RACE_CONDITION_REVIEW",
       "target_file": "extension/background/jobs-dom-ack.js",
       "found_while_auditing": "extension/background/jobs-dom-ack.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar possível race sem alterar durante esta auditoria.",
       "possible_regression": "Job persistido pode regredir para result_received e bloquear commit/recovery.",
       "impact": "Lifecycle durável dos jobs.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — race de ordenação confirmada. O primeiro `updateJobState(...result_received)` é disparado sem await e erros são engolidos; `settle(true)` aguarda uma segunda escrita `dom_applied`. Se a primeira operação resolver por último, pode sobrescrever a fase mais nova dependendo da implementação de updateJobState.",
+      "auditor_recommended_action": "Serializar/await a transição inicial antes do send/settle ou tornar updateJobState monotônico/CAS; adicionar teste com primeira escrita atrasada."
     },
     {
       "id": "026-003",
