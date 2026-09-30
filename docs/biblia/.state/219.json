@@ -1,0 +1,11 @@
+{
+  "index": 219,
+  "file": "tests/unit/popup/progress-panel.test.js",
+  "bible": "docs/biblia/tests/unit/popup/progress-panel.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "d93235bdd142f5c29a8e4663e25b097953655061",
+  "started_at_utc": "2026-09-30T14:37:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
