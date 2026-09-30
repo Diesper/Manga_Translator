@@ -106,7 +106,6 @@
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 9. Rastreabilidade 35/35
