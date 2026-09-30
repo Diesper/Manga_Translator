@@ -52,7 +52,7 @@
     },
     {
       "id": "107-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/chapter-dedup.test.js",
       "found_while_auditing": "tests/integration/chapter-dedup.test.js",
@@ -65,7 +65,11 @@
       "expected_evidence": "Assertions específicas sobre o resultado persistido pelo caminho real e associação de ambas as páginas ao mesmo chapterId.",
       "possible_regression": "Mudanças no roteamento moderno de storage podem quebrar persistência entre sessões sem afetar este teste.",
       "known_impact": "Cobertura insuficiente do contrato que liga deduplicação de capítulo à persistência real das traduções.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. O bloco de persistência mescla `${chapterId}_images` manualmente no storage mock e não passa por `persistTranslatedPage`, `SM_SAVE_PAGE` ou Storage Manager atual.",
+      "auditor_recommended_action": "Adicionar cenário com `cm-chapter.js` e persistência moderna reais, verificando duas sessões associadas ao mesmo chapterId."
     }
   ]
 }
