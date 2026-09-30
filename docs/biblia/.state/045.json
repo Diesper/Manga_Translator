@@ -242,7 +242,7 @@
     },
     {
       "id": "045-012",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CODE_QUALITY_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "found_while_auditing": "extension/content/gemini/job-runner.js",
@@ -254,7 +254,11 @@
       "expected_evidence": "Mesma classificação para casos relevantes antes/depois da simplificação.",
       "possible_regression": "Manutenção futura interpreta condição morta como requisito e amplia complexidade.",
       "impact": "Manutenibilidade da filtragem de imagens.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:32:00Z",
+      "audit_finding": "ACCEPTED. Em `isLikelyGeneratedImage`, o guard anterior `if (width <= 0 || height <= 0) return false` torna inalcançável a condição subsequente `image.complete === false && height <= 0`. É redundância de manutenção, sem impacto funcional atual.",
+      "auditor_recommended_action": "Remover ou reformular a condição redundante em mudança separada; se a intenção era rejeitar imagem incompleta mesmo com dimensões positivas, definir/testar explicitamente essa política."
     }
   ],
   "document_quality": {
