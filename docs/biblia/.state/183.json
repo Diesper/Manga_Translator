@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "183-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/observer.test.js",
       "found_while_auditing": "tests/unit/content-gemini/observer.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Priorizar por cleanup e estabilidade assíncrona.",
       "possible_regression": "Waiter pendurado, timer vazando ou erro com código errado.",
       "impact": "Submit/result pipeline e teardown.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte do observer resolve/rejeita waitForResult em fluxos de resultado/erro, mas não usa fake timers para provar os timeouts estruturados de `waitForSubmission`/`waitForResult` nem `stop()` rejeitando waiter pendente com `OBSERVER_STOPPED` e limpando timer/sets.",
+      "auditor_recommended_action": "Adicionar matriz de lifecycle dos waiters com fake timers: submission timeout, result timeout e stop com waiter pendente, assertando códigos e cleanup."
     },
     {
       "id": "183-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/observer.test.js",
       "found_while_auditing": "tests/unit/content-gemini/observer.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Priorizar por isolamento de ownership.",
       "possible_regression": "Dois observers podem disputar resultado do mesmo job.",
       "impact": "Integridade do resultado e leak de observers.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. Todos os casos atuais criam jobIds distintos. O contrato de registry em que uma nova instância para o mesmo jobId deve `stop()` a anterior não possui prova focal.",
+      "auditor_recommended_action": "Criar observer A com waiter, depois observer B com mesmo jobId; exigir A parado/OBSERVER_STOPPED, registry apontando para B e somente B reagindo às mutations."
     },
     {
       "id": "183-003",
