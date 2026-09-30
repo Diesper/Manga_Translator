@@ -156,7 +156,6 @@ Essa dupla checagem é mais forte do que confiar nos campos do payload e continu
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 87/87
