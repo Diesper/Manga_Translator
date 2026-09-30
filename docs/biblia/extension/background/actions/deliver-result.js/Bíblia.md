@@ -185,7 +185,6 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 11. Rastreabilidade 88/88
