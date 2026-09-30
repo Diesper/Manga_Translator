@@ -52,17 +52,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **76**
-- 🟠 Em andamento: **1**
+- ✅ Concluídos auditados: **77**
+- 🟠 Em andamento: **0**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **32,62%**
+- Cobertura realmente aprovada: **33,05%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `extension/reader/reader.html`
+- Último aprovado: `extension/popup/popup.js`
 - Arquivos atualmente em andamento:
-  - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
 
 - Menor índice pendente sem reserva no momento desta atualização: `#078 scripts/release/sync-version.js`
 
@@ -385,7 +384,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 51 | ✅ CONCLUÍDO | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
 | 52 | ✅ CONCLUÍDO | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
 | 53 | ✅ CONCLUÍDO | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
-| 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
+| 54 | ✅ CONCLUÍDO | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | ✅ CONCLUÍDO | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
 | 56 | ✅ CONCLUÍDO | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
 | 57 | ✅ CONCLUÍDO | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
