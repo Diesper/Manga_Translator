@@ -52,7 +52,7 @@
     },
     {
       "id": "007-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASYNC_LIFECYCLE_REVIEW",
       "target_file": "extension/background/actions/deliver-result-from-tab.js",
       "found_while_auditing": "extension/background/actions/deliver-result-from-tab.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Revisar robustez assíncrona.",
       "possible_regression": "Job ou mapping pode ficar inconsistente após falha tardia.",
       "impact": "Recuperação e consistência do background.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:38:00Z",
+      "audit_finding": "ACCEPTED. `assertJobOwnership` é adaptado para Promise a partir de callback sem timeout e os mocks sempre respondem. Também não há testes para `syncState` ou `finalizeJob` rejeitando após a remoção do mapping/aba auxiliar, então o estado parcial e a recuperabilidade dessas falhas não estão fixados.",
+      "auditor_recommended_action": "Adicionar cenários de callback ausente/timeout de ownership e rejeições de syncState/finalizeJob, assertando quais recursos/mappings permanecem e como o retry deve ocorrer."
     },
     {
       "id": "007-004",
