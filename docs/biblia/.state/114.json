@@ -31,7 +31,7 @@
     },
     {
       "id": "114-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/integration/performance.test.js",
       "found_while_auditing": "tests/integration/performance.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Classificar o limite como sintético ou solicitar benchmark/E2E apropriado.",
       "possible_regression": "Degradação específica de browser/disco pode não ser detectada.",
       "impact": "Precisão da garantia de performance.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:25:00Z",
+      "audit_finding": "ACCEPTED. PERF-08 injeta `fake-indexeddb.IDBFactory`; o limite de 2s mede backend sintético em Node, não IndexedDB real do Chromium/disco. O teste continua útil como gate algorítmico, mas não como garantia de storage real.",
+      "auditor_recommended_action": "Renomear/documentar o limite como sintético ou criar benchmark/E2E em Chromium se o objetivo for um SLO de browser."
     },
     {
       "id": "114-003",
