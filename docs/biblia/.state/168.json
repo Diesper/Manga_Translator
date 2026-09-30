@@ -1,0 +1,11 @@
+{
+  "index": 168,
+  "file": "tests/unit/background/startup-recovery.test.js",
+  "bible": "docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "649829ac36bb9428c9458c615365970349b741a1",
+  "started_at_utc": "2026-09-30T13:45:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
