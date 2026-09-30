@@ -31,7 +31,7 @@
     },
     {
       "id": "028-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-reconciliation-batch-queue.test.js",
       "found_while_auditing": "extension/background/jobs-reconciliation.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Completar cobertura de recovery/erro.",
       "possible_regression": "Recovery pode abortar toda a reconciliação ou manter accounting incorreto.",
       "impact": "Recuperação de jobs após suspensão do worker.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:02:00Z",
+      "audit_finding": "ACCEPTED. A suíte atual mantém `recoverPendingFinalization/recoverPersistedResult` sempre false e dependências assíncronas saudáveis. Não há prova para recovery true/rejeitando, `tabExists` rejeitando, canonicalização/migração rejeitando ou `activeMangaTabId` stale.",
+      "auditor_recommended_action": "Adicionar matriz de recovery e rejeições usando o reconciler real, fixando contadores, jobIndex, sync e processNextJob."
     },
     {
       "id": "028-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "extension/background/jobs-reconciliation.js",
       "found_while_auditing": "extension/background/jobs-reconciliation.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Revisar confiabilidade do cleanup.",
       "possible_regression": "Resíduos duráveis ou abas antigas sobrevivem após o job ser considerado descartado.",
       "impact": "Higiene de storage, watchdogs e slots de jobs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:02:00Z",
+      "audit_finding": "ACCEPTED. O reconciler remove entries do índice mesmo quando cleanup de `chrome.tabs.remove`/`storage.local.remove` falha ou é engolido. A política é best-effort sem retry/journal e não há teste que fixe observabilidade/recuperação desses resíduos.",
+      "auditor_recommended_action": "Decidir se best-effort é suficiente; se não, adicionar telemetria/retry/journal. Em qualquer caso, testar falha de cleanup e estado final esperado."
     }
   ],
   "document_quality": {
