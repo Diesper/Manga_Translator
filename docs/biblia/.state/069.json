@@ -1,0 +1,47 @@
+{
+  "index": 69,
+  "file": "scripts/ci/data/regression-matrix.json",
+  "bible": "docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 6",
+  "source_sha": "f9b9e17e5870c0c6dff9394ef944a803414cc4d2",
+  "started_at_utc": "2026-09-30T03:28:19Z",
+  "completed_at_utc": "2026-09-30T05:42:02Z",
+  "audit_requests": [
+    {
+      "id": "069-001",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/validation/verify-ci-contract.js",
+      "finding": "O gate exige quantidade mínima e IDs únicos, mas não fixa explicitamente o conjunto completo de IDs críticos.",
+      "requested_action": "Avaliar pinagem dos IDs obrigatórios ou schema equivalente.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "069-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-ci-contract-selftest.js",
+      "finding": "O self-test cobre remoção de marker, mas não todos os ramos negativos de validação.",
+      "requested_action": "Adicionar casos negativos focais para as demais regras estruturais.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "069-003",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/ci/data/regression-matrix.json",
+      "finding": "Campos de metadados não são validados semanticamente e marker textual não equivale sozinho a assertion comportamental.",
+      "requested_action": "Decidir quais metadados devem ser contratuais e se o gate deve ganhar validação semântica.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "232/232",
+    "bible_lines": 3204,
+    "external_audit_requests_open": 3
+  }
+}
