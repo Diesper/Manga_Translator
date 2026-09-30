@@ -31,7 +31,7 @@
     },
     {
       "id": "173-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "GATE_STRENGTH_REVIEW",
       "target_file": ".github/workflows/publish.yml",
       "found_while_auditing": "tests/unit/background/version-sync.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Revisar força do gate.",
       "possible_regression": "Hardcode/uso morto pode passar apesar do teste textual.",
       "impact": "Confiabilidade do publish workflow.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:36:00Z",
+      "audit_finding": "ACCEPTED. O gate de workflow usa `toContain`/`not.toMatch` sobre texto bruto de `publish.yml`; um marcador exigido pode sobreviver apenas em comentário/bloco semanticamente inativo e ainda satisfazer o teste.",
+      "auditor_recommended_action": "Se a semântica do workflow for contrato forte, usar parser/YAML ou self-test de mutação que comente/desative os comandos e exija falha."
     }
   ],
   "document_quality": {
