@@ -200,7 +200,6 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 10. Rastreabilidade 107/107
