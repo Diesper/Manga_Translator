@@ -1,0 +1,11 @@
+{
+  "index": 29,
+  "file": "extension/background/jobs-watchdog.js",
+  "bible": "docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "c17b766d7fbc34ea925fb82b19149d3d977de413",
+  "started_at_utc": "2026-09-30T13:20:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
