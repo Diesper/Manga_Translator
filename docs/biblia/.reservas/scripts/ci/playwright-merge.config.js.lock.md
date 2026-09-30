@@ -5,7 +5,7 @@ ARQUIVO: scripts/ci/playwright-merge.config.js
 BÍBLIA: docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md
 SHA_DO_FONTE_AO_RESERVAR: 59839922aca9f6f442100b3e6723313ef53d3a54
 DATA/HORA_UTC_DA_RESERVA: 2026-09-30T03:31:53Z
-ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T03:31:53Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T03:42:19Z
 PR: #66
 BRANCH: docs/project-bible
 ESTADO: ATIVA
