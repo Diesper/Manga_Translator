@@ -27,7 +27,7 @@
     },
     {
       "id": "157-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "VALIDATION_REVIEW",
       "target_file": "extension/background/actions/open-existing-folder.js",
       "found_while_auditing": "tests/unit/background/open-existing-folder-action.test.js",
@@ -40,7 +40,12 @@
       "expected_auditor_action": "Revisar contrato da action e escolher validação explícita ou documentação formal do erro.",
       "possible_regression": "Caller malformado pode produzir erro interno ou marker com título indefinido.",
       "impact": "Robustez do IPC SHOW_EXISTING_FOLDER.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "017-001",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "SUPERSEDED por 017-001. A ausência de validate em open-existing-folder/folderPath inválido já está centralizada em 017-001.",
+      "auditor_recommended_action": "Acompanhar 017-001."
     }
   ],
   "document_quality": {
