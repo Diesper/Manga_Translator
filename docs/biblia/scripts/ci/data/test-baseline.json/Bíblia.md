@@ -1,5 +1,7 @@
 # Bíblia técnica — `scripts/ci/data/test-baseline.json`
 
+> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE
+
 ## Identidade do arquivo
 
 - **Arquivo:** `scripts/ci/data/test-baseline.json`
