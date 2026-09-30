@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "122-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/ci/data/test-baseline.json",
       "related_files": [
@@ -31,11 +31,15 @@
       "expected_auditor_action": "Classificar o contrato esperado e tratar eventual mudança fora da produção desta Bíblia.",
       "possible_regression": "Uma categoria smoke pode desaparecer silenciosamente enquanto files.length permanece maior ou igual a seis.",
       "impact": "Cobertura mínima temática da suíte smoke.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. `run-smoke.js` descobre qualquer `smoke-\\d+*.js` e o baseline protege apenas `smoke.minFiles=6`; não existe allowlist/identidade temática dos seis smokes canônicos. Um smoke obrigatório pode ser removido e substituído por outro arquivo mantendo a cardinalidade.",
+      "auditor_recommended_action": "Definir se o contrato é apenas quantidade ou também identidade mínima; se identidade for requisito, adicionar gate declarativo separado."
     },
     {
       "id": "122-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/run-smoke.js",
       "found_while_auditing": "tests/smoke/run-smoke.js",
@@ -48,7 +52,11 @@
       "expected_auditor_action": "Confirmar a lacuna e criar cobertura focal apenas em alteração autorizada separada.",
       "possible_regression": "Um smoke vermelho pode deixar de propagar corretamente para o gate agregado.",
       "impact": "Confiabilidade do gate smoke em npm/CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. O runner propaga `spawnSync` error/status e continua contando falhas, mas não há self-test focal para abaixo do minFiles, spawn error, child vermelho, continuidade após falha e exit agregado. O caminho verde de CI não prova esses branches.",
+      "auditor_recommended_action": "Adicionar self-test do runner com diretório/processos controlados, verificando ordem, continuidade e exit code agregado."
     }
   ],
   "document_quality": {
