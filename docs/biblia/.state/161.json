@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "161-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/refresh-job-watchdog-action.test.js",
       "found_while_auditing": "tests/unit/background/refresh-job-watchdog-action.test.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Adicionar/validar cobertura do validator sem modificar esta Bíblia.",
       "possible_regression": "A action pode tentar consultar/rearmar watchdog sem identidade de job.",
       "impact": "Robustez e isolamento de ownership.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "SUPERSEDED por 019-001. O jobId ausente no validator de REFRESH_JOB_WATCHDOG já está incluído na matriz de guards aceita.",
+      "auditor_recommended_action": "Acompanhar 019-001.",
+      "superseded_by": "019-001"
     },
     {
       "id": "161-002",
