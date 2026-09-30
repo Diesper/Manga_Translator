@@ -1,0 +1,11 @@
+{
+  "index": 123,
+  "file": "tests/smoke/smoke-01-batch-lifecycle.js",
+  "bible": "docs/biblia/tests/smoke/smoke-01-batch-lifecycle.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 4",
+  "source_sha": "c412ccaac3c01de93b0a6362747525c48d79a765",
+  "started_at_utc": "2026-09-30T06:29:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
