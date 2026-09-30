@@ -9,11 +9,15 @@
   "audit_requests": [
     {
       "id": "041-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/content/gemini/deletion.js",
       "finding": "Recovery stale por tabId sem TTL/jobId e clear antes de sendDelivery podem perder ownership/retry.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — durabilidade/recovery problemática confirmada. Recovery é chaveado apenas por tabId e salva `chatId/delivery/createdAt` sem TTL/jobId. `recoverPending` executa delete, chama `clearRecovery(tabId)` e só depois aguarda `sendDelivery`; se a entrega falhar/rejeitar, o marker já foi perdido e não há retry durável.",
+      "auditor_recommended_action": "Adicionar identidade/TTL do job ao marker e só removê-lo após ACK de delivery; em falha manter/regravar estado de retry. Testar delivery rejeitando após delete."
     },
     {
       "id": "041-002",
