@@ -1,0 +1,11 @@
+{
+  "index": 104,
+  "file": "tests/helpers/repo-root.js",
+  "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 19",
+  "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
+  "started_at_utc": "2026-09-30T06:26:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
