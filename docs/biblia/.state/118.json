@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "118-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/reader.ui.test.js",
       "found_while_auditing": "tests/integration/reader.ui.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir se a cobertura de fronteira é necessária para o contrato RD de largura.",
       "possible_regression": "Reader pode aceitar largura inválida baixa ou rejeitar uma borda válida sem falhar nos testes atuais.",
       "impact": "Robustez do contrato de preferência de largura; não invalida a prova direta existente para valor válido e overflow superior.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. A suíte prova width válida e fallback para 5000, mas não cobre limite inferior, bordas exatas 400/1200, 1201 nem valor não numérico/ausente.",
+      "auditor_recommended_action": "Adicionar tabela 399, 400, 1200, 1201 e string inválida usando `reader.js` real, assertando slider, width-val e maxWidth."
     }
   ],
   "document_quality": {
