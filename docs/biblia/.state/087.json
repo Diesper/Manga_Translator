@@ -2,10 +2,38 @@
   "index": 87,
   "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 10",
   "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
   "started_at_utc": "2026-09-30T06:11:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:14:00Z",
+  "audit_requests": [
+    {
+      "id": "087-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-jest-worker-warning-selftest.js",
+      "found_while_auditing": "scripts/validation/verify-jest-worker-warning-selftest.js",
+      "finding": "O caso positivo monta a amostra com a própria constante FORCED_WORKER_EXIT importada do helper; ele prova consistência interna, mas não fixa independentemente o literal real emitido pelo Jest.",
+      "current_evidence": "A linha 6 chama a implementação real e exige true para uma string composta por texto de PASS + FORCED_WORKER_EXIT + newline; as linhas 7-8 provam negativos de PASS saudável e FAIL comum.",
+      "missing_evidence": "Fixture ou assertion independente que compare o detector/constante com uma amostra canônica do warning sem reutilizar FORCED_WORKER_EXIT como oráculo.",
+      "why_needed": "Se a constante e o detector mudarem juntos para um literal incorreto, o self-test atual pode continuar verde enquanto o runner deixa de reconhecer o warning real do Jest.",
+      "requested_action": "Adicionar em alteração separada uma assertion com literal canônico independente ou fixture capturada de uma versão Jest suportada, mantendo os casos positivos/negativos existentes.",
+      "expected_evidence": "O self-test deve falhar quando FORCED_WORKER_EXIT divergir da amostra independente e continuar provando que PASS e FAIL comuns não geram falso positivo.",
+      "expected_auditor_action": "Confirmar a lacuna e decidir a forma de fixture independente adequada às versões Jest suportadas.",
+      "possible_regression": "Worker force-exit real pode voltar a passar pelo gate sem ser detectado se houver drift silencioso do literal.",
+      "impact": "Pode enfraquecer o gate que transforma warning de worker vazando recursos em falha bloqueante da CI.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "11/11",
+    "source_text_lines": 10,
+    "bible_lines": 448,
+    "external_audit_requests_open": 1,
+    "note": "Bíblia concluída sem alterar código, testes, fixtures, workflows, configurações ou arquivos globais."
+  }
 }
