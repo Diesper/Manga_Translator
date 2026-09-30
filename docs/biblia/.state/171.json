@@ -44,7 +44,7 @@
     },
     {
       "id": "171-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "INTEGRATION_TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-replacement-observability.test.js",
       "found_while_auditing": "tests/unit/background/tab-replacement-observability.test.js",
@@ -57,7 +57,12 @@
       "expected_auditor_action": "Escolher a suíte de background adequada e provar o wiring real em alteração separada.",
       "possible_regression": "Listener produtivo pode ser removido, inverter ids ou deixar de iniciar a migração sem quebrar esta suíte.",
       "impact": "Recuperação de identidade de aba e continuidade de jobs após replacement do Chromium.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "SUPERSEDED por 002-005. Ambas exigem teste focal que carregue `background.js` real, dispare `tabs.onReplaced` e observe `recordReplacement`/log com ordem correta added/removed.",
+      "auditor_recommended_action": "Centralizar a prova no request 002-005 e manter 171-* apenas para fidelidade específica do mock.",
+      "superseded_by": "002-005"
     }
   ],
   "document_quality": {
