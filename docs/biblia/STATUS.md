@@ -48,15 +48,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **69**
-- ✅ Concluídos auditados: **56**
-- 🟠 Em andamento: **21**
+- ✅ Concluídos auditados: **57**
+- 🟠 Em andamento: **20**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **164**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **24,03%**
+- Cobertura realmente aprovada: **24,46%**
 - Cobertura apenas materializada: **29,61%**
-- Último aprovado: `.github/workflows/ci.yml`
+- Último aprovado: `package.json`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -69,7 +69,6 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
   - `#058 extension/shared/gtc-indexeddb.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
   - `#060 extension/shared/storage-manager.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/storage-manager.js/Bíblia.md`
-  - `#063 package.json` — `Agente L` — Bíblia: `docs/biblia/package.json/Bíblia.md`
   - `#067 .github/workflows/recover-cancelled-ci.yml` — `AGENTE 4` — Bíblia: `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md`
   - `#069 scripts/ci/data/regression-matrix.json` — `AGENTE 6` — Bíblia: `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
   - `#071 scripts/ci/jest-worker-warning.js` — `AGENTE 8` — Bíblia: `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md`
@@ -144,6 +143,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 54. ✅ `scripts/ci/data/test-baseline.json`
 55. ✅ `playwright.config.js`
 56. ✅ `.github/workflows/ci.yml`
+57. ✅ `package.json`
 
 ### Revisão obrigatória
 
@@ -217,7 +217,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 60 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#Agent-A | `extension/shared/storage-manager.js` | `d1cd5a2c83ed` | `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` |
 | 61 | ✅ CONCLUÍDO | `.gitignore` | `e48fc70b1acc` | `docs/biblia/.gitignore/Bíblia.md` |
 | 62 | ✅ CONCLUÍDO | `jest.config.js` | `f0b7c55a5c8c` | `docs/biblia/jest.config.js/Bíblia.md` |
-| 63 | 🟠 EM ANDAMENTO — Agente L | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
+| 63 | ✅ CONCLUÍDO | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
 | 64 | ✅ CONCLUÍDO | `playwright.config.js` | `6a27b774a000` | `docs/biblia/playwright.config.js/Bíblia.md` |
 | 65 | ✅ CONCLUÍDO | `.github/workflows/ci.yml` | `ebee75820db9` | `docs/biblia/.github/workflows/ci.yml/Bíblia.md` |
 | 66 | ✅ CONCLUÍDO | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
