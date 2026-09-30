@@ -53,7 +53,7 @@
     },
     {
       "id": "196-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/content-manga/canonical-title-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/canonical-title-full.test.js",
@@ -66,7 +66,11 @@
       "expected_auditor_action": "Tratar como cleanup em mudança externa de baixo risco.",
       "possible_regression": "Baixo risco funcional; risco de auditoria/documentação enganosa.",
       "impact": "Manutenibilidade e rastreabilidade.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:38:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho ainda descreve v3.1 e chama canonical-title.test.js de stub com 1 teste, enquanto o helper atual se declara v3.2 e o stub possui quatro testes. `fs` também está importado sem uso.",
+      "auditor_recommended_action": "Atualizar metadados/comentários para o estado atual e remover import morto."
     }
   ],
   "document_quality": {
