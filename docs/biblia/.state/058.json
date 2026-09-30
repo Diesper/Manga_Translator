@@ -1,0 +1,37 @@
+{
+  "index": 58,
+  "file": "extension/shared/gtc-indexeddb.js",
+  "bible": "docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 13",
+  "source_sha": "0c872f23a665304b46dc2bb43c6468762feb2e31",
+  "started_at_utc": "2026-09-30T21:55:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "058-STATE-001",
+      "status": "OPEN",
+      "type": "STATE_RECOVERY_REVIEW",
+      "target_file": "docs/biblia/.state/058.json",
+      "found_while_auditing": "extension/shared/gtc-indexeddb.js",
+      "finding": "O arquivo de estado canônico 058.json estava ausente no branch, embora a Bíblia exista, o SHA da fonte confira e AUDITORIA.md marque o índice 58 como APROVADO.",
+      "current_evidence": "Bíblia existente declara conclusão/aprovação para SHA 0c872f23a665304b46dc2bb43c6468762feb2e31; AUDITORIA.md registra 58 como ✅ APROVADO; não havia reserva ativa para o arquivo ao iniciar a recuperação.",
+      "missing_evidence": "O conteúdo histórico do state perdido, inclusive possíveis audit_requests anteriores, não foi recuperável pelo histórico acessível do branch nem pelo SHA antigo do PR disponível nesta conversa.",
+      "why_needed": "Recriar o state é necessário para restaurar a invariante 1 arquivo = 1 state sem inventar solicitações históricas possivelmente perdidas.",
+      "requested_action": "Auditor de coordenação deve verificar se existe fonte externa/histórica adicional capaz de recuperar solicitações anteriores e, se houver, reconciliá-las neste state sem alterar a Bíblia já aprovada.",
+      "expected_evidence": "Confirmação de que não existiam audit_requests históricos adicionais ou restauração fiel deles a partir de fonte verificável.",
+      "expected_auditor_action": "Revisar a recuperação do state e resolver esta solicitação quando a integridade histórica estiver confirmada.",
+      "possible_regression": "Lacunas documentais já registradas na Bíblia podem deixar de aparecer no fluxo agregado de audit_requests se o state anterior continha solicitações que foram perdidas.",
+      "impact": "Integridade de coordenação/auditoria; a Bíblia e o código não foram alterados.",
+      "severity": "NORMAL"
+    }
+  ],
+  "recovery": {
+    "reason": "missing_state_file",
+    "recovered_by": "AGENTE 13",
+    "original_bible_agent": "GPT-5.6-Sol#K",
+    "bible_sha": "66172ff82912ee19958fb825cedd9ab2b22c3af3",
+    "audit_status_verified": "APPROVED",
+    "historical_audit_requests_recovered": false
+  }
+}
