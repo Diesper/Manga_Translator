@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "220-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/popup/resize-and-tabs.test.js",
       "found_while_auditing": "tests/unit/popup/resize-and-tabs.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Fortalecer cobertura.",
       "possible_regression": "Popup abre em tamanho incorreto.",
       "impact": "UX do popup.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O teste menciona fallback padrão 500×600, mas configura `popupSize` salvo e só prova o caminho persistido; o default real não é exercitado.",
+      "auditor_recommended_action": "Adicionar caso sem popupSize no storage e afirmar exatamente 500×600."
     },
     {
       "id": "220-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/popup/resize-and-tabs.test.js",
       "found_while_auditing": "tests/unit/popup/resize-and-tabs.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Fortalecer cobertura.",
       "possible_regression": "Resize parcial ou clamp incorreto.",
       "impact": "UX/redimensionamento.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O resize exercita apenas o handle diagonal e exige dimensões `>=400`; não fixa delta exato, máximos nem handles horizontal/vertical.",
+      "auditor_recommended_action": "Adicionar matriz de handles e limites, com dimensões esperadas exatas e clamps mínimo/máximo."
     },
     {
       "id": "220-003",
