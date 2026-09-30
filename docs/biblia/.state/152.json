@@ -1,0 +1,11 @@
+{
+  "index": 152,
+  "file": "tests/unit/background/jobs-reconciliation-batch-queue.test.js",
+  "bible": "docs/biblia/tests/unit/background/jobs-reconciliation-batch-queue.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
+  "source_sha": "032df2351f2a202dff11f227f8c4dc6ac5b80807",
+  "started_at_utc": "2026-09-30T06:41:52Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
