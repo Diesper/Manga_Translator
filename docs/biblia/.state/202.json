@@ -2,10 +2,81 @@
   "index": 202,
   "file": "tests/unit/content-manga/extract-flow-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/extract-flow-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 21",
   "source_sha": "1bbc481d426bf7471eb655cf514e20d2b323902b",
   "started_at_utc": "2026-09-30T06:44:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:52:00Z",
+  "audit_requests": [
+    {
+      "id": "202-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extract-flow-real.test.js",
+      "finding": "A suíte cobre 0% cache e 100% cache, mas não foi localizado lote parcialmente resolvido por cache e parcialmente enviado ao Gemini.",
+      "current_evidence": "Casos sem cache provam START_BATCH; caso de cache completo prova short-circuit sem START_BATCH.",
+      "missing_evidence": "instantCacheHits > 0 junto com payloadToGemini > 0, índices corretos e contadores cacheHits/geminiTotal.",
+      "why_needed": "O branch GTC_PARTIAL_HIT combina os dois subsistemas e pode regredir sem afetar os extremos.",
+      "requested_action": "Adicionar teste real com hit para subconjunto das imagens e miss para o restante.",
+      "expected_evidence": "Cache aplicado só nos hits; START_BATCH apenas para misses; estado com cacheHits/geminiTotal coerente.",
+      "expected_auditor_action": "Confirmar e adicionar cobertura em mudança separada.",
+      "possible_regression": "Itens cacheados podem ser reenviados ao Gemini, misses podem ser omitidos ou contadores divergir.",
+      "impact": "Eficiência, custo e consistência de lotes híbridos.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "202-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extract-flow-real.test.js",
+      "finding": "O caso relaxed testa confirmação regional positiva, mas não a rejeição regional do hit perceptual.",
+      "current_evidence": "Teste visual-v4 relaxed usa regionalHashes iguais e prova aplicação do cache; produção linhas 2289-2292 envia hit rejeitado ao Gemini.",
+      "missing_evidence": "Hashes regionais incompatíveis com assertion de que o cache não é aplicado e o índice segue a START_BATCH.",
+      "why_needed": "A confirmação regional é a barreira contra falso positivo perceptual.",
+      "requested_action": "Adicionar hit relaxed com regionais incompatíveis e verificar rejeição + encaminhamento ao Gemini.",
+      "expected_evidence": "GTC_F5C_REGIONAL_RESULT de falha, imagem não substituída pelo hit e START_BATCH com o índice.",
+      "expected_auditor_action": "Confirmar e tratar cobertura separadamente.",
+      "possible_regression": "Página pode receber tradução de imagem visualmente parecida porém incorreta.",
+      "impact": "Correção do conteúdo traduzido.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "202-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extract-flow-real.test.js",
+      "finding": "STOP_TRANSLATION_FROM_POPUP cobre sucesso, mas não runtime.lastError/background_stop_failed.",
+      "current_evidence": "Teste 4 prova cancelamento confirmado e limpeza para cancelled.",
+      "missing_evidence": "Falha do STOP_BATCH e preservação coerente do estado local.",
+      "why_needed": "Falha remota não deve ser mascarada como cancelamento local bem-sucedido.",
+      "requested_action": "Simular runtime.lastError no STOP_BATCH e verificar resposta/log/estado.",
+      "expected_evidence": "ok=false, reason=background_stop_failed, log BATCH_LOCAL_STOP_FAILED e ausência de falsa transição para cancelled.",
+      "expected_auditor_action": "Confirmar e adicionar teste em mudança separada.",
+      "possible_regression": "Estado da aba pode divergir do lote ainda ativo no background.",
+      "impact": "Confiabilidade de cancelamento e diagnóstico.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "551/551",
+    "source_text_lines": 550,
+    "bible_lines": 1080,
+    "external_audit_requests_open": 3,
+    "evidence_note": "11 casos executam content_manga.js real; contrato sem crypto foi distinguido do fallback privado e lacunas híbrida/regional/stop-error foram registradas."
+  }
 }
