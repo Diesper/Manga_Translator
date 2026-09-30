@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "185-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-gemini/resolution-elevation.test.js",
       "found_while_auditing": "tests/unit/content-gemini/resolution-elevation.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Priorizar força da prova.",
       "possible_regression": "Teste local permanece verde após remoção/quebra da elevação real.",
       "impact": "Qualidade/resolução do resultado extraído.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte de resolution elevation contém uma matriz que reimplementa localmente a regra de elevação de URL em vez de chamar o helper/caminho produtivo. A integração real cobre um subconjunto menor, então o mirror pode divergir e continuar verde.",
+      "auditor_recommended_action": "Extrair a elevação para helper canônico exportável ou parametrizar o pipeline real; remover a regex/regra duplicada do teste e executar toda a matriz contra produção."
     },
     {
       "id": "185-002",
