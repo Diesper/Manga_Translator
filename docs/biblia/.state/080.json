@@ -1,0 +1,11 @@
+{
+  "index": 80,
+  "file": "scripts/validation/playwright-gate-reporter-selftest.js",
+  "bible": "docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 2",
+  "source_sha": "478d6673dbb6d751e19f185feaed78764ebe6fde",
+  "started_at_utc": "2026-09-30T06:06:46.460Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
