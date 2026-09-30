@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "219-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/popup/progress-panel.test.js",
       "found_while_auditing": "tests/unit/popup/progress-panel.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Ampliar a suíte sem alterar a implementação para produzir o teste.",
       "possible_regression": "Polling órfão ou status visual errado após terminal state.",
       "impact": "Lifecycle do painel de progresso.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O poller real possui branches para conclusão/cancelamento local e `mt_popup_state.status='cancelled'`, mas os testes atuais cobrem progresso e `complete`, não esses caminhos de cancelamento.",
+      "auditor_recommended_action": "Adicionar casos de complete/cancelled em cada fonte de estado e afirmar fechamento/estado final do painel."
     },
     {
       "id": "219-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/popup/progress-panel.test.js",
       "found_while_auditing": "tests/unit/popup/progress-panel.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer o cenário existente.",
       "possible_regression": "Estado/timers sobrevivem à conclusão e afetam reabertura futura.",
       "impact": "Consistência da UI e persistência temporária.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O caso de conclusão verifica texto e existência do botão Fechar, mas não barra em 100%, remoção de `mt_popup_state`, click do close, restauração das tabs nem autoclose.",
+      "auditor_recommended_action": "Fortalecer o caso final com efeitos completos da conclusão e timers controlados."
     },
     {
       "id": "219-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/popup/progress-panel.test.js",
       "found_while_auditing": "tests/unit/popup/progress-panel.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Cobrir branch real de erro.",
       "possible_regression": "Usuário perde feedback ou popup fecha sem cancelamento efetivo.",
       "impact": "Controle de lote por aba.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O botão Parar só é exercitado com resposta ok:true; o branch de falha que mostra toast e mantém o popup aberto não tem prova focal.",
+      "auditor_recommended_action": "Adicionar resposta negativa/runtime error e afirmar toast + painel/popup ainda ativo."
     },
     {
       "id": "219-004",
