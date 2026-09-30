@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 18
+ARQUIVO: tests/mocks/chrome-api.mock.js
+BÍBLIA: docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: c1d9a056b7777183bfd3f540c49811335f410425
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T06:32:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T06:32:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
