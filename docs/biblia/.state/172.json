@@ -2,10 +2,39 @@
   "index": 172,
   "file": "tests/unit/background/test_bg59.test.js",
   "bible": "docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 2",
   "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
   "started_at_utc": "2026-09-30T06:30:47.120Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:35:12.967Z",
+  "audit_requests": [
+    {
+      "id": "172-001",
+      "status": "OPEN",
+      "type": "CONTRACT_NAMING_REVIEW",
+      "target_file": "extension/background/actions/calculate-visual-fingerprint.js",
+      "related_files": [
+        "tests/unit/background/test_bg59.test.js"
+      ],
+      "found_while_auditing": "tests/unit/background/test_bg59.test.js",
+      "finding": "O teste nomeia o contrato como visual-v4, o comentário do action como visual-v3/v4 e as mensagens VISUAL_FP_OK/VISUAL_FP_FAIL ainda dizem visual-v3.",
+      "current_evidence": "Strings literais nos fontes atuais; o payload já inclui wHashCrop e pHashCrop.",
+      "missing_evidence": "Definição canônica explícita da versão do contrato de fingerprint que inclui os campos de center-crop.",
+      "why_needed": "Nomenclatura divergente em logs/testes pode causar ambiguidade em diagnóstico e migração futura.",
+      "requested_action": "Definir a nomenclatura canônica e alinhar comentários/logs/títulos em alteração separada, preservando o payload.",
+      "expected_evidence": "Uma única versão nominal usada consistentemente nos artefatos e testes pertinentes.",
+      "possible_regression": "Triagem ou migração baseada na versão nominal errada.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "163/163",
+    "source_text_lines": 162,
+    "bible_lines": 2979,
+    "external_audit_requests_open": 1,
+    "note": "Teste documentado como prova de wiring do background real; algoritmo de hash permanece explicitamente classificado como mockado neste arquivo."
+  }
 }
