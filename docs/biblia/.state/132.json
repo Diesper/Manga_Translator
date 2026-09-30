@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "132-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_RELIABILITY",
       "target_file": "tests/unit/background/batch-lifecycle-real.test.js",
       "found_while_auditing": "tests/unit/background/batch-lifecycle-real.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Classificar o risco de flake e ajustar somente se necessário.",
       "possible_regression": "Flake intermitente do caso de watchdog ou latência desnecessária na suíte.",
       "impact": "Confiabilidade e duração do teste de timeout.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:48:00Z",
+      "audit_finding": "ACCEPTED. O caso de watchdog dispara o alarm e depois usa `flush(10)` + `delay(650)` antes das assertions. Esse wall-clock torna a prova mais lenta e potencialmente flakey; o contrato relevante pode ser exercitado com fake timers/espera por condição.",
+      "auditor_recommended_action": "Substituir o delay fixo por fake timers ou `waitFor` de condição observável, mantendo a implementação real do watchdog."
     }
   ],
   "document_quality": {
@@ -35,7 +39,10 @@
     "bible_lines": 778,
     "external_audit_requests_open": 1,
     "evidence_run": 36577447500,
-    "evidence_jobs": [109437162616, 109437162754],
+    "evidence_jobs": [
+      109437162616,
+      109437162754
+    ],
     "evidence_summary": "Mesmo blob executado; PASS explícito do arquivo no job Node 20.x e matriz Node 20/22 com 109/109 suites e 851/851 testes."
   }
 }
