@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "215-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/inject/visibility-spoof.test.js",
       "found_while_auditing": "tests/unit/inject/visibility-spoof.test.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Migrar prova para implementação real em alteração separada.",
       "possible_regression": "Pipeline em background pode hibernar apesar do stub verde.",
       "impact": "Estabilidade da automação em abas de background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "SUPERSEDED por 213-001. O teste de visibility spoof é mais um mirror do mesmo `inject.js`; 213-001 já exige execução real incluindo visibilidade/hasFocus/eventos.",
+      "auditor_recommended_action": "Cobrir visibilidade real dentro do harness único de inject.",
+      "superseded_by": "213-001"
     },
     {
       "id": "215-002",
