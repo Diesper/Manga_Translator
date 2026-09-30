@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "203-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "related_files": [
@@ -26,11 +26,15 @@
       "expected_auditor_action": "Confirmar e tratar em mudança de teste separada.",
       "possible_regression": "Tradução de lote antigo pode substituir página do lote atual.",
       "impact": "Integridade entre lotes.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. `content_manga.js` possui guard STALE_UPDATE para batchId divergente, mas a suíte não envia batchId divergente no caso correspondente; descarte antes dos side effects não é provado.",
+      "auditor_recommended_action": "Estabelecer batch atual A, enviar UPDATE_IMAGE de B com expectAck=true e exigir stale_batch, DOM/storage/GTC inalterados."
     },
     {
       "id": "203-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "related_files": [
@@ -46,7 +50,11 @@
       "expected_auditor_action": "Confirmar e criar cobertura separada.",
       "possible_regression": "Lote atual pode terminar prematuramente por mensagem antiga.",
       "impact": "Isolamento e accounting de batches.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. BATCH_COMPLETE possui guard STALE_COMPLETE, mas não há completion com batchId divergente; não se prova preservação do lote/UI atual.",
+      "auditor_recommended_action": "Adicionar batch atual A + BATCH_COMPLETE B, verificando estado/UI ainda ativos e log STALE_COMPLETE."
     },
     {
       "id": "203-003",
@@ -70,7 +78,7 @@
     },
     {
       "id": "203-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "related_files": [
@@ -87,7 +95,11 @@
       "expected_auditor_action": "Confirmar e tratar cobertura separada.",
       "possible_regression": "Resultado pode ser considerado persistido quando storage falhou.",
       "impact": "Durabilidade e coordenação content/background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. O branch de falha de persistTranslatedPage deve logar PERSIST_FAIL e responder persist_failed com expectAck; a suíte só prova persistência bem-sucedida.",
+      "auditor_recommended_action": "Forçar rejeição controlada da persistência e assertar ACK de falha, log e ausência de falso sucesso."
     }
   ],
   "document_quality": {
