@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "126-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-04-storage-manager.js",
       "found_while_auditing": "tests/smoke/smoke-04-storage-manager.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Confirmar se o contrato exige rollback explícito e implementar cobertura sem modificar storage-manager apenas para fabricar a prova.",
       "possible_regression": "Falha de IndexedDB pode deixar página, restore e asset divergentes apesar de o overwrite normal continuar verde.",
       "impact": "Integridade persistente em falhas; caminho feliz atual continua diretamente provado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:36:00Z",
+      "audit_finding": "SUPERSEDED por 060-002. O pedido de fault-injection para provar rollback atômico de storage-manager é um caso específico do mesmo gap já aceito no módulo canônico.",
+      "auditor_recommended_action": "Centralizar fault injection/rollback no request 060-002 e reutilizar esse harness para o smoke se necessário.",
+      "superseded_by": "060-002"
     },
     {
       "id": "126-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-04-storage-manager.js",
       "found_while_auditing": "tests/smoke/smoke-04-storage-manager.js",
@@ -40,11 +45,15 @@
       "expected_auditor_action": "Validar a semântica esperada e adicionar assertions sobre todos os registros afetados.",
       "possible_regression": "Asset/página órfãos podem acumular ou reaparecer por caminhos que não dependem apenas do restoreIndex.",
       "impact": "Cleanup de refazer e uso de quota do IndexedDB.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:36:00Z",
+      "audit_finding": "ACCEPTED. `deleteByCleanUrl` no smoke verifica contagem e ausência do restore, mas não prova diretamente ausência da página/asset correspondente nem cenário multi-capítulo. O cleanup completo pode regredir sem quebrar essas assertions.",
+      "auditor_recommended_action": "Adicionar assertions sobre page/asset removidos e, se contratual, caso da mesma cleanUrl em capítulos distintos."
     },
     {
       "id": "126-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-04-storage-manager.js",
       "found_while_auditing": "tests/smoke/smoke-04-storage-manager.js",
@@ -57,7 +66,11 @@
       "expected_auditor_action": "Revisar a política de falha parcial e criar cobertura separada.",
       "possible_regression": "Perda silenciosa de páginas/restores legados durante migração enquanto o smoke permanece verde.",
       "impact": "Confiabilidade da migração de instalações antigas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:36:00Z",
+      "audit_finding": "ACCEPTED. A migração semeia duas páginas e um restore, mas aceita apenas `migrated >= 1`, flag true e cleanup legado; migração parcial ainda pode satisfazer o teste. Não há cenário de falha parcial.",
+      "auditor_recommended_action": "Exigir contagem/conteúdo exatos antes da limpeza e adicionar falha parcial para definir quando a flag/remoção do legado podem ocorrer."
     }
   ],
   "document_quality": {
