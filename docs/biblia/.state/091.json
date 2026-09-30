@@ -27,7 +27,7 @@
     },
     {
       "id": "091-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "POLICY_GAP_REVIEW",
       "target_file": "scripts/validation/verify-test-policy.js",
       "found_while_auditing": "scripts/validation/verify-test-policy.js",
@@ -40,7 +40,11 @@
       "expected_auditor_action": "Confirmar se o contrato desejado é amplo ou deliberadamente restrito e abrir correção separada se necessário.",
       "possible_regression": "Um teste pode ficar pulado ou focado sem o gate acusar.",
       "impact": "Integridade da suíte e garantia de que nenhum teste seja silenciosamente excluído.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — bypass de política confirmado. Regexes só cobrem `(test|it|describe).skip/.only` e `test.todo`; `xit`, `xdescribe`, `fit`, `fdescribe`, `test.concurrent.skip`, `test.concurrent.only` e chains equivalentes não correspondem.",
+      "auditor_recommended_action": "Expandir parser/regex para aliases e chains semânticas ou usar AST; adicionar self-test para cada forma proibida e formas legítimas próximas."
     },
     {
       "id": "091-003",
