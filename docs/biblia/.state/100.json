@@ -1,0 +1,11 @@
+{
+  "index": 100,
+  "file": "tests/helpers/load-background-module.js",
+  "bible": "docs/biblia/tests/helpers/load-background-module.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 8",
+  "source_sha": "b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113",
+  "started_at_utc": "2026-09-30T06:21:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
