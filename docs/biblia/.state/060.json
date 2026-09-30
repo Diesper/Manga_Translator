@@ -9,11 +9,15 @@
   "audit_requests": [
     {
       "id": "060-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_BUG_REVIEW",
       "target_file": "extension/shared/storage-manager.js",
       "finding": "Migração parcial pode gravar flag/limpar legado após falha de página e overwrite de cleanUrl pode deixar restore órfão.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:42:00Z",
+      "audit_finding": "ACCEPTED — dois bugs de consistência confirmados. Na migração legacy, falhas por página são engolidas, mas ao final `_sm_migrated_<chapter>` é gravado `true`; se ao menos uma migrou, todo legado é removido, podendo perder páginas que falharam. Além disso, `savePageResult` ao substituir uma página com `cleanUrl` diferente marca o asset da página anterior como obsoleto, mas não remove a antiga restoreEntry por `previousPage.cleanUrl`; essa restore pode ficar apontando para asset apagado.",
+      "auditor_recommended_action": "Só marcar/remover legado após migração integral comprovada (ou registrar progresso por item). Ao trocar cleanUrl da mesma página, remover/atualizar restore antigo na mesma transação. Adicionar regressões para falha parcial e troca de cleanUrl."
     },
     {
       "id": "060-002",
