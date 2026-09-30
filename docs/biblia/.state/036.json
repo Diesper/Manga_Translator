@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "036-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "IDENTITY_REVIEW",
       "target_file": "extension/content/cm-dom-replace.js",
       "found_while_auditing": "extension/content/cm-dom-replace.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar identidade de imagem em conjunto com cm-gtc-client.",
       "possible_regression": "Tradução errada aplicada por colisão de identidade.",
       "impact": "Correção do cache/restore e seleção de páginas.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — colisão de identidade possível. `getCleanUrl` monta URL e aplica `.toLowerCase()` ao resultado completo. Para URLs comuns, se nenhum resize param foi removido (`changed=false`), descarta toda query; em hosts case-sensitive/path-sensitive ou query que seleciona recurso, imagens distintas podem convergir à mesma cleanUrl.",
+      "auditor_recommended_action": "Preservar case de path conforme semântica URL e definir allowlist de parâmetros descartáveis em vez de remover query inteira; criar regressões case/query."
     },
     {
       "id": "036-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOM_ROBUSTNESS_REVIEW",
       "target_file": "extension/content/cm-dom-replace.js",
       "found_while_auditing": "extension/content/cm-dom-replace.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar DOM replacement do twin.",
       "possible_regression": "Backdrop volta à imagem original e fica visualmente inconsistente.",
       "impact": "Consistência visual da página.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — replacement de twin incompleto. No elemento principal, sources/srcset/sizes/data-* são removidos antes da troca; no twin/backdrop, só `twin.src` e `data-translated` são definidos. `<picture>`/srcset/lazy-loader ainda podem reescrever a fonte traduzida.",
+      "auditor_recommended_action": "Aplicar o mesmo saneamento de source/srcset/lazy attributes aos twins ou substituir nó de forma equivalente; testar `<picture>`/srcset."
     },
     {
       "id": "036-003",
