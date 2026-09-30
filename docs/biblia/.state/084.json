@@ -31,7 +31,7 @@
     },
     {
       "id": "084-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-coverage-selftest.js",
       "found_while_auditing": "scripts/validation/verify-coverage-selftest.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Priorizar os branches de integridade com maior risco e abrir alteração de testes separada.",
       "possible_regression": "Relatórios malformados ou inventários incompletos podem deixar de ser detectados sem quebrar o self-test atual.",
       "impact": "Cobertura probatória incompleta do verificador que protege o gate de coverage.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. O coverage self-test cobre seis cenários, mas deixa sem prova summary ausente/vazio/inválido, LCOV sem SF, inventário vazio/incompleto, pct inválido, minInstrumentedFiles, criticalMinimum sem summaryKey e variantes de path.",
+      "auditor_recommended_action": "Adicionar fixtures mínimas independentes para cada branch fail-closed/normalização usando `verifyCoverage` real."
     },
     {
       "id": "084-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/validation/verify-coverage-selftest.js",
@@ -61,11 +65,15 @@
       "expected_auditor_action": "Classificar como contrato obrigatório ou aceitar explicitamente a ausência de pinagem.",
       "possible_regression": "O caso de criticalMinimum pode desaparecer do self-test e o CI Contract continuar verde.",
       "impact": "Possível enfraquecimento silencioso da prova de thresholds críticos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. `verify-ci-contract.js` protege cinco labels do coverage self-test, mas não o cenário distinto de threshold crítico por arquivo já existente no self-test.",
+      "auditor_recommended_action": "Se a prova de criticalMinimum for invariável obrigatória, piná-la no meta-gate ou em contrato semântico equivalente."
     },
     {
       "id": "084-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FIXTURE_INTEGRITY_REVIEW",
       "target_file": "scripts/validation/verify-coverage-selftest.js",
       "found_while_auditing": "scripts/validation/verify-coverage-selftest.js",
@@ -78,7 +86,11 @@
       "expected_auditor_action": "Classificar a inconsistência como aceitável para fixture sintética ou solicitar correção/teste separado.",
       "possible_regression": "Relatório inconsistente pode ser aceito porque somente pct governa os thresholds.",
       "impact": "Ambiguidade no contrato de integridade do artefato de coverage.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. `coverageEntry` pode produzir `covered/total` incompatível com `pct` (por arredondamento independente), e o verifier usa pct sem reconciliar contagens. A fixture deixa ambíguo o contrato para relatório internamente inconsistente.",
+      "auditor_recommended_action": "Tornar fixtures aritmeticamente coerentes e decidir/testar se `verifyCoverage` deve rejeitar inconsistência covered/total versus pct."
     }
   ],
   "document_quality": {
