@@ -1,6 +1,6 @@
 # Bíblia técnica — playwright.config.js
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE ATIVA  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `6a27b774a0009db800a70969eaad18716fb5f565`  
 > **Agente responsável pela auditoria:** AGENTE 1  
 > **Tipo:** configuração Playwright/E2E canônica da raiz  

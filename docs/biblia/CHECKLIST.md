@@ -81,7 +81,7 @@
 - [x] 061 — `.gitignore` → `docs/biblia/.gitignore/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 062 — `jest.config.js` → `docs/biblia/jest.config.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 063 — `package.json` → `docs/biblia/package.json/Bíblia.md` **← EM ANDAMENTO — Agente L**
-- [ ] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 1**
+- [x] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 3**
 - [x] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 4**
@@ -93,7 +93,7 @@
 - [ ] 073 — `scripts/ci/playwright-merge.config.js` → `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 10**
 - [ ] 074 — `scripts/ci/run-e2e-group.js` → `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 2**
 - [ ] 075 — `scripts/ci/run-jest-ci.js` → `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 5**
-- [ ] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
+- [ ] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 1**
 - [ ] 077 — `scripts/maintenance/diagnose-jest-workers.js` → `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
 - [ ] 078 — `scripts/release/sync-version.js` → `docs/biblia/scripts/release/sync-version.js/Bíblia.md`
 - [ ] 079 — `scripts/validation/check-js-syntax.js` → `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md`
