@@ -2249,75 +2249,75 @@ console.log(
 
 ### Linha 173
 
-**Fonte:** `    /executa a instrução concreta/i,`
+**Fonte:** `[literal de regex de boilerplate #1; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/executa a instrução concreta/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 1 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 174
 
-**Fonte:** `    /executa a instrução específica(?: de)?/i,`
+**Fonte:** `[literal de regex de boilerplate #2; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/executa a instrução específica(?: de)?/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 2 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 175
 
-**Fonte:** `    /usa os dados já validados pelas linhas/i,`
+**Fonte:** `[literal de regex de boilerplate #3; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/usa os dados já validados pelas linhas/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 3 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 176
 
-**Fonte:** `    /usa valores produzidos nas linhas vizinhas/i,`
+**Fonte:** `[literal de regex de boilerplate #4; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/usa valores produzidos nas linhas vizinhas/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 4 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 177
 
-**Fonte:** `    /usa identidades e valores estabelecidos pelas linhas anteriores/i,`
+**Fonte:** `[literal de regex de boilerplate #5; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/usa identidades e valores estabelecidos pelas linhas anteriores/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 5 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 178
 
-**Fonte:** `    /dentro do protocolo de (?:claim|commit)/i,`
+**Fonte:** `[literal de regex de boilerplate #6; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/dentro do protocolo de (?:claim|commit)/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 6 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 179
 
-**Fonte:** `    /coberta direta ou estruturalmente pelos cenários/i,`
+**Fonte:** `[literal de regex de boilerplate #7; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/coberta direta ou estruturalmente pelos cenários/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 7 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 180
 
-**Fonte:** `    /quando coberta pelos cenários diretos acima/i,`
+**Fonte:** `[literal de regex de boilerplate #8; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/quando coberta pelos cenários diretos acima/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 8 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 181
 
-**Fonte:** `    /a ordem desta seção é parte do contrato/i,`
+**Fonte:** `[literal de regex de boilerplate #9; conteúdo exato preservado na seção Fonte integral auditada]`
 
-**Função:** Participa do contrato estrutural com a instrução `/a ordem desta seção é parte do contrato/i,`; seu efeito deve ser interpretado junto do bloco sintático em que está inserida.
+**Função:** Registra a regra de boilerplate proibido número 9 no array `forbiddenBoilerplate`; a representação linha-a-linha evita repetir fora de fence o próprio texto que este gate foi projetado para rejeitar.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o arquivo é executado diretamente pelo job de validação da CI e por `npm run validate:structure`, mas não há assertion focal desta linha.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — o verificador aplica esta regex às Bíblias aprovadas reais, e `verify-ci-contract.js` exige que o mecanismo de scan permaneça presente.
 
 ### Linha 182
 
