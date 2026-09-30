@@ -89,7 +89,6 @@ Isso é diferente de START_BATCH, que entrega o sender para o orchestrator e nor
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 19/19
