@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "110-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CLASSIFICATION_REVIEW",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "A classificação deve distinguir explicitamente simulação de execução real; se convertida, assertions devem observar efeitos da implementação real.",
       "possible_regression": "Mudanças no pipeline real podem quebrar cache/IPC enquanto esta suíte permanece verde por testar apenas código copiado.",
       "impact": "Confiabilidade da matriz de testes e rastreabilidade da Bíblia.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — classificação de integração incorreta confirmada. O arquivo define `simulateExtractWithGTC` local e grava `gtc_*` diretamente no storage; nenhuma implementação de produção do pipeline GTC é carregada. Os resultados provam apenas a simulação.",
+      "auditor_recommended_action": "Reclassificar como teste de modelo ou migrar para GTC client/background/storage-manager reais com o chrome mock."
     },
     {
       "id": "110-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -38,7 +42,11 @@
       "expected_evidence": "Assertions sobre mensagens/efeitos reais, como GTC_QUERY_MANY, START_BATCH/queue, replacement e GTC_SAVE/IndexedDB, sem reimplementar a decisão testada.",
       "possible_regression": "Quebra de wiring entre etapas pode não aparecer em testes unitários isolados nem nesta simulação.",
       "impact": "Cobertura do fluxo GTC ponta a ponta.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — contratos declarados não são exercitados. `extractAndSendImages`, cache hit sem Gemini, miss encaminhado à fila e `UPDATE_IMAGE` persistindo no GTC não passam pelos produtores/consumidores reais neste arquivo.",
+      "auditor_recommended_action": "Adicionar integração focal usando implementação real e assertions de efeitos em cache/fila/UPDATE_IMAGE; evitar reimplementação local do fluxo."
     },
     {
       "id": "110-003",
