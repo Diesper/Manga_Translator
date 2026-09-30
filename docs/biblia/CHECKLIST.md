@@ -85,11 +85,11 @@
 - [ ] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 3**
 - [ ] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 2**
 - [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 4**
-- [ ] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md`
-- [ ] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
-- [ ] 070 — `scripts/ci/data/test-baseline.json` → `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md`
-- [ ] 071 — `scripts/ci/jest-worker-warning.js` → `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md`
-- [ ] 072 — `scripts/ci/playwright-gate-reporter.js` → `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md`
+- [ ] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 5**
+- [ ] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 6**
+- [ ] 070 — `scripts/ci/data/test-baseline.json` → `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 7**
+- [ ] 071 — `scripts/ci/jest-worker-warning.js` → `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 8**
+- [ ] 072 — `scripts/ci/playwright-gate-reporter.js` → `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 9**
 - [ ] 073 — `scripts/ci/playwright-merge.config.js` → `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md`
 - [ ] 074 — `scripts/ci/run-e2e-group.js` → `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md`
 - [ ] 075 — `scripts/ci/run-jest-ci.js` → `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
