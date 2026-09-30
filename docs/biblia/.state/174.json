@@ -31,7 +31,7 @@
     },
     {
       "id": "174-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/attachment.test.js",
       "found_while_auditing": "tests/unit/content-gemini/attachment.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Runner pode avançar enquanto upload ainda processa.",
       "impact": "Sincronização de upload.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:36:00Z",
+      "audit_finding": "ACCEPTED. `evidenceReady` rejeita preview mesmo com IMG completa quando o attachment está `aria-busy=true`, contém `role=progressbar` ou `mat-progress-spinner`; ATT-10 cobre somente imagem incompleta, não esses sinais explícitos de upload pendente.",
+      "auditor_recommended_action": "Adicionar casos com imagem completa + cada marcador busy/progress, exigindo que a evidência permaneça não pronta até o marcador desaparecer."
     },
     {
       "id": "174-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/attachment.test.js",
       "found_while_auditing": "tests/unit/content-gemini/attachment.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Arquivo atribuído a controle errado ou não-imagem.",
       "impact": "Segurança/robustez do mecanismo de upload.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:36:00Z",
+      "audit_finding": "ACCEPTED. `findFileInputsDeep` filtra inputs disabled, fora do contexto apropriado, com `accept` incompatível e prioriza os do composer; ATT-08 prova apenas que um input genérico dentro de Shadow DOM é encontrado.",
+      "auditor_recommended_action": "Adicionar matriz com disabled, accept não-imagem, user/model context e múltiplos inputs, verificando filtragem/prioridade canônicas."
     }
   ],
   "document_quality": {
