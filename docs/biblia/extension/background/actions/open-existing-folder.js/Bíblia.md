@@ -115,7 +115,6 @@ Os testes do helper real provam criação do `_anchor.png`, show, remoção apó
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 39/39
