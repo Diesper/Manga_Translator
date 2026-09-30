@@ -27,7 +27,7 @@
     },
     {
       "id": "189-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/temp-chat-activator.test.js",
       "found_while_auditing": "tests/unit/content-gemini/temp-chat-activator.test.js",
@@ -40,7 +40,11 @@
       "expected_auditor_action": "Fortalecer cobertura estrutural.",
       "possible_regression": "Controle temporário pode ficar invisível ao automator.",
       "impact": "Resiliência a mudanças de DOM.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. `temp-chat-activator.test.js` cobre localização semântica apenas em light DOM. Não existe host com `shadowRoot` aberto contendo o controle, apesar de a implementação possuir travessia `findInTree` para esse cenário.",
+      "auditor_recommended_action": "Adicionar fixture com web component/shadowRoot aberto e provar descoberta + ativação do controle semântico interno."
     },
     {
       "id": "189-003",
