@@ -99,12 +99,15 @@
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "243/243",
-    "bible_lines": 593,
+    "bible_lines": 612,
     "external_audit_requests_open": 5,
     "automated_tests_documented": 7,
-    "ci_runtime_at_audit": "PENDING",
-    "note": "Reauditoria independente reconfirmou integridade e evidências; conclusão global aguarda veredito explícito de #224 em AUDITORIA.md.",
+    "ci_runtime_at_audit": "PENDING_NO_JOBS_PUBLISHED",
+    "note": "Reauditoria técnica independente aprovada por AGENTE 28; conclusão global aguarda registro individual de #224 em AUDITORIA.md e reconciliação das visões agregadas.",
     "global_audit": "PENDING",
-    "reaudited_by": "AGENTE 28"
+    "reaudited_by": "AGENTE 28",
+    "independent_technical_audit": "APPROVED_BY_AGENTE_28",
+    "ci_head_observed": "5b10c0e9373086e3c8ac226c432eab03aaf825c2",
+    "ci_run_observed": 3192
   }
 }
