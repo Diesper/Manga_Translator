@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "228-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_QUALITY",
       "target_file": "tests/visual/gtc-fingerprint.visual.js",
       "found_while_auditing": "tests/visual/gtc-fingerprint.visual.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Classificar o claim e fortalecer ou renomear o teste em alteração separada.",
       "possible_regression": "Recomputação cara pode ser introduzida sem quebrar a suíte atual.",
       "impact": "Desempenho de pHash; funcionalidade nominal permanece coberta.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O teste de 'cosine table lazy-init — second call reuses cache' apenas chama calculatePHash duas vezes e verifica hashes válidos; não observa contagem de inicializações nem identidade/reuso da tabela.",
+      "auditor_recommended_action": "Instrumentar/expor seam de inicialização da cosine table ou renomear o teste para determinismo de chamadas repetidas."
     },
     {
       "id": "228-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/shared/gtc-fingerprint.js",
       "related_files": [
@@ -45,11 +49,16 @@
       "expected_auditor_action": "Confirmar o comportamento JavaScript e o domínio confiável dos hashes antes de alterar produção.",
       "possible_regression": "Possível falso match diante de dado GTC malformado/corrompido.",
       "impact": "Robustez da correspondência perceptual; inputs internos normais continuam gerando hex válido.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "SUPERSEDED por 211-001. O comportamento de `hammingDistance` com caracteres não-hex já foi auditado e aceito como problema canônico na suíte unitária.",
+      "auditor_recommended_action": "Centralizar validação de hex/regressão em 211-001.",
+      "superseded_by": "211-001"
     },
     {
       "id": "228-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_SUITE_SCOPE_REVIEW",
       "target_file": "tests/visual/crop.visual.js",
       "related_files": [
@@ -67,7 +76,12 @@
       "expected_auditor_action": "Decidir se a cobertura unitária já é suficiente e corrigir apenas o claim se apropriado.",
       "possible_regression": "Interpretação incorreta do relatório visual durante auditorias futuras.",
       "impact": "Rastreabilidade de cobertura; não há lacuna global total porque existe prova unitária direta.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "SUPERSEDED por 227-001. A ausência de execução real do matcher relaxed e o label enganoso em crop.visual.js já foram auditados no request específico.",
+      "auditor_recommended_action": "Centralizar a prova de thresholds relaxed em 227-001.",
+      "superseded_by": "227-001"
     },
     {
       "id": "228-004",
@@ -96,7 +110,7 @@
     },
     {
       "id": "228-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SOURCE_DOCUMENTATION_CORRECTION",
       "target_file": "tests/visual/gtc-fingerprint.visual.js",
       "found_while_auditing": "tests/visual/gtc-fingerprint.visual.js",
@@ -109,7 +123,11 @@
       "expected_auditor_action": "Aplicar correção documental se considerado útil.",
       "possible_regression": "Somente confusão documental; sem efeito runtime.",
       "impact": "Baixo.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho ainda identifica 'MangaTranslator v3.3', enquanto o pacote atual é 6.5.0 e o runner já deriva versão dinamicamente.",
+      "auditor_recommended_action": "Remover versão hardcoded/stale do cabeçalho ou derivá-la do package se realmente necessária."
     }
   ],
   "document_quality": {
