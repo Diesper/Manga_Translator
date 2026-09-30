@@ -1,0 +1,11 @@
+{
+  "index": 50,
+  "file": "extension/content/inject.js",
+  "bible": "docs/biblia/extension/content/inject.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 31",
+  "source_sha": "21f7f6cf9c940a6de6e4fd72d4bf7eeb88e7a27c",
+  "started_at_utc": "2026-09-30T16:06:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
