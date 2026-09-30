@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 25
+ARQUIVO: tests/unit/gtc/fingerprint.test.js
+BÍBLIA: docs/biblia/tests/unit/gtc/fingerprint.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 5255083ff2881ad8ed4ad6c6940253031e789658
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T14:01:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T14:01:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA — EM ANÁLISE
