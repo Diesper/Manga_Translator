@@ -10,33 +10,45 @@
   "audit_requests": [
     {
       "id": "067-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": ".github/workflows/recover-cancelled-ci.yml",
       "finding": "Falta teste focal do controlador de recuperação e de seus guards de segurança e concorrência.",
       "requested_action": "Adicionar teste separado que execute a implementação real com APIs controladas.",
       "possible_regression": "Filtros e guards podem regredir sem falha automatizada.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. Não foi localizado self-test/harness do controlador embutido no workflow. A execução real depende de `github-script`, enquanto os gates existentes protegem estrutura/wiring, não os branches de fork, filtros de PR/HEAD, rerun, polling e concorrência.",
+      "auditor_recommended_action": "Criar teste/harness do controlador real ou extrair uma unidade canônica testável, mantendo os mesmos guards."
     },
     {
       "id": "067-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RACE_REVIEW",
       "target_file": ".github/workflows/recover-cancelled-ci.yml",
       "finding": "O snapshot de PRs pode ficar desatualizado antes da solicitação de rerun.",
       "requested_action": "Avaliar revalidação de PR e HEAD imediatamente antes da mutação.",
       "possible_regression": "Run de commit que deixou de ser HEAD pode ser reexecutado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. `openHeadShas` é montado a partir de um snapshot dos PRs abertos. Antes de rerun, o workflow reconsulta o estado do run cancelado e runs ativos da branch, mas não reconsulta o PR nem confirma que `candidate.head_sha` continua HEAD de um PR aberto. Existe janela de race entre snapshot e mutação.",
+      "auditor_recommended_action": "Revalidar PR aberto + head SHA imediatamente antes do POST de rerun, ou documentar/aceitar explicitamente a janela; adicionar cenário de mudança de HEAD."
     },
     {
       "id": "067-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": ".github/workflows/recover-cancelled-ci.yml",
       "finding": "Chamadas de API não têm política local de retry para falha transitória.",
       "requested_action": "Definir se retry/backoff é necessário e testar a decisão.",
       "possible_regression": "Falha transitória pode abortar a reconciliação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. As chamadas de listagem, `github.rest.actions.getWorkflowRun`, listagem de branch, POST de rerun e polling não possuem retry/backoff local para erros transitórios. O job pode abortar por falha temporária da API.",
+      "auditor_recommended_action": "Definir política de retry/backoff para operações idempotentes e para polling, com testes de falha transitória."
     }
   ]
 }
