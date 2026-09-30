@@ -31,7 +31,7 @@
     },
     {
       "id": "039-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
       "found_while_auditing": "extension/content/content_manga.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Confirmar semântica fail-closed do cancelamento local.",
       "possible_regression": "A página pode sinalizar cancelamento concluído enquanto o lote continua ativo no background, ou responder de forma incompatível quando não há lote.",
       "impact": "Consistência de estado entre content script, popup e fila do background.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. `STOP_TRANSLATION_FROM_POPUP` possui ramos explícitos `no_local_batch` e `background_stop_failed`; `extract-flow-real.test.js` cobre apenas cancelamento bem-sucedido. O estado local em erro do background não está fixado por teste.",
+      "auditor_recommended_action": "Adicionar casos sem lote local e com runtime.lastError no STOP_BATCH, exigindo respostas específicas e preservação do estado local quando o background não confirma."
     },
     {
       "id": "039-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "LIFECYCLE_TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "found_while_auditing": "extension/content/content_manga.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Separar explicitamente a evidência do listener auxiliar da evidência do reader principal.",
       "possible_regression": "Listeners/observers antigos podem sobreviver a navegação e duplicar menu contextual, botão flutuante ou watchdogs.",
       "impact": "Estabilidade e isolamento de instâncias do content script em navegação/BFCache.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. O `pagehide` do reader principal remove contextmenu, desconecta `buttonGuardObserver` e encerra watchdogs, mas os testes encontrados de pagehide cobrem a aba auxiliar. Não há prova focal de persisted=false versus BFCache persisted=true para o reader principal.",
+      "auditor_recommended_action": "Adicionar teste de lifecycle do reader principal instrumentando listeners/observer/watchdogs e verificando teardown único fora de BFCache."
     },
     {
       "id": "039-004",
