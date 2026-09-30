@@ -1,0 +1,11 @@
+{
+  "index": 11,
+  "file": "extension/background/actions/download-image.js",
+  "bible": "docs/biblia/extension/background/actions/download-image.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
+  "started_at_utc": "2026-09-30T13:05:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
