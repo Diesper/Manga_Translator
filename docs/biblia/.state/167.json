@@ -1,0 +1,11 @@
+{
+  "index": 167,
+  "file": "tests/unit/background/single-image-context-menu.test.js",
+  "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
+  "started_at_utc": "2026-09-30T13:25:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
