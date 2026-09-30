@@ -57,7 +57,7 @@
     },
     {
       "id": "176-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/deletion.test.js",
       "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
@@ -70,7 +70,12 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Reload sem recovery persistido ou estado parcialmente limpo.",
       "impact": "Durabilidade do fluxo de exclusão.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "SUPERSEDED por 041-002. Falhas de storage (lastError/rejection/throw) no fluxo de deletion já estão centralizadas no request canônico de robustez do módulo.",
+      "auditor_recommended_action": "Acompanhar 041-002 e evitar matriz duplicada nesta suíte.",
+      "superseded_by": "041-002"
     }
   ],
   "document_quality": {
