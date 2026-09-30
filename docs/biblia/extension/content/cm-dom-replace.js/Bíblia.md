@@ -304,7 +304,6 @@ Após o primeiro timeout inicia fade de 700 ms; 720 ms depois remove listener de
 
     globalScope.MangaTranslatorDomReplace = Object.freeze({ getCleanUrl, isBackdropOrBlurredImage, getScanEligibleImages, applyImageReplacement });
 })(typeof window !== 'undefined' ? window : self);
-
 ~~~
 
 ## 14. Rastreabilidade 190/190
