@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "029-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RACE_CONDITION_REVIEW",
       "target_file": "extension/background/jobs-watchdog.js",
       "found_while_auditing": "extension/background/jobs-watchdog.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar compatibilidade legada em alteração separada.",
       "possible_regression": "Watchdog pode disparar e ser ignorado, deixando job preso.",
       "impact": "Timeout/lifecycle de jobs legados.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — race confirmada quando `arm` recebe jobId ausente. O nome do alarme é calculado antes da segunda canonicalização como `watchdog_<canonicalTabId>`. Se onReplaced ocorrer depois de `alarms.create`, o código migra `wd_data` para `latestTabId` e atualiza `canonicalTabId`, mas não renomeia/recria o alarme; `watchdog_<tabAntiga>` pode ficar desacoplado de `wd_data_<tabNova>`. Com jobId presente, o nome estável reduz esse caso.",
+      "auditor_recommended_action": "Após re-resolver, mover/recriar também o alarm quando o nome depende do tabId, preservando deadline; adicionar corrida determinística sem jobId."
     },
     {
       "id": "029-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASYNC_ERROR_REVIEW",
       "target_file": "extension/background/jobs-watchdog.js",
       "found_while_auditing": "extension/background/jobs-watchdog.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar tratamento de erro assíncrono.",
       "possible_regression": "Rejeição não tratada e vazamento de abas auxiliares.",
       "impact": "Robustez do service worker e cleanup.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — erro assíncrono pode escapar. `handleAlarm` passa callback `async` a `chrome.storage.local.get`; dentro dele `resolveCanonicalTabId` e `finalizeJob` são awaited sem try/catch abrangente. Rejeição interrompe antes do cleanup de extraction tabs e a Promise implícita do callback não é observada pelo API callback.",
+      "auditor_recommended_action": "Encapsular corpo async em Promise/catch ou função separada com tratamento/finally; garantir cleanup/telemetria em rejeições e testar falha de canonicalização/finalize."
     },
     {
       "id": "029-003",
