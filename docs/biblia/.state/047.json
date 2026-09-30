@@ -58,7 +58,7 @@
     },
     {
       "id": "047-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SECURITY_REVIEW",
       "target_file": "extension/content/gemini/result-extractor.js",
       "related_files": [
@@ -74,7 +74,11 @@
       "expected_evidence": "Payload inválido é rejeitado antes de seguir no pipeline; formatos permitidos permanecem aceitos.",
       "possible_regression": "Conteúdo não-imagem ou payload malicioso pode ser tratado como resultado válido.",
       "impact": "Boundary de confiança da extração no contexto da página.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — boundary de confiança fraco confirmado. A ponte MAIN resolve qualquer `detail.dataUrl` truthy quando `requestId` coincide; não valida prefixo `data:image/`, MIME ou tamanho. `requestId` é apenas correlação, não autenticação forte.",
+      "auditor_recommended_action": "Validar esquema/MIME/tamanho no consumidor; considerar token/canal menos forjável se a página não deve poder responder; testar payload não-imagem e oversized."
     },
     {
       "id": "047-005",
@@ -126,7 +130,7 @@
     },
     {
       "id": "047-008",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SECURITY_CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/result-extractor.js",
       "related_files": [
@@ -141,7 +145,11 @@
       "expected_evidence": "Respostas não-ok/não-image são rejeitadas; imagem válida continua aceita.",
       "possible_regression": "Payload não-imagem atravessa uma rota de extração.",
       "impact": "Integridade e segurança do resultado extraído.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — Blob route incompleta. Para `blob:` chama `fetchImpl(url)`, imediatamente `response.blob()` e FileReader; não verifica `response.ok` nem MIME antes de aceitar o corpo.",
+      "auditor_recommended_action": "Exigir status aceitável e `blob.type` de imagem antes da conversão; testar status de erro e MIME não-imagem."
     },
     {
       "id": "047-009",
