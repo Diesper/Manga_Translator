@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "144-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_QUALITY_REVIEW",
       "target_file": "tests/unit/background/export-guard.test.js",
       "found_while_auditing": "tests/unit/background/export-guard.test.js",
@@ -22,7 +22,11 @@
       "expected_evidence": "Nenhuma lógica de produção duplicada no teste; cenários restantes executando o módulo real e assertions sobre o contrato externo.",
       "possible_regression": "O espelho pode divergir silenciosamente da produção e continuar verde.",
       "impact": "Qualidade e confiabilidade da suíte de regressão do fluxo EXPORT_ALL_AND_SHOW.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:50:00Z",
+      "audit_finding": "ACCEPTED. `export-guard.test.js` testa um `createExportAllHandler` espelho local, não `extension/background/actions/export-all.js`; a suíte da action real existe separadamente, então este mirror pode divergir e continuar verde.",
+      "auditor_recommended_action": "Remover/renomear como model test ou reescrever apenas cenários adicionais usando a action real, sem lógica duplicada."
     }
   ]
 }
