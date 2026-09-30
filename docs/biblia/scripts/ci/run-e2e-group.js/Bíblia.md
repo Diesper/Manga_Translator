@@ -1,6 +1,6 @@
 # Bíblia técnica — scripts/ci/run-e2e-group.js
 
-> **Estado:** 🟠 EM ANDAMENTO — AGENTE 2  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `e23c7aaa17123e63904799c1b366c48e344ed82a`  
 > **Agente responsável pela auditoria:** AGENTE 2  
 > **Tipo:** runner/orquestrador Node.js de grupos E2E Playwright  
