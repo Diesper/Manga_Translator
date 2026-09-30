@@ -31,7 +31,7 @@
     },
     {
       "id": "024-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/batch-actions.test.js",
       "found_while_auditing": "extension/background/actions/start-batch.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Completar cobertura de validação.",
       "possible_regression": "Jobs duplicados/negativos ou lote vazio podem entrar no lifecycle sem gate.",
       "impact": "Integridade da fila e seleção de imagens.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED com escopo refinado. A suíte já prova índice não-inteiro, e o validator rejeita `images` não-array; porém não há casos focais para `images` ausente/`[]`, índices negativos, duplicados/extremos nem `startBatch` rejeitando. Esses valores semanticamente inválidos podem alcançar o lifecycle.",
+      "auditor_recommended_action": "Adicionar matriz de lote vazio/índices negativos-duplicados-extremos e rejeição de startBatch; definir explicitamente as regras semânticas além de `Number.isInteger`."
     }
   ],
   "document_quality": {
