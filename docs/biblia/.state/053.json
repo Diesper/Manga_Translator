@@ -3,9 +3,19 @@
   "file": "extension/popup/popup.html",
   "bible": "docs/biblia/extension/popup/popup.html/Bíblia.md",
   "status": "IN_PROGRESS",
-  "agent": "AGENTE 27",
+  "agent": "AGENTE 15",
   "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
   "started_at_utc": "2026-09-30T16:03:00Z",
   "completed_at_utc": null,
-  "audit_requests": []
+  "audit_requests": [],
+  "takeover_history": [
+    {
+      "from_agent": "AGENTE 27",
+      "to_agent": "AGENTE 15",
+      "authorized_by": "user",
+      "authorized_at_utc": "2026-09-30T22:00:00Z",
+      "reason": "Usuário informou que os demais agentes não estão mais ativos e autorizou o AGENTE 15 a herdar todas as autorizações dos arquivos ainda em progresso."
+    }
+  ],
+  "last_update_utc": "2026-09-30T22:00:00Z"
 }
