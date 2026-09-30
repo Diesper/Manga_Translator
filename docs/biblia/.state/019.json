@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "019-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/refresh-job-watchdog-action.test.js",
       "found_while_auditing": "extension/background/actions/refresh-job-watchdog.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer a suíte sem alterar a implementação durante esta auditoria.",
       "possible_regression": "Watchdog pode ser renovado para job incorreto ou erro de ownership pode deixar de ser detectado.",
       "impact": "Lifecycle/timeout de jobs Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:15:00Z",
+      "audit_finding": "ACCEPTED. A suíte possui apenas owner válido e sender canônico divergente. Não há casos para jobId ausente, sender sem tab, jobIndex ausente/não-array ou jobId não encontrado, embora esses guards existam antes de `armWatchdog`.",
+      "auditor_recommended_action": "Adicionar tabela de guards na action real, exigindo INVALID_PAYLOAD/INTERNAL_ERROR conforme contrato e `armWatchdog` nunca chamado em todos os casos inválidos."
     },
     {
       "id": "019-002",
