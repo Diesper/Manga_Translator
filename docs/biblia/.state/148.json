@@ -50,7 +50,7 @@
     },
     {
       "id": "148-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/handlers-extra-real.test.js",
       "found_while_auditing": "tests/unit/background/handlers-extra-real.test.js",
@@ -62,7 +62,11 @@
       "expected_evidence": "Assertion específica de igualdade do prompt customizado antes/depois do evento onInstalled usando a implementação real do background.",
       "possible_regression": "Atualizações futuras podem apagar o prompt personalizado do usuário sem falha na suíte atual.",
       "impact": "Preservação de configuração do usuário.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. A suíte prova criação de defaultPrompt com storage vazio, mas não preservação de prompt customizado existente no onInstalled real.",
+      "auditor_recommended_action": "Adicionar regressão com prompt personalizado antes do evento e exigir igualdade byte a byte após instalação/atualização."
     }
   ]
 }
