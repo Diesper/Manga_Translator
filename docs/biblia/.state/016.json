@@ -31,7 +31,7 @@
     },
     {
       "id": "016-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "extension/background/actions/log-entry.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Decidir se o guard merece gate próprio.",
       "possible_regression": "Action pode deixar de registrar sem diagnóstico claro.",
       "impact": "Observabilidade de inicialização.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:26:00Z",
+      "audit_finding": "ACCEPTED. `log-entry.js` falha no bootstrap quando `MangaTranslatorRouter` está ausente ou não expõe `registerAction`, mas `actions-low-risk.test.js` sempre instala o router válido antes do require. O fail-fast de registro não possui teste focal.",
+      "auditor_recommended_action": "Adicionar import isolado com router ausente e com objeto sem `registerAction`, exigindo throw diagnóstico; manter separado dos testes de validação de payload já cobertos por 016-001."
     }
   ],
   "document_quality": {
