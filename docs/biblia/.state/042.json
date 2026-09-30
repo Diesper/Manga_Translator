@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "042-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/content/gemini/dom.js",
       "found_while_auditing": "extension/content/gemini/dom.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar heurística em alteração separada.",
       "possible_regression": "Automação pode clicar attachment/menu/outro controle em vez de Enviar.",
       "impact": "Confiabilidade e segurança do submit automático.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — falso positivo geométrico confirmado. O último fallback de `findSendButton` aceita qualquer clickable de tamanho/posição próximos ao input se o aria-label não contiver blacklist; não exige semântica Send.",
+      "auditor_recommended_action": "Exigir evidência semântica mínima mesmo no fallback geométrico e adicionar botão não-Send próximo ao composer."
     },
     {
       "id": "042-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/dom-modules.test.js",
       "found_while_auditing": "extension/content/gemini/dom.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer heurística/teste.",
       "possible_regression": "Click pode atingir controle stale/oculto e falhar confirmação.",
       "impact": "Submit do prompt Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — visibilidade não é aplicada por `findSendButton`. Embora exista `isElementVisible/findVisible`, os três loops de send iteram `allClickables` diretamente e podem retornar um botão semanticamente forte oculto.",
+      "auditor_recommended_action": "Filtrar candidatos com `isElementVisible` antes do retorno; testar Send oculto + botão visível alternativo."
     },
     {
       "id": "042-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/dom.js",
       "found_while_auditing": "extension/content/gemini/dom.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Revisar contrato de blacklist.",
       "possible_regression": "Imagem gerada pode ser ignorada e fluxo cair em timeout/seleção manual.",
       "impact": "Detecção automática do resultado Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — filtro excessivamente amplo confirmado. `isIgnoredGeminiImageSource` usa `lower.includes('avatar'|'favicon'|'emoji'|'profile')` sobre a URL inteira, portanto asset legítimo com esses tokens em path/query é descartado.",
+      "auditor_recommended_action": "Restringir filtros a hosts/path patterns conhecidos ou metadados DOM; adicionar falsos positivos legítimos."
     }
   ],
   "document_quality": {
