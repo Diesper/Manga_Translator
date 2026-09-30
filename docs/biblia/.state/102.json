@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "102-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SOURCE_DOCUMENTATION_CORRECTION",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a divergência e aplicar correção documental no fonte se desejado.",
       "possible_regression": "Novos testes podem ser escritos contra listeners/getState e falhar ou duplicar acesso a internals.",
       "impact": "Clareza e manutenibilidade do harness de testes.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. O JSDoc de `loadContentScript` declara retorno `{ listeners, getState }`, enquanto a implementação real retorna helpers como `sendMessage`, `getButton` e `getMainContent`, usados pelos consumidores atuais. A documentação inline está stale.",
+      "auditor_recommended_action": "Corrigir apenas o JSDoc/assinatura documental em mudança separada, preservando o contrato runtime existente."
     },
     {
       "id": "102-002",
