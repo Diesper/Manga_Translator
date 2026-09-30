@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "049-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
       "found_while_auditing": "extension/content/gemini/temporary-chat.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Falhas de interação ou cancelamento podem ser classificadas incorretamente sem gate.",
       "impact": "Ativação verificável de Temporary Chat.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `temporary-chat-v2.test.js` cobre already_active, activated_verified, state_not_verified e unavailable, mas não AbortSignal (`reason:'aborted'`), `control_not_actionable`, travessia ShadowRoot, resolução por `closest` de descendente semântico, `element.click()` lançando nem root customizado inválido.",
+      "auditor_recommended_action": "Adicionar casos focais contra `temporary-chat.js` real para cada status/reason e fallback semântico."
     },
     {
       "id": "049-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "found_while_auditing": "extension/content/gemini/temporary-chat.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar integração sem alterar esta Bíblia.",
       "possible_regression": "Job pode continuar após cancelamento/falha de controle sem diagnóstico granular.",
       "impact": "Lifecycle e observabilidade do job Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `job-runner.js` reduz o retorno de TemporaryChat a flags/status e descarta `tempStatus.reason`; qualquer `verification_failed` gera o mesmo warning e o job continua. Assim `aborted`, `control_not_actionable` e `state_not_verified` perdem semântica operacional.",
+      "auditor_recommended_action": "Definir política por reason (continuar, cancelar ou bloquear), preservar/logar reason e adicionar integração entre TemporaryChat e JobRunner."
     }
   ],
   "document_quality": {
