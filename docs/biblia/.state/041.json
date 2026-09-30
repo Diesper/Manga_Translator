@@ -1,0 +1,34 @@
+{
+  "index": 41,
+  "file": "extension/content/gemini/deletion.js",
+  "bible": "docs/biblia/extension/content/gemini/deletion.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 6",
+  "source_sha": "2cec17f19e5293245b5e2f37493f0ef485b7281f",
+  "completed_at_utc": "2026-09-30T05:59:27Z",
+  "audit_requests": [
+    {
+      "id": "041-001",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/content/gemini/deletion.js",
+      "finding": "Recovery stale por tabId sem TTL/jobId e clear antes de sendDelivery podem perder ownership/retry.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "041-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "Faltam provas focais para CSS.escape nativo, storage failures, scroll lock real, colisão de chatId e idempotência após reload.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "483/483",
+    "bible_lines": 3806
+  }
+}
