@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "068-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SCHEMA_REVIEW",
       "target_file": "scripts/validation/verify-e2e-shard-plan.js",
       "found_while_auditing": "scripts/ci/data/e2e-shard-plan.json",
@@ -18,11 +18,15 @@
       "requested_action": "Definir se version/kind são contrato formal; se forem, adicionar validação explícita.",
       "expected_evidence": "Mudanças inválidas de schema/kind falham no gate.",
       "possible_regression": "Campos podem derivar silenciosamente e continuar parecendo contratuais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:05:00Z",
+      "audit_finding": "ACCEPTED. O verifier valida ids/tags/cardinalidade/workers e exige ao menos um `kind:'fast'`, mas não valida `plan.version` nem o domínio semântico dos demais `kind`. Esses campos podem mudar silenciosamente.",
+      "auditor_recommended_action": "Se version/kind são parte do schema, validar versão suportada e enum de kinds; adicionar mutation tests negativos."
     },
     {
       "id": "068-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-e2e-shard-plan.js",
       "found_while_auditing": "scripts/ci/data/e2e-shard-plan.json",
@@ -30,7 +34,11 @@
       "requested_action": "Adicionar mapeamento id→tag esperado ou self-test equivalente.",
       "expected_evidence": "Troca semântica de tags entre grupos é detectada.",
       "possible_regression": "Shards podem executar conjuntos trocados sem falhar na validação quantitativa.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:05:00Z",
+      "audit_finding": "ACCEPTED. O verifier comprova cardinalidade real por tag, porém não fixa mapeamento canônico id→tag. Como medium-a/medium-b têm mesma cardinalidade/workers, a troca de tags entre eles pode passar pelos gates quantitativos.",
+      "auditor_recommended_action": "Adicionar mapa id→tag esperado ou self-test equivalente que detecte troca semântica entre grupos."
     },
     {
       "id": "068-003",
