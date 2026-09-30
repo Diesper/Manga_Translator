@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "143-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/export-all-action.test.js",
       "found_while_auditing": "tests/unit/background/export-all-action.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Validar o contrato de 'último concluído' e ampliar a cobertura caso seja requisito funcional.",
       "possible_regression": "A implementação pode passar a abrir o último solicitado e o teste atual continuar verde.",
       "impact": "Arquivo exibido ao final da exportação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:50:00Z",
+      "audit_finding": "ACCEPTED. O fake `waitForDownload` conclui na mesma ordem de criação, então `show(12)` não distingue 'último solicitado' de 'último efetivamente concluído'. Branches de falha também não são provados.",
+      "auditor_recommended_action": "Controlar manualmente callbacks e concluir fora de ordem; assertar o id realmente último a concluir e cobrir erros de download."
     }
   ],
   "document_quality": {
@@ -35,7 +39,10 @@
     "bible_lines": 327,
     "external_audit_requests_open": 1,
     "evidence_run": 36577447500,
-    "evidence_jobs": [109437162616, 109437162754],
+    "evidence_jobs": [
+      109437162616,
+      109437162754
+    ],
     "evidence_summary": "Mesmo blob; PASS explícito em Node 20.x e matriz Unit+Integration 20/22 integralmente verde."
   }
 }
