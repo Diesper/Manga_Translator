@@ -51,16 +51,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **70**
-- ✅ Concluídos auditados: **60**
-- 🟠 Em andamento: **17**
+- Bíblias materializadas: **72**
+- ✅ Concluídos auditados: **61**
+- 🟠 Em andamento: **16**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **163**
+- ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **25,75%**
-- Cobertura apenas materializada: **30,04%**
-- Último aprovado: `scripts/ci/jest-worker-warning.js`
+- Cobertura realmente aprovada: **26,18%**
+- Cobertura apenas materializada: **30,90%**
+- Último aprovado: `scripts/ci/run-e2e-group.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -76,7 +76,6 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#069 scripts/ci/data/regression-matrix.json` — `AGENTE 6` — Bíblia: `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
   - `#072 scripts/ci/playwright-gate-reporter.js` — `AGENTE 9` — Bíblia: `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md`
 
-  - `#074 scripts/ci/run-e2e-group.js` — `AGENTE 2` — Bíblia: `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md`
   - `#075 scripts/ci/run-jest-ci.js` — `AGENTE 5` — Bíblia: `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
   - `#076 scripts/maintenance/diagnose-background-leak.js` — `AGENTE 1` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
   - `#077 scripts/maintenance/diagnose-jest-workers.js` — `AGENTE 3` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
@@ -173,6 +172,38 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 8. Se alguma fragilidade for reproduzida, **não corrigir silenciosamente durante a auditoria documental**: registrar a evidência, abrir correção funcional separada e exigir teste que falhe antes da correção e passe depois.
 9. Considerar a lacuna encerrada somente com assertion verificável; inspeção visual ou ocorrência textual não basta.
 
+
+## Observações técnicas para auditoria futura — #074 `scripts/ci/run-e2e-group.js`
+
+> **Registro documental do AGENTE 2.** A Bíblia está concluída e aprovada quanto à qualidade documental. As solicitações abaixo permanecem `OPEN` em `.state/074.json` e não bloqueiam a conclusão.
+
+### O que foi encontrado
+
+1. **Falta teste focal do runner.** Não foi localizada suíte que execute a implementação real com `child_process.spawn` controlado e verifique argv, cwd, ambiente, `stdio`, `shell:false`, branches de erro e propagação do exit code.
+2. **Execução local e CI não têm exatamente a mesma semântica.** O runner seta `MANGA_E2E_SHARD=1` e `MANGA_E2E_WORKERS`, mas `playwright.config.js` só aplica workers do plano e blob reporter quando `CI` é truthy.
+3. **O caminho do CLI está acoplado ao layout instalado.** O arquivo usa diretamente `node_modules/playwright/cli.js`, apesar de a dependência declarada ser `@playwright/test`.
+4. **Leitura/parse do plano não possui tratamento próprio.** Plano ausente/JSON inválido gera falha genérica; este runner valida somente grupo e workers, deixando tag/contagens/estimativas para o gate externo.
+
+### O que é necessário provar
+
+- grupo vazio/inexistente → código 2 e diagnóstico correto;
+- workers inválidos → código 2;
+- argv completo do Playwright, cwd, env, `stdio: inherit` e `shell: false`;
+- `spawn error` → código 1;
+- `close(0)`, `close(n)` e `close(null)`;
+- contrato deliberado da diferença entre execução local e CI;
+- resolução válida do CLI após `npm ci`;
+- comportamento com plano ausente ou JSON malformado.
+
+### O que o auditor deve fazer no #074
+
+1. Reconfirmar o SHA `e23c7aaa17123e63904799c1b366c48e344ed82a`.
+2. Ler `run-e2e-group.js`, `playwright.config.js`, `e2e-shard-plan.json`, `verify-e2e-shard-plan.js`, `verify-ci-contract.js`, `package.json` e o job E2E de `ci.yml`.
+3. Não confundir a prova direta da **partição do plano** com prova direta do **runner**.
+4. Confirmar se a diferença local×CI é intencional e registrar a decisão.
+5. Confirmar se o caminho direto para `playwright/cli.js` é contrato aceitável após `npm ci`.
+6. Se a auditoria exigir cobertura focal, criar teste isolado/sandbox da implementação real; não copiar a lógica e chamar isso de prova.
+7. Manter as solicitações `074-001` a `074-004` abertas até haver evidência específica ou decisão explícita de risco aceito.
 
 ## Observações técnicas para auditoria futura — #075 `scripts/ci/run-jest-ci.js`
 
@@ -381,7 +412,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 71 | ✅ CONCLUÍDO | `scripts/ci/jest-worker-warning.js` | `b1379b6811e5` | `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` |
 | 72 | 🟠 EM ANDAMENTO — AGENTE 9 | `scripts/ci/playwright-gate-reporter.js` | `71fb92c1215a` | `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` |
 | 73 | ✅ CONCLUÍDO | `scripts/ci/playwright-merge.config.js` | `59839922aca9` | `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` |
-| 74 | 🟠 EM ANDAMENTO — AGENTE 2 | `scripts/ci/run-e2e-group.js` | `e23c7aaa1712` | `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` |
+| 74 | ✅ CONCLUÍDO | `scripts/ci/run-e2e-group.js` | `e23c7aaa1712` | `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` |
 | 75 | 🟠 EM ANDAMENTO — AGENTE 5 | `scripts/ci/run-jest-ci.js` | `6d2e36a647aa` | `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` |
 | 76 | 🟠 EM ANDAMENTO — AGENTE 1 | `scripts/maintenance/diagnose-background-leak.js` | `6b5a15d0d255` | `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` |
 | 77 | 🟠 EM ANDAMENTO — AGENTE 3 | `scripts/maintenance/diagnose-jest-workers.js` | `87d25d2b61cc` | `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` |
