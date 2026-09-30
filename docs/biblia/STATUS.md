@@ -52,15 +52,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **70**
-- ✅ Concluídos auditados: **58**
-- 🟠 Em andamento: **19**
+- ✅ Concluídos auditados: **59**
+- 🟠 Em andamento: **18**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **163**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **24,89%**
+- Cobertura realmente aprovada: **25,32%**
 - Cobertura apenas materializada: **30,04%**
-- Último aprovado: `extension/shared/gtc-indexeddb.js`
+- Último aprovado: `scripts/ci/playwright-merge.config.js`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -76,7 +76,7 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#069 scripts/ci/data/regression-matrix.json` — `AGENTE 6` — Bíblia: `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
   - `#071 scripts/ci/jest-worker-warning.js` — `AGENTE 8` — Bíblia: `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md`
   - `#072 scripts/ci/playwright-gate-reporter.js` — `AGENTE 9` — Bíblia: `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md`
-  - `#073 scripts/ci/playwright-merge.config.js` — `AGENTE 10` — Bíblia: `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md`
+
   - `#074 scripts/ci/run-e2e-group.js` — `AGENTE 2` — Bíblia: `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md`
   - `#075 scripts/ci/run-jest-ci.js` — `AGENTE 5` — Bíblia: `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
   - `#076 scripts/maintenance/diagnose-background-leak.js` — `AGENTE 1` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
@@ -273,7 +273,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 70 | ✅ CONCLUÍDO | `scripts/ci/data/test-baseline.json` | `52a4b3c1500d` | `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` |
 | 71 | 🟠 EM ANDAMENTO — AGENTE 8 | `scripts/ci/jest-worker-warning.js` | `b1379b6811e5` | `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` |
 | 72 | 🟠 EM ANDAMENTO — AGENTE 9 | `scripts/ci/playwright-gate-reporter.js` | `71fb92c1215a` | `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` |
-| 73 | 🟠 EM ANDAMENTO — AGENTE 10 | `scripts/ci/playwright-merge.config.js` | `59839922aca9` | `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` |
+| 73 | ✅ CONCLUÍDO | `scripts/ci/playwright-merge.config.js` | `59839922aca9` | `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` |
 | 74 | 🟠 EM ANDAMENTO — AGENTE 2 | `scripts/ci/run-e2e-group.js` | `e23c7aaa1712` | `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` |
 | 75 | 🟠 EM ANDAMENTO — AGENTE 5 | `scripts/ci/run-jest-ci.js` | `6d2e36a647aa` | `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` |
 | 76 | 🟠 EM ANDAMENTO — AGENTE 1 | `scripts/maintenance/diagnose-background-leak.js` | `6b5a15d0d255` | `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` |
