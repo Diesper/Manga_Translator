@@ -31,7 +31,7 @@
     },
     {
       "id": "167-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/single-image-context-menu.test.js",
       "found_while_auditing": "tests/unit/background/single-image-context-menu.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Menu pode aparecer/agir em host incorreto ou falhar por pattern inválido.",
       "impact": "Escopo de ativação da tradução individual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "ACCEPTED. Os casos usam hosts válidos, lower-case e distintos; não provam trim/lowercase/validação de host nem deduplicação de patterns no rebuild.",
+      "auditor_recommended_action": "Adicionar matriz com whitespace/case, host inválido e duplicatas canonicalmente iguais."
     },
     {
       "id": "167-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/single-image-context-menu.test.js",
       "found_while_auditing": "tests/unit/background/single-image-context-menu.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Falhas podem ficar silenciosas ou propagar exceção do listener.",
       "impact": "Diagnóstico e robustez de UI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "ACCEPTED. Os logs `SINGLE_IMAGE_CONTEXT_MENU_CREATE_FAILED`, `...DELIVERY_FAILED` e `...REJECTED` existem no runtime, mas a suíte não força esses caminhos nem fixa a observabilidade.",
+      "auditor_recommended_action": "Adicionar casos de falha de create/sendMessage e resposta ok:false, assertando logs e ausência de falso sucesso."
     }
   ],
   "document_quality": {
