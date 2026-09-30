@@ -1,0 +1,11 @@
+{
+  "index": 42,
+  "file": "extension/content/gemini/dom.js",
+  "bible": "docs/biblia/extension/content/gemini/dom.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "d3694ea70cdd97b64e483884895a458993791714",
+  "started_at_utc": "2026-09-30T13:39:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
