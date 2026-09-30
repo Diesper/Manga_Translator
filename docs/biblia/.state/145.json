@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "145-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/fetch-image-base64-action.test.js",
       "found_while_auditing": "tests/unit/background/fetch-image-base64-action.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar o contrato de erro e ampliar a cobertura sem modificar a action apenas para produzir prova.",
       "possible_regression": "Falha de leitura pode gerar hang, mensagem errada ou resposta incorreta sem quebrar a suíte atual.",
       "impact": "Robustez do fallback CORS ao converter Blob para Data URL.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:05:00Z",
+      "audit_finding": "ACCEPTED. O helper real registra `reader.onerror`, mas o MockFileReader da suíte só dispara `onloadend`; nenhum caso cobre `reader.error` nem o fallback `Falha ao ler imagem`.",
+      "auditor_recommended_action": "Adicionar FileReader controlado que dispare onerror com e sem `reader.error`, verificando INTERNAL_ERROR e término do canal sem hang."
     },
     {
       "id": "145-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SECURITY_REVIEW",
       "target_file": "extension/background/actions/fetch-image-base64.js",
       "found_while_auditing": "tests/unit/background/fetch-image-base64-action.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Revisar fronteira de credenciais sem alterar este teste retroativamente como prova.",
       "possible_regression": "A implementação pode tentar requisição credentialed sobre transporte HTTP; o navegador pode mitigar parte do risco, mas isso não é garantido por esta suíte.",
       "impact": "Fronteira de autenticação dos assets Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:05:00Z",
+      "audit_finding": "ACCEPTED — risco de segurança real. `validate()` aceita `http:` e `https:`; com `geminiSession:true` restringe apenas o host a googleusercontent, e `execute()` usa `credentials:'include'` quando o sender é Gemini. Portanto `http://*.googleusercontent.com` pode alcançar um fetch credentialed. Mesmo que HSTS/Secure cookies reduzam o risco em cenários reais, a política de transporte autenticado não está explicitamente fail-closed.",
+      "auditor_recommended_action": "Exigir HTTPS quando `geminiSession===true` antes do fetch e adicionar regressão para `http://*.googleusercontent.com`; manter HTTPS normal para fetch não autenticado conforme política decidida."
     },
     {
       "id": "145-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/fetch-image-base64-action.test.js",
       "found_while_auditing": "tests/unit/background/fetch-image-base64-action.test.js",
@@ -57,11 +65,15 @@
       "expected_auditor_action": "Verificar se outra suíte já prova exatamente esta action antes de criar duplicação.",
       "possible_regression": "Mudança acidental de allowedSources pode ampliar a superfície da action sem falha nesta suíte.",
       "impact": "Controle de origem do fetch privilegiado no background.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:05:00Z",
+      "audit_finding": "ACCEPTED. O router possui teste genérico de SOURCE_DENIED, mas nenhuma suíte prova que a action `FETCH_IMAGE_AS_BASE64` permanece registrada especificamente com `allowedSources:['content','gemini']`; popup/external não são exercitados contra esta action.",
+      "auditor_recommended_action": "Adicionar caso focal com popup/external usando a action real, exigindo SOURCE_DENIED e fetch não chamado."
     },
     {
       "id": "145-004",
-      "status": "OPEN",
+      "status": "REJECTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/fetch-image-base64-action.test.js",
       "found_while_auditing": "tests/unit/background/fetch-image-base64-action.test.js",
@@ -74,7 +86,11 @@
       "expected_auditor_action": "Evitar inventar caso impossível; validar primeiro a semântica Fetch/FileReader suportada.",
       "possible_regression": "Data URL com MIME/result inesperado pode ser devolvido sem quebrar os cenários atuais.",
       "impact": "Contrato de formato do dado retornado ao caller.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:05:00Z",
+      "audit_finding": "REJECTED como lacuna de runtime. Em Chrome/Fetch padrão, `Response.blob()` deriva o MIME do header `Content-Type`; após `readAsDataURL` bem-sucedido, `FileReader.result` é uma string, enquanto erros seguem `onerror`. Um Blob com tipo incoerente apesar de header image/* ou um resultado não-string no caminho de sucesso exigiria objeto/mock não conforme à plataforma suportada.",
+      "auditor_recommended_action": "Não adicionar defesa só para estados artificiais de mock. Manter 145-001 para o caminho real de erro do FileReader; reconsiderar apenas se houver runtime/polyfill suportado que viole essas garantias."
     }
   ],
   "document_quality": {
