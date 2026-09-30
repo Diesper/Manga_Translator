@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 17
+ARQUIVO: extension/content/cm-chapter.js
+BÍBLIA: docs/biblia/extension/content/cm-chapter.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 44b621d570b6492ef08982ec4e093ffcfe6d24f8
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T13:40:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T13:40:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
