@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "208-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CORRECTION",
       "target_file": "tests/unit/content-manga/image-fingerprint.test.js",
       "found_while_auditing": "tests/unit/content-manga/image-fingerprint.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Reestruturar a suíte sob ownership apropriado.",
       "possible_regression": "Falso verde do pipeline de fingerprint visual.",
       "impact": "GTC, cache perceptual e correspondência cross-language.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:48:00Z",
+      "audit_finding": "ACCEPTED. `image-fingerprint.test.js` implementa `generateImageFingerprint` local v3.2 e retorna só uma string SHA-256. A produção atual em `cm-gtc-client.js` retorna `{sha256,dHash,wHash,pHash,wHashCrop,pHashCrop,regionalHashes,fingerprintVersion}` e possui fallback IPC `CALCULATE_VISUAL_FINGERPRINT`; nenhum desses contratos é exercitado pelo mirror.",
+      "auditor_recommended_action": "Migrar a suíte para `MangaTranslatorGtcClient.generateImageFingerprint` real (ou helper canônico exportado), validando campos visuais, versão e fallback CORS/IPC."
     },
     {
       "id": "208-002",
@@ -61,7 +65,7 @@
     },
     {
       "id": "208-004",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_CORRECTION",
       "target_file": "tests/unit/content-manga/image-fingerprint.test.js",
       "found_while_auditing": "tests/unit/content-manga/image-fingerprint.test.js",
@@ -74,7 +78,12 @@
       "expected_auditor_action": "Coordenar com resolução do drift #205.",
       "possible_regression": "Divergência entre testes de fingerprint e produção.",
       "impact": "Identidade de imagem no GTC.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:48:00Z",
+      "audit_finding": "SUPERSEDED por 205-001. O `getCleanUrl` histórico embutido nesta suíte é o mesmo problema de mirror divergente já auditado em `get-clean-url.test.js`.",
+      "auditor_recommended_action": "Usar a canonicalização real ao resolver 205-001; não manter uma segunda correção independente.",
+      "superseded_by": "205-001"
     }
   ],
   "document_quality": {
