@@ -2,10 +2,45 @@
   "index": 135,
   "file": "tests/unit/background/claim-gemini-job-action.test.js",
   "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 22",
   "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
   "started_at_utc": "2026-09-30T06:36:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:39:00Z",
+  "audit_requests": [
+    {
+      "id": "135-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
+      "found_while_auditing": "tests/unit/background/claim-gemini-job-action.test.js",
+      "behavior_affected": "Rejeição de claim quando o jobId existe, a origem é Gemini, mas o job pertence canonicamente a outra tab.",
+      "finding": "O branch de ownership mismatch em extension/background/actions/claim-gemini-job.js (canonicalIndexedTabId !== canonicalSenderTabId) não possui assertion focal localizada nas suítes que referenciam CLAIM_GEMINI_JOB.",
+      "current_evidence": "TAB-10 cobre jobId divergente na tab correta; o source guard cobre origem não-Gemini; TAB-06 cobre alias que converge para a mesma identidade. Nenhum prova jobId correto com sender Gemini de outra identidade canônica.",
+      "missing_evidence": "Assertion pelo router/action reais de {ok:true, job:null} com jobIndex apontando para tab A, sender Gemini tab B sem alias comum e mesmo jobId, além de confirmar ausência de migração/rekey.",
+      "why_needed": "A guarda impede claim cruzado entre abas Gemini legítimas e protege a associação job↔tab.",
+      "requested_action": "Adicionar caso de regressão usando os módulos reais, com duas tabs Gemini canonicamente distintas e o mesmo jobId solicitado, verificando rejeição e ausência de mutação de ownership.",
+      "expected_evidence": "Resposta job:null e state/storage preservando ownership original após o dispatch real.",
+      "possible_regression": "Uma regressão pode permitir que uma aba Gemini reivindique job pertencente a outra aba, misturando execução e resultados.",
+      "known_impact": "Integridade de roteamento/ownership de jobs Gemini.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "135-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
+      "found_while_auditing": "tests/unit/background/claim-gemini-job-action.test.js",
+      "behavior_affected": "Fail-closed quando sender Gemini não possui tab.id inteiro.",
+      "finding": "O guard inicial de claim-gemini-job.js que retorna {job:null} quando sender.tab.id não é inteiro não possui assertion focal nesta suíte.",
+      "current_evidence": "Todos os dispatches autorizados do arquivo fornecem ids inteiros.",
+      "missing_evidence": "Caso com URL Gemini válida, porém tab.id ausente ou inválido, verificando claim nulo sem lookup/migração de job.",
+      "why_needed": "É um branch defensivo de identidade do sender; sem teste direto pode regredir para exceção ou lookup indevido.",
+      "requested_action": "Adicionar teste pelo router/action reais para sender Gemini com id ausente/inválido e verificar comportamento fail-closed.",
+      "expected_evidence": "Resposta ok com job:null e nenhuma mutação relevante de storage/state.",
+      "possible_regression": "Evento malformado pode deixar de falhar de modo seguro.",
+      "known_impact": "Robustez defensiva do endpoint de claim.",
+      "severity": "NORMAL"
+    }
+  ]
 }
