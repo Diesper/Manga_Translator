@@ -1,0 +1,37 @@
+{
+  "index": 65,
+  "file": ".github/workflows/ci.yml",
+  "bible": "docs/biblia/.github/workflows/ci.yml/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 13",
+  "source_sha": "ebee75820db9bfab618bf3c3016065c5bc857ed7",
+  "started_at_utc": "2026-09-30T22:03:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "065-STATE-001",
+      "status": "OPEN",
+      "type": "STATE_RECOVERY_REVIEW",
+      "target_file": "docs/biblia/.state/065.json",
+      "found_while_auditing": ".github/workflows/ci.yml",
+      "finding": "O arquivo canônico docs/biblia/.state/065.json estava ausente no branch, embora a Bíblia exista, o SHA da fonte confira e AUDITORIA.md marque o índice 65 como APROVADO.",
+      "current_evidence": "A Bíblia declara conclusão/aprovação para SHA ebee75820db9bfab618bf3c3016065c5bc857ed7; AUDITORIA.md registra 65 como ✅ APROVADO; não havia reserva ativa de ci.yml antes desta recuperação.",
+      "missing_evidence": "O conteúdo histórico do state removido, inclusive possíveis audit_requests anteriores, não pôde ser recuperado pelo histórico acessível do branch nem pelo SHA antigo do PR disponível nesta conversa.",
+      "why_needed": "Sem o state, a invariante 1 arquivo = 1 state fica quebrada. A recuperação deve restaurar coordenação sem inventar conteúdo histórico não verificável.",
+      "requested_action": "Auditor de coordenação deve procurar eventual fonte histórica adicional para reconstruir solicitações anteriores e reconciliá-las neste state, preservando a Bíblia já aprovada.",
+      "expected_evidence": "Confirmação verificável de que não havia audit_requests históricos adicionais ou restauração fiel deles.",
+      "expected_auditor_action": "Revisar a recuperação do state e resolver esta solicitação quando a integridade histórica estiver confirmada.",
+      "possible_regression": "Riscos/lacunas documentados na Bíblia podem não aparecer no fluxo agregado se o state anterior continha solicitações perdidas.",
+      "impact": "Integridade de coordenação/auditoria; workflow e Bíblia permanecem inalterados.",
+      "severity": "NORMAL"
+    }
+  ],
+  "recovery": {
+    "reason": "missing_state_file",
+    "recovered_by": "AGENTE 13",
+    "original_bible_agent": "AGENTE 3",
+    "bible_sha": "cee86319dbbff5b138da44dc9c894d1b0f8584ab",
+    "audit_status_verified": "APPROVED",
+    "historical_audit_requests_recovered": false
+  }
+}
