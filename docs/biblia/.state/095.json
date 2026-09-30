@@ -1,0 +1,11 @@
+{
+  "index": 95,
+  "file": "tests/fixtures/gemini-mock-server.js",
+  "bible": "docs/biblia/tests/fixtures/gemini-mock-server.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4",
+  "started_at_utc": "2026-09-30T06:17:10Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
