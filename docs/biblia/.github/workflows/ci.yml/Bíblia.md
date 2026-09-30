@@ -1926,13 +1926,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `  smoke:`
 
-**O que faz:** Declara o job `smoke`.
+**O que faz:** Declara o job `smoke`, dedicado à suíte rápida de fumaça do repositório.
 
-**Como faz:** GitHub cria uma unidade de execução chamada internamente `smoke`; dependências posteriores usam esse identificador.
+**Como faz:** A chave `smoke` cria uma unidade de job independente; depois do checkout/setup/`npm ci`, ela executa `npm run test:smoke`, e o `ci-gate` consome `needs.smoke.result`.
 
-**Por que foi implementado dessa forma:** O job representa a responsabilidade smoke de forma isolada e observável.
+**Por que foi implementado dessa forma:** Separar smoke de Jest/visual preserva um sinal rápido e identificável de regressões básicas e permite que ele rode em paralelo com gates mais caros.
 
-**Por que uma implementação ingênua seria pior:** Fundir essa responsabilidade a outro job reduziria paralelismo e tornaria o `ci-gate` menos capaz de distinguir qual contrato falhou.
+**Por que uma implementação ingênua seria pior:** Misturar smoke com outra suíte esconderia qual camada mínima quebrou, reduziria paralelismo e poderia fazer uma falha rápida esperar por testes muito mais lentos.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -2164,13 +2164,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `  visual:`
 
-**O que faz:** Declara o job `visual`.
+**O que faz:** Declara o job `visual`, responsável pela suíte visual/perceptual executada por `npm run test:visual`.
 
-**Como faz:** GitHub cria uma unidade de execução chamada internamente `visual`; dependências posteriores usam esse identificador.
+**Como faz:** A chave cria um job Linux próprio, com checkout, Node 20, cache npm e instalação limpa antes de chamar o runner visual versionado no `package.json`.
 
-**Por que foi implementado dessa forma:** O job representa a responsabilidade visual de forma isolada e observável.
+**Por que foi implementado dessa forma:** Os testes visuais têm finalidade e runner diferentes do Jest e do Playwright E2E; um job separado mantém sua falha observável e paralelizável.
 
-**Por que uma implementação ingênua seria pior:** Fundir essa responsabilidade a outro job reduziria paralelismo e tornaria o `ci-gate` menos capaz de distinguir qual contrato falhou.
+**Por que uma implementação ingênua seria pior:** Acoplar os visuais ao job Jest ou smoke tornaria logs ambíguos, aumentaria tempo crítico e facilitaria que uma alteração em um runner mascarasse a ausência do outro.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -2976,13 +2976,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        shell: bash`
 
-**O que faz:** Força Bash para o step.
+**O que faz:** Fixa Bash como shell do step que detecta a disponibilidade do `CODECOV_TOKEN`.
 
-**Como faz:** GitHub executa o bloco `run` com Bash em vez de depender de inferência.
+**Como faz:** GitHub executa as linhas 165–172 em Bash, garantindo suporte consistente a `[ -n ... ]`, redirecionamento `>> "$GITHUB_OUTPUT"` e quoting de variáveis.
 
-**Por que foi implementado dessa forma:** O script usa sintaxe POSIX/Bash como `if [ ... ]`, redirecionamento e variáveis.
+**Por que foi implementado dessa forma:** A detecção depende de sintaxe shell explícita e produz um output consumido pelo `if` do upload Codecov; fixar Bash elimina ambiguidade sobre o interpretador.
 
-**Por que uma implementação ingênua seria pior:** Shell diferente pode interpretar quoting/condicionais de forma incompatível.
+**Por que uma implementação ingênua seria pior:** Deixar o shell implícito pode mudar a semântica entre runners ou futuras imagens; usar sintaxe incompatível poderia marcar Codecov como habilitado/desabilitado incorretamente.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -3074,13 +3074,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          else`
 
-**O que faz:** Abre o ramo sem token.
+**O que faz:** Abre o ramo executado quando `CODECOV_TOKEN` está vazio.
 
-**Como faz:** O script Bash usa o secret apenas para derivar um output booleano consumido pelo `if` do upload.
+**Como faz:** O `else` é pareado com `if [ -n "$CODECOV_TOKEN" ]`; nele o step grava `enabled=false` e emite um notice explícito de que o upload externo foi pulado.
 
-**Por que foi implementado dessa forma:** Separa ausência legítima de credencial de falha real do gate de coverage.
+**Por que foi implementado dessa forma:** Ausência de credencial é uma condição suportada, especialmente em contextos sem secrets; ela deve ser distinguida de falha do coverage local.
 
-**Por que uma implementação ingênua seria pior:** Tentar upload cegamente produziria falsos vermelhos/ruído em forks; suprimir o log esconderia por que não houve dashboard.
+**Por que uma implementação ingênua seria pior:** Tratar token ausente como erro quebraria execuções legítimas; seguir como se estivesse habilitado provocaria tentativa externa inútil e diagnóstico enganoso.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -4082,13 +4082,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `  e2e:`
 
-**O que faz:** Declara o job `e2e`.
+**O que faz:** Declara o job agregador `e2e`, que valida o plano, reúne os cinco blob reports e aplica o gate global do Playwright.
 
-**Como faz:** GitHub cria uma unidade de execução chamada internamente `e2e`; dependências posteriores usam esse identificador.
+**Como faz:** O job depende de `e2e-shard`, roda com `if: always()`, baixa artifacts do mesmo SHA, exige exatamente cinco ZIPs e chama `playwright merge-reports` com a configuração de gate.
 
-**Por que foi implementado dessa forma:** O job representa a responsabilidade e2e agregado de forma isolada e observável.
+**Por que foi implementado dessa forma:** Os shards executam subconjuntos independentes; uma etapa agregada é necessária para provar cobertura do conjunto e avaliar o resultado combinado sem tratar cada shard como universo completo.
 
-**Por que uma implementação ingênua seria pior:** Fundir essa responsabilidade a outro job reduziria paralelismo e tornaria o `ci-gate` menos capaz de distinguir qual contrato falhou.
+**Por que uma implementação ingênua seria pior:** Considerar cada shard isoladamente poderia deixar um artifact ausente, duplicação entre grupos ou falha de merge sem um único check global que represente o E2E inteiro.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -7358,13 +7358,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `  ci-gate:`
 
-**O que faz:** Declara o job `ci-gate`.
+**O que faz:** Declara o job final `ci-gate`, responsável por converter os resultados distribuídos da pipeline em um único veredito agregado.
 
-**Como faz:** GitHub cria uma unidade de execução chamada internamente `ci-gate`; dependências posteriores usam esse identificador.
+**Como faz:** O job depende de todos os gates relevantes, executa mesmo após falhas/skips por `always()`, mas não após cancelamento por `!cancelled()`, e a função shell `check` aceita somente `success` quando o gate é aplicável.
 
-**Por que foi implementado dessa forma:** O job representa a responsabilidade ci-gate de forma isolada e observável.
+**Por que foi implementado dessa forma:** Jobs paralelos precisam de um ponto de convergência que diferencie falha real, skip deliberado por evento e cancelamento de run superseded.
 
-**Por que uma implementação ingênua seria pior:** Fundir essa responsabilidade a outro job reduziria paralelismo e tornaria o `ci-gate` menos capaz de distinguir qual contrato falhou.
+**Por que uma implementação ingênua seria pior:** Sem agregador, um check opcional/skipped poderia confundir a política de merge; um agregador ingênuo com `always()` puro criaria falso vermelho em runs cancelados.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -8072,13 +8072,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `            else`
 
-**O que faz:** Abre o ramo de sucesso.
+**O que faz:** Abre o ramo da função `check` usado quando o resultado do job avaliado é exatamente `success`.
 
-**Como faz:** A função converte resultados declarativos de `needs.*.result` em um único código de saída acumulado.
+**Como faz:** O `else` pertence ao teste `if [ "$result" != "success" ]`; portanto só é alcançado quando a comparação de desigualdade é falsa.
 
-**Por que foi implementado dessa forma:** Permite avaliar todos os gates e relatar múltiplas falhas numa única passagem, em vez de abortar no primeiro problema.
+**Por que foi implementado dessa forma:** Mantém logs positivos explícitos para cada gate sem alterar o acumulador `failed`, permitindo auditar quais dependências foram aceitas.
 
-**Por que uma implementação ingênua seria pior:** Encadear `&&` perderia diagnóstico depois da primeira falha; aceitar `skipped` como sucesso permitiria omissão silenciosa de gates obrigatórios.
+**Por que uma implementação ingênua seria pior:** Omitir o ramo de sucesso reduziria observabilidade; usar uma condição frouxa como “não failure” poderia aceitar `skipped` ou `cancelled` indevidamente.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -8100,13 +8100,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `            fi`
 
-**O que faz:** Fecha o `if` interno.
+**O que faz:** Encerra a condicional interna da função `check` depois de tratar os ramos falha e sucesso.
 
-**Como faz:** A função converte resultados declarativos de `needs.*.result` em um único código de saída acumulado.
+**Como faz:** O `fi` fecha o `if [ "$result" != "success" ]`, garantindo que a próxima invocação de `check` comece sem herdar fluxo condicional aberto.
 
-**Por que foi implementado dessa forma:** Permite avaliar todos os gates e relatar múltiplas falhas numa única passagem, em vez de abortar no primeiro problema.
+**Por que foi implementado dessa forma:** A função precisa ser sintaticamente fechada e determinística para avaliar cada resultado de `needs` de forma independente.
 
-**Por que uma implementação ingênua seria pior:** Encadear `&&` perderia diagnóstico depois da primeira falha; aceitar `skipped` como sucesso permitiria omissão silenciosa de gates obrigatórios.
+**Por que uma implementação ingênua seria pior:** Um fechamento ausente torna o script Bash inválido; um fechamento deslocado poderia fazer validações posteriores dependerem do ramo do gate anterior.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -8114,13 +8114,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          }`
 
-**O que faz:** Fecha a função `check`.
+**O que faz:** Encerra a definição da função shell `check` que normaliza a avaliação dos resultados dos jobs dependentes.
 
-**Como faz:** A função converte resultados declarativos de `needs.*.result` em um único código de saída acumulado.
+**Como faz:** A chave `}` fecha a função após nome/result, comparação estrita, marcação de `failed` e logging; as linhas seguintes passam a ser chamadas dessa função, não parte de sua definição.
 
-**Por que foi implementado dessa forma:** Permite avaliar todos os gates e relatar múltiplas falhas numa única passagem, em vez de abortar no primeiro problema.
+**Por que foi implementado dessa forma:** Encapsular a regra `result === success` evita repetir lógica divergente para cada gate e mantém um único acumulador de falhas.
 
-**Por que uma implementação ingênua seria pior:** Encadear `&&` perderia diagnóstico depois da primeira falha; aceitar `skipped` como sucesso permitiria omissão silenciosa de gates obrigatórios.
+**Por que uma implementação ingênua seria pior:** Duplicar a comparação em cada linha aumentaria risco de algum gate usar regra diferente; um fechamento incorreto faria chamadas posteriores serem interpretadas no escopo errado ou quebraria o shell.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
