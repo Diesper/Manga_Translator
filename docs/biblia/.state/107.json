@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "107-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/chapter-dedup.test.js",
       "found_while_auditing": "tests/integration/chapter-dedup.test.js",
@@ -23,11 +23,15 @@
       "expected_evidence": "Assertions diretas sobre chapterId e chapterList produzidos pela implementação real de cm-chapter.js.",
       "possible_regression": "Deduplicação real pode criar capítulos duplicados ou fundir registros indevidamente sem falhar nesta suíte espelho.",
       "known_impact": "A confiança do BUG #12 fica limitada à simulação local, não ao comportamento do content script atual.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — suíte não executa produção. `buildChapterSystem`/canonicalTitle/get-or-create são implementados localmente; `cm-chapter.js` não é importado.",
+      "auditor_recommended_action": "Migrar casos para `MangaTranslatorChapter.createChapterManager` real com chrome mock e URLs/títulos controlados."
     },
     {
       "id": "107-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FUNCTIONAL_REVIEW",
       "target_file": "extension/content/cm-chapter.js",
       "found_while_auditing": "tests/integration/chapter-dedup.test.js",
@@ -40,7 +44,11 @@
       "expected_evidence": "Teste que importa/executa cm-chapter.js real e demonstra o comportamento canônico escolhido para prefixos e sufixos.",
       "possible_regression": "Sessões do mesmo capítulo podem gerar registros duplicados, ou o teste pode mascarar divergência permanente entre especificação e produção.",
       "known_impact": "Afeta identidade de capítulos e agrupamento de resultados persistidos entre visitas.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — divergência funcional do mirror confirmada. O canonicalTitle local aceita prefixo textual antes do número e remove sufixos de site; produção atual não implementa essas mesmas transformações.",
+      "auditor_recommended_action": "Decidir semântica canônica e alinhar produção/teste; a suíte deve detectar a diferença em vez de escondê-la."
     },
     {
       "id": "107-003",
