@@ -1,0 +1,11 @@
+{
+  "index": 223,
+  "file": "tests/unit/reader/page-counter.test.js",
+  "bible": "docs/biblia/tests/unit/reader/page-counter.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "cec252ffefc25ee643b0227926ec6780a59ac272",
+  "started_at_utc": "2026-09-30T14:38:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
