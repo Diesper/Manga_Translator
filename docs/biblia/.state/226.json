@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "226-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MIRROR_DRIFT",
       "target_file": "tests/visual/content-manga-pipeline.visual.js",
       "related_files": [
@@ -28,11 +28,15 @@
       "expected_auditor_action": "Confirmar o drift e definir a estratégia de teste sem tratar o mirror como prova da produção.",
       "possible_regression": "Precedência/fallback do pipeline real pode quebrar enquanto o mirror continua verde.",
       "impact": "Validade da suíte visual que reivindica cobrir o pipeline de tradução/cache.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:02:00Z",
+      "audit_finding": "ACCEPTED. `content-manga-pipeline.visual.js` executa `runCachePipeline()` local descrito como pipeline de 5 fases. A produção atual usa `cm-gtc-client.js`/`content_manga.js` com visual-v4, crop, relaxed e consultas correlacionadas adicionais; o mirror não executa essa orquestração real.",
+      "auditor_recommended_action": "Migrar vetores para APIs reais/harness do content atual ou criar equivalence gate explícito cobrindo SHA, dHash, perceptual strict, crop, relaxed/correlated e decisão Gemini."
     },
     {
       "id": "226-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SEMANTIC_DRIFT",
       "target_file": "tests/visual/content-manga-pipeline.visual.js",
       "related_files": [
@@ -49,7 +53,11 @@
       "expected_auditor_action": "Confirmar qual contrato é intencional e corrigir o teste/arquitetura fora desta Bíblia.",
       "possible_regression": "A suíte pode comunicar aceitação de match borderline quando o produto corretamente rejeita, ou ocultar futura inversão da regra.",
       "impact": "Segurança da decisão de cache perceptual borderline.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:02:00Z",
+      "audit_finding": "ACCEPTED — drift semântico confirmado. O helper local `confirmWithRegionalHashes` retorna `true` quando query/entry/API estão ausentes, enquanto `MangaTranslatorGtcClient.confirmWithRegionalHashes` real retorna `false` nesses casos. A suíte prova a semântica oposta ao produto.",
+      "auditor_recommended_action": "Substituir o mirror por chamada à API real e testar ausência de evidência regional como fail-closed, além de match válido/inválido."
     },
     {
       "id": "226-003",
