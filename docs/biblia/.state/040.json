@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "040-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RACE_CONDITION_REVIEW",
       "target_file": "extension/content/gemini/attachment.js",
       "found_while_auditing": "extension/content/gemini/attachment.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar a ordem baseline→observer→focus→dispatch.",
       "possible_regression": "Prompt pode ser enviado acreditando que a imagem atual foi anexada quando apenas uma preview antiga reapareceu.",
       "impact": "Integridade do handshake de attachment e risco de traduzir a imagem errada.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — race de baseline plausível e sustentada pela ordem atual. `attachFile` captura baseline e cria o observer de confirmação antes de `focusForAttachment`. Se o foco/hidratação materializar uma preview antiga que não existia no baseline, `isEvidenceNewOrChanged` a considera nova antes do primeiro dispatch, podendo sinalizar attachment sem upload corrente.",
+      "auditor_recommended_action": "Revalidar baseline após estabilização/focus antes do primeiro dispatch ou distinguir evidência por identidade/tempo do upload; adicionar teste em que focus revela preview preexistente."
     },
     {
       "id": "040-002",
