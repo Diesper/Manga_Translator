@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "073-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_CONTRACT_GAP",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "related_files": [
@@ -26,7 +26,11 @@
       "requested_action": "Adicionar checagem contratual do reporter obrigatório e self-test negativo do verifier em alteração separada.",
       "expected_evidence": "Verifier rejeitando merge config sem playwright-gate-reporter.js.",
       "possible_regression": "Falso verde global de E2E se o reporter de gate for removido acidentalmente.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — gap de wiring confirmado. O workflow é verificado quanto a `merge-reports` + nome do config, e o Playwright config normal é verificado quanto ao gate reporter; não existe check do conteúdo de `playwright-merge.config.js` exigindo `playwright-gate-reporter.js`. O merge pode continuar nominalmente e perder o gate final.",
+      "auditor_recommended_action": "Carregar/inspecionar o merge config no CI Contract e exigir reporter canônico; adicionar mutation test removendo-o."
     }
   ],
   "document_quality": {
