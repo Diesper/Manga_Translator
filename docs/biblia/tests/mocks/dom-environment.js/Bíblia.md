@@ -264,7 +264,6 @@ if (typeof window !== 'undefined') {
   }
   window.ResizeObserver = ResizeObserver;
 }
-
 ```
 
 ## 13. Cobertura linha a linha por faixas contíguas
