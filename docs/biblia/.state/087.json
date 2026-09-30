@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "087-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-jest-worker-warning-selftest.js",
       "found_while_auditing": "scripts/validation/verify-jest-worker-warning-selftest.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir a forma de fixture independente adequada às versões Jest suportadas.",
       "possible_regression": "Worker force-exit real pode voltar a passar pelo gate sem ser detectado se houver drift silencioso do literal.",
       "impact": "Pode enfraquecer o gate que transforma warning de worker vazando recursos em falha bloqueante da CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. O caso positivo constrói a amostra usando a própria constante `FORCED_WORKER_EXIT`; isso prova consistência interna, não aderência independente ao literal real emitido pelo Jest.",
+      "auditor_recommended_action": "Adicionar fixture/literal canônico independente capturado de Jest suportado e exigir que o detector/constante casem com ele, mantendo negativos de PASS/FAIL comuns."
     }
   ],
   "document_quality": {
