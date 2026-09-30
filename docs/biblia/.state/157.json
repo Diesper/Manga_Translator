@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "157-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/open-existing-folder-action.test.js",
       "found_while_auditing": "tests/unit/background/open-existing-folder-action.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna contra suites complementares e adicionar cobertura se exigida.",
       "possible_regression": "Anchor antigo pode impedir recuperação de pasta ainda localizável por path.",
       "impact": "Abertura de pasta previamente salva.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre anchor válido e fallback direto sem anchor, mas não anchorId fornecido cujo search retorna vazio/exists=false antes de cair em `fallbackSearch`.",
+      "auditor_recommended_action": "Adicionar casos com anchorId stale para results=[] e exists=false, exigindo execução do fallbackSearch e comportamento final correto."
     },
     {
       "id": "157-002",
