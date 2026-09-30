@@ -52,18 +52,17 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **75**
-- 🟠 Em andamento: **2**
+- ✅ Concluídos auditados: **76**
+- 🟠 Em andamento: **1**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **32,19%**
+- Cobertura realmente aprovada: **32,62%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `scripts/maintenance/diagnose-jest-workers.js`
+- Último aprovado: `extension/reader/reader.html`
 - Arquivos atualmente em andamento:
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
-  - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
 
 - Menor índice pendente sem reserva no momento desta atualização: `#078 scripts/release/sync-version.js`
 
@@ -387,7 +386,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 52 | ✅ CONCLUÍDO | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
 | 53 | ✅ CONCLUÍDO | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
 | 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
-| 55 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#G | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
+| 55 | ✅ CONCLUÍDO | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
 | 56 | ✅ CONCLUÍDO | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
 | 57 | ✅ CONCLUÍDO | `extension/shared/gtc-fingerprint.js` | `fa014028d5e2` | `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` |
 | 58 | ✅ CONCLUÍDO | `extension/shared/gtc-indexeddb.js` | `0c872f23a665` | `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` |
