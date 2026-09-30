@@ -28,7 +28,7 @@
     },
     {
       "id": "137-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/unit/background/deliver-result-action.test.js",
       "related_file": "extension/background/actions/deliver-result.js",
@@ -43,7 +43,11 @@
       "expected_auditor_action": "Revisar conjuntamente o contrato de deliver-result.js e jobs-dom-ack.js antes de alterar comportamento.",
       "possible_regression": "Drift entre helper e action pode transformar ACK incompleto em confirmação durável.",
       "impact": "Integridade do protocolo stage→commit.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — branch permissivo real não está protegido. A action falha apenas se `!staged.ok` ou `staged.persisted === false`; `{ok:true}` sem `persisted` atravessa e retorna `{staged:true,persisted:true}`. A suíte cobre persisted true e false, não campo ausente.",
+      "auditor_recommended_action": "Adicionar regressão `{ok:true}` sem persisted; se persistência é requisito, alterar produção para exigir `persisted === true`."
     },
     {
       "id": "137-003",
