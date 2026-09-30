@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "007-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "extension/background/actions/deliver-result-from-tab.js",
       "found_while_auditing": "extension/background/actions/deliver-result-from-tab.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar ordem/atomicidade do cleanup em mudança separada.",
       "possible_regression": "Abas auxiliares órfãs e perda de capacidade de retry/cleanup.",
       "impact": "Lifecycle de abas temporárias e jobs.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — bug de consistência confirmado. `chrome.tabs.remove` é disparado sem await e qualquer `runtime.lastError` é ignorado; imediatamente depois o mapping é removido de `extractionTabs`, `syncState()` é aguardado e o job pode ser finalizado. Falha ao fechar a aba não impede cleanup/finalização.",
+      "auditor_recommended_action": "Transformar remoção em Promise com política explícita; decidir se falha de remoção bloqueia finalização ou apenas gera retry/telemetria; testar `runtime.lastError`."
     },
     {
       "id": "007-002",
@@ -61,7 +65,7 @@
     },
     {
       "id": "007-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INPUT_VALIDATION_REVIEW",
       "target_file": "extension/background/actions/deliver-result-from-tab.js",
       "found_while_auditing": "extension/background/actions/deliver-result-from-tab.js",
@@ -74,7 +78,11 @@
       "expected_auditor_action": "Avaliar necessidade de endurecimento.",
       "possible_regression": "Payload inválido/grande pode atravessar o roteador e degradar o fluxo.",
       "impact": "Robustez da extração auxiliar.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED. O validator só exige prefixo `data:image/<mime>;base64,`; não valida payload Base64 não vazio/canônico nem impõe limite de tamanho. Um payload enorme/malformado pode atravessar o gate e atingir o pipeline de persistência.",
+      "auditor_recommended_action": "Validar tamanho e Base64 mínimo/estrutura decidida pelo contrato; adicionar limites e testes negativos."
     }
   ],
   "document_quality": {
