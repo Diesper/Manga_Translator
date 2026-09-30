@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "231-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SCOPE_ACCURACY",
       "target_file": "tests/visual/integration.visual.js",
       "found_while_auditing": "tests/visual/integration.visual.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar o escopo e impedir promoção desta suíte a prova de IndexedDB/browser sem evidência correspondente.",
       "possible_regression": "Falhas específicas de persistência/lifecycle podem ficar mascaradas por uma interpretação excessiva da suíte.",
       "impact": "Rastreabilidade e classificação de evidência.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. A suíte se chama integração end-to-end/cadeia completa, mas executa módulos GTC diretamente em Node com `createInMemoryRepository`; não atravessa browser, content script, service worker nem IndexedDB persistente.",
+      "auditor_recommended_action": "Reclassificar como integração de módulos em memória ou criar E2E separado para a cadeia real."
     },
     {
       "id": "231-002",
@@ -48,7 +52,7 @@
     },
     {
       "id": "231-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FLAKY_PERFORMANCE_RISK",
       "target_file": "tests/visual/integration.visual.js",
       "found_while_auditing": "tests/visual/integration.visual.js",
@@ -61,11 +65,15 @@
       "expected_auditor_action": "Confirmar estabilidade nos ambientes oficiais e decidir se mantém, ajusta ou separa o gate.",
       "possible_regression": "CI intermitente por carga externa ou regressão real não detectada por threshold pouco representativo.",
       "impact": "Confiabilidade do job visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. Quatro casos usam Date.now e thresholds absolutos de 500/200 ms dentro do gate funcional, sem warm-up, repetições ou percentis; isso é vulnerável a carga do runner.",
+      "auditor_recommended_action": "Mover performance para benchmark dedicado/estatístico ou tornar o gate funcional independente de wall-clock rígido."
     },
     {
       "id": "231-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_STRENGTH",
       "target_file": "tests/visual/integration.visual.js",
       "found_while_auditing": "tests/visual/integration.visual.js",
@@ -78,11 +86,15 @@
       "expected_auditor_action": "Revisar cada caso e exigir assertion focal quando a propriedade for relevante.",
       "possible_regression": "Falsos verdes semânticos apesar de contagem/tempo válidos.",
       "impact": "Precisão dos contratos visuais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. Diversos títulos são mais fortes que as assertions: brilho exige apenas algum hit; batch 50 valida cardinalidade; lookup de 10 candidatos só mede tempo; distâncias só ficam em 0..256; save-many não verifica todos os itens citados.",
+      "auditor_recommended_action": "Alinhar títulos/assertions e adicionar identidade/mapeamentos exatos onde o contrato assim exigir."
     },
     {
       "id": "231-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_DRIFT",
       "target_file": "tests/visual/integration.visual.js",
       "found_while_auditing": "tests/visual/integration.visual.js",
@@ -95,7 +107,11 @@
       "expected_auditor_action": "Confirmar a topologia atual e ajustar somente a documentação/testes correspondentes.",
       "possible_regression": "Auditores podem supor cobertura de fases que o teste não executa.",
       "impact": "Rastreabilidade documental.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O comentário inicial ainda descreve pipeline de 5 fases, enquanto o runtime/run-all atual anunciam 6 fases.",
+      "auditor_recommended_action": "Atualizar documentação e, se necessário, cenários para a nomenclatura/pipeline atual."
     }
   ],
   "document_quality": {
