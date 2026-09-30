@@ -52,7 +52,7 @@
     },
     {
       "id": "036-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
       "found_while_auditing": "extension/content/cm-dom-replace.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Completar cobertura visual.",
       "possible_regression": "Imagem decorativa entra no lote ou página real é filtrada incorretamente.",
       "impact": "Seleção e substituição visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED com escopo amplo. A suíte twin-backdrop cobre casos básicos, mas não toda a heurística de `cm-dom-replace`: URL inválida, attrs/CSS de backdrop, grupo só de backdrops, escolha por pointerEvents, detached image e banlist com variante canonicalmente equivalente. Parte da canonicalização twin já está coberta por 210-003, mas os demais branches são distintos.",
+      "auditor_recommended_action": "Adicionar matriz contra `MangaTranslatorDomReplace` real; reaproveitar 210-003 para variantes canônicas e criar casos separados para classificação/edge cases restantes."
     }
   ],
   "document_quality": {
