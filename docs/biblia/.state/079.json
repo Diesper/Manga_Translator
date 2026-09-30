@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "079-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/validation/check-js-syntax.test.js",
       "found_while_auditing": "scripts/validation/check-js-syntax.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Assertions diretas sobre arquivos incluídos/ignorados, mensagens e códigos de saída.",
       "expected_auditor_action": "Confirmar a lacuna e criar cobertura focal se exigida.",
       "possible_regression": "O gate pode reduzir escopo ou deixar de falhar para uma classe de erro sem ser detectado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. Não existe self-test focal de `check-js-syntax.js`; a execução verde real prova o caminho saudável, mas não descoberta recursiva, filtros, continuidade após erro, conjunto vazio ou códigos de saída negativos.",
+      "auditor_recommended_action": "Adicionar sandbox/child-process test da implementação real com árvore controlada e arquivo inválido."
     },
     {
       "id": "079-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/check-js-syntax.js",
       "found_while_auditing": "scripts/validation/check-js-syntax.js",
@@ -38,7 +42,11 @@
       "expected_evidence": "Teste ou contrato explícito para raiz individual ausente.",
       "expected_auditor_action": "Aceitar e documentar a tolerância ou solicitar correção funcional separada.",
       "possible_regression": "Rename/remoção de uma árvore pode não quebrar o lint isolado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED como revisão de contrato. `walk` retorna `[]` para qualquer raiz ausente e a agregação só falha se o conjunto global ficar vazio. Portanto `extension`, `tests` ou `scripts` pode desaparecer individualmente sem reprovar este lint, desde que outra raiz contenha JS.",
+      "auditor_recommended_action": "Decidir se as três raízes são obrigatórias para o lint. Se forem, validar cada raiz explicitamente e testar; caso contrário documentar tolerância."
     }
   ],
   "document_quality": {
