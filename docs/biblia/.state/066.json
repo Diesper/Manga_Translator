@@ -2,11 +2,11 @@
   "index": 66,
   "file": ".github/workflows/publish.yml",
   "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 20",
   "source_sha": "f673d445a3cc022d473f9b59ae1e0c8972ecd013",
   "started_at_utc": "2026-09-30T15:40:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-09-30T21:15:00Z",
   "audit_requests": [
     {
       "id": "066-001",
@@ -102,10 +102,11 @@
     "source_text_lines": 131,
     "external_audit_requests_open": 5,
     "separate_audit_status": "OPEN_NON_BLOCKING",
-    "note": "AGENTE 16 revalidou fonte, bloco integral, matriz de evidência e gates reais; nenhuma evidência externa foi fabricada e as solicitações 066-001..066-005 foram preservadas.",
-    "revalidation_owner": "AGENTE 16",
+    "note": "AGENTE 20 revalidou fonte, SHA, fonte integral e cobertura documental do índice 066; audit_requests externos foram preservados e nenhuma alteração funcional foi feita.",
+    "revalidation_owner": "AGENTE 20",
     "current_protocol": "external audit requests do not block documentary completion",
-    "completion_protocol": "Solicitações externas abertas não bloqueiam conclusão documental no protocolo multiagente atual."
+    "completion_protocol": "Solicitações externas abertas não bloqueiam conclusão documental no protocolo multiagente atual.",
+    "revalidated_at_utc": "2026-09-30T21:15:00Z"
   },
   "takeover": {
     "previous_agent": "AGENTE 16",
