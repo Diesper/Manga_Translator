@@ -52,17 +52,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **70**
-- 🟠 Em andamento: **7**
+- ✅ Concluídos auditados: **71**
+- 🟠 Em andamento: **6**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **30,04%**
+- Cobertura realmente aprovada: **30,47%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `extension/content/gemini/observer.js`
+- Último aprovado: `extension/content/gemini/selectors.js`
 - Arquivos atualmente em andamento:
-  - `#048 extension/content/gemini/selectors.js` — `GPT-5.6-Sol#C` — Bíblia: `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md`
   - `#051 extension/options/options.html` — `GPT-5.6-Sol#D` — Bíblia: `docs/biblia/extension/options/options.html/Bíblia.md`
   - `#052 extension/options/options.js` — `GPT-5.6-Sol#F` — Bíblia: `docs/biblia/extension/options/options.js/Bíblia.md`
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
@@ -385,7 +384,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 45 | ✅ CONCLUÍDO | `extension/content/gemini/job-runner.js` | `1b16fd656e82` | `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md` |
 | 46 | ✅ CONCLUÍDO | `extension/content/gemini/observer.js` | `59c5335e1b4f` | `docs/biblia/extension/content/gemini/observer.js/Bíblia.md` |
 | 47 | ✅ CONCLUÍDO | `extension/content/gemini/result-extractor.js` | `a3efd499a0b0` | `docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md` |
-| 48 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#C | `extension/content/gemini/selectors.js` | `0bf8db6e416a` | `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md` |
+| 48 | ✅ CONCLUÍDO | `extension/content/gemini/selectors.js` | `0bf8db6e416a` | `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md` |
 | 49 | ✅ CONCLUÍDO | `extension/content/gemini/temporary-chat.js` | `40fbc8dc6acf` | `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` |
 | 50 | ✅ CONCLUÍDO | `extension/content/inject.js` | `21f7f6cf9c94` | `docs/biblia/extension/content/inject.js/Bíblia.md` |
 | 51 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#D | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
