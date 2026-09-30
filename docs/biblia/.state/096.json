@@ -2,10 +2,67 @@
   "index": 96,
   "file": "tests/fixtures/manga-images.js",
   "bible": "docs/biblia/tests/fixtures/manga-images.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 18",
   "source_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
   "started_at_utc": "2026-09-30T06:19:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:30:00Z",
+  "audit_requests": [
+    {
+      "id": "096-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/fixtures/manga-images.test.js",
+      "found_while_auditing": "tests/fixtures/manga-images.js",
+      "finding": "Os E2E exercitam PNGs reais e provam propriedades integradas importantes, mas não existe suíte focal para crc32/chunk/IHDR/pixels nem para writeImagesToDisk.",
+      "current_evidence": "tests/e2e/translation-flow.spec.js:184-190 exige duas page_* decodificáveis no Chromium acima de 300x400; linhas 219-233 exigem data URLs PNG traduzidas distintas e avatar/banner não traduzidos; o mock importa e serve PNG_IMAGES.",
+      "missing_evidence": "Vetores CRC-32, layout length/type/data/CRC, dimensões exatas das sete imagens, pixels/fronteiras das paletas, conjunto/ordem do Map, bytes gravados em diretório temporário e lista retornada pelo writer.",
+      "why_needed": "Regressões de baixo nível podem alterar bytes, dimensões, cores ou persistência sem afetar imediatamente as assertions funcionais atuais.",
+      "requested_action": "Adicionar teste separado que importe a implementação real, use diretório temporário e valide estrutura/dimensões/pixels-chave/paridade Map↔disco sem copiar a lógica como prova.",
+      "expected_evidence": "Assertions diretas sobre CRC/chunks/IHDR, dimensões e pixels canônicos, sete chaves/ordem, bytes gravados e retorno de writeImagesToDisk.",
+      "expected_auditor_action": "Confirmar o escopo útil da cobertura focal e criar a alteração de testes fora desta Bíblia.",
+      "possible_regression": "Fixtures aparentemente presentes podem mudar silenciosamente e alterar filtros ou roteamento E2E.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "096-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "tests/fixtures/manga-images.js",
+      "found_while_auditing": "tests/fixtures/manga-images.js",
+      "finding": "buildPng e buildPanelPng são exportados, mas não validam dimensões, canais RGB nem shape de palette; nenhum consumidor externo desses builders foi localizado.",
+      "current_evidence": "Linhas 49-85 aceitam argumentos diretamente; linhas 133-134 exportam os builders; os chamadores atuais usam somente constantes internas válidas.",
+      "missing_evidence": "Contrato explícito dizendo se os builders são helpers internos confiáveis ou API reutilizável com domínio de entrada validado.",
+      "why_needed": "Novos testes podem reutilizar os exports e depender de coerções ou RangeErrors internos do Buffer sem contrato estável.",
+      "requested_action": "Decidir o contrato; se forem API suportada, adicionar validação e regressões em mudança separada; se forem internal-only, documentar a restrição e cobrir inputs canônicos.",
+      "expected_evidence": "Teste ou contrato explícito para width, height, RGB e palette.",
+      "expected_auditor_action": "Classificar como contrato interno confiável ou solicitar robustez adicional.",
+      "possible_regression": "Entradas anômalas podem gerar erro de baixo nível, pixels coagidos ou consumo de memória inesperado.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "096-003",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "tests/fixtures/manga-images.js",
+      "found_while_auditing": "tests/fixtures/manga-images.js",
+      "finding": "writeImagesToDisk escreve sete arquivos sequencialmente, não remove stale files e não possui rollback/rename de conjunto.",
+      "current_evidence": "Linhas 123-128 implementam mkdir + writeFileSync em loop; o servidor normal serve o Map em memória e não prova consistência do diretório materializado.",
+      "missing_evidence": "Teste de falha intermediária, decisão sobre limpeza de arquivos extras e prova de que consumidores de disco nunca enumeram fixtures stale.",
+      "why_needed": "Um diretório persistente pode ficar parcial ou conter artefatos antigos enquanto parte do E2E segue verde por usar buffers em memória.",
+      "requested_action": "Confirmar se overwrite best-effort é suficiente; se não, implementar limpeza/estratégia atômica em mudança separada com regressão.",
+      "expected_evidence": "Cenário controlado com stale file e/ou falha de escrita, validando a política decidida.",
+      "expected_auditor_action": "Aceitar formalmente o risco ou abrir correção funcional separada.",
+      "possible_regression": "Consumidores futuros de disco podem observar conjunto diferente do Map canônico.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "137/137",
+    "bible_lines": 672,
+    "external_audit_requests_open": 3
+  }
 }
