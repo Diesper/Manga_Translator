@@ -311,7 +311,6 @@ Mais importante: o fallback não usa `enqueueChapterWrite`. Duas páginas do mes
     if (typeof globalThis !== 'undefined') globalThis.MangaTranslatorChapter = api;
     if (typeof window !== 'undefined') window.MangaTranslatorChapter = api;
 })(typeof window !== 'undefined' ? window : self);
-
 ~~~
 
 ## Rastreabilidade 155/155
