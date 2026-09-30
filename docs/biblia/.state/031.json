@@ -52,7 +52,7 @@
     },
     {
       "id": "031-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/router.test.js",
       "found_while_auditing": "extension/background/router.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Completar cobertura/robustez.",
       "possible_regression": "Mensagem pode lançar no listener e não responder ao caller.",
       "impact": "Confiabilidade do roteamento.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED. `router.js` trata erros apenas ao redor de `execute`; `validate(request)` e `contextFactory(sender)` ficam fora dos try/catch. A suíte não cobre GTC/SM delegation, ACTION_NOT_FOUND, sender null, registro duplicado nem validate/contextFactory lançando, e esses casos podem sair do listener sem resposta controlada.",
+      "auditor_recommended_action": "Adicionar casos focais de delegação/erros e decidir se validate/contextFactory devem ser convertidos para INTERNAL_ERROR com sendResponse previsível."
     }
   ],
   "document_quality": {
