@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "101-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/helpers/load-content-gemini-module.js",
       "found_while_auditing": "tests/helpers/load-content-gemini-module.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Prova de que todos os módulos obrigatórios são carregados antes do bootstrap, o bootstrap é recarregado e os paths apontam para os arquivos esperados.",
       "possible_regression": "Novo módulo obrigatório, reorder ou alteração de cache pode produzir falhas intermitentes/estado stale.",
       "impact": "Confiabilidade da infraestrutura de testes content-gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. O helper carrega dez módulos Gemini em ordem fixa e só invalida `content_gemini.js`; não há teste focal da ordem, paths, cache ou identidade entre cargas sucessivas.",
+      "auditor_recommended_action": "Adicionar teste do helper com inspeção controlada de require.cache/exports, provando módulos obrigatórios, ordem e recarga do bootstrap."
     },
     {
       "id": "101-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ISOLATION_REVIEW",
       "target_file": "tests/helpers/load-content-gemini-module.js",
       "found_while_auditing": "tests/helpers/load-content-gemini-module.js",
@@ -38,11 +42,15 @@
       "expected_evidence": "Duas cargas consecutivas devem demonstrar explicitamente quais módulos são novos e quais preservam identidade/estado.",
       "possible_regression": "Flakiness ou falsos positivos por estado residual de módulo.",
       "impact": "Isolamento e determinismo do Jest.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. Os dez submódulos permanecem cacheados salvo reset externo do Jest. Como alguns módulos possuem estado/global registries, duas chamadas podem compartilhar estado sem contrato explícito.",
+      "auditor_recommended_action": "Auditar estado dos submódulos e definir política de isolamento; testar quais identities/estados devem persistir ou ser recriados."
     },
     {
       "id": "101-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "API_CONTRACT_REVIEW",
       "target_file": "tests/unit/content-gemini/manual-assist-hud.test.js",
       "found_while_auditing": "tests/helpers/load-content-gemini-module.js",
@@ -54,7 +62,11 @@
       "expected_evidence": "Teste ou código deixa inequívoco como auto-process é controlado em ambiente CommonJS.",
       "possible_regression": "Mudança futura no bootstrap pode ativar auto-process enquanto testes acreditam estar protegidos por opção ignorada.",
       "impact": "Clareza e segurança do contrato de teste.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. `manual-assist-hud.test.js` passa `{skipAutoProcess:true}`, mas `loadContentGeminiModule()` não aceita argumentos; a opção é ignorada. Hoje CommonJS evita autoexec por outro mecanismo.",
+      "auditor_recommended_action": "Remover o argumento enganoso ou implementar opção real; adicionar prova que deixe explícito como auto-process é desativado em testes."
     },
     {
       "id": "101-004",
