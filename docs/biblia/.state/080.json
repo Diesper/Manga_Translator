@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "080-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/playwright-gate-reporter-selftest.js",
       "found_while_auditing": "scripts/validation/playwright-gate-reporter-selftest.js",
@@ -21,11 +21,15 @@
       "requested_action": "Adicionar em alteração de testes separada um cenário usando a implementação real e, se relevante ao contrato, comparar também runStatus já não-passed.",
       "expected_evidence": "Assertion direta sobre o retorno do reporter com total nominal preservado e um id sem onTestEnd.",
       "possible_regression": "Um run global passed com callback final ausente poderia ser aceito.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. O reporter real possui guard `attemptsById.size < total && result.status === 'passed'`, mas o self-test não cria total=21 com apenas 20 ids finalizados. O cenário total=20 exercita apenas `minTests`, não ausência de callback final.",
+      "auditor_recommended_action": "Adicionar `finish({total:21, attempts:passedAttempts(20), runStatus:'passed'})` esperando `{status:'failed'}`."
     },
     {
       "id": "080-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "related_files": [
@@ -40,7 +44,11 @@
       "requested_action": "Avaliar e, se apropriado, adicionar proteção focal da invocação no contrato de CI e self-test negativo correspondente em mudança separada.",
       "expected_evidence": "Falha controlada do verificador de contrato quando a invocação do self-test é removida de todos os caminhos obrigatórios.",
       "possible_regression": "O self-test pode permanecer no repositório, mas deixar de rodar na CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. O self-test é chamado hoje em `package.json#validate` e diretamente na CI, porém `verify-ci-contract.js` não protege a permanência dessas invocações. O arquivo/markers podem permanecer enquanto a execução deixa de acontecer.",
+      "auditor_recommended_action": "Adicionar checks de wiring no contrato da CI e self-test negativo que remova/redirecione a invocação."
     }
   ],
   "document_quality": {
