@@ -2,10 +2,45 @@
   "index": 104,
   "file": "tests/helpers/repo-root.js",
   "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 19",
   "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
   "started_at_utc": "2026-09-30T06:26:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:34:00Z",
+  "audit_requests": [
+    {
+      "id": "104-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/helpers/repo-root.test.js",
+      "found_while_auditing": "tests/helpers/repo-root.js",
+      "finding": "O helper possui 31 consumidores diretos e o caminho normal é exercitado pela CI real, mas não existe teste focal que controle a árvore de diretórios e faça assertions sobre o contrato da própria função.",
+      "current_evidence": "O mesmo blob SHA b2520d65820e7b9072602018b0f46609ac967c58 foi executado na CI #36577447500; consumidores reais passaram nos jobs Linux Node 20/22 e Windows Portability.",
+      "missing_evidence": "Assertions diretas para início já na raiz, subida multinível controlada, ancestral mais próximo, ausência do sentinela, mensagem de erro, caminho relativo e semântica baseada apenas na existência do sentinela.",
+      "why_needed": "Os consumidores usam o layout normal do checkout; isso prova o caminho saudável indiretamente, mas não fixa branches, prioridade de ancestrais nem o contrato de erro.",
+      "requested_action": "Adicionar, em trabalho de auditoria separado, teste focal com diretórios temporários usando a implementação real de findRepoRoot, sem copiar sua lógica.",
+      "expected_evidence": "Assertions específicas sobre caminho retornado e Error lançado em árvores controladas com e sem extension/manifest.json.",
+      "expected_auditor_action": "Confirmar a lacuna e decidir se a cobertura focal deve ser criada.",
+      "possible_regression": "Mudança futura pode inverter a prioridade dos ancestrais, introduzir dependência de cwd, quebrar terminação/portabilidade ou alterar o sentinela sem o layout normal detectar.",
+      "impact": "Falha no helper pode impedir dezenas de suítes de inicializar ou fazê-las carregar arquivos a partir de uma raiz incorreta.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "24/24",
+    "bible_lines": 482,
+    "direct_consumers": 31,
+    "direct_evidence_count": 0,
+    "indirect_evidence": "Linux Node 20/22 + Windows Portability on CI run 36577447500",
+    "external_audit_requests_open": 1,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [
+      109437162616,
+      109437162754,
+      109437162789
+    ]
+  }
 }
