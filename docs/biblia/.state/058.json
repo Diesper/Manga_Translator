@@ -2,11 +2,11 @@
   "index": 58,
   "file": "extension/shared/gtc-indexeddb.js",
   "bible": "docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 13",
   "source_sha": "0c872f23a665304b46dc2bb43c6468762feb2e31",
   "started_at_utc": "2026-09-30T21:55:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-09-30T21:58:00Z",
   "audit_requests": [
     {
       "id": "058-STATE-001",
@@ -32,6 +32,7 @@
     "original_bible_agent": "GPT-5.6-Sol#K",
     "bible_sha": "66172ff82912ee19958fb825cedd9ab2b22c3af3",
     "audit_status_verified": "APPROVED",
-    "historical_audit_requests_recovered": false
+    "historical_audit_requests_recovered": false,
+    "completed": true
   }
 }
