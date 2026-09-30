@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "192-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/audio-synthesis.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Revisar autenticidade e migrar a prova em mudança separada.",
       "possible_regression": "Erro de áudio pode escapar e interromper o fluxo de erro da UI.",
       "impact": "Robustez do content script.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "SUPERSEDED por 191-001. Ambos registram que `playErrorSound` testado vem do helper test-only e não da closure real de `content_manga.js`.",
+      "auditor_recommended_action": "Centralizar a migração para implementação real no request 191-001.",
+      "superseded_by": "191-001"
     },
     {
       "id": "192-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis.test.js",
@@ -40,7 +45,12 @@
       "expected_auditor_action": "Decidir a estratégia de fonte única em trabalho separado.",
       "possible_regression": "Frequências, envelopes, número de osciladores ou fallback real podem divergir com testes verdes.",
       "impact": "Confiabilidade da cobertura de áudio.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "SUPERSEDED por 191-002. Ambos registram que a suíte full usa mirrors e não cobre o lifecycle real de áudio.",
+      "auditor_recommended_action": "Centralizar o alinhamento da suíte full no request 191-002.",
+      "superseded_by": "191-002"
     }
   ],
   "document_quality": {
