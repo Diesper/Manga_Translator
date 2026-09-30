@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "230-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/visual/helpers.visual.js",
       "found_while_auditing": "tests/visual/helpers.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e adicionar cobertura focal fora desta auditoria documental.",
       "possible_regression": "Fixtures erradas podem gerar falso diagnóstico; isValidHex permissivo pode aceitar hash malformado e mascarar regressão.",
       "impact": "Toda a suíte visual perceptual que depende das fixtures.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. Não existe self-test focal para as fábricas/oráculos de `helpers.js`; as suítes consumidoras podem compartilhar o mesmo erro do helper e continuar verdes.",
+      "auditor_recommended_action": "Adicionar smoke/self-test mínimo para dimensões, ranges e invariantes das principais fábricas usadas como oráculo."
     },
     {
       "id": "230-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/visual/helpers.js",
       "found_while_auditing": "tests/visual/helpers.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Revisar intenção antes de limpeza funcional.",
       "possible_regression": "Código não exercitado pode quebrar sem qualquer gate detectar.",
       "impact": "Infraestrutura da suíte visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. `extractBlock` e `injectTextInCenter` são exportados sem consumidor localizado; `countSetBits` é importado por gtc-fingerprint.visual.js sem chamada encontrada.",
+      "auditor_recommended_action": "Remover exports/imports mortos ou adicionar uso intencional/documentado se forem API de teste suportada."
     },
     {
       "id": "230-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_MISMATCH",
       "target_file": "tests/visual/helpers.js",
       "found_while_auditing": "tests/visual/helpers.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Resolver a discrepância sem usar esta Bíblia como autorização para mudança funcional.",
       "possible_regression": "Alterar o padrão base pode deslocar hashes/thresholds cross-language.",
       "impact": "Leitura e manutenção das fixtures visuais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O comentário de `mangaPage` afirma fundo branco em toda a arte, mas a implementação usa gradiente/sombreamento cinza e branco apenas no balão.",
+      "auditor_recommended_action": "Corrigir a documentação para descrever a fixture real."
     }
   ],
   "document_quality": {
