@@ -30,7 +30,7 @@
     },
     {
       "id": "148-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MOCK_SEMANTICS_REVIEW",
       "target_file": "tests/mocks/chrome-api.mock.js",
       "found_while_auditing": "tests/unit/background/handlers-extra-real.test.js",
@@ -42,7 +42,11 @@
       "expected_evidence": "Teste do próprio mock que documente a semântica escolhida e teste do fluxo de onInstalled que dispare o evento explicitamente quando apropriado.",
       "possible_regression": "A suíte pode continuar verde mesmo quando o código real depender incorretamente de um evento que o navegador não dispara no registro do listener.",
       "impact": "Fidelidade do ambiente de teste ao lifecycle real da extensão.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. O mock de `runtime.onInstalled.addListener` auto-dispara `reason:'install'` no registro, divergindo da semântica real do Chrome e permitindo testes dependerem implicitamente de instalação.",
+      "auditor_recommended_action": "Definir semântica do mock e preferir `_simulateInstall` explícito; adicionar teste do próprio mock e ajustar consumers se necessário."
     },
     {
       "id": "148-003",
