@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "024-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INPUT_VALIDATION_REVIEW",
       "target_file": "extension/background/actions/start-batch.js",
       "found_while_auditing": "extension/background/actions/start-batch.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar contrato de entrada em alteração separada.",
       "possible_regression": "Payload externo pode causar INTERNAL_ERROR após iniciar/mutar parcialmente o lote.",
       "impact": "Criação e idempotência de batches.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — bug de validação confirmado. `start-batch` valida apenas images/index; `background.js#startBatch` usa `request.batchId || generateId()` e posteriormente chama `batchId.slice(0,8)` em todos os outcomes relevantes. Um batchId truthy não-string (objeto/número) atravessa o validator e pode lançar TypeError depois de mutar/persistir estado.",
+      "auditor_recommended_action": "Validar `batchId` como string não vazia (ou normalizar contrato) antes de `startBatch`; adicionar regressão com número/objeto."
     },
     {
       "id": "024-002",
