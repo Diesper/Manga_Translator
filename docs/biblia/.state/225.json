@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "225-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_DESIGN_REVIEW",
       "target_file": "tests/visual/background-fingerprint.visual.js",
       "found_while_auditing": "tests/visual/background-fingerprint.visual.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar desenho do teste e decidir entre estreitar o escopo declarado ou substituir o simulador pela implementação real.",
       "possible_regression": "O simulador pode continuar verde quando URL handling, crop, logging ou cleanup do handler real sofrer regressão.",
       "impact": "Confiabilidade e interpretação do gate visual de fingerprint.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:28:00Z",
+      "audit_finding": "ACCEPTED. A suíte visual afirma cobrir a lógica completa de CALCULATE_VISUAL_FINGERPRINT, mas executa uma reimplementação local visual-v3. Não atravessa validação/fetch/blob/createImageBitmap/center-crop visual-v4/logging/finally da action real; o caso de `bitmap.close` chama close manualmente no próprio teste.",
+      "auditor_recommended_action": "Reclassificar a suíte como modelo visual-v3 ou migrar os cenários para a action real, incluindo assinatura drawImage de crop e cleanup real do bitmap."
     },
     {
       "id": "225-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_MISMATCH",
       "target_file": "tests/visual/background-fingerprint.visual.js",
       "found_while_auditing": "tests/visual/background-fingerprint.visual.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Alinhar a descrição do teste sem alterar o comportamento.",
       "possible_regression": "Confusão documental; sem impacto funcional direto.",
       "impact": "Legibilidade e precisão da suíte.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:28:00Z",
+      "audit_finding": "ACCEPTED. O título diz `pixelSample ... 256 chars`, embora 8×8×4 = 256 bytes = 512 caracteres hex; o comentário e a própria assertion exigem 512.",
+      "auditor_recommended_action": "Corrigir o título/documentação para 512 caracteres hex."
     },
     {
       "id": "225-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CLEANUP_REVIEW",
       "target_file": "tests/visual/background-fingerprint.visual.js",
       "found_while_auditing": "tests/visual/background-fingerprint.visual.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Fazer limpeza de baixo risco preservando comportamento.",
       "possible_regression": "Baixo risco funcional; manutenção desnecessariamente confusa se permanecer.",
       "impact": "Manutenibilidade da suíte visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:28:00Z",
+      "audit_finding": "ACCEPTED. `it`, `beforeEach` e `brightnessShifted` são importados sem uso; `fpApiMock` também é declarado no caso de recursos sem participar da prova.",
+      "auditor_recommended_action": "Remover imports/variáveis mortas ou usá-los em assertions reais, mantendo a suíte mais legível."
     }
   ],
   "document_quality": {
