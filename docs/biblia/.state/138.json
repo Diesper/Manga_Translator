@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "138-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_STRENGTH",
       "target_file": "tests/unit/background/deliver-result-from-tab-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-from-tab-action.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e adicionar prova de ordem se o protocolo temporal for requisito.",
       "possible_regression": "Finalização prematura pode deixar mapping durável stale ou recovery inconsistente.",
       "impact": "A prova atual é mais fraca do que o comportamento prometido pelo nome do teste.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:14:00Z",
+      "audit_finding": "ACCEPTED. O teste positivo verifica staging, remoção e finalize, mas não `syncState` nem a ordem temporal prometida pelo título. Finalização antes da sincronização poderia continuar verde.",
+      "auditor_recommended_action": "Adicionar assertion de syncState e ordem staging→cleanup/remove→syncState→finalizeJob com invocationCallOrder/ledger."
     },
     {
       "id": "138-002",
@@ -49,7 +53,7 @@
     },
     {
       "id": "138-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-from-tab-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-from-tab-action.test.js",
@@ -62,11 +66,15 @@
       "expected_auditor_action": "Priorizar cenários que podem causar perda de resultado ou cleanup incompleto.",
       "possible_regression": "Aba órfã, mapping inconsistente ou resposta positiva após falha parcial podem permanecer invisíveis.",
       "impact": "Robustez do protocolo de persistência/cleanup.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:14:00Z",
+      "audit_finding": "ACCEPTED. Shapes limítrofes do staging e falhas de tabs.remove/syncState/finalizeJob não são exercitados; podem produzir cleanup parcial ou resposta inconsistente.",
+      "auditor_recommended_action": "Adicionar casos para null/undefined, ok=true sem persisted, persisted=false, lastError/remove falho e rejeições de sync/finalize, fixando estado/mapping/retry."
     },
     {
       "id": "138-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HARNESS_REVIEW",
       "target_file": "tests/unit/background/deliver-result-from-tab-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-from-tab-action.test.js",
@@ -79,7 +87,11 @@
       "expected_auditor_action": "Revisar o helper antes de usar result.keepAlive como evidência futura.",
       "possible_regression": "Uma quebra do contrato de keepAlive pode passar despercebida ou uma futura assertion pode ler undefined de forma enganosa.",
       "impact": "Confiabilidade do próprio harness de teste.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:14:00Z",
+      "audit_finding": "ACCEPTED. O helper local resolve dentro de sendResponse antes de a atribuição do retorno do listener terminar; resposta síncrona pode expor keepAlive undefined embora o router retorne false.",
+      "auditor_recommended_action": "Corrigir a captura do retorno ou não expor keepAlive desse modo; adicionar casos sync false e async true."
     }
   ],
   "document_quality": {
