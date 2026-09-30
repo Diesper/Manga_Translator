@@ -261,6 +261,12 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 9. Só considerar o #075 documentalmente aprovado quando a Bíblia distinguir corretamente o que está diretamente provado, o que é gate estático, o que é execução indireta e o que continua sem teste probatório específico.
 
 
+### Solicitações abertas do #067
+
+- `067-001` — falta teste focal do controlador de recuperação.
+- `067-002` — revisar revalidação do HEAD do PR antes do rerun.
+- `067-003` — revisar tratamento de falhas transitórias da API.
+
 ## Auditoria de 2026-09-29
 
 A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satisfazer o padrão atual. Isso não apaga o trabalho já produzido; significa que essas Bíblias precisam ser corrigidas antes de receber `[x]` novamente.
@@ -326,6 +332,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 56. ✅ `playwright.config.js`
 57. ✅ `.github/workflows/ci.yml`
 58. ✅ `package.json`
+59. ✅ `.github/workflows/recover-cancelled-ci.yml`
 
 ### Revisão obrigatória
 
