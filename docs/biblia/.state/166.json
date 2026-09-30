@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "166-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/router.test.js",
       "found_while_auditing": "tests/unit/background/router.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Adicionar cobertura focal em alteração separada.",
       "possible_regression": "Action pode executar mesmo após erro de validação.",
       "impact": "Segurança/isolamento de efeitos do router.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "ACCEPTED. O teste INVALID_PAYLOAD registra `execute: jest.fn()` mas não exige explicitamente `execute.not.toHaveBeenCalled()`. A resposta correta hoje sugere short-circuit, mas a ausência de side effect não está fixada.",
+      "auditor_recommended_action": "Guardar o mock execute e assertar `not.toHaveBeenCalled()` no caso de validação inválida."
     },
     {
       "id": "166-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/router.test.js",
       "found_while_auditing": "tests/unit/background/router.test.js",
@@ -40,7 +44,12 @@
       "expected_auditor_action": "Adicionar/validar cobertura em mudança separada.",
       "possible_regression": "Exceção pode escapar, perder resposta ou quebrar canal.",
       "impact": "Robustez central do message router.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "SUPERSEDED por 031-003. Os branches ACTION_ERROR para execute sync throw/async reject já fazem parte da lacuna canônica do router.",
+      "auditor_recommended_action": "Acompanhar 031-003.",
+      "superseded_by": "031-003"
     },
     {
       "id": "166-003",
