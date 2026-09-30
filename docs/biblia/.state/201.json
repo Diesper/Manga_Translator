@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "201-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/drawer-real.test.js",
       "related_files": [
@@ -26,7 +26,11 @@
       "expected_auditor_action": "Confirmar a lacuna e tratar a cobertura em alteração de teste separada.",
       "possible_regression": "Ativar debug durante countdown pode deixar timer antigo apagar a drawer mais tarde.",
       "impact": "Consistência do modo debug durante transições temporizadas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. O caso DEBUG_MODE_CHANGED true começa sem countdown ativo; portanto não prova que `applyDebugDrawer(true)` realmente limpa `_closeInterval` pendente.",
+      "auditor_recommended_action": "Iniciar countdown real, ativar debug e avançar timers; exigir que o fechamento antigo não ocorra."
     },
     {
       "id": "201-002",
@@ -54,7 +58,7 @@
     },
     {
       "id": "201-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/drawer-real.test.js",
       "related_files": [
@@ -70,7 +74,11 @@
       "expected_auditor_action": "Confirmar a lacuna e tratar cobertura em mudança separada.",
       "possible_regression": "Um erro pode fazer o botão reaparecer ou perder observabilidade quando a UI está desabilitada.",
       "impact": "Respeito à configuração do usuário e diagnóstico de erros.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. Não há caso focal de `SHOW_ERROR_INTEGRATED` quando `floatingButtonEnabled=false`, branch em que o erro é registrado sem recriar/mostrar a UI.",
+      "auditor_recommended_action": "Adicionar cenário com botão desabilitado persistido e afirmar ausência de UI, preservação do estado de erro/log e retorno esperado."
     }
   ],
   "document_quality": {
