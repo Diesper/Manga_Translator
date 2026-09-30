@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 5
+ARQUIVO: tests/integration/options.ui.test.js
+BÍBLIA: docs/biblia/tests/integration/options.ui.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 33c34c89f7131ade147ea65b5f5015b79917b708
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T06:31:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T06:31:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA — EM ANDAMENTO
