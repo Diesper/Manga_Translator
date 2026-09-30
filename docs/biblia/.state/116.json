@@ -2,10 +2,61 @@
   "index": 116,
   "file": "tests/integration/popup.advanced.ui.test.js",
   "bible": "docs/biblia/tests/integration/popup.advanced.ui.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
   "started_at_utc": "2026-09-30T06:24:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:32:00Z",
+  "audit_requests": [
+    {
+      "id": "116-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/popup.advanced.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.advanced.ui.test.js",
+      "finding": "O cenário da aba Traduzidas semeia chap_1_paths e a implementação real envia folderPath em SHOW_EXISTING_FOLDER, mas a expectation valida apenas action, anchorId e safeTitle via objectContaining.",
+      "current_evidence": "Linhas 192-196 semeiam paths/dlId; linhas 223-227 exigem action SHOW_EXISTING_FOLDER, anchorId 77 e safeTitle Chapter_10. No popup.js, a mensagem inclui também folderPath derivado do path salvo.",
+      "missing_evidence": "Assertion de que folderPath seja exatamente /home/user/Downloads/MangaTranslator/Chapter_10 no cenário POSIX semeado; idealmente também caso Windows se esse formato fizer parte do contrato.",
+      "why_needed": "Uma regressão na remoção do filename, escolha de separador ou inclusão do caminho pode manter as assertions atuais verdes enquanto o background recebe diretório incorreto.",
+      "requested_action": "Fortalecer a expectation em mudança separada para incluir folderPath correto e avaliar um caso Windows com separador de barra invertida.",
+      "expected_evidence": "Spy de runtime.sendMessage exigindo o folderPath derivado esperado junto de action, anchorId e safeTitle.",
+      "expected_auditor_action": "Confirmar o contrato de path para SHOW_EXISTING_FOLDER e adicionar cobertura focal sem alterar a documentação para fingir evidência inexistente.",
+      "possible_regression": "Botão Abrir pasta continua enviando ação e âncora válidas, mas aponta para diretório errado.",
+      "impact": "Abertura da pasta de capítulo traduzido pelo popup.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "116-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/popup.advanced.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.advanced.ui.test.js",
+      "finding": "O popup possui radio popup-gemini-mode-minimized e lógica explícita para geminiExecutionMode=minimized_window, mas a suíte cobre apenas background_delete e temp_chat no controle do popup.",
+      "current_evidence": "Linhas 279-307 provam background_delete -> temp_chat -> background_delete. Outras suítes do repositório exercitam minimized_window em outras camadas, mas não provam este radio específico do popup.",
+      "missing_evidence": "Seed minimized_window que marque popup-gemini-mode-minimized e evento change que persista minimized_window por esta UI.",
+      "why_needed": "O modo pode funcionar em background/content enquanto o controle específico do popup deixa de restaurar ou salvar esse valor.",
+      "requested_action": "Adicionar caso focal ou ampliar o cenário de configuração para validar restauração e persistência de minimized_window no popup.",
+      "expected_evidence": "Assertions de checked===true para popup-gemini-mode-minimized após load e geminiExecutionMode===minimized_window após change.",
+      "expected_auditor_action": "Verificar se o terceiro radio faz parte do contrato suportado do popup e, se sim, adicionar cobertura específica em mudança separada.",
+      "possible_regression": "Usuário perde a capacidade de selecionar/restaurar Janela Minimizada no popup sem falha nos testes atuais.",
+      "impact": "Configuração do modo de execução Gemini na UI do popup.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "311/311",
+    "source_text_lines": 310,
+    "bible_lines": 2482,
+    "external_audit_requests_open": 2,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado no run 36521561968: popup.advanced.ui.test.js passou com cinco casos em Node 20.x e 22.x; em ambos os jobs, 109/109 suítes e 851/851 testes passaram."
+  }
 }
