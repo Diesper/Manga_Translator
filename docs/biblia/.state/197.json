@@ -54,7 +54,7 @@
     },
     {
       "id": "197-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-manga/canonical-title.test.js",
       "found_while_auditing": "tests/unit/content-manga/canonical-title.test.js",
@@ -67,7 +67,11 @@
       "expected_auditor_action": "Confirmar contrato exato antes de ajustar teste.",
       "possible_regression": "Perda excessiva de título sem falha deste stub.",
       "impact": "Força do teste mínimo.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:32:00Z",
+      "audit_finding": "ACCEPTED. O caso de limite só verifica `length <= 80`; não fixa conteúdo resultante nem o ponto de truncamento. Mudanças que retornem string muito menor ou conteúdo incorreto ainda podem passar.",
+      "auditor_recommended_action": "Adicionar expectativa exata para uma entrada conhecida >80 chars, incluindo conteúdo truncado e comprimento esperado."
     }
   ],
   "document_quality": {
