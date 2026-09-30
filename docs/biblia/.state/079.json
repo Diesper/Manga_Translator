@@ -2,10 +2,53 @@
   "index": 79,
   "file": "scripts/validation/check-js-syntax.js",
   "bible": "docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 1",
   "source_sha": "fbc69cf9f910c3666ef390828b1793098b3bfe06",
   "started_at_utc": "2026-09-30T06:06:26.401Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:14:09.169Z",
+  "audit_requests": [
+    {
+      "id": "079-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/validation/check-js-syntax.test.js",
+      "found_while_auditing": "scripts/validation/check-js-syntax.js",
+      "finding": "Não existe teste focal da implementação real que prove descoberta recursiva, filtros e branches vermelhos.",
+      "current_evidence": "CI run 36577447500 executou o mesmo blob e o job 109437162703 terminou verde, reportando 218 arquivos.",
+      "missing_evidence": "Diretórios aninhados controlados, extensões rejeitadas, sintaxe inválida, continuidade após falha, conjunto vazio, exit code e stdout/stderr.",
+      "why_needed": "O caminho verde real não prova os guards e filtros negativos.",
+      "requested_action": "Adicionar teste separado em sandbox/child process usando a implementação real sem copiar sua lógica.",
+      "expected_evidence": "Assertions diretas sobre arquivos incluídos/ignorados, mensagens e códigos de saída.",
+      "expected_auditor_action": "Confirmar a lacuna e criar cobertura focal se exigida.",
+      "possible_regression": "O gate pode reduzir escopo ou deixar de falhar para uma classe de erro sem ser detectado.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "079-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/validation/check-js-syntax.js",
+      "found_while_auditing": "scripts/validation/check-js-syntax.js",
+      "finding": "Cada raiz inexistente retorna [] e pode ser mascarada pelas demais; npm run lint pode passar sem uma das três raízes.",
+      "current_evidence": "Linhas 8, 11 e 19 implementam a agregação tolerante; validate possui gate estrutural separado.",
+      "missing_evidence": "Contrato/teste dizendo se extension, tests e scripts são individualmente obrigatórios para o lint.",
+      "why_needed": "O nome JS Syntax Check pode ser interpretado como cobertura das três árvores.",
+      "requested_action": "Decidir se a tolerância é intencional; se não for, corrigir em mudança funcional separada e adicionar regressão.",
+      "expected_evidence": "Teste ou contrato explícito para raiz individual ausente.",
+      "expected_auditor_action": "Aceitar e documentar a tolerância ou solicitar correção funcional separada.",
+      "possible_regression": "Rename/remoção de uma árvore pode não quebrar o lint isolado.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "31/31",
+    "bible_lines": 318,
+    "external_audit_requests_open": 2,
+    "evidence_run": 36577447500,
+    "evidence_job": 109437162703
+  }
 }
