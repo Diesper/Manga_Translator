@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "075-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/ci/run-jest-ci.js",
       "found_while_auditing": "scripts/ci/run-jest-ci.js",
@@ -20,11 +20,15 @@
       "requested_action": "Adicionar self-test isolado/sandbox do runner real cobrindo sucesso e falhas negativas relevantes sem copiar a lógica.",
       "expected_auditor_action": "Confirmar a ausência de prova focal e, se a evidência for exigida, abrir mudança funcional separada para os testes.",
       "possible_regression": "Uma regressão em um branch de proteção do runner pode passar sem ser detectada por testes focais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED. O tree atual não contém self-test específico para run-jest-ci.js. A CI executa o runner real e há self-tests para componentes auxiliares, mas overlap, partição incompleta, saída inválida de --listTests, ausência/malformação do result JSON e falhas de spawn não são exercitados por harness focal.",
+      "auditor_recommended_action": "Criar self-test/sandbox da implementação real cobrindo branches positivos e negativos do runner."
     },
     {
       "id": "075-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/ci/run-jest-ci.js",
       "found_while_auditing": "scripts/ci/run-jest-ci.js",
@@ -34,11 +38,15 @@
       "requested_action": "Provar em sandbox que resultado stale não pode ser aceito e decidir se JSON inválido deve gerar diagnóstico controlado.",
       "expected_auditor_action": "Reproduzir cenários controlados; se houver risco funcional, solicitar correção e regressão em PR funcional separado.",
       "possible_regression": "Um relatório antigo poderia, em combinação anômala, contaminar o gate; JSON truncado gera exceção não tratada e diagnóstico menos explícito.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED como revisão de robustez. `fs.rmSync(resultFile,{force:true})` silencia qualquer exceção; depois o arquivo existente é aceito por existência e `JSON.parse` é executado sem try/catch. JSON truncado causa exceção não tratada. Um falso verde por resultado stale não foi provado estaticamente porque `run.status !== 0` ainda falha o gate; precisa de cenário controlado em que o arquivo antigo sobreviva e o processo atual pareça bem-sucedido.",
+      "auditor_recommended_action": "Adicionar cenário controlado de falha de limpeza/escrita e tratar JSON inválido com diagnóstico explícito; só classificar stale como bug funcional se o harness demonstrar aceite verde."
     },
     {
       "id": "075-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_POLICY_REVIEW",
       "target_file": ".github/workflows/ci.yml",
       "found_while_auditing": "scripts/ci/run-jest-ci.js",
@@ -48,11 +56,15 @@
       "requested_action": "Decidir se deve existir timeout no runner, no workflow ou se o limite padrão do GitHub Actions é deliberadamente aceito.",
       "expected_auditor_action": "Classificar como risco aceito ou solicitar política/timeout em alteração funcional separada.",
       "possible_regression": "Open handle/hang pode consumir o limite externo inteiro antes de falhar.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED. Os dois spawnSync do runner não definem timeout e os jobs `unit-and-integration`/`coverage` do workflow não declaram `timeout-minutes`, delegando hang ao limite externo do GitHub Actions.",
+      "auditor_recommended_action": "Definir política explícita de timeout no child e/ou workflow e cobrir child travado."
     },
     {
       "id": "075-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/ci/run-jest-ci.js",
       "found_while_auditing": "scripts/ci/run-jest-ci.js",
@@ -62,7 +74,11 @@
       "requested_action": "Confirmar o contrato de naming e validar separadamente o modo coverage; se necessário, criar gate que impeça arquivos de teste fora do padrão canônico.",
       "expected_auditor_action": "Distinguir comportamento intencional de lacuna e registrar/solicitar prova adequada.",
       "possible_regression": "Novo teste com naming não canônico pode ficar fora do inventário protegido; coverage não repete a checagem de partição.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED como revisão de contrato. O inventário e `jest.config.js` usam exclusivamente `*.test.js`, e o branch `--coverage` pula a prova explícita de partição. Hoje isso é consistente entre runner/config, mas não existe gate que rejeite um novo `*.spec.js` nem prova focal de que a assimetria do coverage é intencional.",
+      "auditor_recommended_action": "Formalizar naming canônico e política do modo coverage; adicionar gate/self-test se `*.test.js` exclusivo e a assimetria forem requisitos."
     }
   ],
   "document_quality": {
