@@ -1,0 +1,11 @@
+{
+  "index": 36,
+  "file": "extension/content/cm-dom-replace.js",
+  "bible": "docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "d3fc72032dbddc81eae8fadc5e4da89b13a3bb79",
+  "started_at_utc": "2026-09-30T14:10:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
