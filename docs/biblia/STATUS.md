@@ -47,16 +47,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **56**
-- ✅ Concluídos auditados: **51**
-- 🟠 Em andamento: **22**
+- Bíblias materializadas: **66**
+- ✅ Concluídos auditados: **52**
+- 🟠 Em andamento: **21**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **177**
+- ⬜ Ainda não materializados: **167**
 - ⬜ Pendentes: **160**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **21,89%**
-- Cobertura apenas materializada: **24,03%**
-- Último aprovado: `jest.config.js`
+- Cobertura realmente aprovada: **22,32%**
+- Cobertura apenas materializada: **28,33%**
+- Último aprovado: `.github/workflows/publish.yml`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -72,7 +72,6 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#063 package.json` — `Agente L` — Bíblia: `docs/biblia/package.json/Bíblia.md`
   - `#064 playwright.config.js` — `AGENTE 1` — Bíblia: `docs/biblia/playwright.config.js/Bíblia.md`
   - `#065 .github/workflows/ci.yml` — `AGENTE 3` — Bíblia: `docs/biblia/.github/workflows/ci.yml/Bíblia.md`
-  - `#066 .github/workflows/publish.yml` — `AGENTE 2` — Bíblia: `docs/biblia/.github/workflows/publish.yml/Bíblia.md`
   - `#067 .github/workflows/recover-cancelled-ci.yml` — `AGENTE 4` — Bíblia: `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md`
   - `#068 scripts/ci/data/e2e-shard-plan.json` — `AGENTE 5` — Bíblia: `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md`
   - `#069 scripts/ci/data/regression-matrix.json` — `AGENTE 6` — Bíblia: `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
@@ -139,6 +138,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 49. ✅ `extension/shared/shared-ui.js`
 50. ✅ `.gitignore`
 51. ✅ `jest.config.js`
+52. ✅ `.github/workflows/publish.yml`
 
 ### Revisão obrigatória
 
@@ -215,7 +215,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 63 | 🟠 EM ANDAMENTO — Agente L | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
 | 64 | 🟠 EM ANDAMENTO — AGENTE 1 | `playwright.config.js` | `6a27b774a000` | `docs/biblia/playwright.config.js/Bíblia.md` |
 | 65 | 🟠 EM ANDAMENTO — AGENTE 3 | `.github/workflows/ci.yml` | `ebee75820db9` | `docs/biblia/.github/workflows/ci.yml/Bíblia.md` |
-| 66 | 🟠 EM ANDAMENTO — AGENTE 2 | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
+| 66 | ✅ CONCLUÍDO | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
 | 67 | 🟠 EM ANDAMENTO — AGENTE 4 | `.github/workflows/recover-cancelled-ci.yml` | `4809f824f177` | `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` |
 | 68 | 🟠 EM ANDAMENTO — AGENTE 5 | `scripts/ci/data/e2e-shard-plan.json` | `22e8c20df9f4` | `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` |
 | 69 | 🟠 EM ANDAMENTO — AGENTE 6 | `scripts/ci/data/regression-matrix.json` | `f9b9e17e5870` | `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` |
