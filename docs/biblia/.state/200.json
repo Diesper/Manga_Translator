@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "200-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_INTEGRITY_REVIEW",
       "target_file": "tests/unit/content-manga/close-interval.test.js",
       "related_files": [
@@ -27,7 +27,11 @@
       "expected_auditor_action": "Confirmar a divergência e tratar eventual alteração do teste/produção em mudança separada, preservando a Bíblia como retrato do estado atual.",
       "possible_regression": "Manutenção futura pode confiar em uma suíte verde que testa somente o espelho enquanto a UI real diverge.",
       "impact": "drawer-real.test.js já protege início, término e cancelamento básicos, mas não todos os cenários modelados no #200.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `close-interval.test.js` usa `createCloseCountdown()` local e exige inclusive `FECHANDO EM 0S`; a UI real só escreve `FECHANDO EM N S` para valores positivos e trata zero como estado terminal. A divergência entre mirror e produção está materialmente confirmada.",
+      "auditor_recommended_action": "Remover/reduzir o mirror ou testar o countdown real via content script/módulo extraído canônico, cobrindo ticks intermediários, término sem 0S visível, cancelamento/restart e ausência de timers duplicados."
     }
   ],
   "document_quality": {
