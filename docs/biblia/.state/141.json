@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "141-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/download-image-action.test.js",
       "found_while_auditing": "tests/unit/background/download-image-action.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Abrir alteração de teste separada e manter a implementação real sob teste.",
       "possible_regression": "Falhas de download passam a responder incorretamente sem detecção.",
       "impact": "Cobertura probatória incompleta de uma action que toca downloads do navegador.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. `download-image-action.test.js` possui um único teste e cobre só o happy path. A action real possui branches distintos para filename já prefixado, `chrome.runtime.lastError`/id undefined, callback de erro de `waitForDownload` e `downloads.search` sem resultado; nenhum deles é exercitado.",
+      "auditor_recommended_action": "Adicionar casos focais usando router/action reais para prefixo idempotente e cada branch de falha, assertando payload final e ausência de falso sucesso."
     },
     {
       "id": "141-002",
