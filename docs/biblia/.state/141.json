@@ -73,7 +73,7 @@
     },
     {
       "id": "141-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HELPER_REVIEW",
       "target_file": "tests/unit/background/download-image-action.test.js",
       "found_while_auditing": "tests/unit/background/download-image-action.test.js",
@@ -86,7 +86,11 @@
       "expected_auditor_action": "Classificar como intencional ou ajustar em mudança separada.",
       "possible_regression": "Hang de teste em novo caso sync.",
       "impact": "Robustez do arquivo de teste.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. O helper `dispatch` só resolve dentro de `sendResponse`; não possui fallback quando o listener retorna `false` sem responder e, em resposta síncrona, pode resolver antes de `keepAlive` receber o retorno do listener. A suíte atual só usa caminho assíncrono feliz, então o defeito do harness não aparece.",
+      "auditor_recommended_action": "Se keepAlive/short-circuit síncrono fizer parte da prova, ajustar o helper para capturar retorno e resposta separadamente; adicionar caso que retorna false sem resposta e caso de validação síncrona."
     }
   ],
   "document_quality": {
