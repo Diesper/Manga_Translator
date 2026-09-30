@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "083-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-ci-contract-selftest.js",
       "found_while_auditing": "scripts/validation/verify-ci-contract.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e priorizar cobertura das famílias de maior risco sem alterar esta Bíblia como forma de produzir prova retroativa.",
       "possible_regression": "Uma regra não exercitada pode parar de detectar drift e a infraestrutura permanecer verde enquanto o self-test atual ainda passa.",
       "impact": "Reduz confiança de regressão negativa sobre o meta-gate; não invalida as três provas diretas existentes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. O self-test real cobre só três falhas representativas, enquanto `verify-ci-contract.js` contém dezenas de regras independentes sobre jobs, triggers, concurrency, Windows, topology E2E, coverage, aliases e baseline.",
+      "auditor_recommended_action": "Ampliar o sandbox self-test por famílias de contrato de maior risco, uma mutação causal por regra."
     },
     {
       "id": "083-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/validation/verify-ci-contract.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Classificar quais checks devem continuar textuais e quais exigem validação estrutural antes de qualquer mudança funcional.",
       "possible_regression": "A CI pode aceitar uma proteção apenas comentada ou rejeitar refactor seguro de formatação.",
       "impact": "Robustez do meta-gate e manutenção futura; o estado atual continua verificável pelo contrato textual existente.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. Grande parte do CI Contract usa `includes`/regex e `jobBlock` depende da formatação textual de YAML. Marker em comentário/dead text pode satisfazer alguns checks; refactor semanticamente equivalente pode falhar por formatação.",
+      "auditor_recommended_action": "Classificar quais checks devem ser textuais; para garantias semânticas, usar parsing/inspeção estrutural e regressões de comentário/dead text e YAML equivalente."
     }
   ],
   "document_quality": {
