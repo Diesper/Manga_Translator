@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "198-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/chapter-id-cache.test.js",
       "found_while_auditing": "tests/unit/content-manga/chapter-id-cache.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Migrar/duplicar cobertura para implementação real em mudança separada.",
       "possible_regression": "Runtime real quebra sem afetar o stub.",
       "impact": "Persistência de capítulo e escrita de imagens traduzidas.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `chapter-id-cache.test.js` declara um `createSystem()` local e testa esse stub; não carrega `createChapterManager()`/`getOrCreateChapterId()` de `cm-chapter.js`. Portanto cache/criação/deduplicação real podem divergir sem quebrar esta suíte.",
+      "auditor_recommended_action": "Adicionar suíte contra `createChapterManager()` real com storage/location controlados; manter o stub explicitamente histórico se ainda tiver valor."
     },
     {
       "id": "198-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/content-manga/chapter-id-cache.test.js",
       "found_while_auditing": "tests/unit/content-manga/chapter-id-cache.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar validade contínua do stub.",
       "possible_regression": "ID de capítulo antigo pode ser reutilizado ou cache ficar preso.",
       "impact": "Correção da associação capítulo↔traduções.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. O stub v3.0 não modela duas proteções atuais do runtime: invalidação do `chapterIdPromise` quando `window.location.href` muda e limpeza do cache em rejection. Logo seu contrato está stale em relação ao módulo real.",
+      "auditor_recommended_action": "Migrar casos para produção e incluir URL change + retry após falha de storage; ou rotular o stub como histórico não-probatório."
     },
     {
       "id": "198-003",
