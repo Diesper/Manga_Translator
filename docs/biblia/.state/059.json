@@ -1,0 +1,37 @@
+{
+  "index": 59,
+  "file": "extension/shared/shared-ui.js",
+  "bible": "docs/biblia/extension/shared/shared-ui.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 13",
+  "source_sha": "b284fb8eb0e8d30f34dc83642f07916d20012bf0",
+  "started_at_utc": "2026-09-30T22:00:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "059-STATE-001",
+      "status": "OPEN",
+      "type": "STATE_RECOVERY_REVIEW",
+      "target_file": "docs/biblia/.state/059.json",
+      "found_while_auditing": "extension/shared/shared-ui.js",
+      "finding": "O arquivo canônico docs/biblia/.state/059.json estava ausente no branch, embora a Bíblia exista, o SHA da fonte confira e AUDITORIA.md marque o índice 59 como APROVADO.",
+      "current_evidence": "A Bíblia existente declara conclusão/aprovação para SHA b284fb8eb0e8d30f34dc83642f07916d20012bf0; AUDITORIA.md registra 59 como ✅ APROVADO; não havia reserva ativa para shared-ui.js ao iniciar esta recuperação.",
+      "missing_evidence": "O conteúdo histórico do state removido, inclusive possíveis audit_requests anteriores, não pôde ser recuperado pelo histórico acessível do branch nem pelo SHA antigo do PR disponível nesta conversa.",
+      "why_needed": "Sem o state, a invariante de coordenação 1 arquivo = 1 state fica violada. Inventar solicitações históricas seria menos seguro que registrar explicitamente a perda.",
+      "requested_action": "Auditor de coordenação deve verificar se existe fonte histórica externa capaz de recuperar solicitações anteriores e reconciliá-las neste state, preservando a Bíblia já aprovada.",
+      "expected_evidence": "Confirmação verificável de ausência de audit_requests históricos adicionais ou restauração fiel deles.",
+      "expected_auditor_action": "Revisar a recuperação e resolver esta solicitação quando a integridade histórica estiver confirmada.",
+      "possible_regression": "Lacunas descritas na Bíblia podem deixar de aparecer no agregador de audit_requests caso o state anterior contivesse solicitações perdidas.",
+      "impact": "Integridade de coordenação/auditoria; nenhum código ou Bíblia foi alterado.",
+      "severity": "NORMAL"
+    }
+  ],
+  "recovery": {
+    "reason": "missing_state_file",
+    "recovered_by": "AGENTE 13",
+    "original_bible_agent": "Agente L",
+    "bible_sha": "224ef5633b43cc79d6972ff8cda23fe5fe2c7d24",
+    "audit_status_verified": "APPROVED",
+    "historical_audit_requests_recovered": false
+  }
+}
