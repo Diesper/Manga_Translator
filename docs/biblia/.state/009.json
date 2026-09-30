@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "009-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASYNC_LIFECYCLE_REVIEW",
       "target_file": "extension/background/actions/deliver-result.js",
       "found_while_auditing": "extension/background/actions/deliver-result.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar lifecycle assíncrono.",
       "possible_regression": "Entrega pode ficar presa sem resposta ao Gemini.",
       "impact": "Lifecycle de entrega de resultado.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED. `assertJobOwnership` é envolvido em Promise sem timeout/rejeição; se o callback não ocorrer, `execute()` fica pendente indefinidamente.",
+      "auditor_recommended_action": "Introduzir wrapper com timeout/erro ou contrato Promise canônico e cobrir callback ausente."
     },
     {
       "id": "009-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/background/actions/deliver-result.js",
       "found_while_auditing": "extension/background/actions/deliver-result.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Alinhar action e helper em mudança separada.",
       "possible_regression": "Resultado pode ser aceito sem confirmação durável explícita.",
       "impact": "Consistência antes da finalização do job.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — contrato permissivo confirmado. O gate falha apenas em `!staged?.ok` ou `staged.persisted === false`; portanto `{ok:true}` sem `persisted` é aceito e a action retorna `{persisted:true}`.",
+      "auditor_recommended_action": "Exigir `staged.persisted === true` se persistência for pré-condição de sucesso; adicionar regressão para `{ok:true}` sem campo."
     },
     {
       "id": "009-003",
