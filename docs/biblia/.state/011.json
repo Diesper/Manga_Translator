@@ -2,10 +2,54 @@
   "index": 11,
   "file": "extension/background/actions/download-image.js",
   "bible": "docs/biblia/extension/background/actions/download-image.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
   "started_at_utc": "2026-09-30T13:05:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:12:00Z",
+  "audit_requests": [
+    {
+      "id": "011-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/download-image-action.test.js",
+      "found_while_auditing": "extension/background/actions/download-image.js",
+      "finding": "A suíte direta cobre somente o caminho feliz; não há assertions focais para runtime.lastError/id undefined, erro do waitForDownload, search vazio ou arquivo não encontrado.",
+      "current_evidence": "Prefixo MangaTranslator/, waitForDownload e resposta final com filePath/downloadId são provados.",
+      "missing_evidence": "Todos os ramos de erro retornados pela própria action.",
+      "why_needed": "A action possui múltiplos retornos {error:...} que podem regredir sem afetar o teste atual.",
+      "requested_action": "Adicionar casos focais contra a action real para cada branch de erro, incluindo interrupção/timeout via helper.",
+      "expected_evidence": "Resposta {error} correta e ausência de hangs em cada falha.",
+      "expected_auditor_action": "Fortalecer cobertura em alteração separada.",
+      "possible_regression": "Downloads podem falhar ou ficar pendentes sem gate específico.",
+      "impact": "Download automático/manual de páginas traduzidas.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "011-002",
+      "status": "OPEN",
+      "type": "INPUT_VALIDATION_REVIEW",
+      "target_file": "extension/background/actions/download-image.js",
+      "found_while_auditing": "extension/background/actions/download-image.js",
+      "finding": "Não há validate(); request.filename.startsWith lança para filename ausente/não-string e não existe contrato explícito para URL/filename vazio ou path traversal lógico.",
+      "current_evidence": "Consumidores normais enviam strings válidas.",
+      "missing_evidence": "Política explícita e testes para entradas inválidas/hostis.",
+      "why_needed": "A action aceita qualquer source da extensão e constrói caminho de download diretamente do payload.",
+      "requested_action": "Auditar contrato de filename/url e, se necessário, adicionar validate/sanitização em mudança funcional separada com testes.",
+      "expected_evidence": "Payload inválido falha de forma controlada antes de chrome.downloads.download.",
+      "expected_auditor_action": "Revisar superfície de entrada e paths.",
+      "possible_regression": "TypeError genérico ou caminho inesperado pode chegar à API de downloads.",
+      "impact": "Robustez e segurança do download.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "32/32",
+    "source_text_lines": 31,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia concorrente revalidada; fonte integral normalizada para equivalência física exata."
+  }
 }
