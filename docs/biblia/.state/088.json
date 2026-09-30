@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "088-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-publish-contract-selftest.js",
       "found_while_auditing": "scripts/validation/verify-publish-contract.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e, se a cobertura for exigida, criar o self-test em alteração externa separada.",
       "possible_regression": "Um branch de proteção pode parar de rejeitar drift de release sem que os gates atuais detectem especificamente essa quebra.",
       "impact": "Proteção de integridade do workflow de publicação e do layout canônico de versionamento.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. Não existe self-test focal de `verify-publish-contract.js`; CI e CI Contract executam/protegem o caminho verde e alguns markers, mas não mutam cada branch negativo do verificador.",
+      "auditor_recommended_action": "Adicionar sandbox self-test usando o verifier real para arquivo ausente, marker removido, path legado, trigger v* quebrado, sync marker ausente, agregação e exit status."
     },
     {
       "id": "088-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-publish-contract.js",
       "found_while_auditing": "scripts/validation/verify-publish-contract.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Registrar o trade-off como aceito ou solicitar endurecimento separado.",
       "possible_regression": "Comentário contendo marcador pode satisfazer o gate; alteração de quoting/estrutura YAML equivalente pode quebrá-lo sem quebrar a publicação.",
       "impact": "Precisão do gate de publicação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. O publish contract valida YAML/JS por `includes`/regex. Marcadores em comentários/strings inativas podem satisfazer o gate e formas semanticamente equivalentes podem falhar por texto.",
+      "auditor_recommended_action": "Classificar o gate textual como contrato intencional ou migrar checks relevantes para validação estrutural/semântica com regressões apropriadas."
     }
   ],
   "document_quality": {
