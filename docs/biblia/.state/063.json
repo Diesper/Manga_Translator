@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "063-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "package.json",
       "found_while_auditing": "package.json",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar naming/contrato em mudança separada.",
       "possible_regression": "Mudanças podem passar suites funcionais mas falhar contratos de estrutura/publicação só posteriormente.",
       "impact": "Confiabilidade do fluxo local/CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:03:00Z",
+      "audit_finding": "ACCEPTED. `test:all` executa suítes/E2E/coverage, enquanto `validate` é uma cadeia separada de contratos estruturais/publish/policy. O nome `test:all` pode ser interpretado como aceitação completa, mas o package não formaliza um comando único que inclua ambos.",
+      "auditor_recommended_action": "Documentar claramente o gate canônico de aceitação ou criar alias agregador explícito sem alterar silenciosamente a semântica histórica."
     },
     {
       "id": "063-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "COMPATIBILITY_TEST_REQUIRED",
       "target_file": ".github/workflows/ci.yml",
       "found_while_auditing": "package.json",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Alinhar engines e matriz CI.",
       "possible_regression": "Usuário em Node 18 encontra falha apesar do manifesto declarar suporte.",
       "impact": "Compatibilidade de ambiente de desenvolvimento/CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:03:00Z",
+      "audit_finding": "ACCEPTED. `engines` declara Node >=18.0.0, porém a CI funcional usa 20.x/22.x e demais jobs majoritariamente 20.x. O menor runtime prometido não é exercitado.",
+      "auditor_recommended_action": "Adicionar job mínimo em Node 18 para validate/test:ci crítico ou elevar engines deliberadamente se Node 18 não fizer mais parte do contrato."
     },
     {
       "id": "063-003",
