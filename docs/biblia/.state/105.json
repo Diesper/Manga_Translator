@@ -1,0 +1,11 @@
+{
+  "index": 105,
+  "file": "tests/helpers/track-background-delay-timers.js",
+  "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 7",
+  "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+  "started_at_utc": "2026-09-30T06:20:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
