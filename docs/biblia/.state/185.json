@@ -2,10 +2,81 @@
   "index": 185,
   "file": "tests/unit/content-gemini/resolution-elevation.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/resolution-elevation.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
   "started_at_utc": "2026-09-30T17:05:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T17:15:00Z",
+  "audit_requests": [
+    {
+      "id": "185-001",
+      "status": "OPEN",
+      "type": "TEST_STRENGTH_REVIEW",
+      "target_file": "tests/unit/content-gemini/resolution-elevation.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/resolution-elevation.test.js",
+      "finding": "O primeiro teste reimplementa localmente a regra elevateUrl em vez de chamar código de produção.",
+      "current_evidence": "Matriz local cobre s512/s1024/s2048/query/fragment/non-Google; integração real cobre apenas s1024-rw.",
+      "missing_evidence": "Matriz executando helper real ou pipeline real sem duplicar regex no teste.",
+      "why_needed": "Espelho local pode divergir da produção mantendo CI verde.",
+      "requested_action": "Extrair helper exportável ou parametrizar o caminho real e remover duplicação.",
+      "expected_evidence": "Mudança na implementação real afeta diretamente a matriz.",
+      "expected_auditor_action": "Priorizar força da prova.",
+      "possible_regression": "Teste local permanece verde após remoção/quebra da elevação real.",
+      "impact": "Qualidade/resolução do resultado extraído.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "185-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/resolution-elevation.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/resolution-elevation.test.js",
+      "finding": "A integração real cobre somente URL =s1024-rw sem query/hash.",
+      "current_evidence": "FETCH_IMAGE_AS_BASE64 recebe SAMPLE_MANGA=s0 no cenário real.",
+      "missing_evidence": "s512-rw, s2048?query, s1200#fragment, URL sem =sN, blob e host não-Google executando produção.",
+      "why_needed": "Congela preservação de query/fragment e escopo da regex real.",
+      "requested_action": "Parametrizar integração/helper real.",
+      "expected_evidence": "Elevação correta e não alteração de URLs fora do contrato.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Regex remove sufixo demais ou altera URL indevida.",
+      "impact": "Fetch da imagem gerada.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "185-003",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/content/gemini/job-runner.js",
+      "related_files": [
+        "tests/unit/content-gemini/resolution-elevation.test.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/resolution-elevation.test.js",
+      "finding": "A condição real usa resultUrl.includes('googleusercontent.com') em vez de validar hostname.",
+      "current_evidence": "example.com e blob ficam inalterados apenas no espelho local.",
+      "missing_evidence": "Definição explícita de domínio permitido e testes para strings/hosts que apenas contêm o token.",
+      "why_needed": "Se o contrato é host-specific, includes é mais permissivo do que o comentário 'Google CDN'.",
+      "requested_action": "Definir contrato; se host-specific, usar URL parser e testar evilgoogleusercontent.com/googleusercontent.com.evil.",
+      "expected_evidence": "Somente domínio Google legítimo/subdomínios são elevados.",
+      "expected_auditor_action": "Revisar em mudança separada.",
+      "possible_regression": "Normalização aplicada a host não pretendido.",
+      "impact": "Correção/segurança de URL.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "315/315",
+    "source_text_lines": 314,
+    "bible_lines": 2614,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob em Node 20.x e 22.x; dois testes passaram individualmente; integração real ~6,6s e global 109/109 suítes, 851/851 testes."
+  }
 }
