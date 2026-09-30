@@ -52,7 +52,7 @@
     },
     {
       "id": "205-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DEDUPLICATION_REVIEW",
       "target_file": "extension/content/cm-gtc-client.js",
       "found_while_auditing": "tests/unit/content-manga/get-clean-url.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Investigar custo/risco de duplicação e propor correção separada.",
       "possible_regression": "Divergência de chaves entre restoreMap e GTC.",
       "impact": "Consistência entre pipelines de cache e restauração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. Há duas implementações reais de `getCleanUrl` em `cm-dom-replace.js` e `cm-gtc-client.js`, além de mirrors históricos. Elas podem derivar independentemente e já houve drift documentado em testes.",
+      "auditor_recommended_action": "Escolher uma implementação canônica compartilhada ou adicionar gate de equivalência para a matriz de URLs suportada."
     }
   ],
   "document_quality": {
