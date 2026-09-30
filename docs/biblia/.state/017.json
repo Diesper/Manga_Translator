@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "017-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/open-existing-folder-action.test.js",
       "found_while_auditing": "extension/background/actions/open-existing-folder.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar contrato de payload em alteração separada.",
       "possible_regression": "Erros de payload podem virar falhas genéricas ou acionar fallback incorreto.",
       "impact": "Abertura de pasta/histórico de downloads.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. `open-existing-folder.js` não possui `validate()` e usa `folderPath.replace(...)` diretamente no fallback. A suíte cobre anchor válido/fallback nominal/escape regex, mas não payload ausente ou não-string, nem safeTitle/anchorId malformados.",
+      "auditor_recommended_action": "Adicionar matriz de payload inválido e decidir contrato explícito entre INVALID_PAYLOAD e INTERNAL_ERROR antes de qualquer efeito colateral."
     }
   ],
   "document_quality": {
