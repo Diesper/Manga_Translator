@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "100-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/helpers/load-background-module.js",
       "found_while_auditing": "tests/helpers/load-background-module.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e abrir alteração de teste separada se essa cobertura for exigida.",
       "possible_regression": "Refactor do loader altera injeção/export e algumas suítes continuam verdes por não exercitarem o detalhe.",
       "impact": "Confiabilidade do harness de várias suítes background.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `load-background-module.js` é crítico para muitas suítes e não possui teste focal para path/sintaxe inválidos, bindings injetados, resolução local de require, exports e propagação de erros.",
+      "auditor_recommended_action": "Adicionar teste próprio com módulo temporário mínimo, cobrindo wrapper, globals, require local, exports e falhas de compilação."
     },
     {
       "id": "100-002",
@@ -48,7 +52,7 @@
     },
     {
       "id": "100-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/helpers/load-background-module.js",
       "found_while_auditing": "tests/helpers/load-background-module.js",
@@ -61,11 +65,15 @@
       "expected_auditor_action": "Aceitar o acoplamento documentado ou solicitar seam mais estável.",
       "possible_regression": "Drift entre background e helper causa falhas de teste não relacionadas a comportamento externo.",
       "impact": "Manutenibilidade do harness.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. Getter/setter/buildExports duplicam manualmente símbolos privados de `background.js`; não há gate explícito da superfície completa nem mecanismo de drift intencional.",
+      "auditor_recommended_action": "Documentar a lista como contrato deliberado e criar gate de superfície, ou substituir por seam mais estável/export canônico."
     },
     {
       "id": "100-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_SEAM_REVIEW",
       "target_file": "tests/helpers/load-background-module.js",
       "found_while_auditing": "tests/helpers/load-background-module.js",
@@ -78,7 +86,11 @@
       "expected_auditor_action": "Classificar o bypass como seam deliberado ou solicitar encapsulamento adicional.",
       "possible_regression": "Falso positivo de teste por estado impossível ou aliasing de estruturas internas.",
       "impact": "Fidelidade dos testes ao runtime real.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `__getState`/`__setState` expõem e sobrescrevem estruturas internas, permitindo estados inalcançáveis e aliasing que pulam invariantes do runtime.",
+      "auditor_recommended_action": "Delimitar estados válidos do seam; considerar snapshots clonados/helpers específicos e testes que evitem validar estados impossíveis."
     }
   ],
   "document_quality": {
