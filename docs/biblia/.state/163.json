@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "163-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/report-error-action.test.js",
       "found_while_auditing": "tests/unit/background/report-error-action.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada, preservando esta Bíblia.",
       "possible_regression": "Erro de outro índice ou outra aba do mangá pode ser associado/finalizado como se pertencesse ao job persistido.",
       "impact": "Integridade de identidade de job e isolamento entre imagens/abas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "SUPERSEDED por 021-001. Os mismatches independentes de index/mangaTabId do report-error já estão centralizados no request canônico.",
+      "auditor_recommended_action": "Acompanhar 021-001.",
+      "superseded_by": "021-001"
     },
     {
       "id": "163-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/report-error-action.test.js",
       "found_while_auditing": "tests/unit/background/report-error-action.test.js",
@@ -40,7 +45,11 @@
       "expected_auditor_action": "Validar precedência/fallback em mudança separada.",
       "possible_regression": "Campos ausentes no request podem causar notificação/finalização incompleta ou usar identidade não autoritativa.",
       "impact": "Robustez do reporte de erro e coerência do job persistido.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "ACCEPTED. O caso feliz fornece mangaTabId/index/batchId iguais no request e no job, então não distingue a precedência do job persistido nem os fallbacks para request. Uma regressão de seleção de fonte pode passar.",
+      "auditor_recommended_action": "Adicionar casos com valores divergentes/ausentes que provem precedência do job e fallbacks contratuais."
     },
     {
       "id": "163-003",
