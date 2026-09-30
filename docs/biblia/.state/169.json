@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "169-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "IMMUTABILITY_REVIEW",
       "target_file": "extension/background/state.js",
       "found_while_auditing": "tests/unit/background/state-api.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Revisar contrato de imutabilidade.",
       "possible_regression": "Estado pode mudar sem persistência/serialização associada.",
       "impact": "Consistência global do background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "SUPERSEDED por 032-001. Ambos registram o mesmo problema de snapshots rasos em `jobQueue/jobIndex/extractionTabs` permitindo mutação nested fora da atomicidade de `mutate`.",
+      "auditor_recommended_action": "Acompanhar a resolução em 032-001 para evitar trabalho duplicado.",
+      "superseded_by": "032-001"
     },
     {
       "id": "169-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "API_CONSISTENCY_REVIEW",
       "target_file": "extension/background/state.js",
       "found_while_auditing": "tests/unit/background/state-api.test.js",
@@ -40,11 +45,15 @@
       "expected_auditor_action": "Revisar consistência da API.",
       "possible_regression": "Mesma estrutura pode comportar-se de forma diferente conforme a rota de escrita.",
       "impact": "Previsibilidade da API de estado.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "ACCEPTED. Além do problema amplo já registrado em 032-002, os setters públicos têm semântica diferente de `patch`: por exemplo `set pendingBatches(v)` guarda o array externo diretamente, enquanto `patch` clona batches/images. `jobQueue`, `extractionTabs` e `jobIndex` também recebem referências diretas.",
+      "auditor_recommended_action": "Decidir se setters são API legada de baixo nível ou devem delegar à normalização de `patch`; testar isolamento/normalização por setter."
     },
     {
       "id": "169-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/state-api.test.js",
       "found_while_auditing": "tests/unit/background/state-api.test.js",
@@ -57,7 +66,11 @@
       "expected_auditor_action": "Fortalecer cobertura concorrente.",
       "possible_regression": "Perda/reordenação de transições persistidas.",
       "impact": "Durabilidade do estado MV3.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "ACCEPTED. `state-api.test.js` não possui caso focal de `mutate()` nem de duas transições concorrentes na `_persistenceChain`; a suíte prova apenas `syncState` simples e isolamento de pendingBatches.",
+      "auditor_recommended_action": "Adicionar testes controlando Promises de `chrome.storage.local.set` para provar ordem, ausência de lost update e recuperação da chain após rejeição."
     }
   ],
   "document_quality": {
