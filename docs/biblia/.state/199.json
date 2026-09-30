@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "199-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/chapter-id-rejection.test.js",
       "found_while_auditing": "tests/unit/content-manga/chapter-id-rejection.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Migrar cobertura crítica para implementação real.",
       "possible_regression": "Promise real pode voltar a ficar presa ou cache não ser limpo.",
       "impact": "Persistência de capítulos/traduções.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `chapter-id-rejection.test.js` define `createGetOrCreateChapterId` local; não executa `createChapterManager` real. O mirror pode continuar verde se os branches de erro/cache reais regredirem.",
+      "auditor_recommended_action": "Adicionar casos diretos no `cm-chapter.js` real para get/set lastError/rejection, limpeza do cache e retry."
     },
     {
       "id": "199-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/content-manga/chapter-id-rejection.test.js",
       "found_while_auditing": "tests/unit/content-manga/chapter-id-rejection.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Corrigir contrato do teste.",
       "possible_regression": "Drift entre mirror e runtime fica invisível.",
       "impact": "Confiabilidade da suíte.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. O comentário afirma espelho exato v3.1, mas o runtime atual tem cache scoped por URL, fallback hostname+título, canonicalização e generateId diferentes. A descrição de equivalência já não é verdadeira.",
+      "auditor_recommended_action": "Reclassificar o arquivo como regressão histórica/mirror ou migrá-lo para o módulo real; remover alegação de paridade exata."
     },
     {
       "id": "199-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "extension/content/cm-chapter.js",
       "found_while_auditing": "tests/unit/content-manga/chapter-id-rejection.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Adicionar cobertura no módulo real.",
       "possible_regression": "Chapter B reutiliza ID de A.",
       "impact": "Integridade da biblioteca offline.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `cm-chapter.js` zera `chapterIdPromise` quando `window.location.href` muda, mas o mirror desta suíte não representa nem testa essa transição SPA. O branch produtivo fica sem prova neste arquivo.",
+      "auditor_recommended_action": "Adicionar teste real: resolver capítulo A, alterar `window.location.href`, resolver novamente e exigir contexto/ID de capítulo B sem reusar cache antigo."
     }
   ],
   "document_quality": {
