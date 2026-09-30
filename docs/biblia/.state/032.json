@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "032-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ATOMICITY_REVIEW",
       "target_file": "extension/background/state.js",
       "found_while_auditing": "extension/background/state.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar atomicidade em mudança separada.",
       "possible_regression": "Estado em memória muda sem persistência e diverge do mt_state.",
       "impact": "Ownership, jobIndex e recovery.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — atomicidade rasa confirmada. `get()` usa `jobQueue.slice()`, `jobIndex.slice()` e `{...extractionTabs}`, mantendo objetos internos por referência. `mutate(mutator)` entrega esse snapshot ao mutator antes de `patch`; modificar objeto interno pode alterar o estado residente imediatamente, inclusive se o mutator posteriormente lançar.",
+      "auditor_recommended_action": "Deep-clonar estruturas mutáveis expostas ao mutator ou tornar entradas imutáveis; adicionar teste em que mutator altera nested e lança, exigindo estado original intacto."
     },
     {
       "id": "032-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STATE_ENCAPSULATION_REVIEW",
       "target_file": "extension/background/state.js",
       "found_while_auditing": "extension/background/state.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar contrato da facade.",
       "possible_regression": "Lost updates, estado não persistido e comportamento dependente de ordem.",
       "impact": "Consistência global do background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — encapsulamento por referência confirmado. `patch` atribui `jobQueue`, `jobIndex` e `extractionTabs` recebidos sem clone profundo/defensivo; getters públicos também retornam as estruturas residentes diretamente. Callers podem mutar estado sem passar por patch/mutate/syncState.",
+      "auditor_recommended_action": "Aplicar clones defensivos/setters controlados ou remover setters/getters mutáveis; testar mutação externa após patch/getter e garantir isolamento."
     },
     {
       "id": "032-003",
