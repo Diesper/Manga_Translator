@@ -3158,15 +3158,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: steps.codecov.outputs.enabled == 'true'`
 
-**O que faz:** Configura `if` dentro do bloco coverage com o valor literal desta linha.
+**O que faz:** Conditiona o upload Codecov à presença do token detectada pelo step `codecov`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto coverage; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** A expressão lê `steps.codecov.outputs.enabled`; somente a string `true` cria o step de upload.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de coverage e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Evita chamada externa inválida em forks/ambientes sem secret, mantendo coverage local como gate independente.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de coverage de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem a condição, ausência de token geraria ruído/falha externa; condicionar o coverage local ao token enfraqueceria o gate.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `verify-ci-contract.js` protege a política Codecov relevante; não é prova de disponibilidade do serviço externo.
 
 ### Linha 176
 
@@ -3298,29 +3298,29 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: steps.codecov.outputs.enabled == 'true' && steps.codecov-upload.outcome == 'failure'`
 
-**O que faz:** Configura `if` dentro do bloco coverage com o valor literal desta linha.
+**O que faz:** Executa o warning somente quando Codecov estava habilitado e o step de upload terminou com `outcome == failure`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto coverage; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** Combina o output de habilitação com o outcome preservado apesar de `continue-on-error`.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de coverage e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Distingue indisponibilidade externa de falha dos testes e torna o problema visível sem bloquear qualidade local.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de coverage de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Um warning incondicional geraria falso alarme; ignorar outcome ocultaria falha do dashboard.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `verify-ci-contract.js` protege a política Codecov relevante; não é prova de disponibilidade do serviço externo.
 
 ### Linha 186
 
 **Fonte:** `        run: echo "::warning::Codecov upload FAILED — o gate local de coverage já passou, mas o dashboard externo não foi atualizado."`
 
-**O que faz:** Configura `run` dentro do bloco coverage com o valor literal desta linha.
+**O que faz:** Emite uma annotation `::warning::` explicando que o upload Codecov falhou depois de o gate local ter passado.
 
-**Como faz:** A indentação YAML associa a linha ao contexto coverage; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O comando `echo` usa a sintaxe de workflow command do GitHub Actions para registrar warning no run.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de coverage e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Preserva observabilidade da integração externa sem converter o serviço terceiro em autoridade de aprovação.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de coverage de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Silenciar a falha faria o dashboard ficar stale sem pista; usar `exit 1` aqui contrariaria a decisão de manter Codecov não bloqueante.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `verify-ci-contract.js` protege a política Codecov relevante; não é prova de disponibilidade do serviço externo.
 
 ### Linha 187
 
@@ -3354,15 +3354,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: always()`
 
-**O que faz:** Configura `if` dentro do bloco coverage com o valor literal desta linha.
+**O que faz:** Faz o upload do relatório de coverage ser tentado mesmo se um step anterior do job falhar.
 
-**Como faz:** A indentação YAML associa a linha ao contexto coverage; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `if: always()` sobrepõe a condição implícita `success()` do step de artifact.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de coverage e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Artifacts de coverage podem ser úteis justamente para diagnosticar uma falha anterior.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de coverage de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Deixar a condição padrão perderia o relatório em falhas; aplicar `always()` indiscriminadamente a comandos funcionais poderia mascarar fluxo de controle.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: condição de artifact/suporte sem assertion focal específica.
 
 ### Linha 190
 
@@ -3774,43 +3774,43 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          CI: true`
 
-**O que faz:** Configura `CI` dentro do bloco e2e-shard com o valor literal desta linha.
+**O que faz:** Define `CI=true` para o processo E2E do shard.
 
-**Como faz:** A indentação YAML associa a linha ao contexto e2e-shard; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O ambiente chega ao Playwright config, ativando workers/retries/reporters de CI.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de e2e-shard e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Garante que o shard use zero retries e o reporter blob apropriado ao modo CI/shard.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de e2e-shard de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem `CI`, o Playwright poderia usar configuração local e não produzir a evidência esperada para merge.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: a variável é consumida pelo stack Playwright/runner, mas não há assertion focal para este valor exato no YAML.
 
 ### Linha 220
 
 **Fonte:** `          MANGA_E2E_BROWSER_MODE: stealth`
 
-**O que faz:** Configura `MANGA_E2E_BROWSER_MODE` dentro do bloco e2e-shard com o valor literal desta linha.
+**O que faz:** Seleciona o modo de navegador E2E `stealth` para o runner de grupo.
 
-**Como faz:** A indentação YAML associa a linha ao contexto e2e-shard; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** A variável é herdada pelo script npm/Playwright e orienta o modo específico usado pelos testes da extensão.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de e2e-shard e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Mantém o modo de execução esperado pelos cenários E2E atuais sem hardcodá-lo dentro dos testes.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de e2e-shard de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Omitir ou alterar a flag pode fazer o E2E exercitar um modo diferente daquele balanceado/validado pelo plano.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: a variável é consumida pelo stack Playwright/runner, mas não há assertion focal para este valor exato no YAML.
 
 ### Linha 221
 
 **Fonte:** `          MANGA_E2E_SHARD: '1'`
 
-**O que faz:** Configura `MANGA_E2E_SHARD` dentro do bloco e2e-shard com o valor literal desta linha.
+**O que faz:** Marca explicitamente que esta execução Playwright é um shard lógico do plano.
 
-**Como faz:** A indentação YAML associa a linha ao contexto e2e-shard; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `MANGA_E2E_SHARD='1'` faz `playwright.config.js` escolher reporter `blob` em vez do gate reporter global.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de e2e-shard e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Cada VM precisa produzir blob mergeável, enquanto a validação global só deve ocorrer após reunir todos os grupos.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de e2e-shard de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Usar o reporter global dentro de cada shard validaria subconjuntos isolados e impediria o merge como fonte de verdade.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `verify-ci-contract.js` exige `MANGA_E2E_SHARD: '1'` no bloco de shards.
 
 ### Linha 222
 
@@ -3956,15 +3956,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: failure()`
 
-**O que faz:** Configura `if` dentro do bloco e2e-shard com o valor literal desta linha.
+**O que faz:** Executa o upload de artifacts detalhados apenas quando o shard termina em falha.
 
-**Como faz:** A indentação YAML associa a linha ao contexto e2e-shard; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `failure()` é a função de status do GitHub Actions aplicada ao step.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de e2e-shard e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Reduz armazenamento em runs verdes e preserva screenshots/videos/traces quando há algo para investigar.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de e2e-shard de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Upload sempre ativo aumenta custo; upload apenas em sucesso perde justamente os dados de diagnóstico.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: condição de artifact/suporte sem assertion focal específica.
 
 ### Linha 233
 
@@ -4516,15 +4516,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        run: npx playwright merge-reports --config=scripts/ci/playwright-merge.config.js ./all-blob-reports`
 
-**O que faz:** Configura `run` dentro do bloco e2e agregado com o valor literal desta linha.
+**O que faz:** Mescla os cinco blob reports Playwright e executa o reporter de gate global configurado em `scripts/ci/playwright-merge.config.js`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto e2e agregado; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `playwright merge-reports` lê `all-blob-reports`, usa a config de merge e produz avaliação unificada.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de e2e agregado e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** A aprovação E2E precisa considerar o inventário completo, retries/flaky e estados terminais após reunir todos os shards.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de e2e agregado de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Avaliar cada shard isoladamente pode deixar duplicações/omissões ou flakiness global escaparem; concatenar logs não reproduz semântica do reporter.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO; `verify-e2e-shard-plan.js` ainda enumera testes reais via Playwright e prova união exata/sem duplicatas quando executado pelo job.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: o contrato exige `merge-reports` + `playwright-merge.config.js`; o reporter global possui self-test separado contra retries/flaky.
 
 ### Linha 273
 
@@ -4544,15 +4544,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          CI: true`
 
-**O que faz:** Configura `CI` dentro do bloco e2e agregado com o valor literal desta linha.
+**O que faz:** Define `CI=true` durante o merge dos relatórios Playwright.
 
-**Como faz:** A indentação YAML associa a linha ao contexto e2e agregado; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O reporter carregado pelo merge lê o ambiente de CI e aplica o comportamento de gate correspondente.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de e2e agregado e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Mantém a etapa agregada no mesmo modo de política usado pelos shards/CI.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de e2e agregado de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem a flag, reporter/config podem escolher comportamento local e reduzir a força do gate.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: a variável é consumida pelo stack Playwright/runner, mas não há assertion focal para este valor exato no YAML.
 
 ### Linha 275
 
@@ -5146,15 +5146,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: always()`
 
-**O que faz:** Configura `if` dentro do bloco jest-worker-diagnostic com o valor literal desta linha.
+**O que faz:** Garante tentativa de publicação do diagnóstico Jest mesmo quando o comando de diagnóstico falha.
 
-**Como faz:** A indentação YAML associa a linha ao contexto jest-worker-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `always()` faz o step de artifact rodar independentemente do status anterior.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de jest-worker-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Uma reprodução de leak é uma falha esperada de investigação e precisa deixar logs/JSON disponíveis.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de jest-worker-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Condição padrão `success()` descartaria a evidência exatamente quando mais necessária.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: artifacts usam `always()` para sobreviver à falha anterior; não há self-test focal desse literal.
 
 ### Linha 318
 
@@ -5216,57 +5216,57 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          path: |`
 
-**O que faz:** Configura `path` dentro do bloco jest-worker-diagnostic com o valor literal desta linha.
+**O que faz:** Abre uma lista multilinha de paths que compõem o artifact do caso Jest.
 
-**Como faz:** A indentação YAML associa a linha ao contexto jest-worker-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** YAML literal `|` passa três padrões de arquivo à action de upload.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de jest-worker-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Agrupa resumo agregado, resumo por caso e log bruto em um único artifact correlacionado.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de jest-worker-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Publicar só um formato pode perder dados estruturados ou contexto textual necessário para depuração.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 323
 
 **Fonte:** `            .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json`
 
-**O que faz:** Configura `.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json` dentro do bloco jest-worker-diagnostic com o valor literal desta linha.
+**O que faz:** Inclui o resumo agregado `.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto jest-worker-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O path interpola `matrix.case`, coincidindo com o arquivo escrito pelo diagnosticador quando há filtro.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de jest-worker-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Fornece uma visão compacta do caso diretamente na raiz de `.ci-results`.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de jest-worker-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Usar nome sem o caso faria matrizes concorrentes procurar/colidir no arquivo errado.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 324
 
 **Fonte:** `            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json`
 
-**O que faz:** Configura `.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json` dentro do bloco jest-worker-diagnostic com o valor literal desta linha.
+**O que faz:** Inclui o JSON detalhado do caso dentro de `.ci-results/jest-worker-diagnostic/`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto jest-worker-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O diagnosticador grava metadados como status, worker exit, duração e linhas relevantes nesse arquivo.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de jest-worker-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Preserva dados estruturados para inspeção/máquina além do resumo agregado.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de jest-worker-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Publicar apenas log textual dificulta comparação automatizada entre casos.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 325
 
 **Fonte:** `            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log`
 
-**O que faz:** Configura `.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log` dentro do bloco jest-worker-diagnostic com o valor literal desta linha.
+**O que faz:** Inclui o log bruto do caso Jest no artifact.
 
-**Como faz:** A indentação YAML associa a linha ao contexto jest-worker-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O arquivo `.log` contém stdout/stderr e metadados do processo correspondente à matriz.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de jest-worker-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Permite investigar mensagens não preservadas no resumo JSON e confirmar o contexto do worker leak.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de jest-worker-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Somente o JSON pode omitir detalhes diagnósticos que depois se tornam relevantes.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 326
 
@@ -5776,15 +5776,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: always()`
 
-**O que faz:** Configura `if` dentro do bloco focused-project-leak-diagnostic com o valor literal desta linha.
+**O que faz:** Publica artifacts do diagnóstico focal mesmo quando o caso reproduz leak/falha.
 
-**Como faz:** A indentação YAML associa a linha ao contexto focused-project-leak-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `always()` ignora o status anterior apenas para o step auxiliar de upload.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de focused-project-leak-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Falha é o evento que demanda evidência persistente.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de focused-project-leak-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem `always()`, o job bloquearia corretamente mas perderia logs que explicam por quê.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: artifacts usam `always()` para sobreviver à falha anterior; não há self-test focal desse literal.
 
 ### Linha 363
 
@@ -5846,57 +5846,57 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          path: |`
 
-**O que faz:** Configura `path` dentro do bloco focused-project-leak-diagnostic com o valor literal desta linha.
+**O que faz:** Abre a lista multilinha de arquivos do artifact do diagnóstico focal.
 
-**Como faz:** A indentação YAML associa a linha ao contexto focused-project-leak-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O literal YAML entrega os três paths seguintes ao uploader.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de focused-project-leak-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Mantém o mesmo pacote de evidência do diagnóstico Jest amplo para cada caso focal.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de focused-project-leak-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Uma lista incompleta dificultaria comparar diagnóstico amplo e focal.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 368
 
 **Fonte:** `            .ci-results/jest-worker-diagnostic-${{ matrix.case }}.json`
 
-**O que faz:** Configura `.ci-results/jest-worker-diagnostic-${{ matrix.case }}.json` dentro do bloco focused-project-leak-diagnostic com o valor literal desta linha.
+**O que faz:** Inclui o resumo agregado do caso focal na raiz de `.ci-results`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto focused-project-leak-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O nome interpola o mesmo `matrix.case` passado ao diagnosticador.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de focused-project-leak-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Correlaciona artifact e execução sem depender do nome da pasta interna.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de focused-project-leak-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Path fixo poderia apontar para resultado de outro caso.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 369
 
 **Fonte:** `            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.json`
 
-**O que faz:** Configura `.ci-results/jest-worker-diagnostic/${{ matrix.case }}.json` dentro do bloco focused-project-leak-diagnostic com o valor literal desta linha.
+**O que faz:** Inclui o JSON detalhado do caso focal na subpasta do diagnosticador.
 
-**Como faz:** A indentação YAML associa a linha ao contexto focused-project-leak-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O uploader coleta o arquivo criado por `diagnose-jest-workers.js`.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de focused-project-leak-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Expõe campos estruturados de leak/status/duração para este recorte.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de focused-project-leak-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem ele restaria apenas log bruto, menos adequado a comparação.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 370
 
 **Fonte:** `            .ci-results/jest-worker-diagnostic/${{ matrix.case }}.log`
 
-**O que faz:** Configura `.ci-results/jest-worker-diagnostic/${{ matrix.case }}.log` dentro do bloco focused-project-leak-diagnostic com o valor literal desta linha.
+**O que faz:** Inclui o log bruto do caso focal.
 
-**Como faz:** A indentação YAML associa a linha ao contexto focused-project-leak-diagnostic; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O arquivo contém saída integral do processo Jest do caso.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de focused-project-leak-diagnostic e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Preserva a evidência textual que o JSON resume.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de focused-project-leak-diagnostic de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Descartar o log reduz capacidade de diagnosticar warnings novos ainda não extraídos pelo script.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 371
 
@@ -6266,15 +6266,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        if: always()`
 
-**O que faz:** Configura `if` dentro do bloco background-leak-bisection com o valor literal desta linha.
+**O que faz:** Tenta publicar o resultado da bisseção de leak de background independentemente de sucesso/falha do diagnóstico.
 
-**Como faz:** A indentação YAML associa a linha ao contexto background-leak-bisection; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** `always()` mantém o step auxiliar vivo após o comando bloqueante.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de background-leak-bisection e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** O algoritmo de bisseção gera arquivos úteis inclusive quando confirma um leak e retorna não zero.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de background-leak-bisection de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Condição padrão descartaria a trilha da bisseção quando o job mais precisa dela.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: artifacts usam `always()` para sobreviver à falha anterior; não há self-test focal desse literal.
 
 ### Linha 398
 
@@ -6336,43 +6336,43 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          path: |`
 
-**O que faz:** Configura `path` dentro do bloco background-leak-bisection com o valor literal desta linha.
+**O que faz:** Abre a lista multilinha de artifacts da bisseção de background.
 
-**Como faz:** A indentação YAML associa a linha ao contexto background-leak-bisection; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** A action de upload recebe o JSON agregado e o diretório completo de logs/iterações.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de background-leak-bisection e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** A bisseção é multi-etapa; preservar só o último resultado perderia como o conjunto foi reduzido.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de background-leak-bisection de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Um único log não representa toda a sequência de probes e pode impedir reprodução.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 403
 
 **Fonte:** `            .ci-results/background-leak-diagnostic.json`
 
-**O que faz:** Configura `.ci-results/background-leak-diagnostic.json` dentro do bloco background-leak-bisection com o valor literal desta linha.
+**O que faz:** Inclui `.ci-results/background-leak-diagnostic.json`, o resumo agregado da bisseção.
 
-**Como faz:** A indentação YAML associa a linha ao contexto background-leak-bisection; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O script de manutenção escreve nesse caminho canônico resultados e metadados.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de background-leak-bisection e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Fornece entrada estruturada para entender conclusão global da busca.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de background-leak-bisection de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem o resumo seria necessário reconstruir estado a partir de dezenas de logs.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 404
 
 **Fonte:** `            .ci-results/background-leak-diagnostic/`
 
-**O que faz:** Configura `.ci-results/background-leak-diagnostic/` dentro do bloco background-leak-bisection com o valor literal desta linha.
+**O que faz:** Inclui todo o diretório `.ci-results/background-leak-diagnostic/`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto background-leak-bisection; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O uploader recursa pelos logs individuais produzidos por cada probe/bisseção.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de background-leak-bisection e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Preserva histórico de subsets, workers, status e stdout/stderr.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de background-leak-bisection de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Guardar apenas o resumo remove evidência necessária para auditar por que um conjunto foi escolhido.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: estes paths correspondem aos arquivos produzidos pelos diagnosticadores reais, mas não há assertion estática focal de cada path no workflow.
 
 ### Linha 405
 
@@ -7232,15 +7232,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          CI: true`
 
-**O que faz:** Configura `CI` dentro do bloco fresh-developer-flow com o valor literal desta linha.
+**O que faz:** Define `CI=true` no E2E completo do `fresh-developer-flow`.
 
-**Como faz:** A indentação YAML associa a linha ao contexto fresh-developer-flow; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** A variável faz `playwright.config.js` aplicar zero retries, workers de CI e gate reporter global.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de fresh-developer-flow e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** O fluxo manual deve simular a disciplina real de CI, não um run local permissivo.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de fresh-developer-flow de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Sem a flag, retries/config local poderiam permitir um fluxo “novo desenvolvedor” diferente da política automatizada.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: a variável é consumida pelo stack Playwright/runner, mas não há assertion focal para este valor exato no YAML.
 
 ### Linha 467
 
@@ -7316,15 +7316,15 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        run: npm test`
 
-**O que faz:** Configura `run` dentro do bloco fresh-developer-flow com o valor literal desta linha.
+**O que faz:** Executa o entry point oficial `npm test` depois das suítes individuais do fresh flow.
 
-**Como faz:** A indentação YAML associa a linha ao contexto fresh-developer-flow; o GitHub Actions interpreta esse campo antes ou durante a execução do job/step.
+**Como faz:** O script raiz encadeia `test:ci`, smoke e visual conforme `package.json`.
 
-**Por que foi implementado dessa forma:** O valor participa do contrato operacional específico de fresh-developer-flow e mantém a configuração declarativa no workflow versionado.
+**Por que foi implementado dessa forma:** Prova que a interface documentada para um desenvolvedor novo continua funcional, além de testar componentes isolados.
 
-**Por que uma implementação ingênua seria pior:** Alterar ou deslocar esta chave sem preservar o contexto pode mudar scheduling, parâmetros, artifacts ou comandos de fresh-developer-flow de forma difícil de perceber em revisão superficial.
+**Por que uma implementação ingênua seria pior:** Rodar apenas comandos internos pode deixar o entry point principal quebrado mesmo com suas partes verdes.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `verify-ci-contract.js` exige `run: npm test` no `fresh-developer-flow`.
 
 ### Linha 473
 
