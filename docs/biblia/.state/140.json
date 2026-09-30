@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "140-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/download-chapter-action.test.js",
       "found_while_auditing": "tests/unit/background/download-chapter-action.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Adicionar cobertura de branch sem substituir a implementação real por cópia.",
       "possible_regression": "OPEN_CHAPTER_FOLDER pode deixar de baixar/reabrir corretamente quando o anchor salvo não existe mais ou quando não há imagens.",
       "impact": "Fluxo de abertura/download de capítulos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:16:00Z",
+      "audit_finding": "ACCEPTED. Fallback por anchor inexistente/exists=false e o sub-branch de `images` vazio via handleMarkerAndShow não possuem prova focal.",
+      "auditor_recommended_action": "Adicionar casos para search vazio/exists=false com images não vazio e vazio, assertando downloadImagesAndShow/handleMarkerAndShow e resposta."
     },
     {
       "id": "140-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_GAP",
       "target_file": "tests/unit/background/download-chapter-action.test.js",
       "found_while_auditing": "tests/unit/background/download-chapter-action.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer a assertion do caso existente.",
       "possible_regression": "Download incorreto pode ser considerado existente e a UI tentar mostrar anchor diferente do pesquisado.",
       "impact": "Precisão do reuso de download existente.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:16:00Z",
+      "audit_finding": "ACCEPTED. O mock de `downloads.search` ignora a query e a suíte não exige `{id:31}`; pesquisar id incorreto pode continuar verde.",
+      "auditor_recommended_action": "Adicionar `toHaveBeenCalledWith({ id: 31 }, expect.any(Function))` ou equivalente."
     },
     {
       "id": "140-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ERROR_PATH_TEST",
       "target_file": "tests/unit/background/download-chapter-action.test.js",
       "found_while_auditing": "tests/unit/background/download-chapter-action.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Cobrir erro assíncrono usando action/router reais.",
       "possible_regression": "Erro de download pode deixar callback sem resposta ou responder ok indevidamente.",
       "impact": "Tratamento de falhas de download.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:16:00Z",
+      "audit_finding": "ACCEPTED. Não há cenário de `downloadImagesAndShow` rejeitando até o catch assíncrono do router; o envelope INTERNAL_ERROR não está provado.",
+      "auditor_recommended_action": "Adicionar mockRejectedValue e assertar keepAlive/response INTERNAL_ERROR sem falso sucesso."
     }
   ],
   "document_quality": {
