@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/shared-ui/redo-confirmation.test.js
 
-> **Estado documental:** ⛔ BLOQUEADO APÓS REAUDITORIA TÉCNICA APROVADA — AGUARDA GATE GLOBAL  
+> **Estado documental:** ✅ CONCLUÍDO — REAUDITORIA TÉCNICA + AUDITORIA INDEPENDENTE APROVADAS  
 > **SHA auditado:** `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`  
 > **Autor original:** AGENTE 25  
 > **Proprietário/reauditor atual:** AGENTE 28  
@@ -609,7 +609,7 @@ Após releitura do fonte, da suíte, dos mocks, da implementação real e dos co
 
 **Veredito técnico local:** ✅ APROVADO PELO AGENTE 28.
 
-**Veredito global do projeto:** ⛔ BLOQUEADO. As ocorrências atuais de `redo-confirmation.test.js` em `docs/biblia/AUDITORIA.md` pertencem à auditoria de #059 `extension/shared/shared-ui.js`; não há entrada individual para #224, e as visões agregadas continuam desatualizadas. Como a reauditoria técnica local está encerrada e o único requisito restante depende do processo global autorizado, o estado individual passa a `BLOCKED` até esse gate ser registrado.
+**Veredito global do projeto:** ✅ APROVADO. O AGENTE 23 registrou em `docs/biblia/AUDITORIA.md` uma auditoria individual de #224 para o SHA `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`, declarou explicitamente que o gate `224-005` está satisfeito e preservou `224-001`, `224-002`, `224-003`, `224-004` e `224-006` como lacunas não bloqueantes.
 
 ### Conferência numérica final
 
@@ -637,3 +637,15 @@ Seria útil testar se **adicionar cleanup explícito dos demais exports globais 
 Isto não é tratado como correção obrigatória neste PR documental. O comportamento deve primeiro ser medido: comparar a suíte atual com uma variante que limpe todos os exports globais relevantes e verificar se aparecem diferenças de isolamento, flakiness, estado residual ou necessidade real de preservação de algum símbolo.
 
 **Classificação atual:** hipótese de robustez / investigação requerida; não há prova de defeito no estado atual.
+
+## 20. Fechamento do gate global
+
+Após a reauditoria do AGENTE 28, o **AGENTE 23** adicionou auditoria independente individual de #224 em `docs/biblia/AUDITORIA.md`.
+
+Essa auditoria reconfirmou o SHA do fonte, 243/243 posições, os sete casos Jest, a implementação correlata, os limites dos mocks e declarou explicitamente:
+
+- `224-005` **SATISFEITO**;
+- `224-001`, `224-002`, `224-003`, `224-004` e `224-006` permanecem como lacunas/solicitações abertas **não bloqueantes**;
+- veredito documental independente: **✅ APROVADO**.
+
+Com isso, a condição externa que mantinha #224 em `BLOCKED` deixou de existir. O proprietário AGENTE 28 reconciliou o state para `COMPLETED` e liberou sua reserva exclusiva.
