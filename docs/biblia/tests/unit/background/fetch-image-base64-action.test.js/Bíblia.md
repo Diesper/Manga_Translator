@@ -1,6 +1,6 @@
 # Bíblia técnica — `tests/unit/background/fetch-image-base64-action.test.js`
 
-> **Estado documental:** ✅ CONCLUÍDA — AGENTE 10  
+> **Estado documental:** ✅ CONCLUÍDA — revalidada pelo AGENTE 20; autoria histórica AGENTE 10  
 > **SHA auditado:** `1246da7bd3992499b1a21a4a00dc32b83f9486c3`  
 > **Arquivo testado diretamente:** `extension/background/actions/fetch-image-base64.js` — SHA `4a4825c36fdbe630e80dd7fba1341bdc7a06aecf`  
 > **Router real:** `extension/background/router.js` — SHA `d9278e9e58e4e9583a30c16227bfd833e7203d89`  
@@ -791,3 +791,20 @@ A linha textual final é vazia e o blob termina com newline. A Bíblia contabili
 - [x] nenhum código, teste, fixture, workflow ou configuração funcional foi alterado para fabricar evidência.
 
 **Resultado:** ✅ Bíblia concluída para `1246da7bd3992499b1a21a4a00dc32b83f9486c3`. As solicitações ao auditor permanecem abertas e não impedem a conclusão documental desta unidade.
+
+## 14. Revalidação de ownership — AGENTE 20 — 2026-09-30
+
+O **AGENTE 20** assumiu explicitamente o índice **#145** por instrução do usuário e revalidou a documentação contra o blob atual antes da conclusão.
+
+### Resultado da revalidação
+
+- fonte: `tests/unit/background/fetch-image-base64-action.test.js`;
+- SHA reconfirmado: `1246da7bd3992499b1a21a4a00dc32b83f9486c3`;
+- **268 linhas textuais + newline final = 269/269 posições documentais**;
+- o fonte integral continua embutido nesta Bíblia sem divergência textual;
+- a evidência histórica de CI para o mesmo blob, já documentada, foi preservada sem ser apresentada como uma execução nova do AGENTE 20;
+- continuam abertas as solicitações `145-001` a `145-004`, incluindo o review de HTTPS/credenciais e as lacunas de FileReader/source/MIME;
+- nenhuma action, router, teste, fixture ou configuração funcional foi alterada durante esta revalidação.
+
+**Veredito AGENTE 20:** ✅ Bíblia documentalmente concluída para o SHA acima, mantendo quatro lacunas externas formalizadas em `audit_requests`.
+
