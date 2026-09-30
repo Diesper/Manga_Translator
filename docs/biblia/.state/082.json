@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "082-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-ci-contract-selftest.js",
       "found_while_auditing": "scripts/validation/verify-ci-contract-selftest.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar se a cobertura meta-infra é exigida e, se sim, implementar em alteração separada.",
       "possible_regression": "O self-test pode falhar com diagnóstico enganoso ou deixar temporários sem que o contrato funcional tenha regredido.",
       "impact": "Diagnóstico/robustez da infraestrutura de validação; não foi observado falso verde atual nos três casos cobertos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. O self-test cobre os três cenários negativos principais, mas não provoca falhas do próprio harness: marcador ausente, matriz sem entrada testável, falha de cópia/spawn e cleanup após exceção.",
+      "auditor_recommended_action": "Adicionar meta-self-test/refatoração exportável que injete cada falha e verifique diagnóstico, exit code e remoção do sandbox."
     },
     {
       "id": "082-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract-selftest.js",
       "found_while_auditing": "scripts/validation/verify-ci-contract-selftest.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Classificar o acoplamento e, se pertinente, endurecer o harness em mudança separada.",
       "possible_regression": "Atualização legítima da matriz pode quebrar o self-test mesmo quando verify-ci-contract.js continua correto.",
       "impact": "Robustez futura do self-test negativo da matriz.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. `replaceRequired` usa `String.replace`, afetando só a primeira ocorrência, e a entrada/marker são escolhidos dinamicamente. Hoje o marker escolhido é único, mas não há invariante/assertion de unicidade ou ausência pós-mutação.",
+      "auditor_recommended_action": "Exigir marker único ou validar/remover todas as ocorrências conforme contrato; adicionar caso duplicado e assertion pós-mutação."
     },
     {
       "id": "082-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PORTABILITY_TEST",
       "target_file": "scripts/validation/verify-ci-contract-selftest.js",
       "found_while_auditing": "scripts/validation/verify-ci-contract-selftest.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Confirmar necessidade de cobertura determinística de EOL e tratar em alteração de teste separada.",
       "possible_regression": "Mudança no helper pode quebrar checkouts CRLF sem ser detectada se a CI continuar materializando LF.",
       "impact": "Portabilidade do self-test no Windows.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. O helper normaliza CRLF, mas a CI Windows não garante fixture CRLF determinística. Não existe cenário que converta explicitamente o alvo para CRLF antes da mutação.",
+      "auditor_recommended_action": "Adicionar fixture/caso CRLF controlado e exigir o mesmo diagnóstico negativo após mutação."
     }
   ],
   "document_quality": {
