@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "011-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/download-image-action.test.js",
       "found_while_auditing": "extension/background/actions/download-image.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Fortalecer cobertura em alteração separada.",
       "possible_regression": "Downloads podem falhar ou ficar pendentes sem gate específico.",
       "impact": "Download automático/manual de páginas traduzidas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "141-001",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "SUPERSEDED por 141-001. A ausência de testes negativos da action download-image já foi auditada e aceita na própria suíte.",
+      "auditor_recommended_action": "Centralizar cobertura negativa em 141-001."
     },
     {
       "id": "011-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INPUT_VALIDATION_REVIEW",
       "target_file": "extension/background/actions/download-image.js",
       "found_while_auditing": "extension/background/actions/download-image.js",
@@ -40,7 +45,11 @@
       "expected_auditor_action": "Revisar superfície de entrada e paths.",
       "possible_regression": "TypeError genérico ou caminho inesperado pode chegar à API de downloads.",
       "impact": "Robustez e segurança do download.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "ACCEPTED — validação ausente confirmada. `request.filename.startsWith(...)` roda antes de qualquer Promise/guard; filename ausente ou não-string lança síncronamente. URL/filename vazio e path lógico também não têm contrato explícito.",
+      "auditor_recommended_action": "Adicionar validate para filename/url antes de efeitos e casos negativos; decidir política de caminhos permitidos."
     }
   ],
   "document_quality": {
