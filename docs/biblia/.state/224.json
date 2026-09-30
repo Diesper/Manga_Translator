@@ -2,11 +2,11 @@
   "index": 224,
   "file": "tests/unit/shared-ui/redo-confirmation.test.js",
   "bible": "docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 25",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 28",
   "source_sha": "2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98",
-  "started_at_utc": "2026-09-30T14:47:00Z",
-  "completed_at_utc": "2026-09-30T15:43:00Z",
+  "started_at_utc": "2026-09-30T15:45:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "224-001",
@@ -86,6 +86,6 @@
     "external_audit_requests_open": 4,
     "automated_tests_documented": 7,
     "ci_runtime_at_audit": "PENDING",
-    "note": "Conclusão documental particionada; STATUS.md, CHECKLIST.md e AUDITORIA.md não foram alterados por AGENTE 25 conforme escopo de escrita."
+    "note": "Reaberto por ordem explícita para reauditoria sob ownership exclusivo do AGENTE 28; conteúdo documental aprovado anteriormente por AGENTE 25 preservado até nova verificação."
   }
 }
