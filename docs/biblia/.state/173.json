@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "173-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/release/sync-version.js",
       "found_while_auditing": "tests/unit/background/version-sync.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer cobertura do script em alteração separada.",
       "possible_regression": "Release pode publicar metadados inconsistentes mesmo com derivação pura verde.",
       "impact": "Versionamento e publicação.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. `version-sync.test.js` importa e testa apenas `parseNumericSemver`/`deriveVersionInfo`; as funções reais de I/O `collectState`, `getDifferences`, `syncWorkspace` e `checkWorkspace` são exportadas pelo script mas nunca executadas na suíte.",
+      "auditor_recommended_action": "Adicionar testes em workspace temporário com package/manifest/lock/docs/workflow reais ou fixtures mínimas, cobrindo drift, sync idempotente, estrutura ausente e pós-condição sem diferenças."
     },
     {
       "id": "173-002",
