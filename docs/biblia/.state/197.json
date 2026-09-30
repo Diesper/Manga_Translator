@@ -1,0 +1,11 @@
+{
+  "index": 197,
+  "file": "tests/unit/content-manga/canonical-title.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/canonical-title.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "bfb01bdfb8de0921d85486e56003ac2e37f4b0e2",
+  "started_at_utc": "2026-09-30T06:34:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
