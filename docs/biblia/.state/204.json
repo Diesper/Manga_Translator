@@ -59,7 +59,7 @@
     },
     {
       "id": "204-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/floating-button-guard-and-single-click.test.js",
       "related_files": [
@@ -75,7 +75,11 @@
       "expected_auditor_action": "Confirmar a lacuna e tratar cobertura em alteração separada.",
       "possible_regression": "Ação de menu pode contornar preferências do usuário ou o estado desabilitado do site.",
       "impact": "Respeito à configuração de tradução individual e habilitação por site.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. Os cenários de tradução individual sempre usam `clickToTranslateEnabled:true` e página habilitada; os guards explícitos `clickToTranslateEnabled=false` e `isPageEnabled=false` não têm caso focal.",
+      "auditor_recommended_action": "Adicionar dois casos separados para cada guard, exigindo retorno de recusa e zero START_BATCH."
     }
   ],
   "document_quality": {
