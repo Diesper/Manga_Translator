@@ -1,0 +1,11 @@
+{
+  "index": 127,
+  "file": "tests/smoke/smoke-05-perceptual-queries.js",
+  "bible": "docs/biblia/tests/smoke/smoke-05-perceptual-queries.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 11",
+  "source_sha": "bf8409c3df43062e5e6af496393412eee0c6a694",
+  "started_at_utc": "2026-09-30T06:45:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
