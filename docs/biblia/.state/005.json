@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "005-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
       "found_while_auditing": "extension/background/actions/claim-gemini-job.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer a suíte de autorização.",
       "possible_regression": "Aba Gemini errada pode receber job ou migração inconsistente pode liberar claim incorreto.",
       "impact": "Isolamento e ownership dos jobs Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:15:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre claim direto, jobId divergente, aba manual e migração de alias válida, mas não executa o guard `canonicalIndexedTabId !== canonicalSenderTabId`, nem `migrateTabIdentity` rejeitando, nem pós-migração com chave ausente/jobId divergente. Esses branches controlam ownership do job exposto ao worker Gemini.",
+      "auditor_recommended_action": "Adicionar casos contra a action real para canonical mismatch, rejeição de migrateTabIdentity e pós-condição migrada inválida, garantindo `job:null`/erro previsível sem vazamento de job alheio."
     },
     {
       "id": "005-002",
