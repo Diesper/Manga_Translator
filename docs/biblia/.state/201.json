@@ -1,0 +1,11 @@
+{
+  "index": 201,
+  "file": "tests/unit/content-manga/drawer-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/drawer-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 21",
+  "source_sha": "eeebbd56fe1a1c788a81b43e222be06309b90f32",
+  "started_at_utc": "2026-09-30T06:34:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
