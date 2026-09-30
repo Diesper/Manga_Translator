@@ -42,7 +42,7 @@
     },
     {
       "id": "068-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PERFORMANCE_REVIEW",
       "target_file": "scripts/ci/data/e2e-shard-plan.json",
       "found_while_auditing": "scripts/ci/data/e2e-shard-plan.json",
@@ -50,7 +50,11 @@
       "requested_action": "Definir processo de atualização a partir de tempos reais se o campo continuar orientando balanceamento humano.",
       "expected_evidence": "Métrica recalculável ou documentação clara de que o campo não é contrato.",
       "possible_regression": "Plano perde balanceamento enquanto os gates funcionais continuam verdes.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:08:00Z",
+      "audit_finding": "ACCEPTED. `estimatedSeconds` aparece no plano de shards, mas o verificador usa tags/cardinalidade/workers e não consome nem recalcula esse campo. Portanto ele é informativo e pode ficar stale enquanto todos os gates continuam verdes.",
+      "auditor_recommended_action": "Definir explicitamente o campo como informativo ou automatizar atualização a partir de tempos reais se ele continuar orientando balanceamento humano."
     }
   ],
   "document_quality": {
