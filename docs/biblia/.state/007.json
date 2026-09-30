@@ -31,7 +31,7 @@
     },
     {
       "id": "007-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-from-tab-action.test.js",
       "found_while_auditing": "extension/background/actions/deliver-result-from-tab.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Completar cobertura sem alterar o objeto auditado nesta etapa.",
       "possible_regression": "Resultado auxiliar pode ser aceito/finalizado com identidade incorreta ou ACK incompleto.",
       "impact": "Integridade da entrega auxiliar.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:00:00Z",
+      "audit_finding": "ACCEPTED. A suíte real cobre mapping/jobId forjado e `deliverResultToManga` retornando `{ok:false,reason:'persist_failed'}`, mas não executa mapping válido seguido de ownership.owns=false/job ausente, nem os guards batchId/index/mangaTabId divergentes. Também não há caso para staging `{ok:true,persisted:false}` ou `{ok:true}` sem `persisted`.",
+      "auditor_recommended_action": "Adicionar matriz focal na action real garantindo que ownership/mismatches/staging incompleto não removem a aba auxiliar, não apagam mapping e não finalizam o job."
     },
     {
       "id": "007-003",
