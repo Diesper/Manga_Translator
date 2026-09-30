@@ -2,10 +2,20 @@
   "index": 121,
   "file": "tests/setup/create-test-images.js",
   "bible": "docs/biblia/tests/setup/create-test-images.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 1",
   "source_sha": "f35e7896ffb5fea9091876544c8351bbba3c86da",
   "started_at_utc": "2026-09-30T06:21:25.000Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:25:02.264Z",
+  "audit_requests": [],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "14/14",
+    "bible_lines": 187,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36577447500,
+    "evidence_job": 109437162728
+  }
 }
