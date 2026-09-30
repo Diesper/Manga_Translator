@@ -2,11 +2,11 @@
   "index": 78,
   "file": "scripts/release/sync-version.js",
   "bible": "docs/biblia/scripts/release/sync-version.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 12",
   "source_sha": "9bc8fa5ae3fb127698e6f35988fd6efab7e56c07",
   "started_at_utc": "2026-09-30T15:34:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-09-30T15:34:00Z",
   "audit_requests": [
     {
       "id": "078-001",
@@ -64,6 +64,7 @@
     "documented_positions": "173/173",
     "bible_lines": 762,
     "external_audit_requests_open": 3,
-    "note": "Historical documentation-quality data preserved after explicit reopening; revalidation in progress by AGENTE 12."
+    "revalidated_by": "AGENTE 12",
+    "note": "Revalidated against the live branch. Global aggregate files were intentionally not modified because they are outside AGENTE 12's write scope in this execution."
   }
 }
