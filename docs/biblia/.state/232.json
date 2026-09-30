@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "232-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "VISUAL_INVENTORY_GATE",
       "target_file": "tests/visual/run-all.js",
       "found_while_auditing": "tests/visual/run-all.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e escolher entre descoberta dinâmica ou inventário estático protegido em alteração separada.",
       "possible_regression": "Testes novos podem existir no repositório sem jamais rodar na CI.",
       "impact": "Cobertura real da suíte visual oficial.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:08:00Z",
+      "audit_finding": "ACCEPTED. `run-all.js` requer manualmente seis suítes visuais. A lista atual está coerente com o baseline, mas não existe descoberta/gate que compare todos os `*.visual.js` executáveis com esses seis requires. Uma suíte nova pode existir no repositório e nunca rodar.",
+      "auditor_recommended_action": "Adicionar inventário estático protegido ou descoberta dinâmica segura, excluindo explicitamente runner/helpers/run-all; mutation test deve falhar para suíte adicional não listada."
     },
     {
       "id": "232-002",
