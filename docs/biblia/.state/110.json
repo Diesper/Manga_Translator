@@ -90,7 +90,7 @@
     },
     {
       "id": "110-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CLEANUP",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -102,7 +102,11 @@
       "expected_evidence": "Suíte permanece passando após remoção.",
       "possible_regression": "Baixo; apenas dívida de manutenção.",
       "impact": "Legibilidade/manutenção.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. `tests/integration/ipc/gtc-cache-flow.test.js` importa `fs` e não o utiliza posteriormente. É dívida de manutenção sem impacto funcional.",
+      "auditor_recommended_action": "Remover o import morto em alteração separada e manter a suíte verde."
     }
   ]
 }
