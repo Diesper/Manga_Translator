@@ -30,7 +30,7 @@
     },
     {
       "id": "201-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/drawer-real.test.js",
       "related_files": [
@@ -46,7 +46,11 @@
       "expected_auditor_action": "Confirmar a lacuna e criar cobertura separada se o isolamento for contrato obrigatório.",
       "possible_regression": "Mensagem atrasada de lote anterior pode exibir erro incorreto e marcar o lote atual como falho.",
       "impact": "Isolamento entre lotes concorrentes ou sequenciais.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `content_manga.js` possui guard explícito em `SHOW_ERROR_INTEGRATED`: se request.batchId diverge de `_currentBatchId`, retorna antes de marcar `batchHasErrors` ou abrir a drawer. Os testes da drawer enviam SHOW_ERROR sem batchId e não exercitam o isolamento stale.",
+      "auditor_recommended_action": "Adicionar caso usando o content script real para estabelecer lote corrente e enviar erro de lote anterior; exigir drawer/estado do lote atual inalterados."
     },
     {
       "id": "201-003",
