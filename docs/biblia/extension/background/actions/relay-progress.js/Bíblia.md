@@ -107,7 +107,6 @@ scope.MangaTranslatorRouter.registerAction({
   },
 });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 39/39
