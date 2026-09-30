@@ -27,7 +27,7 @@
     },
     {
       "id": "161-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/refresh-job-watchdog-action.test.js",
       "found_while_auditing": "tests/unit/background/refresh-job-watchdog-action.test.js",
@@ -40,11 +40,15 @@
       "expected_auditor_action": "Priorizar cenário de rekey/substituição porque é parte do contrato resiliente da action.",
       "possible_regression": "Job legítimo pode perder refresh após substituição de aba ou ownership incorreto pode ser aceito.",
       "impact": "Timeout prematuro ou quebra de isolamento de job.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:08:00Z",
+      "audit_finding": "ACCEPTED. A action real canonicaliza sender e indexed tab IDs antes de comparar ownership; os dois testes usam resolver identidade e IDs já iguais ou totalmente distintos. Não existe prova de dois IDs físicos diferentes convergindo ao mesmo canônico após replacement.",
+      "auditor_recommended_action": "Adicionar caso de alias convergente (ex. sender 400, indexed 321 -> ambos canonical 400) e caso não convergente, assertando chamadas ao resolver e `armWatchdog` com canonicalIndexed."
     },
     {
       "id": "161-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INTEGRATION_TEST_REQUIRED",
       "target_file": "tests/unit/background/refresh-job-watchdog-action.test.js",
       "related_files": [
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Criar/validar prova integrada em alteração separada.",
       "possible_regression": "O content script recebe confirmação de refresh enquanto nenhum prazo real é renovado.",
       "impact": "Timeout indevido durante geração longa.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:08:00Z",
+      "audit_finding": "ACCEPTED. A suíte injeta `armWatchdog` via contextFactory e nunca carrega o composition root real. `background.js` de fato injeta `armWatchdog` no router e o módulo watchdog persiste `wd_data_*`/cria `watchdog_*`, mas não há teste integrado REFRESH_JOB_WATCHDOG atravessando esse wiring.",
+      "auditor_recommended_action": "Adicionar integração com background.js real: sender proprietário envia REFRESH_JOB_WATCHDOG, verificar cleanup/recriação do alarm, wd_data canônico e resposta `refreshed:true`."
     }
   ],
   "document_quality": {
