@@ -1,0 +1,11 @@
+{
+  "index": 195,
+  "file": "tests/unit/content-manga/button-ui-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 7",
+  "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
+  "started_at_utc": "2026-09-30T15:04:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
