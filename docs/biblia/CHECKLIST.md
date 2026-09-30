@@ -71,7 +71,7 @@
 - [x] 051 — `extension/options/options.html` → `docs/biblia/extension/options/options.html/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 052 — `extension/options/options.js` → `docs/biblia/extension/options/options.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#J**
+- [x] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 056 — `extension/reader/reader.js` → `docs/biblia/extension/reader/reader.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 057 — `extension/shared/gtc-fingerprint.js` → `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` **✅ AUDITORIA APROVADA**
