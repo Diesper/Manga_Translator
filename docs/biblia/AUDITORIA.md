@@ -90,6 +90,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 45 | `extension/content/gemini/job-runner.js` | SHA `1b16fd656e82...` conferido; bloco integral exato | 1471 linhas + newline final = 1472/1472 posições; 1472 headings sequenciais; campos `Fonte` 1472/1472 conferidos | RUN-00..RUN-14 e RUN-COV-01/02 executam o módulo real; RPA/E2E e `safe-background-delete` classificados pela força real das assertions; gaps de composer estável, retries, commit final, fallback auxiliar, cleanup e timeout textual explícitos | 54 unidades específicas + papel local por posição + autoauditoria mecânica + invariantes/trust boundaries do pipeline | ✅ APROVADO |
 
 | 74 | `scripts/ci/run-e2e-group.js` | SHA `e23c7aaa1712...` reconfirmado; bloco integral exato | 52 linhas + newline final = 53/53 posições; 11 faixas contíguas 1–53, sem lacunas | `verify-e2e-shard-plan.js` prova diretamente a partição das tags; `verify-ci-contract.js` protege runner/script/workers estaticamente; execução real do runner permanece indireta e branches negativos sem prova focal | runner, spawn, env/cwd/shell, lifecycle do child, assimetria local×CI, caminho do CLI e gaps de robustez documentados; 4 audit_requests persistidos em `.state/074.json` | ✅ APROVADO |
+| 76 | `scripts/maintenance/diagnose-background-leak.js` | SHA `6b5a15d0d255...` reconfirmado; bloco integral exato | 420 linhas + newline final = 421/421 posições; 421 headings sequenciais | detector compartilhado possui self-test direto; CI Contract protege o job/comando estaticamente; execução do script na main é indireta; seed/sweep/ddmin/interação/exit codes permanecem sem teste focal | discovery, spawn/logs, workers, ddmin/cross, confirmação e trust boundaries documentados; 5 `audit_requests` persistidos em `.state/076.json`, incluindo falso verde HIGH para falha Jest comum | ✅ APROVADO |
 ### `image-quarantine.js` — criação e auditoria em 2026-09-29
 
 - SHA `ddca93d17ca2934a9e95dba96a87283be4e9b9a3` e fonte integral reconfirmados;
@@ -656,6 +657,21 @@ A integridade física foi reconfirmada:
 - riscos explícitos: permissões de token implícitas, ausência de `timeout-minutes`, actions externas fixadas por major tag em vez de SHA, Codecov deliberadamente não bloqueante e diagnósticos pesados fora do PR comum.
 
 **Veredito:** ✅ APROVADO.
+
+### `diagnose-background-leak.js` — auditoria aprovada em 2026-09-30
+
+- SHA `6b5a15d0d255d0285cfabc05f3412b81ffb3d3d4` reconfirmado contra o blob atual do branch;
+- fonte integral da Bíblia comparada ao fonte: equivalência confirmada;
+- **420 linhas + newline final = 421/421 posições**, com **421 headings `Linha N` sequenciais**;
+- `package.json`, o job `background-leak-bisection`, `verify-ci-contract.js`, o helper `jest-worker-warning.js` e seu self-test foram lidos como consumers/evidências reais;
+- o self-test prova diretamente apenas o detector textual de worker forçado; o CI Contract foi mantido como gate estático específico e a execução do script no workflow como evidência indireta;
+- seed, parsing/seleção de workers, `spawnSync`, sweep, ddmin, complementos, interação cruzada, budget e exit codes não receberam prova direta inexistente;
+- cinco solicitações ao auditor foram persistidas em `.state/076.json`; a mais grave (`076-002`, **HIGH**) registra que falhas comuns de Jest/spawn sem o warning alvo podem ser classificadas em `probe.failures` e ainda terminar em exit 0;
+- também foram registrados ausência de timeout, `maxProbes=90` não estrito, exits antecipados sem summary e ausência de self-test focal do algoritmo;
+- as lacunas permanecem explicitamente documentadas e **não foram “corrigidas” pelo próprio autor da Bíblia**, preservando independência entre documentação e eventual mudança funcional.
+
+**Veredito:** ✅ APROVADO para o SHA auditado, com `audit_requests` OPEN não bloqueantes.
+
 
 ## Motivos detalhados das revisões obrigatórias
 
