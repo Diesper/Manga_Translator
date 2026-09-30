@@ -2,10 +2,78 @@
   "index": 170,
   "file": "tests/unit/background/tab-identity.test.js",
   "bible": "docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
   "started_at_utc": "2026-09-30T14:00:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T14:15:00Z",
+  "audit_requests": [
+    {
+      "id": "170-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/tab-identity.test.js",
+      "found_while_auditing": "tests/unit/background/tab-identity.test.js",
+      "finding": "performMigration lança TAB_REKEY_CONFLICT quando oldJob e newJob existem com jobId diferentes; branch sem caso focal localizado.",
+      "current_evidence": "TAB-01 cobre destino sem job conflitante; TAB-05 cobre replay válido.",
+      "missing_evidence": "gemini_job_100=job-A e gemini_job_200=job-B; exigir rejeição TAB_REKEY_CONFLICT, log e preservação dos registros/estado.",
+      "why_needed": "Colisão de rekey não pode sobrescrever/apagar job alheio.",
+      "requested_action": "Adicionar caso focal de conflito.",
+      "expected_evidence": "Erro/log explícitos e nenhum cleanup destrutivo do job antigo/destino.",
+      "expected_auditor_action": "Priorizar por integridade de ownership.",
+      "possible_regression": "Job de outro fluxo pode ser sobrescrito ou perdido durante substituição de tab.",
+      "impact": "Integridade de job e isolamento entre traduções.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "170-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/tab-identity.test.js",
+      "found_while_auditing": "tests/unit/background/tab-identity.test.js",
+      "finding": "resolveCanonicalTabId limita a cadeia a MAX_ALIAS_HOPS=8 e loga TAB_ALIAS_MAX_HOPS quando excedido; TAB-03 cobre apenas dois hops.",
+      "current_evidence": "Cadeia curta e ciclo são provados.",
+      "missing_evidence": "Cadeia não expirada com mais de oito aliases, exigindo retorno à identidade original e log com lastTabId.",
+      "why_needed": "Congela proteção contra cadeias patológicas sem depender do detector de ciclo.",
+      "requested_action": "Adicionar cenário >MAX_ALIAS_HOPS.",
+      "expected_evidence": "TAB_ALIAS_MAX_HOPS e retorno do tabId original.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Resolução pode terminar em identidade parcial/arbitrária.",
+      "impact": "Robustez da canonicalização.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "170-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/tab-identity.test.js",
+      "found_while_auditing": "tests/unit/background/tab-identity.test.js",
+      "finding": "recoverPendingMigrations remove entradas sem journal, journal completed ou tabIds inválidos; TAB-05 cobre apenas journal intermediário válido.",
+      "current_evidence": "Replay válido é idempotente e limpa índice após completar.",
+      "missing_evidence": "Índice com chave ausente, journal completed e journal inválido; exigir remoção sem migração e recovered=0.",
+      "why_needed": "Protege startup contra lixo persistente e journals malformados.",
+      "requested_action": "Adicionar matriz focal de cleanup do migration index.",
+      "expected_evidence": "Entradas inválidas removidas e nenhuma migração destrutiva.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Retry infinito ou tentativa de migrar identidades inválidas após restart.",
+      "impact": "Durabilidade/recuperação do Service Worker.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "335/335",
+    "source_text_lines": 334,
+    "bible_lines": 2783,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; nove casos deste arquivo passaram individualmente; global 109/109 suítes e 851/851 testes."
+  }
 }
