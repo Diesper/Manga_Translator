@@ -855,3 +855,21 @@ Para aprovar uma revisão:
 
 **Veredito documental independente:** ✅ **APROVADO — #224 / SHA `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`**.
 
+### `jobs-watchdog-ordering.test.js` — auditoria independente do AGENTE 23 em 2026-09-30
+
+- **Índice:** #153 — `tests/unit/background/jobs-watchdog-ordering.test.js`.
+- **SHA auditado:** `2102182a1e313a02cdb511846a4561c3a0f607eb`.
+- **Fonte:** 86 linhas textuais + newline terminal = **87 posições**; o teste possui um único cenário `WATCHDOG-ORDER-01` iniciado na linha 24.
+- **Implementação correlata:** `extension/background/jobs-watchdog.js` no SHA `c17b766d7fbc34ea925fb82b19149d3d977de413`.
+- **Propriedade funcional comprovada:** o Promise-gate da suíte demonstra que `finalizeJob(321,77,true)` é aguardado antes da remoção da extraction tab 900 e que a tab 901, pertencente a outro Gemini, não é removida.
+- **Solicitação 153-001:** confirmada como válida. No módulo real, `await finalizeJob(...)` precede o cleanup e não está envolvido por `try/catch/finally`; se a Promise rejeitar, o cleanup posterior não é alcançado pelo fluxo normal. Não há teste focal de rejeição.
+- **Defeito documental encontrado nesta auditoria:** embora a Bíblia declare **87/87 posições**, a coluna “Função auditada” fica desalinhada a partir da região de criação/assertions do watchdog. Exemplos objetivos:
+  - posição 65 é `timeoutMinutes: 5,`, mas a Bíblia a descreve como “Assertion direta: alarme com prefixo watchdog é aceito”;
+  - posição 68 é `expect(watchdog.handleAlarm(...)).toBe(true)`, mas a Bíblia a descreve como linha estrutural/fixture;
+  - posição 72 é `expect(finalizeJob).toHaveBeenCalledWith(321,77,true)`, mas a Bíblia a descreve como linha estrutural;
+  - posições 73–84 seguem com descrições deslocadas em relação ao código real.
+- **Consequência:** cobertura numérica 87/87 não basta para aprovação enquanto a rastreabilidade semântica dessas posições estiver incorreta.
+- **Coordenação:** o state #153 permanece `IN_PROGRESS` e a reserva pertence ao **AGENTE 15**. Esta auditoria não altera a Bíblia, o state ou o teste; a correção documental deve ser feita pelo proprietário atual e depois reaudited.
+
+**Veredito documental independente:** ❌ **REPROVADO TEMPORARIAMENTE — corrigir a rastreabilidade linha a linha do #153 e reauditar.**
+
