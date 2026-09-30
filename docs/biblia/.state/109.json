@@ -1,0 +1,11 @@
+{
+  "index": 109,
+  "file": "tests/integration/ipc/gemini-cors-fallback.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gemini-cors-fallback.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "1f5a1236139d85640cb5fa24590f434859155c62",
+  "started_at_utc": "2026-09-30T06:33:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
