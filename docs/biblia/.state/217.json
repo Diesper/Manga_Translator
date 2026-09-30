@@ -31,7 +31,7 @@
     },
     {
       "id": "217-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/popup/dynamic-button.test.js",
       "found_while_auditing": "tests/unit/popup/dynamic-button.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Confirmar escopo do contrato e fortalecer em alteração separada.",
       "possible_regression": "Tradução pode operar sobre imagens diferentes das indicadas visualmente.",
       "impact": "Coerência entre UI e fluxo de tradução.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O handler responde `SET_SELECTED_IMAGES`, mas o teste valida apenas texto/disabled do botão; não captura nem confere a lista de índices enviada durante as transições 2→0→1.",
+      "auditor_recommended_action": "Registrar os payloads de SET_SELECTED_IMAGES e afirmar os índices exatos em cada transição."
     }
   ],
   "document_quality": {
