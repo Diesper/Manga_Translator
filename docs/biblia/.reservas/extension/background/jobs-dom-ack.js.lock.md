@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 17
+ARQUIVO: extension/background/jobs-dom-ack.js
+BÍBLIA: docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 07b4197a206f85559f2e843d74c71d4858734be7
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T13:43:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T13:43:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
