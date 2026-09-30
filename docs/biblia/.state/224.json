@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "224-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_INTEGRATION_REQUIRED",
       "target_file": "tests/unit/shared-ui/redo-confirmation.test.js",
       "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Reaproveitar as implementações reais já cobertas isoladamente e evitar substituir os handlers focais por callbacks de sucesso tautológicos.",
       "possible_regression": "UI pode enviar formato incompatível ou roteamento pode quebrar enquanto cada lado isolado continua verde.",
       "impact": "Confiabilidade do Refazer para impedir retorno de tradução antiga após nova tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. A suíte executa `shared-ui.js` real, mas substitui `chrome.runtime.sendMessage` por `sendSpy` que responde sucesso artificial para `SM_DELETE_CLEAN_URL` e `GTC_DELETE_BY_CLEAN_URL`. Há provas isoladas dos dois backends em outras suítes, porém não há nesta trilha um fluxo composto shared-ui real → roteamento real → backend real para a mesma cleanUrl.",
+      "auditor_recommended_action": "Adicionar integração composta com shared-ui real e handlers/backends reais ou estreitar o título/claim para afirmar apenas que a UI solicita as duas deleções."
     },
     {
       "id": "224-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/shared-ui/redo-confirmation.test.js",
       "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Cobrir falhas sem alterar shared-ui.js apenas para satisfazer a suíte; se o comportamento observado for inadequado, abrir correção funcional separada.",
       "possible_regression": "Operação parcial pode ser apresentada como sucesso pleno, ou uma falha pode deixar a URL permanentemente bloqueada para novo Refazer.",
       "impact": "Robustez e recuperabilidade do fluxo de Refazer.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. Todos os callbacks de deleção do harness retornam sucesso. `shared-ui.js` possui branches distintos para SM sem resposta/erro, GTC com `runtime.lastError`, exceção durante storage e `catch/finally`; nenhum é exercitado nesta suíte. O `finally` libera `redoRequestInFlight`, mas não há prova de retry da mesma URL após falha.",
+      "auditor_recommended_action": "Adicionar matriz de falhas contra a implementação real, com assertions de status/cor/retorno e nova tentativa da mesma cleanUrl após settlement."
     },
     {
       "id": "224-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/shared-ui/redo-confirmation.test.js",
       "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
@@ -57,11 +65,15 @@
       "expected_auditor_action": "Fortalecer as assertions ou estreitar títulos/claims para o que realmente é observado.",
       "possible_regression": "Refazer cancelado pode apagar parte do estado antes de retornar false.",
       "impact": "Segurança de dados e confiança do usuário no Cancelar.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. Os títulos 'Cancelar não apaga nada' e 'entrada inválida ... sem tocar no storage' são mais amplos que as assertions: não há sentinela de storage revalidada após cancelamentos, ausência explícita de GTC em todos os cancelamentos nem contagem zero de get/set/remove para entrada inválida.",
+      "auditor_recommended_action": "Semear dados sentinela, espionar storage/mensagens e afirmar invariância completa após Cancelar/Escape/backdrop/entrada inválida; ou estreitar os títulos ao que é observado."
     },
     {
       "id": "224-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/shared-ui/redo-confirmation.test.js",
       "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
@@ -74,7 +86,11 @@
       "expected_auditor_action": "Priorizar fan-out multi-capítulo e formatos legados por impacto de dados; documentar explicitamente qualquer branch intencionalmente sem cobertura.",
       "possible_regression": "Migração de formato legado, execução sem DOM ou limpeza multi-capítulo pode falhar silenciosamente.",
       "impact": "Compatibilidade de dados persistidos e comportamento consistente em todos os consumidores do shared-ui.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. A suíte não cobre branches reais de `ui.skipConfirmation`, ausência de `document.body`, remoção de overlay anterior, fan-out por `chapterList` sem chapterId, coleções em array e `autoRestoreBlockedImages` legado em array. Esses caminhos têm semântica própria no código atual.",
+      "auditor_recommended_action": "Adicionar casos focais, priorizando fan-out multi-capítulo e formatos legados por impacto de dados."
     },
     {
       "id": "224-005",
@@ -97,7 +113,7 @@
     },
     {
       "id": "224-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HARNESS_ROBUSTNESS",
       "target_file": "tests/unit/shared-ui/redo-confirmation.test.js",
       "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
@@ -110,7 +126,11 @@
       "expected_auditor_action": "Avaliar primeiro por teste/medição; só propor alteração do harness se houver ganho verificável de isolamento ou robustez.",
       "possible_regression": "Sem cleanup completo, uma futura mudança em shared-ui.js pode introduzir estado global mutável que sobreviva entre casos e produza testes dependentes de ordem.",
       "impact": "Robustez e isolamento da suíte Jest de shared-ui.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED COMO INVESTIGAÇÃO DE ROBUSTEZ, não como defeito confirmado. O `afterEach` remove somente `requestRedoConfirmation` e `deleteSavedTranslationForEntry`, enquanto `shared-ui.js` expõe também DEFAULT_HD_PROMPT, escapeHTML, normalizeBlockedImages, getHostFromUrl, smRequest, loadRestoreEntries, removeIndexFromStoredCollection e sendRuntimeMessageSafe em `globalThis`. Hoje não há prova de vazamento funcional, mas cleanup parcial pode virar dependência de ordem se futuros exports ganharem estado mutável.",
+      "auditor_recommended_action": "Executar comparação controlada com teardown que remova todos os exports introduzidos por `shared-ui.js`, incluindo ordem/repetição aleatória. Só alterar o harness se houver ganho verificável de isolamento/estabilidade."
     }
   ],
   "document_quality": {
