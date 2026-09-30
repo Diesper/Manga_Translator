@@ -2,10 +2,54 @@
   "index": 109,
   "file": "tests/integration/ipc/gemini-cors-fallback.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gemini-cors-fallback.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 25",
   "source_sha": "1f5a1236139d85640cb5fa24590f434859155c62",
   "started_at_utc": "2026-09-30T06:33:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:45:00Z",
+  "audit_requests": [
+    {
+      "id": "109-001",
+      "status": "OPEN",
+      "type": "TEST_CORRECTION",
+      "target_file": "tests/integration/ipc/gemini-cors-fallback.test.js",
+      "found_while_auditing": "tests/integration/ipc/gemini-cors-fallback.test.js",
+      "finding": "O teste denominado integração IPC executa implementações espelho locais. O mirror usa response.base64/{base64}, enquanto a implementação atual de produção usa response.dataUrl/{dataUrl}; também omite geminiSession:true da rota Gemini e o cenário final manipula _messageListeners diretamente em vez de runtimeMock.sendMessage.",
+      "current_evidence": "As assertions do arquivo provam os mirrors locais. Separadamente, tests/unit/background/fetch-image-base64-action.test.js importa router/action reais; tests/unit/background/plan-missing-handlers-real.test.js carrega o background real; tests/unit/content-gemini/result-extractor.test.js executa o extractor real e verifica FETCH_IMAGE_AS_BASE64 com geminiSession:true.",
+      "missing_evidence": "Este teste de integração não compõe consumidor real, API pública do runtime mock, router/action real e callback real dataUrl em uma única cadeia, nem exercita validações atuais de sessão/origem/MIME/tamanho/timeout.",
+      "why_needed": "O arquivo pode permanecer verde mesmo quando o IPC de produção divergir ou quebrar, e seus comentários superestimam a força da evidência.",
+      "requested_action": "Reescrever o teste para usar implementações reais e runtimeMock.sendMessage, com o contrato dataUrl e geminiSession quando aplicável; alternativamente reduzir as alegações/renomear ou retirar o mirror redundante, preservando as provas diretas existentes.",
+      "expected_evidence": "Assertion de uma cadeia real consumidor -> runtime -> router/action -> resposta dataUrl, incluindo pelo menos sucesso e falha; se a rota Gemini for coberta, verificar geminiSession e restrição de origem atuais.",
+      "expected_auditor_action": "Confirmar o drift e decidir entre integração real, reclassificação/renomeação ou remoção da simulação redundante sem alterar esta Bíblia retroativamente até reauditoria.",
+      "possible_regression": "Falso verde da suíte de integração enquanto produção deixa de rotear, validar ou devolver o formato esperado.",
+      "impact": "Confiabilidade da proteção automatizada do fallback CORS e honestidade da classificação de integração IPC.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "109-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/ipc/gemini-cors-fallback.test.js",
+      "found_while_auditing": "tests/integration/ipc/gemini-cors-fallback.test.js",
+      "finding": "O cenário de falha total afirma que o job não trava, mas apenas comprova que o helper local extractImageWithFallback resolve fetch_failed com base64:null.",
+      "current_evidence": "As assertions das linhas 211-212 provam settlement da Promise local e retorno null.",
+      "missing_evidence": "Nenhuma assertion deste arquivo invoca o lifecycle/finalizeJob real nem observa estado final, cleanup ou ausência de pendência do job após a falha de extração.",
+      "why_needed": "Settlement do helper local não implica settlement do job completo.",
+      "requested_action": "Localizar ou adicionar em trabalho externo autorizado uma prova consumer-level que force a falha de imagem e verifique finalização/cleanup do job; alternativamente estreitar o comentário/título para não alegar uma propriedade não exercitada.",
+      "expected_evidence": "Assertion sobre a implementação real demonstrando que a falha da extração não deixa o job pendente e executa o caminho esperado de finalização/erro.",
+      "expected_auditor_action": "Verificar se já existe cobertura equivalente; se não existir e a garantia for requerida, criar teste focal em alteração externa separada.",
+      "possible_regression": "Uma regressão de lifecycle pode deixar jobs pendentes sem falhar este teste.",
+      "impact": "Robustez do fluxo de tradução após falhas de extração.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "316/316",
+    "bible_lines": 562,
+    "external_audit_requests_open": 2,
+    "note": "Conclusão documental particionada; STATUS.md, CHECKLIST.md e AUDITORIA.md não foram alterados por AGENTE 25 conforme escopo de escrita."
+  }
 }
