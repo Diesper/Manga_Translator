@@ -52,7 +52,7 @@
     },
     {
       "id": "131-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/batch-actions.test.js",
       "found_while_auditing": "tests/unit/background/batch-actions.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Priorizar conforme criticidade e manter separação entre prova do wrapper e lifecycle real.",
       "possible_regression": "Validação pode aceitar/rejeitar shapes diferentes do contrato sem falha da suíte atual.",
       "impact": "Cobertura dos validadores de batch.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:58:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre START_BATCH válido e index string inválido, além de STOP_BATCH com batchId string e numérico. Não há casos para images ausente/não-array, item null/sem index nem para a semântica intencional de STOP_BATCH sem batchId, que o validator aceita.",
+      "auditor_recommended_action": "Adicionar tabela de branches reais de validação, incluindo STOP_BATCH sem batchId como caso positivo explícito; evitar duplicar casos já cobertos pelos requests 024/025."
     }
   ],
   "document_quality": {
