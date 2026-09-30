@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "179-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "INTEGRATION_TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
       "related_files": [
@@ -27,7 +27,12 @@
       "expected_auditor_action": "Priorizar por integração entre isolated world e MAIN world.",
       "possible_regression": "A ponte MAIN-world pode quebrar enquanto CG-23 permanece verde.",
       "impact": "Injeção de prompt no Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:27:00Z",
+      "audit_finding": "SUPERSEDED por 050-001, já ACCEPTED. CG-23 instala seu próprio listener `MANGA_TRANSLATOR_SET_PROMPT` e `loadContentGeminiModule` não executa `inject.js`; o remédio é justamente o harness MAIN-world real exigido em 050-001.",
+      "auditor_recommended_action": "Cobrir CG-23 dentro do harness real de inject.js requerido em 050-001.",
+      "superseded_by": "050-001"
     },
     {
       "id": "179-002",
