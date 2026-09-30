@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "003-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/calculate-visual-fingerprint-action.test.js",
       "found_while_auditing": "extension/background/actions/calculate-visual-fingerprint.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Fingerprint parcial ou falha de decodificação pode produzir resposta incorreta ou leak de bitmap.",
       "impact": "Cache perceptual e fallback CORS de fingerprint.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre visual-v4 completo, protocolos proibidos e cleanup após falha de hash, mas não executa URL sintaticamente inválida, HTTP não-2xx, falha em blob/createImageBitmap/canvas, fpApi parcial/ausente, imagem quadrada nem dimensões anômalas. A action possui branches distintos para esses cenários.",
+      "auditor_recommended_action": "Adicionar matriz de falhas e combinações parciais da API contra a action real, verificando resposta controlada e fechamento do ImageBitmap quando ele já existir."
     },
     {
       "id": "003-002",
