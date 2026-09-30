@@ -2,10 +2,54 @@
   "index": 10,
   "file": "extension/background/actions/download-chapter.js",
   "bible": "docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "8636a03c8a2038ebbb26103db7f63b578699733e",
   "started_at_utc": "2026-09-30T12:41:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T12:46:00Z",
+  "audit_requests": [
+    {
+      "id": "010-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/download-chapter-action.test.js",
+      "found_while_auditing": "extension/background/actions/download-chapter.js",
+      "finding": "A suíte direta não cobre images vazio delegando a handleMarkerAndShow, anchorId stale/exists:false caindo no fallback, ou payload sem images.",
+      "current_evidence": "Anchor válido e caminho com imagens não vazias têm prova direta.",
+      "missing_evidence": "Ramos de marker fallback e payload inválido.",
+      "why_needed": "Object.keys(request.images) lança se images faltar e a escolha entre marcador/download depende desses ramos.",
+      "requested_action": "Adicionar testes contra a action real para images:{}, anchor stale, images ausente e retorno do helper.",
+      "expected_evidence": "Delegação correta e resposta do router assertadas para cada ramo.",
+      "expected_auditor_action": "Completar cobertura em alteração separada.",
+      "possible_regression": "Abertura de pasta pode falhar ou baixar novamente conteúdo já representado por marcador.",
+      "impact": "Download/abertura de capítulo.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "010-002",
+      "status": "OPEN",
+      "type": "RELIABILITY_REVIEW",
+      "target_file": "extension/background/actions/download-chapter.js",
+      "found_while_auditing": "extension/background/actions/download-chapter.js",
+      "finding": "A Promise externa usa downloadImagesAndShow(...).then(...) sem catch explícito e não possui timeout; rejeição inesperada do helper pode deixar resposta dependente do catch assíncrono do router/Promise encadeada.",
+      "current_evidence": "Helper real atual resolve no fluxo esperado; não há teste focal de rejeição.",
+      "missing_evidence": "Comportamento quando downloadImagesAndShow rejeita ou downloads.search callback não chega.",
+      "why_needed": "A action é assíncrona e o popup depende de resposta para restaurar estado de UI.",
+      "requested_action": "Auditar política de erro/timeout e adicionar teste de rejeição/callback ausente se considerado contrato.",
+      "expected_evidence": "Falha não produz hang silencioso e resposta/erro é previsível.",
+      "expected_auditor_action": "Revisar robustez em processo separado.",
+      "possible_regression": "UI pode permanecer aguardando operação que nunca resolve.",
+      "impact": "Confiabilidade da abertura/exportação de capítulo.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "35/35",
+    "source_text_lines": 34,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia concorrente validada e fonte integral normalizada."
+  }
 }
