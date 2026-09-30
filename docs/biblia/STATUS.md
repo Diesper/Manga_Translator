@@ -51,15 +51,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 ## Progresso após auditoria de qualidade
 
 - Total: **233**
-- Bíblias materializadas: **72**
+- Bíblias materializadas: **98**
 - ✅ Concluídos auditados: **77**
 - 🟠 Em andamento: **0**
 - 🟣 Aguardando revisão de qualidade: **0**
-- ⬜ Ainda não materializados: **161**
+- ⬜ Ainda não materializados: **135**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **33,05%**
-- Cobertura apenas materializada: **30,90%**
+- Cobertura apenas materializada: **42,06%**
 - Último aprovado: `extension/popup/popup.js`
 - Arquivos atualmente em andamento:
 
