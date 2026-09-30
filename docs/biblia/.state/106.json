@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "106-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/banned-images-flow.test.js",
       "found_while_auditing": "tests/integration/banned-images-flow.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna, decidir a localização da prova ponta a ponta e exigir execução das implementações reais sem usar cópia local da regra como substituto.",
       "possible_regression": "Popup e content script podem divergir no contrato de storage e esta suíte continuar passando.",
       "impact": "A regressão histórica BUG #9 + INCONS #2 pode retornar sem ser detectada por esta suíte específica.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — classificação de integração incorreta confirmada. A suíte define `simulateGetPageImages/simulateBanImages/simulateUnbanImages` locais e não carrega popup.js, content_manga.js ou cm-dom-replace.js. Ela prova apenas o modelo simulado do contrato.",
+      "auditor_recommended_action": "Criar integração que carregue produtores/consumidores reais (ou reclassificar como teste de modelo) e manter assertions de storage/filtragem sobre implementação real."
     },
     {
       "id": "106-002",
