@@ -75,6 +75,23 @@
       "possible_regression": "Migração de formato legado, execução sem DOM ou limpeza multi-capítulo pode falhar silenciosamente.",
       "impact": "Compatibilidade de dados persistidos e comportamento consistente em todos os consumidores do shared-ui.",
       "severity": "NORMAL"
+    },
+    {
+      "id": "224-005",
+      "status": "OPEN",
+      "type": "DOCUMENT_AUDIT_REQUIRED",
+      "target_file": "docs/biblia/AUDITORIA.md",
+      "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
+      "finding": "A Bíblia de #224 e o fonte estão íntegros, porém não existe aprovação individual de #224 em docs/biblia/AUDITORIA.md; STATUS.md e CHECKLIST.md ainda o apresentam como pendente.",
+      "current_evidence": "Fonte SHA 2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98 reconfirmado, bloco integral da Bíblia idêntico ao fonte e 243/243 posições cobertas. A Bíblia contém autoauditoria aprovada, mas o gate global independente não foi registrado.",
+      "missing_evidence": "Veredito independente e explícito para #224 em AUDITORIA.md, seguido da reconciliação das visões globais derivadas.",
+      "why_needed": "O critério do PR #66 exige Bíblia materializada mais auditoria independente aprovada para considerar o arquivo concluído; autoauditoria do autor não substitui esse gate.",
+      "requested_action": "Auditor independente deve revisar #224 contra o SHA atual, validar assertions/classificações e registrar o veredito em AUDITORIA.md; se aprovado, reconciliar STATUS.md e CHECKLIST.md usando o mecanismo global apropriado.",
+      "expected_evidence": "Entrada explícita de #224 em AUDITORIA.md com SHA, integridade, cobertura e veredito, mantendo audit_requests 224-001 a 224-004 visíveis como lacunas não bloqueantes.",
+      "expected_auditor_action": "Executar auditoria independente sem alterar o teste para fabricar prova e usar o mutex global somente para o delta consolidado.",
+      "possible_regression": "Um state local pode aparentar conclusão sem que o gate documental global tenha sido realmente satisfeito, produzindo contagem e checklist incorretos.",
+      "impact": "Rastreabilidade e consistência do gate de qualidade documental do PR #66.",
+      "severity": "HIGH"
     }
   ],
   "document_quality": {
@@ -82,10 +99,12 @@
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "243/243",
-    "bible_lines": 565,
-    "external_audit_requests_open": 4,
+    "bible_lines": 593,
+    "external_audit_requests_open": 5,
     "automated_tests_documented": 7,
     "ci_runtime_at_audit": "PENDING",
-    "note": "Reaberto por ordem explícita para reauditoria sob ownership exclusivo do AGENTE 28; conteúdo documental aprovado anteriormente por AGENTE 25 preservado até nova verificação."
+    "note": "Reauditoria independente reconfirmou integridade e evidências; conclusão global aguarda veredito explícito de #224 em AUDITORIA.md.",
+    "global_audit": "PENDING",
+    "reaudited_by": "AGENTE 28"
   }
 }
