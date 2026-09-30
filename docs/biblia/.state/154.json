@@ -54,7 +54,7 @@
     },
     {
       "id": "154-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/lifecycle-alarms-real.test.js",
       "found_while_auditing": "tests/unit/background/lifecycle-alarms-real.test.js",
@@ -67,7 +67,12 @@
       "expected_auditor_action": "Confirmar lacuna contra as demais suítes e adicionar cobertura se necessário.",
       "possible_regression": "Recovery após perda isolada da chave wd_data pode parar de funcionar silenciosamente.",
       "impact": "Timeout/recovery de job persistido após restart.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "029-003",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "SUPERSEDED por 029-003. O fallback de metadata do watchdog via jobIndex já está centralizado em 029-003.",
+      "auditor_recommended_action": "Acompanhar 029-003."
     }
   ],
   "document_quality": {
