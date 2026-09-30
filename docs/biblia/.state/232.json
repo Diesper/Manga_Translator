@@ -31,7 +31,7 @@
     },
     {
       "id": "232-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/visual/run-all.js",
       "found_while_auditing": "tests/visual/run-all.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Confirmar a lacuna e solicitar teste de infraestrutura separado.",
       "possible_regression": "O processo pode encerrar com código incorreto, deixar de esperar a fila ou perder diagnóstico.",
       "impact": "Entry point único de 224 testes visuais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. Não há teste focal do entry point `run-all.js` que prove ordem dos requires, espera de getAsyncQueue, chamada de printSummary, exit 0/1 e propagação de erro de require/fila/resumo.",
+      "auditor_recommended_action": "Adicionar self-test do entry point com seams controlados ou processo filho, cobrindo sucesso e falhas."
     },
     {
       "id": "232-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PROCESS_EXIT_REVIEW",
       "target_file": "tests/visual/run-all.js",
       "found_while_auditing": "tests/visual/run-all.js",
@@ -61,11 +65,15 @@
       "expected_auditor_action": "Classificar o hard-exit como contrato aceito ou solicitar ajuste de infraestrutura.",
       "possible_regression": "Leak de recurso ou tarefa fire-and-forget pode permanecer invisível porque o processo é encerrado à força.",
       "impact": "Diagnóstico de estabilidade/cleanup da suíte visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED como revisão de processo. Após `printSummary`, o entry point chama `process.exit(...)` imediatamente; handles/tarefas não registrados na async queue podem ser truncados sem diagnóstico.",
+      "auditor_recommended_action": "Preferir `process.exitCode` após await completo ou documentar por que todos os handles relevantes estão garantidamente na fila; adicionar teste com handle pendente se a política mudar."
     },
     {
       "id": "232-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_DRIFT",
       "target_file": "tests/visual/content-manga-pipeline.visual.js",
       "found_while_auditing": "tests/visual/run-all.js",
@@ -78,7 +86,11 @@
       "expected_auditor_action": "Verificar o pipeline real e decidir se é apenas rename documental ou lacuna de cobertura.",
       "possible_regression": "Manutenções futuras podem interpretar incorretamente quais fases o teste visual cobre.",
       "impact": "Rastreabilidade documental da suíte visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. `run-all.js` anuncia pipeline 6 fases enquanto `content-manga-pipeline.visual.js` ainda documenta e simula pipeline 5 fases com nomenclatura antiga. É drift distinto da suíte integration.visual.",
+      "auditor_recommended_action": "Atualizar content-manga-pipeline.visual para o pipeline atual ou rotulá-lo explicitamente como modelo legado."
     }
   ],
   "document_quality": {
