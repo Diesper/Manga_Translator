@@ -1,6 +1,6 @@
 # Bíblia técnica — diagnose-background-leak.js
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE ATIVA  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `6b5a15d0d255d0285cfabc05f3412b81ffb3d3d4`  
 > **Agente responsável pela auditoria:** AGENTE 1  
 > **Tipo:** script Node de manutenção/diagnóstico de leak de workers Jest  
