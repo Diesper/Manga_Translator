@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "020-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "extension/background/actions/relay-progress.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar quais edge cases fazem parte do contrato e criar cobertura focal.",
       "possible_regression": "Progresso pode ser enviado à aba errada ou payload não-textual pode chegar ao leitor.",
       "impact": "Telemetria/progresso do fluxo Gemini→mangá.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. `relay-progress.js` não valida `request.text` e escolhe destino por truthiness (`request.mangaTabId || activeMangaTabId`). A suíte cobre apenas relay nominal; não prova text inválido, mangaTabId=0, ausência de destino, sender sem tab ou job inexistente.",
+      "auditor_recommended_action": "Adicionar matriz de edge cases para seleção de destino/payload, fixando quando há envio, resposta e mutação de storage."
     },
     {
       "id": "020-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "extension/background/actions/relay-progress.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Validar a política e registrar/ajustar testes.",
       "possible_regression": "Falhas de infraestrutura podem mudar de swallow para quebra total ou vice-versa sem gate.",
       "impact": "Robustez do progresso e atualização do job.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. A action engole `runtime.lastError` de `tabs.sendMessage` por design, enquanto rejeições de `storage.get/set` propagam. A suíte atual cobre apenas sucesso e não fixa essa política assimétrica.",
+      "auditor_recommended_action": "Adicionar teste com lastError no tab mantendo sucesso/continuação e testes com storage rejeitando resultando em INTERNAL_ERROR do router."
     }
   ],
   "document_quality": {
