@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "031-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SECURITY_REVIEW",
       "target_file": "extension/background/router.js",
       "found_while_auditing": "extension/background/router.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar boundary de origem em mudança separada.",
       "possible_regression": "Content script de site não-Gemini pode atravessar gate destinado ao Gemini.",
       "impact": "Autorização de claim/watchdog.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — vulnerabilidade de classificação confirmada. `identifySource` usa `sender.tab.url.includes('gemini.google.com') || includes('127.0.0.1')`. Uma página de outra origem contendo essas strings em path/query pode ser classificada como `gemini` e alcançar actions permitidas a essa source.",
+      "auditor_recommended_action": "Parsear URL e validar `hostname`/origin exatos ou allowlist explícita; incluir casos `evil.example/?next=gemini.google.com` e hosts parecidos."
     },
     {
       "id": "031-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "extension/background/router.js",
       "found_while_auditing": "extension/background/router.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar facade de storage.",
       "possible_regression": "Falha de persistência tratada como sucesso silencioso.",
       "impact": "Consistência de estado e diagnóstico.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — facade de storage falha aberta para runtime errors. `createContext.storage.get/set/remove` resolve no callback sem inspecionar `chrome.runtime.lastError`, portanto callers podem interpretar operação falha como sucesso/objeto vazio.",
+      "auditor_recommended_action": "Criar wrapper que rejeite ou retorne erro explícito em lastError; adaptar actions e testar get/set/remove com lastError."
     },
     {
       "id": "031-003",
