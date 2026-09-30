@@ -31,7 +31,7 @@
     },
     {
       "id": "210-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
       "found_while_auditing": "tests/unit/content-manga/twin-backdrop-sync.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Avaliar cobertura cruzada antes de adicionar testes.",
       "possible_regression": "Backdrops duplicados reaparecem em layouts alternativos.",
       "impact": "Seleção de imagens em Reddit/lightboxes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:55:00Z",
+      "audit_finding": "ACCEPTED. Os cenários de backdrop usam simultaneamente classe blur e `aria-hidden`; não isolam os branches por ancestor aria-hidden, regex de classe, computed `filter`, `backdropFilter` e `pointerEvents`. Um detector individual pode regredir enquanto o fixture ainda é classificado por outro sinal.",
+      "auditor_recommended_action": "Adicionar matriz com um único sinal por caso para cada branch de `isBackdropOrBlurredImage`."
     },
     {
       "id": "210-003",
