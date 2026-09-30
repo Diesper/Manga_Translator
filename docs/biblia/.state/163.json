@@ -2,10 +2,78 @@
   "index": 163,
   "file": "tests/unit/background/report-error-action.test.js",
   "bible": "docs/biblia/tests/unit/background/report-error-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "507406dfbbc285a981b725408eb1e507e18268c8",
   "started_at_utc": "2026-09-30T12:10:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T12:25:00Z",
+  "audit_requests": [
+    {
+      "id": "163-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/report-error-action.test.js",
+      "found_while_auditing": "tests/unit/background/report-error-action.test.js",
+      "finding": "identityMismatch possui comparações independentes para batchId, index e mangaTabId; a suíte prova focalmente apenas divergência de batchId.",
+      "current_evidence": "O segundo caso usa batch-forjado versus batch-real e exige job_identity_mismatch, sem tabs.sendMessage nem finalizeJob.",
+      "missing_evidence": "Caso com batch correto e index divergente; caso separado com batch/index corretos e mangaTabId divergente, ambos sem efeitos.",
+      "why_needed": "Cada dimensão protege a identidade persistida do job; uma regressão isolada em index/mangaTabId não quebra o caso atual.",
+      "requested_action": "Adicionar casos focais separados para divergência de index e mangaTabId.",
+      "expected_evidence": "job_identity_mismatch, tabs.sendMessage não chamado e finalizeJob não chamado em ambas as variações.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada, preservando esta Bíblia.",
+      "possible_regression": "Erro de outro índice ou outra aba do mangá pode ser associado/finalizado como se pertencesse ao job persistido.",
+      "impact": "Integridade de identidade de job e isolamento entre imagens/abas.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "163-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/report-error-action.test.js",
+      "found_while_auditing": "tests/unit/background/report-error-action.test.js",
+      "finding": "No caminho aceito, mangaTabId/index/batchId da notificação usam o job persistido com fallback para request; o caso atual fornece valores iguais nos dois lados e não distingue precedência/fallback.",
+      "current_evidence": "O sucesso prova payload correto quando request e job persistido coincidem e debugMode=true.",
+      "missing_evidence": "Request com somente jobId+error, ownership devolvendo job completo; exigir envio/finalização com manga/index/batch persistidos. Preferencialmente debugMode=false.",
+      "why_needed": "Confirma que a action não depende de campos redundantes enviados pelo runner quando o job persistido já é autoridade.",
+      "requested_action": "Adicionar caso focal de request mínimo com job persistido completo.",
+      "expected_evidence": "SHOW_ERROR_INTEGRATED recebe manga/index/batch do job persistido e finalizeJob usa manga persistida.",
+      "expected_auditor_action": "Validar precedência/fallback em mudança separada.",
+      "possible_regression": "Campos ausentes no request podem causar notificação/finalização incompleta ou usar identidade não autoritativa.",
+      "impact": "Robustez do reporte de erro e coerência do job persistido.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "163-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/report-error-action.test.js",
+      "found_while_auditing": "tests/unit/background/report-error-action.test.js",
+      "finding": "O validator rejeita jobId vazio após trim e error.length>4096; a suíte cobre jobId ausente, erro whitespace e 4097, mas não jobId whitespace-only nem o boundary aceito de 4096.",
+      "current_evidence": "Três entradas do test.each provam ausência de jobId, erro whitespace e erro de 4097 caracteres.",
+      "missing_evidence": "jobId='   ' deve retornar INVALID_PAYLOAD; erro de exatamente 4096 caracteres deve ultrapassar o validator e alcançar uma etapa controlada.",
+      "why_needed": "Congela os boundaries exatos e o uso de trim no identificador.",
+      "requested_action": "Adicionar casos de boundary em mudança separada.",
+      "expected_evidence": "Whitespace-only jobId rejeitado; comprimento 4096 não rejeitado pelo validator de error.",
+      "expected_auditor_action": "Tratar como melhoria de cobertura de baixa severidade.",
+      "possible_regression": "Off-by-one no tamanho do erro ou aceitação de identidade vazia.",
+      "impact": "Validação de payload.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "177/177",
+    "source_text_lines": 176,
+    "bible_lines": 1532,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: três testes individuais e três entradas do test.each passaram; global 109/109 suítes e 851/851 testes. BG-77 de process-finalize-real fornece prova integrada complementar para manga tab ausente."
+  }
 }
