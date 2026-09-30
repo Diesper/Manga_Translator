@@ -152,7 +152,6 @@ Capacidade privilegiada do service worker para transformar uma imagem HTTP(S) re
   });
 })(typeof self !== 'undefined' ? self : globalThis);
 
-
 ~~~
 
 ## 9. Rastreabilidade 96/96
