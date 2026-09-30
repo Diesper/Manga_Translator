@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "070-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_GATE_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/ci/data/test-baseline.json",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Endurecer o gate em alteração separada.",
       "possible_regression": "Coverage por arquivo ou global pode deixar de ser aplicado silenciosamente.",
       "impact": "Integridade do gate de coverage.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — fail-open de schema confirmado. `verify-coverage` usa `baseline.coverage?.minimum || {}` e `criticalMinimum || {}`; o CI Contract valida `minInstrumentedFiles`, mas não exige presença/conjunto dos objetos de thresholds. Removê-los desativa os respectivos pisos sem erro.",
+      "auditor_recommended_action": "Validar presença e chaves obrigatórias de `minimum/criticalMinimum` no CI Contract/self-test; rejeitar baseline sem política completa."
     },
     {
       "id": "070-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_GATE_REVIEW",
       "target_file": "scripts/validation/verify-coverage.js",
       "found_while_auditing": "scripts/ci/data/test-baseline.json",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar parser/schema do baseline.",
       "possible_regression": "Uma métrica crítica deixa de ser protegida por erro de configuração.",
       "impact": "Integridade do coverage.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — thresholds inválidos podem falhar abertos. No global, valor não numérico cai em `continue`; no critical, `Number(threshold)` pode ser NaN e `pct < NaN` é false. Assim valores corrompidos podem desativar o gate.",
+      "auditor_recommended_action": "Rejeitar explicitamente qualquer threshold não finito/fora de faixa antes das comparações e adicionar fixtures NaN/string inválida."
     },
     {
       "id": "070-003",
