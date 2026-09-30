@@ -1,0 +1,11 @@
+{
+  "index": 82,
+  "file": "scripts/validation/verify-ci-contract-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 5",
+  "source_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
+  "started_at_utc": "2026-09-30T06:08:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
