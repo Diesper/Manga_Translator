@@ -543,6 +543,57 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 232 | ⬜ PENDENTE | `tests/visual/run-all.js` | `2a5542167543` | `docs/biblia/tests/visual/run-all.js/Bíblia.md` |
 | 233 | ⬜ PENDENTE | `tests/visual/runner.js` | `fe34764874ca` | `docs/biblia/tests/visual/runner.js/Bíblia.md` |
 
+## OBSERVAÇÃO DO AGENTE 2 — .github/workflows/publish.yml
+
+> **Somente anotação para auditoria — nenhuma alteração funcional solicitada ou realizada no arquivo-fonte.**  
+> **Arquivo analisado:** `.github/workflows/publish.yml`  
+> **SHA observado:** `f673d445a3cc022d473f9b59ae1e0c8972ecd013`  
+> **Responsável pela observação:** `AGENTE 2`
+
+### O que encontrei
+
+1. **Risco de mismatch entre o checkout e uma Release/tag já existente.**  
+   Em execução por `workflow_dispatch`, a validação que compara `GITHUB_REF_NAME` com `RELEASE_TAG` pode não se aplicar porque o ref pode ser uma branch. Se `RELEASE_TAG` já existir, o workflow pode montar artifacts a partir do checkout atual e depois executar `gh release edit` / `gh release upload --clobber` sem provar que `GITHUB_SHA` corresponde ao commit apontado pela tag existente. Isso pode substituir assets corretos de uma versão por bytes produzidos a partir de outro commit.
+
+2. **A publicação não possui dependência explícita de CI aprovado.**  
+   O workflow executa `version:check`, mas não exige de forma explícita que unitários, integração, smoke, visual, E2E e demais gates obrigatórios tenham passado para o commit que será publicado.
+
+3. **Não existe coordenação explícita de concorrência por versão/tag.**  
+   Dois runs para a mesma `RELEASE_TAG` podem competir em `gh release create/edit/upload`; com `--clobber`, o último escritor pode substituir assets do primeiro.
+
+4. **Dependências de execução mutáveis.**  
+   `ubuntu-latest`, `actions/checkout@v4` e `actions/setup-node@v4` não estão presos a uma imagem/SHA imutável. O workflow também pressupõe disponibilidade de `zip`, `sha256sum`, `git` e `gh`.
+
+5. **`--latest` é aplicado incondicionalmente.**  
+   Isso funciona para uma linha de releases estáveis, mas deve ser reavaliado caso o projeto use backports, prereleases ou releases paralelas.
+
+6. **Release notes contêm destaques arquiteturais hardcoded.**  
+   Esses textos podem ficar desatualizados em relação ao código e hoje não existe prova semântica de que continuam verdadeiros.
+
+### O que considero necessário
+
+- Garantir que, quando a tag já existir, o commit resolvido por `refs/tags/${RELEASE_TAG}` seja exatamente o commit autorizado para gerar/substituir os assets.
+- Impedir `--clobber` de substituir artifacts de uma tag com conteúdo produzido por outro commit.
+- Definir uma regra explícita de que somente commits com os gates obrigatórios aprovados podem ser publicados.
+- Considerar `concurrency` por `RELEASE_TAG` para impedir duas publicações simultâneas da mesma versão.
+- Manter permissões do `github.token` no mínimo necessário e confirmar que `contents: write` é suficiente.
+- Criar prova automatizada para os três ramos reais do release: Release existente, tag existente sem Release e tag inexistente.
+- Criar teste/harness que monte o artifact, abra o ZIP, confira seu inventário e recalcule `SHA256SUMS.txt`.
+- Validar deliberadamente a política de `--latest`, dependências mutáveis do runner/actions e manutenção das release notes.
+
+### O que preciso que o auditor faça
+
+1. **Reproduza/valide especificamente o cenário `workflow_dispatch` em um ref diferente da tag**, com `RELEASE_TAG` já existente, e confirme se seria possível chegar a `gh release upload --clobber` com artifacts de outro commit.
+2. **Compare `GITHUB_SHA` com o SHA real da tag** nos três ramos do workflow e determine se existe alguma proteção equivalente já fora deste arquivo.
+3. **Verifique se existe em outro workflow, branch protection, ruleset ou environment protection uma exigência efetiva de CI aprovado antes da publicação.** Não assumir que o fato de existir `ci.yml` cria essa dependência.
+4. **Audite concorrência real:** dois runs para a mesma versão não devem conseguir criar/editar/substituir assets de forma não determinística.
+5. **Leia as assertions reais** de `scripts/validation/verify-publish-contract.js`, `scripts/validation/verify-ci-contract.js` e `tests/unit/background/version-sync.test.js`; diferencie gate de string de execução real do GitHub CLI.
+6. **Confirme o conteúdo do ZIP e os checksums produzidos**, não apenas a presença textual dos comandos.
+7. **Confirme a política mínima de permissões** e se o token pode realizar somente as mutações esperadas.
+8. **Registre no parecer da auditoria quais riscos são bugs reais, quais são decisões arquiteturais deliberadas e quais necessitam correção/testes adicionais.**
+9. **Não considerar a ocorrência textual de `gh release`, `--clobber`, `sha256sum` ou `workflow_dispatch` como prova de comportamento.** A conclusão deve vir de execução, simulação fiel ou análise do fluxo real.
+10. **Não alterar o arquivo funcional apenas para satisfazer esta observação sem uma decisão explícita de correção.** Esta nota é para orientar a auditoria.
+
 ## Regra de continuidade multiagente
 
 1. Definir uma identidade estável de agente.
