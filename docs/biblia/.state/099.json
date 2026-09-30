@@ -2,10 +2,95 @@
   "index": 99,
   "file": "tests/helpers/extracted-functions.js",
   "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 3",
   "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
   "started_at_utc": "2026-09-30T06:25:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T15:01:46.354Z",
+  "audit_requests": [
+    {
+      "id": "099-001",
+      "status": "OPEN",
+      "type": "MIRROR_DRIFT",
+      "target_file": "extension/content/cm-chapter.js",
+      "related_files": [
+        "tests/unit/content-manga/canonical-title.test.js",
+        "tests/unit/content-manga/canonical-title-full.test.js",
+        "tests/integration/chapter-dedup.test.js"
+      ],
+      "found_while_auditing": "tests/helpers/extracted-functions.js",
+      "finding": "O mirror canonicalTitle do helper diverge da implementação real em extension/content/cm-chapter.js: o helper aceita prefixo textual opcional antes do número e remove sufixo final de site, enquanto a produção remove apenas prefixo numérico e não executa o strip de site.",
+      "current_evidence": "Os testes canonical-title.test.js e canonical-title-full.test.js importam canonicalTitle de tests/helpers/extracted-functions.js. A implementação real observada em cm-chapter.js tem regex/pipeline diferente. O caso 'Cap 5: Dragon Ball' é aceito com semântica distinta entre mirror e produção.",
+      "missing_evidence": "Não existe gate de equivalência localizado que execute os mesmos vetores contra o mirror e a implementação real ou que faça os testes canônicos importarem a implementação de produção.",
+      "why_needed": "Suítes verdes podem validar comportamento do mirror que não existe na extensão real, produzindo falso senso de cobertura.",
+      "requested_action": "Migrar os vetores de canonicalTitle para a implementação real/compartilhada ou criar um teste de equivalência explícito; qualquer correção funcional deve ocorrer fora da produção desta Bíblia.",
+      "expected_evidence": "Assertions executando a implementação real para os vetores atualmente cobertos pelo mirror, especialmente prefixos textuais e sufixos de site.",
+      "expected_auditor_action": "Confirmar o drift, decidir o contrato desejado e tratar código/testes em mudança autorizada separada.",
+      "possible_regression": "Uma mudança futura em canonicalTitle real pode quebrar agrupamento/deduplicação enquanto as suítes do mirror permanecem verdes.",
+      "impact": "Confiabilidade dos testes de canonicalização e deduplicação de capítulos.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "099-002",
+      "status": "OPEN",
+      "type": "TEST_ARCHITECTURE_REVIEW",
+      "target_file": "extension/content/content_manga.js",
+      "related_files": [
+        "tests/unit/content-manga/audio-synthesis.test.js",
+        "tests/unit/content-manga/audio-synthesis-full.test.js"
+      ],
+      "found_while_auditing": "tests/helpers/extracted-functions.js",
+      "finding": "playErrorSound é testado por meio de um mirror que aceita audioCtxFactory, parâmetro inexistente na função interna real de content_manga.js.",
+      "current_evidence": "audio-synthesis.test.js e audio-synthesis-full.test.js importam playErrorSound do helper. A função real em content_manga.js cria diretamente window.AudioContext||window.webkitAudioContext; os parâmetros de síntese observados são equivalentes, mas a superfície de injeção existe só no mirror.",
+      "missing_evidence": "Teste focal executando a função real ou gate automatizado que prove equivalência entre mirror e produção.",
+      "why_needed": "Alterações na função interna real podem não ser detectadas por testes que continuam exercitando somente o helper.",
+      "requested_action": "Exercitar playErrorSound real por harness do content script ou estabelecer fonte compartilhada/equivalence gate em alteração separada.",
+      "expected_evidence": "Assertions sobre osciladores, frequências, ganhos, timings e tolerância a falha executando código de produção ou equivalência automatizada.",
+      "expected_auditor_action": "Decidir se o mirror é arquitetura aceita; se não for, solicitar teste real/refatoração separada.",
+      "possible_regression": "Som de erro real pode divergir/quebrar enquanto o mirror continua verde.",
+      "impact": "Fidelidade da cobertura de regressão da síntese de áudio.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "099-003",
+      "status": "OPEN",
+      "type": "STALE_HELPER_REVIEW",
+      "target_file": "tests/helpers/extracted-functions.js",
+      "related_files": [
+        "extension/background.js",
+        "extension/background/actions/open-existing-folder.js",
+        "tests/unit/background/download-wait.test.js",
+        "tests/unit/background/regex-escape.test.js"
+      ],
+      "found_while_auditing": "tests/helpers/extracted-functions.js",
+      "finding": "Não foram localizados consumers do exports waitForDownload e escapeForRegex deste helper; os comportamentos correspondentes de produção já possuem testes que exercitam background.js/fluxo real.",
+      "current_evidence": "Busca por extracted-functions.js retorna consumers para canonicalTitle e playErrorSound, não para waitForDownload/escapeForRegex. download-wait.test.js executa waitForDownload real de extension/background.js; regex-escape.test.js exercita o escape no fluxo SHOW_EXISTING_FOLDER/background.",
+      "missing_evidence": "Confirmação arquitetural de que esses dois exports ainda são necessários e teste focal que justifique sua manutenção como mirrors.",
+      "why_needed": "Mirrors sem consumidores aumentam superfície de manutenção e podem ficar divergentes sem qualquer sinal.",
+      "requested_action": "Confirmar ausência de consumers e decidir entre remover, deprecar ou documentar explicitamente os mirrors em alteração separada.",
+      "expected_evidence": "Inventário de imports/uso e decisão registrada; se mantidos, teste/contrato que demonstre propósito atual.",
+      "expected_auditor_action": "Validar se são helpers mortos/legados antes de qualquer remoção.",
+      "possible_regression": "Código de teste obsoleto pode induzir futuras suítes a importar uma implementação não canônica.",
+      "impact": "Manutenibilidade e clareza da arquitetura de testes.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "102/102",
+    "source_text_lines": 101,
+    "external_audit_requests_open": 3,
+    "verified_consumers": [
+      "tests/unit/content-manga/canonical-title.test.js",
+      "tests/unit/content-manga/canonical-title-full.test.js",
+      "tests/unit/content-manga/audio-synthesis.test.js",
+      "tests/unit/content-manga/audio-synthesis-full.test.js"
+    ],
+    "real_implementation_tests": [
+      "tests/unit/background/download-wait.test.js",
+      "tests/unit/background/regex-escape.test.js"
+    ]
+  }
 }
