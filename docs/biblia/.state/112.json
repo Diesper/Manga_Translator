@@ -2,10 +2,27 @@
   "index": 112,
   "file": "tests/integration/ipc/image-translation-routing.test.js",
   "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 12",
   "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:36:00Z",
+  "audit_requests": [
+    {
+      "id": "112-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/ipc/image-translation-routing.test.js",
+      "found_while_auditing": "tests/integration/ipc/image-translation-routing.test.js",
+      "finding": "A suíte cobre 100% miss, 100% hit e filtro de imagem pequena, mas não executa o branch real de cache parcial usando content_manga.js.",
+      "current_evidence": "O arquivo auditado usa loadContentScript para carregar a implementação real e possui assertions diretas nos três cenários atuais. tests/integration/ipc/gtc-cache-flow.test.js possui cenário de hits parciais, porém por função simulateExtractWithGTC própria, não pelo content_manga.js real.",
+      "missing_evidence": "Não há assertion integrada mostrando simultaneamente uma imagem substituída do cache e apenas as misses restantes em START_BATCH.images no mesmo lote real.",
+      "why_needed": "O branch GTC_PARTIAL_HIT do content_manga.js combina dois efeitos no mesmo lote; provar hits e misses apenas em cenários separados não garante a composição.",
+      "requested_action": "Adicionar, em mudança separada, um cenário com pelo menos duas imagens no teste de roteamento real, devolver entriesByHash somente para uma e verificar substituição da hit e START_BATCH contendo somente o índice miss.",
+      "expected_evidence": "Assertions diretas sobre src/data-translated da hit, ausência do índice hit em START_BATCH e presença exclusiva do índice miss.",
+      "possible_regression": "Uma regressão pode reenviar hits ao Gemini ou deixar misses fora do lote sem quebrar os cenários 100% hit/100% miss existentes.",
+      "impact": "Cobertura do roteamento híbrido cache + Gemini no content script real.",
+      "severity": "NORMAL"
+    }
+  ]
 }
