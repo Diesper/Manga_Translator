@@ -1,6 +1,6 @@
 # Bíblia técnica — scripts/ci/data/regression-matrix.json
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `f9b9e17e5870c0c6dff9394ef944a803414cc4d2`  
 > **Agente responsável pela auditoria:** AGENTE 6  
 > **Tipo:** configuração JSON de política/regressões do CI  
