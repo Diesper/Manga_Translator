@@ -100,7 +100,7 @@ O conjunto `openHeadShas` é um **snapshot** obtido antes do loop. Durante uma r
 | Comportamento | Evidência localizada | Classificação |
 |---|---|---|
 | `ci.yml` chama-se `MangaTranslator CI` e usa `cancel-in-progress` fora da main | inspeção direta do arquivo consumidor/produtor | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| workflow de recuperação existe no corpus `.github/workflows/` | gate estrutural percorre workflows genericamente, mas não valida a semântica deste arquivo | 🟨 EXECUTADO INDIRETAMENTE |
+| presença/semântica específica de `recover-cancelled-ci.yml` | o gate estrutural apenas inclui workflows existentes em uma varredura genérica; não exige este arquivo pelo nome nem valida seu controlador | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | rejeição de fork por `head_repository` | somente implementação inline; nenhum mock/assertion localizado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | exclusão de PRs de fork | somente implementação inline | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | paginação de PRs e runs | somente implementação inline | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
