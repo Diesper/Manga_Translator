@@ -1,0 +1,11 @@
+{
+  "index": 146,
+  "file": "tests/unit/background/force-send-activation-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/force-send-activation-action.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "cab687a5e5d5dd849b6986aeeca5ac642e5b5a6a",
+  "started_at_utc": "2026-09-30T06:59:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
