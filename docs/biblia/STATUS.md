@@ -52,15 +52,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **98**
-- ✅ Concluídos auditados: **75**
+- ✅ Concluídos auditados: **76**
 - 🟠 Em andamento: **0**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **135**
-- ⬜ Pendentes: **158**
+- ⬜ Pendentes: **157**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **32,19%**
+- Cobertura realmente aprovada: **32,62%**
 - Cobertura apenas materializada: **42,06%**
-- Último aprovado: `extension/popup/popup.js`
+- Último aprovado: `scripts/validation/check-js-syntax.js`
 - Arquivos atualmente em andamento:
 
 - Menor índice pendente sem reserva no momento desta atualização: `#033 extension/background/tab-identity.js`
@@ -407,7 +407,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 76 | ✅ CONCLUÍDO | `scripts/maintenance/diagnose-background-leak.js` | `6b5a15d0d255` | `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` |
 | 77 | ✅ CONCLUÍDO | `scripts/maintenance/diagnose-jest-workers.js` | `87d25d2b61cc` | `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` |
 | 78 | ⬜ PENDENTE | `scripts/release/sync-version.js` | `9bc8fa5ae3fb` | `docs/biblia/scripts/release/sync-version.js/Bíblia.md` |
-| 79 | ⬜ PENDENTE | `scripts/validation/check-js-syntax.js` | `fbc69cf9f910` | `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md` |
+| 79 | ✅ CONCLUÍDO | `scripts/validation/check-js-syntax.js` | `fbc69cf9f910` | `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md` |
 | 80 | ⬜ PENDENTE | `scripts/validation/playwright-gate-reporter-selftest.js` | `478d6673dbb6` | `docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md` |
 | 81 | ⬜ PENDENTE | `scripts/validation/validate-manifest.js` | `93dbb1882c69` | `docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md` |
 | 82 | ⬜ PENDENTE | `scripts/validation/verify-ci-contract-selftest.js` | `8d34dee0d632` | `docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md` |
