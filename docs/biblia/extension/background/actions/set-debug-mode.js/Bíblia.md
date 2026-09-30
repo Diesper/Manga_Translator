@@ -106,7 +106,6 @@ Depois do `tabs.query`, o envio para cada aba é fire-and-forget: erros de `tabs
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 40/40
