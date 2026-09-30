@@ -31,7 +31,7 @@
     },
     {
       "id": "175-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Loop excessivo/timeout incorreto pode passar despercebido.",
       "impact": "Tempo de bootstrap e estabilidade.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. O retry de claim com jobId na URL tem sucesso na terceira tentativa; não existe cenário em que todas as respostas sejam `{ok:true,job:null}` até esgotar o limite/timeout. A desistência completa não está provada.",
+      "auditor_recommended_action": "Adicionar caso com todas as tentativas nulas e fake timers/controle determinístico, exigindo término sem abrir keep-alive nem iniciar job indevido."
     },
     {
       "id": "175-003",
