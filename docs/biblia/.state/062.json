@@ -1,0 +1,11 @@
+{
+  "index": 62,
+  "file": "jest.config.js",
+  "bible": "docs/biblia/jest.config.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
+  "started_at_utc": "2026-09-30T14:36:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
