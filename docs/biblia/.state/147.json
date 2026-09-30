@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "147-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FUNCTIONAL_REVIEW",
       "target_file": "extension/shared/gtc-indexeddb.js",
       "found_while_auditing": "tests/unit/background/gtc-runtime-bridge.test.js",
@@ -23,7 +23,11 @@
       "expected_evidence": "Teste com payload misto validando a semântica escolhida e consistência entre resposta de putMany e stats/repositório.",
       "possible_regression": "Telemetria ou lógica cliente pode superestimar itens realmente salvos e deixar falhas de entrada invisíveis.",
       "known_impact": "Contrato de persistência em lote do cache GTC.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED — inconsistência contratual confirmada. `putMany` pode ignorar entrada inválida no write individual, mas retorna `entries.length`; assim GTC_SAVE_MANY pode reportar count maior que o número efetivamente persistido.",
+      "auditor_recommended_action": "Definir se count significa recebidos ou persistidos. Se persistidos, contar writes válidos em ambos backends; se recebidos, renomear/documentar e expor descartados."
     }
   ]
 }
