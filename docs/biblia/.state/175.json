@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "175-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Priorizar por compatibilidade entre versões.",
       "possible_regression": "Claim pode falhar silenciosamente em instalação/background antigo.",
       "impact": "Bootstrap do job Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. A suíte possui claim nulo, claim válido e retry do protocolo moderno, mas não atravessa o fallback legado `GET_TAB_ID` + `gemini_job_<tabId>` quando `CLAIM_GEMINI_JOB` não responde/não está disponível.",
+      "auditor_recommended_action": "Adicionar fallback legado com storage contendo job compatível e caso de jobId divergente; usar implementação real."
     },
     {
       "id": "175-002",
@@ -44,7 +48,7 @@
     },
     {
       "id": "175-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -57,7 +61,11 @@
       "expected_auditor_action": "Priorizar por risco de resource leak.",
       "possible_regression": "Job encerrado pode reabrir keep-alive e manter recursos vivos.",
       "impact": "Ciclo de vida do Service Worker/Port.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. KEEP-04 prova reconnect após disconnect e KEEP-05 prova close explícito sem reconnect pendente, mas não combina os dois. Falta a corrida open→disconnect→timer 250ms pendente→close→avançar timer.",
+      "auditor_recommended_action": "Adicionar fake-timer test garantindo que closeKeepAlive invalida o reconnect já agendado e nenhuma nova porta é aberta."
     },
     {
       "id": "175-004",
