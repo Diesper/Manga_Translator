@@ -52,7 +52,7 @@
     },
     {
       "id": "009-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-action.test.js",
       "found_while_auditing": "extension/background/actions/deliver-result.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Completar cobertura sem alterar o objeto auditado durante a documentação.",
       "possible_regression": "Falhas de dependência ou fallback podem mudar sem gate.",
       "impact": "Robustez/observabilidade da entrega.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:44:00Z",
+      "audit_finding": "ACCEPTED com escopo refinado. A suíte já cobre mismatches de index/mangaTabId e alguns logs de rejeição, mas não executa `ensureInitialized` rejeitando, `deliverResultToManga` rejeitando, fallbacks por campos ausentes no job nem os logs/retorno desses caminhos de dependência. Esses branches permanecem sem gate focal.",
+      "auditor_recommended_action": "Adicionar casos de rejeição das dependências e fallbacks de campos do job, assertando resposta do router, argumentos efetivos e logs correspondentes; evitar duplicar os mismatches já cobertos."
     }
   ],
   "document_quality": {
