@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "111-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PERFORMANCE_ASSERTION_GAP",
       "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
@@ -24,7 +24,11 @@
       "expected_auditor_action": "Confirmar o contrato de performance antes de qualquer alteração no teste.",
       "possible_regression": "Degradação de 5x em relação ao texto declarado pode não falhar a suíte.",
       "impact": "Confiabilidade da garantia de performance.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — assertion contradiz o contrato nominal. O cabeçalho e o nome do teste afirmam restauração de 50 imagens em menos de 200 ms, mas a única assertion temporal é `expect(elapsedMs).toBeLessThan(1000)`. Uma regressão 5× acima do objetivo declarado permanece verde.",
+      "auditor_recommended_action": "Alinhar contrato e assertion: se 200 ms é piso real, exigir <200 com metodologia estável; se 1000 ms é o limite suportado, renomear/documentar para não alegar 200 ms."
     },
     {
       "id": "111-002",
