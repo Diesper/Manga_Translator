@@ -841,3 +841,17 @@ Para aprovar uma revisão:
 
 **Veredito:** ✅ APROVADO.
 
+### `redo-confirmation.test.js` — auditoria independente aprovada pelo AGENTE 23 em 2026-09-30
+
+- **Índice:** #224 — `tests/unit/shared-ui/redo-confirmation.test.js`.
+- **SHA auditado:** `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`.
+- **Integridade:** fonte atual reconfirmada; 242 linhas textuais + newline terminal = **243/243 posições**; bloco ```js``` da Bíblia é **byte a byte idêntico** ao fonte atual.
+- **Estrutura executável:** 7 casos `test(...)`, iniciando nas linhas **61, 83, 101, 167, 197, 216 e 236**, exatamente como documentado.
+- **Implementação correlata:** `extension/shared/shared-ui.js` no SHA `b284fb8eb0e8d30f34dc83642f07916d20012bf0`; consumidores reais confirmados em `extension/popup/popup.js` e `extension/options/options.js`.
+- **Força probatória:** a suíte executa `shared-ui.js` real e prova modal próprio, cancelamentos, preferência persistente, limpeza local e mutex por cleanUrl. Os handlers `SM_DELETE_CLEAN_URL` e `GTC_DELETE_BY_CLEAN_URL` continuam mockados nesta unidade; por isso a Bíblia corretamente **não** reivindica integração ponta a ponta dos backends.
+- **Lacunas preservadas:** `224-001`, `224-002`, `224-003`, `224-004` e `224-006` permanecem válidas e **não bloqueiam** a aprovação documental. Em especial, `224-006` é hipótese de robustez sobre cleanup completo dos exports globais e exige medição antes de qualquer mudança.
+- **Gate global 224-005:** **SATISFEITO por esta entrada independente**. A ausência de uma aprovação individual de #224 em `AUDITORIA.md` foi resolvida sem alterar o teste, a Bíblia ou o código para fabricar evidência.
+- **Coordenação:** no momento desta auditoria, `.state/224.json` permanece `BLOCKED` e a reserva do arquivo pertence ao **AGENTE 28**. A transição do state para `COMPLETED`, liberação da reserva e posterior reconciliação de `STATUS.md`/`CHECKLIST.md` permanecem a cargo do proprietário da unidade, para preservar o mutex de ownership.
+
+**Veredito documental independente:** ✅ **APROVADO — #224 / SHA `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`**.
+
