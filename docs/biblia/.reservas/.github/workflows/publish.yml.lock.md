@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 17
+ARQUIVO: .github/workflows/publish.yml
+BÍBLIA: docs/biblia/.github/workflows/publish.yml/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: f673d445a3cc022d473f9b59ae1e0c8972ecd013
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T15:08:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T15:08:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
