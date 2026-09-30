@@ -2,10 +2,54 @@
   "index": 115,
   "file": "tests/integration/popup-translated-thumbnails.test.js",
   "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 11",
   "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
   "started_at_utc": "2026-09-30T06:35:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:41:00Z",
+  "audit_requests": [
+    {
+      "id": "115-001",
+      "status": "OPEN",
+      "type": "ASSERTION_GAP",
+      "target_file": "tests/integration/popup-translated-thumbnails.test.js",
+      "found_while_auditing": "tests/integration/popup-translated-thumbnails.test.js",
+      "finding": "O teste intitulado 'falha ao buscar asset mantém a caixa e marca somente a miniatura afetada' cria somente uma miniatura; as assertions provam falha local do card único, mas não isolamento em relação a uma miniatura irmã saudável.",
+      "current_evidence": "Linhas 191-236 configuram um único pageIndex 0/assetId broken e verificam card existente, classe failed, texto Falha e chapter-item preservado.",
+      "missing_evidence": "Segundo card saudável no mesmo capítulo/site e assertions de que ele permanece não-failed/carregado quando somente o asset escolhido falha.",
+      "why_needed": "A frase 'somente a miniatura afetada' excede o que a fixture atual consegue provar.",
+      "requested_action": "Ampliar o teste em alteração separada com ao menos dois cards e falha seletiva por asset.",
+      "expected_evidence": "Assertions sobre card quebrado failed e card irmão saudável não-failed com imagem válida.",
+      "expected_auditor_action": "Confirmar a lacuna e fortalecer o teste sem alterar a documentação como substituto de prova.",
+      "possible_regression": "Uma regressão que marque cards irmãos ou o capítulo inteiro como falho pode continuar passando.",
+      "impact": "Isolamento visual de falhas por miniatura.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "115-002",
+      "status": "OPEN",
+      "type": "TEST_STRENGTH",
+      "target_file": "tests/integration/popup-translated-thumbnails.test.js",
+      "found_while_auditing": "tests/integration/popup-translated-thumbnails.test.js",
+      "finding": "O caso lazy com IntersectionObserver prova apenas ausência/presença de chamadas SM_GET_ASSET por contagem, sem provar assetId/card correto, atualização do img.src, disconnect nem idempotência de trigger repetido.",
+      "current_evidence": "Linhas 161-189 verificam zero chamadas antes, três observers e exatamente uma chamada após disparar o primeiro observer.",
+      "missing_evidence": "Assertions sobre payload assetId, DOM do card disparado, observer.disconnect e ausência de leitura duplicada após segundo trigger.",
+      "why_needed": "Contagem de chamadas não garante associação correta nem conclusão visual do lazy loading.",
+      "requested_action": "Adicionar assertions focais ao cenário lazy usando popup.js real e observer fake controlado.",
+      "expected_evidence": "Payload esperado, src atualizado, cleanup do observer e uma única leitura mesmo com trigger repetido.",
+      "expected_auditor_action": "Confirmar a força atual e tratar a cobertura adicional em alteração separada.",
+      "possible_regression": "Mapeamento card→asset, atualização visual ou deduplicação podem quebrar sem falhar o teste atual.",
+      "impact": "Confiabilidade do lazy loading de miniaturas.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "339/339",
+    "bible_lines": 3880,
+    "external_audit_requests_open": 2,
+    "note": "Suíte documentada como prova direta da lógica do popup real sob mocks de browser/storage/runtime; não promovida a prova do background/IndexedDB."
+  }
 }
