@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "162-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/regex-escape.test.js",
       "found_while_auditing": "tests/unit/background/regex-escape.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer a cobertura focal da regressão REG-REGEX-FOLDER.",
       "possible_regression": "Nomes ou caminhos menos comuns podem voltar a produzir regex incorreta ou SyntaxError sem falhar na cobertura atual.",
       "impact": "Abertura de pasta por SHOW_EXISTING_FOLDER em títulos/caminhos com metacaracteres não cobertos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte de regex cobre `.`, parênteses, `+`, `*` e `?`, mas não fixa escape de `^`, `$`, `{}`, `[]`, `|`, backslash nem path Windows. A implementação aceita/escapa uma classe maior do que a prova atual.",
+      "auditor_recommended_action": "Adicionar tabela com todos os metacaracteres suportados e ao menos um path Windows com barras invertidas."
     },
     {
       "id": "162-002",
