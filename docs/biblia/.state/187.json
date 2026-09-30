@@ -1,0 +1,11 @@
+{
+  "index": 187,
+  "file": "tests/unit/content-gemini/rpa-flow.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
+  "started_at_utc": "2026-09-30T17:40:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
