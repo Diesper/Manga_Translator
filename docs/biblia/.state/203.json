@@ -58,7 +58,7 @@
     },
     {
       "id": "203-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "related_files": [
@@ -74,7 +74,11 @@
       "expected_auditor_action": "Confirmar e adicionar teste separado.",
       "possible_regression": "Aba auxiliar pode repetir indefinidamente ou terminar sem diagnóstico.",
       "impact": "Recursos, estabilidade e observabilidade.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. A suíte prova falha transitória seguida de sucesso, mas não esgota `MAX_EXTRACTION_PASSES=3` até `AUXILIARY_EXTRACT_FAILED` terminal.",
+      "auditor_recommended_action": "Adicionar três falhas consecutivas e afirmar erro terminal, ausência de entrega e cleanup/retries encerrados."
     },
     {
       "id": "203-004",
