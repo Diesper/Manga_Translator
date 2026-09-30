@@ -32,7 +32,7 @@
     },
     {
       "id": "111-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PERFORMANCE_BENCHMARK_REVIEW",
       "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
@@ -46,7 +46,11 @@
       "expected_auditor_action": "Classificar a força probatória da meta de performance e solicitar benchmark separado se necessário.",
       "possible_regression": "Produto real pode degradar sem que este harness sintético detecte.",
       "impact": "Validade da evidência de performance.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:25:00Z",
+      "audit_finding": "ACCEPTED. O benchmark de 50 imagens usa data URLs pequenas, JSDOM, fake-indexeddb e MutationObserver no-op. Ele é útil como regressão relativa do harness/pipeline, mas não prova custo de decodificação/DOM/IndexedDB nativo em Chromium.",
+      "auditor_recommended_action": "Classificar explicitamente o limite como benchmark sintético de regressão. Se houver SLO de produto, adicionar benchmark/E2E separado em Chromium com payloads representativos."
     },
     {
       "id": "111-003",
