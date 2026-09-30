@@ -31,7 +31,7 @@
     },
     {
       "id": "005-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
       "found_while_auditing": "extension/background/actions/claim-gemini-job.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Claim pode falhar de forma não diagnosticada durante reidratação.",
       "impact": "Bootstrap e recuperação de jobs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:36:00Z",
+      "audit_finding": "ACCEPTED. A suíte funcional usa sender inteiro, inicialização/storage saudáveis e tabIdentity disponível. Não há casos para ensureInitialized rejeitando, sender sem tab/id inteiro, tabIdentity ausente, jobIndex sem entry ou storage.get rejeitando; esses branches defensivos permanecem sem prova focal.",
+      "auditor_recommended_action": "Adicionar casos parametrizados da action real cobrindo contexto/dependências ausentes ou rejeitando, com job:null/INTERNAL_ERROR e ausência de exposição indevida do job conforme o contrato."
     }
   ],
   "document_quality": {
