@@ -32,7 +32,7 @@
     },
     {
       "id": "181-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "tests/unit/content-gemini/job-runner.test.js",
@@ -45,7 +45,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Refresh falho pode interromper geração ou perder observabilidade.",
       "impact": "Robustez do watchdog durante geração longa.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. RUN-08 cobre somente ACK feliz de `REFRESH_JOB_WATCHDOG`. O runner trata ACK negativo, `runtime.lastError` ou throw como `GEMINI_WATCHDOG_REFRESH_FAILED` e continua o fluxo; essa degradação não-fatal não possui prova focal.",
+      "auditor_recommended_action": "Adicionar casos de ACK negativo, lastError e throw, exigindo log de refresh_failed e continuidade da geração sem abortar o job."
     },
     {
       "id": "181-003",
