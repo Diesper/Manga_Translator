@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "191-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar autenticidade da cobertura.",
       "possible_regression": "Forma de onda real diverge enquanto suíte permanece verde.",
       "impact": "Notificação sonora de erro.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte não chama as rotinas de áudio reais da closure de `content_manga.js`: `playErrorSound` vem de `tests/helpers/extracted-functions.js` e `playSuccessSound` é implementada localmente no próprio teste.",
+      "auditor_recommended_action": "Criar prova pelo content script real ou refatorar síntese para módulo canônico compartilhado/testável; eliminar mirrors como prova principal."
     },
     {
       "id": "191-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Corrigir contrato documental do teste.",
       "possible_regression": "Mudanças de lifecycle podem parecer cobertas sem estar.",
       "impact": "Confiabilidade da matriz de testes.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho afirma cobertura completa dos sons de produção, mas o mirror local de sucesso cobre só a forma de onda. O runtime atual reutiliza `notificationAudioContext`, trata estado closed/suspended, chama `resume()` e emite telemetria; nada disso é executado por esse mirror.",
+      "auditor_recommended_action": "Alinhar título/escopo à prova real ou substituir o mirror por integração com lifecycle de AudioContext real/mockado do código produtivo."
     },
     {
       "id": "191-003",
