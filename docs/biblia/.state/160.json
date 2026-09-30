@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "160-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/process-finalize-real.test.js",
       "found_while_auditing": "tests/unit/background/process-finalize-real.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar o contrato de dedicatedWindow e adicionar cobertura focal sem alterar esta Bíblia.",
       "possible_regression": "Janela Gemini dedicada pode ficar órfã ou o código pode remover apenas a aba quando deveria encerrar a janela dedicada.",
       "impact": "Recursos residuais/UI órfã após finalização em minimized_window/background_delete.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. `finalizeJob` possui branch `job.dedicatedWindow===true && tab.windowId` que fecha a janela inteira via `chrome.windows.remove`; BG-31b cobre explicitamente apenas `dedicatedWindow:false`, fechando a aba.",
+      "auditor_recommended_action": "Adicionar caso dedicado que persista job com dedicatedWindow=true e exija windows.remove(windowId), sem remoção inadequada da janela compartilhada."
     },
     {
       "id": "160-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/process-finalize-real.test.js",
       "found_while_auditing": "tests/unit/background/process-finalize-real.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Validar esse guard de reidratação e adicionar cobertura focal em mudança separada.",
       "possible_regression": "Lote pode ser declarado concluído enquanto ainda existe job indexado.",
       "impact": "Falso término de lote e possível perda/abandono de tradução em andamento.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. `processNextJob` possui guard `stillOpen` que, com fila/contador zerados e jobIndex ainda contendo jobs do batch, restaura activeJobsCount e sincroniza antes de BATCH_COMPLETE. A suíte atual não isola esse branch.",
+      "auditor_recommended_action": "Adicionar estado com jobQueue=[], activeJobsCount=0 e jobIndex do batch atual não vazio; exigir restauração do contador e ausência de BATCH_COMPLETE prematuro."
     },
     {
       "id": "160-003",
