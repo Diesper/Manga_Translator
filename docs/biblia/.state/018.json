@@ -2,19 +2,54 @@
   "index": 18,
   "file": "extension/background/actions/open-manga-root.js",
   "bible": "docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
   "started_at_utc": "2026-09-30T12:27:00Z",
-  "completed_at_utc": null,
-  "audit_requests": [],
+  "completed_at_utc": "2026-09-30T12:31:00Z",
+  "audit_requests": [
+    {
+      "id": "018-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/open-manga-root-action.test.js",
+      "found_while_auditing": "extension/background/actions/open-manga-root.js",
+      "finding": "A suíte direta cobre helper funcional, mas não handleMarkerAndShow ausente/não-função, helper que lança ou helper que nunca chama o callback.",
+      "current_evidence": "Sucesso/erro do helper, null como safeTitle e keepAlive:true têm prova direta.",
+      "missing_evidence": "Comportamento dos caminhos de dependência ausente/throw/callback nunca chamado.",
+      "why_needed": "A action é inteiramente dependente do helper e sua Promise pode rejeitar ou permanecer pendente sem gate focal.",
+      "requested_action": "Adicionar casos focais contra a action real e router sem modificar a implementação auditada.",
+      "expected_evidence": "Resposta/erro e ausência de hang indefinido documentados por assertions.",
+      "expected_auditor_action": "Fortalecer cobertura de robustez em alteração separada.",
+      "possible_regression": "OPEN_MANGA_ROOT pode ficar pendente ou falhar de forma não diagnosticada.",
+      "impact": "Abertura da pasta raiz pelo popup.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "018-002",
+      "status": "OPEN",
+      "type": "RELIABILITY_REVIEW",
+      "target_file": "extension/background.js",
+      "found_while_auditing": "extension/background/actions/open-manga-root.js",
+      "finding": "O helper real cria marcador temporário e agenda remoção por timer; o timer não é persistido através de restart do service worker.",
+      "current_evidence": "Testes do helper cobrem criação/show/remoção no mesmo ciclo de execução.",
+      "missing_evidence": "Restart/hibernação do worker entre criação e remoção.",
+      "why_needed": "Timers do service worker podem desaparecer em reinicialização, potencialmente deixando marcador órfão.",
+      "requested_action": "Auditar se marcadores órfãos são aceitáveis; se não, definir cleanup/reconciliação e teste de regressão.",
+      "expected_evidence": "Cenário de restart com política explícita de cleanup.",
+      "expected_auditor_action": "Revisar lifecycle do marcador em processo separado.",
+      "possible_regression": "Arquivos temporários podem permanecer na pasta MangaTranslator.",
+      "impact": "Higiene da pasta de downloads.",
+      "severity": "LOW"
+    }
+  ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "20/20",
     "source_text_lines": 19,
-    "external_audit_requests_open": 0,
-    "note": "Bíblia concorrente validada e bloco fonte normalizado para equivalência física exata pelo proprietário AGENTE 17."
+    "external_audit_requests_open": 2,
+    "note": "Reauditoria solicitada pelo usuário; lacunas já descritas foram convertidas em audit_requests persistentes."
   }
 }
