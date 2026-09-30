@@ -190,7 +190,6 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 10. Rastreabilidade 94/94
