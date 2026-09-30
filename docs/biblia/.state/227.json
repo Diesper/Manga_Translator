@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "227-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/visual/crop.visual.js",
       "found_while_auditing": "tests/visual/crop.visual.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Corrigir contrato do teste em alteração separada.",
       "possible_regression": "Manutenção pode assumir cobertura relaxada inexistente neste arquivo.",
       "impact": "Confiabilidade documental do gate visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:28:00Z",
+      "audit_finding": "ACCEPTED. O teste rotulado como thresholds relaxados chama `matchPerceptualHashes` strict e usa distância de 10 bits, já aceita pelo strict; não prova o matcher/thresholds relaxed.",
+      "auditor_recommended_action": "Chamar `matchPerceptualHashesRelaxed` com distâncias que falhem no strict e passem no relaxed, ou corrigir o título."
     },
     {
       "id": "227-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/visual/crop.visual.js",
       "found_while_auditing": "tests/visual/crop.visual.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar força do visual gate.",
       "possible_regression": "Formato permanece válido enquanto semântica muda.",
       "impact": "Sensibilidade do teste visual.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:28:00Z",
+      "audit_finding": "ACCEPTED. Neste gate visual, calculateWHash/PHash são verificados apenas por formato 64-hex; não há vetor de referência/semântica adicional local.",
+      "auditor_recommended_action": "Se esta suíte pretende validar algoritmo, adicionar vetor independente; caso contrário, documentar que o gate é somente formato/integridade estrutural."
     }
   ],
   "document_quality": {
