@@ -74,7 +74,7 @@
     },
     {
       "id": "139-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HELPER_CORRECTION",
       "target_file": "tests/unit/background/deliver-result-url-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-url-action.test.js",
@@ -87,7 +87,11 @@
       "expected_auditor_action": "Corrigir o harness em mudança externa autorizada sem modificar a implementação para satisfazer o teste.",
       "possible_regression": "Mudança incorreta do keep-alive síncrono pode passar despercebida.",
       "impact": "Precisão do teste de roteamento Chrome runtime.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:16:00Z",
+      "audit_finding": "ACCEPTED. O dispatch local resolve a Promise dentro de sendResponse antes de `keepAlive = listener(...)`; por isso resposta síncrona pode registrar keepAlive undefined embora o router real retorne false.",
+      "auditor_recommended_action": "Separar captura da resposta e do retorno do listener; adicionar assertion explícita de return false no short-circuit síncrono."
     }
   ],
   "document_quality": {
