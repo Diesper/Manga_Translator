@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "091-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-test-policy-selftest.js",
       "found_while_auditing": "scripts/validation/verify-test-policy.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Confirmar a lacuna e tratar os testes em alteração separada.",
       "possible_regression": "O gate pode deixar de bloquear um escape hatch existente sem falhar o self-test atual.",
       "impact": "Confiabilidade da política anti-skip/escape-hatch.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "SUPERSEDED por 090-001. É a mesma lacuna de cobertura do `verify-test-policy-selftest.js` para `.only`, `test.todo`, `--passWithNoTests`, outros escopos de forceExit e `|| true`.",
+      "auditor_recommended_action": "Centralizar a expansão da matriz negativa em 090-001.",
+      "superseded_by": "090-001"
     },
     {
       "id": "091-002",
@@ -48,7 +53,7 @@
     },
     {
       "id": "091-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "POLICY_GAP_REVIEW",
       "target_file": ".github/workflows/ci.yml",
       "found_while_auditing": "scripts/validation/verify-test-policy.js",
@@ -61,7 +66,11 @@
       "expected_auditor_action": "Classificar o gap e solicitar mudança separada se o contrato for realmente abrangente.",
       "possible_regression": "Uma alteração de workflow pode mascarar uma falha real sem violar o gate atual.",
       "impact": "Confiabilidade dos gates de CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. O masking em workflows só é detectado por `/npm run test:[^\\n]*\\|\\|\\s*true/`; comandos diretos como `npm test || true`, `npx jest || true` ou `node tests/... || true` ficam fora da regra.",
+      "auditor_recommended_action": "Definir o escopo proibido e, se a intenção for bloquear masking de qualquer teste, ampliar regex/política e self-tests para comandos diretos."
     }
   ]
 }
