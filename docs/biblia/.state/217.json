@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "217-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/popup/dynamic-button.test.js",
       "found_while_auditing": "tests/unit/popup/dynamic-button.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer o teste em alteração separada sem mudar o comportamento de produção.",
       "possible_regression": "Controle ou card pode desaparecer sem falha do gate.",
       "impact": "Confiabilidade da UI de seleção/tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "ACCEPTED. As duas fases centrais do teste estão protegidas por `if (btnSelectNone)` e `if (firstCard)`. Se o botão ou card desaparecerem, os cliques/assertions 2→0→1 são silenciosamente pulados e a suíte pode continuar verde.",
+      "auditor_recommended_action": "Exigir `expect(btnSelectNone).not.toBeNull()` e pelo menos um card antes de clicar; remover guards condicionais."
     },
     {
       "id": "217-002",
