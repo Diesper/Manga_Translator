@@ -31,7 +31,7 @@
     },
     {
       "id": "162-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_CORRECTION",
       "target_file": "tests/unit/background/regex-escape.test.js",
       "found_while_auditing": "tests/unit/background/regex-escape.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Corrigir a precisão documental do comentário do teste.",
       "possible_regression": "Deriva documental e investigação futura direcionada ao arquivo incorreto.",
       "impact": "Manutenibilidade e rastreabilidade arquitetural.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "ACCEPTED. O comentário inicial ainda atribui `fallbackSearch` ao `background.js` real, mas a implementação atual vive em `extension/background/actions/open-existing-folder.js`, apenas carregada pelo background. A documentação do teste está stale.",
+      "auditor_recommended_action": "Corrigir comentário/título para apontar ao módulo de action atual sem alterar a prova funcional."
     }
   ],
   "document_quality": {
