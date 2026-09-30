@@ -1,0 +1,11 @@
+{
+  "index": 140,
+  "file": "tests/unit/background/download-chapter-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/download-chapter-action.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 4",
+  "source_sha": "ff0ecb6249b24b8453bc886df4724be27f492e10",
+  "started_at_utc": "2026-09-30T06:36:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
