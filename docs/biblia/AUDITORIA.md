@@ -104,6 +104,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 52 | `extension/options/options.js` | SHA `f69f132c0ef6...` reconfirmado; bloco integral exato | 420 linhas + newline final = 421/421 posições; 421 headings sequenciais | `options.ui.test.js` carrega HTML/JS reais e prova prompt, sites, revogação, bloqueio, Refazer e modos/toggles principais; lacunas não foram promovidas | storage/UI/helpers compartilhados documentados; riscos de callbacks sem lastError, render concorrente e índice legado persistidos em `.state/052.json` | ✅ APROVADO |
 | 77 | `scripts/maintenance/diagnose-jest-workers.js` | SHA `87d25d2b61cc...` reconfirmado; bloco integral exato | 200 linhas + newline final = 201/201 posições; mapa de cobertura contínuo | helper `hasForcedWorkerExit` possui self-test direto; CI Contract protege paths/comandos; runner matricial em si não possui self-test focal e isso permanece explícito | cases, spawn, artifacts, aggregate e exit policy documentados; 3 audit_requests OPEN preservadas em `.state/077.json` | ✅ APROVADO |
 | 79 | `scripts/validation/check-js-syntax.js` | SHA `fbc69cf9f910...` reconfirmado; fonte integral embutida byte-a-byte exata | 30 linhas + newline final = 31/31 posições; mapa 1–31 contínuo | run #36577447500 / job #109437162703 executou o mesmo blob e terminou verde com 218 arquivos; checkout efetivo do job foi o merge ref `c6d75b8...`, cujo blob é o mesmo; branches negativos permanecem sem teste focal | descoberta/`node --check`/exit policy documentados com classificações conservadoras; `079-001` e `079-002` permanecem OPEN em `.state/079.json` | ✅ APROVADO |
+| 80 | `scripts/validation/playwright-gate-reporter-selftest.js` | SHA `478d6673dbb6...` reconfirmado; fonte integral embutida exata | 79 linhas + newline final = 80/80 posições; linhas 1–79 documentadas + posição 80 explícita | assertions reais isolam happy path, skipped, flaky por retry, inventário <21 e estados finais; branch `attemptsById.size < total` permanece corretamente como gap | consumers CI/package e matriz de regressão cruzados; `080-001` e `080-002` permanecem OPEN em `.state/080.json` | ✅ APROVADO |
 | 55 | `extension/reader/reader.html` | SHA `065fc4e201c5...` reconfirmado; bloco integral exato | 77 linhas + newline final = 78/78 posições; 78 headings sequenciais | `reader.ui.test.js` carrega HTML/JS reais e `reader-offline.spec.js` abre a extensão real, provando estrutura/contador/largura/navegação; CSS cosmético foi rebaixado | contratos de IDs/scripts/layout documentados; lacunas de acessibilidade/viewport/sincronização de offsets persistidas em `.state/055.json` | ✅ APROVADO |
 | 54 | `extension/popup/popup.js` | SHA `300cfe9a9c81...` reconfirmado; bloco integral exato | 2020 linhas + newline final = 2021/2021 posições; 2021 headings sequenciais | suítes `popup.ui`, `popup.advanced.ui`, thumbnails, dynamic-button, progress, resize/tabs e log-exporter carregam a implementação real; ramos sem assertion focal permanecem explícitos | composition root, ownership por tabId, storage, settings, downloads, miniaturas e logs documentados; 4 audit_requests OPEN em `.state/054.json` | ✅ APROVADO |
 
@@ -792,5 +793,20 @@ Para aprovar uma revisão:
 - o checkout do job foi `refs/remotes/pull/66/merge` em `c6d75b8aa5c77cfd94d0a291e4f823cc22459575`; esse merge commit contém o mesmo blob `fbc69cf...`, então a evidência verde é válida sem confundir o head do PR com o commit efetivamente executado;
 - não existe `tests/unit/validation/check-js-syntax.test.js` no branch; branches de sintaxe inválida, lista vazia, continuidade após falha, filtros negativos e raiz individual ausente continuam corretamente classificados como lacunas;
 - `079-001` e `079-002` permanecem OPEN e não bloqueiam a aprovação documental.
+
+**Veredito:** ✅ APROVADO.
+
+
+### `playwright-gate-reporter-selftest.js` — auditoria aprovada em 2026-09-30
+
+- SHA `478d6673dbb6d751e19f185feaed78764ebe6fde` reconfirmado contra o blob atual;
+- fonte integral incorporada na Bíblia é idêntica ao arquivo real;
+- 79 linhas textuais estão documentadas individualmente e a posição 80 documenta explicitamente o newline final;
+- o self-test importa a implementação real de `scripts/ci/playwright-gate-reporter.js`, e as assertions isolam 21 passed, skipped, failed→passed em retry, timedOut→passed em retry, total=20 e finais failed/timedOut/interrupted;
+- `test-baseline.json` confirma `e2e.minTests=21`, `maxSkipped=0` e `maxFlaky=0`;
+- o reporter possui a defesa `attemptsById.size < total && result.status === 'passed'`, e a Bíblia corretamente não a promove a prova direta porque o self-test não possui cenário focal correspondente;
+- `package.json#validate` e o job `ci-contract` executam o self-test; `verify-ci-contract.js` não contém proteção focal dessa invocação e apenas cruza a matriz genericamente, em linha com `080-002`;
+- `REG-E2E-FLAKY-RETRY-GATE` aponta para este arquivo e protege markers, sem ser confundido com prova semântica;
+- `080-001` e `080-002` permanecem OPEN e não bloqueiam a aprovação documental.
 
 **Veredito:** ✅ APROVADO.
