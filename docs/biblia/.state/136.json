@@ -27,7 +27,7 @@
     },
     {
       "id": "136-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/commit-result-action.test.js",
       "found_while_auditing": "tests/unit/background/commit-result-action.test.js",
@@ -40,7 +40,11 @@
       "expected_auditor_action": "Validar todos os predicados do marker durável.",
       "possible_regression": "Marker inválido pode autorizar commit idempotente sem ownership.",
       "impact": "Integridade e idempotência do lifecycle.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — journal/idempotência testado só no caminho favorável. O caso de marker cobre expiresAt futuro, mesmo jobId e `fromError:false`; não há prova de marker expirado, jobId diferente ou `fromError:true`, que devem cair para commit normal/regras específicas.",
+      "auditor_recommended_action": "Adicionar matriz focal para marker expirado, foreign job e fromError true, verificando que não produz `ALREADY_FINALIZED` indevido."
     },
     {
       "id": "136-003",
