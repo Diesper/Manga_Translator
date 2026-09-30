@@ -32,7 +32,7 @@
     },
     {
       "id": "152-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FUNCTIONAL_REVIEW",
       "target_file": "extension/background/jobs-reconciliation.js",
       "found_while_auditing": "tests/unit/background/jobs-reconciliation-batch-queue.test.js",
@@ -46,7 +46,11 @@
       "expected_auditor_action": "Validar impacto no bootstrap real antes de alterar o módulo.",
       "possible_regression": "Contador persistido stale pode afetar consumidores após nova reidratação.",
       "impact": "Consistência de estado restaurado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:18:00Z",
+      "audit_finding": "ACCEPTED — BUG FUNCIONAL CONFIRMADO. Quando `jobIndex` está vazio, `reconcile()` força `state.activeJobsCount=0` e retorna alive/dropped/recovered todos zero. `reconcileAndContinue()` só chama `syncState()` se algum desses contadores for truthy; assim a correção pode ficar apenas em memória e o snapshot durável continuar com contador stale.",
+      "auditor_recommended_action": "Persistir quando a reconciliação alterar estado mesmo sem alive/dropped/recovered; adicionar regressão com mt_state activeJobsCount>0 e jobIndex vazio."
     }
   ],
   "document_quality": {
