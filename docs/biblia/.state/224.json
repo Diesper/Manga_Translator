@@ -1,0 +1,11 @@
+{
+  "index": 224,
+  "file": "tests/unit/shared-ui/redo-confirmation.test.js",
+  "bible": "docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98",
+  "started_at_utc": "2026-09-30T14:47:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
