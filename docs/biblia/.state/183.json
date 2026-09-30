@@ -1,0 +1,11 @@
+{
+  "index": 183,
+  "file": "tests/unit/content-gemini/observer.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/observer.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "0eff259f673c32e44c6d5ccf6f627c0c6d5505cc",
+  "started_at_utc": "2026-09-30T16:25:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
