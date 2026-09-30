@@ -31,7 +31,7 @@
     },
     {
       "id": "194-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_DETERMINISM",
       "target_file": "tests/unit/content-manga/auto-restorer-real.test.js",
       "found_while_auditing": "tests/unit/content-manga/auto-restorer-real.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Avaliar o harness e implementar a sincronização apenas em alteração de teste separada.",
       "possible_regression": "A proteção REG-10 pode virar falso positivo temporal.",
       "impact": "Confiança na regressão de inicialização concorrente.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:32:00Z",
+      "audit_finding": "ACCEPTED. REG-10 usa atraso fixo de 180 ms para tentar manter a inicialização pendente, mas não há latch/assertion que prove que `initialize()` ainda não terminou quando UPDATE_IMAGE é enviado. O teste pode perder a race sem perceber.",
+      "auditor_recommended_action": "Substituir o atraso por Promise/latch controlado no carregamento do restoreMap e afirmar explicitamente a ordem dos eventos."
     },
     {
       "id": "194-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ROBUSTNESS",
       "target_file": "tests/unit/content-manga/auto-restorer-real.test.js",
       "found_while_auditing": "tests/unit/content-manga/auto-restorer-real.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Decidir se a robustez atual é suficiente; se não, ajustar o harness/teste em trabalho separado.",
       "possible_regression": "Inicialização mais lenta pode fazer um bloqueio quebrado parecer correto.",
       "impact": "Robustez/flakiness da prova negativa.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:32:00Z",
+      "audit_finding": "ACCEPTED. Os casos negativos aguardam `delay(250)` e então concluem que nada ocorreu. Isso depende de wall-clock e não prova ausência de efeitos tardios nem determina exatamente quando o observer deveria ter reagido.",
+      "auditor_recommended_action": "Usar fake timers/latches/observação explícita de callbacks para provar ausência de restore sem delays fixos."
     }
   ],
   "document_quality": {
