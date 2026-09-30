@@ -74,7 +74,7 @@
     },
     {
       "id": "150-004",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "ROBUSTNESS_TEST",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "tests/unit/background/jobs-dom-ack-staging.test.js",
@@ -87,7 +87,12 @@
       "expected_auditor_action": "Confirmar ou revisar a política de catches vazios em alteração separada.",
       "possible_regression": "Falha interna pode ser silenciosamente reinterpretada ou deixar cleanup incompleto sem cobertura.",
       "impact": "Robustez e observabilidade do lifecycle.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "SUPERSEDED por 026-003. Rejeições absorvidas de updateJobState/finalizeJob já estão registradas no request canônico de robustez do módulo.",
+      "auditor_recommended_action": "Centralizar os casos mockRejectedValue em 026-003.",
+      "superseded_by": "026-003"
     }
   ],
   "document_quality": {
