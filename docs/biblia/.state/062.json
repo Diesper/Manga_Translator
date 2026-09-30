@@ -32,7 +32,7 @@
     },
     {
       "id": "062-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "jest.config.js",
       "found_while_auditing": "jest.config.js",
@@ -45,7 +45,11 @@
       "expected_auditor_action": "Cobrir o contrato de configuração sem acoplar desnecessariamente detalhes não críticos.",
       "possible_regression": "Testes podem rodar com ambiente incompleto ou coverage com configuração divergente.",
       "impact": "Fidelidade e estabilidade do runner Jest.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:05:00Z",
+      "audit_finding": "ACCEPTED. `jest.config.js` varia `cacheDirectory` e `testTimeout` por `COVERAGE_MODE==='1'` e possui vários `setupFilesAfterEnv`, mas não há self-test focal que carregue a config sob envs controladas e fixe esses contratos. O uso normal das suítes é evidência indireta, não prova específica de configuração.",
+      "auditor_recommended_action": "Adicionar teste de configuração para modo normal/coverage e presença dos setupFilesAfterEnv dos projetos suportados, sem congelar detalhes irrelevantes."
     }
   ],
   "document_quality": {
