@@ -1,0 +1,11 @@
+{
+  "index": 193,
+  "file": "tests/unit/content-manga/auto-restore-system.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/auto-restore-system.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+  "started_at_utc": "2026-09-30T14:58:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
