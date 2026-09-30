@@ -271,7 +271,6 @@ Há uma diferença relevante em relação à simulação visual antiga: `tests/v
     }
     rootScope.MangaTranslatorGtcClient = Object.freeze({ getCleanUrl, generateImageFingerprint, queryGlobalTranslationCache, queryGlobalTranslationCacheByDHash, queryGlobalTranslationCacheByPerceptual, queryPerceptualCorrelated, queryGlobalTranslationCacheByPerceptualCrop, queryGlobalTranslationCacheByPerceptualRelaxed, saveGlobalTranslationCacheEntry, confirmWithRegionalHashes, sendRuntimeMessageAsync });
 })(typeof window !== 'undefined' ? window : self);
-
 ~~~
 
 ## 13. Rastreabilidade 162/162
