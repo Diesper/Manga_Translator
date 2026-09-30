@@ -13079,5 +13079,16 @@ Nenhum hash aqui deve ser tratado como segredo/autenticação. O SHA é identifi
 - [x] Assertions reais de unit/integration/smoke/visual/performance lidas.
 - [x] Prova direta, prova parcial/indireta e ausência de prova diferenciadas.
 - [x] Lacunas de migração, V2 IndexedDB/handler, validação e escala registradas.
-- [ ] Releitura do blob gravado e validação mecânica final.
+- [x] Releitura do blob gravado e validação mecânica final.
 - [ ] Aprovação explícita em `AUDITORIA.md`.
+
+## 15. Autoauditoria mecânica
+
+- Fonte atual reconfirmada em SHA `0c872f23a665304b46dc2bb43c6468762feb2e31`.
+- Reserva reconfirmada como propriedade exclusiva de `GPT-5.6-Sol#K`.
+- Bloco “Fonte integral auditada” extraído do Markdown e comparado ao blob: **igualdade exata**.
+- Fonte: **1168 linhas textuais + newline terminal = 1169 posições documentais**.
+- Headings `Linha 0001` até `Linha 1169`: **1169**, sequenciais, sem lacuna.
+- Nenhuma alteração foi feita no arquivo-fonte ou nos testes.
+- Evidências são classificadas pelas assertions lidas; esta sessão **não afirma ter executado** as suítes.
+- Resultado da autoauditoria documental/mecânica: **APTA PARA AUDITORIA FINAL EM AUDITORIA.md**.
