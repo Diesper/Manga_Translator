@@ -1,0 +1,11 @@
+{
+  "index": 225,
+  "file": "tests/visual/background-fingerprint.visual.js",
+  "bible": "docs/biblia/tests/visual/background-fingerprint.visual.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 20",
+  "source_sha": "91f5cf4d9ed4d9f4386184931f93ab32f33c95ca",
+  "started_at_utc": "2026-09-30T06:41:09Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
