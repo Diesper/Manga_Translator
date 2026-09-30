@@ -9,35 +9,51 @@
   "audit_requests": [
     {
       "id": "054-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/popup.advanced.ui.test.js",
       "finding": "Alguns ramos de export/download/delete de capítulo e respostas negativas do background não possuem assertions focais equivalentes aos fluxos principais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:19:00Z",
+      "audit_finding": "ACCEPTED. As suítes do popup exercem fluxos principais de capítulo/redo/thumbnails e respostas de sucesso, mas não foi localizada cobertura focal equivalente para todos os ramos negativos de export/download/delete nem para respostas de erro do background nesses caminhos.",
+      "auditor_recommended_action": "Adicionar casos de erro/negação usando popup.js real, verificando restauração de UI, toast/alert e preservação de dados."
     },
     {
       "id": "054-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/popup/popup.js",
       "finding": "Vários callbacks de chrome.storage.local não verificam runtime.lastError; currentTabId é capturado no bootstrap e pode ficar stale após navegação/fechamento.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:19:00Z",
+      "audit_finding": "ACCEPTED. Há diversos callbacks `chrome.storage.local.get/set/remove` sem inspeção de `chrome.runtime.lastError`. `currentTabId` é atribuído uma vez a partir da aba ativa no bootstrap e reutilizado por mensagens/reload; não há revalidação sistemática após navegação/fechamento/substituição da aba.",
+      "auditor_recommended_action": "Definir política de erro de storage e revalidar tab quando a operação exige ownership atual; criar testes para lastError e tab stale."
     },
     {
       "id": "054-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PERFORMANCE_REVIEW",
       "target_file": "extension/popup/popup.js",
       "finding": "Export/download materializa Data URLs completas e smChapterImages busca páginas sequencialmente; validar comportamento em capítulos muito grandes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:19:00Z",
+      "audit_finding": "ACCEPTED. `smChapterImages` percorre `pages` com `await smGetPage` dentro de `for`, serializando leituras e acumulando todas as Data URLs em memória antes de download/export. Os fluxos de capítulo enviam o objeto completo ao background. Em capítulos grandes isso pode aumentar latência e memória.",
+      "auditor_recommended_action": "Benchmarkar capítulo grande e considerar streaming/lotes/limite de concorrência para materialização quando necessário; criar teste de escala."
     },
     {
       "id": "054-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CLEANUP_REVIEW",
       "target_file": "extension/popup/popup.js",
       "finding": "Listener de storage para logs e object URL do export dependem do lifecycle curto do popup; cleanup explícito é parcial.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:19:00Z",
+      "audit_finding": "ACCEPTED. O listener de `chrome.storage.onChanged` é registrado com callback anônimo e não há `removeListener` no `beforeunload`; o cleanup explícito remove apenas `logPoller`. O export de logs cria Object URL e não chama `URL.revokeObjectURL`. O lifecycle curto do popup reduz exposição, mas cleanup não é completo.",
+      "auditor_recommended_action": "Guardar referência do listener e removê-lo no unload quando necessário; revogar Object URL após download/callback; testar cleanup."
     }
   ],
   "document_quality": {
