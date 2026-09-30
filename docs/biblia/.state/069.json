@@ -10,12 +10,16 @@
   "audit_requests": [
     {
       "id": "069-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "finding": "O gate exige quantidade mínima e IDs únicos, mas não fixa explicitamente o conjunto completo de IDs críticos.",
       "requested_action": "Avaliar pinagem dos IDs obrigatórios ou schema equivalente.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — enfraquecimento silencioso possível. `verify-ci-contract` exige apenas `entries.length >= 20`, IDs não vazios/únicos, arquivo/markers existentes. Não fixa o conjunto de IDs críticos; um contrato essencial pode ser removido e substituído por outro mantendo ≥20 entradas.",
+      "auditor_recommended_action": "Fixar allowlist/set mínimo de IDs críticos ou versionar schema/política e adicionar mutation test removendo um ID essencial."
     },
     {
       "id": "069-002",
