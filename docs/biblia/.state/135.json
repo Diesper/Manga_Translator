@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "135-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
       "found_while_auditing": "tests/unit/background/claim-gemini-job-action.test.js",
@@ -23,7 +23,11 @@
       "expected_evidence": "Resposta job:null e state/storage preservando ownership original após o dispatch real.",
       "possible_regression": "Uma regressão pode permitir que uma aba Gemini reivindique job pertencente a outra aba, misturando execução e resultados.",
       "known_impact": "Integridade de roteamento/ownership de jobs Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — branch de mismatch canônico continua sem assertion focal. A action compara `canonicalIndexedTabId !== canonicalSenderTabId` e retorna job nulo, mas a suíte cobre jobId divergente na mesma aba e replacement válido, não índice canonicalizado apontando a outra aba.",
+      "auditor_recommended_action": "Adicionar caso com jobIndex do mesmo jobId cujo canonicalIndexedTabId difere do sender canonical, verificando rejeição e ausência de migração indevida."
     },
     {
       "id": "135-002",
