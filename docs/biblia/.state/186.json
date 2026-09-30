@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "186-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "tests/unit/content-gemini/result-extractor.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Promise pode resolver shape inválido, engolir FileReader error ou acionar rota indevida.",
       "impact": "Extração de resultado blob.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. EXT-06 cobre blob feliz via fetch + FileReader, mas o extractor possui branches para fetch falhar, FileReader ausente, construtor/readAsDataURL lançar e `reader.onerror`; nenhum é exercitado focalmente.",
+      "auditor_recommended_action": "Adicionar matriz de falhas do caminho blob, exigindo rejeição classificada e fallback/retry conforme o contrato."
     },
     {
       "id": "186-002",
@@ -48,7 +52,7 @@
     },
     {
       "id": "186-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "related_files": [
@@ -64,7 +68,11 @@
       "expected_auditor_action": "Complementar com 181-004 no wiring runner/background.",
       "possible_regression": "Erro do fallback pode ser engolido ou perder contexto.",
       "impact": "Diagnóstico do caminho terminal de extração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. `extractOrAuxiliaryFallback` aguarda `onAuxiliaryFallback`; se callback lança/rejeita, a falha propaga. A suíte cobre auxiliary feliz ou callback ausente, não erro do próprio fallback.",
+      "auditor_recommended_action": "Adicionar callback auxiliar rejeitando/lançando e exigir propagação/diagnóstico definido sem falso sucesso."
     }
   ],
   "document_quality": {
