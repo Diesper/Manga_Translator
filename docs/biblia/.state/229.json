@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "229-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_DRIFT",
       "target_file": "tests/visual/gtc-indexeddb.visual.js",
       "found_while_auditing": "tests/visual/gtc-indexeddb.visual.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar o drift documental e autorizar correção textual separada.",
       "possible_regression": "Novas lacunas podem ser mascaradas por um cabeçalho que continua prometendo cobertura completa.",
       "impact": "Precisão documental do teste e futuras auditorias.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho ainda promete schema/visual-v3, testes completos, todas as actions GTC_* e upgrade v2→v3, embora o runtime esteja em DB_VERSION=4 e a própria suíte contenha partes v4.",
+      "auditor_recommended_action": "Atualizar escopo/cabeçalho para v4 e listar apenas contratos realmente exercitados."
     },
     {
       "id": "229-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "COVERAGE_GAP",
       "target_file": "tests/visual/gtc-indexeddb.visual.js",
       "related_files": [
@@ -43,11 +47,15 @@
       "expected_auditor_action": "Confirmar se a cobertura visual adicional é necessária considerando as suítes unitárias/integradas já existentes.",
       "possible_regression": "Uma action atual pode quebrar enquanto este arquivo continua integralmente verde.",
       "impact": "Cobertura do contrato runtime GTC atual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O bloco intitulado 'todas as actions GTC_*' não exercita GTC_QUERY_BY_PERCEPTUAL_CROP, GTC_QUERY_BY_PERCEPTUAL_RELAXED, GTC_QUERY_PERCEPTUAL_V2 nem GTC_DELETE_BY_CLEAN_URL.",
+      "auditor_recommended_action": "Adicionar casos para as actions omitidas ou estreitar o título/claim."
     },
     {
       "id": "229-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SCOPE_ACCURACY",
       "target_file": "tests/visual/gtc-indexeddb.visual.js",
       "related_files": [
@@ -64,11 +72,15 @@
       "expected_auditor_action": "Evitar duplicação desnecessária com unit/integration e definir onde a prova física deve residir.",
       "possible_regression": "Leitores podem acreditar que upgrade/persistência já estão protegidos por esta suíte visual quando não estão.",
       "impact": "Acurácia de escopo e rastreabilidade de cobertura.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. A suíte declara createIndexedDbRepository/upgrade paths, porém instancia o repositório com `indexedDbFactory:null`, forçando fallback em memória; não há open/onupgradeneeded real nesta unidade.",
+      "auditor_recommended_action": "Adicionar cenário com fake-indexeddb real para upgrade/schema ou reclassificar esta suíte como backend in-memory."
     },
     {
       "id": "229-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FALSE_GREEN_RISK",
       "target_file": "tests/visual/gtc-indexeddb.visual.js",
       "found_while_auditing": "tests/visual/gtc-indexeddb.visual.js",
@@ -81,11 +93,15 @@
       "expected_auditor_action": "Adicionar regressão focal sem alterar a implementação de produção para fabricar o resultado.",
       "possible_regression": "Falso verde em lookup perceptual quebrado.",
       "impact": "Força probatória da suíte.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED — false-green real. As assertions de reason/wDist/pDist ficam dentro de `if (values.length > 0)`; zero resultados faz o teste terminar verde sem provar o título.",
+      "auditor_recommended_action": "Exigir `values.length > 0` antes das assertions e remover o guard permissivo."
     },
     {
       "id": "229-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_STRENGTH",
       "target_file": "tests/visual/gtc-indexeddb.visual.js",
       "found_while_auditing": "tests/visual/gtc-indexeddb.visual.js",
@@ -98,11 +114,15 @@
       "expected_auditor_action": "Confirmar a API apropriada para observar metadados persistidos sem criar teste acoplado a detalhe indevido.",
       "possible_regression": "Seleção incorreta, perda de metadados ou degradação não vazia podem ficar verdes.",
       "impact": "Precisão das garantias declaradas pela suíte.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. Vários títulos excedem a força das assertions: maior confidence não identifica `data:closer`; GTC_SAVE visual-v3 reconsulta basicamente translatedDataUrl; degradação sem fingerprintApi não exige resultado vazio.",
+      "auditor_recommended_action": "Fortalecer cada assertion para o claim do título ou reduzir os títulos ao que é realmente observado."
     },
     {
       "id": "229-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MISSING_PHASE2_ASSERTION",
       "target_file": "tests/visual/gtc-indexeddb.visual.js",
       "found_while_auditing": "tests/visual/gtc-indexeddb.visual.js",
@@ -115,7 +135,11 @@
       "expected_auditor_action": "Definir a assertion estável para distinguir a fase sem amarrar o teste a detalhes irrelevantes de implementação.",
       "possible_regression": "A Fase 2 pode deixar de ser usada corretamente e este teste nomeado continuar verde.",
       "impact": "Cobertura do matching cross-language aproximado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. O caso '[FASE 1 vs FASE 2]' executa apenas consulta exata `r1`; não cria uma segunda query aproximada `r2`, portanto a fase 2 não é provada.",
+      "auditor_recommended_action": "Adicionar query aproximada que force Hamming scan e comparar confidence/reason com a fase exata."
     }
   ],
   "document_quality": {
