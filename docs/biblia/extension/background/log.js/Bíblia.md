@@ -143,7 +143,6 @@ Além disso, duas instâncias/contextos diferentes escrevendo `translatorLog` po
 
   scope.MangaTranslatorLog = { log, _flushLog };
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 31/31
