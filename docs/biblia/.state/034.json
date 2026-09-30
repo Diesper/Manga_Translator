@@ -52,7 +52,7 @@
     },
     {
       "id": "034-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/auto-restorer-real.test.js",
       "found_while_auditing": "extension/content/cm-auto-restore.js",
@@ -65,11 +65,15 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Migração ou falhas de asset/DOM podem mudar silenciosamente.",
       "impact": "Robustez e compatibilidade do auto-restore.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED. A suíte real cobre restore principal, observer, REG-10, bloqueios e canonicalização Reddit/Imgur, mas não Array legado de blockedImages, SM_RESTORE_INDEX não vazio, migração migrated>0, backdrop/blurred, resolveAsset null/rejeição, applyImageReplacement falsy, onStorageChanged inválido nem falhas async agendadas.",
+      "auditor_recommended_action": "Adicionar casos focais de compatibilidade/storage-manager/degradação contra o módulo real, com efeito/ausência de efeito e telemetria assertados."
     },
     {
       "id": "034-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "OBSERVABILITY_REVIEW",
       "target_file": "extension/content/cm-auto-restore.js",
       "found_while_auditing": "extension/content/cm-auto-restore.js",
@@ -82,7 +86,11 @@
       "expected_auditor_action": "Revisar observabilidade e contagem.",
       "possible_regression": "Logs de sucesso podem mascarar falha de substituição.",
       "impact": "Diagnóstico e métricas do auto-restore.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED — observabilidade incorreta possível. `apply()` chama `applyImageReplacement` e incrementa `restoredCount` sem verificar o retorno; a função de replacement real pode retornar null para imagem destacada/desconectada. Além disso `initialize()` engole toda exceção, tornando falhas de init invisíveis.",
+      "auditor_recommended_action": "Só incrementar restoredCount quando a substituição realmente ocorrer e/ou formalizar contrato infalível; adicionar telemetria/testes para retorno falsy e exceção de initialize."
     }
   ],
   "document_quality": {
