@@ -241,7 +241,7 @@
 - [ ] 221 — `tests/unit/popup/version-ui.test.js` → `docs/biblia/tests/unit/popup/version-ui.test.js/Bíblia.md`
 - [ ] 222 — `tests/unit/reader/keyboard-nav.test.js` → `docs/biblia/tests/unit/reader/keyboard-nav.test.js/Bíblia.md`
 - [ ] 223 — `tests/unit/reader/page-counter.test.js` → `docs/biblia/tests/unit/reader/page-counter.test.js/Bíblia.md`
-- [ ] 224 — `tests/unit/shared-ui/redo-confirmation.test.js` → `docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md`
+- [x] 224 — `tests/unit/shared-ui/redo-confirmation.test.js` → `docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 225 — `tests/visual/background-fingerprint.visual.js` → `docs/biblia/tests/visual/background-fingerprint.visual.js/Bíblia.md`
 - [ ] 226 — `tests/visual/content-manga-pipeline.visual.js` → `docs/biblia/tests/visual/content-manga-pipeline.visual.js/Bíblia.md`
 - [ ] 227 — `tests/visual/crop.visual.js` → `docs/biblia/tests/visual/crop.visual.js/Bíblia.md`
