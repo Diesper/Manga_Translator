@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "001-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STATIC_GATE_REQUIRED",
       "target_file": "tests/unit/manifest/surface-reduction.test.js",
       "found_while_auditing": "extension/manifest.json",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar cada permissão contra consumidores reais antes de fixar o contrato.",
       "possible_regression": "Extensão pode perder capacidade em runtime ou ganhar privilégio desnecessário sem detecção.",
       "impact": "Funcionalidade e superfície de segurança do Manifest.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. `surface-reduction.test.js` fixa `host_permissions`, mas não faz assertion do conjunto exato de `permissions`. `validate-manifest.js` exige apenas truthiness/presença. Uma permissão adicional/removida pode escapar desse gate específico.",
+      "auditor_recommended_action": "Adicionar assertion do array/set canônico de permissions e self-test/mutation correspondente."
     },
     {
       "id": "001-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STATIC_GATE_REQUIRED",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "extension/manifest.json",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Adicionar gate em processo separado.",
       "possible_regression": "inject.js pode rodar no mundo/timing errado ou automação Gemini em hosts inadequados.",
       "impact": "Bootstrap e isolamento dos content scripts.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. `verify-repository-structure.js` transforma `manifest.content_scripts` apenas em `entry.js` antes de comparar o layout canônico; `matches`, `world` e `run_at` não entram nessa igualdade integral dos três descriptors.",
+      "auditor_recommended_action": "Expandir o gate para comparar descriptors completos normalizados e adicionar mutações de matches/world/run_at."
     }
   ],
   "document_quality": {
