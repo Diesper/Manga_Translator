@@ -87,7 +87,7 @@
 - [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 4**
 - [x] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 6**
-- [ ] 070 — `scripts/ci/data/test-baseline.json` → `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 7**
+- [x] 070 — `scripts/ci/data/test-baseline.json` → `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 071 — `scripts/ci/jest-worker-warning.js` → `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 8**
 - [ ] 072 — `scripts/ci/playwright-gate-reporter.js` → `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 9**
 - [ ] 073 — `scripts/ci/playwright-merge.config.js` → `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 10**
