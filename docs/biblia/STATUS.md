@@ -52,20 +52,19 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **74**
-- 🟠 Em andamento: **3**
+- ✅ Concluídos auditados: **75**
+- 🟠 Em andamento: **2**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **31,76%**
+- Cobertura realmente aprovada: **32,19%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `extension/options/options.js`
+- Último aprovado: `scripts/maintenance/diagnose-jest-workers.js`
 - Arquivos atualmente em andamento:
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
 
-  - `#077 scripts/maintenance/diagnose-jest-workers.js` — `AGENTE 3` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
 - Menor índice pendente sem reserva no momento desta atualização: `#078 scripts/release/sync-version.js`
 
 ## Observações técnicas para auditoria futura — #056 `extension/reader/reader.js`
@@ -410,7 +409,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 74 | ✅ CONCLUÍDO | `scripts/ci/run-e2e-group.js` | `e23c7aaa1712` | `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` |
 | 75 | ✅ CONCLUÍDO | `scripts/ci/run-jest-ci.js` | `6d2e36a647aa` | `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` |
 | 76 | ✅ CONCLUÍDO | `scripts/maintenance/diagnose-background-leak.js` | `6b5a15d0d255` | `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` |
-| 77 | 🟠 EM ANDAMENTO — AGENTE 3 | `scripts/maintenance/diagnose-jest-workers.js` | `87d25d2b61cc` | `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` |
+| 77 | ✅ CONCLUÍDO | `scripts/maintenance/diagnose-jest-workers.js` | `87d25d2b61cc` | `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` |
 | 78 | ⬜ PENDENTE | `scripts/release/sync-version.js` | `9bc8fa5ae3fb` | `docs/biblia/scripts/release/sync-version.js/Bíblia.md` |
 | 79 | ⬜ PENDENTE | `scripts/validation/check-js-syntax.js` | `fbc69cf9f910` | `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md` |
 | 80 | ⬜ PENDENTE | `scripts/validation/playwright-gate-reporter-selftest.js` | `478d6673dbb6` | `docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md` |
