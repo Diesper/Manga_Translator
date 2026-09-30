@@ -2,10 +2,53 @@
   "index": 210,
   "file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/twin-backdrop-sync.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 25",
   "source_sha": "5d2151b3673af6ca7c4faf39b4a23d039d9aaa64",
   "started_at_utc": "2026-09-30T13:55:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:59:00Z",
+  "audit_requests": [
+    {
+      "id": "210-001",
+      "status": "OPEN",
+      "type": "TEST_ASSERTION_QUALITY",
+      "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+      "found_while_auditing": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+      "finding": "O teste de deduplicação verifica apenas uma imagem e src igual, mas backdrop e principal compartilham src; não verifica index/identidade do candidato nítido.",
+      "current_evidence": "response.images tem length 1 e src imageUrl.",
+      "missing_evidence": "Assertion que diferencie a principal do backdrop, como index original 1.",
+      "why_needed": "Uma regressão que escolha o backdrop ainda pode passar.",
+      "requested_action": "Adicionar assertion do índice/identidade da principal.",
+      "expected_evidence": "response.images[0].index === 1 ou prova equivalente.",
+      "expected_auditor_action": "Fortalecer a assertion na suíte.",
+      "possible_regression": "Seleção/tradução do elemento errado.",
+      "impact": "Deduplicação de backdrops.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "210-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+      "found_while_auditing": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+      "finding": "isBackdropOrBlurredImage possui branches por ancestor aria-hidden, classes e computed filter/backdropFilter/pointerEvents; a suíte usa simultaneamente classe blur e aria-hidden.",
+      "current_evidence": "Dois casos reais cobrem Reddit com classe+aria-hidden e sincronização.",
+      "missing_evidence": "Branches isolados de classe sem aria-hidden, ancestral e computed style.",
+      "why_needed": "Regressões em heurísticos específicos podem não afetar os casos atuais.",
+      "requested_action": "Localizar cobertura existente ou adicionar matriz focal dos heurísticos.",
+      "expected_evidence": "Assertions diretas para cada branch relevante.",
+      "expected_auditor_action": "Avaliar cobertura cruzada antes de adicionar testes.",
+      "possible_regression": "Backdrops duplicados reaparecem em layouts alternativos.",
+      "impact": "Seleção de imagens em Reddit/lightboxes.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "147/147",
+    "bible_lines": 288,
+    "external_audit_requests_open": 2
+  }
 }
