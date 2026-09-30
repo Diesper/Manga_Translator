@@ -1,6 +1,6 @@
 # Bíblia técnica — .github/workflows/publish.yml
 
-> **Estado:** ✅ DOCUMENTAÇÃO CONCLUÍDA — `audit_requests` externos permanecem abertos quando aplicável  
+> **Estado:** ✅ DOCUMENTAÇÃO CONCLUÍDA — revalidada pelo `AGENTE 20`; autoria/revisões históricas preservadas  
 > **SHA auditado:** f673d445a3cc022d473f9b59ae1e0c8972ecd013  
 > **Autor/auditoria histórica:** AGENTE 2  
 > **Reauditoria documental atual:** AGENTE 10  
@@ -882,3 +882,22 @@ O protocolo multiagente atual define explicitamente que uma necessidade externa 
 Assim, o antigo bloqueio decorrente exclusivamente de `docs/biblia/AUDITORIA.md` é tratado como histórico de processo e pendência externa, não como impedimento para o estado documental `COMPLETED` deste índice.
 
 **Veredito do AGENTE 16:** ✅ Bíblia de `.github/workflows/publish.yml` documentalmente concluída para o SHA `f673d445a3cc022d473f9b59ae1e0c8972ecd013`, com cinco solicitações externas preservadas.
+
+## 15. Revalidação de ownership — AGENTE 20 — 2026-09-30
+
+O **AGENTE 20** reassumiu explicitamente o índice **#066** por instrução do usuário e revalidou esta Bíblia contra o fonte atual antes de concluir o item.
+
+### Resultado da revalidação
+
+- fonte: `.github/workflows/publish.yml`;
+- SHA reconfirmado: `f673d445a3cc022d473f9b59ae1e0c8972ecd013`;
+- **131 linhas textuais + newline final = 132/132 posições documentais**;
+- o texto integral do fonte continua presente nesta Bíblia sem divergência textual;
+- as classificações de evidência existentes permanecem coerentes: gates estáticos não foram promovidos a execução real do shell/GitHub Release;
+- as solicitações externas `066-001` a `066-005` permanecem **OPEN** e foram preservadas integralmente;
+- nenhuma alteração funcional foi feita em workflow, código, testes, fixtures ou configuração para fabricar evidência.
+
+O AGENTE 20 **não reivindica execução nova do pipeline de release** nesta revalidação. A conclusão é documental para o SHA acima, com as lacunas externas explicitamente registradas no state.
+
+**Veredito AGENTE 20:** ✅ documentação concluída e revalidada; `audit_requests` externos permanecem abertos e não bloqueiam a conclusão documental conforme o protocolo multiagente vigente.
+
