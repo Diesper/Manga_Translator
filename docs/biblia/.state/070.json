@@ -73,7 +73,7 @@
     },
     {
       "id": "070-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DEAD_CONFIG_REVIEW",
       "target_file": "scripts/ci/data/test-baseline.json",
       "found_while_auditing": "scripts/ci/data/test-baseline.json",
@@ -86,7 +86,11 @@
       "expected_auditor_action": "Revisar propósito do snapshot.",
       "possible_regression": "Leitores tomam números stale como cobertura protegida.",
       "impact": "Clareza documental do CI.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:09:00Z",
+      "audit_finding": "ACCEPTED. `coverage.measuredBaseline` existe no JSON de baseline, mas o contrato automatizado usa outros campos como mínimos/thresholds; não foi localizado consumidor operacional desse snapshot medido. Ele pode ficar desatualizado e ser confundido com gate.",
+      "auditor_recommended_action": "Rotular/documentar `measuredBaseline` como snapshot informativo ou criar atualização/consumidor verificável; evitar apresentá-lo como threshold aplicado."
     }
   ],
   "document_quality": {
