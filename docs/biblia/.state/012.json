@@ -2,10 +2,54 @@
   "index": 12,
   "file": "extension/background/actions/export-all.js",
   "bible": "docs/biblia/extension/background/actions/export-all.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
   "started_at_utc": "2026-09-30T12:33:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T12:39:00Z",
+  "audit_requests": [
+    {
+      "id": "012-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/export-all-action.test.js",
+      "found_while_auditing": "extension/background/actions/export-all.js",
+      "finding": "A suíte direta não cobre allDownloads truthy não-array, itens sem filename/string válida, runtime.lastError/id undefined, erro do waitForDownload, todos os itens falhando ou conclusão fora da ordem de criação.",
+      "current_evidence": "Lista vazia, prefixo de filename e lote feliz com dois downloads são provados diretamente.",
+      "missing_evidence": "Branches de payload inválido e falhas parciais/totais.",
+      "why_needed": "A action conta falhas como itens concluídos e responde ok:true mesmo quando downloads individuais falham.",
+      "requested_action": "Adicionar casos parametrizados contra a action real, inclusive falha parcial e total.",
+      "expected_evidence": "Contagem, ausência/presença de downloads.show e resposta final assertadas para cada cenário.",
+      "expected_auditor_action": "Fortalecer cobertura sem alterar o objeto auditado nesta etapa.",
+      "possible_regression": "Exportação pode reportar sucesso apesar de falhas invisíveis no lote.",
+      "impact": "Confiabilidade da exportação em massa.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "012-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/background/actions/export-all.js",
+      "found_while_auditing": "extension/background/actions/export-all.js",
+      "finding": "Falhas de download e waitForDownload são absorvidas por finishOne(); a resposta final permanece {ok:true} e não informa sucesso parcial, total de falhas ou erro agregado.",
+      "current_evidence": "Código real e fluxo dos callbacks mostram política best-effort silenciosa.",
+      "missing_evidence": "Decisão explícita se o popup deve receber sucesso mesmo com falhas parciais/totais.",
+      "why_needed": "O popup usa resp.ok para exibir 'Exportação concluída', podendo apresentar sucesso quando nenhum arquivo foi exportado.",
+      "requested_action": "Auditar UX/contrato e decidir se a resposta precisa carregar failedCount/errors ou ok:false quando todos falham.",
+      "expected_evidence": "Contrato de resposta definido e testes do popup/background alinhados.",
+      "expected_auditor_action": "Revisar comportamento funcional em processo separado.",
+      "possible_regression": "Mensagem de sucesso enganosa após falha real de exportação.",
+      "impact": "Experiência do usuário e diagnóstico de download.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "41/41",
+    "source_text_lines": 40,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia concorrente validada; fonte integral normalizada para equivalência física exata."
+  }
 }
