@@ -1,0 +1,11 @@
+{
+  "index": 147,
+  "file": "tests/unit/background/gtc-runtime-bridge.test.js",
+  "bible": "docs/biblia/tests/unit/background/gtc-runtime-bridge.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 22",
+  "source_sha": "21c01d044af7313cae9b571ab715c4e5846b9a30",
+  "started_at_utc": "2026-09-30T06:40:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
