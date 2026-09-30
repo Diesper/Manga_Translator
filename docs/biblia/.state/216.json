@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "216-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/manifest/surface-reduction.test.js",
       "found_while_auditing": "tests/unit/manifest/surface-reduction.test.js",
@@ -22,7 +22,11 @@
       "expected_evidence": "Teste falha para recurso interno não aprovado e permite somente exceções explícitas.",
       "expected_auditor_action": "Validar a política de exposição e ampliar a cobertura se apropriado.",
       "possible_regression": "Expansão acidental da superfície pública da extensão sem detecção.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. A proteção atual de `web_accessible_resources` é uma denylist de poucos caminhos sensíveis; não existe allowlist/contrato que impeça a exposição futura de outro recurso interno não listado.",
+      "auditor_recommended_action": "Definir superfície permitida por allowlist ou gate estrutural mais abrangente e adicionar mutation test com novo recurso interno exposto."
     }
   ],
   "document_quality": {
