@@ -14,6 +14,10 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - `docs/biblia/.reservas/` — ownership exclusivo por arquivo em modo multiagente;
 - `docs/biblia/.coordination/` — mutexes curtos de bootstrap/progresso.
 
+### Regra de ownership dos arquivos globais
+
+> **STATUS.md não tem dono.** `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md` e o corpo do PR são estado compartilhado e não podem receber reserva/ownership individual. O `PROGRESS.lock.md` é somente um mutex temporário para serializar uma edição curta; possuir esse mutex não torna o agente proprietário de nenhum desses arquivos.
+
 ## Corpus congelado
 
 - Base: `main` no início da reestruturação do PR #66.
@@ -79,6 +83,48 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#076 scripts/maintenance/diagnose-background-leak.js` — `AGENTE 1` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
   - `#077 scripts/maintenance/diagnose-jest-workers.js` — `AGENTE 3` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
 - Menor índice pendente sem reserva no momento desta atualização: `#078 scripts/release/sync-version.js`
+
+## Observações técnicas para auditoria futura — #056 `extension/reader/reader.js`
+
+> **Registro somente documental.** O #056 continua no estado atualmente aprovado; estas observações não alteram código, testes, Bíblia, CHECKLIST ou AUDITORIA. Elas registram lacunas de prova/robustez identificadas durante a análise para que um auditor futuro saiba exatamente o que confirmar.
+
+### Principais achados/lacunas
+
+1. **Virtualização: ciclo completo sem prova focal.** Há evidência de lazy-load, mas falta teste específico cobrindo `load → unload → reload`, inclusive preservação da altura do wrapper no unload.
+2. **Falha de `SM_GET_PAGE`.** Falta teste probatório específico de erro e recuperação/retry quando o carregamento de uma página falha.
+3. **Carregamento concorrente.** O estado `data-pending-src="loading"` aparenta impedir fetch duplicado enquanto existe `await`, mas falta teste focal que prove a invariância.
+4. **Payload malformado de `SM_PAGE_INDEX`.** O fluxo verifica `(pageIndexResp.pages || []).length` e depois usa `.map`; o auditor deve testar o caso em que `pages` exista mas não seja array e confirmar se a implementação precisa de `Array.isArray`.
+5. **Metadados ausentes com páginas existentes.** O reader pode exibir “Capítulo não encontrado” enquanto ainda há páginas recuperáveis do storage; o auditor deve decidir, com evidência, se isso é comportamento intencional ou inconsistência de UX/estado.
+6. **Falhas de APIs do navegador.** Não foi localizada prova focal para exceção de acesso a `localStorage` nem para rejeição/erro da Fullscreen API.
+7. **Fallback do contador.** Scroll/resize são coalescidos por `requestAnimationFrame`; falta teste focal garantindo que rajadas de eventos não causem trabalho redundante.
+8. **`currentReadWidth` aparentemente sem consumo posterior.** O valor é escrito, mas não foi encontrado uso posterior no arquivo; confirmar se é estado morto ou contrato indireto.
+9. **`loadedUrls = new Map()` aparentemente sem uso.** A estrutura é criada sem consumo observado; além disso, o comentário associado menciona `objectURL`, enquanto o fluxo observado trabalha com Data URLs. Confirmar se é legado morto ou se existe consumidor indireto não localizado.
+10. **Lifecycle de observers/listeners.** Não há cleanup/disconnect explícito observado; o código aparenta depender do lifecycle da página. O auditor deve validar se essa dependência é aceitável e documentar a justificativa.
+11. **Escala de DOM.** A memória das imagens é virtualizada, mas todos os wrappers permanecem no DOM; o custo estrutural continua O(N) no número de páginas. Avaliar capítulos muito grandes e registrar o risco/limite aceito.
+
+### O que é necessário para fechar essas lacunas
+
+- criar ou localizar testes focais que provem cada comportamento acima, sem promover mera execução indireta a prova;
+- testar explicitamente payloads anômalos retornados pelo storage manager;
+- provar descarregamento, preservação do layout e recarregamento posterior;
+- provar comportamento de erro/retry e ausência de fetch duplicado;
+- exercitar falhas reais/simuladas de `localStorage` e Fullscreen API;
+- determinar com evidência se `currentReadWidth` e `loadedUrls` são código/estado morto;
+- avaliar o custo de DOM para capítulos grandes e definir, se necessário, um limite ou invariante documentado.
+
+### O que o auditor deve fazer no #056
+
+1. Reabrir `extension/reader/reader.js` e reconfirmar o SHA antes de usar estas observações; se o SHA mudou, repetir a análise nas áreas afetadas.
+2. Conferir as assertions reais em:
+   - `tests/integration/reader.ui.test.js`;
+   - `tests/unit/reader/keyboard-nav.test.js`;
+   - `tests/unit/reader/page-counter.test.js`;
+   - `tests/e2e/reader-offline.spec.js`.
+3. Classificar cada item como **PROVA DIRETA EXISTENTE**, **PROVA INDIRETA**, **SEM TESTE PROBATÓRIO ESPECÍFICO** ou **NÃO APLICÁVEL**.
+4. Não considerar a simples existência/execução de um teste como prova sem verificar a assertion correspondente.
+5. Se uma lacuna reproduzir defeito real, registrar a correção em tarefa/PR funcional separado do PR #66 e exigir teste de regressão correspondente; não corrigir silenciosamente durante a auditoria documental.
+6. Se o comportamento for intencional, registrar explicitamente motivo, invariante esperado, casos-limite e risco aceito.
+7. Considerar uma lacuna encerrada somente quando houver evidência verificável do comportamento, e não apenas inspeção superficial.
 
 ## Auditoria de 2026-09-29
 
