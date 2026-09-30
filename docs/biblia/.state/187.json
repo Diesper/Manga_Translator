@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "187-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/rpa-flow.test.js",
       "found_while_auditing": "tests/unit/content-gemini/rpa-flow.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir a forma menos frágil de expor/validar o prompt canônico.",
       "possible_regression": "Fallback registra sucesso e conclui o fluxo enviando prompt errado ou vazio.",
       "impact": "Qualidade funcional da tradução quando o job chega sem prompt válido.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. CG-25 prova que o fallback foi escolhido e logado, mas não compara o texto de emergência efetivamente escrito/submetido no editor. Uma regressão no conteúdo do prompt pode passar mantendo o mesmo log.",
+      "auditor_recommended_action": "Capturar o texto final do editor/submission e comparar com o fallback canônico esperado, sem expor conteúdo sensível nos logs."
     },
     {
       "id": "187-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/rpa-flow.test.js",
       "found_while_auditing": "tests/unit/content-gemini/rpa-flow.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Validar a semântica terminal pretendida e criar cobertura separada se confirmada.",
       "possible_regression": "Dupla entrega ou estado contraditório para o mesmo job.",
       "impact": "Integridade de lifecycle/ownership e prevenção de resultado tardio.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. CG-27/CG-35 encerra a espera ao observar o primeiro `GEMINI_ERROR`; não aguarda uma janela final nem prova ausência de entrega tardia (`GEMINI_IMAGE_EXTRACTED`/`GEMINI_RESULT_URL`) depois do erro.",
+      "auditor_recommended_action": "Após o erro, drenar timers/microtasks relevantes e exigir zero ações de sucesso/fallback tardias."
     },
     {
       "id": "187-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_INFRA_REQUIRED",
       "target_file": "tests/unit/content-gemini/rpa-flow.test.js",
       "found_while_auditing": "tests/unit/content-gemini/rpa-flow.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Avaliar se o gate global já é suficiente ou aceitar cobertura focal de teardown.",
       "possible_regression": "Timer/observer atravessa testes, causa flakiness ou force-exit do worker em ordens específicas.",
       "impact": "Estabilidade e isolamento da suíte Jest.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. O afterEach chama `stop()` nos observers registrados e limpa referências, mas a ausência de observers/timers residuais é inferida pela estabilidade da suíte; não há assertion focal de registry vazio/recursos periódicos encerrados.",
+      "auditor_recommended_action": "Instrumentar registry/timers ou seams do observer e provar teardown idempotente após cada fluxo crítico."
     }
   ],
   "document_quality": {
