@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "089-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STRUCTURE_GATE_BUG",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Self-test/sandbox em que docs/biblia/.state/001.json válido passa sem produzir unexpectedBibleFiles.",
       "possible_regression": "npm run validate:structure/CI pode falhar permanentemente enquanto houver estados individuais válidos.",
       "impact": "Bloqueio do gate estrutural e incompatibilidade direta com a coordenação atual.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — bug estrutural confirmado. Ao listar `docs/biblia`, o verificador isenta apenas `.reservas/` e `.coordination/`; `.state/` não é infraestrutura permitida. Portanto `.state/*.json` cai em `unexpectedBibleFiles` apesar de ser parte obrigatória do protocolo atual.",
+      "auditor_recommended_action": "Adicionar `.state/` à infraestrutura permitida e validar seu formato explicitamente; criar self-test com árvore atual."
     },
     {
       "id": "089-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "COORDINATION_CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -38,7 +42,11 @@
       "expected_evidence": "Self-test com states válidos/inválidos e divergências controladas entre state, reserva e views agregadas.",
       "possible_regression": "Divergências reais de ownership/status podem passar despercebidas, enquanto janelas legítimas de agregação podem gerar falso negativo.",
       "impact": "Integridade da coordenação multiagente.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — contrato de coordenação desatualizado. O verificador deriva estados de STATUS/CHECKLIST/AUDITORIA e locks, mas não lê `.state/<index>.json`, embora o protocolo atual declare esses arquivos como estado canônico independente. Pode aceitar agregados stale ou rejeitar estado válido.",
+      "auditor_recommended_action": "Tornar `.state` fonte primária para status/agent/source_sha/audit_requests e validar agregados como projeções derivadas; checar 1:1 índice↔corpus↔bible."
     },
     {
       "id": "089-003",
