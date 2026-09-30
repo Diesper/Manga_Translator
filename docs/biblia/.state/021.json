@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "021-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/report-error-action.test.js",
       "found_while_auditing": "extension/background/actions/report-error.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer a suíte em alteração separada.",
       "possible_regression": "Erro de um job pode ser aceito com identidade parcial divergente ou payload limítrofe incorreto.",
       "impact": "Ownership e finalização de jobs com erro.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:24:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre batchId divergente e ownership inválido, mas não exercita os outros eixos do mesmo gate (`index` e `mangaTabId` divergentes), nem tipos inválidos restantes e boundary exato de 4096 chars. O branch de identidade parcial pode regredir sem afetar os casos atuais.",
+      "auditor_recommended_action": "Adicionar matriz parametrizada de index/mangaTabId mismatch, jobId/error não-string e exatamente 4096 caracteres, exigindo ausência de sendMessage/finalize em identidade divergente."
     },
     {
       "id": "021-002",
