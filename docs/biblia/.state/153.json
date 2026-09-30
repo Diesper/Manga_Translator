@@ -27,7 +27,17 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:18:00Z",
       "audit_finding": "ACCEPTED. `jobs-watchdog.js` faz `await finalizeJob(...)` dentro do callback async de `storage.local.get` e só depois limpa extraction tabs; não há try/finally ao redor. Se finalizeJob rejeitar, cleanup subsequente é pulado e a rejeição pode escapar do callback.",
-      "auditor_recommended_action": "Definir política de erro e garantir cleanup/telemetria via try/finally ou equivalente; adicionar teste com finalizeJob rejeitando."
+      "auditor_recommended_action": "Definir política de erro e garantir cleanup/telemetria via try/finally ou equivalente; adicionar teste com finalizeJob rejeitando.",
+      "revalidated_by": "AGENTE 15",
+      "revalidated_at_utc": "2026-09-30T22:00:00Z",
+      "revalidation_finding": "Confirmada no SHA atual: await finalizeJob ocorre antes do cleanup de extraction tabs e sem try/catch/finally. Busca por cenário equivalente com finalizeJob rejeitando não localizou prova automatizada focal.",
+      "next_plan": [
+        "Definir política explícita para rejeição de finalizeJob.",
+        "Se cleanup for obrigatório, proteger cleanup com finally ou mecanismo equivalente em alteração funcional separada.",
+        "Adicionar cenário focal com finalizeJob.mockRejectedValue usando a implementação real.",
+        "Verificar cleanup/retention de extractionTabs, tabs.remove, telemetria e tratamento da rejeição.",
+        "Reauditar a Bíblia e então decidir RESOLVED."
+      ]
     }
   ],
   "last_update_utc": "2026-09-30T22:00:00Z",
@@ -40,5 +50,6 @@
       "reason": "Usuário solicitou desfazer o lock residual do #153, assumir o arquivo e continuar o plano."
     }
   ],
-  "reopened_reason": "Continuidade explícita do plano da solicitação 153-001 após takeover autorizado pelo usuário."
+  "reopened_reason": "Continuidade explícita do plano da solicitação 153-001 após takeover autorizado pelo usuário.",
+  "progress_note": "Takeover concluído por AGENTE 15; 153-001 revalidada e plano detalhado registrado na Bíblia. Nenhum objeto externo foi alterado para fabricar evidência."
 }
