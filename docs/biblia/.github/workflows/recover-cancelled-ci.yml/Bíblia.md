@@ -1847,3 +1847,13 @@ jobs:
 
 **Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
 
+
+## 13. Autoauditoria mecânica
+
+- Fonte integral extraída desta própria Bíblia e comparada ao blob auditado: **equivalência textual exata confirmada**, incluindo o LF terminal.
+- SHA do blob auditado reconfirmado: `4809f824f177e93686c11270793eb672aee5952b`.
+- Cobertura estrutural: **70 blocos semânticos** cobrindo posições **1–317 exatamente uma vez**, sem gap e sem overlap.
+- Linhas textuais: **316**; posição documental adicional: **317 = newline final**.
+- Busca de evidência: nenhum teste específico do controlador, `actionlint` ou `yamllint` foi localizado; nenhuma ocorrência textual foi promovida indevidamente a prova direta.
+- Consumers/dependências reconfirmados: `ci.yml` fornece o workflow `MangaTranslator CI` e a política de cancelamento que motiva a recuperação; `actions/github-script@v7` fornece `github`, `context` e `core`.
+- Risco residual destacado: snapshot de PR/HEAD pode envelhecer entre seleção e POST, além do limite global de 120 min competir com até 30 min por candidato.
