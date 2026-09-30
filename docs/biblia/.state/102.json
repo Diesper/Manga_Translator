@@ -27,7 +27,7 @@
     },
     {
       "id": "102-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_LIFECYCLE_REVIEW",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -40,11 +40,15 @@
       "expected_auditor_action": "Classificar o risco e decidir se o helper deve cancelar o timer.",
       "possible_regression": "Muitas chamadas de sendMessage podem manter handles vivos desnecessariamente e contribuir para teardown tardio.",
       "impact": "Estabilidade/tempo de teardown das suites Jest.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. `sendMessage` sempre agenda fallback de 50 ms e não o cancela quando listener responde antes, deixando timer residual curto.",
+      "auditor_recommended_action": "Cancelar o fallback na primeira resolução e adicionar teste de zero timer pendente após resposta precoce, se o projeto exigir teardown limpo."
     },
     {
       "id": "102-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STATIC_CONTRACT_TEST_REQUIRED",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -57,11 +61,15 @@
       "expected_auditor_action": "Confirmar a duplicação contratual e escolher a estratégia de proteção.",
       "possible_regression": "Suites podem passar ou falhar por uma ordem de módulos que não existe no runtime real.",
       "impact": "Fidelidade do harness ao Manifest V3 real.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. A ordem dos seis módulos no harness coincide hoje com o manifest, mas é duplicada manualmente e não existe gate que compare as sequências.",
+      "auditor_recommended_action": "Adicionar contrato estático de inclusão/ordem ou derivar ambos de fonte canônica."
     },
     {
       "id": "102-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HARNESS_ROBUSTNESS",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -74,7 +82,11 @@
       "expected_auditor_action": "Revisar o contrato temporal e abrir correção separada se necessário.",
       "possible_regression": "Testes prosseguem com UI parcialmente inicializada e falham de forma intermitente.",
       "impact": "Determinismo e diagnosticabilidade das suites JSDOM.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. O polling de readiness termina após 250 ms sem erro/sinal caso a UI esperada não fique pronta; consumers seguem adiante assumindo bootstrap completo.",
+      "auditor_recommended_action": "Definir timeout como reject/estado explícito ou documentar best-effort; adicionar cenário de bootstrap lento com diagnóstico causal."
     }
   ],
   "document_quality": {
