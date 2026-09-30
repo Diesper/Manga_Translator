@@ -110,6 +110,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 61 | `.gitignore` | SHA `e48fc70b1acc...` reconfirmado; bloco integral exato | 37 linhas + newline final = 38/38 posições; 38 headings sequenciais | gate estrutural prova presença de `.jest-cache*/`, `.ci-results/`, `all-blob-reports/` e `dist/`; produtores Jest/Playwright/CI/publish/fixtures cruzados; demais patterns mantidos como contrato/lacuna sem inventar `git check-ignore` | explicação específica por glob + segurança `.env`, portabilidade, artifacts, fixtures e tradeoffs; comentário editorial stale registrado | ✅ APROVADO |
 | 62 | `jest.config.js` | SHA `f0b7c55a5c8c...` reconfirmado; bloco integral exato | 90 linhas + newline final = 91/91 posições; 91 headings sequenciais | `run-jest-ci.js` executa este config via Jest/listTests e prova partição unit/integration; `verify-ci-contract.js` protege provider V8, escopo `extension/**/*.js` e reporters-chave; ambientes/setup/cache/timeout classificados conservadoramente | 8 projetos específicos + cobertura condicional + trust boundary dos mocks + riscos de duas listas nominais, jsdom integrado e threshold externo | ✅ APROVADO |
 | 66 | `.github/workflows/publish.yml` | SHA `f673d445a3cc...` reconfirmado; bloco integral exato | 131 linhas + newline final = 132/132 posições; 24 blocos contíguos com faixas explícitas 1–132, sem lacunas | `verify-publish-contract.js` protege gatilhos/caminhos/ZIP/checksum; `version-sync.test.js` lê o workflow real e prova nomes derivados/anti-hardcode; execução de `gh release`, tag/checkout e races permanece conservadoramente como gap | lifecycle completo da release + trust boundaries de token/ref + montagem ZIP/docs/checksum + três ramos `gh`; riscos de mismatch checkout↔tag, `--clobber`, ausência de gate CI e concorrência registrados | ✅ APROVADO |
+| 68 | `scripts/ci/data/e2e-shard-plan.json` | SHA `22e8c20df9f4...` reconfirmado; bloco integral exato | 45 linhas + newline final = 46/46 posições; 46 headings sequenciais | `verify-e2e-shard-plan.js` executa `playwright --list` real por tag e prova cardinalidade, união exata, ausência de omissões e duplicatas; `verify-ci-contract.js` fixa ids/contagens/workers; `version`, `kind` não operacional e `estimatedSeconds` permanecem gaps explícitos | 5 grupos específicos + fluxo workflow→runner→Playwright + trust boundary CI; riscos de tag↔id, schema/version, workers e benchmark stale documentados | ✅ APROVADO |
 
 ### `temporary-chat.js` — criação e auditoria em 2026-09-29
 
@@ -605,6 +606,20 @@ A documentação genérica e os rótulos herdados por faixa foram substituídos 
 ### `deliver-result-url.js` — histórico resolvido
 
 Os comentários genéricos e a evidência por faixa foram substituídos por classificação por comportamento. O arquivo está **✅ APROVADO**.
+
+
+### `e2e-shard-plan.json` — auditoria aprovada em 2026-09-30
+
+- SHA `22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc` reconfirmado antes da aprovação;
+- bloco integral extraído da Bíblia e comparado ao fonte atual: equivalência exata confirmada;
+- 45 linhas textuais + newline final = 46/46 posições, com 46 headings `Linha/posição N` sequenciais;
+- `verify-e2e-shard-plan.js` foi lido e classificado como prova direta para a partição real: Playwright `--list --grep`, cardinalidade por grupo, união exata, interseção vazia e ausência de testes sem grupo;
+- `verify-ci-contract.js` foi lido como gate estático específico para exatamente cinco ids, contagens 1/3/4/4/9 e workers 1/3/2/2/3;
+- `run-e2e-group.js`, `playwright.config.js`, `package.json`, workflow CI, baseline e os três specs E2E foram cruzados como consumidores/dependências reais;
+- `version: 1`, os valores exatos de `kind`, `estimatedSeconds`, o mapeamento semântico tag↔id e a propagação focal de workers continuam documentados conservadoramente como lacunas onde não há assertion específica;
+- não foi confundida simples ocorrência textual com prova direta e o self-test do CI Contract foi explicitamente limitado ao que ele realmente muta.
+
+**Veredito:** ✅ APROVADO.
 
 ## Revisões obrigatórias concluídas
 
