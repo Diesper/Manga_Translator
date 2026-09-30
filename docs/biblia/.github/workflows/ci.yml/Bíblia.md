@@ -1016,13 +1016,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `version-integrity`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `version-integrity` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `version-integrity` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1044,13 +1044,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `version-integrity`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `version-integrity` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1072,13 +1072,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `version-integrity`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `version-integrity` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `version-integrity` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -1226,13 +1226,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `syntax-check`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `syntax-check` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `syntax-check` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1254,13 +1254,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `syntax-check`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `syntax-check` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1282,13 +1282,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `syntax-check`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `syntax-check` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `syntax-check` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -1408,13 +1408,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `manifest-validation`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `manifest-validation` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `manifest-validation` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1436,13 +1436,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `manifest-validation`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `manifest-validation` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1464,13 +1464,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `manifest-validation`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `manifest-validation` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `manifest-validation` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -1590,13 +1590,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `ci-contract`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `ci-contract` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `ci-contract` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1618,13 +1618,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `ci-contract`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `ci-contract` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -1646,13 +1646,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `ci-contract`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `ci-contract` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `ci-contract` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -1996,13 +1996,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `smoke`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `smoke` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `smoke` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2024,13 +2024,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `smoke`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `smoke` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2052,13 +2052,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `smoke`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `smoke` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `smoke` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2066,13 +2066,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `smoke`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `smoke` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2080,13 +2080,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `smoke` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2234,13 +2234,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `visual`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `visual` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `visual` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2262,13 +2262,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `visual`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `visual` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2290,13 +2290,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `visual`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `visual` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `visual` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2304,13 +2304,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `visual`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `visual` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2318,13 +2318,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `visual` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2458,13 +2458,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `      fail-fast: false`
 
-**O que faz:** Desabilita cancelamento automático dos irmãos de matriz quando um caso falha.
+**O que faz:** Impede que uma falha em uma combinação da matriz de `unit-and-integration` cancele automaticamente as demais.
 
-**Como faz:** GitHub continua lançando/executando as demais combinações.
+**Como faz:** A estratégia do GitHub continua as outras combinações e preserva seus resultados individuais.
 
-**Por que foi implementado dessa forma:** Preserva evidência completa de versões, shards ou diagnósticos mesmo quando um elemento falha.
+**Por que foi implementado dessa forma:** As versões Node devem ser avaliadas independentemente para distinguir regressão geral de incompatibilidade específica.
 
-**Por que uma implementação ingênua seria pior:** `fail-fast: true` pode ocultar quais outros shards/casos também estão quebrados e reduzir material de diagnóstico.
+**Por que uma implementação ingênua seria pior:** Com fail-fast ativo, o primeiro vermelho poderia cancelar casos ainda úteis e reduzir a informação disponível para triagem.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
 
@@ -2486,13 +2486,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        node-version: [20.x, 22.x]`
 
-**O que faz:** Seleciona Node.js [20.x, 22.x] para este contexto.
+**O que faz:** Seleciona Node.js `[20.x, 22.x]` no job `unit-and-integration`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** A matriz cobre Node 20.x e 22.x para detectar incompatibilidades do Jest/tooling entre LTSs.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `unit-and-integration` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2528,13 +2528,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `unit-and-integration`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `unit-and-integration` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `unit-and-integration` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2556,13 +2556,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `unit-and-integration`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `unit-and-integration` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2584,13 +2584,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: ${{ matrix.node-version }}`
 
-**O que faz:** Seleciona Node.js ${{ matrix.node-version }} para este contexto.
+**O que faz:** Seleciona Node.js `${{ matrix.node-version }}` no job `unit-and-integration`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; cada expansão da matriz recebe sua própria versão.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** A matriz cobre Node 20.x e 22.x para detectar incompatibilidades do Jest/tooling entre LTSs.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `unit-and-integration` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2598,13 +2598,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `unit-and-integration`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `unit-and-integration` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2612,13 +2612,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `unit-and-integration` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2766,13 +2766,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `coverage`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `coverage` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `coverage` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2794,13 +2794,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `coverage`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `coverage` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -2822,13 +2822,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `coverage`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `coverage` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `coverage` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2836,13 +2836,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `coverage`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `coverage` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -2850,13 +2850,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `coverage` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -3340,13 +3340,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/upload-artifact@v4`
 
-**O que faz:** Publica arquivos diagnósticos/coverage como artifact do run.
+**O que faz:** Publica o artifact produzido pelo job `coverage`.
 
-**Como faz:** A action lê `with.path` e cria artifact nomeado para inspeção posterior.
+**Como faz:** A action lê nome/path/retenção nas linhas filhas e transfere os arquivos para armazenamento do run antes da VM ser destruída.
 
-**Por que foi implementado dessa forma:** Falhas de testes/leaks precisam evidência persistente mesmo após VM efêmera desaparecer.
+**Por que foi implementado dessa forma:** Preserva o relatório HTML/local de coverage para inspeção humana.
 
-**Por que uma implementação ingênua seria pior:** Sem upload, logs/trace/report locais somem ao finalizar runner e a triagem perde dados.
+**Por que uma implementação ingênua seria pior:** Sem upload, resultados gerados no filesystem efêmero desapareceriam no fim do job; tornar o upload bloqueante poderia confundir falha auxiliar com falha do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -3508,13 +3508,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `      fail-fast: false`
 
-**O que faz:** Desabilita cancelamento automático dos irmãos de matriz quando um caso falha.
+**O que faz:** Impede que uma falha em uma combinação da matriz de `e2e-shard` cancele automaticamente as demais.
 
-**Como faz:** GitHub continua lançando/executando as demais combinações.
+**Como faz:** A estratégia do GitHub continua as outras combinações e preserva seus resultados individuais.
 
-**Por que foi implementado dessa forma:** Preserva evidência completa de versões, shards ou diagnósticos mesmo quando um elemento falha.
+**Por que foi implementado dessa forma:** Todos os cinco grupos precisam deixar evidência; uma falha em um não deve esconder o estado dos outros quatro.
 
-**Por que uma implementação ingênua seria pior:** `fail-fast: true` pode ocultar quais outros shards/casos também estão quebrados e reduzir material de diagnóstico.
+**Por que uma implementação ingênua seria pior:** Com fail-fast ativo, o primeiro vermelho poderia cancelar casos ainda úteis e reduzir a informação disponível para triagem.
 
 **Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `scripts/validation/verify-ci-contract.js` inspeciona este contrato ou o bloco funcional correspondente e falha quando o marcador obrigatório desaparece/enfraquece.
 
@@ -3578,13 +3578,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `e2e-shard`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `e2e-shard` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `e2e-shard` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -3606,13 +3606,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `e2e-shard`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `e2e-shard` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -3634,13 +3634,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `e2e-shard`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `e2e-shard` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `e2e-shard` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -3648,13 +3648,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `e2e-shard`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `e2e-shard` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -3662,13 +3662,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `e2e-shard` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -3830,13 +3830,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/upload-artifact@v4`
 
-**O que faz:** Publica arquivos diagnósticos/coverage como artifact do run.
+**O que faz:** Publica o artifact produzido pelo job `e2e-shard`.
 
-**Como faz:** A action lê `with.path` e cria artifact nomeado para inspeção posterior.
+**Como faz:** A action lê nome/path/retenção nas linhas filhas e transfere os arquivos para armazenamento do run antes da VM ser destruída.
 
-**Por que foi implementado dessa forma:** Falhas de testes/leaks precisam evidência persistente mesmo após VM efêmera desaparecer.
+**Por que foi implementado dessa forma:** Transporta blob report ou evidência de falha do shard para agregação/diagnóstico.
 
-**Por que uma implementação ingênua seria pior:** Sem upload, logs/trace/report locais somem ao finalizar runner e a triagem perde dados.
+**Por que uma implementação ingênua seria pior:** Sem upload, resultados gerados no filesystem efêmero desapareceriam no fim do job; tornar o upload bloqueante poderia confundir falha auxiliar com falha do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -3942,13 +3942,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/upload-artifact@v4`
 
-**O que faz:** Publica arquivos diagnósticos/coverage como artifact do run.
+**O que faz:** Publica o artifact produzido pelo job `e2e-shard`.
 
-**Como faz:** A action lê `with.path` e cria artifact nomeado para inspeção posterior.
+**Como faz:** A action lê nome/path/retenção nas linhas filhas e transfere os arquivos para armazenamento do run antes da VM ser destruída.
 
-**Por que foi implementado dessa forma:** Falhas de testes/leaks precisam evidência persistente mesmo após VM efêmera desaparecer.
+**Por que foi implementado dessa forma:** Transporta blob report ou evidência de falha do shard para agregação/diagnóstico.
 
-**Por que uma implementação ingênua seria pior:** Sem upload, logs/trace/report locais somem ao finalizar runner e a triagem perde dados.
+**Por que uma implementação ingênua seria pior:** Sem upload, resultados gerados no filesystem efêmero desapareceriam no fim do job; tornar o upload bloqueante poderia confundir falha auxiliar com falha do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -4194,13 +4194,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `e2e`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `e2e` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `e2e` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -4222,13 +4222,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `e2e`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `e2e` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -4250,13 +4250,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `e2e`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `e2e` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `e2e` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -4264,13 +4264,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `e2e`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `e2e` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -4278,13 +4278,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `e2e` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -4642,13 +4642,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `      fail-fast: false`
 
-**O que faz:** Desabilita cancelamento automático dos irmãos de matriz quando um caso falha.
+**O que faz:** Impede que uma falha em uma combinação da matriz de `jest-worker-diagnostic` cancele automaticamente as demais.
 
-**Como faz:** GitHub continua lançando/executando as demais combinações.
+**Como faz:** A estratégia do GitHub continua as outras combinações e preserva seus resultados individuais.
 
-**Por que foi implementado dessa forma:** Preserva evidência completa de versões, shards ou diagnósticos mesmo quando um elemento falha.
+**Por que foi implementado dessa forma:** Diagnóstico de leak precisa observar vários recortes mesmo quando um reproduz o problema.
 
-**Por que uma implementação ingênua seria pior:** `fail-fast: true` pode ocultar quais outros shards/casos também estão quebrados e reduzir material de diagnóstico.
+**Por que uma implementação ingênua seria pior:** Com fail-fast ativo, o primeiro vermelho poderia cancelar casos ainda úteis e reduzir a informação disponível para triagem.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
 
@@ -4978,13 +4978,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `jest-worker-diagnostic`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `jest-worker-diagnostic` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `jest-worker-diagnostic` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -5006,13 +5006,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `jest-worker-diagnostic`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `jest-worker-diagnostic` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -5034,13 +5034,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `jest-worker-diagnostic`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `jest-worker-diagnostic` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `jest-worker-diagnostic` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -5048,13 +5048,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `jest-worker-diagnostic`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `jest-worker-diagnostic` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -5062,13 +5062,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `jest-worker-diagnostic` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -5160,13 +5160,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/upload-artifact@v4`
 
-**O que faz:** Publica arquivos diagnósticos/coverage como artifact do run.
+**O que faz:** Publica o artifact produzido pelo job `jest-worker-diagnostic`.
 
-**Como faz:** A action lê `with.path` e cria artifact nomeado para inspeção posterior.
+**Como faz:** A action lê nome/path/retenção nas linhas filhas e transfere os arquivos para armazenamento do run antes da VM ser destruída.
 
-**Por que foi implementado dessa forma:** Falhas de testes/leaks precisam evidência persistente mesmo após VM efêmera desaparecer.
+**Por que foi implementado dessa forma:** Preserva JSON/logs de diagnóstico de worker/leak mesmo quando o comando bloqueante falha.
 
-**Por que uma implementação ingênua seria pior:** Sem upload, logs/trace/report locais somem ao finalizar runner e a triagem perde dados.
+**Por que uma implementação ingênua seria pior:** Sem upload, resultados gerados no filesystem efêmero desapareceriam no fim do job; tornar o upload bloqueante poderia confundir falha auxiliar com falha do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -5384,13 +5384,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `      fail-fast: false`
 
-**O que faz:** Desabilita cancelamento automático dos irmãos de matriz quando um caso falha.
+**O que faz:** Impede que uma falha em uma combinação da matriz de `focused-project-leak-diagnostic` cancele automaticamente as demais.
 
-**Como faz:** GitHub continua lançando/executando as demais combinações.
+**Como faz:** A estratégia do GitHub continua as outras combinações e preserva seus resultados individuais.
 
-**Por que foi implementado dessa forma:** Preserva evidência completa de versões, shards ou diagnósticos mesmo quando um elemento falha.
+**Por que foi implementado dessa forma:** Diagnóstico de leak precisa observar vários recortes mesmo quando um reproduz o problema.
 
-**Por que uma implementação ingênua seria pior:** `fail-fast: true` pode ocultar quais outros shards/casos também estão quebrados e reduzir material de diagnóstico.
+**Por que uma implementação ingênua seria pior:** Com fail-fast ativo, o primeiro vermelho poderia cancelar casos ainda úteis e reduzir a informação disponível para triagem.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE no carregamento YAML/execução do bloco; sem assertion focal desta linha isolada.
 
@@ -5608,13 +5608,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `focused-project-leak-diagnostic`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `focused-project-leak-diagnostic` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `focused-project-leak-diagnostic` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -5636,13 +5636,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `focused-project-leak-diagnostic`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `focused-project-leak-diagnostic` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -5664,13 +5664,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `focused-project-leak-diagnostic`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `focused-project-leak-diagnostic` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `focused-project-leak-diagnostic` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -5678,13 +5678,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `focused-project-leak-diagnostic`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `focused-project-leak-diagnostic` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -5692,13 +5692,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `focused-project-leak-diagnostic` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -5790,13 +5790,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/upload-artifact@v4`
 
-**O que faz:** Publica arquivos diagnósticos/coverage como artifact do run.
+**O que faz:** Publica o artifact produzido pelo job `focused-project-leak-diagnostic`.
 
-**Como faz:** A action lê `with.path` e cria artifact nomeado para inspeção posterior.
+**Como faz:** A action lê nome/path/retenção nas linhas filhas e transfere os arquivos para armazenamento do run antes da VM ser destruída.
 
-**Por que foi implementado dessa forma:** Falhas de testes/leaks precisam evidência persistente mesmo após VM efêmera desaparecer.
+**Por que foi implementado dessa forma:** Preserva JSON/logs de diagnóstico de worker/leak mesmo quando o comando bloqueante falha.
 
-**Por que uma implementação ingênua seria pior:** Sem upload, logs/trace/report locais somem ao finalizar runner e a triagem perde dados.
+**Por que uma implementação ingênua seria pior:** Sem upload, resultados gerados no filesystem efêmero desapareceriam no fim do job; tornar o upload bloqueante poderia confundir falha auxiliar com falha do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6028,13 +6028,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `background-leak-bisection`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `background-leak-bisection` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `background-leak-bisection` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6056,13 +6056,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `background-leak-bisection`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `background-leak-bisection` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6084,13 +6084,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `background-leak-bisection`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `background-leak-bisection` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `background-leak-bisection` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6098,13 +6098,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `background-leak-bisection`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `background-leak-bisection` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6112,13 +6112,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `background-leak-bisection` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6280,13 +6280,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/upload-artifact@v4`
 
-**O que faz:** Publica arquivos diagnósticos/coverage como artifact do run.
+**O que faz:** Publica o artifact produzido pelo job `background-leak-bisection`.
 
-**Como faz:** A action lê `with.path` e cria artifact nomeado para inspeção posterior.
+**Como faz:** A action lê nome/path/retenção nas linhas filhas e transfere os arquivos para armazenamento do run antes da VM ser destruída.
 
-**Por que foi implementado dessa forma:** Falhas de testes/leaks precisam evidência persistente mesmo após VM efêmera desaparecer.
+**Por que foi implementado dessa forma:** Preserva JSON/logs de diagnóstico de worker/leak mesmo quando o comando bloqueante falha.
 
-**Por que uma implementação ingênua seria pior:** Sem upload, logs/trace/report locais somem ao finalizar runner e a triagem perde dados.
+**Por que uma implementação ingênua seria pior:** Sem upload, resultados gerados no filesystem efêmero desapareceriam no fim do job; tornar o upload bloqueante poderia confundir falha auxiliar com falha do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6490,13 +6490,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `windows-portability`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `windows-portability` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `windows-portability` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6518,13 +6518,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `windows-portability`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `windows-portability` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6546,13 +6546,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `windows-portability`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `windows-portability` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `windows-portability` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6560,13 +6560,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `windows-portability`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `windows-portability` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6574,13 +6574,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `windows-portability` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6896,13 +6896,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/checkout@v4`
 
-**O que faz:** Faz checkout do commit/ref que disparou a execução.
+**O que faz:** Materializa o commit do evento no workspace do job `fresh-developer-flow`.
 
-**Como faz:** A action oficial materializa o repositório em `$GITHUB_WORKSPACE` para os passos seguintes.
+**Como faz:** `actions/checkout@v4` popula `$GITHUB_WORKSPACE` com a revisão que disparou este run.
 
-**Por que foi implementado dessa forma:** Todos os validadores e testes leem arquivos relativos à raiz do checkout.
+**Por que foi implementado dessa forma:** Sem esse checkout, `fresh-developer-flow` não teria acesso aos arquivos específicos que precisa validar/executar.
 
-**Por que uma implementação ingênua seria pior:** Sem checkout, scripts locais e package.json não existem no workspace; usar outro SHA testaria código diferente do evento.
+**Por que uma implementação ingênua seria pior:** Executar `fresh-developer-flow` sobre outro SHA ou sem checkout quebraria a correspondência entre o check exibido no PR e o código realmente avaliado.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6952,13 +6952,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `        uses: actions/setup-node@v4`
 
-**O que faz:** Inicializa uma instalação controlada de Node.js.
+**O que faz:** Prepara Node.js para o job `fresh-developer-flow`.
 
-**Como faz:** A action oficial resolve a versão declarada em `with` e pode configurar cache npm.
+**Como faz:** `actions/setup-node@v4` ativa a versão indicada no `with` imediatamente abaixo e, quando configurado, integra cache npm.
 
-**Por que foi implementado dessa forma:** Evita depender da versão incidental pré-instalada no runner e padroniza o runtime.
+**Por que foi implementado dessa forma:** O tooling chamado por `fresh-developer-flow` é Node/npm; controlar o runtime evita depender da versão incidental da imagem do runner.
 
-**Por que uma implementação ingênua seria pior:** Usar o Node default do runner torna resultados sensíveis a mudanças de imagem e pode esconder incompatibilidade.
+**Por que uma implementação ingênua seria pior:** Confiar no Node pré-instalado pode mudar silenciosamente quando a imagem `*-latest` evolui e produzir divergência entre jobs.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: o passo é materializado pelo GitHub Actions quando o job roda, mas não há assertion focal neste repositório que fixe exatamente esta referência de action.
 
@@ -6980,13 +6980,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          node-version: 20.x`
 
-**O que faz:** Seleciona Node.js 20.x para este contexto.
+**O que faz:** Seleciona Node.js `20.x` no job `fresh-developer-flow`.
 
-**Como faz:** `setup-node` instala/ativa essa versão antes dos comandos Node/npm.
+**Como faz:** O valor é input de `setup-node`; essa versão fica ativa para os steps Node/npm seguintes.
 
-**Por que foi implementado dessa forma:** Node 20 é o baseline CI; o job matricial também testa 22 para portabilidade entre LTSs suportados.
+**Por que foi implementado dessa forma:** `fresh-developer-flow` usa Node 20.x como baseline previsível da CI.
 
-**Por que uma implementação ingênua seria pior:** Não fixar major permite drift do runner; testar só uma versão reduz sinal sobre compatibilidade.
+**Por que uma implementação ingênua seria pior:** Deixar a versão implícita faria `fresh-developer-flow` depender da imagem do runner; mudar apenas este job para outra major poderia criar resultados inconsistentes com o restante da pipeline.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -6994,13 +6994,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache: npm`
 
-**O que faz:** Habilita cache gerenciado do npm via `setup-node`.
+**O que faz:** Habilita cache npm no setup do job `fresh-developer-flow`.
 
-**Como faz:** A action deriva chave de cache do lockfile e restaura conteúdo de cache do gerenciador, não `node_modules`.
+**Como faz:** `setup-node` restaura o cache do gerenciador associado ao lockfile; `npm ci` continua criando a árvore de dependências limpa.
 
-**Por que foi implementado dessa forma:** Reduz downloads repetidos mantendo `npm ci` como instalação determinística.
+**Por que foi implementado dessa forma:** `fresh-developer-flow` instala dependências em todo run e se beneficia de downloads reaproveitados sem reutilizar `node_modules`.
 
-**Por que uma implementação ingênua seria pior:** Cachear `node_modules` diretamente aumenta risco de artefatos incompatíveis entre Node/OS e viola a semântica limpa do `npm ci`.
+**Por que uma implementação ingênua seria pior:** Cachear `node_modules` seria mais frágil entre SO/Node; desabilitar cache aumenta tempo e tráfego sem fortalecer o lockfile.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
@@ -7008,13 +7008,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `          cache-dependency-path: package-lock.json`
 
-**O que faz:** Define o lockfile raiz como fonte da chave de cache npm.
+**O que faz:** Amarra a chave de cache npm de `fresh-developer-flow` ao `package-lock.json` canônico da raiz.
 
-**Como faz:** Mudanças no `package-lock.json` invalidam/restabelecem cache apropriado.
+**Como faz:** Mudanças no lockfile alteram a chave de cache usada por `setup-node`.
 
-**Por que foi implementado dessa forma:** O repositório foi centralizado em um único lockfile canônico.
+**Por que foi implementado dessa forma:** O repositório foi reestruturado para um único package/lockfile raiz; o cache deve seguir essa fonte de dependências.
 
-**Por que uma implementação ingênua seria pior:** Apontar para lockfile legado de `tests/` criaria cache stale e contradiz a arquitetura centralizada.
+**Por que uma implementação ingênua seria pior:** Apontar para um lockfile legado ou não declarar o path pode restaurar cache incoerente com a árvore que `npm ci` precisa instalar.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando o job correspondente é avaliado pelo GitHub Actions; nenhuma assertion focal adicional foi localizada para esta propriedade exata.
 
