@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "059-STATE-001",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "type": "STATE_RECOVERY_REVIEW",
       "target_file": "docs/biblia/.state/059.json",
       "found_while_auditing": "extension/shared/shared-ui.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Revisar a recuperação e resolver esta solicitação quando a integridade histórica estiver confirmada.",
       "possible_regression": "Lacunas descritas na Bíblia podem deixar de aparecer no agregador de audit_requests caso o state anterior contivesse solicitações perdidas.",
       "impact": "Integridade de coordenação/auditoria; nenhum código ou Bíblia foi alterado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:22:00Z",
+      "audit_finding": "RESOLVED. O histórico Git acessível do path docs/biblia/.state/059.json contém somente os commits de recuperação atuais; no commit-pai anterior à criação do state o path retorna 404. O state recuperado está COMPLETED e o source_sha registrado coincide com o blob atual. Não existe predecessor recuperável na ancestralidade consultada a partir do qual audit_requests adicionais possam ser restaurados fielmente.",
+      "auditor_recommended_action": "Preservar esta limitação histórica como nota de auditoria e não inventar solicitações ausentes. Se no futuro surgir fonte externa verificável de um state anterior, reconciliar apenas com evidência concreta.",
+      "resolution_basis": "Git history of current branch ancestry + direct parent path absence + source SHA consistency"
     }
   ],
   "recovery": {
