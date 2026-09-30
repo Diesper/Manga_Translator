@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/helpers-real.test.js
 
-> **Estado documental:** ✅ CONCLUÍDO — autoauditoria técnica aprovada pelo AGENTE 13  
+> **Estado documental:** ✅ CONCLUÍDO — revalidado pelo AGENTE 20; autoria histórica AGENTE 13  
 > **Arquivo auditado:** `tests/unit/background/helpers-real.test.js`  
 > **SHA auditado:** `668cef7f592231856d5071bd35ff6c5c12848a41`  
 > **Agente:** AGENTE 13  
@@ -1074,3 +1074,20 @@ A posição 284 fecha o `describe`; a 285 representa o newline terminal.
 - nenhuma alteração realizada em código, testes, fixtures, workflows, configs, STATUS, CHECKLIST ou AUDITORIA.
 
 **Veredito da autoauditoria:** ✅ APROVADO para conclusão documental, com solicitações externas mantidas em `audit_requests`.
+
+## 14. Revalidação de ownership — AGENTE 20 — 2026-09-30
+
+O **AGENTE 20** assumiu explicitamente o índice **#149** por instrução do usuário e revalidou a Bíblia contra o blob atual.
+
+### Resultado da revalidação
+
+- fonte: `tests/unit/background/helpers-real.test.js`;
+- SHA reconfirmado: `668cef7f592231856d5071bd35ff6c5c12848a41`;
+- **284 linhas textuais + newline final = 285/285 posições documentais**;
+- o fonte integral continua embutido nesta Bíblia sem divergência textual;
+- permanece explícito que a lógica de `background.js` é real, mas carregada por ponte de instrumentação e executada com APIs Chrome mockadas;
+- nenhuma execução contemporânea de CI foi inventada ou promovida a evidência;
+- permanecem abertas as solicitações `149-001` a `149-004`, cobrindo durabilidade do log, contrato de IDs, ordenação do watchdog e side effects de inputs inválidos;
+- nenhum código, teste, fixture, workflow ou configuração funcional foi alterado nesta revalidação.
+
+**Veredito AGENTE 20:** ✅ Bíblia documentalmente concluída para o SHA acima, com quatro solicitações externas preservadas no state.
