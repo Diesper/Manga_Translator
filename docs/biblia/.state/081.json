@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "081-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/validate-manifest-selftest.js",
       "found_while_auditing": "scripts/validation/validate-manifest.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir o desenho de sandbox/refatoração testável antes de alterar o objeto auditado.",
       "possible_regression": "O gate pode deixar de rejeitar um Manifest inválido enquanto o caso canônico continua verde.",
       "impact": "Integridade do gate de Manifest na CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. Não há self-test da implementação real para campos ausentes/falsy, manifest_version inválido, JSON malformado ou arquivo ausente/inacessível. O run verde e `surface-reduction.test.js` não exercitam os branches do validador.",
+      "auditor_recommended_action": "Adicionar self-test em sandbox que execute os bytes reais e verifique status/stdout/stderr para cada branch negativo."
     },
     {
       "id": "081-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/validate-manifest.js",
       "found_while_auditing": "scripts/validation/validate-manifest.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Classificar a regra atual como contrato suficiente ou solicitar mudança separada com regressões.",
       "possible_regression": "Manifest semanticamente incorreto pode atravessar este gate específico e depender de outra camada para falhar.",
       "impact": "Precisão do contrato de validação do Manifest.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED como revisão de contrato. A validação usa apenas truthiness para `manifest_version/name/version/permissions` e igualdade numérica para MV3. Tipos/shape truthy inadequados podem atravessar este gate específico.",
+      "auditor_recommended_action": "Definir explicitamente se o gate é apenas presença/truthiness ou validação estrutural; ampliar e testar se tipos/shape forem requisito."
     },
     {
       "id": "081-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/validation/validate-manifest.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Confirmar se o wiring deve ser parte do contrato estático e, se sim, implementar a proteção fora desta auditoria documental.",
       "possible_regression": "O job pode manter o mesmo nome e ficar verde executando outro comando, removendo silenciosamente este gate.",
       "impact": "Continuidade do gate de Manifest no CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. O wiring atual está correto (`package.json#validate:manifest` aponta ao script e o job Manifest Validation o executa), mas `verify-ci-contract.js` protege o id do job sem checar esse comando/alias. Há risco de bypass futuro mantendo o job nominal.",
+      "auditor_recommended_action": "Adicionar gate estático para o comando do job e alias npm, com mutation/self-test negativo."
     }
   ],
   "document_quality": {
