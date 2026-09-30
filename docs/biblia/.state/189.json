@@ -1,0 +1,11 @@
+{
+  "index": 189,
+  "file": "tests/unit/content-gemini/temp-chat-activator.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/temp-chat-activator.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "f9418a4301c97d91e06d47196729218aaedbdd37",
+  "started_at_utc": "2026-09-30T14:54:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
