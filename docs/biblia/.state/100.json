@@ -27,7 +27,7 @@
     },
     {
       "id": "100-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ISOLATION_REVIEW",
       "target_file": "tests/helpers/load-background-module.js",
       "found_while_auditing": "tests/helpers/load-background-module.js",
@@ -40,7 +40,11 @@
       "expected_auditor_action": "Classificar os compartilhamentos como deliberados ou solicitar correção do harness/setup.",
       "possible_regression": "Teste passa/falha conforme ordem por cache ou listener residual.",
       "impact": "Determinismo das suítes unitárias e de integração.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:01:00Z",
+      "audit_finding": "ACCEPTED — isolamento parcial confirmado. Cada chamada recompila `background.js` em uma nova `Function`, porém `Module.createRequire(backgroundPath)` usa o cache CommonJS normal e o runner recebe `globalThis.chrome/global.fetch/global.FileReader`; o background e dependências publicam namespaces/listeners globais. Não existe teardown global no helper nem teste de duas cargas independentes.",
+      "auditor_recommended_action": "Adicionar teste de duas cargas consecutivas com módulos stateful/listeners/globals e definir política de cache/reset. Se isolamento total for requisito, limpar cache/namespaces/listeners explicitamente ou usar contexto VM/Jest isolation."
     },
     {
       "id": "100-003",
