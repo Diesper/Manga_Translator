@@ -2,10 +2,82 @@
   "index": 176,
   "file": "tests/unit/content-gemini/deletion.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
   "started_at_utc": "2026-09-30T15:00:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T15:15:00Z",
+  "audit_requests": [
+    {
+      "id": "176-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/deletion.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "DEL-08 usa debugMode=true, portanto recoverPending chama deleteCurrentConversation mas sai por DEBUG_MODE_SKIP; não prova exclusão DOM real nem lockScroll.",
+      "current_evidence": "DEL-04 prova exclusão nominal fora do recovery; DEL-08 prova marker reconhecido, clearRecovery e sendDelivery uma vez em modo debug.",
+      "missing_evidence": "recoverPending com debugMode=false e DOM nominal, lockScroll:true, confirmação real, marker removido, sendDelivery uma vez e cleanup dos listeners/scroll lock.",
+      "why_needed": "O caminho pós-reload pode quebrar independentemente do delete nominal isolado.",
+      "requested_action": "Adicionar caso focal de recovery com exclusão real.",
+      "expected_evidence": "deleted=true por remoção real da conversa e scroll lock liberado no finally.",
+      "expected_auditor_action": "Priorizar por validade do teste de recovery.",
+      "possible_regression": "Recovery pós-reload falha no DOM/scroll lock sem afetar DEL-08.",
+      "impact": "Confiabilidade da recuperação de exclusão.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "176-002",
+      "status": "OPEN",
+      "type": "DURABILITY_REVIEW",
+      "target_file": "extension/content/gemini/deletion.js",
+      "related_files": [
+        "tests/unit/content-gemini/deletion.test.js",
+        "extension/content/gemini/job-runner.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "recoverPending chama clearRecovery(tabId) antes de await sendDelivery(recovery.delivery). Se sendDelivery falhar, o marker já foi apagado; no job-runner a entrega usa runtime.sendMessage sem ACK explícito.",
+      "current_evidence": "DEL-08 usa sendDelivery bem-sucedido e só prova entrega única nesse caminho.",
+      "missing_evidence": "Falha/rejeição de sendDelivery e definição do contrato desejado de at-most-once vs retry durável.",
+      "why_needed": "A ordem atual pode perder permanentemente um resultado/erro recuperado.",
+      "requested_action": "Revisar a ordem clear→delivery; se a intenção for retry durável, manter marker até entrega confirmada ou persistir estado de ACK; adicionar teste focal.",
+      "expected_evidence": "Sem perda silenciosa quando delivery falha.",
+      "expected_auditor_action": "Revisar semântica de durabilidade em alteração separada.",
+      "possible_regression": "Resultado/erro recuperado pode ser perdido após reload.",
+      "impact": "Integridade de entrega pós-recovery.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "176-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/deletion.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "storageSet/storageRemove tratam chrome.runtime.lastError, Promise rejection e throw; a suíte usa storage saudável e não prova esses branches.",
+      "current_evidence": "DEL-07/09 provam persistência/remoção nominal.",
+      "missing_evidence": "saveRecovery falhando deve impedir reload; clearRecovery falhando em recoverPending precisa comportamento explícito. Cobrir callback lastError e Promise rejection.",
+      "why_needed": "Persistência é pré-condição para recovery seguro.",
+      "requested_action": "Adicionar testes de falha de storage.",
+      "expected_evidence": "Nenhum reload sem marker durável e erros de remove/set não são mascarados.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Reload sem recovery persistido ou estado parcialmente limpo.",
+      "impact": "Durabilidade do fluxo de exclusão.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "350/350",
+    "source_text_lines": 349,
+    "bible_lines": 2906,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; dez casos DEL passaram individualmente; global 109/109 suítes e 851/851 testes."
+  }
 }
