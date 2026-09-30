@@ -1,0 +1,11 @@
+{
+  "index": 181,
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+  "started_at_utc": "2026-09-30T16:00:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
