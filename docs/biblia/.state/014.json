@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "014-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "found_while_auditing": "extension/background/actions/force-send-activation.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar contrato sem alterar esta Bíblia.",
       "possible_regression": "Código morto pode divergir silenciosamente ou remoção inadvertida pode quebrar integração antiga.",
       "impact": "Compatibilidade de ativação manual/legada do Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:45:00Z",
+      "audit_finding": "ACCEPTED. A action FORCE_SEND_ACTIVATION continua registrada/testada, mas o `job-runner.js` atual não emite essa action. O contrato permanece sem consumidor operacional identificado nesta trilha, caracterizando superfície de compatibilidade/legado que precisa de decisão explícita.",
+      "auditor_recommended_action": "Inventariar consumidores históricos/externos e decidir manter, deprecar ou remover a action em mudança separada; proteger a decisão com teste/documentação compatível."
     },
     {
       "id": "014-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/force-send-activation-action.test.js",
       "found_while_auditing": "extension/background/actions/force-send-activation.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Fortalecer cobertura em alteração separada.",
       "possible_regression": "A action pode responder sucesso sem efetivar ativação/foco e isso permanecer invisível.",
       "impact": "Confiabilidade do fallback de ativação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:45:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre apenas minimized_window nominal e fallback por aba. Não há casos para IDs ausentes, minimized_window sem windowId, conflito entre executionMode do request e storage nem falhas/lastError das APIs Chrome; a action responde sucesso antes desses efeitos assíncronos.",
+      "auditor_recommended_action": "Adicionar matriz de edge cases e Chrome API failures, fixando a política atual de fallback/swallow versus sucesso aparente."
     }
   ],
   "document_quality": {
