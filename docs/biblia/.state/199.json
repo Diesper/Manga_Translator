@@ -1,0 +1,11 @@
+{
+  "index": 199,
+  "file": "tests/unit/content-manga/chapter-id-rejection.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/chapter-id-rejection.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "783c8abd86029345a97ce44f4eaf5415274bf4b3",
+  "started_at_utc": "2026-09-30T14:49:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
