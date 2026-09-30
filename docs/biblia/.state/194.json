@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "194-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_MISMATCH",
       "target_file": "tests/unit/content-manga/auto-restorer-real.test.js",
       "found_while_auditing": "tests/unit/content-manga/auto-restorer-real.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar o contrato atual de persistência sem DOM e alinhar nome/assertions sem usar esta Bíblia como prova retroativa.",
       "possible_regression": "A suíte pode continuar verde enquanto a persistência sem DOM quebra, ou induzir manutenção a remover comportamento intencional por causa de um nome desatualizado.",
       "impact": "Contrato de entrega/persistência de traduções quando o nó original já saiu do DOM.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. O caso de índice inexistente afirma que não cria estado de capítulo, mas a implementação real de UPDATE_IMAGE sem DOM chama `persistTranslatedPage`, que passa por `getOrCreateChapterId`, `SM_SAVE_PAGE` e `chapterList`. A suíte verifica apenas ausência de chave legado `*_images` e ausência de mutação visual, insuficiente para o claim amplo.",
+      "auditor_recommended_action": "Definir o contrato correto. Se persistência sem DOM é intencional, renomear e afirmar SM_SAVE_PAGE/chapterList/ACK; se deve ser descartada, tratar a divergência funcional separadamente."
     },
     {
       "id": "194-002",
