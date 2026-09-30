@@ -31,7 +31,7 @@
     },
     {
       "id": "185-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/resolution-elevation.test.js",
       "found_while_auditing": "tests/unit/content-gemini/resolution-elevation.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Regex remove sufixo demais ou altera URL indevida.",
       "impact": "Fetch da imagem gerada.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. A integração real de elevação usa somente URL `=s1024-rw` sem query/hash. Variantes com outros `=sN`, query, fragmento e formatos Google User Content são exercitadas apenas pelo mirror/matriz local, não pelo pipeline real.",
+      "auditor_recommended_action": "Adicionar tabela contra o helper/pipeline canônico real com query/hash e múltiplos sufixos de resolução."
     },
     {
       "id": "185-003",
