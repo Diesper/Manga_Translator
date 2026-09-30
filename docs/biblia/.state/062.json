@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "062-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/ci/run-jest-ci.js",
       "found_while_auditing": "jest.config.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Fortalecer o gate de inventário em alteração separada.",
       "possible_regression": "Testes podem sair silenciosamente da partição executada pela CI.",
       "impact": "Integralidade do inventário Jest.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "075-001",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:02:00Z",
+      "audit_finding": "SUPERSEDED por 075-001. O pedido de self-test que muta testMatch/displayName é um caso específico do harness ausente de `run-jest-ci.js` já aceito, incluindo overlap e partição incompleta.",
+      "auditor_recommended_action": "Centralizar a implementação do self-test em 075-001 e incluir mutações de jest.config como cenários desse harness."
     },
     {
       "id": "062-002",
