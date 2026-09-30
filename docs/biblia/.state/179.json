@@ -36,7 +36,7 @@
     },
     {
       "id": "179-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
       "related_files": [
@@ -52,11 +52,15 @@
       "expected_auditor_action": "Corrigir nomenclatura em alteração separada.",
       "possible_regression": "Manutenção futura pode reintroduzir técnica obsoleta por interpretar o título como contrato.",
       "impact": "Clareza e validade documental.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED como manutenção. Títulos/comentários REG-03/CG-22 e CG-24 ainda descrevem paste/`execCommand`; o harness inclusive cria/spia `document.execCommand`, embora o job-runner atual não use esse caminho de produção. A nomenclatura está histórica/stale.",
+      "auditor_recommended_action": "Atualizar títulos/comentários e remover mocks de execCommand que não participem mais do comportamento produtivo, preservando apenas regressões realmente relevantes."
     },
     {
       "id": "179-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
       "found_while_auditing": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
@@ -69,7 +73,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Elemento dinâmico em Shadow DOM pode deixar de ser detectado.",
       "impact": "Robustez dos helpers DOM.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. `waitForElement` faz busca profunda e pode encontrar elementos em Shadow DOM aberto, mas o caso de inserção tardia atual adiciona o nó apenas ao DOM comum. O branch de descoberta tardia dentro de shadow root não tem prova.",
+      "auditor_recommended_action": "Adicionar host/shadowRoot aberto e inserir o alvo após o wait ter iniciado, exigindo resolução pela busca profunda."
     }
   ],
   "document_quality": {
