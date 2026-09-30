@@ -1,0 +1,34 @@
+{
+  "index": 55,
+  "file": "extension/reader/reader.html",
+  "bible": "docs/biblia/extension/reader/reader.html/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 6",
+  "source_sha": "065fc4e201c5661ffafa0de8626940929420ad3f",
+  "completed_at_utc": "2026-09-30T06:18:25.223Z",
+  "audit_requests": [
+    {
+      "id": "055-001",
+      "status": "OPEN",
+      "type": "ACCESSIBILITY_REVIEW",
+      "target_file": "extension/reader/reader.html",
+      "finding": "Faltam testes focais de contraste, viewport estreito e semântica completa de acessibilidade.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "055-002",
+      "status": "OPEN",
+      "type": "LAYOUT_CONTRACT_REVIEW",
+      "target_file": "extension/reader/reader.html",
+      "finding": "Offsets fixos da barra/progresso e hint de teclado dependem de sincronização manual com reader.js.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "78/78",
+    "bible_lines": 1075
+  }
+}
