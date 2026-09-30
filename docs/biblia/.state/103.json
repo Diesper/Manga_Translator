@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "103-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/helpers/load-extension-page.test.js",
       "found_while_auditing": "tests/helpers/load-extension-page.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e criar cobertura separada se a prova focal for exigida.",
       "possible_regression": "Falha no harness pode aparecer como falha difusa de UI ou, pior, ocultar diferenças do browser real.",
       "impact": "Confiabilidade de diversas suítes unitárias e de integração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. `load-extension-page.js` não possui suíte focal para scripts removidos, ordem de dependências, location/query/hash, restore de addEventListener, caminhos DOMContentLoaded e flush assíncrono.",
+      "auditor_recommended_action": "Criar teste próprio com fixture mínima/jsdom e assertions da implementação real."
     },
     {
       "id": "103-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "HARNESS_SEMANTICS_REVIEW",
       "target_file": "tests/helpers/load-extension-page.js",
       "found_while_auditing": "tests/helpers/load-extension-page.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Classificar o risco e registrar decisão de contrato.",
       "possible_regression": "Novo código de página que dependa de `this`, handleEvent, once/signal ou timing de Promise pode ser testado de forma não representativa.",
       "impact": "Fidelidade do ambiente de teste de UI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. No caminho sintético de DOMContentLoaded, listeners são chamados diretamente com `await listener(event)` em vez de EventTarget real; `this`, handleEvent, once/signal e timing de Promises podem divergir do browser.",
+      "auditor_recommended_action": "Definir fidelidade suportada; usar dispatchEvent real ou documentar/testar explicitamente as simplificações."
     }
   ],
   "document_quality": {
