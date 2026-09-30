@@ -125,6 +125,55 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 6. Se o comportamento for intencional, registrar explicitamente motivo, invariante esperado, casos-limite e risco aceito.
 7. Considerar uma lacuna encerrada somente quando houver evidência verificável do comportamento, e não apenas inspeção superficial.
 
+## Observações técnicas para auditoria futura — #070 `scripts/ci/data/test-baseline.json`
+
+> **Registro somente documental — AGENTE 7.** O #070 continua no estado atualmente aprovado/concluído. Esta seção não altera código, testes, Bíblia, CHECKLIST, AUDITORIA, PR, thresholds ou contadores; registra somente o que foi encontrado e o que um auditor futuro precisa confirmar.
+
+### O que foi encontrado
+
+1. **`coverage.measuredBaseline` aparenta ser somente informativo.** Os valores atuais `79.44 / 71.85 / 82.5 / 79.44` só foram encontrados no próprio `test-baseline.json`; não foi localizado consumidor automatizado que leia `measuredBaseline`.
+2. **Há uma divergência de linguagem documental.** `docs/Documentação.md` descreve `test-baseline.json` como “contrato, não estatística informativa”, porém o subobjeto `measuredBaseline` não participa dos gates encontrados. O auditor deve tratar essa distinção explicitamente.
+3. **Os valores E2E têm a evidência mais forte.** `playwright-gate-reporter-selftest.js` executa o reporter real, que importa este baseline real, e possui assertions que sustentam diretamente `e2e.minTests = 21`, `e2e.maxSkipped = 0` e `e2e.maxFlaky = 0`.
+4. **Jest, visual, smoke e coverage usam o baseline real, mas isso não congela os números atuais.** O fato de `run-jest-ci.js`, `tests/visual/runner.js`, `tests/smoke/run-smoke.js` e `verify-coverage.js` lerem os campos prova que eles são operacionais; não prova, por si só, que reduzir os valores atuais será rejeitado.
+5. **Falta proteção específica contra enfraquecimento de vários mínimos.** Não foi localizada assertion que fixe explicitamente `108` suítes Jest, `848` testes Jest, `224` testes visuais, `6` arquivos smoke nem os thresholds globais `78/71/80/78`.
+6. **`coverage.minimum` e `coverage.criticalMinimum` possuem comportamento potencialmente fail-open.** `verify-coverage.js` usa fallbacks vazios quando esses objetos não existem; removê-los pode deixar de aplicar thresholds sem erro específico naquele verificador.
+7. **A presença das cinco entradas de `criticalMinimum` não está protegida por um contrato focal.** O auditor deve confirmar que remover uma chave crítica é detectado por alguma assertion real; na análise do AGENTE 7 isso não ficou provado.
+8. **Thresholds de coverage malformados merecem revisão.** No mínimo global, valores não numéricos podem ser ignorados; em thresholds críticos, conversões para `NaN` podem não gerar uma mensagem explícita de “baseline inválido”.
+9. **`verify-ci-contract.js` valida apenas parte do shape.** Ele protege alguns `min*`, `coverage.minInstrumentedFiles` e `e2e.maxFlaky`, além da coerência do plano E2E, mas não demonstrou proteção completa dos thresholds globais/críticos atuais.
+10. **`verify-coverage-selftest.js` usa baseline sintético.** Ele prova a mecânica do verificador com thresholds artificiais, mas não deve ser citado como prova direta dos valores reais deste arquivo sem uma assertion que use esses valores.
+
+### O que é necessário verificar
+
+- confirmar novamente todos os consumidores reais de `test-baseline.json` e quais campos cada um efetivamente lê;
+- confirmar por busca independente se `measuredBaseline` continua sem consumidor automatizado;
+- verificar se os valores exatos de Jest, visual, smoke e coverage possuem algum teste anti-redução que não tenha sido localizado;
+- testar explicitamente remoção de `coverage.minimum`, remoção de `coverage.criticalMinimum` e remoção de uma única entrada crítica;
+- testar thresholds não numéricos, negativos, `null`, ausentes e percentuais fora do domínio esperado;
+- distinguir “o gate usa este valor” de “uma assertion impede que este valor seja enfraquecido”;
+- decidir se `measuredBaseline` deve permanecer como snapshot humano, ser validado automaticamente ou ter sua descrição arquitetural ajustada;
+- confirmar que qualquer eventual mudança de política de thresholds tenha justificativa baseada no corpus/testes atuais, e não apenas em fazer a CI passar.
+
+### O que o auditor deve fazer no #070
+
+1. Reabrir `scripts/ci/data/test-baseline.json` e reconfirmar o SHA antes de usar estas observações.
+2. Abrir e ler as assertions reais de:
+   - `scripts/validation/playwright-gate-reporter-selftest.js`;
+   - `scripts/validation/verify-coverage-selftest.js`;
+   - `scripts/validation/verify-ci-contract-selftest.js`;
+   - `scripts/ci/run-jest-ci.js`;
+   - `tests/visual/runner.js`;
+   - `tests/smoke/run-smoke.js`;
+   - `scripts/validation/verify-e2e-shard-plan.js`;
+   - `scripts/validation/verify-coverage.js`;
+   - `scripts/validation/verify-ci-contract.js`.
+3. Para cada campo do JSON, classificar a evidência como **PROVA DIRETA**, **GATE ESTÁTICO**, **EXECUÇÃO INDIRETA** ou **SEM TESTE PROBATÓRIO ESPECÍFICO**.
+4. Não promover mera leitura/uso do campo a prova de que o valor numérico atual está protegido contra redução.
+5. Confirmar especificamente se `measuredBaseline` é intencionalmente informativo. Se for, registrar isso explicitamente; se deveria ser operacional, exigir um teste/gate que realmente o consuma.
+6. Confirmar se `minimum` e `criticalMinimum` podem desaparecer sem falha explícita. Se sim, registrar a fragilidade e exigir teste de regressão em tarefa/PR funcional separado.
+7. Confirmar se todas as cinco chaves críticas e seus quatro thresholds possuem proteção de schema/anti-enfraquecimento suficiente.
+8. Se alguma fragilidade for reproduzida, **não corrigir silenciosamente durante a auditoria documental**: registrar a evidência, abrir correção funcional separada e exigir teste que falhe antes da correção e passe depois.
+9. Considerar a lacuna encerrada somente com assertion verificável; inspeção visual ou ocorrência textual não basta.
+
 ## Auditoria de 2026-09-29
 
 A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satisfazer o padrão atual. Isso não apaga o trabalho já produzido; significa que essas Bíblias precisam ser corrigidas antes de receber `[x]` novamente.
