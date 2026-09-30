@@ -1806,4 +1806,23 @@ Fonte auditada:
 
 **Evidência:** 🟦 Confirmado pelo blob auditado.
 
+## 13. Revalidação final do AGENTE 14
+
+Revalidação executada diretamente no branch `docs/project-bible` antes da conclusão do estado individual.
+
+- [x] reserva relida e ownership confirmado como **AGENTE 14**;
+- [x] `.state/229.json` relido e confirmado como `IN_PROGRESS` do mesmo agente;
+- [x] SHA da fonte reconfirmado: `0f5ca8e043a06219a342d2f32b59017762a953f0`;
+- [x] fonte integral incorporada comparada byte a byte com o blob real;
+- [x] **705 linhas textuais + newline final = 706/706 posições documentais**;
+- [x] inventário de testes reconfirmado: **59** registros — **13 `it` + 46 `ita`**;
+- [x] `tests/visual/run-all.js` continua carregando esta suíte;
+- [x] baseline visual reconfirmado em **minTests=224** e **maxSkipped=0**;
+- [x] implementação atual continua em `DB_VERSION = 4`;
+- [x] inventário das actions atuais do handler foi cruzado novamente com `createGtcRuntimeHandler`;
+- [x] gaps de escopo, cobertura e força de assertions permanecem classificados como lacunas, sem promoção indevida a prova direta;
+- [x] seis solicitações externas foram preparadas para persistência em `.state/229.json`;
+- [x] nenhum código-fonte, teste, fixture, workflow, configuração ou tracker global foi alterado para fabricar evidência.
+
+**Resultado:** Bíblia documental concluída para o SHA auditado. As solicitações 229-001 a 229-006 podem permanecer `OPEN` sem invalidar a conclusão documental, pois registram mudanças externas futuras e a Bíblia descreve o comportamento/evidência realmente existentes.
 
