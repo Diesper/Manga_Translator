@@ -52,7 +52,7 @@
     },
     {
       "id": "191-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Fortalecer isolamento das assertions.",
       "possible_regression": "Parâmetros podem ser aplicados ao oscilador errado sem falha.",
       "impact": "Precisão do teste de síntese.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:32:00Z",
+      "audit_finding": "ACCEPTED. A suíte cria múltiplos osciladores/gains, mas `createOscillator` e `createGain` devolvem sempre os mesmos mocks. As contagens/frequências são observadas em um objeto compartilhado, portanto não provam isolamento/configuração por nó individual.",
+      "auditor_recommended_action": "Usar mocks distintos por chamada ou registrar objetos criados, validando frequência/tipo/start/stop de cada oscilador/gain separadamente."
     }
   ],
   "document_quality": {
