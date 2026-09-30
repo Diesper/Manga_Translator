@@ -900,7 +900,6 @@ Quando `fromError=true` e a URL ainda não contém `/app/<id>`, o módulo entend
   }
   scope.MangaTranslatorJobsLifecycle = { createLifecycle };
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 747/747
