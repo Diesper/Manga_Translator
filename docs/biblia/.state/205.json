@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "205-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CORRECTION",
       "target_file": "tests/unit/content-manga/get-clean-url.test.js",
       "found_while_auditing": "tests/unit/content-manga/get-clean-url.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar o drift e reestruturar a suíte sob ownership apropriado, sem alterar a Bíblia até reauditoria.",
       "possible_regression": "Falso verde na canonicalização de URLs usada pela extensão.",
       "impact": "RestoreMap, deduplicação visual, fingerprint e cache de imagens.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. `get-clean-url.test.js` define getCleanUrl local v3.2 e não chama MangaTranslatorDomReplace.getCleanUrl. O mirror diverge em blob, base relativa, case e canonicalizações Reddit/Imgur.",
+      "auditor_recommended_action": "Substituir o mirror por matriz contra cm-dom-replace.js real, cobrindo blob, URL relativa, Reddit/Imgur, lowercase e query atual."
     },
     {
       "id": "205-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/cm-dom-replace.js",
       "found_while_auditing": "tests/unit/content-manga/get-clean-url.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar o requisito funcional e decidir se a política condicional atual é intencional.",
       "possible_regression": "Miss de restore/cache após F5 por mudança de token.",
       "impact": "Estabilidade de identidade de imagem.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. A implementação real descarta toda query quando nenhum resize param foi removido, mas preserva parâmetros restantes quando remove algum resize param. Tokens podem participar da chave apenas em algumas combinações.",
+      "auditor_recommended_action": "Definir parâmetros semanticamente relevantes e testar resize+token/assinatura para chave canônica estável; corrigir produção separadamente se necessário."
     },
     {
       "id": "205-003",
