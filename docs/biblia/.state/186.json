@@ -27,7 +27,7 @@
     },
     {
       "id": "186-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "tests/unit/content-gemini/result-extractor.test.js",
@@ -40,7 +40,11 @@
       "expected_auditor_action": "Priorizar por robustez MV3.",
       "possible_regression": "Falha de SW pode deixar extração sem resposta ou lançar fora do pipeline.",
       "impact": "Entrega do resultado e fallback de extração.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. As fixtures de `result-extractor.test.js` sempre fornecem runtime saudável via `createRuntime`. Não há caso para runtime ausente, `sendMessage` ausente, `runtime.lastError` ou throw síncrono, embora `sendRuntimeMessageForDataUrl` trate esses branches.",
+      "auditor_recommended_action": "Adicionar matriz focal para runtime null/sem sendMessage/lastError/throw e provar rejeição/fallback determinístico sem Promise pendurada."
     },
     {
       "id": "186-003",
