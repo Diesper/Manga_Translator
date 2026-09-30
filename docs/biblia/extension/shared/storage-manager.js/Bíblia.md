@@ -1112,10 +1112,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0051
 
 **Fonte:** `reject(new Error('IndexedDB indisponível neste contexto'));`  
-**O que faz:** Executa `reject(new Error('IndexedDB indisponível neste contexto'));` em **abertura e upgrade do banco**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**O que faz:** Rejeita explicitamente a abertura quando IndexedDB não existe nesse contexto.  
+**Como faz:** Entrega `Error('IndexedDB indisponível neste contexto')` ao executor da Promise e retorna sem chamar `idb.open`.  
+**Por que assim:** Falhar cedo evita que operações posteriores tentem usar uma API inexistente.  
+**Risco/alternativa:** Como `_smDbPromise` já referencia essa Promise rejeitada, esse ramo pode ficar cacheado até o worker reiniciar; não há teste de recuperação.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0052
@@ -2291,19 +2291,19 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0182
 
 **Fonte:** `[SM_STORE_ASSETS, SM_STORE_CHAPTER_PAGES, SM_STORE_RESTORE, SM_STORE_CHAPTERS],`  
-**O que faz:** Executa `[SM_STORE_ASSETS, SM_STORE_CHAPTER_PAGES, SM_STORE_RESTORE, SM_STORE_CHAPTERS],` em **savePageResult transacional**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**O que faz:** Lista os quatro stores que participam do save atômico.  
+**Como faz:** Inclui `assets`, `chapterPages`, `restoreEntries` e `chapters` na mesma chamada `db.transaction`.  
+**Por que assim:** A atomicidade depende de todos os registros relacionados compartilharem a mesma transaction.  
+**Risco/alternativa:** Separar os stores em transactions diferentes permitiria página/restore apontarem para asset não confirmado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0183
 
 **Fonte:** `'readwrite'`  
-**O que faz:** Executa `'readwrite'` em **savePageResult transacional**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**O que faz:** Seleciona o modo `readwrite` da transaction de `savePageResult`.  
+**Como faz:** Autoriza `put` e `delete` nos quatro stores declarados na linha anterior.  
+**Por que assim:** O save precisa inserir e remover registros antes de confirmar.  
+**Risco/alternativa:** Usar `readonly` falharia; usar várias transactions perderia atomicidade.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0184
@@ -3560,10 +3560,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0323
 
 **Fonte:** `let rows;`  
-**O que faz:** Executa `let rows;` em **índice/listagem de restore**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** permite restauração lazy por cleanUrl/assetId sem Base64 em memória.  
-**Risco/alternativa:** cleanUrl duplicada no mesmo capítulo depende do registro mais recente e de consistência do asset.  
+**O que faz:** Declara `rows` sem valor inicial para receber uma das duas estratégias de listagem.  
+**Como faz:** O branch seguinte decide entre consulta por capítulos específicos ou `getAll` global.  
+**Por que assim:** Uma única variável permite aplicar o mesmo `map/sort` depois dos dois caminhos.  
+**Risco/alternativa:** Duplicar a projeção em cada branch aumentaria risco de divergência.  
 **Evidência:** ✅ PROVADO DIRETAMENTE PARA FLUXOS PRINCIPAIS — smoke-03 prova restoreIndex/listRestoreEntries filtrado; E2E verifica restoreIndex real; sort global não é testado isoladamente.
 
 ### Linha 0324
@@ -3623,10 +3623,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0330
 
 **Fonte:** `} else {`  
-**O que faz:** Executa `} else {` em **índice/listagem de restore**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** permite restauração lazy por cleanUrl/assetId sem Base64 em memória.  
-**Risco/alternativa:** cleanUrl duplicada no mesmo capítulo depende do registro mais recente e de consistência do asset.  
+**O que faz:** Abre o ramo usado quando não há lista não vazia de capítulos.  
+**Como faz:** Esse caminho cai para `_idbGetAll(store)` e retorna todos os restores.  
+**Por que assim:** `null`, array vazio ou valor não-array significam listagem global para popup/opções.  
+**Risco/alternativa:** Tratar array vazio como filtro poderia retornar nada quando o caller espera todos.  
 **Evidência:** ✅ PROVADO DIRETAMENTE PARA FLUXOS PRINCIPAIS — smoke-03 prova restoreIndex/listRestoreEntries filtrado; E2E verifica restoreIndex real; sort global não é testado isoladamente.
 
 ### Linha 0331
@@ -4244,10 +4244,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0399
 
 **Fonte:** `[SM_STORE_CHAPTERS, SM_STORE_CHAPTER_PAGES, SM_STORE_RESTORE, SM_STORE_ASSETS], 'readwrite');`  
-**O que faz:** Executa `[SM_STORE_CHAPTERS, SM_STORE_CHAPTER_PAGES, SM_STORE_RESTORE, SM_STORE_ASSETS], 'readwrite');` em **deleteChapter**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** coleta IDs e apaga capítulos/páginas/restores/assets em lote.  
-**Risco/alternativa:** transação de leitura é separada da de escrita; serialização só cobre operações que usam a mesma fila.  
+**O que faz:** Abre a transaction readwrite que remove todo o capítulo.  
+**Como faz:** Agrupa `chapters`, `chapterPages`, `restoreEntries` e `assets` na mesma transação de deleção.  
+**Por que assim:** A remoção integral precisa ser atomicamente coerente entre metadados e blobs.  
+**Risco/alternativa:** Transactions separadas poderiam deixar restos parciais se uma etapa falhar.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL — smoke-04 salva e deleta capítulo, depois prova pageCount=0; race é serializada pela fila do capítulo.
 
 ### Linha 0400
@@ -4703,10 +4703,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0450
 
 **Fonte:** `migrated++;`  
-**O que faz:** Executa `migrated++;` em **migração legada por capítulo**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**O que faz:** Incrementa o contador `migrated` após uma página legada ser salva com sucesso.  
+**Como faz:** O incremento só ocorre depois de `await savePageResult(...)` resolver sem erro.  
+**Por que assim:** O contador deve refletir itens confirmados no novo storage.  
+**Risco/alternativa:** A função ainda marca o capítulo como migrado mesmo se outros itens falharem; essa lacuna é documentada.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0451
@@ -4874,10 +4874,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0469
 
 **Fonte:** `migrated++;`  
-**O que faz:** Executa `migrated++;` em **migração legada por capítulo**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**O que faz:** Incrementa `migrated` após migrar com sucesso um restore órfão.  
+**Como faz:** A contagem é atualizada apenas depois de `savePageResult` confirmar o slot negativo correspondente.  
+**Por que assim:** Distingue restores realmente persistidos de tentativas que caíram no catch.  
+**Risco/alternativa:** Esses slots negativos entram em contagens de página porque o schema não separa restore-only de page record.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0470
@@ -4937,10 +4937,10 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0476
 
 **Fonte:** `[\`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`], resolve));`  
-**O que faz:** Executa `[\`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`], resolve));` em **migração legada por capítulo**.  
-**Como faz:** Completa a chamada/operação específica usando o estado já estabelecido no bloco.  
-**Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**O que faz:** Passa as três chaves legadas do capítulo para `chrome.storage.local.remove`.  
+**Como faz:** Remove `<chapter>_images`, `<chapter>_restoreMap` e `<chapter>_restoreMeta` em uma única chamada após `migrated > 0`.  
+**Por que assim:** Libera a cota ocupada por Base64 antigo depois da migração.  
+**Risco/alternativa:** Em migração parcial, esse cleanup pode apagar dados de itens que falharam; além disso `runtime.lastError` não é verificado.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0477
