@@ -1,0 +1,11 @@
+{
+  "index": 208,
+  "file": "tests/unit/content-manga/image-fingerprint.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/image-fingerprint.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "e4e553c7702701fd17a1d1f3ed2e429ad23934fd",
+  "started_at_utc": "2026-09-30T13:40:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
