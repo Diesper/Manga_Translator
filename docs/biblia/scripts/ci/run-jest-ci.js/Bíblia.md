@@ -1,6 +1,6 @@
 # Bíblia técnica — scripts/ci/run-jest-ci.js
 
-> **Estado da documentação:** ✅ MATERIALIZADA E AUTOAUDITADA PELO AGENTE 5  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `6d2e36a647aadeadb2b875c1b3f92df24cd2f494`  
 > **Agente responsável:** AGENTE 5  
 > **Tipo:** runner Node.js de Jest para CI, inventário, partição e coverage  
