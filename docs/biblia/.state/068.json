@@ -1,0 +1,57 @@
+{
+  "index": 68,
+  "file": "scripts/ci/data/e2e-shard-plan.json",
+  "bible": "docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 17",
+  "source_sha": "22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc",
+  "started_at_utc": "2026-09-30T13:40:00Z",
+  "completed_at_utc": "2026-09-30T13:45:00Z",
+  "audit_requests": [
+    {
+      "id": "068-001",
+      "status": "OPEN",
+      "type": "SCHEMA_REVIEW",
+      "target_file": "scripts/validation/verify-e2e-shard-plan.js",
+      "found_while_auditing": "scripts/ci/data/e2e-shard-plan.json",
+      "finding": "O verificador protege ids/tags/expectedTests/workers e exige algum kind=fast, mas não valida version nem semântica dos outros kinds.",
+      "requested_action": "Definir se version/kind são contrato formal; se forem, adicionar validação explícita.",
+      "expected_evidence": "Mudanças inválidas de schema/kind falham no gate.",
+      "possible_regression": "Campos podem derivar silenciosamente e continuar parecendo contratuais.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "068-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-e2e-shard-plan.js",
+      "found_while_auditing": "scripts/ci/data/e2e-shard-plan.json",
+      "finding": "Não há expectativa explícita de tag canônica por id; grupos medium-a/medium-b têm mesma cardinalidade/workers e podem ser trocados mantendo gates quantitativos.",
+      "requested_action": "Adicionar mapeamento id→tag esperado ou self-test equivalente.",
+      "expected_evidence": "Troca semântica de tags entre grupos é detectada.",
+      "possible_regression": "Shards podem executar conjuntos trocados sem falhar na validação quantitativa.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "068-003",
+      "status": "OPEN",
+      "type": "PERFORMANCE_REVIEW",
+      "target_file": "scripts/ci/data/e2e-shard-plan.json",
+      "found_while_auditing": "scripts/ci/data/e2e-shard-plan.json",
+      "finding": "estimatedSeconds é apenas informativo e não possui atualização/validação automatizada.",
+      "requested_action": "Definir processo de atualização a partir de tempos reais se o campo continuar orientando balanceamento humano.",
+      "expected_evidence": "Métrica recalculável ou documentação clara de que o campo não é contrato.",
+      "possible_regression": "Plano perde balanceamento enquanto os gates funcionais continuam verdes.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "46/46",
+    "source_text_lines": 45,
+    "external_audit_requests_open": 3,
+    "note": "Bíblia pré-existente do AGENTE 5 revalidada pelo AGENTE 17; fonte integral exata."
+  }
+}
