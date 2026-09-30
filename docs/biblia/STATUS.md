@@ -49,10 +49,10 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 - Total: **233**
 - Bíblias materializadas: **56**
 - ✅ Concluídos auditados: **51**
-- 🟠 Em andamento: **21**
+- 🟠 Em andamento: **22**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **177**
-- ⬜ Pendentes: **161**
+- ⬜ Pendentes: **160**
 - ⛔ Bloqueados: **0**
 - Cobertura realmente aprovada: **21,89%**
 - Cobertura apenas materializada: **24,03%**
@@ -79,7 +79,8 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#070 scripts/ci/data/test-baseline.json` — `AGENTE 7` — Bíblia: `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md`
   - `#071 scripts/ci/jest-worker-warning.js` — `AGENTE 8` — Bíblia: `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md`
   - `#072 scripts/ci/playwright-gate-reporter.js` — `AGENTE 9` — Bíblia: `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#073 scripts/ci/playwright-merge.config.js`
+  - `#073 scripts/ci/playwright-merge.config.js` — `AGENTE 10` — Bíblia: `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#074 scripts/ci/run-e2e-group.js`
 
 ## Auditoria de 2026-09-29
 
@@ -221,7 +222,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 70 | 🟠 EM ANDAMENTO — AGENTE 7 | `scripts/ci/data/test-baseline.json` | `52a4b3c1500d` | `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` |
 | 71 | 🟠 EM ANDAMENTO — AGENTE 8 | `scripts/ci/jest-worker-warning.js` | `b1379b6811e5` | `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` |
 | 72 | 🟠 EM ANDAMENTO — AGENTE 9 | `scripts/ci/playwright-gate-reporter.js` | `71fb92c1215a` | `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` |
-| 73 | ⬜ PENDENTE | `scripts/ci/playwright-merge.config.js` | `59839922aca9` | `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` |
+| 73 | 🟠 EM ANDAMENTO — AGENTE 10 | `scripts/ci/playwright-merge.config.js` | `59839922aca9` | `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` |
 | 74 | ⬜ PENDENTE | `scripts/ci/run-e2e-group.js` | `e23c7aaa1712` | `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` |
 | 75 | ⬜ PENDENTE | `scripts/ci/run-jest-ci.js` | `6d2e36a647aa` | `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` |
 | 76 | ⬜ PENDENTE | `scripts/maintenance/diagnose-background-leak.js` | `6b5a15d0d255` | `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` |
