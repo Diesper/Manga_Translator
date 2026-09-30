@@ -73,7 +73,7 @@
     },
     {
       "id": "175-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -86,7 +86,11 @@
       "expected_auditor_action": "Tratar como baixa severidade.",
       "possible_regression": "Bootstrap pode quebrar ou reconectar repetidamente.",
       "impact": "Robustez do keep-alive.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:25:00Z",
+      "audit_finding": "ACCEPTED. `connectKeepAlive()` captura exceções de `chrome.runtime.connect` tanto na abertura quanto no reconnect, porém KEEP-01..05 nunca fazem `runtime.connect` lançar. Esses branches de robustez ficam sem prova focal.",
+      "auditor_recommended_action": "Adicionar casos em que connect lança na abertura e no reconnect, verificando ausência de loop/reconnect excessivo e estado final das flags/porta."
     }
   ],
   "document_quality": {
