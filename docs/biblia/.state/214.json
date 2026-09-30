@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "214-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/inject/raf-replacement.test.js",
       "found_while_auditing": "tests/unit/inject/raf-replacement.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Migrar prova do mirror para implementação real em mudança separada.",
       "possible_regression": "Anti-throttling real pode falhar em background com stub verde.",
       "impact": "Progresso da automação em abas de background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "SUPERSEDED por 213-001. `raf-replacement.test.js` é outro mirror de `inject.js`; a ausência de execução do runtime real já está centralizada no request abrangente 213-001.",
+      "auditor_recommended_action": "Migrar a prova RAF para o harness real previsto em 213-001.",
+      "superseded_by": "213-001"
     },
     {
       "id": "214-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/inject/raf-replacement.test.js",
       "found_while_auditing": "tests/unit/inject/raf-replacement.test.js",
@@ -40,11 +45,16 @@
       "expected_auditor_action": "Alinhar contrato de teste com runtime em alteração separada.",
       "possible_regression": "Desenvolvedores podem confiar em 100ms/cancel no-op incorretos.",
       "impact": "Documentação e cobertura do sistema anti-hibernação.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "SUPERSEDED por 213-002. O drift específico setInterval 100ms/cancel no-op versus scheduler progressivo atual já foi auditado no request canônico.",
+      "auditor_recommended_action": "Cobrir cadência/cancelamento reais sob 213-002.",
+      "superseded_by": "213-002"
     },
     {
       "id": "214-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "tests/unit/inject/raf-replacement.test.js",
@@ -57,7 +67,12 @@
       "expected_auditor_action": "Tratar a lacuna em auditoria separada.",
       "possible_regression": "Falsa cobertura completa do anti-throttling.",
       "impact": "Confiabilidade dos gates INJ.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "SUPERSEDED por 213-001. A suíte full citada também não carrega `inject.js`; trata-se da mesma lacuna de autenticidade.",
+      "auditor_recommended_action": "Centralizar a estratégia de harness MAIN-world em 213-001.",
+      "superseded_by": "213-001"
     }
   ],
   "document_quality": {
