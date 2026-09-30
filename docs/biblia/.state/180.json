@@ -54,7 +54,7 @@
     },
     {
       "id": "180-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/image-quarantine.test.js",
       "found_while_auditing": "tests/unit/content-gemini/image-quarantine.test.js",
@@ -67,7 +67,12 @@
       "expected_auditor_action": "Completar cobertura de robustez.",
       "possible_regression": "Quarentena pode falhar em DOM/API alternativos sem CI detectar.",
       "impact": "Robustez da extração Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "SUPERSEDED por 044-003. Os branches de Data URL não-base64/UTF-8, atob ausente/lançando, perceptualEvaluator falhando, factory sem DOM/getRootNode e selectors residuais já estão centralizados no request canônico do módulo.",
+      "auditor_recommended_action": "Acompanhar 044-003.",
+      "superseded_by": "044-003"
     }
   ],
   "document_quality": {
