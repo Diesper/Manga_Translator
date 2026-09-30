@@ -2,10 +2,10 @@
   "index": 33,
   "file": "extension/background/tab-identity.js",
   "bible": "docs/biblia/extension/background/tab-identity.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 17",
+  "status": "PENDING",
+  "agent": null,
   "source_sha": "008c9a054ae417e0f31224617346e24fc9dbc1b4",
-  "started_at_utc": "2026-09-30T14:30:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": []
 }
