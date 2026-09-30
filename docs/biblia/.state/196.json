@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "196-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "IMPLEMENTATION_DRIFT",
       "target_file": "extension/content/cm-chapter.js",
       "found_while_auditing": "tests/unit/content-manga/canonical-title-full.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Confirmar o drift, decidir contrato funcional e corrigir teste/produção sob ownership apropriado.",
       "possible_regression": "Duplicação de capítulos ou identidade inconsistente em produção sem falha nesta suíte.",
       "impact": "Identidade/deduplicação de capítulos e confiabilidade dos testes de content-manga.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "SUPERSEDED por 035-001 (também refletido em 099-001). O drift entre helper `canonicalTitle` e `cm-chapter.js` já foi auditado e aceito no módulo canônico.",
+      "auditor_recommended_action": "Centralizar decisão/correção do algoritmo e migração dos testes em 035-001/099-001.",
+      "superseded_by": "035-001"
     },
     {
       "id": "196-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/content-manga/canonical-title-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/canonical-title-full.test.js",
@@ -40,7 +45,11 @@
       "expected_auditor_action": "Revisar o contrato de deduplicação e tornar as assertions compatíveis com ele.",
       "possible_regression": "Falso verde exatamente nos cenários descritos como prevenção de capítulo duplicado.",
       "impact": "Precisão da cobertura BUG #12/deduplicação.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. Além do drift da implementação, as próprias assertions não sustentam claims centrais: o caso de 'mesma chave' não compara as duas saídas completas, a variação entre sessões só checa tokens e o caso de `7 Deadly Sins` não exige preservação do numeral 7.",
+      "auditor_recommended_action": "Fortalecer a matriz contra a implementação real com igualdade explícita para equivalentes, desigualdade para capítulos distintos e preservação do numeral legítimo conforme contrato."
     },
     {
       "id": "196-003",
