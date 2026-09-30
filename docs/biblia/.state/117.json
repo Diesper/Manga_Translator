@@ -1,0 +1,11 @@
+{
+  "index": 117,
+  "file": "tests/integration/popup.ui.test.js",
+  "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+  "started_at_utc": "2026-09-30T06:22:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
