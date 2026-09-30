@@ -52,17 +52,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **73**
-- 🟠 Em andamento: **4**
+- ✅ Concluídos auditados: **74**
+- 🟠 Em andamento: **3**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **31,33%**
+- Cobertura realmente aprovada: **31,76%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `extension/shared/storage-manager.js`
+- Último aprovado: `extension/options/options.js`
 - Arquivos atualmente em andamento:
-  - `#052 extension/options/options.js` — `GPT-5.6-Sol#F` — Bíblia: `docs/biblia/extension/options/options.js/Bíblia.md`
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
 
@@ -386,7 +385,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 49 | ✅ CONCLUÍDO | `extension/content/gemini/temporary-chat.js` | `40fbc8dc6acf` | `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` |
 | 50 | ✅ CONCLUÍDO | `extension/content/inject.js` | `21f7f6cf9c94` | `docs/biblia/extension/content/inject.js/Bíblia.md` |
 | 51 | ✅ CONCLUÍDO | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
-| 52 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#F | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
+| 52 | ✅ CONCLUÍDO | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
 | 53 | ✅ CONCLUÍDO | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
 | 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#G | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
