@@ -92,6 +92,23 @@
       "possible_regression": "Um state local pode aparentar conclusão sem que o gate documental global tenha sido realmente satisfeito, produzindo contagem e checklist incorretos.",
       "impact": "Rastreabilidade e consistência do gate de qualidade documental do PR #66.",
       "severity": "HIGH"
+    },
+    {
+      "id": "224-006",
+      "status": "OPEN",
+      "type": "TEST_HARNESS_ROBUSTNESS",
+      "target_file": "tests/unit/shared-ui/redo-confirmation.test.js",
+      "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
+      "finding": "O afterEach remove somente requestRedoConfirmation e deleteSavedTranslationForEntry, embora shared-ui.js exponha vários outros símbolos em globalThis.",
+      "current_evidence": "A suíte usa jest.resetModules(), limpa storage/DOM e restaura spies, mas deixa os demais exports de shared-ui.js presentes no escopo global após cada caso.",
+      "missing_evidence": "Não há comparação que demonstre se limpar explicitamente todos os exports globais restantes melhora isolamento, reduz vazamento de estado ou evita dependência da ordem dos testes.",
+      "why_needed": "Exports globais residuais podem, em princípio, mascarar isolamento imperfeito do harness ou permitir que um caso dependa acidentalmente de símbolos deixados por execução anterior.",
+      "requested_action": "Testar uma variante do teardown que remova explicitamente todos os exports globais introduzidos por shared-ui.js e comparar comportamento, estabilidade, ordem aleatória/repetida e eventuais estados residuais.",
+      "expected_evidence": "Execuções comparativas mostrando se o cleanup completo altera resultados, elimina estado residual/flakiness ou é desnecessário porque os exports restantes são imutáveis/seguramente sobrescritos.",
+      "expected_auditor_action": "Avaliar primeiro por teste/medição; só propor alteração do harness se houver ganho verificável de isolamento ou robustez.",
+      "possible_regression": "Sem cleanup completo, uma futura mudança em shared-ui.js pode introduzir estado global mutável que sobreviva entre casos e produza testes dependentes de ordem.",
+      "impact": "Robustez e isolamento da suíte Jest de shared-ui.",
+      "severity": "NORMAL"
     }
   ],
   "document_quality": {
@@ -100,10 +117,10 @@
     "embedded_source_exact": true,
     "documented_positions": "243/243",
     "bible_lines": 612,
-    "external_audit_requests_open": 5,
+    "external_audit_requests_open": 6,
     "automated_tests_documented": 7,
     "ci_runtime_at_audit": "PENDING",
-    "note": "Trabalho local de #224 concluído. Estado BLOCKED somente pelo gate global obrigatório 224-005; 224-001..004 permanecem lacunas externas não bloqueantes.",
+    "note": "Reauditoria técnica independente aprovada; adicionada 224-006 para investigar se cleanup completo dos exports globais de shared-ui.js melhora robustez/isolamento da suíte.",
     "global_audit": "PENDING",
     "reaudited_by": "AGENTE 28",
     "independent_technical_audit": "APPROVED_BY_AGENTE_28",
