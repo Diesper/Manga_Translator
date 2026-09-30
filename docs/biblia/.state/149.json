@@ -2,10 +2,106 @@
   "index": 149,
   "file": "tests/unit/background/helpers-real.test.js",
   "bible": "docs/biblia/tests/unit/background/helpers-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 13",
   "source_sha": "668cef7f592231856d5071bd35ff6c5c12848a41",
   "started_at_utc": "2026-09-30T07:04:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T15:48:00Z",
+  "audit_requests": [
+    {
+      "id": "149-001",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/background.js",
+      "related_files": [
+        "tests/unit/background/helpers-real.test.js"
+      ],
+      "found_while_auditing": "tests/unit/background/helpers-real.test.js",
+      "finding": "_flushLog remove o batch inteiro de _logQueue com splice antes de tentar chrome.storage.local.set. Se a escrita rejeitar, o catch engole a exceção e não recoloca o batch, de modo que a entrada cujo write falhou pode ser perdida.",
+      "current_evidence": "BG-10 injeta falha na primeira gravação de translatorLog, prova que _logFlushing volta a false e que uma nova entrada posterior ('segunda entrada') consegue ser persistida.",
+      "missing_evidence": "Não há assertion de que a entrada FAIL_ONCE/'primeira falha' seja preservada ou retentada, nem contrato explícito dizendo que perda best-effort é aceitável.",
+      "why_needed": "O nome de recuperação pode ser interpretado como recuperação de dados, mas a prova existente cobre somente recuperação operacional do mecanismo de flush.",
+      "requested_action": "Decidir se logs precisam sobreviver a falhas transitórias de storage. Se sim, corrigir em mudança funcional separada para reencolar/retry do batch e adicionar regressão usando a implementação real; se não, documentar explicitamente a semântica best-effort.",
+      "expected_evidence": "Teste controlado que diferencie recuperação do flag de durabilidade do batch falhado e prove o contrato escolhido.",
+      "expected_auditor_action": "Revisar a política de durabilidade do log e abrir alteração funcional/teste separada se perda silenciosa não for aceitável.",
+      "possible_regression": "Telemetria e diagnóstico podem desaparecer justamente durante falhas de storage, reduzindo capacidade de investigação.",
+      "impact": "Observabilidade e diagnóstico; não foi demonstrada corrupção de estado funcional do batch.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "149-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/background.js",
+      "related_files": [
+        "tests/unit/background/helpers-real.test.js"
+      ],
+      "found_while_auditing": "tests/unit/background/helpers-real.test.js",
+      "finding": "O teste rotula a propriedade como 'ids únicos', mas a implementação forma o ID por Date.now() + '_' + Math.random(), sem mecanismo de deduplicação.",
+      "current_evidence": "O burst de 20 entradas observado produz Set de cardinalidade 20.",
+      "missing_evidence": "Não existe cenário determinístico que force Date.now e Math.random a colidir nem decisão explícita se unicidade absoluta é requisito ou apenas baixa probabilidade de colisão.",
+      "why_needed": "Uma amostra sem colisão não prova uma garantia de unicidade do algoritmo.",
+      "requested_action": "Definir o contrato do identificador. Se unicidade forte for necessária, alterar o gerador em mudança funcional separada e adicionar teste determinístico; se não, ajustar documentação/testes para não prometer garantia superior.",
+      "expected_evidence": "Teste que force inputs de colisão e demonstre o comportamento decidido, ou contrato explícito de identidade probabilística.",
+      "expected_auditor_action": "Classificar a força de unicidade exigida pelos consumidores do log.",
+      "possible_regression": "Consumidor que assuma chave absolutamente única pode tratar duas entradas como a mesma em colisão.",
+      "impact": "Identidade de entradas de log.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "149-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/helpers-real.test.js",
+      "related_files": [
+        "extension/background/jobs-watchdog.js"
+      ],
+      "found_while_auditing": "tests/unit/background/helpers-real.test.js",
+      "finding": "O cenário de rearme prova que alarms.clear foi chamado e que o metadata final foi atualizado, mas não verifica a ordem temporal clear antes de create.",
+      "current_evidence": "O módulo real atual executa clear antes de storage.set/create; o teste possui spies separados e assertions de presença/final state.",
+      "missing_evidence": "Assertion por invocationCallOrder ou cenário equivalente que falhe se create ocorrer antes da limpeza.",
+      "why_needed": "A ordem pode ser relevante para não deixar janela com alarme antigo/novo em estado inesperado, mas hoje não está congelada pela suíte.",
+      "requested_action": "Se a ordem clear→create for contrato, adicionar assertion focal em alteração de teste separada usando a implementação real.",
+      "expected_evidence": "Comparação de call order ou observação equivalente que prove clear anterior a create.",
+      "expected_auditor_action": "Confirmar se ordering é invariante exigida do watchdog.",
+      "possible_regression": "Refactor pode inverter a ordem mantendo o mesmo estado final e a suíte continuar verde.",
+      "impact": "Semântica temporal do rearme do watchdog.",
+      "severity": "LOW"
+    },
+    {
+      "id": "149-004",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/background/jobs-watchdog.js",
+      "related_files": [
+        "tests/unit/background/helpers-real.test.js"
+      ],
+      "found_while_auditing": "tests/unit/background/helpers-real.test.js",
+      "finding": "As assertions para clearWatchdog(undefined) e clearWatchdog(null) exigem somente que não haja exceção; a implementação pode ainda formar nomes/keys sintéticos e executar operações de clear/remove.",
+      "current_evidence": "As duas chamadas passam sem throw no mock atual.",
+      "missing_evidence": "Não há decisão/assertion se inputs ausentes devem ser no-op sem efeitos ou se operações em watchdog_undefined/wd_data_undefined são aceitáveis.",
+      "why_needed": "'Não lançar' é um contrato mais fraco que 'ignorar input inválido'; consumidores futuros podem depender da segunda interpretação sem cobertura.",
+      "requested_action": "Definir o comportamento para identificador ausente. Se a intenção for no-op, adicionar guard funcional e teste de ausência de side effects em mudança separada.",
+      "expected_evidence": "Assertions explícitas sobre chamadas a alarms/storage para undefined/null conforme contrato decidido.",
+      "expected_auditor_action": "Classificar side effects atuais como aceitáveis ou solicitar correção separada.",
+      "possible_regression": "Operações em chaves inválidas podem poluir diagnóstico ou mascarar erro de caller.",
+      "impact": "Robustez de cleanup do watchdog.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "285/285",
+    "source_text_lines": 284,
+    "source_has_final_newline": true,
+    "bible_lines": 1077,
+    "ranges_contiguous": true,
+    "real_logic_with_test_instrumentation": true,
+    "chrome_apis_mocked": true,
+    "current_ci_run_claimed": false,
+    "external_audit_requests_open": 4,
+    "note": "Conclusão documental por AGENTE 13; nenhum código, teste, fixture, workflow, configuração, STATUS, CHECKLIST ou AUDITORIA foi modificado."
+  }
 }
