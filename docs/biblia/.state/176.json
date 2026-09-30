@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "176-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/deletion.test.js",
       "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Priorizar por validade do teste de recovery.",
       "possible_regression": "Recovery pós-reload falha no DOM/scroll lock sem afetar DEL-08.",
       "impact": "Confiabilidade da recuperação de exclusão.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. DEL-08 chama `recoverPending`, mas configura `debugMode:true`; assim `deleteCurrentConversation({lockScroll:true})` sai pelo branch DEBUG_MODE_SKIP e não prova DOM real, confirmação, scroll lock nem cleanup do caminho de recovery.",
+      "auditor_recommended_action": "Adicionar recovery com debug=false e DOM nominal, verificando exclusão real, lockScroll, clear marker, delivery única e finally."
     },
     {
       "id": "176-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "DURABILITY_REVIEW",
       "target_file": "extension/content/gemini/deletion.js",
       "related_files": [
@@ -44,7 +48,12 @@
       "expected_auditor_action": "Revisar semântica de durabilidade em alteração separada.",
       "possible_regression": "Resultado/erro recuperado pode ser perdido após reload.",
       "impact": "Integridade de entrega pós-recovery.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 041-001. Esse request repete a mesma fragilidade de durabilidade: `recoverPending` limpa o marker antes de `sendDelivery`, podendo perder retry/ownership se a entrega falhar.",
+      "auditor_recommended_action": "Acompanhar resolução em 041-001.",
+      "superseded_by": "041-001"
     },
     {
       "id": "176-003",
