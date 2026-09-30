@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "223-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/reader/page-counter.test.js",
       "found_while_auditing": "tests/unit/reader/page-counter.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Completar cobertura do segundo caminho de sincronização.",
       "possible_regression": "Contador pode ficar incorreto durante scroll/resize.",
       "impact": "UX do leitor.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. O reader possui fallback `updateCounterFromViewportCenter` agendado por scroll/resize via requestAnimationFrame, mas a suíte do contador exercita apenas callbacks do IntersectionObserver.",
+      "auditor_recommended_action": "Adicionar caso de scroll/resize com geometrias controladas, verificando seleção pela distância ao centro e coalescimento do RAF."
     },
     {
       "id": "223-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/reader/page-counter.test.js",
       "found_while_auditing": "tests/unit/reader/page-counter.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer cobertura do mapa de visibilidade.",
       "possible_regression": "Contador permanece em página fora da viewport.",
       "impact": "Precisão do progresso.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. A implementação zera explicitamente a razão quando `isIntersecting===false`; a suíte não tem caso em que a página dominante sai da interseção e outra deve assumir o contador.",
+      "auditor_recommended_action": "Adicionar callback com página dominante `isIntersecting:false` e afirmar novo vencedor/progresso."
     },
     {
       "id": "223-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/reader/page-counter.test.js",
       "found_while_auditing": "tests/unit/reader/page-counter.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Revisar força do teste.",
       "possible_regression": "Barra visual incorreta em capítulo vazio.",
       "impact": "Baixo impacto visual.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. O capítulo vazio verifica texto `0 / 0` e mensagem, mas não fixa a barra de progresso para estado vazio.",
+      "auditor_recommended_action": "Adicionar assertion do width/estado da barra no capítulo sem páginas."
     }
   ],
   "document_quality": {
