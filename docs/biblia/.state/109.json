@@ -31,7 +31,7 @@
     },
     {
       "id": "109-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/ipc/gemini-cors-fallback.test.js",
       "found_while_auditing": "tests/integration/ipc/gemini-cors-fallback.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Verificar se já existe cobertura equivalente; se não existir e a garantia for requerida, criar teste focal em alteração externa separada.",
       "possible_regression": "Uma regressão de lifecycle pode deixar jobs pendentes sem falhar este teste.",
       "impact": "Robustez do fluxo de tradução após falhas de extração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. O cenário de falha total prova apenas que o helper local de extração resolve com `base64:null`; não executa lifecycle/finalizeJob nem verifica cleanup/estado final do job.",
+      "auditor_recommended_action": "Adicionar prova consumer-level da implementação real após falha de extração ou estreitar a alegação para settlement do helper."
     }
   ],
   "document_quality": {
