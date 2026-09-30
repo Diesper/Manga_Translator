@@ -1,0 +1,11 @@
+{
+  "index": 179,
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "started_at_utc": "2026-09-30T15:40:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
