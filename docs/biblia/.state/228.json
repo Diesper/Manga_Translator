@@ -71,7 +71,7 @@
     },
     {
       "id": "228-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HARNESS_ROBUSTNESS",
       "target_file": "tests/visual/runner.js",
       "related_files": [
@@ -88,7 +88,11 @@
       "expected_auditor_action": "Priorizar revisão do harness por afetar múltiplas suítes visuais.",
       "possible_regression": "Falso positivo de teste e contaminação silenciosa de estado.",
       "impact": "Confiabilidade transversal da suíte visual.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:02:00Z",
+      "audit_finding": "ACCEPTED — falha transversal de harness confirmada. `runner.js` captura e descarta exceções/rejeições de `beforeEach` e `afterEach` nos caminhos sync e async (`catch (_e) {}`). Um hook quebrado pode deixar o teste verde ou contaminar fixtures.",
+      "auditor_recommended_action": "Tornar hooks fail-closed com diagnóstico e incluir self-test que force beforeEach/afterEach a lançar/rejeitar, verificando falha/exit não-zero."
     },
     {
       "id": "228-005",
