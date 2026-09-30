@@ -1,0 +1,11 @@
+{
+  "index": 120,
+  "file": "tests/mocks/dom-environment.js",
+  "bible": "docs/biblia/tests/mocks/dom-environment.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 15",
+  "source_sha": "9c3bc91608aa52a2d8324fc645c75fac5e4f7452",
+  "started_at_utc": "2026-09-30T06:33:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
