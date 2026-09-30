@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "050-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_HARNESS_REQUIRED",
       "target_file": "tests/e2e/translation-flow.spec.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Estabelecer uma base de prova direta para os demais cenários específicos.",
       "possible_regression": "Mudanças no manifest, world/run_at ou APIs do navegador podem quebrar inject.js enquanto espelhos permanecem verdes.",
       "impact": "Confiabilidade do worker Gemini e força probatória da suíte.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. `inject-anti-hibernation.test.js` declara explicitamente testar a lógica isoladamente 'sem carregar o inject.js'; `raf-replacement.test.js` usa mirror local. Não existe harness comportamental do script MAIN-world real.",
+      "auditor_recommended_action": "Criar harness MAIN-world/JSDOM/E2E que execute `extension/content/inject.js` real e observe overrides/eventos/bridges sem espelhos."
     },
     {
       "id": "050-002",
@@ -141,7 +145,7 @@
     },
     {
       "id": "050-008",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -154,11 +158,15 @@
       "expected_auditor_action": "Validar escape e sincronização de eventos do editor.",
       "possible_regression": "Prompt pode ser corrompido, truncado ou interpretado como markup.",
       "impact": "Integridade do prompt enviado ao Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. `MANGA_TRANSLATOR_SET_PROMPT` real contém caminhos Quill/paste/fallback e eventos beforeinput/input/change, mas `editor-submit.test.js` testa `editor.js`, não a ponte MAIN de inject.js; não há execução direta com texto hostil/especial.",
+      "auditor_recommended_action": "No harness real de inject.js, enviar prompt com caracteres especiais/HTML e assertar conteúdo final + sequência de eventos sem corrupção/injeção."
     },
     {
       "id": "050-009",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -171,11 +179,15 @@
       "expected_auditor_action": "Revisar deduplicação Enter→botão.",
       "possible_regression": "O mesmo prompt pode ser enviado duas vezes e gerar respostas/jobs duplicados.",
       "impact": "Correção funcional e custos/efeitos duplicados.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. A ponte de submit real dispara Enter e depois ainda procura/clica botão; nenhuma suíte executa essa implementação para provar que Enter já consumido não causa segundo submit.",
+      "auditor_recommended_action": "Adicionar teste MAIN real onde Enter já submete e verificar exatamente uma submissão/click efetivo."
     },
     {
       "id": "050-010",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -188,7 +200,11 @@
       "expected_auditor_action": "Revisar critérios de identificação do botão.",
       "possible_regression": "Automação pode acionar botão errado quando o layout do Gemini muda.",
       "impact": "Segurança operacional da automação de UI.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. A heurística real considera botão/role/mat-icon-button e, em alguns caminhos, label vazio + SVG/mat-icon; não há execução direta com múltiplos clickables ambíguos.",
+      "auditor_recommended_action": "Adicionar cenários adversariais com múltiplos botões/SVGs e assertar seleção exclusiva do botão Send ou fail-closed."
     },
     {
       "id": "050-011",
