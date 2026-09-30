@@ -222,7 +222,6 @@ Consequência: um `activeJobsCount` stale restaurado pode ser corrigido apenas e
 
   scope.MangaTranslatorJobsReconciliation = { createReconciler };
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 112/112
