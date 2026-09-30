@@ -1,0 +1,11 @@
+{
+  "index": 202,
+  "file": "tests/unit/content-manga/extract-flow-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/extract-flow-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 21",
+  "source_sha": "1bbc481d426bf7471eb655cf514e20d2b323902b",
+  "started_at_utc": "2026-09-30T06:44:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
