@@ -1,6 +1,6 @@
 # Bíblia técnica — scripts/ci/jest-worker-warning.js
 
-> **Estado:** 🟠 EM ANDAMENTO — AGENTE 8 — REVISÃO DE QUALIDADE ATIVA  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `b1379b6811e5513b955ebbbef4450ca4ca1e77da`  
 > **Agente responsável pela auditoria:** AGENTE 8  
 > **Tipo:** helper CommonJS de CI/diagnóstico para detecção de worker Jest encerrado à força  
@@ -399,4 +399,4 @@ module.exports = { FORCED_WORKER_EXIT, hasForcedWorkerExit };
 - Lacuna do literal canônico registrada explicitamente.
 - Nenhum código funcional foi alterado.
 
-**Estado documental desta materialização:** revisão de qualidade pronta para conclusão; o selo final só será aplicado após reconfirmar SHA, ownership e consistência de STATUS/CHECKLIST/AUDITORIA sob o mutex global.
+**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md`; fonte integral, 10/10 posições, consumers e força das evidências foram reconfirmados para o SHA auditado.
