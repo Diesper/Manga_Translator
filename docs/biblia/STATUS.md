@@ -552,7 +552,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 221 | ⬜ PENDENTE | `tests/unit/popup/version-ui.test.js` | `0fcb923f59ef` | `docs/biblia/tests/unit/popup/version-ui.test.js/Bíblia.md` |
 | 222 | ⬜ PENDENTE | `tests/unit/reader/keyboard-nav.test.js` | `0d64775426e2` | `docs/biblia/tests/unit/reader/keyboard-nav.test.js/Bíblia.md` |
 | 223 | ⬜ PENDENTE | `tests/unit/reader/page-counter.test.js` | `cec252ffefc2` | `docs/biblia/tests/unit/reader/page-counter.test.js/Bíblia.md` |
-| 224 | ⬜ PENDENTE | `tests/unit/shared-ui/redo-confirmation.test.js` | `2b46e876c3f8` | `docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md` |
+| 224 | ✅ CONCLUÍDO | `tests/unit/shared-ui/redo-confirmation.test.js` | `2b46e876c3f8` | `docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md` |
 | 225 | ⬜ PENDENTE | `tests/visual/background-fingerprint.visual.js` | `91f5cf4d9ed4` | `docs/biblia/tests/visual/background-fingerprint.visual.js/Bíblia.md` |
 | 226 | ⬜ PENDENTE | `tests/visual/content-manga-pipeline.visual.js` | `61bc86351c91` | `docs/biblia/tests/visual/content-manga-pipeline.visual.js/Bíblia.md` |
 | 227 | ⬜ PENDENTE | `tests/visual/crop.visual.js` | `432fe488697a` | `docs/biblia/tests/visual/crop.visual.js/Bíblia.md` |
