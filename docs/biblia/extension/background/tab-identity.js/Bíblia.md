@@ -1,10 +1,11 @@
 # Bíblia técnica — `extension/background/tab-identity.js`
 
-> **Estado:** ✅ CRIADO E AUDITADO  
+> **Estado:** ✅ DOCUMENTAÇÃO REAUDITADA PELO AGENTE 11; ⬜ gate global de `AUDITORIA.md` permanece reaberto  
 > **SHA auditado:** `008c9a054ae417e0f31224617346e24fc9dbc1b4`  
 > **Linhas textuais:** **362**  
 > **Posições documentais:** **363** contando newline final  
-> **Teste focal:** `tests/unit/background/tab-identity.test.js` — `1f2dd52513037f061613d04453a961fbaeddef84`
+> **Teste focal:** `tests/unit/background/tab-identity.test.js` — `1f2dd52513037f061613d04453a961fbaeddef84`  
+> **Reauditoria:** `AGENTE 11` — fonte, teste focal, consumidores, 363 posições e bloco integral reconferidos no branch `docs/project-bible` em 2026-09-30.
 
 ## Identidade e papel arquitetural
 
@@ -78,9 +79,9 @@ Isso evita reiniciar um watchdog com timeout cheio só porque a tab mudou.
 | TAB-05 | ✅ PROVADO DIRETAMENTE | Journal intermediário é recuperado de forma idempotente. |
 | TAB-07/TAB-08 | ✅ PROVADO DIRETAMENTE | Extraction/marker migram sem alterar completedJobs. |
 | TAB-09 | ✅ PROVADO DIRETAMENTE | Alias expirado não autoriza takeover e cleanup remove a chave. |
-| TAB-12 | ✅ PROVADO EM INTEGRAÇÃO | Reconciler canonicaliza/migra antes de declarar job órfão. |
-| `claim-gemini-job-action.test.js` TAB-06 | 🟨 INTEGRAÇÃO DE OWNERSHIP | Claim por aba substituta depende do alias/migração; não isola cada fase do journal. |
-| `background.js` | 🟨 CONSUMIDOR REAL | onReplaced, startup e ensureInitialized chamam as APIs deste módulo. |
+| TAB-12 | ✅ PROVADO DIRETAMENTE | Reconciler real + TabIdentity real canonicalizam/migram antes de declarar job órfão, com assertions no estado e storage. |
+| `claim-gemini-job-action.test.js` TAB-06 | 🟨 EXECUTADO INDIRETAMENTE | O fluxo de ownership passa por alias/migração, mas não isola cada fase do journal deste módulo. |
+| `background.js` | 🟦 GATE ESTÁTICO ESPECÍFICO | O wiring real do runtime registra `tabs.onReplaced` e chama startup/ensureInitialized com as APIs deste módulo. |
 
 ## Lacunas de teste, casos-limite e riscos
 
@@ -97,6 +98,17 @@ Isso evita reiniciar um watchdog com timeout cheio só porque a tab mudou.
 - ⚠️ Crash depois de `persistAlias` mas antes de criar/indexar migration journal deixa alias durável sem journal proativo. Reconciler/lifecycle podem reparar ao encontrar o alias, mas `recoverPendingMigrations` sozinho não verá essa operação.
 - ⚠️ `moveFinalizedTabId` é hook síncrono externo; falha lançada pelo hook interromperia migration após state update e antes de alarms/cleanup, dependendo do journal para recovery.
 - ⚠️ Logs expõem tabIds completos (não conteúdo de página), enquanto jobId em conflito é truncado a 8 caracteres.
+
+## Solicitações ao auditor persistidas em `.state/033.json`
+
+As lacunas abaixo não foram convertidas em alterações externas por este agente; permanecem como solicitações `OPEN` para auditoria separada.
+
+- **033-001 — TEST_REQUIRED — OPEN — NORMAL:** cobrir limite de 8 hops sem ciclo e entradas inválidas/iguais em `recordReplacement`/resolver. Hoje TAB-03/04/09 provam cadeia curta, ciclo e expiração, mas não esses guards.
+- **033-002 — TEST_REQUIRED — OPEN — HIGH:** provar `TAB_REKEY_CONFLICT` quando origem e destino contêm `jobId` diferentes, incluindo preservação integral do destino e ausência de remoção destrutiva.
+- **033-003 — TEST_REQUIRED — OPEN — NORMAL:** cobrir `moveAlarm` com alarme ausente e `scheduledTime` passado/inválido, verificando o fallback `delayInMinutes: 0.01`.
+- **033-004 — TEST_REQUIRED — OPEN — NORMAL:** cobrir os fallbacks de `migrateReferences` sem `replaceGeminiTabReferences` e guards de recovery para journal ausente/completed/IDs inválidos.
+- **033-005 — TEST_REQUIRED — OPEN — HIGH:** exercer replacements/migrations concorrentes e cleanup concorrente para detectar lost updates nos arrays-index de storage usados por `addIndexValue`, `removeIndexValue` e `cleanupExpiredAliases`.
+- **033-006 — TEST_REQUIRED — OPEN — HIGH:** simular rekeys sucessivos com o mesmo `jobId` (por exemplo 100→200→300) e interrupção entre fases; verificar que recovery nunca reaplica `oldTabId/newTabId` de um journal concluído anterior.
 
 ## Segurança e privacidade
 
@@ -486,7 +498,6 @@ Isso evita reiniciar um watchdog com timeout cheio só porque a tab mudou.
     module.exports = { createTabIdentity };
   }
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 363/363
