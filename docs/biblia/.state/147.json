@@ -2,10 +2,28 @@
   "index": 147,
   "file": "tests/unit/background/gtc-runtime-bridge.test.js",
   "bible": "docs/biblia/tests/unit/background/gtc-runtime-bridge.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 22",
   "source_sha": "21c01d044af7313cae9b571ab715c4e5846b9a30",
   "started_at_utc": "2026-09-30T06:40:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:43:00Z",
+  "audit_requests": [
+    {
+      "id": "147-001",
+      "status": "OPEN",
+      "type": "FUNCTIONAL_REVIEW",
+      "target_file": "extension/shared/gtc-indexeddb.js",
+      "found_while_auditing": "tests/unit/background/gtc-runtime-bridge.test.js",
+      "behavior_affected": "Semântica do campo count retornado por GTC_SAVE_MANY/putMany.",
+      "finding": "O teste envia três entradas, uma inválida (hash:null); GTC_SAVE_MANY responde saved:true,count:3, enquanto GTC_STATS imediatamente confirma somente 2 registros persistidos.",
+      "current_evidence": "No repositório em memória putMany retorna entries.length após chamar put para cada item; put ignora item inválido. No repositório IndexedDB itens sem hash/dataUrl são pulados, mas o retorno usa payload.length.",
+      "missing_evidence": "Contrato explícito e teste que diferencie quantidade recebida, quantidade descartada e quantidade efetivamente persistida.",
+      "why_needed": "Callers podem interpretar saved:true,count:N como confirmação de N gravações quando parte do payload foi descartada.",
+      "requested_action": "Definir a semântica de count. Se significar persistidos, contar somente writes válidos em ambos os repositórios e ajustar testes; se significar recebidos, renomear/documentar e expor/testar descartados de forma não ambígua.",
+      "expected_evidence": "Teste com payload misto validando a semântica escolhida e consistência entre resposta de putMany e stats/repositório.",
+      "possible_regression": "Telemetria ou lógica cliente pode superestimar itens realmente salvos e deixar falhas de entrada invisíveis.",
+      "known_impact": "Contrato de persistência em lote do cache GTC.",
+      "severity": "NORMAL"
+    }
+  ]
 }
