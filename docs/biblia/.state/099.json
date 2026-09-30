@@ -36,7 +36,7 @@
     },
     {
       "id": "099-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_ARCHITECTURE_REVIEW",
       "target_file": "extension/content/content_manga.js",
       "related_files": [
@@ -53,11 +53,16 @@
       "expected_auditor_action": "Decidir se o mirror é arquitetura aceita; se não for, solicitar teste real/refatoração separada.",
       "possible_regression": "Som de erro real pode divergir/quebrar enquanto o mirror continua verde.",
       "impact": "Fidelidade da cobertura de regressão da síntese de áudio.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "SUPERSEDED por 191-001. O problema de `playErrorSound` ser testado via mirror com seam inexistente em produção já está centralizado na auditoria da síntese real.",
+      "auditor_recommended_action": "Migrar os testes de áudio para produção sob 191-001 e não manter correção paralela aqui.",
+      "superseded_by": "191-001"
     },
     {
       "id": "099-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_HELPER_REVIEW",
       "target_file": "tests/helpers/extracted-functions.js",
       "related_files": [
@@ -76,7 +81,11 @@
       "expected_auditor_action": "Validar se são helpers mortos/legados antes de qualquer remoção.",
       "possible_regression": "Código de teste obsoleto pode induzir futuras suítes a importar uma implementação não canônica.",
       "impact": "Manutenibilidade e clareza da arquitetura de testes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `waitForDownload` e `escapeForRegex` continuam exportados pelo helper, mas não foram encontrados consumers atuais; as implementações reais equivalentes já têm testes próprios.",
+      "auditor_recommended_action": "Confirmar ausência de imports e remover/deprecar os mirrors mortos ou documentar propósito explícito se forem mantidos."
     }
   ],
   "document_quality": {
