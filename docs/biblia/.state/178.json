@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "178-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "tests/unit/content-gemini/editor-submit.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Priorizar por resiliência a UI dinâmica.",
       "possible_regression": "Automação pode clicar elemento desconectado ou falhar após re-render.",
       "impact": "Confiabilidade do submit.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:27:00Z",
+      "audit_finding": "ACCEPTED. Todos os casos de `editor-submit.test.js` retornam os mesmos objetos de editor/sendButton pelas closures. Não há re-render entre nudge/tentativas, embora a implementação reconsulte explicitamente para tolerar troca de nós.",
+      "auditor_recommended_action": "Adicionar caso em que primeiro editor/botão são removidos e getters retornam novos nós na tentativa seguinte; provar que somente os novos são usados."
     },
     {
       "id": "178-002",
