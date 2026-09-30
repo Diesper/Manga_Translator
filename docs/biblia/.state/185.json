@@ -1,0 +1,11 @@
+{
+  "index": 185,
+  "file": "tests/unit/content-gemini/resolution-elevation.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/resolution-elevation.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
+  "started_at_utc": "2026-09-30T17:05:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
