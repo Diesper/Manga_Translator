@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "137-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-action.test.js",
@@ -24,7 +24,11 @@
       "expected_auditor_action": "Adicionar/validar assertions específicas sem substituir a execução da action real.",
       "possible_regression": "Diagnósticos usados para troubleshooting podem degradar sem quebrar a suíte.",
       "impact": "Observabilidade e precisão do contrato de erro.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED. As fixtures negativas verificam apenas `response.ok===false`; não fixam reason por shape nem os logs RESULT_STAGE_FAILED/RESULT_STAGED_DURABLY. Diagnóstico pode degradar sem quebrar o teste.",
+      "auditor_recommended_action": "Parametrizar expectedReason e assertar logs de falha/sucesso e metadados relevantes."
     },
     {
       "id": "137-002",
@@ -51,7 +55,7 @@
     },
     {
       "id": "137-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-action.test.js",
@@ -65,11 +69,16 @@
       "expected_auditor_action": "Priorizar os branches com maior impacto contratual sem substituir dependências reais desnecessariamente.",
       "possible_regression": "Compatibilidade e tratamento de erro podem regredir sem quebrar os casos atuais.",
       "impact": "Cobertura contratual; os caminhos já assertados continuam válidos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "SUPERSEDED por 009-003. Fallbacks de campos, rejeições de ensureInitialized/deliverResultToManga e logs restantes da mesma action já foram auditados no request canônico de produção.",
+      "auditor_recommended_action": "Centralizar esses branches em 009-003.",
+      "superseded_by": "009-003"
     },
     {
       "id": "137-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "VALIDATION_REVIEW",
       "target_file": "extension/background/actions/deliver-result.js",
       "found_while_auditing": "tests/unit/background/deliver-result-action.test.js",
@@ -83,7 +92,11 @@
       "expected_auditor_action": "Determinar se validação pertence a esta action ou ao produtor antes de qualquer mudança.",
       "possible_regression": "Conteúdo inesperado pode alcançar o leitor apesar de ownership correto.",
       "impact": "Robustez de entrada; esta auditoria não demonstra exploração concreta.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED. `deliver-result.js` valida `src` apenas como string não vazia; não há contrato local de data:image, MIME, tamanho ou esquema. Ownership protege destino, mas não formato do conteúdo.",
+      "auditor_recommended_action": "Definir a fronteira de confiança e validar/formalizar formato/tamanho; adicionar casos para whitespace, esquema arbitrário e payload excessivo conforme decisão."
     }
   ],
   "document_quality": {
