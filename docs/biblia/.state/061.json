@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "061-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": ".gitignore",
@@ -18,11 +18,15 @@
       "requested_action": "Adicionar verificação representativa dos padrões críticos e casos negativos para arquivos que devem continuar rastreáveis.",
       "expected_evidence": "git check-ignore confirma padrões esperados e não oculta arquivos fonte próximos.",
       "possible_regression": "Mudança de wildcard pode deixar artefatos expostos ou esconder fonte canônica sem falha do gate.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:01:00Z",
+      "audit_finding": "ACCEPTED. `verify-repository-structure.js` exige apenas entradas literais específicas da política de ignore; não executa `git check-ignore` contra uma matriz positiva/negativa. Um wildcard alterado pode esconder fonte ou expor artefato sem o gate perceber.",
+      "auditor_recommended_action": "Adicionar self-test/gate com `git check-ignore` para padrões críticos e arquivos próximos que devem permanecer rastreáveis."
     },
     {
       "id": "061-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "POLICY_REVIEW",
       "target_file": ".gitignore",
       "found_while_auditing": ".gitignore",
@@ -30,7 +34,11 @@
       "requested_action": "Revisar a política de arquivos de ambiente e manter exemplos/configuração oficial explicitamente separados de segredos.",
       "expected_evidence": "Política documentada e teste/validação coerente com os nomes permitidos/ignorados.",
       "possible_regression": "Arquivo de ambiente sensível pode ficar rastreável por nome não coberto.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:01:00Z",
+      "audit_finding": "ACCEPTED como revisão de política. `.gitignore` cobre `.env`, `.env.local` e `.env.*.local`, mas não `.env.production`/variantes não-local. Não há contrato automatizado distinguindo arquivo de exemplo/versionável de segredo por naming.",
+      "auditor_recommended_action": "Definir política explícita para arquivos de ambiente, incluindo exemplos permitidos, e protegê-la com validação representativa."
     }
   ],
   "document_quality": {
