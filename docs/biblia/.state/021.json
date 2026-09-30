@@ -31,7 +31,7 @@
     },
     {
       "id": "021-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/report-error-action.test.js",
       "found_while_auditing": "extension/background/actions/report-error.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Revisar ordem de efeitos e cobertura de erro.",
       "possible_regression": "Usuário vê erro integrado, mas job permanece ativo/slot ocupado sem detecção de teste.",
       "impact": "Consistência de UI e lifecycle de jobs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. O fluxo real pode notificar `SHOW_ERROR_INTEGRATED` antes de `finalizeJob`. A suíte não cobre `storage.get` rejeitando nem `finalizeJob` rejeitando após a notificação, portanto a divergência UI/lifecycle em falha tardia não está fixada.",
+      "auditor_recommended_action": "Adicionar testes de rejeição de storage/finalizeJob, assertando INTERNAL_ERROR e quais efeitos já ocorreram antes da falha."
     }
   ],
   "document_quality": {
