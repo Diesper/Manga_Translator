@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "099-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MIRROR_DRIFT",
       "target_file": "extension/content/cm-chapter.js",
       "related_files": [
@@ -28,7 +28,11 @@
       "expected_auditor_action": "Confirmar o drift, decidir o contrato desejado e tratar código/testes em mudança autorizada separada.",
       "possible_regression": "Uma mudança futura em canonicalTitle real pode quebrar agrupamento/deduplicação enquanto as suítes do mirror permanecem verdes.",
       "impact": "Confiabilidade dos testes de canonicalização e deduplicação de capítulos.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — mirror drift confirmado diretamente. `tests/helpers/extracted-functions.js#canonicalTitle` contém etapas extras (prefixo textual opcional e remoção de sufixo de site) ausentes em `extension/content/cm-chapter.js#canonicalTitle`. Testes do helper podem ficar verdes com produção diferente.",
+      "auditor_recommended_action": "Eliminar mirror para essa função ou gerar/carregar export da implementação real; adicionar teste de paridade temporário se mirror precisar existir."
     },
     {
       "id": "099-002",
