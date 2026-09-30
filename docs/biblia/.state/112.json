@@ -1,0 +1,11 @@
+{
+  "index": 112,
+  "file": "tests/integration/ipc/image-translation-routing.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 12",
+  "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+  "started_at_utc": "2026-09-30T06:32:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
