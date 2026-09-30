@@ -52,7 +52,7 @@
     },
     {
       "id": "093-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_CLEANUP",
       "target_file": "tests/e2e/reader-offline.spec.js",
       "found_while_auditing": "tests/e2e/reader-offline.spec.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Confirmar o comportamento real antes de alterar o teste e decidir se o import fs deve ser usado ou removido.",
       "possible_regression": "Acúmulo de diretórios temporários e possível estado residual em ambientes não efêmeros.",
       "impact": "Higiene de recursos e repetibilidade local.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:18:00Z",
+      "audit_finding": "ACCEPTED. `reader-offline.spec.js` cria `userDataDir` em `os.tmpdir()` e fecha apenas o persistent context em `afterAll`; não remove explicitamente o diretório nem comprova cleanup automático do path fornecido. Em execuções locais repetidas pode haver resíduos.",
+      "auditor_recommended_action": "Verificar lifecycle real do Playwright para `launchPersistentContext(userDataDir)`; se o diretório persistir, armazenar o path e removê-lo robustamente no teardown. Remover/importar `fs` conforme necessário."
     }
   ],
   "document_quality": {
