@@ -2,10 +2,78 @@
   "index": 174,
   "file": "tests/unit/content-gemini/attachment.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/attachment.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
   "started_at_utc": "2026-09-30T14:20:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T14:35:00Z",
+  "audit_requests": [
+    {
+      "id": "174-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/attachment.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/attachment.test.js",
+      "finding": "attachFile reconsulta getEditor/getEditorRoot antes de cada método e pula nós desconectados com reason=editor_disconnected; não há caso focal de re-render do composer entre tentativas.",
+      "current_evidence": "Os 12 casos cobrem upload, retries, Shadow DOM e preview pendente, sempre com editor estável.",
+      "missing_evidence": "Desconectar editor inicial durante retry e fornecer novo editor/root pelos getters, exigindo uso do alvo novo sem repetir método anterior; também cenário sem substituto.",
+      "why_needed": "Gemini pode re-renderizar o composer enquanto o upload está em andamento.",
+      "requested_action": "Adicionar caso determinístico de troca/desconexão de editor.",
+      "expected_evidence": "onAttempt reporta editor_disconnected quando apropriado e attachFile continua no editor novo quando disponível.",
+      "expected_auditor_action": "Priorizar por resiliência a re-render.",
+      "possible_regression": "Eventos enviados a nó morto ou upload travado após re-render.",
+      "impact": "Confiabilidade do attachment em UI dinâmica.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "174-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/attachment.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/attachment.test.js",
+      "finding": "evidenceReady rejeita IMG completa enquanto attachment contém aria-busy=true, role=progressbar ou mat-progress-spinner. ATT-10 cobre imagem incompleta, não busy/progress explícito.",
+      "current_evidence": "Preview pendente por complete=false/naturalWidth=0 bloqueia redisparo e confirma depois de carregar.",
+      "missing_evidence": "IMG completa + progress indicator deve produzir sinal sem confirmar; após remover indicador deve confirmar sem novo dispatch.",
+      "why_needed": "Confirmação não deve ocorrer antes de o componente terminar processamento interno.",
+      "requested_action": "Adicionar teste focal de busy/progress.",
+      "expected_evidence": "confirmed=false enquanto busy; confirmed=true após remoção do indicador.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Runner pode avançar enquanto upload ainda processa.",
+      "impact": "Sincronização de upload.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "174-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/attachment.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/attachment.test.js",
+      "finding": "findFileInputsDeep filtra disabled, contextos user/model e accept incompatível e prioriza inputs dentro do composer; ATT-08 prova apenas um input genérico em Shadow DOM.",
+      "current_evidence": "Busca profunda em Shadow DOM funciona.",
+      "missing_evidence": "Matriz com disabled, accept text/plain, accept image/*, input em model-response e dois válidos (composer vs externo), exigindo somente/prioridade do correto.",
+      "why_needed": "Evita enviar imagem ao input errado da página.",
+      "requested_action": "Adicionar matriz focal de seleção de file input.",
+      "expected_evidence": "Somente inputs elegíveis retornados e composer priorizado.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Arquivo atribuído a controle errado ou não-imagem.",
+      "impact": "Segurança/robustez do mecanismo de upload.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "407/407",
+    "source_text_lines": 406,
+    "bible_lines": 3351,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; 12 casos ATT passaram individualmente; global 109/109 suítes e 851/851 testes."
+  }
 }
