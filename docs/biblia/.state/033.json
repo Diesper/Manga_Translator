@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "033-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "extension/background/tab-identity.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Assertions sobre retorno original no limite de hops, log TAB_ALIAS_MAX_HOPS e ausência de escrita de alias/migration para IDs inválidos ou iguais.",
       "possible_regression": "Uma mudança futura pode transformar entradas inválidas ou cadeias longas em redirecionamento indevido sem falhar a suíte.",
       "impact": "Integridade da resolução de ownership por tabId.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:10:00Z",
+      "audit_finding": "O teste focal SHA 1f2dd525... cobre cadeia curta (TAB-03), ciclo (TAB-04) e TTL (TAB-09), mas não constrói cadeia de 8+ hops, não verifica TAB_ALIAS_MAX_HOPS e não exercita IDs negativos, fracionários, string ou iguais.",
+      "auditor_recommended_action": "Adicionar casos focais na implementação real para max hops e guards de IDs."
     },
     {
       "id": "033-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "extension/background/tab-identity.js",
@@ -38,11 +42,15 @@
       "expected_evidence": "Promise rejeitada com TAB_REKEY_CONFLICT, log correspondente e storage de destino/origem intactos nos pontos críticos.",
       "possible_regression": "Sobrescrita ou remoção de dados pertencentes a outro job.",
       "impact": "Ownership e isolamento entre jobs.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:10:00Z",
+      "audit_finding": "O branch real de tab-identity.js compara oldJob.jobId/newJob.jobId e lança TAB_REKEY_CONFLICT, mas não foi encontrada assertion que execute esse conflito e prove preservação das chaves de origem/destino.",
+      "auditor_recommended_action": "Adicionar teste de conflito com dois jobIds diferentes, verificando rejeição e ausência de remoção/sobrescrita destrutiva."
     },
     {
       "id": "033-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "extension/background/tab-identity.js",
@@ -54,11 +62,15 @@
       "expected_evidence": "Nenhum alarme novo no caso ausente; no caso expirado/inválido, alarme novo com fallback de 0.01 minuto.",
       "possible_regression": "Watchdog/finalization marker pode sumir ou ser recriado com prazo incorreto.",
       "impact": "Timeouts e cleanup de jobs após replacement.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:10:00Z",
+      "audit_finding": "TAB-01 prova alarms existentes com schedule normal. Não há assertion focal para alarme ausente, scheduledTime expirado/inválido ou fallback delayInMinutes=0.01.",
+      "auditor_recommended_action": "Adicionar casos para ausência e deadline não reutilizável usando a implementação real."
     },
     {
       "id": "033-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "extension/background/tab-identity.js",
@@ -70,11 +82,15 @@
       "expected_evidence": "jobIndex/extractionTabs atualizados corretamente nos fallbacks e migration index limpo para entradas ausentes/completed/inválidas.",
       "possible_regression": "Fallback pode perder referências ou recovery pode ficar preso em entradas irrecuperáveis.",
       "impact": "Compatibilidade e recuperação após suspensão.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:10:00Z",
+      "audit_finding": "O caminho runtime usa replaceGeminiTabReferences e TAB-05 prova journal intermediário válido. Não há prova dos fallbacks state.mutate/state.patch/atribuição direta nem dos guards de recovery para journal ausente/completed/IDs inválidos ainda presentes no índice.",
+      "auditor_recommended_action": "Adicionar testes focais para cada fallback/guard, sem duplicar a implementação."
     },
     {
       "id": "033-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "extension/background/tab-identity.js",
@@ -86,11 +102,15 @@
       "expected_evidence": "Índices finais preservam todas as entradas válidas; se o teste revelar lost update, encaminhar correção funcional em processo separado.",
       "possible_regression": "Journal pendente ou alias válido fica órfão fora do índice.",
       "impact": "Recuperabilidade e expiração de aliases sob concorrência.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:10:00Z",
+      "audit_finding": "addIndexValue/removeIndexValue e cleanupExpiredAliases executam read-modify-write de arrays sem mutex/transação. As suítes encontradas exercem operações sequenciais; não há cenário determinístico de interleaving concorrente.",
+      "auditor_recommended_action": "Criar teste controlando a ordem dos get/set para detectar lost update entre replacements/migrations e cleanup."
     },
     {
       "id": "033-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "extension/background/tab-identity.js",
@@ -102,7 +122,11 @@
       "expected_evidence": "Journal/recovery associados aos IDs corretos da migração mais recente, sem reaplicar 100→200 durante recovery de 200→300.",
       "possible_regression": "Após crash, recovery pode restaurar/migrar identidade errada e deixar job inconsistente.",
       "impact": "Integridade do recovery multi-replacement para o mesmo job.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:10:00Z",
+      "audit_finding": "Confirmado no código atual: migrationKey usa somente jobId quando fornecido. Após um rekey concluído, o journal completed permanece no storage. Um segundo rekey com o mesmo jobId reutiliza esse journal e writeJournal preserva oldTabId/newTabId antigos; se houver crash na segunda migração, recoverPendingMigrations pode reaplicar os IDs do primeiro rekey.",
+      "auditor_recommended_action": "Tratar como bug funcional além de lacuna de teste: tornar a identidade do journal única por migração (ou substituir explicitamente old/new ao iniciar novo rekey) e adicionar regressão 100→200→300 com mesmo jobId e crash/recovery."
     }
   ]
 }
