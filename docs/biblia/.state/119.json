@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "119-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/mocks/chrome-api.mock.test.js",
       "found_while_auditing": "tests/mocks/chrome-api.mock.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Assertions diretas por API sobre estado, callbacks/Promises, ordering, eventos, lastError e erro/cleanup.",
       "expected_auditor_action": "Definir e implementar a matriz mínima de fidelidade crítica fora desta Bíblia.",
       "possible_regression": "Mudanças no mock podem mascarar regressões de produção ou quebrar suites sem que a origem seja identificada.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:01:00Z",
+      "audit_finding": "ACCEPTED — risco sistêmico de fixture confirmado. Não há suíte focal abrangente para a superfície do mock; as APIs são majoritariamente validadas como infraestrutura de outras suítes. Um bug no mock pode alterar dezenas de resultados sem uma falha diagnóstica própria.",
+      "auditor_recommended_action": "Criar matriz direta para Storage/Tabs/Alarms/Runtime/Downloads/Scripting, cobrindo callback/Promise, lastError, ordering, eventos, add/removeListener e cleanup."
     },
     {
       "id": "119-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ISOLATION_REVIEW",
       "target_file": "tests/mocks/chrome-api.mock.js",
       "found_while_auditing": "tests/mocks/chrome-api.mock.js",
@@ -38,11 +42,15 @@
       "expected_evidence": "Casos consecutivos que provem ausência de handlers/listeners/dados não intencionais no segundo caso, preservando apenas listeners deliberados do background.",
       "expected_auditor_action": "Resolver a política de lifecycle do singleton e documentar exceções explícitas.",
       "possible_regression": "Flakiness, chamadas duplicadas, listeners mortos e dependência da ordem das suítes.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:01:00Z",
+      "audit_finding": "ACCEPTED — reset parcial confirmado. `initChromeMocks()` subsequente limpa storage data, tabs map, alarms e downloads data/listeners específicos, mas não reseta storage `_listeners`, tabs `_messageHandlers/_on*Listeners/_nextTabId`, alarms `_listeners`, nem runtime registries preservados deliberadamente. Isso permite contaminação/ordem entre testes salvo resets manuais.",
+      "auditor_recommended_action": "Inventariar cada campo stateful como persistente ou por-teste e implementar reset/fixture explícito; adicionar teste consecutivo que prove ausência de listeners/handlers/counters residuais não intencionais."
     },
     {
       "id": "119-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MOCK_FIDELITY_REVIEW",
       "target_file": "tests/mocks/chrome-api.mock.js",
       "found_while_auditing": "tests/mocks/chrome-api.mock.js",
@@ -54,7 +62,11 @@
       "expected_evidence": "Tabela método/argumentos usados versus comportamento modelado, com regressões focais para diferenças críticas.",
       "expected_auditor_action": "Aceitar simplificações seguras explicitamente e solicitar correções separadas nas que afetarem comportamento testado.",
       "possible_regression": "Falso positivo em testes unitários/integrados por divergência entre mock e Chromium.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:01:00Z",
+      "audit_finding": "ACCEPTED — fidelidade reduzida confirmada. `tabs.query` modela subconjunto dos filtros; storage remove/clear não reproduzem integralmente onChanged; runtime/onInstalled e downloads têm scheduling simplificado; Port possui métodos stubs. Essas simplificações podem divergir de Chromium em fluxos que dependam desses detalhes.",
+      "auditor_recommended_action": "Documentar a superfície suportada do mock e ampliar apenas comportamentos usados pelo código testado; criar regressões de fidelidade para filtros/eventos críticos e encaminhar cenários não modelados a E2E real."
     }
   ],
   "document_quality": {
