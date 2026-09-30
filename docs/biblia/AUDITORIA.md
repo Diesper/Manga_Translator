@@ -718,3 +718,13 @@ Para aprovar uma revisão:
 8. verificar consumidores/dependências citados;
 9. somente então trocar `🟣 REVISÃO OBRIGATÓRIA` por `✅ APROVADO`;
 10. atualizar `STATUS.md` e `CHECKLIST.md`.
+| 72 | `scripts/ci/playwright-gate-reporter.js` | SHA `71fb92c1215a...` reconfirmado; bloco integral exato | 82 linhas + newline final = 83/83 posições; 83 headings sequenciais | `playwright-gate-reporter-selftest.js` executa a implementação real e prova happy path, skip, baseline mínimo, estados terminais e failed/timedOut→passed em retry; `verify-ci-contract.js` fornece gates estáticos específicos; branch de resultados ausentes permanece lacuna explícita | lifecycle onBegin/onTestEnd/onEnd, merge global de shards, baseline, trust boundaries e classificação flaky documentados; gaps de `maxSkipped`, IDs/ordem e inputs malformados registrados | ✅ APROVADO |
+
+### `playwright-gate-reporter.js` — auditoria do AGENTE 9
+
+- SHA `71fb92c1215a86cdb309f4599ea8d0b422e9b02e` reconfirmado;
+- fonte integral: 82 linhas + newline final = 83/83 posições, com headings sequenciais;
+- o self-test executa o reporter real; gates estáticos e integração CI foram classificados separadamente;
+- lacunas externas permanecem explícitas em `.state/072.json`; nenhuma prova foi fabricada pelo agente documental.
+
+**Veredito:** ✅ APROVADO.
