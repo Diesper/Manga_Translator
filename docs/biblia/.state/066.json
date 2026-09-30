@@ -2,12 +2,11 @@
   "index": 66,
   "file": ".github/workflows/publish.yml",
   "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
-  "status": "BLOCKED",
-  "agent": "AGENTE 10",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 16",
   "source_sha": "f673d445a3cc022d473f9b59ae1e0c8972ecd013",
-  "started_at_utc": "2026-09-30T15:33:00Z",
+  "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
-  "blocked_reason": "AUDITORIA.md marca o #066 como NÃO AUDITADO — REABERTO; a reauditoria documental do AGENTE 10 foi concluída, mas o gate de auditoria separada ainda não foi registrado como aprovado.",
   "audit_requests": [
     {
       "id": "066-001",
@@ -103,6 +102,8 @@
     "source_text_lines": 131,
     "external_audit_requests_open": 5,
     "separate_audit_status": "REOPENED_REQUIRED",
-    "note": "Reauditoria documental do AGENTE 10 concluída; estado bloqueado apenas pelo gate separado registrado em AUDITORIA.md."
+    "note": "AGENTE 16 reassumiu #066 sob reserva exclusiva para revalidar a Bíblia conforme o protocolo multiagente atual; audit_requests existentes foram preservados.",
+    "revalidation_owner": "AGENTE 16",
+    "current_protocol": "external audit requests do not block documentary completion"
   }
 }
