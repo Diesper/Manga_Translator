@@ -83,7 +83,7 @@
 - [ ] 063 — `package.json` → `docs/biblia/package.json/Bíblia.md` **← EM ANDAMENTO — Agente L**
 - [ ] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 1**
 - [ ] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 3**
-- [ ] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 2**
+- [x] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 4**
 - [ ] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 5**
 - [ ] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 6**
