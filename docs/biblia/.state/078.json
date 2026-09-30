@@ -7,5 +7,54 @@
   "source_sha": "9bc8fa5ae3fb127698e6f35988fd6efab7e56c07",
   "started_at_utc": "2026-09-30T05:45:07.790Z",
   "completed_at_utc": null,
-  "audit_requests": []
+  "audit_requests": [
+    {
+      "id": "078-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/version-sync.test.js",
+      "found_while_auditing": "scripts/release/sync-version.js",
+      "finding": "A suíte atual prova diretamente parseNumericSemver/deriveVersionInfo e faz checks estáticos do workflow, mas não exercita em sandbox collectState/getDifferences/syncWorkspace/checkWorkspace/printEnv nem os branches CLI.",
+      "current_evidence": "tests/unit/background/version-sync.test.js:9-34 cobre derivação/parser; CI executa os caminhos verdes de --check e --print-env; gates estáticos protegem wiring e caminhos canônicos.",
+      "missing_evidence": "Mismatches individuais, docs/workflow ausentes, packages[\"\"] ausente, escrita/sync em diretório temporário, pós-checagem, stdout/exit code e precedência CLI.",
+      "why_needed": "Sem prova focal, regressões em I/O, branches de erro e orquestração podem permanecer verdes enquanto a derivação pura continua correta.",
+      "requested_action": "Adicionar testes separados usando a implementação real com root temporário e/ou child process controlado, sem copiar a lógica do script.",
+      "expected_evidence": "Assertions diretas sobre diferenças, arquivos resultantes, stdout/stderr, exit code e precedência dos modos.",
+      "expected_auditor_action": "Confirmar a lacuna e abrir alteração de testes separada se essa cobertura for exigida.",
+      "possible_regression": "Version sync/check pode falhar ou mascarar drift sem que version-sync.test.js detecte.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "078-002",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "scripts/release/sync-version.js",
+      "found_while_auditing": "scripts/release/sync-version.js",
+      "finding": "syncWorkspace grava Manifest e lockfile em duas operações independentes; se a primeira escrita funcionar e a segunda falhar, o workspace pode ficar parcialmente atualizado.",
+      "current_evidence": "Linhas 100-101 chamam writeJson sequencialmente; não há rollback, rename atômico conjunto ou transação.",
+      "missing_evidence": "Teste que injete falha na segunda escrita e decisão explícita sobre atomicidade/rollback esperado.",
+      "why_needed": "A pós-checagem só roda depois dos dois writes e não protege contra falha intermediária.",
+      "requested_action": "Decidir se best-effort sequencial é aceitável; se não for, implementar estratégia transacional/rollback em mudança funcional separada e adicionar regressão.",
+      "expected_evidence": "Teste controlado demonstrando o comportamento decidido quando a segunda escrita falha.",
+      "expected_auditor_action": "Classificar o risco e, se necessário, solicitar correção funcional separada.",
+      "possible_regression": "Erro de disco/permissão/interrupção entre writes pode deixar Manifest e lockfile divergentes.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "078-003",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/release/sync-version.js",
+      "found_while_auditing": "scripts/release/sync-version.js",
+      "finding": "O modo --print-env deriva e imprime valores sem executar getDifferences; chamado isoladamente, pode emitir ambiente mesmo quando Manifest/lock/docs/workflow estão inconsistentes.",
+      "current_evidence": "main() linhas 132-136 chama collectState + printEnv; os workflows oficiais mitigam executando version:check antes de --print-env.",
+      "missing_evidence": "Contrato/teste definindo se --print-env standalone deve recusar workspace inconsistente.",
+      "why_needed": "Consumidores futuros podem assumir que sucesso de --print-env também prova sincronização, o que hoje não é garantido pela implementação.",
+      "requested_action": "Confirmar a intenção; se o modo deva ser auto-validante, tratar em alteração funcional/teste separada.",
+      "expected_evidence": "Teste explícito para o comportamento standalone decidido e documentação do contrato.",
+      "expected_auditor_action": "Aceitar a assimetria como contrato ou solicitar mudança separada.",
+      "possible_regression": "Um novo consumidor pode publicar nomes derivados corretos a partir do package enquanto outros metadados permanecem fora de sincronia.",
+      "severity": "NORMAL"
+    }
+  ]
 }
