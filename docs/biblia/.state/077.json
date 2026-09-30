@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "077-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/diagnose-jest-workers-selftest.js",
       "found_while_auditing": "scripts/maintenance/diagnose-jest-workers.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e tratar a criação do teste em alteração separada, mantendo esta Bíblia como documentação do estado atual.",
       "possible_regression": "Mudanças futuras podem quebrar o diagnóstico ou produzir artifacts incorretos sem falhar a suíte atual.",
       "impact": "Confiabilidade da infraestrutura de diagnóstico de workers Jest.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED. Não existe self-test do runner `diagnose-jest-workers.js`; o self-test existente cobre apenas `hasForcedWorkerExit`. parseCaseFilter, spawn argv/env, classificação CLEAN/FAIL/LEAK, artifacts, aggregate e exits 2/64 continuam sem prova focal.",
+      "auditor_recommended_action": "Adicionar harness da implementação real com child process controlável para todos os estados e artifacts."
     },
     {
       "id": "077-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_CONTRACT_REVIEW",
       "target_file": ".github/workflows/ci.yml",
       "found_while_auditing": "scripts/maintenance/diagnose-jest-workers.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Validar se a duplicação é intencional e, caso a cobertura exata seja requisito, solicitar mudança separada no contrato/infraestrutura.",
       "possible_regression": "Uma case pode deixar de executar em CI sem aviso, ou um typo no workflow pode produzir exit 64 em vez do diagnóstico esperado.",
       "impact": "Cobertura e estabilidade dos jobs jest-worker-diagnostic/focused-project-leak-diagnostic.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED. No estado atual, as 18 cases do array JS coincidem com a matriz principal do workflow; porém os nomes são duplicados manualmente e o gate não compara os conjuntos. O job focused usa subconjunto manual de 10 cases. Portanto o risco é drift futuro, não divergência atual.",
+      "auditor_recommended_action": "Adicionar verificação estrutural de igualdade para a matriz principal e de subconjunto permitido para a matriz focused, ou adotar fonte única."
     },
     {
       "id": "077-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TIMEOUT_POLICY_REVIEW",
       "target_file": "scripts/maintenance/diagnose-jest-workers.js",
       "found_while_auditing": "scripts/maintenance/diagnose-jest-workers.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Classificar o risco operacional e abrir correção separada se houver requisito de duração limitada.",
       "possible_regression": "Uma case pode permanecer bloqueada por período indefinido/externamente limitado, impedindo aggregate e artifacts finais.",
       "impact": "Tempo e capacidade de diagnóstico da CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:14:00Z",
+      "audit_finding": "ACCEPTED. `spawnSync` define cwd/encoding/maxBuffer/env, mas não timeout; os jobs diagnósticos também não declaram `timeout-minutes`. Um Jest travado pode impedir aggregate/artifacts conclusivos até o limite externo.",
+      "auditor_recommended_action": "Definir política de timeout e adicionar teste de child que não termina."
     }
   ]
 }
