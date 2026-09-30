@@ -78,7 +78,7 @@
     },
     {
       "id": "218-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/popup/log-exporter.test.js",
       "found_while_auditing": "tests/unit/popup/log-exporter.test.js",
@@ -91,7 +91,11 @@
       "expected_auditor_action": "Adicionar regressão de segurança sem alterar o código para fazê-la passar.",
       "possible_regression": "Injeção de markup no popup por dados de log.",
       "impact": "Segurança da UI privilegiada.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "ACCEPTED. `popup.js` monta os logs via `innerHTML` e aplica `escapeHTML` a source/action/detail/extra, mas `log-exporter.test.js` só usa strings benignas. Não há payload hostil que prove esse boundary privilegiado.",
+      "auditor_recommended_action": "Adicionar log com `<script>`, `<img onerror>` e atributos maliciosos, exigindo texto literal e ausência de nós/handlers executáveis."
     }
   ],
   "document_quality": {
