@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/shared-ui/redo-confirmation.test.js
 
-> **Estado documental:** 🟠 REAUDITORIA TÉCNICA APROVADA — GATE GLOBAL PENDENTE  
+> **Estado documental:** ⛔ BLOQUEADO APÓS REAUDITORIA TÉCNICA APROVADA — AGUARDA GATE GLOBAL  
 > **SHA auditado:** `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`  
 > **Autor original:** AGENTE 25  
 > **Proprietário/reauditor atual:** AGENTE 28  
@@ -609,4 +609,21 @@ Após releitura do fonte, da suíte, dos mocks, da implementação real e dos co
 
 **Veredito técnico local:** ✅ APROVADO PELO AGENTE 28.
 
-**Veredito global do projeto:** ⏳ PENDENTE. As ocorrências atuais de `redo-confirmation.test.js` em `docs/biblia/AUDITORIA.md` pertencem à auditoria de #059 `extension/shared/shared-ui.js`; não há entrada individual para #224, e as visões agregadas continuam desatualizadas. O estado individual permanece `IN_PROGRESS` até esse gate ser registrado pelo processo autorizado.
+**Veredito global do projeto:** ⛔ BLOQUEADO. As ocorrências atuais de `redo-confirmation.test.js` em `docs/biblia/AUDITORIA.md` pertencem à auditoria de #059 `extension/shared/shared-ui.js`; não há entrada individual para #224, e as visões agregadas continuam desatualizadas. Como a reauditoria técnica local está encerrada e o único requisito restante depende do processo global autorizado, o estado individual passa a `BLOCKED` até esse gate ser registrado.
+
+### Conferência numérica final
+
+O AGENTE 28 reconferiu diretamente os limites citados contra o blob atual:
+
+- harness: 24–59;
+- teste 1: 61–81;
+- teste 2: 83–99;
+- teste 3: 101–165;
+- teste 4: 167–195;
+- teste 5: 197–214;
+- teste 6: 216–234;
+- teste 7: 236–241;
+- fechamento: 242;
+- newline terminal: posição 243.
+
+Os sete `test(...)` começam exatamente nas linhas 61, 83, 101, 167, 197, 216 e 236. As faixas documentais 1–243 permanecem contíguas, sem lacunas.
