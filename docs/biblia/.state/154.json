@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "154-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "HARNESS_SEMANTICS_REVIEW",
       "target_file": "tests/mocks/chrome-api.mock.js",
       "found_while_auditing": "tests/unit/background/lifecycle-alarms-real.test.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Avaliar impacto global antes de alterar o mock compartilhado.",
       "possible_regression": "Estado inicial pode ser criado artificialmente durante simples module load.",
       "impact": "Confiabilidade dos testes de lifecycle que reutilizam o runtime mock.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "148-002",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "SUPERSEDED por 148-002. A semântica incorreta do mock onInstalled já está centralizada em 148-002.",
+      "auditor_recommended_action": "Acompanhar 148-002."
     },
     {
       "id": "154-002",
