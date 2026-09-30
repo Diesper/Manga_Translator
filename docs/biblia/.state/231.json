@@ -27,7 +27,7 @@
     },
     {
       "id": "231-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_STRENGTH",
       "target_file": "tests/visual/integration.visual.js",
       "found_while_auditing": "tests/visual/integration.visual.js",
@@ -40,7 +40,11 @@
       "expected_auditor_action": "Classificar quais assertions são key isolation e quais, se houver, provam chapter isolation.",
       "possible_regression": "Uma falha de isolamento por capítulo pode existir enquanto estes testes continuam verdes.",
       "impact": "Força probatória da suíte.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:02:00Z",
+      "audit_finding": "ACCEPTED. A seção chamada 'Múltiplos capítulos — isolamento no IndexedDB' usa `createInMemoryRepository`, hashes literais `cap1_pg1/cap2_pg1` e nenhuma propriedade `chapterId`. As assertions provam apenas isolamento por chave/hash, não isolamento semântico de capítulos.",
+      "auditor_recommended_action": "Renomear o caso para key isolation ou adicionar teste na camada correta com identidades reais de capítulo e assertions de isolamento correspondentes."
     },
     {
       "id": "231-003",
