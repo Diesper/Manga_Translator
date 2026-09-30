@@ -66,7 +66,7 @@
     },
     {
       "id": "089-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PARSER_ROBUSTNESS_REVIEW",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -78,7 +78,11 @@
       "expected_evidence": "Self-test cobrindo valor canônico e rejeição/aceitação explicitamente definida de variantes.",
       "possible_regression": "Reservas semanticamente válidas podem derrubar validate:structure.",
       "impact": "Robustez da coordenação documental.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:51:00Z",
+      "audit_finding": "ACCEPTED — incompatibilidade real com os locks atuais. `coordinationField(...,'ESTADO')` preserva todo o texto após `ESTADO:` e o gate exige `state === 'ATIVA'`. Reservas existentes no branch usam formas como `ATIVA — EM ANDAMENTO`/`ATIVA — EM ANÁLISE`, que seriam rejeitadas apesar de semanticamente ativas.",
+      "auditor_recommended_action": "Definir enum/formato canônico para ESTADO e parsear o token base ou validar prefixo/estrutura; adicionar self-test com os formatos realmente emitidos pelos agentes."
     },
     {
       "id": "089-005",
