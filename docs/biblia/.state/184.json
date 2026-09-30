@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "184-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
       "found_while_auditing": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Atualizar documentação do teste em mudança separada.",
       "possible_regression": "Leitor pode reintroduzir contador fixo para satisfazer título obsoleto.",
       "impact": "Manutenção e clareza.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED como manutenção. O título/comentários ainda mencionam '30 tentativas' e 'plano v3.1', enquanto `claimGeminiJob` atual é orientado por timeout/retry temporal e fallback GET_TAB_ID/storage, não por contador fixo de 30.",
+      "auditor_recommended_action": "Atualizar nomes/comentários para o contrato atual e evitar números históricos que não são mais invariantes."
     },
     {
       "id": "184-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_PERFORMANCE_REVIEW",
       "target_file": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
       "found_while_auditing": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Otimizar em alteração separada.",
       "possible_regression": "CI lento e sensível a scheduling.",
       "impact": "Tempo/estabilidade de CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. A suíte usa múltiplos timers/pollings reais longos e foi identificada como execução de dezenas de segundos; isso aumenta custo/flakiness e não é necessário para validar a maioria dos estados temporais.",
+      "auditor_recommended_action": "Migrar esperas determinísticas para fake timers/latches e manter apenas tempos reais onde o comportamento de scheduler for parte do contrato."
     },
     {
       "id": "184-003",
