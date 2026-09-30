@@ -2,10 +2,10 @@
   "index": 66,
   "file": ".github/workflows/publish.yml",
   "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
-  "status": "PENDING",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 10",
   "source_sha": "f673d445a3cc022d473f9b59ae1e0c8972ecd013",
-  "started_at_utc": null,
+  "started_at_utc": "2026-09-30T15:33:00Z",
   "completed_at_utc": null,
   "audit_requests": []
 }
