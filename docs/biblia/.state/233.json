@@ -95,7 +95,7 @@
     },
     {
       "id": "233-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "BASELINE_SCHEMA_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "tests/visual/runner.js",
@@ -108,7 +108,11 @@
       "expected_auditor_action": "Confirmar a lacuna no gate e, se aceita, adicionar validação/teste em alteração separada.",
       "possible_regression": "Alteração acidental do baseline pode permitir testes skipped sem gate error do runner.",
       "impact": "Política de zero skips da suíte visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:38:00Z",
+      "audit_finding": "ACCEPTED. `runner.printSummary()` aplica `baseline.visual.maxSkipped`, porém `verify-ci-contract.js` protege `visual.minTests` e não valida a presença/valor de `maxSkipped`. O threshold pode derivar sem o gate estrutural perceber.",
+      "auditor_recommended_action": "Adicionar `visual.maxSkipped` ao contrato/self-test da CI se esse limite for obrigatório."
     }
   ],
   "document_quality": {
