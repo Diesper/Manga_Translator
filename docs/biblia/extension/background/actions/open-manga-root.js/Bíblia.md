@@ -36,6 +36,38 @@ A action não usa `meta.async:false`. Portanto o router mantém o canal aberto e
 - ⚠️ O comportamento de busca, criação, exibição e remoção do marcador pertence ao helper, não a esta action.
 - ⚠️ A remoção programada pelo helper depende de timer do service worker e não é persistida através de reinicialização.
 
+## Solicitações ao auditor
+
+### 018-001 — TEST_REQUIRED — OPEN
+
+**Encontrado:** a action depende integralmente de `context.handleMarkerAndShow`, porém a suíte direta só cobre helper funcional retornando sucesso/erro.
+
+**Evidência atual:** `open-manga-root-action.test.js` prova `null` como `safeTitle`, `keepAlive:true` e preservação das respostas do helper.
+
+**Evidência ausente:** helper ausente/não-função, helper que lança e helper que nunca chama o callback.
+
+**Necessário:** adicionar casos focais contra a action real e o router, sem alterar a implementação auditada.
+
+**Risco:** a Promise pode rejeitar via router ou permanecer pendente indefinidamente sem um gate que documente esse comportamento.
+
+**Severidade:** NORMAL.
+
+### 018-002 — RELIABILITY_REVIEW — OPEN
+
+**Encontrado:** o helper real cria marcador temporário e agenda remoção por timer; essa remoção não é persistida através de reinicialização do service worker.
+
+**Arquivo relacionado:** `extension/background.js`.
+
+**Evidência atual:** testes do helper cobrem criação, show e remoção programada no mesmo ciclo de execução.
+
+**Evidência ausente:** reinicialização do worker entre criação do marcador e disparo do timer.
+
+**Necessário:** auditar se marcadores órfãos após restart são aceitáveis; se não forem, definir mecanismo de cleanup/reconciliação e teste de regressão em alteração separada.
+
+**Risco:** arquivos marcadores temporários podem permanecer no diretório de downloads após restart/hibernação do worker.
+
+**Severidade:** LOW.
+
 ## Invariantes
 
 1. O request não altera a pasta principal.
