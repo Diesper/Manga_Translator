@@ -1,0 +1,11 @@
+{
+  "index": 145,
+  "file": "tests/unit/background/fetch-image-base64-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/fetch-image-base64-action.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 10",
+  "source_sha": "1246da7bd3992499b1a21a4a00dc32b83f9486c3",
+  "started_at_utc": "2026-09-30T06:45:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
