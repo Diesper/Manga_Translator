@@ -1,6 +1,6 @@
 # Bíblia técnica — extracted-functions.js
 
-> **Estado documental:** ✅ CONCLUÍDO pelo AGENTE 3 segundo o state individual  
+> **Estado documental:** ✅ CONCLUÍDA  
 > **SHA auditado:** `ccbf20485608a223c723adf638860cb7151c8886`  
 > **Agente responsável:** AGENTE 3  
 > **Arquivo:** `tests/helpers/extracted-functions.js`  
