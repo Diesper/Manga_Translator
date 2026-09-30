@@ -231,7 +231,6 @@ O listener é instalado por `content_manga.js`, que encaminha imediatamente para
     }
     rootScope.MangaTranslatorAutoRestore = Object.freeze({ normalizeBlockedImagesStore, createAutoRestorer });
 })(typeof window !== 'undefined' ? window : self);
-
 ~~~
 
 ## Rastreabilidade 124/124
