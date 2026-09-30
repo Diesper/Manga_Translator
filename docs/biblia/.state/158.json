@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "158-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/open-manga-root-action.test.js",
       "found_while_auditing": "tests/unit/background/open-manga-root-action.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar o branch e adicionar cobertura se for requisito de robustez.",
       "possible_regression": "Exceção de infraestrutura pode escapar ou gerar resposta inesperada sem falhar a suíte atual.",
       "impact": "Robustez de OPEN_MANGA_ROOT diante de falha do helper.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. `open-manga-root.js` chama `handleMarkerAndShow` dentro do executor Promise; a suíte cobre callback de sucesso/erro, mas não exceção síncrona lançada antes do callback. Esse throw deve resultar no contrato de erro do router.",
+      "auditor_recommended_action": "Adicionar helper que lança sincronamente e assertar resposta INTERNAL_ERROR/ausência de Promise pendurada."
     }
   ],
   "document_quality": {
