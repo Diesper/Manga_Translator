@@ -31,7 +31,7 @@
     },
     {
       "id": "208-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/content-manga/image-fingerprint.test.js",
       "found_while_auditing": "tests/unit/content-manga/image-fingerprint.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Corrigir a suíte sem alterar produção para satisfazer o mirror.",
       "possible_regression": "Propriedades descritas podem quebrar sem falha.",
       "impact": "Precisão da suíte.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:55:00Z",
+      "audit_finding": "ACCEPTED. O caso CORS diz que hashes com/sem pixels diferem, mas só verifica formato em ambos; não há `expect(hashWithPixels).not.toBe(hashWithoutPixels)`. O caso src vazio usa `resolves.not.toThrow()` sobre o valor resolvido, forma que não prova corretamente o contrato pretendido.",
+      "auditor_recommended_action": "Adicionar inequality explícita e reescrever o caso src vazio para `await expect(promise).resolves...` com assertion sobre valor/forma."
     },
     {
       "id": "208-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PERFORMANCE_TEST_VALIDITY",
       "target_file": "tests/unit/content-manga/image-fingerprint.test.js",
       "found_while_auditing": "tests/unit/content-manga/image-fingerprint.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Revisar estratégia de performance.",
       "possible_regression": "Falso sinal de desempenho ou flakiness.",
       "impact": "Confiabilidade de gates de performance.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:55:00Z",
+      "audit_finding": "ACCEPTED. O benchmark <500 ms mede um mirror local com `crypto.createHash` e pixels artificiais em Node; não inclui Canvas/WebCrypto/perceptuais/IPC do pipeline atual. É benchmark sintético, não SLO do fingerprint real.",
+      "auditor_recommended_action": "Rotular como microbenchmark do mirror ou criar benchmark separado sobre a implementação real se performance do produto for requisito."
     },
     {
       "id": "208-004",
