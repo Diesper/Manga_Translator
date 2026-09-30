@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "027-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "BUG_REVIEW",
       "target_file": "extension/background/jobs-lifecycle.js",
       "found_while_auditing": "extension/background/jobs-lifecycle.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar contrato de configuração.",
       "possible_regression": "Fila permanece parada apesar de haver jobs pendentes.",
       "impact": "Disponibilidade do pipeline de tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — bug confirmado. `refreshMaxConcurrency` usa `parseInt(value,10) || 1`; valores negativos como `-1` permanecem truthy e viram `_cachedMaxCon=-1`. Em `processNextJob`, `activeJobsCount >= _cachedMaxCon` fica verdadeiro até com zero jobs e bloqueia novos launches.",
+      "auditor_recommended_action": "Aplicar validação/clamp para inteiro positivo e fallback 1; testar 0, negativos, float/string inválida e limite alto."
     },
     {
       "id": "027-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONCURRENCY_REVIEW",
       "target_file": "extension/background/jobs-lifecycle.js",
       "found_while_auditing": "extension/background/jobs-lifecycle.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Revisar atomicidade por job.",
       "possible_regression": "Patch de estado pode desaparecer silenciosamente.",
       "impact": "Consistência do lifecycle e recovery.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — lost-update possível. `updateJobState` faz get de `gemini_job_*`, cria `{...job,...patch}` e set sem fila/CAS. Chamadas concorrentes podem ler o mesmo snapshot e a última gravação eliminar campos da outra atualização.",
+      "auditor_recommended_action": "Serializar updates por job, usar mutação transacional equivalente ou merge após releitura; criar interleaving determinístico."
     },
     {
       "id": "027-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_LEAK_REVIEW",
       "target_file": "extension/background/jobs-lifecycle.js",
       "found_while_auditing": "extension/background/jobs-lifecycle.js",
@@ -57,11 +65,15 @@
       "expected_auditor_action": "Revisar cleanup de superfície.",
       "possible_regression": "Janelas minimizadas vazias acumulam durante falhas de criação.",
       "impact": "Recursos do navegador e UX.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — leak de janela confirmado. Em `minimized_window`, se `windows.create` retorna janela válida porém sem `tabs`, e `tabs.query` retorna `[]` sem lançar, o bloco termina sem `return` e sem entrar no `catch`; o fallback cria uma aba inativa, mas `createdWindowId` nunca é removido.",
+      "auditor_recommended_action": "Se nenhuma tab for obtida, remover explicitamente a janela criada antes do fallback; testar janela sem tabs + query vazia."
     },
     {
       "id": "027-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MV3_LIFECYCLE_REVIEW",
       "target_file": "extension/background/jobs-lifecycle.js",
       "found_while_auditing": "extension/background/jobs-lifecycle.js",
@@ -74,7 +86,11 @@
       "expected_auditor_action": "Revisar lifecycle MV3.",
       "possible_regression": "Abas/janelas e estado de deletion podem permanecer órfãos após suspensão.",
       "impact": "Higiene de recursos e pós-processamento.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — fragilidade MV3 confirmada. Cleanup de temp_chat usa `setTimeout(...,600)` e cleanup de minimized/background_delete usa `setTimeout(...,18000)`. Esses timers não são duráveis através de suspensão/restart do Service Worker.",
+      "auditor_recommended_action": "Migrar cleanup que precisa sobreviver à suspensão para `chrome.alarms`/estado durável, ou provar que perda do timer é aceitável e recuperável; testar restart."
     },
     {
       "id": "027-005",
