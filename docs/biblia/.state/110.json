@@ -1,0 +1,11 @@
+{
+  "index": 110,
+  "file": "tests/integration/ipc/gtc-cache-flow.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 9",
+  "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
+  "started_at_utc": "2026-09-30T06:27:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
