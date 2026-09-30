@@ -1,0 +1,11 @@
+{
+  "index": 99,
+  "file": "tests/helpers/extracted-functions.js",
+  "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 3",
+  "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
+  "started_at_utc": "2026-09-30T06:25:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
