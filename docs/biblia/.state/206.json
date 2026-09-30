@@ -73,7 +73,7 @@
     },
     {
       "id": "206-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CORRECTION",
       "target_file": "tests/integration/banned-images-flow.test.js",
       "found_while_auditing": "tests/unit/content-manga/get-page-images-filter.test.js",
@@ -86,7 +86,11 @@
       "expected_auditor_action": "Tratar em processo separado sob ownership próprio.",
       "possible_regression": "Confiança falsa por duas camadas de mirrors coerentes entre si, mas divergentes da produção.",
       "impact": "Qualidade global da evidência de banimento.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:55:00Z",
+      "audit_finding": "ACCEPTED. `banned-images-flow.test.js` se apresenta como integração popup→storage→content→botão, mas implementa `simulateBanImages`, `simulateUnbanImages` e `simulateGetPageImages` localmente. Ele prova a lógica simulada sobre storage, não a composição real dos módulos declarados.",
+      "auditor_recommended_action": "Reclassificar como teste de modelo/contrato ou migrar o cenário para popup/content reais usando o harness existente."
     }
   ],
   "document_quality": {
