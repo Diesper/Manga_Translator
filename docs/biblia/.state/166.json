@@ -53,7 +53,7 @@
     },
     {
       "id": "166-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/router.test.js",
       "found_while_auditing": "tests/unit/background/router.test.js",
@@ -66,7 +66,11 @@
       "expected_auditor_action": "Tratar como baixa severidade.",
       "possible_regression": "Carregamento parcial pode falhar de forma diferente e sem observabilidade.",
       "impact": "Diagnóstico de bootstrap incompleto.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "ACCEPTED. O branch `ACTION_NOT_FOUND` ocorre quando o nome legado resolve, mas a action correspondente não está no registry; a suíte testa outros guards do router, porém não esse cenário específico.",
+      "auditor_recommended_action": "Adicionar caso com alias conhecido e registry sem definição correspondente, exigindo ACTION_NOT_FOUND e zero execute."
     }
   ],
   "document_quality": {
