@@ -31,7 +31,7 @@
     },
     {
       "id": "006-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "tests/unit/background/commit-result-action.test.js",
       "found_while_auditing": "extension/background/actions/commit-result.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Revisar robustez em alteração separada.",
       "possible_regression": "Job pode ficar preso como committed sem finalização ou vice-versa.",
       "impact": "Contabilidade de slots e cleanup do job.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:37:00Z",
+      "audit_finding": "ACCEPTED. Os testes provam o happy path e gates anteriores, mas não há casos em que ensureInitialized, updateJobState ou finalizeJob rejeitam. Como updateJobState ocorre antes de finalizeJob, uma falha tardia pode deixar o job em estado committed sem cleanup final; os fallbacks de IDs também não têm prova focal.",
+      "auditor_recommended_action": "Adicionar testes de rejeição em cada dependência, assertando INTERNAL_ERROR e exatamente quais efeitos anteriores ocorreram; incluir fallbacks de geminiTabId/mangaTabId."
     }
   ],
   "document_quality": {
