@@ -1,0 +1,11 @@
+{
+  "index": 128,
+  "file": "tests/smoke/smoke-06-sm-message-routing.js",
+  "bible": "docs/biblia/tests/smoke/smoke-06-sm-message-routing.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 9",
+  "source_sha": "dd32621bee49bfe64bb4a667ecbf68fb516e03dd",
+  "started_at_utc": "2026-09-30T06:31:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
