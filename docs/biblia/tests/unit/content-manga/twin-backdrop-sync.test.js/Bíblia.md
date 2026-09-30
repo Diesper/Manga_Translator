@@ -85,6 +85,16 @@ Esse cenário é uma prova direta forte da sincronização pós-replacement.
 
 **Severidade:** NORMAL.
 
+### 210-003 — TEST_REQUIRED — OPEN
+
+**Encontrado:** `applyImageReplacement` sincroniza twins comparando `getCleanUrl(...)`, mas o teste de sincronização usa exatamente a mesma string de URL nos dois elementos.
+
+**Necessário:** adicionar cenário real com URLs textualmente diferentes que canonicalizem para a mesma clean URL (por exemplo, variante Reddit preview versus chave canônica compatível, ou parâmetros de resize equivalentes).
+
+**Risco:** regressão na canonicalização pode quebrar Twin Backdrop Sync sem afetar o caso atual de igualdade literal.
+
+**Severidade:** HIGH.
+
 ## 9. Fonte integral exata
 
 ```js
