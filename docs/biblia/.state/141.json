@@ -31,7 +31,7 @@
     },
     {
       "id": "141-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INPUT_VALIDATION_REVIEW",
       "target_file": "extension/background/actions/download-image.js",
       "found_while_auditing": "tests/unit/background/download-image-action.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Decidir se a action deve ter validate e qual shape é aceito.",
       "possible_regression": "Chamadas malformadas geram INTERNAL_ERROR ou comportamento dependente da API Chrome.",
       "impact": "Robustez e diagnóstico da action.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. A action não possui validate e usa `request.filename.startsWith` diretamente; filename ausente/não-string vira exceção/INTERNAL_ERROR. URL também segue para downloads sem validação local.",
+      "auditor_recommended_action": "Definir shape válido de filename/url e adicionar validate + casos malformados se INVALID_PAYLOAD for o contrato desejado."
     },
     {
       "id": "141-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ERROR_SEMANTICS_REVIEW",
       "target_file": "extension/background/actions/download-image.js",
       "found_while_auditing": "tests/unit/background/download-image-action.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Revisar se diagnóstico genérico é intencional.",
       "possible_regression": "Diagnóstico enganoso em falha de downloads.search.",
       "impact": "Observabilidade/recuperação de erro.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. O callback de `chrome.downloads.search` diferencia apenas resultado presente/ausente e não lê `chrome.runtime.lastError`; erro da API pode ser reportado como 'Arquivo não encontrado'.",
+      "auditor_recommended_action": "Definir se erro de search deve preservar causa distinta e adicionar teste com runtime.lastError."
     },
     {
       "id": "141-004",
