@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "078-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/version-sync.test.js",
       "found_while_auditing": "scripts/release/sync-version.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Assertions diretas sobre diferenças, arquivos resultantes, stdout/stderr, exit code e precedência dos modos.",
       "expected_auditor_action": "Confirmar a lacuna e abrir alteração de testes separada se essa cobertura for exigida.",
       "possible_regression": "Version sync/check pode falhar ou mascarar drift sem que version-sync.test.js detecte.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. `version-sync.test.js` cobre apenas parser/derivação e checks estáticos do workflow; não executa `collectState/getDifferences/syncWorkspace/checkWorkspace/printEnv` nem branches CLI em sandbox.",
+      "auditor_recommended_action": "Adicionar testes com workspace temporário e child process controlado para mismatches, escrita, pós-check, stdout/stderr, exit code e precedência de flags."
     },
     {
       "id": "078-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/release/sync-version.js",
       "found_while_auditing": "scripts/release/sync-version.js",
@@ -38,11 +42,15 @@
       "expected_evidence": "Teste controlado demonstrando o comportamento decidido quando a segunda escrita falha.",
       "expected_auditor_action": "Classificar o risco e, se necessário, solicitar correção funcional separada.",
       "possible_regression": "Erro de disco/permissão/interrupção entre writes pode deixar Manifest e lockfile divergentes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED — risco funcional confirmado. `syncWorkspace` escreve Manifest e lockfile sequencialmente; se a primeira escrita concluir e a segunda falhar, o workspace fica parcialmente sincronizado e o pós-check nem é alcançado.",
+      "auditor_recommended_action": "Decidir se best-effort sequencial é aceitável; se não, usar estratégia transacional/rollback/temp+rename e adicionar fault-injection na segunda escrita."
     },
     {
       "id": "078-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/release/sync-version.js",
       "found_while_auditing": "scripts/release/sync-version.js",
@@ -54,7 +62,11 @@
       "expected_evidence": "Teste explícito para o comportamento standalone decidido e documentação do contrato.",
       "expected_auditor_action": "Aceitar a assimetria como contrato ou solicitar mudança separada.",
       "possible_regression": "Um novo consumidor pode publicar nomes derivados corretos a partir do package enquanto outros metadados permanecem fora de sincronia.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. `--print-env` chama `collectState` e imprime valores derivados sem `getDifferences`; isoladamente pode retornar sucesso mesmo com manifest/lock/docs/workflow inconsistentes. Os workflows oficiais mitigam chamando `version:check` antes.",
+      "auditor_recommended_action": "Documentar a assimetria como contrato ou tornar `--print-env` auto-validante; adicionar teste standalone para a decisão."
     }
   ],
   "document_quality": {
