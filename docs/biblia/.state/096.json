@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "096-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/fixtures/manga-images.test.js",
       "found_while_auditing": "tests/fixtures/manga-images.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "Assertions diretas sobre CRC/chunks/IHDR, dimensões e pixels canônicos, sete chaves/ordem, bytes gravados e retorno de writeImagesToDisk.",
       "expected_auditor_action": "Confirmar o escopo útil da cobertura focal e criar a alteração de testes fora desta Bíblia.",
       "possible_regression": "Fixtures aparentemente presentes podem mudar silenciosamente e alterar filtros ou roteamento E2E.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. Os E2E provam que as fixtures PNG funcionam no navegador, mas não há suíte focal para CRC/chunks/IHDR/pixels, ordem/chaves do Map nem `writeImagesToDisk`.",
+      "auditor_recommended_action": "Adicionar teste unitário da implementação real em diretório temporário, validando estrutura PNG, dimensões/pixels canônicos, Map e bytes gravados."
     },
     {
       "id": "096-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/fixtures/manga-images.js",
       "found_while_auditing": "tests/fixtures/manga-images.js",
@@ -38,11 +42,15 @@
       "expected_evidence": "Teste ou contrato explícito para width, height, RGB e palette.",
       "expected_auditor_action": "Classificar como contrato interno confiável ou solicitar robustez adicional.",
       "possible_regression": "Entradas anômalas podem gerar erro de baixo nível, pixels coagidos ou consumo de memória inesperado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `buildPng`/`buildPanelPng` são exportados e aceitam dimensões/palette diretamente, sem validação de domínio; consumidores atuais usam apenas entradas válidas.",
+      "auditor_recommended_action": "Decidir se são API suportada ou helpers internos. Se suportados, validar width/height/RGB/palette e testar inputs inválidos; se internos, documentar restrição."
     },
     {
       "id": "096-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "tests/fixtures/manga-images.js",
       "found_while_auditing": "tests/fixtures/manga-images.js",
@@ -54,7 +62,11 @@
       "expected_evidence": "Cenário controlado com stale file e/ou falha de escrita, validando a política decidida.",
       "expected_auditor_action": "Aceitar formalmente o risco ou abrir correção funcional separada.",
       "possible_regression": "Consumidores futuros de disco podem observar conjunto diferente do Map canônico.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `writeImagesToDisk` faz mkdir + writeFileSync sequencial, sem limpar stale files nem rollback/rename de conjunto. Diretório persistente pode ficar parcial ou conter artefatos antigos.",
+      "auditor_recommended_action": "Definir política para stale/falha intermediária; se consistência forte for necessária, usar staging/limpeza/rename e adicionar regressão controlada."
     }
   ],
   "document_quality": {
