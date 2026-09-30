@@ -96,7 +96,7 @@
 - [x] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 077 — `scripts/maintenance/diagnose-jest-workers.js` → `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 078 — `scripts/release/sync-version.js` → `docs/biblia/scripts/release/sync-version.js/Bíblia.md`
-- [ ] 079 — `scripts/validation/check-js-syntax.js` → `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md`
+- [x] 079 — `scripts/validation/check-js-syntax.js` → `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` → `docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md`
 - [ ] 081 — `scripts/validation/validate-manifest.js` → `docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md`
 - [ ] 082 — `scripts/validation/verify-ci-contract-selftest.js` → `docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md`
