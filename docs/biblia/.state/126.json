@@ -1,0 +1,11 @@
+{
+  "index": 126,
+  "file": "tests/smoke/smoke-04-storage-manager.js",
+  "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 7",
+  "source_sha": "0ba92d74356cb092a7706dca7d280168cd5c512e",
+  "started_at_utc": "2026-09-30T06:29:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
