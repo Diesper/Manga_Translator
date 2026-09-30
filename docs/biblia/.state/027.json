@@ -94,7 +94,7 @@
     },
     {
       "id": "027-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-lifecycle-batch-status.test.js",
       "found_while_auditing": "extension/background/jobs-lifecycle.js",
@@ -107,7 +107,11 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Erros de borda ou cleanup podem permanecer invisíveis.",
       "impact": "Robustez global do scheduler.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:02:00Z",
+      "audit_finding": "ACCEPTED. A cobertura forte de FIFO/finalização/restart não inclui vários ramos defensivos presentes no módulo: base URL inválida, limite/evicção de tombstones >128, falhas best-effort em `abortInvalidatedLaunch`, rotas alternativas de `assertJobOwnership` e chamadas fire-and-forget de `processNextJob` nos callbacks de finalização.",
+      "auditor_recommended_action": "Adicionar casos focais contra o módulo real para esses limites/erros, com assertions de cleanup e ausência de unhandled rejection."
     }
   ],
   "document_quality": {
