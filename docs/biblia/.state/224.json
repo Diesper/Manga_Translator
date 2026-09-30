@@ -2,11 +2,11 @@
   "index": 224,
   "file": "tests/unit/shared-ui/redo-confirmation.test.js",
   "bible": "docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md",
-  "status": "BLOCKED",
+  "status": "COMPLETED",
   "agent": "AGENTE 28",
   "source_sha": "2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98",
   "started_at_utc": "2026-09-30T15:45:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-09-30T21:45:21Z",
   "audit_requests": [
     {
       "id": "224-001",
@@ -78,7 +78,7 @@
     },
     {
       "id": "224-005",
-      "status": "OPEN",
+      "status": "SATISFIED",
       "type": "DOCUMENT_AUDIT_REQUIRED",
       "target_file": "docs/biblia/AUDITORIA.md",
       "found_while_auditing": "tests/unit/shared-ui/redo-confirmation.test.js",
@@ -91,7 +91,9 @@
       "expected_auditor_action": "Executar auditoria independente sem alterar o teste para fabricar prova e usar o mutex global somente para o delta consolidado.",
       "possible_regression": "Um state local pode aparentar conclusão sem que o gate documental global tenha sido realmente satisfeito, produzindo contagem e checklist incorretos.",
       "impact": "Rastreabilidade e consistência do gate de qualidade documental do PR #66.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audit_finding": "Auditoria independente individual registrada em docs/biblia/AUDITORIA.md para #224; gate documental satisfeito e veredito aprovado."
     },
     {
       "id": "224-006",
@@ -120,18 +122,15 @@
     "external_audit_requests_open": 6,
     "automated_tests_documented": 7,
     "ci_runtime_at_audit": "PENDING",
-    "note": "Reauditoria técnica independente aprovada; adicionada 224-006 para investigar se cleanup completo dos exports globais de shared-ui.js melhora robustez/isolamento da suíte.",
-    "global_audit": "PENDING",
+    "note": "Conclusão formal de #224 após auditoria independente do AGENTE 23 satisfazer 224-005. Requests 224-001,002,003,004,006 permanecem abertas e não bloqueantes.",
+    "global_audit": "APPROVED_BY_AGENTE_23",
     "reaudited_by": "AGENTE 28",
     "independent_technical_audit": "APPROVED_BY_AGENTE_28",
     "ci_head_observed": "61fa115825d9d5229413c706aae53d35a5623478",
     "ci_run_observed": 3201,
-    "audit_registry_check": "NO_INDIVIDUAL_ENTRY_FOR_224",
+    "audit_registry_check": "INDIVIDUAL_ENTRY_APPROVED_FOR_224",
     "numeric_references_reconfirmed": true,
-    "local_work_complete": true
-  },
-  "blocked_by": [
-    "224-005"
-  ],
-  "blocked_reason": "Reauditoria técnica independente concluída e aprovada pelo AGENTE 28; falta entrada individual de #224 em docs/biblia/AUDITORIA.md e reconciliação global, arquivos fora do escopo exclusivo de escrita."
+    "local_work_complete": true,
+    "completion_gate": "SATISFIED"
+  }
 }
