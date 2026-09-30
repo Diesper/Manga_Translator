@@ -56,5 +56,14 @@
       "possible_regression": "Um novo consumidor pode publicar nomes derivados corretos a partir do package enquanto outros metadados permanecem fora de sincronia.",
       "severity": "NORMAL"
     }
-  ]
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "173/173",
+    "bible_lines": 762,
+    "external_audit_requests_open": 3,
+    "note": "Bíblia integralmente preparada; conclusão global aguarda acesso legítimo ao PROGRESS.lock para registrar o gate compartilhado AUDITORIA/STATUS/CHECKLIST."
+  }
 }
