@@ -2,11 +2,11 @@
   "index": 66,
   "file": ".github/workflows/publish.yml",
   "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 16",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 20",
   "source_sha": "f673d445a3cc022d473f9b59ae1e0c8972ecd013",
   "started_at_utc": "2026-09-30T15:40:00Z",
-  "completed_at_utc": "2026-09-30T15:42:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "066-001",
@@ -106,5 +106,12 @@
     "revalidation_owner": "AGENTE 16",
     "current_protocol": "external audit requests do not block documentary completion",
     "completion_protocol": "Solicitações externas abertas não bloqueiam conclusão documental no protocolo multiagente atual."
+  },
+  "takeover": {
+    "previous_agent": "AGENTE 16",
+    "taken_over_by": "AGENTE 20",
+    "observed_branch_head_at_takeover": "1fe41a874ae91f20fba5c4c2426c7bbb0b109cf6",
+    "requested_by_user": true,
+    "note": "Ownership total do índice 066 transferido explicitamente ao AGENTE 20 por instrução do usuário; histórico e audit_requests preservados."
   }
 }
