@@ -31,7 +31,7 @@
     },
     {
       "id": "004-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Completar cobertura de robustez.",
       "possible_regression": "Worker pode responder de forma inconsistente em contexto incompleto sem gate.",
       "impact": "Recuperação de extração após restart.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:22:00Z",
+      "audit_finding": "ACCEPTED. A suíte `actions-low-risk.test.js` cobre apenas o mapping persistido nominal. O branch sem sender.tab (tabId=-1), `state.extractionTabs` ausente/null, rejeição de `ensureInitialized` e bootstrap do módulo com `MangaTranslatorRouter` indisponível não possuem casos focais.",
+      "auditor_recommended_action": "Adicionar casos separados usando a action real para sender sem tab, estado vazio, ensureInitialized rejeitando e import sem router, fixando resposta/erro e ausência de falso mapping."
     }
   ],
   "document_quality": {
