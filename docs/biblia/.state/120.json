@@ -2,10 +2,40 @@
   "index": 120,
   "file": "tests/mocks/dom-environment.js",
   "bible": "docs/biblia/tests/mocks/dom-environment.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 15",
   "source_sha": "9c3bc91608aa52a2d8324fc645c75fac5e4f7452",
-  "started_at_utc": "2026-09-30T06:33:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "started_at_utc": "2026-09-30T06:28:01Z",
+  "completed_at_utc": "2026-09-30T06:31:29Z",
+  "audit_requests": [
+    {
+      "id": "120-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/test-infra/dom-environment.test.js",
+      "found_while_auditing": "tests/mocks/dom-environment.js",
+      "finding": "O setup é compartilhado por cinco projetos Jest, mas não existe teste focal de seu contrato completo; somente o valor TEST_CANVAS possui assertions diretas localizadas em consumidores reais.",
+      "current_evidence": "jest.config.js carrega o setup em content-scripts, popup, reader, shared-ui e integration; o mesmo blob passou no run 36577447500 em Node 20.x/22.x com 109 suites e 851 testes. extraction-and-handlers-real.test.js exige diretamente TEST_CANVAS.",
+      "missing_evidence": "Assertions específicas para TextEncoder/TextDecoder, scrollTo, guard/idempotência Canvas, drawImage, SecurityError de getImageData, requestAnimationFrame/cancelamento, observers no-op e branch sem window.",
+      "why_needed": "A execução do setup como infraestrutura não prova individualmente cada primitive; uma regressão em API ainda não exercitada pode permanecer verde.",
+      "requested_action": "Decidir se o setup merece uma suíte de contrato focal; se sim, adicioná-la em alteração separada usando a implementação real do setup.",
+      "expected_evidence": "Assertions diretas sobre globals/prototypes instalados, callback/cancelamento de rAF, erro getImageData, TEST_CANVAS, observers e idempotência.",
+      "expected_auditor_action": "Validar a lacuna e criar cobertura dedicada somente se o contrato de infraestrutura exigir essa garantia.",
+      "possible_regression": "Mudança no ambiente JSDOM pode quebrar ou distorcer testes de DOM futuros sem diagnóstico direto.",
+      "impact": "Confiabilidade da infraestrutura Jest compartilhada.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "61/61",
+    "source_text_lines": 60,
+    "bible_lines": 364,
+    "external_audit_requests_open": 1,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [109437162616, 109437162754],
+    "evidence_summary": "Mesmo blob carregado pelos projetos JSDOM; Node 20.x e 22.x terminaram 109/109 suites e 851/851 testes. TEST_CANVAS possui assertions diretas em content_manga."
+  }
 }
