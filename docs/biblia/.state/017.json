@@ -1,0 +1,11 @@
+{
+  "index": 17,
+  "file": "extension/background/actions/open-existing-folder.js",
+  "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+  "started_at_utc": "2026-09-30T12:12:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
