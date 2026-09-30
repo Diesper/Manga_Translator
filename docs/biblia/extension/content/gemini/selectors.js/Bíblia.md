@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/content/gemini/selectors.js`
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE; documentação 131/131 pronta para auditoria compartilhada  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `0bf8db6e416a880de9f4dd37bd4cc290e5aaba19`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#C`  
 > **Tipo:** JavaScript — contrato de seletores do content script Gemini  
