@@ -1,0 +1,11 @@
+{
+  "index": 113,
+  "file": "tests/integration/options.ui.test.js",
+  "bible": "docs/biblia/tests/integration/options.ui.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 5",
+  "source_sha": "33c34c89f7131ade147ea65b5f5015b79917b708",
+  "started_at_utc": "2026-09-30T06:31:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
