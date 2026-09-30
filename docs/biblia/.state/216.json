@@ -1,0 +1,11 @@
+{
+  "index": 216,
+  "file": "tests/unit/manifest/surface-reduction.test.js",
+  "bible": "docs/biblia/tests/unit/manifest/surface-reduction.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 1",
+  "source_sha": "d5bde042b414dc6369a105615ff8b838bdbc503b",
+  "started_at_utc": "2026-09-30T06:25:55.069Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
