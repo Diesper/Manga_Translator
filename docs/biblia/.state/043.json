@@ -9,19 +9,27 @@
   "audit_requests": [
     {
       "id": "043-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "finding": "Faltam provas focais para focus fallback, pressEnter payload, sequência Pointer/Mouse, error.cause e non-timeout observer error.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. `editor.js` possui fallback `focus({preventScroll:true}) -> focus()`, sequência PointerEvent/MouseEvent, pressEnter e `error.cause`, mas `editor-submit.test.js` cobre apenas fluxos de submit/observer. Esses detalhes de interação/erro não têm prova focal.",
+      "auditor_recommended_action": "Adicionar testes diretos para focus fallback, payload de Enter, ordem Pointer/Mouse e propagação de cause/non-timeout observer error."
     },
     {
       "id": "043-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/content/gemini/editor.js",
       "finding": "maxAttempts/timeout anômalos e rerender do botão exigem contrato/prova mais explícitos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. `submitWithRetries` assume `maxAttempts`/`confirmationTimeoutMs` válidos e depende de rerender do botão/editor entre tentativas. Valores 0/negativos/NaN ou rerender durante retry não têm contrato/teste explícito.",
+      "auditor_recommended_action": "Definir normalização/limites para attempts/timeout e adicionar cenários de rerender/valores anômalos, sem forçar mutação de UI para obter sucesso."
     }
   ],
   "document_quality": {
