@@ -2,10 +2,64 @@
   "index": 164,
   "file": "tests/unit/background/request-image-data-action.test.js",
   "bible": "docs/biblia/tests/unit/background/request-image-data-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
   "started_at_utc": "2026-09-30T12:30:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T12:40:00Z",
+  "audit_requests": [
+    {
+      "id": "164-001",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/background/actions/request-image-data.js",
+      "related_files": [
+        "tests/unit/background/request-image-data-action.test.js"
+      ],
+      "found_while_auditing": "tests/unit/background/request-image-data-action.test.js",
+      "finding": "request-image-data não possui validate e encaminha request.mangaTabId/request.index diretamente para chrome.tabs.sendMessage.",
+      "current_evidence": "Casos atuais provam request válido e falha de conexão para tabId inexistente; message-handlers-real prova o mesmo wiring no background real.",
+      "missing_evidence": "Definição explícita do contrato para tipos/ranges de mangaTabId e index, com validação focal caso devam ser restritos.",
+      "why_needed": "Payload estruturalmente inválido pode chegar à API Chrome ou ao content script sem erro de contrato consistente.",
+      "requested_action": "Decidir se mangaTabId deve ser inteiro positivo e index inteiro não negativo; se sim adicionar validate+testes, senão documentar permissividade intencional.",
+      "expected_evidence": "Contrato canônico documentado e, se restritivo, INVALID_PAYLOAD antes de chrome.tabs.sendMessage.",
+      "expected_auditor_action": "Revisar contrato sem alterar esta Bíblia.",
+      "possible_regression": "Request malformado pode produzir erro Chrome ou lookup de imagem inconsistente.",
+      "impact": "Robustez do relay de dados de imagem.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "164-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/request-image-data-action.test.js",
+      "found_while_auditing": "tests/unit/background/request-image-data-action.test.js",
+      "finding": "Se o callback de tabs.sendMessage recebe undefined sem chrome.runtime.lastError, a action resolve undefined; esse shape não possui caso focal.",
+      "current_evidence": "Sucesso cobre objeto de contentResponse; erro cobre undefined com lastError.",
+      "missing_evidence": "Callback undefined sem lastError, incluindo resposta final esperada quando atravessa router/legacy compatibility.",
+      "why_needed": "Define o comportamento do caso em que o receptor existe mas não responde payload.",
+      "requested_action": "Adicionar teste focal ou explicitar contrato esperado para resposta ausente.",
+      "expected_evidence": "Shape de retorno estável e assertion correspondente.",
+      "expected_auditor_action": "Tratar como melhoria de baixa severidade.",
+      "possible_regression": "Consumidor pode receber undefined ou envelope incompatível sem tratamento claro.",
+      "impact": "Compatibilidade/robustez de resposta.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "65/65",
+    "source_text_lines": 64,
+    "bible_lines": 611,
+    "external_audit_requests_open": 2,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: os dois casos passaram. message-handlers-real BG-47/BG-48/BG-49/BG-50 fornece prova integrada de sucesso e falha de conexão no background real."
+  }
 }
