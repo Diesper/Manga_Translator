@@ -52,18 +52,18 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **98**
-- ✅ Concluídos auditados: **77**
+- ✅ Concluídos auditados: **75**
 - 🟠 Em andamento: **0**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **135**
-- ⬜ Pendentes: **156**
+- ⬜ Pendentes: **158**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **33,05%**
+- Cobertura realmente aprovada: **32,19%**
 - Cobertura apenas materializada: **42,06%**
 - Último aprovado: `extension/popup/popup.js`
 - Arquivos atualmente em andamento:
 
-- Menor índice pendente sem reserva no momento desta atualização: `#078 scripts/release/sync-version.js`
+- Menor índice pendente sem reserva no momento desta atualização: `#033 extension/background/tab-identity.js`
 
 ## Observações técnicas para auditoria futura — #056 `extension/reader/reader.js`
 
@@ -291,7 +291,6 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 30. ✅ `extension/background/log.js`
 31. ✅ `extension/background/router.js`
 32. ✅ `extension/background/state.js`
-33. ✅ `extension/background/tab-identity.js`
 34. ✅ `extension/content/cm-auto-restore.js`
 35. ✅ `extension/content/cm-chapter.js`
 36. ✅ `extension/content/cm-dom-replace.js`
@@ -311,7 +310,6 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 50. ✅ `extension/shared/shared-ui.js`
 51. ✅ `.gitignore`
 52. ✅ `jest.config.js`
-53. ✅ `.github/workflows/publish.yml`
 54. ✅ `scripts/ci/data/e2e-shard-plan.json`
 
 55. ✅ `scripts/ci/data/test-baseline.json`
@@ -363,7 +361,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 30 | ✅ CONCLUÍDO | `extension/background/log.js` | `86d5f2f1229b` | `docs/biblia/extension/background/log.js/Bíblia.md` |
 | 31 | ✅ CONCLUÍDO | `extension/background/router.js` | `d9278e9e58e4` | `docs/biblia/extension/background/router.js/Bíblia.md` |
 | 32 | ✅ CONCLUÍDO | `extension/background/state.js` | `7570b545d5e9` | `docs/biblia/extension/background/state.js/Bíblia.md` |
-| 33 | ✅ CONCLUÍDO | `extension/background/tab-identity.js` | `008c9a054ae4` | `docs/biblia/extension/background/tab-identity.js/Bíblia.md` |
+| 33 | ⬜ PENDENTE | `extension/background/tab-identity.js` | `008c9a054ae4` | `docs/biblia/extension/background/tab-identity.js/Bíblia.md` |
 | 34 | ✅ CONCLUÍDO | `extension/content/cm-auto-restore.js` | `d20e7092652e` | `docs/biblia/extension/content/cm-auto-restore.js/Bíblia.md` |
 | 35 | ✅ CONCLUÍDO | `extension/content/cm-chapter.js` | `44b621d570b6` | `docs/biblia/extension/content/cm-chapter.js/Bíblia.md` |
 | 36 | ✅ CONCLUÍDO | `extension/content/cm-dom-replace.js` | `d3fc72032dbd` | `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` |
@@ -396,7 +394,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 63 | ✅ CONCLUÍDO | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
 | 64 | ✅ CONCLUÍDO | `playwright.config.js` | `6a27b774a000` | `docs/biblia/playwright.config.js/Bíblia.md` |
 | 65 | ✅ CONCLUÍDO | `.github/workflows/ci.yml` | `ebee75820db9` | `docs/biblia/.github/workflows/ci.yml/Bíblia.md` |
-| 66 | ✅ CONCLUÍDO | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
+| 66 | ⬜ PENDENTE | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
 | 67 | ✅ CONCLUÍDO | `.github/workflows/recover-cancelled-ci.yml` | `4809f824f177` | `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` |
 | 68 | ✅ CONCLUÍDO | `scripts/ci/data/e2e-shard-plan.json` | `22e8c20df9f4` | `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` |
 | 69 | ✅ CONCLUÍDO | `scripts/ci/data/regression-matrix.json` | `f9b9e17e5870` | `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` |
