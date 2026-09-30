@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "013-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SECURITY_REVIEW",
       "target_file": "extension/background/actions/fetch-image-base64.js",
       "found_while_auditing": "extension/background/actions/fetch-image-base64.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar segurança do fetch autenticado em mudança separada.",
       "possible_regression": "Asset autenticado pode terminar em host fora do domínio permitido sem gate específico.",
       "impact": "Segurança/isolamento do fallback CORS autenticado.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — risco de segurança confirmado. `geminiSession` valida apenas a URL inicial como `googleusercontent.com`; o `fetch` usa `credentials:'include'`, mas após redirects não há checagem de `response.url`. Um redirect permitido pelo servidor pode terminar em outra origem sem que a action revalide o destino final.",
+      "auditor_recommended_action": "Revalidar `response.url`/redirect final antes de consumir corpo quando `geminiSession` estiver ativo; considerar `redirect:'manual'`/política explícita e adicionar teste de redirect cross-origin."
     },
     {
       "id": "013-002",
