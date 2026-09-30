@@ -9,19 +9,27 @@
   "audit_requests": [
     {
       "id": "048-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/dom-modules.test.js",
       "finding": "Faltam provas parametrizadas para alternativas individuais dos seletores críticos, freeze, global browser e fallback geométrico INPUT_AREA.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `dom-modules.test.js` valida presença geral de seletores, mas não cada alternativa crítica individual, freeze/global browser nem o fallback geométrico do INPUT_AREA.",
+      "auditor_recommended_action": "Adicionar matriz parametrizada das alternativas exportadas e gates de imutabilidade/ambiente."
     },
     {
       "id": "048-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/selectors.js",
       "finding": "FILE_INPUT/ATTACHMENT_CONTAINER divergem de seletores duplicados em attachment.js e algumas chaves não têm consumer runtime localizado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED com escopo refinado. `selectors.js` centraliza FILE_INPUT/ATTACHMENT_CONTAINER, enquanto `attachment.js` mantém strings locais COMPOSER/ATTACHMENT e lógica própria de input, criando drift potencial. A alegação de chaves sem consumer deve ser validada separadamente.",
+      "auditor_recommended_action": "Centralizar seletores usados pelo attachment ou adicionar gate de paridade; inventariar consumidores antes de remover chaves aparentemente ociosas."
     }
   ],
   "document_quality": {
