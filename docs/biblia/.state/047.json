@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "047-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -22,7 +22,11 @@
       "expected_evidence": "Retorno/erro esperado e ausência de propagação indevida para cada cenário.",
       "possible_regression": "Pipeline de extração aborta antes de tentar rotas alternativas.",
       "impact": "Robustez da primeira rota de extração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `imageElementToDataUrl` possui guards/catches para imagem/document/canvas/context/draw/toDataURL, mas os testes exercitam principalmente rotas integradas e não cada pré-condição/exceção separadamente.",
+      "auditor_recommended_action": "Adicionar casos focais para imagem incompleta, document ausente, getContext null, drawImage/toDataURL lançando."
     },
     {
       "id": "047-002",
@@ -90,7 +94,7 @@
     },
     {
       "id": "047-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -102,11 +106,15 @@
       "expected_evidence": "Fallback/erro classificado corretamente e sem exceção não tratada.",
       "possible_regression": "Fallback por background deixa de funcionar ou encerra extração prematuramente.",
       "impact": "Compatibilidade com falhas do runtime/Service Worker.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. A rota runtime/background é exercitada em fluxos felizes/fallback, mas não há matriz isolada para runtime ausente, `runtime.lastError`, sendMessage lançando e resposta sem dataUrl.",
+      "auditor_recommended_action": "Adicionar mocks independentes de transporte e exigir fallback/erro classificado sem falso sucesso."
     },
     {
       "id": "047-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -118,11 +126,15 @@
       "expected_evidence": "Assertion específica de cada classe de falha suportada.",
       "possible_regression": "Telemetria e decisões de fallback recebem categoria errada.",
       "impact": "Diagnóstico e roteamento de falhas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `getExtractionFailureKind` distingue canvas_or_cors/network/timeout/http/unknown; a suíte não possui tabela exaustiva de boundary textual por classe.",
+      "auditor_recommended_action": "Adicionar teste tabelado chamando a implementação real para todas as classes suportadas."
     },
     {
       "id": "047-007",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -134,7 +146,11 @@
       "expected_evidence": "Promise rejeita/retorna conforme contrato e cleanup não deixa handlers pendentes.",
       "possible_regression": "Erro síncrono/assíncrono de FileReader escapa do pipeline.",
       "impact": "Extração via Blob.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `blobToDataUrl` trata FileReader ausente/constructor/reader errors, mas a suíte só cobre conversão saudável. Branches de constructor throw/onerror/readAsDataURL throw ficam sem prova focal.",
+      "auditor_recommended_action": "Adicionar quatro cenários controlados de FileReader e verificar rejeição/cleanup."
     },
     {
       "id": "047-008",
@@ -161,7 +177,7 @@
     },
     {
       "id": "047-009",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -173,7 +189,11 @@
       "expected_evidence": "Classificação exata de URL inválida, http, Google sem flag e variantes permitidas.",
       "possible_regression": "Credenciais são solicitadas para URL indevida ou asset válido perde rota necessária.",
       "impact": "Seleção segura da rota de fetch.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `isGeneratedGeminiAsset` decide rota privilegiada por protocolo/host/path; não há matriz focal para URL inválida, HTTP ou googleusercontent sem caminho gg-dl.",
+      "auditor_recommended_action": "Adicionar tabela de URLs limítrofes fixando exatamente quando a rota autenticada é permitida."
     },
     {
       "id": "047-010",
@@ -201,7 +221,7 @@
     },
     {
       "id": "047-011",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_TEST",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -213,11 +233,15 @@
       "expected_evidence": "Comportamento determinístico para zero/negativo/delay inválido e sleep rejeitado.",
       "possible_regression": "Retry silenciosamente não executa ou quebra fora do fluxo esperado.",
       "impact": "Resiliência da extração com tentativas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `extractResultImageWithRetry` usa `maxAttempts`/`retryDelayMs` sem validação explícita; zero/negativo/NaN e `sleep` rejeitando não têm contrato/teste.",
+      "auditor_recommended_action": "Definir normalização ou erro para parâmetros inválidos e cobrir sleep rejeitado."
     },
     {
       "id": "047-012",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "OBSERVABILITY_REVIEW",
       "target_file": "extension/content/gemini/result-extractor.js",
       "related_files": [
@@ -232,7 +256,11 @@
       "expected_evidence": "Erro final e continuidade correspondem ao contrato decidido, sem substituição acidental da causa principal.",
       "possible_regression": "Falha de logging mascara falha real ou interrompe extração saudável.",
       "impact": "Observabilidade e diagnóstico.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `sendLog` e `getUrlLogMetadata` são chamados em paths de retry/erro sem isolamento uniforme; callback auxiliar também pode rejeitar. A suíte não fixa se falha de telemetria deve ser absorvida ou substituir a causa primária.",
+      "auditor_recommended_action": "Injetar exceções nesses auxiliares, definir política de propagação e preservar a causa primária conforme contrato."
     }
   ],
   "document_quality": {
