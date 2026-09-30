@@ -31,7 +31,7 @@
     },
     {
       "id": "050-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "LATE_ACTIVATION_REVIEW",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Classificar se é requisito suportado ou risco aceito documentado.",
       "possible_regression": "Worker reutilizado pode permanecer sem anti-hibernation/bridges apesar de ganhar marker válido.",
       "impact": "Compatibilidade com futuras estratégias de reaproveitamento de abas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `inject.js` define `window.__anti_hibernation_injected=true` antes de verificar o marker `mangatranslator_tab`. No mesmo Document, uma primeira execução sem marker impede uma reinjeção posterior mesmo se o marker surgir.",
+      "auditor_recommended_action": "Definir se late activation é suportada. Se sim, mover/segmentar o guard e adicionar teste primeira execução sem marker → marker posterior → reinjeção."
     },
     {
       "id": "050-003",
@@ -69,7 +73,7 @@
     },
     {
       "id": "050-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/inject/raf-replacement.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -82,7 +86,11 @@
       "expected_auditor_action": "Validar mapeamento de IDs ou solicitar correção separada se necessário.",
       "possible_regression": "Callback idle de terceiro pode ser cancelado indevidamente.",
       "impact": "Interferência em tarefas ociosas do Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED — risco funcional confirmado. O wrapper gera ID sintético `nextIdleId`, chama `origIdle(...)` mas não armazena o ID nativo retornado. `cancelIdleCallback(id)` repassa o ID sintético a `origCancelIdle`, podendo não cancelar o callback nativo correto ou atingir outro ID.",
+      "auditor_recommended_action": "Manter mapeamento synthetic→native idle ID e cancelar ambos corretamente; adicionar regressão com IDs nativos distintos/colidentes."
     },
     {
       "id": "050-005",
@@ -107,7 +115,7 @@
     },
     {
       "id": "050-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_LIFECYCLE_REVIEW",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -120,7 +128,11 @@
       "expected_auditor_action": "Classificar como design intencional ou solicitar teardown separado.",
       "possible_regression": "Contextos/oscillators podem se acumular em reuso de páginas.",
       "impact": "Uso de recursos e estabilidade de longa duração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. Após gesto trusted, o código cria AudioContext, oscillator e gain, inicia o oscillator e guarda apenas booleano. Não há referência para stop/close/teardown; a cobertura geral de áudio já é lacuna em 213-003, mas o lifetime de recurso é um risco distinto.",
+      "auditor_recommended_action": "Definir duração intencional do áudio silencioso e, se necessário, guardar recursos para teardown; testar criação única e cleanup no lifecycle suportado."
     },
     {
       "id": "050-007",
@@ -208,7 +220,7 @@
     },
     {
       "id": "050-011",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -221,11 +233,15 @@
       "expected_auditor_action": "Validar semântica temporal do fallback.",
       "possible_regression": "Envio pode ficar travado até expirar debounce quando o editor aparece logo depois.",
       "impact": "Confiabilidade de recuperação do submit.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED — janela de retry confirmada. O listener `MANGA_TRANSLATOR_TRIGGER_SEND` atualiza `_lastTriggerSendTime` imediatamente após passar o debounce, antes de procurar editor/botão e antes de qualquer submit efetivo. Uma primeira tentativa sem alvo bloqueia nova tentativa por 3s.",
+      "auditor_recommended_action": "Aplicar debounce apenas após tentativa efetiva/sucesso, ou documentar a janela; adicionar teste primeira chamada sem alvo e segunda válida dentro de 3s."
     },
     {
       "id": "050-012",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -238,7 +254,12 @@
       "expected_auditor_action": "Eliminar espelho stale ou restabelecer requisito com prova real.",
       "possible_regression": "A suíte pode continuar passando apesar de não verificar o arquivo real.",
       "impact": "Qualidade e credibilidade da cobertura de inject.js.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "SUPERSEDED por 213-001. O teste `MutationObserver — lazy loading bypass` é uma manifestação concreta do problema canônico: `inject-anti-hibernation.test.js` usa mirrors/comportamentos que não executam `inject.js` real. O source atual não contém esse MutationObserver.",
+      "auditor_recommended_action": "Ao migrar/remover mirrors sob 213-001, eliminar ou reescrever este caso stale conforme o requisito atual.",
+      "superseded_by": "213-001"
     }
   ],
   "document_quality": {
