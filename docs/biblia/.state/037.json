@@ -52,7 +52,7 @@
     },
     {
       "id": "037-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ARCHITECTURE_REVIEW",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "extension/content/cm-gtc-client.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Revisar modularização/cobertura.",
       "possible_regression": "Correção aplicada apenas a uma cópia ou fallback legado quebra silenciosamente.",
       "impact": "Manutenibilidade e confiabilidade do GTC.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. `content_manga.js` mantém cópias históricas de helpers GTC/fingerprint e depois substitui bindings pelo `MangaTranslatorGtcClient` carregado antes. O runtime moderno usa o módulo, mas a duplicação permanece sem gate anti-drift e pode enganar testes/documentação.",
+      "auditor_recommended_action": "Consolidar helpers em fonte única ou adicionar gate de paridade explícito; remover/deprecar cópias residuais quando compatibilidade não exigir."
     }
   ],
   "document_quality": {
