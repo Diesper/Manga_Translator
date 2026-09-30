@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "168-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REWRITE_REQUIRED",
       "target_file": "tests/unit/background/startup-recovery.test.js",
       "related_files": [
@@ -27,11 +27,15 @@
       "expected_auditor_action": "Corrigir a validade da suíte em alteração separada.",
       "possible_regression": "Arquivo continua verde mesmo se onStartup quebrar e ainda induz leitura incorreta do contrato.",
       "impact": "Falsa confiança em recovery de Service Worker.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "ACCEPTED. `startup-recovery.test.js` não carrega `background.js`; constrói manualmente um objeto `corrected` e afirma `isProcessing:false` com fila não vazia. O startup real em `lifecycle-alarms-real.test.js` usa `_simulateStartup()` e prova a semântica atual com fila recuperável e `isProcessing:true`.",
+      "auditor_recommended_action": "Remover/renomear o cenário histórico ou reescrevê-lo usando background real + `_simulateStartup`, alinhando assertions ao contrato atual."
     },
     {
       "id": "168-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REWRITE_REQUIRED",
       "target_file": "tests/unit/background/startup-recovery.test.js",
       "related_files": [
@@ -47,7 +51,11 @@
       "expected_auditor_action": "Eliminar falsa prova de syncState.",
       "possible_regression": "stopBatch real pode quebrar sem afetar este teste.",
       "impact": "Cobertura enganosa de cancelamento.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "ACCEPTED. O caso STOP_BATCH usa `createStopBatchHandler` local que apenas responde `{ok:true}`; não chama `stopBatch`, não muta estado e não sincroniza storage. A suíte `batch-lifecycle-real.test.js` já prova STOP_BATCH real.",
+      "auditor_recommended_action": "Eliminar o mirror redundante ou substituir por dispatch real ao background, verificando mt_state, jobs, tabs e watchdogs."
     },
     {
       "id": "168-003",
