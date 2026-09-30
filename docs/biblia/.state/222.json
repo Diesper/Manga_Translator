@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "222-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/reader/keyboard-nav.test.js",
       "found_while_auditing": "tests/unit/reader/keyboard-nav.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Completar cobertura de robustez.",
       "possible_regression": "Atalho f/F pode falhar silenciosamente ou lançar em ambiente diferente.",
       "impact": "UX do leitor.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. Fullscreen é exercitado apenas com Promises resolvidas. O código real engole rejeições via `.catch(() => {})`, mas não há caso para requestFullscreen/exitFullscreen rejeitando nem APIs ausentes.",
+      "auditor_recommended_action": "Adicionar matriz para Promise rejeitada e API ausente, exigindo ausência de throw/unhandled rejection e comportamento estável."
     },
     {
       "id": "222-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/reader/keyboard-nav.test.js",
       "found_while_auditing": "tests/unit/reader/keyboard-nav.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer teste.",
       "possible_regression": "Duplo deslocamento de página.",
       "impact": "UX de navegação.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. A suíte espiona preventDefault somente em ArrowRight/ArrowLeft; o código também chama preventDefault para ArrowDown/ArrowUp/Home/End sem assertions focais.",
+      "auditor_recommended_action": "Parametrizar teclas mapeadas e afirmar preventDefault em todas."
     },
     {
       "id": "222-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "UX_CONTRACT_REVIEW",
       "target_file": "extension/reader/reader.js",
       "found_while_auditing": "tests/unit/reader/keyboard-nav.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Revisar UX em mudança separada.",
       "possible_regression": "Teclas de edição/navegação podem ser interceptadas.",
       "impact": "Acessibilidade e UX.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED como revisão de UX. O listener global de keydown não ignora input, textarea ou contenteditable; portanto Home/End/setas/f podem interceptar interação editável se elementos desse tipo existirem no reader. A suíte não define esse contrato.",
+      "auditor_recommended_action": "Decidir se atalhos devem ser suspensos em elementos editáveis; se sim, adicionar guard e testes para input/textarea/contenteditable."
     }
   ],
   "document_quality": {
