@@ -52,7 +52,7 @@
     },
     {
       "id": "184-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
       "found_while_auditing": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Tratar como baixa severidade.",
       "possible_regression": "Scroll assist pode vazar entre jobs.",
       "impact": "Recursos/UI após erro.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:38:00Z",
+      "audit_finding": "ACCEPTED. REG-12/CG-19/40 apenas verifica que `clearInterval` foi chamado; não identifica que o id corresponde ao `scrollInterval` criado pelo runner nem prova ausência de ticks após cleanup.",
+      "auditor_recommended_action": "Capturar o interval id/ticks do runner e afirmar que o mesmo id é limpo e nenhum callback posterior ocorre."
     }
   ],
   "document_quality": {
