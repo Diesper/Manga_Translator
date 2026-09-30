@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "207-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/content-manga/image-filtering.test.js",
       "found_while_auditing": "tests/unit/content-manga/image-filtering.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar se o stub histórico deve ser mantido, convertido ou aposentado após a cobertura real equivalente.",
       "possible_regression": "Alteração acidental do boundary default sem falha nesta suíte.",
       "impact": "Detecção de páginas elegíveis no GET_PAGE_IMAGES.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:55:00Z",
+      "audit_finding": "ACCEPTED. O arquivo é explicitamente um stub v3.0 com `filterBySize` local hardcoded em 300×400; a produção atual usa `getScanEligibleImages` com filtros extras e limites configuráveis. A prova é histórica, não da implementação atual.",
+      "auditor_recommended_action": "Manter como regressão histórica claramente rotulada ou migrar os boundaries dimensionais para `MangaTranslatorDomReplace.getScanEligibleImages` real."
     }
   ],
   "document_quality": {
