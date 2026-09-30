@@ -52,7 +52,7 @@
     },
     {
       "id": "183-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/observer.test.js",
       "found_while_auditing": "tests/unit/content-gemini/observer.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Telemetria/estado terminal pode não ser emitido ou repetir.",
       "impact": "Observabilidade e sincronização da geração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. `inspectControls` possui transição em que Stop desaparece após geração ativa, responseContainer continua conectado e o observer marca `generationFinished`/emite `generation_finished`; não há assertion focal desse branch.",
+      "auditor_recommended_action": "Adicionar sequência Stop visível→removido mantendo response container e exigir estado/evento `generation_finished` exatamente uma vez."
     }
   ],
   "document_quality": {
