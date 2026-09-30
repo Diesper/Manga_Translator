@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "039-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "found_while_auditing": "extension/content/content_manga.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Validar a barreira de ownership do lote e a ausência de efeitos antes de qualquer persistência.",
       "possible_regression": "Resultado tardio de lote A pode sobrescrever imagem/estado de lote B.",
       "impact": "Integridade entre lotes concorrentes ou sequenciais.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:24:00Z",
+      "audit_finding": "ACCEPTED. `content_manga.js` rejeita `UPDATE_IMAGE` quando `request.batchId` diverge de `_currentBatchId`, retorna `{ok:false,reason:'stale_batch'}` antes de replacement/persistência e loga STALE_UPDATE. A suíte real possui UPDATE_IMAGE positivo, mas não há assertion para esse branch stale.",
+      "auditor_recommended_action": "Adicionar caso no content script real que estabeleça lote atual, envie UPDATE_IMAGE de lote antigo e prove ACK stale_batch, DOM/storage/contadores inalterados."
     },
     {
       "id": "039-002",
