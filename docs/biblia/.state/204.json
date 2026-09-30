@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "204-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/floating-button-guard-and-single-click.test.js",
       "related_files": [
@@ -26,11 +26,15 @@
       "expected_auditor_action": "Confirmar a lacuna e adicionar cobertura em mudança de teste separada.",
       "possible_regression": "Se a emissão de PROGRESS cessar, o botão pode permanecer invisível apesar de o lote estar ativo.",
       "impact": "Recuperabilidade e controle do lote durante tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. Os testes recuperam o botão por MutationObserver ou PROGRESS. Não há caso de botão conectado porém invisível restaurado exclusivamente pelo tick periódico de startTranslationButtonWatchdog.",
+      "auditor_recommended_action": "Iniciar tradução, ocultar via style sem mutação estrutural/PROGRESS, avançar >1s e exigir visibilidade/telemetria recuperadas pelo watchdog."
     },
     {
       "id": "204-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/floating-button-guard-and-single-click.test.js",
       "related_files": [
@@ -47,7 +51,11 @@
       "expected_auditor_action": "Confirmar a lacuna e criar cobertura combinada sem alterar a Bíblia atual.",
       "possible_regression": "Autocura do botão pode apagar a informação de erro que o usuário precisava consultar.",
       "impact": "Diagnóstico e continuidade de UI após dano ao DOM.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. Drawer de erro e recriação do botão são provadas separadamente; não há composição erro pendente + remoção externa + recriação, embora createTranslatorButton chame restoreIntegratedErrorDrawer.",
+      "auditor_recommended_action": "Adicionar SHOW_ERROR_INTEGRATED → remover botão → autocura → verificar hasError/collapsed/mensagem restaurados."
     },
     {
       "id": "204-003",
