@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "010-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/download-chapter-action.test.js",
       "found_while_auditing": "extension/background/actions/download-chapter.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Abertura de pasta pode falhar ou baixar novamente conteúdo já representado por marcador.",
       "impact": "Download/abertura de capítulo.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:40:00Z",
+      "audit_finding": "ACCEPTED. A action não possui validate e usa `Object.keys(request.images)`; a suíte não cobre `images` vazio, payload sem images nem anchor stale (`exists:false`) caindo no fallback/marker.",
+      "auditor_recommended_action": "Adicionar casos para images vazio, ausente/malformado e anchor stale, executando action/router reais."
     },
     {
       "id": "010-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "extension/background/actions/download-chapter.js",
       "found_while_auditing": "extension/background/actions/download-chapter.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar robustez em processo separado.",
       "possible_regression": "UI pode permanecer aguardando operação que nunca resolve.",
       "impact": "Confiabilidade da abertura/exportação de capítulo.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:40:00Z",
+      "audit_finding": "ACCEPTED como robustez assíncrona. A Promise externa chama `context.downloadImagesAndShow(...).then(...)` sem handler de rejeição. O helper real atual só resolve, mas qualquer refactor/injeção que rejeite deixa a Promise externa sem settlement.",
+      "auditor_recommended_action": "Encadear rejeição explicitamente ou tornar execute async e usar await; adicionar teste com helper rejeitando."
     }
   ],
   "document_quality": {
