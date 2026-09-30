@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "210-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
       "found_while_auditing": "tests/unit/content-manga/twin-backdrop-sync.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer a assertion na suíte.",
       "possible_regression": "Seleção/tradução do elemento errado.",
       "impact": "Deduplicação de backdrops.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:48:00Z",
+      "audit_finding": "ACCEPTED. O caso de deduplicação cria backdrop e principal com a mesma URL e afirma apenas `images.length===1` e `src`. Como ambos compartilham o mesmo src, essas assertions não distinguem se o candidato preservado foi realmente a imagem principal nítida.",
+      "auditor_recommended_action": "Adicionar assertion de `index`/identidade do elemento principal (por exemplo index 1 ou id correspondente), provando que o backdrop foi descartado."
     },
     {
       "id": "210-002",
@@ -44,7 +48,7 @@
     },
     {
       "id": "210-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
       "found_while_auditing": "tests/unit/content-manga/twin-backdrop-sync.test.js",
@@ -57,7 +61,11 @@
       "expected_auditor_action": "Adicionar cobertura focal e cruzar com a política getCleanUrl documentada no #205.",
       "possible_regression": "Twin backdrop deixa de acompanhar a principal em sites que usam variantes de URL.",
       "impact": "Consistência visual do replacement.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:48:00Z",
+      "audit_finding": "ACCEPTED. `applyImageReplacement` sincroniza twins quando `getCleanUrl(rawTwin) === origCleanUrl`, porém o teste usa strings src literalmente iguais. Não há prova de variantes textuais diferentes que convergem pela canonicalização.",
+      "auditor_recommended_action": "Adicionar cenário real com URLs diferentes mas canonicalmente equivalentes (ex. Reddit preview/resize compatíveis), exigindo sincronização do twin pela clean URL."
     }
   ],
   "document_quality": {
