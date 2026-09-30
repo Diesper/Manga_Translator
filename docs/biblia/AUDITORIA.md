@@ -203,6 +203,8 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 
 **Veredito:** ✅ APROVADO.
 
+| 53 | `extension/popup/popup.html` | SHA `05972d0fa116...` conferido; bloco integral exato | 489 linhas textuais + posição terminal = 490/490 posições; 490 linhas de cobertura sequenciais | `load-extension-page.js` carrega o HTML real e executa dependências + `popup.js`; `popup.ui`, `popup.advanced.ui`, progress, logs, botão dinâmico e thumbnails verificam contratos reais; seletores obsoletos `btn-settings`/`data-tab` foram explicitamente rebaixados | 21 unidades específicas + 81 IDs sem duplicação + todos `data-target` válidos + 67/68 IDs consumidos estaticamente (único ausente é `btn-force-reload` dinâmico); acessibilidade/CSP/layout e lacunas explícitas | ✅ APROVADO |
+
 ## Correções já aplicadas pela auditoria
 
 ### `content_gemini.js` — criação e auditoria em 2026-09-29

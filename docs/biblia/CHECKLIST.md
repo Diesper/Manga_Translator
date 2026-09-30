@@ -70,7 +70,7 @@
 - [x] 050 — `extension/content/inject.js` → `docs/biblia/extension/content/inject.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 051 — `extension/options/options.html` → `docs/biblia/extension/options/options.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#D**
 - [ ] 052 — `extension/options/options.js` → `docs/biblia/extension/options/options.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#F**
-- [ ] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#I**
+- [x] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#J**
 - [ ] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#G**
 - [x] 056 — `extension/reader/reader.js` → `docs/biblia/extension/reader/reader.js/Bíblia.md` **✅ AUDITORIA APROVADA**

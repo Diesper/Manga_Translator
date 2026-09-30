@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/popup/popup.html`
 
-> **Estado:** 🟠 EM ANDAMENTO — Bíblia materializada; aguardando finalização coordenada dos rastreadores  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA
 > **SHA auditado:** `05972d0fa1161a5182e0b11185a390582a720f90`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#I`  
 > **Tipo:** HTML/CSS — popup Chromium MV3 / superfície principal de UI  

@@ -52,15 +52,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **63**
-- 🟠 Em andamento: **14**
+- ✅ Concluídos auditados: **64**
+- 🟠 Em andamento: **13**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **27,04%**
+- Cobertura realmente aprovada: **27,47%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `.github/workflows/recover-cancelled-ci.yml`
+- Último aprovado: `extension/popup/popup.html`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -333,6 +333,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 57. ✅ `.github/workflows/ci.yml`
 58. ✅ `package.json`
 59. ✅ `.github/workflows/recover-cancelled-ci.yml`
+60. ✅ `extension/popup/popup.html`
 
 ### Revisão obrigatória
 
@@ -396,7 +397,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 50 | ✅ CONCLUÍDO | `extension/content/inject.js` | `21f7f6cf9c94` | `docs/biblia/extension/content/inject.js/Bíblia.md` |
 | 51 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#D | `extension/options/options.html` | `3ca95e66641d` | `docs/biblia/extension/options/options.html/Bíblia.md` |
 | 52 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#F | `extension/options/options.js` | `f69f132c0ef6` | `docs/biblia/extension/options/options.js/Bíblia.md` |
-| 53 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#I | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
+| 53 | ✅ CONCLUÍDO | `extension/popup/popup.html` | `05972d0fa116` | `docs/biblia/extension/popup/popup.html/Bíblia.md` |
 | 54 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#J | `extension/popup/popup.js` | `300cfe9a9c81` | `docs/biblia/extension/popup/popup.js/Bíblia.md` |
 | 55 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#G | `extension/reader/reader.html` | `065fc4e201c5` | `docs/biblia/extension/reader/reader.html/Bíblia.md` |
 | 56 | ✅ CONCLUÍDO | `extension/reader/reader.js` | `490bbb184234` | `docs/biblia/extension/reader/reader.js/Bíblia.md` |
