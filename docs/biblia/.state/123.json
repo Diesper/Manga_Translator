@@ -52,7 +52,7 @@
     },
     {
       "id": "123-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FLAKINESS_REVIEW",
       "target_file": "tests/smoke/smoke-01-batch-lifecycle.js",
       "found_while_auditing": "tests/smoke/smoke-01-batch-lifecycle.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Avaliar flakiness histórica e ajustar o teste em alteração separada.",
       "possible_regression": "Falso vermelho por carga do CI ou falso verde sobre o ACK real.",
       "impact": "Estabilidade e valor probatório do smoke.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:31:00Z",
+      "audit_finding": "ACCEPTED. O smoke mede ACK com `Date.now()` e threshold <500 ms sobre um `setTimeout(20)` local; isso testa scheduling do Node, não o handshake real. A flag `ackReceivedImmediately` é atribuída mas nunca lida.",
+      "auditor_recommended_action": "Substituir wall-clock por fake timers ou exercício do módulo real de ACK; remover/assertar a flag morta conforme o contrato."
     }
   ],
   "document_quality": {
