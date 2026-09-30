@@ -70,7 +70,7 @@
     },
     {
       "id": "101-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "MAINTAINABILITY_REVIEW",
       "target_file": "tests/unit/content-gemini/rpa-flow.test.js",
       "found_while_auditing": "tests/helpers/load-content-gemini-module.js",
@@ -82,7 +82,11 @@
       "expected_evidence": "Contrato explícito justificando duplicação ou teste/estrutura compartilhada que impeça drift.",
       "possible_regression": "Um loader pode deixar de carregar novo módulo obrigatório enquanto outro continua atualizado.",
       "impact": "Manutenibilidade da infraestrutura de testes.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. `rpa-flow.test.js` e `resolution-elevation.test.js` repetem manualmente a sequência de requires do content Gemini em vez de usar `load-content-gemini-module.js`. A duplicação hoje é funcional, mas pode derivar quando novos módulos obrigatórios entrarem.",
+      "auditor_recommended_action": "Decidir se o controle fino desses loaders justifica a duplicação; caso contrário, centralizar a sequência ou ao menos protegê-la por gate anti-drift."
     }
   ]
 }
