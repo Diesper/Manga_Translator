@@ -31,7 +31,7 @@
     },
     {
       "id": "064-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "playwright.config.js",
       "found_while_auditing": "playwright.config.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Revisar semântica da env.",
       "possible_regression": "Reporter/retries/forbidOnly podem ativar em ambiente que pretendia modo local.",
       "impact": "Previsibilidade do runner E2E.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:04:00Z",
+      "audit_finding": "ACCEPTED. `const isCi = !!process.env.CI` trata qualquer string não vazia, inclusive `CI=false`, como CI. GitHub Actions usa valor truthy válido, mas ambientes terceiros podem obter retries/reporter/forbidOnly de CI inesperadamente.",
+      "auditor_recommended_action": "Definir contrato de presença ou parse explícito de valores; adicionar casos CI ausente, vazio, true e false."
     },
     {
       "id": "064-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "playwright.config.js",
       "found_while_auditing": "playwright.config.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Revisar lifecycle do webServer.",
       "possible_regression": "E2E usa processo errado em 3999.",
       "impact": "Confiabilidade dos E2E.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:04:00Z",
+      "audit_finding": "ACCEPTED. `webServer` usa somente `port:3999` com `reuseExistingServer:true`; apesar de o mock expor `/health`, o config não valida identidade/health. Qualquer processo já ouvindo nessa porta pode ser reaproveitado.",
+      "auditor_recommended_action": "Usar URL/health identificável ou desabilitar reutilização no gate; adicionar contract test que rejeite servidor estranho em 3999."
     },
     {
       "id": "064-004",
