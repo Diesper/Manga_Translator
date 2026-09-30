@@ -1,0 +1,11 @@
+{
+  "index": 131,
+  "file": "tests/unit/background/batch-actions.test.js",
+  "bible": "docs/biblia/tests/unit/background/batch-actions.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 16",
+  "source_sha": "113344a0e8dbb334fbd14eeb9e241b165a95cdfb",
+  "started_at_utc": "2026-09-30T06:33:12.453Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
