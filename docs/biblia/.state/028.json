@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "028-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONSISTENCY_REVIEW",
       "target_file": "extension/background/jobs-reconciliation.js",
       "found_while_auditing": "extension/background/jobs-reconciliation.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar consistência memória↔storage em alteração separada.",
       "possible_regression": "UI/scheduler pode ler contador stale até uma mutação futura.",
       "impact": "Accounting de jobs e retomada após restart.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:29:00Z",
+      "audit_finding": "ACCEPTED — inconsistência de persistência confirmada. `reconcile()` com jobIndex vazio muta `state.activeJobsCount=0` e retorna `{alive:0,dropped:0}` sem `recovered`. `reconcileAndContinue()` só chama `syncState()` se dropped/alive/recovered for truthy; portanto a correção do contador pode ficar apenas em memória.",
+      "auditor_recommended_action": "Retornar sinal de mudança ou sincronizar quando activeJobsCount for corrigido, mesmo com índice vazio; testar estado persistido com contador stale e índice vazio."
     },
     {
       "id": "028-002",
