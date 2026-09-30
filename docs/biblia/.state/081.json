@@ -1,0 +1,11 @@
+{
+  "index": 81,
+  "file": "scripts/validation/validate-manifest.js",
+  "bible": "docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 4",
+  "source_sha": "93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1",
+  "started_at_utc": "2026-09-30T06:07:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
