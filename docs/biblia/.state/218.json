@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "218-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/popup/log-exporter.test.js",
       "found_while_auditing": "tests/unit/popup/log-exporter.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Ampliar a suíte sem alterar a implementação para fabricar prova.",
       "possible_regression": "Limpeza silenciosamente quebrada ou sem confirmação.",
       "impact": "Operação e segurança de dados do painel de logs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho declara cobertura de limpeza, mas nenhum teste clica `btn-log-clear` nem verifica remoção do storage/UI.",
+      "auditor_recommended_action": "Adicionar caso do botão limpar usando popup real e afirmar storage/contador/lista vazios."
     },
     {
       "id": "218-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/popup/log-exporter.test.js",
       "found_while_auditing": "tests/unit/popup/log-exporter.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer assertions usando popup real.",
       "possible_regression": "Filtro incorreto ou export vazio/malformado.",
       "impact": "Diagnóstico e suporte via logs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. O teste de severidade exercita somente `error` apesar do título citar error/warn/info/success; o export verifica chamada de download/filename, mas não inspeciona o conteúdo serializado no Blob.",
+      "auditor_recommended_action": "Parametrizar os quatro níveis e inspecionar o texto do Blob exportado para campos/ordem esperados."
     },
     {
       "id": "218-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/popup/log-exporter.test.js",
       "found_while_auditing": "tests/unit/popup/log-exporter.test.js",
@@ -57,11 +65,15 @@
       "expected_auditor_action": "Ampliar a suíte real do popup.",
       "possible_regression": "Cópia falha em ambientes sem Clipboard API sem detecção.",
       "impact": "Exportação rápida de diagnóstico.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "ACCEPTED. `copyLogText` possui fallback `document.execCommand`, tratamento de erro, lista vazia e restauração do label; a suíte cobre apenas clipboard moderno feliz.",
+      "auditor_recommended_action": "Adicionar casos para fallback, rejeição, lista vazia e restauração do texto do botão com timers controlados."
     },
     {
       "id": "218-004",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/popup/popup.js",
       "found_while_auditing": "tests/unit/popup/log-exporter.test.js",
@@ -74,7 +86,12 @@
       "expected_auditor_action": "Investigar comportamento Chrome Downloads e implementar em mudança separada se necessário.",
       "possible_regression": "Falha silenciosa ou recursos temporários não liberados.",
       "impact": "Robustez do export.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:10:00Z",
+      "audit_finding": "SUPERSEDED por 054-004. O Object URL não revogado e a ausência de tratamento do callback/runtime.lastError do download já estão incluídos no request mais abrangente de cleanup do popup.",
+      "auditor_recommended_action": "Centralizar a correção/teste em 054-004.",
+      "superseded_by": "054-004"
     },
     {
       "id": "218-005",
