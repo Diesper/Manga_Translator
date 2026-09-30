@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 17
+ARQUIVO: scripts/ci/data/e2e-shard-plan.json
+BÍBLIA: docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T13:40:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T13:40:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
