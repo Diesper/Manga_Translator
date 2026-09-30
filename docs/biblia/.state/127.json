@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "127-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_MISMATCH",
       "target_file": "tests/smoke/smoke-05-perceptual-queries.js",
       "found_while_auditing": "tests/smoke/smoke-05-perceptual-queries.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a divergência e escolher correção documental ou expansão de teste.",
       "possible_regression": "Auditoria futura pode considerar cobertos contratos que este smoke não executa.",
       "impact": "Rastreabilidade da cobertura smoke GTC.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:42:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho promete colisão de índice e handler V2, mas o corpo não cria handler nem envia `GTC_QUERY_PERCEPTUAL_V2`; executa somente `repo.queryPerceptual`. A documentação local superestima a cobertura.",
+      "auditor_recommended_action": "Corrigir o cabeçalho ou adicionar cenários reais de handler V2/colisão em alteração separada."
     },
     {
       "id": "127-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_SCOPE_REVIEW",
       "target_file": "tests/smoke/smoke-05-perceptual-queries.js",
       "found_while_auditing": "tests/smoke/smoke-05-perceptual-queries.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Classificar o escopo pretendido e abrir mudança separada se paridade for necessária.",
       "possible_regression": "Regressão específica do backend IndexedDB pode escapar deste smoke.",
       "impact": "Cobertura do cache perceptual persistente.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:42:00Z",
+      "audit_finding": "ACCEPTED. O smoke importa fake-indexeddb, porém escolhe `createInMemoryRepository()` quando disponível — e o módulo atual o exporta. Portanto esta unidade não prova o backend IndexedDB apesar da fixture carregada.",
+      "auditor_recommended_action": "Definir o smoke como backend em memória ou adicionar cenário separado contra o repositório IndexedDB real se paridade for requisito."
     }
   ],
   "document_quality": {
