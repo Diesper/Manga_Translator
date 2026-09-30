@@ -2,10 +2,36 @@
   "index": 142,
   "file": "tests/unit/background/download-wait.test.js",
   "bible": "docs/biblia/tests/unit/background/download-wait.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 11",
   "source_sha": "1bb13ac03ab0bcaff68921211679355f9971678c",
   "started_at_utc": "2026-09-30T06:56:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T07:02:00Z",
+  "audit_requests": [
+    {
+      "id": "142-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/download-wait.test.js",
+      "found_while_auditing": "tests/unit/background/download-wait.test.js",
+      "finding": "O ramo interrupted prova erro imediato e remoção do listener, mas não avança o relógio depois para provar que o safety timer foi cancelado.",
+      "current_evidence": "A implementação real contém clearTimeout(safetyTimer) no ramo interrupted; o teste verifica onError e remoção do listener.",
+      "missing_evidence": "Assertion de que onError continua com exatamente uma chamada após avançar além de 600.000 ms depois da interrupção.",
+      "why_needed": "Remoção do listener não prova cancelamento do timer; uma regressão poderia causar callback de erro duplicado.",
+      "requested_action": "Adicionar assertion focal em alteração separada: interromper, avançar fake timer além de 10 minutos e exigir onError chamado uma única vez.",
+      "expected_evidence": "toHaveBeenCalledTimes(1) após advanceTimersByTime > 600000.",
+      "expected_auditor_action": "Confirmar a lacuna e fortalecer a suíte se o contrato de callback único for requerido.",
+      "possible_regression": "Erro duplicado tardio após download interrompido.",
+      "impact": "Cleanup e idempotência do waitForDownload.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "169/169",
+    "bible_lines": 424,
+    "external_audit_requests_open": 1
+  }
 }
