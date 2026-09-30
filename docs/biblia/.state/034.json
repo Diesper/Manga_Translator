@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "034-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "BUG_REVIEW",
       "target_file": "extension/content/cm-auto-restore.js",
       "found_while_auditing": "extension/content/cm-auto-restore.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar contrato dos lazy-loaders antes de alterar.",
       "possible_regression": "Auto-restore falha silenciosamente em sites que mudam apenas data-original.",
       "impact": "Cobertura de auto-restauração em páginas lazy-loaded.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — bug de observação confirmado. `apply()` considera `data-original`, mas o MutationObserver observa apenas `src`, `data-src` e `data-lazy`. Se lazy-loader alterar somente `data-original` após initialize, nenhuma nova varredura é agendada.",
+      "auditor_recommended_action": "Adicionar `data-original` ao attributeFilter/condição de mudança e teste de mutação tardia desse atributo."
     },
     {
       "id": "034-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONSISTENCY_REVIEW",
       "target_file": "extension/content/cm-auto-restore.js",
       "found_while_auditing": "extension/content/cm-auto-restore.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar isolamento de capítulo em alteração separada.",
       "possible_regression": "Imagem pode ser restaurada com tradução pertencente a capítulo anterior quando cleanUrl colide.",
       "impact": "Integridade visual/histórico por capítulo.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — contaminação entre capítulos confirmada. `initialize()` obtém chapterId novo, mas faz `restoreMap = {...restoreMap,...entries}`; não limpa entradas antigas quando URL/chapterId muda. Em SPA na mesma instância, mapas de capítulos anteriores permanecem elegíveis.",
+      "auditor_recommended_action": "Rastrear chapterId corrente e substituir/limpar restoreMap em troca de capítulo; adicionar navegação SPA A→B com URLs colidentes/independentes."
     },
     {
       "id": "034-003",
