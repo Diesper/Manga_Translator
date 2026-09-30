@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "120-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/test-infra/dom-environment.test.js",
       "found_while_auditing": "tests/mocks/dom-environment.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Validar a lacuna e criar cobertura dedicada somente se o contrato de infraestrutura exigir essa garantia.",
       "possible_regression": "Mudança no ambiente JSDOM pode quebrar ou distorcer testes de DOM futuros sem diagnóstico direto.",
       "impact": "Confiabilidade da infraestrutura Jest compartilhada.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. `dom-environment.js` é setup de cinco projetos Jest, mas não possui suíte de contrato para TextEncoder/TextDecoder, scrollTo, canvas/draw/getImageData, rAF/cancel, observers, idempotência e branch sem window. Consumers só provam partes, especialmente TEST_CANVAS.",
+      "auditor_recommended_action": "Adicionar suíte focal do setup real cobrindo globals/prototypes instalados, callback/cancelamento de rAF, SecurityError/canvas, observers e idempotência."
     }
   ],
   "document_quality": {
@@ -35,7 +39,10 @@
     "bible_lines": 364,
     "external_audit_requests_open": 1,
     "evidence_run": 36577447500,
-    "evidence_jobs": [109437162616, 109437162754],
+    "evidence_jobs": [
+      109437162616,
+      109437162754
+    ],
     "evidence_summary": "Mesmo blob carregado pelos projetos JSDOM; Node 20.x e 22.x terminaram 109/109 suites e 851/851 testes. TEST_CANVAS possui assertions diretas em content_manga."
   }
 }
