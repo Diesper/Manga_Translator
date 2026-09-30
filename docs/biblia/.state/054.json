@@ -1,0 +1,51 @@
+{
+  "index": 54,
+  "file": "extension/popup/popup.js",
+  "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 6",
+  "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+  "completed_at_utc": "2026-09-30T06:23:52.758Z",
+  "audit_requests": [
+    {
+      "id": "054-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/popup.advanced.ui.test.js",
+      "finding": "Alguns ramos de export/download/delete de capítulo e respostas negativas do background não possuem assertions focais equivalentes aos fluxos principais.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "054-002",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/popup/popup.js",
+      "finding": "Vários callbacks de chrome.storage.local não verificam runtime.lastError; currentTabId é capturado no bootstrap e pode ficar stale após navegação/fechamento.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "054-003",
+      "status": "OPEN",
+      "type": "PERFORMANCE_REVIEW",
+      "target_file": "extension/popup/popup.js",
+      "finding": "Export/download materializa Data URLs completas e smChapterImages busca páginas sequencialmente; validar comportamento em capítulos muito grandes.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "054-004",
+      "status": "OPEN",
+      "type": "CLEANUP_REVIEW",
+      "target_file": "extension/popup/popup.js",
+      "finding": "Listener de storage para logs e object URL do export dependem do lifecycle curto do popup; cleanup explícito é parcial.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "2021/2021",
+    "bible_lines": 26361,
+    "external_audit_requests_open": 4
+  }
+}
