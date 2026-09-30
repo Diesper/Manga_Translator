@@ -52,7 +52,7 @@
     },
     {
       "id": "063-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "package.json",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Revisar superfície CLI npm.",
       "possible_regression": "Comandos documentados/localmente usados deixam de funcionar silenciosamente.",
       "impact": "Produtividade e diagnóstico local.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:05:00Z",
+      "audit_finding": "ACCEPTED. Os aliases especializados (`test:unit:*`, `test:watch`, diagnósticos) existem hoje, mas `verify-ci-contract.js` protege apenas alguns scripts principais. Se esses atalhos forem interface suportada, podem quebrar em refactor sem o gate central detectar.",
+      "auditor_recommended_action": "Classificar quais aliases fazem parte da interface CLI suportada e proteger somente esses com self-test/comando exato; deixar utilitários internos fora do contrato."
     }
   ],
   "document_quality": {
