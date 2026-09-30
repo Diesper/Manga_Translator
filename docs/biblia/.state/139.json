@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "139-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-url-action.test.js",
       "found_while_auditing": "tests/unit/background/deliver-result-url-action.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e ampliar a suíte em mudança externa autorizada.",
       "possible_regression": "Resultado pode ser associado à página ou aba errada caso um comparador seja removido/quebrado.",
       "impact": "Integridade de identidade do job no fallback por URL.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — cobertura de identidade incompleta. A action compara batchId, index e mangaTabId com o job persistido; a suíte só força batchId divergente. Mismatch de index/mangaTabId não é provado.",
+      "auditor_recommended_action": "Adicionar casos isolados para index e mangaTabId divergentes, garantindo que nenhuma aba auxiliar seja criada."
     },
     {
       "id": "139-002",
@@ -44,7 +48,7 @@
     },
     {
       "id": "139-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/background/actions/deliver-result-url.js",
       "found_while_auditing": "tests/unit/background/deliver-result-url-action.test.js",
@@ -57,7 +61,11 @@
       "expected_auditor_action": "Investigar comportamento real do Chrome/runtime e decidir estratégia de robustez antes de alterar código.",
       "possible_regression": "Aba auxiliar órfã, mapping parcial ou job preso/inconsistente após falha de persistência.",
       "impact": "Lifecycle e recuperação do fallback por URL.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — bug de robustez confirmado na action. `tabs.create` resolve diretamente para `newTab`, sem `runtime.lastError`/id guard; depois mapping é escrito e `updateJobState/syncState` podem rejeitar sem rollback da aba ou do mapping. A suíte só usa callbacks bem-sucedidos.",
+      "auditor_recommended_action": "Adicionar wrapper robusto para tabs.create e compensação em falha de persistência; testar lastError, tab sem id, updateJobState e syncState rejeitando."
     },
     {
       "id": "139-004",
