@@ -1,0 +1,11 @@
+{
+  "index": 86,
+  "file": "scripts/validation/verify-e2e-shard-plan.js",
+  "bible": "docs/biblia/scripts/validation/verify-e2e-shard-plan.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 6",
+  "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
+  "started_at_utc": "2026-09-30T06:11:43.307Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
