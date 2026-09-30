@@ -27,7 +27,7 @@
     },
     {
       "id": "003-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_LIMIT_REVIEW",
       "target_file": "extension/background/actions/calculate-visual-fingerprint.js",
       "found_while_auditing": "extension/background/actions/calculate-visual-fingerprint.js",
@@ -40,11 +40,15 @@
       "expected_auditor_action": "Revisar robustez/DoS em processo separado.",
       "possible_regression": "Service worker pode ficar ocupado, ser encerrado ou sofrer pressão de memória.",
       "impact": "Disponibilidade e estabilidade do background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — risco funcional confirmado. `calculate-visual-fingerprint.js` faz `fetch(url)` sem AbortController/timeout, lê `blob()`, decodifica com `createImageBitmap` e cria canvases até 48x48 sem limite explícito de bytes/dimensões antes da decodificação. Um recurso remoto lento/grande pode prender ou pressionar memória do Service Worker.",
+      "auditor_recommended_action": "Adicionar timeout/abort e limite de bytes/dimensões antes/depois da leitura; cobrir resposta lenta e imagem excessiva."
     },
     {
       "id": "003-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PRIVACY_REVIEW",
       "target_file": "extension/background/actions/calculate-visual-fingerprint.js",
       "found_while_auditing": "extension/background/actions/calculate-visual-fingerprint.js",
@@ -57,7 +61,11 @@
       "expected_auditor_action": "Revisar privacidade de telemetria.",
       "possible_regression": "Credenciais temporárias podem aparecer no histórico/exportação de logs.",
       "impact": "Privacidade e segurança operacional.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — privacidade confirmada. Os logs `VISUAL_FP_OK` e `VISUAL_FP_FAIL` incluem `url.slice(0,80)` diretamente; query strings e tokens assinados podem cair nos primeiros 80 caracteres.",
+      "auditor_recommended_action": "Sanitizar URL de log (origin+pathname seguro, remover query/fragment) e adicionar teste com token na query."
     }
   ],
   "document_quality": {
