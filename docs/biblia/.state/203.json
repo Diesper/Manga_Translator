@@ -2,10 +2,102 @@
   "index": 203,
   "file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/extraction-and-handlers-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 21",
   "source_sha": "038961e8228c7b5f1a87023a739ad5f33288423b",
   "started_at_utc": "2026-09-30T06:55:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T07:02:00Z",
+  "audit_requests": [
+    {
+      "id": "203-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "finding": "UPDATE_IMAGE possui guard STALE_UPDATE para batchId divergente, mas o caso existente não envia batchId e não foi localizada prova focal de rejeição.",
+      "current_evidence": "Caminho feliz prova aplicação DOM, chapter/restore storage e GTC_SAVE.",
+      "missing_evidence": "Batch atual estabelecido e UPDATE_IMAGE de batch antigo, preferencialmente com expectAck=true.",
+      "why_needed": "Resultado atrasado não pode sobrescrever página do lote corrente.",
+      "requested_action": "Adicionar teste real verificando DOM/storage inalterados, ausência de GTC_SAVE e ACK stale_batch.",
+      "expected_evidence": "Rejeição antes de side effects.",
+      "expected_auditor_action": "Confirmar e tratar em mudança de teste separada.",
+      "possible_regression": "Tradução de lote antigo pode substituir página do lote atual.",
+      "impact": "Integridade entre lotes.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "203-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "finding": "BATCH_COMPLETE possui guard STALE_COMPLETE, mas o teste envia completion sem batchId.",
+      "current_evidence": "Completion válido restaura UI e mostra toast.",
+      "missing_evidence": "Batch atual A + completion de batch B comprovando descarte.",
+      "why_needed": "Completion atrasado não deve zerar o lote ativo.",
+      "requested_action": "Adicionar cenário stale usando implementação real e verificar lote/UI preservados.",
+      "expected_evidence": "UI continua traduzindo e log STALE_COMPLETE é emitido.",
+      "expected_auditor_action": "Confirmar e criar cobertura separada.",
+      "possible_regression": "Lote atual pode terminar prematuramente por mensagem antiga.",
+      "impact": "Isolamento e accounting de batches.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "203-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "finding": "MAX_EXTRACTION_PASSES=3 encerra extração com AUXILIARY_EXTRACT_FAILED, mas só há falha transitória seguida de sucesso.",
+      "current_evidence": "Retry após ACK/fetch failure e cancelamento por pagehide são provados.",
+      "missing_evidence": "Três falhas persistentes até cleanup terminal.",
+      "why_needed": "O limite precisa impedir loop infinito e liberar recursos.",
+      "requested_action": "Simular falha persistente de canvas/fetch até esgotamento e provar número finito de tentativas, log e ausência de novas chamadas.",
+      "expected_evidence": "AUXILIARY_EXTRACT_FAILED e lifecycle encerrado após limite.",
+      "expected_auditor_action": "Confirmar e adicionar teste separado.",
+      "possible_regression": "Aba auxiliar pode repetir indefinidamente ou terminar sem diagnóstico.",
+      "impact": "Recursos, estabilidade e observabilidade.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "203-004",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js",
+        "extension/content/cm-chapter.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+      "finding": "UPDATE_IMAGE tem branch de falha de persistência que loga PERSIST_FAIL e retorna persist_failed quando expectAck=true; não foi localizado teste.",
+      "current_evidence": "Persistência bem-sucedida é provada.",
+      "missing_evidence": "Rejeição de persistTranslatedPage e contrato de ACK de falha.",
+      "why_needed": "O background depende do ACK para distinguir resultado aplicado de resultado duravelmente persistido.",
+      "requested_action": "Forçar falha de persistência por mecanismo real/controlável e verificar ACK/log/estado.",
+      "expected_evidence": "ok=false, reason=persist_failed e PERSIST_FAIL sem sucesso falso.",
+      "expected_auditor_action": "Confirmar e tratar cobertura separada.",
+      "possible_regression": "Resultado pode ser considerado persistido quando storage falhou.",
+      "impact": "Durabilidade e coordenação content/background.",
+      "severity": "HIGH"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "816/816",
+    "source_text_lines": 815,
+    "bible_lines": 1402,
+    "external_audit_requests_open": 4,
+    "evidence_note": "25 testes e 58 expectations da implementação real foram mapeados; guards stale, exaustão e persist-failure foram mantidos como lacunas."
+  }
 }
