@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "221-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/options.ui.test.js",
       "found_while_auditing": "tests/unit/popup/version-ui.test.js",
@@ -22,7 +22,11 @@
       "expected_evidence": "DOM final usa exatamente a versão retornada pelo Manifest e mantém fallback seguro quando ausente.",
       "expected_auditor_action": "Confirmar a lacuna e adicionar cobertura dinâmica se exigida.",
       "possible_regression": "Refatoração pode desconectar versionamento runtime da UI sem quebrar este teste.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. `version-ui.test.js` apenas lê `options.js` como texto e procura `chrome.runtime.getManifest`/template string. `options.ui.test.js` executa a UI real, mas não possui assertion de `document.title` nem `#app-title` com a versão do Manifest.",
+      "auditor_recommended_action": "Adicionar caso de integração carregando options.js real com getManifest controlado e afirmar título/documento e #app-title."
     }
   ],
   "document_quality": {
