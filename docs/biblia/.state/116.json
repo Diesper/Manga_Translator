@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "116-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/popup.advanced.ui.test.js",
       "found_while_auditing": "tests/integration/popup.advanced.ui.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar o contrato de path para SHOW_EXISTING_FOLDER e adicionar cobertura focal sem alterar a documentação para fingir evidência inexistente.",
       "possible_regression": "Botão Abrir pasta continua enviando ação e âncora válidas, mas aponta para diretório errado.",
       "impact": "Abertura da pasta de capítulo traduzido pelo popup.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:49:00Z",
+      "audit_finding": "ACCEPTED. `popup.js` envia `folderPath` em SHOW_EXISTING_FOLDER, mas a expectation da suíte exige apenas action, anchorId e safeTitle. Uma regressão na derivação do diretório pode continuar verde.",
+      "auditor_recommended_action": "Assertar folderPath exato no cenário POSIX semeado e adicionar variante Windows se o formato fizer parte do contrato suportado."
     },
     {
       "id": "116-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/popup.advanced.ui.test.js",
       "found_while_auditing": "tests/integration/popup.advanced.ui.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Verificar se o terceiro radio faz parte do contrato suportado do popup e, se sim, adicionar cobertura específica em mudança separada.",
       "possible_regression": "Usuário perde a capacidade de selecionar/restaurar Janela Minimizada no popup sem falha nos testes atuais.",
       "impact": "Configuração do modo de execução Gemini na UI do popup.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:49:00Z",
+      "audit_finding": "ACCEPTED. O popup possui radio `minimized_window`, mas a suíte avançada cobre apenas background_delete e temp_chat nesse controle. Restauração/persistência do terceiro modo não têm prova focal nessa UI.",
+      "auditor_recommended_action": "Adicionar seed/load/change para minimized_window, verificando radio checked e `geminiExecutionMode` persistido."
     }
   ],
   "document_quality": {
