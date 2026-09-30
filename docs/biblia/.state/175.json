@@ -1,0 +1,11 @@
+{
+  "index": 175,
+  "file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/claim-bootstrap-keepalive.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "6e6adc2747b0974feec368fedb3652da79dc49b5",
+  "started_at_utc": "2026-09-30T14:40:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
