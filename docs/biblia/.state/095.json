@@ -31,7 +31,7 @@
     },
     {
       "id": "095-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "tests/fixtures/gemini-mock-server.js",
       "found_while_auditing": "tests/fixtures/gemini-mock-server.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Classificar o risco considerando duração real do servidor e concorrência.",
       "possible_regression": "Crescimento de memória/estado stale em execuções muito longas ou uso manual repetido.",
       "impact": "Baixo no suite atual; potencial em sessões prolongadas.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:18:00Z",
+      "audit_finding": "ACCEPTED. `ATTACHMENT_BARRIERS` mantém uma entrada por id e `release` limpa somente `waiters`; não há `ATTACHMENT_BARRIERS.delete(id)`. No processo curto do E2E o impacto é baixo, mas sessões prolongadas/reuso manual acumulam estado.",
+      "auditor_recommended_action": "Decidir se lifetime de processo é o cleanup suficiente. Se não, remover barriers concluídos com segurança após a janela necessária e adicionar regressão de reuso/cleanup."
     },
     {
       "id": "095-003",
@@ -70,7 +74,7 @@
     },
     {
       "id": "095-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "tests/fixtures/gemini-mock-server.js",
       "found_while_auditing": "tests/fixtures/gemini-mock-server.js",
@@ -83,7 +87,11 @@
       "expected_auditor_action": "Classificar risco conforme o escopo estritamente local do servidor.",
       "possible_regression": "Uma request malformada pode transformar uma falha isolada em cascata no E2E.",
       "impact": "Infraestrutura local de testes.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:18:00Z",
+      "audit_finding": "ACCEPTED. O request handler constrói `new URL(req.url, host)` e chama `decodeURIComponent` sem try/catch local. Em fixture controlada isso normalmente recebe input válido, mas request malformada pode lançar e ampliar uma falha isolada para o servidor inteiro.",
+      "auditor_recommended_action": "Definir se fail-fast é intencional para a fixture. Caso contrário, responder 400/4xx para URL/percent-encoding inválidos e testar o comportamento."
     }
   ],
   "document_quality": {
