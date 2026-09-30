@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "170-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-identity.test.js",
       "found_while_auditing": "tests/unit/background/tab-identity.test.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Priorizar por integridade de ownership.",
       "possible_regression": "Job de outro fluxo pode ser sobrescrito ou perdido durante substituição de tab.",
       "impact": "Integridade de job e isolamento entre traduções.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:15:00Z",
+      "audit_finding": "SUPERSEDED por 033-002, que já foi auditada e aceita para o mesmo branch `TAB_REKEY_CONFLICT` entre jobs distintos.",
+      "auditor_recommended_action": "Acompanhar correção/teste no request 033-002.",
+      "superseded_by": "033-002"
     },
     {
       "id": "170-002",
