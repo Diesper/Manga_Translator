@@ -179,7 +179,7 @@
     },
     {
       "id": "045-011",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONCURRENCY_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "related_files": [
@@ -194,7 +194,11 @@
       "expected_evidence": "Segundo run é rejeitado claramente ou isolamento entre observers é comprovado.",
       "possible_regression": "Observer/cleanup cruzado entre jobs concorrentes.",
       "impact": "Integridade do pipeline de geração.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — pressuposto de serialização não imposto. `activeObserver` é variável única da instância e `run(job)` não possui mutex/guard de execução. Duas chamadas concorrentes podem sobrescrever `activeObserver`; o finally de uma pode parar/deletar o observer da outra.",
+      "auditor_recommended_action": "Impor exclusão mútua/estado de run ou tornar observer local por execução; adicionar teste com dois runs concorrentes."
     },
     {
       "id": "045-012",
