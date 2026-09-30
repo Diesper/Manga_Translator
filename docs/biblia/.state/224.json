@@ -102,12 +102,13 @@
     "bible_lines": 612,
     "external_audit_requests_open": 5,
     "automated_tests_documented": 7,
-    "ci_runtime_at_audit": "PENDING_NO_JOBS_PUBLISHED",
-    "note": "Reauditoria técnica independente aprovada por AGENTE 28; conclusão global aguarda registro individual de #224 em AUDITORIA.md e reconciliação das visões agregadas.",
+    "ci_runtime_at_audit": "PENDING",
+    "note": "Reauditoria técnica independente aprovada por AGENTE 28; AUDITORIA.md menciona redo-confirmation.test.js apenas como evidência de #059, não como veredito individual de #224.",
     "global_audit": "PENDING",
     "reaudited_by": "AGENTE 28",
     "independent_technical_audit": "APPROVED_BY_AGENTE_28",
-    "ci_head_observed": "5b10c0e9373086e3c8ac226c432eab03aaf825c2",
-    "ci_run_observed": 3192
+    "ci_head_observed": "61fa115825d9d5229413c706aae53d35a5623478",
+    "ci_run_observed": 3201,
+    "audit_registry_check": "NO_INDIVIDUAL_ENTRY_FOR_224"
   }
 }
