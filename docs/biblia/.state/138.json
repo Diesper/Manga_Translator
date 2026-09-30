@@ -1,0 +1,11 @@
+{
+  "index": 138,
+  "file": "tests/unit/background/deliver-result-from-tab-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/deliver-result-from-tab-action.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 19",
+  "source_sha": "263cb827e30468c377c5b1eb5863e90bd6cf26b0",
+  "started_at_utc": "2026-09-30T06:37:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
