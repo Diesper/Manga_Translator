@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "090-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-test-policy-selftest.js",
       "found_while_auditing": "scripts/validation/verify-test-policy-selftest.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a matriz de regras e ampliar a cobertura em alteração separada.",
       "possible_regression": "Skip/only/todo ou escape hatches podem reaparecer em escopo não coberto sem quebrar test:test-policy:infra.",
       "impact": "Gate de política parcialmente cego a regressões futuras fora dos casos representativos atuais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. O self-test cobre baseline, test.skip, --forceExit em package script e workflow `|| true`, mas não `.only`, `test.todo`, `--passWithNoTests`, outros escopos de forceExit/||true nem tokens em scripts/ci/maintenance/extension.",
+      "auditor_recommended_action": "Adicionar uma mutação causal por regra/escopo usando o verifier real e exigir status não-zero + diagnóstico específico."
     },
     {
       "id": "090-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/validation/verify-test-policy-selftest.js",
@@ -40,7 +44,12 @@
       "expected_auditor_action": "Avaliar o risco de falso verde e fortalecer verify-ci-contract.js em mudança separada se necessário.",
       "possible_regression": "Cobertura declarada pelo CI Contract pode divergir da cobertura realmente executada.",
       "impact": "Rastreabilidade de infraestrutura pode produzir falso positivo.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "SUPERSEDED por 083-002. O risco de `verify-ci-contract.js` aceitar marker textual em comentário/string inerte já está coberto pelo request amplo de robustez do meta-gate.",
+      "auditor_recommended_action": "Centralizar endurecimento textual/estrutural no request 083-002.",
+      "superseded_by": "083-002"
     }
   ],
   "document_quality": {
