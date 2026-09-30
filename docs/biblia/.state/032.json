@@ -52,7 +52,7 @@
     },
     {
       "id": "032-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "VALIDATION_REVIEW",
       "target_file": "extension/background/state.js",
       "found_while_auditing": "extension/background/state.js",
@@ -65,11 +65,15 @@
       "expected_auditor_action": "Fortalecer validação de estado.",
       "possible_regression": "Accounting negativo/infinito e decisões incorretas de scheduler.",
       "impact": "Lifecycle/contabilidade de jobs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED — risco funcional confirmado. `patch` usa `Number(value) || 0`, aceitando números negativos e Infinity; `reconcileJobs` legado possui ramo que pode preservar activeJobsCount negativo quando jobIndex esvazia. Não há teste de snapshot corrompido/contadores inválidos.",
+      "auditor_recommended_action": "Definir invariantes inteiro >=0 para contadores, normalizar NaN/Infinity/negativos e adicionar regressões de restore/patch/reconcile."
     },
     {
       "id": "032-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ARCHITECTURE_REVIEW",
       "target_file": "extension/background/state.js",
       "found_while_auditing": "extension/background/state.js",
@@ -82,7 +86,11 @@
       "expected_auditor_action": "Revisar modularização.",
       "possible_regression": "Código futuro usa reconciler legado sem garantias modernas de alias/journal.",
       "impact": "Manutenibilidade e recovery.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:12:00Z",
+      "audit_finding": "ACCEPTED. `state.js` ainda exporta utilidades/recovery legados (`generateId`, `_markFinalized`, `reconcileJobs`, `ensureInitialized`) enquanto o runtime moderno usa módulos de lifecycle/reconciliation próprios. Não há gate anti-drift nem decisão explícita de compatibilidade.",
+      "auditor_recommended_action": "Mapear consumidores reais e remover/deprecar APIs residuais ou protegê-las com contrato/testes claros, mantendo uma fonte canônica por responsabilidade."
     }
   ],
   "document_quality": {
