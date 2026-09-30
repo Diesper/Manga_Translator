@@ -165,7 +165,6 @@ A mensagem para a aba do mangá usa preferencialmente os dados persistidos: `job
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 72/72
