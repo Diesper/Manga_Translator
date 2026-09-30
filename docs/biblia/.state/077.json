@@ -1,0 +1,11 @@
+{
+  "index": 77,
+  "file": "scripts/maintenance/diagnose-jest-workers.js",
+  "bible": "docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 3",
+  "source_sha": "87d25d2b61cc1068059a39a24d3e4d86be78c335",
+  "started_at_utc": "2026-09-30T03:54:42.817Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
