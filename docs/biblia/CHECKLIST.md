@@ -80,11 +80,11 @@
 - [ ] 060 — `extension/shared/storage-manager.js` → `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
 - [x] 061 — `.gitignore` → `docs/biblia/.gitignore/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 062 — `jest.config.js` → `docs/biblia/jest.config.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 063 — `package.json` → `docs/biblia/package.json/Bíblia.md`
-- [ ] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md`
-- [ ] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md`
-- [ ] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md`
-- [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md`
+- [ ] 063 — `package.json` → `docs/biblia/package.json/Bíblia.md` **← EM ANDAMENTO — Agente L**
+- [ ] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 1**
+- [ ] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 3**
+- [ ] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 2**
+- [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 4**
 - [ ] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md`
 - [ ] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
 - [ ] 070 — `scripts/ci/data/test-baseline.json` → `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md`
