@@ -1,0 +1,11 @@
+{
+  "index": 108,
+  "file": "tests/integration/gtc-end-to-end.test.js",
+  "bible": "docs/biblia/tests/integration/gtc-end-to-end.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 24",
+  "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
+  "started_at_utc": "2026-09-30T06:22:44.572Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
