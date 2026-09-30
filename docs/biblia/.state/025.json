@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "025-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INPUT_VALIDATION_REVIEW",
       "target_file": "extension/background/actions/stop-batch.js",
       "found_while_auditing": "extension/background/actions/stop-batch.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar contrato de entrada.",
       "possible_regression": "Caller malformado pode cancelar lote diferente do pretendido.",
       "impact": "Cancelamento de batches.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. O validator só exige string quando `batchId` está presente; `''` e whitespace passam. Como o orchestrator pode tratar string vazia como omissão, payload malformado pode adquirir semântica de STOP do lote atual ou no-op.",
+      "auditor_recommended_action": "Definir batchId presente como trim/non-empty ou documentar a semântica atual; adicionar casos para `''`, whitespace e strings anômalas."
     }
   ],
   "document_quality": {
