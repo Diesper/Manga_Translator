@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "098-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/helpers/background-test-utils.test.js",
       "found_while_auditing": "tests/helpers/background-test-utils.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir/criar a cobertura focal sem alterar esta Bíblia como fonte de prova.",
       "possible_regression": "Uma regressão no harness pode mascarar falhas do background, criar falso positivo/negativo ou pendurar o Jest.",
       "impact": "Infraestrutura compartilhada de testes unitários do background.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `background-test-utils.js` é usado por várias suítes, mas não tem teste próprio para timeout/erro/opções de waitFor, rounds de flush, zero/múltiplos listeners, keepAlive true/false/undefined e múltiplos sendResponse.",
+      "auditor_recommended_action": "Criar suíte focal do helper com timers/listeners controlados e assertions de settlement, polling e mensagens de timeout."
     },
     {
       "id": "098-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/helpers/background-test-utils.js",
       "found_while_auditing": "tests/helpers/background-test-utils.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar o contrato antes de qualquer alteração funcional e preservar histórico desta solicitação.",
       "possible_regression": "Testes podem interpretar keepAlive incorretamente ou aguardar indefinidamente um listener que não abriu canal assíncrono.",
       "impact": "Harness de testes; potencial de afetar diversas suítes background.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `dispatchToBackground` pode resolver `sendResponse` síncrono enquanto `keepAlive` ainda vale false e só trata fallback quando retorno é exatamente false; `undefined` sem resposta pode deixar a Promise pendente.",
+      "auditor_recommended_action": "Definir semântica desejada para sync response + return true e undefined sem response; fixar por testes e corrigir o helper separadamente se necessário."
     }
   ],
   "document_quality": {
