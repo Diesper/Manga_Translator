@@ -2,11 +2,11 @@
   "index": 75,
   "file": "scripts/ci/run-jest-ci.js",
   "bible": "docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 5",
   "source_sha": "6d2e36a647aadeadb2b875c1b3f92df24cd2f494",
   "started_at_utc": "2026-09-30T03:41:34.047Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-09-30T04:52:00Z",
   "audit_requests": [
     {
       "id": "075-001",
@@ -64,5 +64,14 @@
       "possible_regression": "Novo teste com naming não canônico pode ficar fora do inventário protegido; coverage não repete a checagem de partição.",
       "severity": "NORMAL"
     }
-  ]
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "229/229",
+    "bible_lines": 3538,
+    "external_audit_requests_open": 4,
+    "note": "Conclusão documental; solicitações externas permanecem OPEN e não foram usadas como prova."
+  }
 }
