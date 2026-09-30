@@ -2,11 +2,11 @@
   "index": 76,
   "file": "scripts/maintenance/diagnose-background-leak.js",
   "bible": "docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 1",
   "source_sha": "6b5a15d0d255d0285cfabc05f3412b81ffb3d3d4",
   "started_at_utc": "2026-09-30T03:49:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-09-30T05:23:24Z",
   "audit_requests": [
     {
       "id": "076-001",
