@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "188-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_SCOPE_REVIEW",
       "target_file": "tests/unit/content-gemini/safe-background-delete.test.js",
       "found_while_auditing": "tests/unit/content-gemini/safe-background-delete.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar escopo documental/teste.",
       "possible_regression": "Requisito de deleção pode ser contado como coberto sem prova aqui.",
       "impact": "Confiabilidade da cobertura.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED como revisão de escopo. Apesar do nome `safe-background-delete`, a suíte testa helpers de extração/ponte/retry e política de preservação, mas não chama `deleteCurrentConversation` nem `deleteOrScheduleRecovery`. Exclusão segura completa é coberta em outras unidades, não nesta.",
+      "auditor_recommended_action": "Renomear/explicitar o escopo do arquivo ou adicionar integração de deletion apenas se essa responsabilidade realmente pertencer a esta suíte."
     },
     {
       "id": "188-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-gemini/safe-background-delete.test.js",
       "found_while_auditing": "tests/unit/content-gemini/safe-background-delete.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Fortalecer assertion de cleanup.",
       "possible_regression": "Acúmulo de listeners/handlers antigos.",
       "impact": "Robustez da bridge MAIN.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. BGD-09 exige rejeição por timeout da ponte MAIN, mas não observa diretamente remoção do listener após expirar. O título promete cleanup mais forte que a assertion.",
+      "auditor_recommended_action": "Instrumentar add/removeEventListener ou disparar evento tardio pós-timeout e exigir que não seja consumido."
     },
     {
       "id": "188-003",
