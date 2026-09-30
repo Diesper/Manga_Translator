@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "109-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CORRECTION",
       "target_file": "tests/integration/ipc/gemini-cors-fallback.test.js",
       "found_while_auditing": "tests/integration/ipc/gemini-cors-fallback.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar o drift e decidir entre integração real, reclassificação/renomeação ou remoção da simulação redundante sem alterar esta Bíblia retroativamente até reauditoria.",
       "possible_regression": "Falso verde da suíte de integração enquanto produção deixa de rotear, validar ou devolver o formato esperado.",
       "impact": "Confiabilidade da proteção automatizada do fallback CORS e honestidade da classificação de integração IPC.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — teste espelho/stale confirmado. `gemini-cors-fallback.test.js` implementa localmente `extractImageWithFallback/createFetchImageHandler`, usa contrato `{base64}` enquanto a produção atual usa `{dataUrl}`, não exerce `geminiSession:true` e o cenário final itera `_messageListeners` diretamente em vez de atravessar o runtime mock público. Pode ficar verde com o IPC real quebrado.",
+      "auditor_recommended_action": "Substituir mirrors pelo carregamento da action/result-extractor reais e pelo runtime mock público; validar `{dataUrl}`, `geminiSession` e erros/redirects do contrato atual."
     },
     {
       "id": "109-002",
