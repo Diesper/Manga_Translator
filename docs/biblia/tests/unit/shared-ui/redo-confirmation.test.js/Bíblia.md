@@ -603,10 +603,10 @@ Após releitura do fonte, da suíte, dos mocks, da implementação real e dos co
 - o cleanup do harness apaga somente dois exports focais; essa descrição foi corrigida nesta reauditoria;
 - Popup/Options confirmam o consumo real de `shared-ui.js` porque seus HTMLs carregam `../shared/shared-ui.js` antes dos scripts consumidores e `loadExtensionPage()` executa dependências anteriores ao script alvo;
 - as integrações Popup/Options ainda substituem `chrome.runtime.sendMessage`, portanto não provam o backend composto;
-- no HEAD observado `5b10c0e9373086e3c8ac226c432eab03aaf825c2`, a execução `MangaTranslator CI` #3192 estava `pending`, sem jobs publicados; nenhum resultado verde foi reivindicado.
+- no HEAD mais recente observado `61fa115825d9d5229413c706aae53d35a5623478`, a execução `MangaTranslator CI` #3201 estava `pending`; nenhum resultado verde foi reivindicado.
 
 ### Decisão
 
 **Veredito técnico local:** ✅ APROVADO PELO AGENTE 28.
 
-**Veredito global do projeto:** ⏳ PENDENTE, porque `docs/biblia/AUDITORIA.md` ainda não contém entrada individual de #224 e as visões agregadas continuam desatualizadas. O estado individual permanece `IN_PROGRESS` até esse gate ser registrado pelo processo autorizado.
+**Veredito global do projeto:** ⏳ PENDENTE. As ocorrências atuais de `redo-confirmation.test.js` em `docs/biblia/AUDITORIA.md` pertencem à auditoria de #059 `extension/shared/shared-ui.js`; não há entrada individual para #224, e as visões agregadas continuam desatualizadas. O estado individual permanece `IN_PROGRESS` até esse gate ser registrado pelo processo autorizado.
