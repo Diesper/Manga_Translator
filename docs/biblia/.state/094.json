@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "094-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CLEANUP_REVIEW",
       "target_file": "tests/e2e/translation-flow.spec.js",
       "found_while_auditing": "tests/e2e/translation-flow.spec.js",
@@ -21,11 +21,15 @@
       "requested_action": "Verificar em Windows/Linux se os profiles persistem; se sim, adicionar cleanup robusto em alteração separada, preservando artefatos necessários em caso de falha.",
       "expected_evidence": "Execução controlada demonstrando a política de cleanup e ausência de diretórios residuais, ou documentação de comportamento garantido pela ferramenta.",
       "possible_regression": "Acúmulo de diretórios pw-manga-* e pressão de disco em CI/desenvolvimento local.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. `translation-flow.spec.js` cria um `userDataDir` único por teste e fecha somente o browserContext; não há cleanup explícito do diretório, apesar do import de fs.",
+      "auditor_recommended_action": "Verificar Windows/Linux e adicionar cleanup robusto em teardown/finally se perfis externos persistirem, preservando artefatos necessários em falha."
     },
     {
       "id": "094-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "HARNESS_ROBUSTNESS",
       "target_file": "tests/e2e/translation-flow.spec.js",
       "found_while_auditing": "tests/e2e/translation-flow.spec.js",
@@ -36,7 +40,11 @@
       "requested_action": "Avaliar tratamento explícito de runtime.lastError em clear/set/get e adicionar prova focal em alteração separada.",
       "expected_evidence": "Falha controlada e diagnóstica quando storage clear/set/get falha.",
       "possible_regression": "Falso diagnóstico ou timeout longo em vez de erro de infraestrutura.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. `resetExtensionState`/leituras de storage resolvem callbacks de `chrome.storage.local` sem checar `runtime.lastError`; falha de setup pode emergir como timeout/assertion funcional tardia.",
+      "auditor_recommended_action": "Tratar lastError explicitamente nos helpers de storage e adicionar fault-injection que aborte cedo com diagnóstico causal."
     }
   ],
   "document_quality": {
