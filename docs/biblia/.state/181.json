@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "181-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "tests/unit/content-gemini/job-runner.test.js",
@@ -23,7 +23,12 @@
       "expected_auditor_action": "Priorizar por resiliência a UI dinâmica.",
       "possible_regression": "Runner pode avançar com nó stale ou travar sem diagnóstico.",
       "impact": "Confiabilidade do pipeline de submit.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 045-001 para o mesmo timeout `GEMINI_COMPOSER_NOT_READY` sem composer estável.",
+      "auditor_recommended_action": "Acompanhar teste no request 045-001.",
+      "superseded_by": "045-001"
     },
     {
       "id": "181-002",
@@ -44,7 +49,7 @@
     },
     {
       "id": "181-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "tests/unit/content-gemini/job-runner.test.js",
@@ -57,11 +62,16 @@
       "expected_auditor_action": "Priorizar por integridade pós-persistência.",
       "possible_regression": "Job fica pendente ou imagem é reenviada após persistência.",
       "impact": "Integridade de entrega/finalização.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 045-005 para o mesmo branch terminal `RESULT_COMMIT_FAILED` após três commits falhos.",
+      "auditor_recommended_action": "Acompanhar teste no request 045-005.",
+      "superseded_by": "045-005"
     },
     {
       "id": "181-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INTEGRATION_TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "related_files": [
@@ -77,7 +87,11 @@
       "expected_auditor_action": "Priorizar por caminho alternativo de extração.",
       "possible_regression": "Fallback auxiliar pode quebrar no wiring mesmo com extractor isolado verde.",
       "impact": "Entrega quando extração direta falha.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. `job-runner.test.js` não possui caso que faça o extractor invocar `onAuxiliaryFallback`. O runner real envia `GEMINI_RESULT_URL`, exige `extractionRegistered`, lança `AUXILIARY_REGISTRATION_FAILED` quando falha e retorna `delivered_auxiliary` quando registra; nenhum desses efeitos integrados é provado.",
+      "auditor_recommended_action": "Adicionar dois cenários no runner real: registro auxiliar feliz sem stage/commit e ACK inválido/ausente produzindo AUXILIARY_REGISTRATION_FAILED + GEMINI_ERROR."
     }
   ],
   "document_quality": {
