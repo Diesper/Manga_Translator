@@ -1,0 +1,11 @@
+{
+  "index": 211,
+  "file": "tests/unit/gtc/fingerprint.test.js",
+  "bible": "docs/biblia/tests/unit/gtc/fingerprint.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "5255083ff2881ad8ed4ad6c6940253031e789658",
+  "started_at_utc": "2026-09-30T14:01:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
