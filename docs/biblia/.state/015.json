@@ -1,0 +1,11 @@
+{
+  "index": 15,
+  "file": "extension/background/actions/get-tab-id.js",
+  "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
+  "started_at_utc": "2026-09-30T11:25:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
