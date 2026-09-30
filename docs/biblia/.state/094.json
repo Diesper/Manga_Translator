@@ -2,10 +2,51 @@
   "index": 94,
   "file": "tests/e2e/translation-flow.spec.js",
   "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 2",
   "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
   "started_at_utc": "2026-09-30T06:16:55.086Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:28:39.499Z",
+  "audit_requests": [
+    {
+      "id": "094-001",
+      "status": "OPEN",
+      "type": "CLEANUP_REVIEW",
+      "target_file": "tests/e2e/translation-flow.spec.js",
+      "found_while_auditing": "tests/e2e/translation-flow.spec.js",
+      "finding": "Cada teste cria userDataDir único sob os.tmpdir(), mas o afterEach fecha apenas browserContext; não existe remoção explícita do diretório e o import fs está sem uso.",
+      "current_evidence": "O fonte contém os.tmpdir()/launchPersistentContext(userDataDir) e nenhuma chamada fs.rm/fs.rmSync/rmdir; fs só aparece no import.",
+      "missing_evidence": "Confirmação multiplataforma de que Chromium/Playwright remove sempre o userDataDir fornecido ou teste que prove ausência de acúmulo.",
+      "why_needed": "Se profiles persistirem, execuções repetidas podem acumular diretórios e consumir disco.",
+      "requested_action": "Verificar em Windows/Linux se os profiles persistem; se sim, adicionar cleanup robusto em alteração separada, preservando artefatos necessários em caso de falha.",
+      "expected_evidence": "Execução controlada demonstrando a política de cleanup e ausência de diretórios residuais, ou documentação de comportamento garantido pela ferramenta.",
+      "possible_regression": "Acúmulo de diretórios pw-manga-* e pressão de disco em CI/desenvolvimento local.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "094-002",
+      "status": "OPEN",
+      "type": "HARNESS_ROBUSTNESS",
+      "target_file": "tests/e2e/translation-flow.spec.js",
+      "found_while_auditing": "tests/e2e/translation-flow.spec.js",
+      "finding": "resetExtensionState e readStorage usam chrome.storage.local callbacks sem verificar chrome.runtime.lastError.",
+      "current_evidence": "clear/set/get resolvem suas Promises diretamente; o helper FIFO de chrome.tabs.sendMessage, em contraste, trata explicitamente runtime.lastError.",
+      "missing_evidence": "Teste com falha injetada de storage que prove erro causal e abort imediato do harness.",
+      "why_needed": "Falha de setup/leitura pode aparecer como timeout/assertion funcional secundária e dificultar triagem de flakiness/infra.",
+      "requested_action": "Avaliar tratamento explícito de runtime.lastError em clear/set/get e adicionar prova focal em alteração separada.",
+      "expected_evidence": "Falha controlada e diagnóstica quando storage clear/set/get falha.",
+      "possible_regression": "Falso diagnóstico ou timeout longo em vez de erro de infraestrutura.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "905/905",
+    "source_text_lines": 904,
+    "bible_lines": 15815,
+    "external_audit_requests_open": 2,
+    "note": "Conclusão documental; fonte, testes, fixtures, workflows e configurações externos permaneceram read-only."
+  }
 }
