@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "197-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/canonical-title.test.js",
       "found_while_auditing": "tests/unit/content-manga/canonical-title.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Confirmar autenticidade do teste e migrar a prova se necessário.",
       "possible_regression": "Normalização real de títulos pode quebrar com stub verde.",
       "impact": "Deduplicação/identidade de capítulos.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "SUPERSEDED por 035-001. A ausência de execução da implementação real de `canonicalTitle` nas suítes helper-based já está registrada no módulo de produção.",
+      "auditor_recommended_action": "Migrar a prova para `MangaTranslatorChapter.canonicalTitle` sob 035-001.",
+      "superseded_by": "035-001"
     },
     {
       "id": "197-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "SOURCE_DIVERGENCE",
       "target_file": "tests/helpers/extracted-functions.js",
       "found_while_auditing": "tests/unit/content-manga/canonical-title.test.js",
@@ -40,7 +45,12 @@
       "expected_auditor_action": "Determinar se helper está adiantado/stale ou se produção perdeu correção.",
       "possible_regression": "Capítulos duplicados ou canonicalização inconsistente podem escapar da suíte.",
       "impact": "Persistência/deduplicação de capítulos.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "SUPERSEDED por 099-001. A divergência específica entre o helper e `cm-chapter.js` já foi comparada e aceita.",
+      "auditor_recommended_action": "Centralizar alinhamento helper/produção no request 099-001.",
+      "superseded_by": "099-001"
     },
     {
       "id": "197-003",
