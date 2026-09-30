@@ -98,7 +98,6 @@ O orchestrator usa `request.batchId || generateId()`. O batchId identifica retri
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 22/22
