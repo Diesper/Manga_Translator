@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "076-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/maintenance/diagnose-background-leak.js",
       "found_while_auditing": "scripts/maintenance/diagnose-background-leak.js",
@@ -20,11 +20,15 @@
       "requested_action": "Adicionar self-test/sandbox que execute a implementação real com child process controlado ou seam injetável, sem copiar a lógica.",
       "expected_auditor_action": "Confirmar a lacuna e, se a prova for exigida, abrir alteração funcional/teste separada.",
       "possible_regression": "Mudanças no algoritmo podem quebrar a redução ou os códigos de saída sem teste focal detectar.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:12:00Z",
+      "audit_finding": "ACCEPTED. Não existe arquivo de self-test/harness para diagnose-background-leak no tree atual; a única execução é o próprio script via package.json/CI. O helper textual de worker possui self-test separado, mas seed/sweep/ddmin/cross/summary/exit policy do runner não são exercitados focalmente.",
+      "auditor_recommended_action": "Adicionar harness que execute a implementação real com subprocesso controlável e cubra caminhos positivos/negativos do algoritmo."
     },
     {
       "id": "076-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_BUG_REVIEW",
       "target_file": "scripts/maintenance/diagnose-background-leak.js",
       "found_while_auditing": "scripts/maintenance/diagnose-background-leak.js",
@@ -34,11 +38,15 @@
       "requested_action": "Definir política explícita para falhas comuns do Jest/spawn e adicionar regressão que impeça falso verde.",
       "expected_auditor_action": "Reproduzir o cenário em sandbox e decidir correção funcional separada antes de confiar no job como diagnóstico bloqueante.",
       "possible_regression": "O job Background Leak Bisection pode ficar verde mesmo quando o Jest diagnóstico falhou por assertion, ENOBUFS, erro de spawn ou outra causa sem o warning alvo.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:12:00Z",
+      "audit_finding": "ACCEPTED — BUG FUNCIONAL CONFIRMADO. `probe()` coleta `failures`, porém o branch de override decide sucesso só por `leakCount`. Se as duas tentativas retornarem status não zero sem forcedWorkerExit, `leakCount===0` e o script grava `requestedWorkersDidNotReproduce:true` e chama `process.exit(0)`. O sweep também descarta modos apenas por leakCount e pode terminar verde com todas as tentativas FAIL.",
+      "auditor_recommended_action": "Propagar qualquer falha comum do child process para resultado não-verde/estado diagnóstico explícito; adicionar regressão com status !=0 sem warning."
     },
     {
       "id": "076-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_POLICY_REVIEW",
       "target_file": "scripts/maintenance/diagnose-background-leak.js",
       "found_while_auditing": "scripts/maintenance/diagnose-background-leak.js",
@@ -48,11 +56,15 @@
       "requested_action": "Decidir timeout no spawn, no workflow ou aceitar documentadamente o limite externo; adicionar teste de hang se a proteção for necessária.",
       "expected_auditor_action": "Classificar o risco e solicitar mudança funcional separada se necessário.",
       "possible_regression": "Um open handle real pode transformar diagnóstico em job muito longo em vez de produzir summary controlado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:12:00Z",
+      "audit_finding": "ACCEPTED. `spawnSync` usa cwd/encoding/maxBuffer/env, sem `timeout`; o job `background-leak-bisection` em ci.yml também não declara `timeout-minutes`. Um child travado pode bloquear a rodada até o limite externo da infraestrutura.",
+      "auditor_recommended_action": "Definir política de timeout no child e/ou job e testar subprocesso que não termina."
     },
     {
       "id": "076-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ALGORITHM_REVIEW",
       "target_file": "scripts/maintenance/diagnose-background-leak.js",
       "found_while_auditing": "scripts/maintenance/diagnose-background-leak.js",
@@ -62,11 +74,15 @@
       "requested_action": "Definir se 90 é meta aproximada ou limite duro; se for limite, aplicar orçamento por tentativa/probe e testar.",
       "expected_auditor_action": "Confirmar intenção e registrar correção separada se o teto precisar ser garantido.",
       "possible_regression": "Uma interação difícil pode executar muito mais Jest processes do que o comentário/constante sugere, elevando custo e duração da CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:12:00Z",
+      "audit_finding": "ACCEPTED. `maxProbes=90` é verificado apenas na condição do `while`; dentro de uma iteração, loops de partes/complementos e `tryCrossInteractionNarrowing` continuam disparando probes com `repeats=2` sem consultar o orçamento. Portanto não é teto estrito.",
+      "auditor_recommended_action": "Decidir se 90 é limite duro. Se for, centralizar orçamento antes de cada tentativa/probe e cobrir overshoot em teste."
     },
     {
       "id": "076-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ARTIFACT_CONTRACT_REVIEW",
       "target_file": ".github/workflows/ci.yml",
       "found_while_auditing": "scripts/maintenance/diagnose-background-leak.js",
@@ -76,7 +92,11 @@
       "requested_action": "Decidir se summary é obrigatório em falhas de configuração; se for, garantir gravação antes do exit e testar.",
       "expected_auditor_action": "Classificar ausência de artifact como comportamento aceito ou solicitar correção em mudança separada.",
       "possible_regression": "Uma falha de configuração pode deixar o job vermelho sem o JSON principal usado para investigação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:12:00Z",
+      "audit_finding": "ACCEPTED. Erros de seed desconhecido, ausência de testes e workers inválidos chamam `process.exit` antes da gravação de `background-leak-diagnostic.json`. O workflow usa upload `if: always()` para esse JSON/diretório, mas `continue-on-error` apenas evita falha do upload; não cria o summary ausente.",
+      "auditor_recommended_action": "Definir contrato de artifact em falhas de entrada. Se summary for obrigatório, gravá-lo antes dos exits e adicionar assertions."
     }
   ]
 }
