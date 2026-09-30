@@ -1,0 +1,11 @@
+{
+  "index": 229,
+  "file": "tests/visual/gtc-indexeddb.visual.js",
+  "bible": "docs/biblia/tests/visual/gtc-indexeddb.visual.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 14",
+  "source_sha": "0f5ca8e043a06219a342d2f32b59017762a953f0",
+  "started_at_utc": "2026-09-30T06:40:49.382Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
