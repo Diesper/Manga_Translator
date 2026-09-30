@@ -105,7 +105,6 @@ Se `chrome.runtime.lastError` existe no callback de `tabs.sendMessage`, a action
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 33/33
