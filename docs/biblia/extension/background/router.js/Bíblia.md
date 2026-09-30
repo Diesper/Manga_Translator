@@ -310,7 +310,6 @@ A construção é `{ ok: true, ...(result || {}) }`. Logo uma action pode devolv
     getRegisteredActions: () => Array.from(actionRegistry.keys()),
   };
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 169/169
