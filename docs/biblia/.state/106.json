@@ -1,0 +1,11 @@
+{
+  "index": 106,
+  "file": "tests/integration/banned-images-flow.test.js",
+  "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
+  "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+  "started_at_utc": "2026-09-30T06:22:33Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
