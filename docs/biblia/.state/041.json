@@ -21,11 +21,15 @@
     },
     {
       "id": "041-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/deletion.test.js",
       "finding": "Faltam provas focais para CSS.escape nativo, storage failures, scroll lock real, colisão de chatId e idempotência após reload.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre exclusão/recovery principal, mas não `CSS.escape` nativo, falhas de storage get/set/remove, scroll lock real, colisões de chatId nem idempotência após reload. Esses branches existem no módulo e afetam recovery/teardown.",
+      "auditor_recommended_action": "Adicionar casos focais contra `deletion.js` real cobrindo API nativa, storage falhando, lockScroll e repetição/reload, com estado final e recovery marker assertados."
     }
   ],
   "document_quality": {
