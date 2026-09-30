@@ -31,7 +31,7 @@
     },
     {
       "id": "193-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/content-manga/auto-restore-system.test.js",
       "found_while_auditing": "tests/unit/content-manga/auto-restore-system.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Corrigir contrato do teste.",
       "possible_regression": "Observer real pode quebrar sem afetar este teste.",
       "impact": "Confiabilidade da cobertura.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:32:00Z",
+      "audit_finding": "ACCEPTED. O caso chamado de MutationObserver não instancia `MutationObserver`; testa apenas uma closure local com `setTimeout(150)`. Portanto prova o debounce reimplementado, não wiring/lifecycle do observer real.",
+      "auditor_recommended_action": "Renomear como teste do debounce helper histórico ou migrar para o observer real do módulo atual."
     },
     {
       "id": "193-003",
