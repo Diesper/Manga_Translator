@@ -1,8 +1,9 @@
 # Bíblia técnica — tests/unit/shared-ui/redo-confirmation.test.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
+> **Estado documental:** 🟠 REAUDITORIA TÉCNICA APROVADA — GATE GLOBAL PENDENTE  
 > **SHA auditado:** `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`  
-> **Agente responsável:** AGENTE 25  
+> **Autor original:** AGENTE 25  
+> **Proprietário/reauditor atual:** AGENTE 28  
 > **Tipo:** suíte Jest/JSDOM da confirmação e limpeza de “Refazer” usando `shared-ui.js` real  
 > **Linhas textuais:** **242**  
 > **Posições documentais:** **243**, contando o newline final  
@@ -40,7 +41,7 @@ Consumidores reais encontrados no repositório:
 - A suíte substitui `chrome.runtime.sendMessage` por `sendSpy`, que responde `{ ok:true, deleted:1 }` às ações de deleção. Essa decisão isola `shared-ui.js`, mas **não executa os handlers reais** de Storage Manager/GTC.
 - `jest.isolateModules(() => require(SHARED_UI))` carrega a implementação de produção real a cada cenário.
 - `waitFor()` faz polling do DOM até o modal/overlay esperado existir.
-- O `afterEach` restaura spies, limpa storage/DOM e remove exports globais.
+- O `afterEach` restaura spies, limpa storage/DOM e remove somente os dois exports focais (`requestRedoConfirmation` e `deleteSavedTranslationForEntry`). Os demais símbolos expostos por `shared-ui.js` permanecem no `globalThis` até serem sobrescritos por uma nova carga/ambiente.
 
 Observação de manutenção: `fs` é importado na linha 2, mas não é usado pela suíte.
 
@@ -591,3 +592,21 @@ Esse gate externo foi registrado como `224-005` no estado individual. O AGENTE 2
 ### Resultado desta reauditoria
 
 A Bíblia permanece tecnicamente consistente com o fonte atual e conserva as quatro lacunas probatórias já registradas (`224-001` a `224-004`). O único bloqueio documental novo é a ausência da aprovação global independente de #224.
+
+## 19. Veredito técnico independente — AGENTE 28
+
+Após releitura do fonte, da suíte, dos mocks, da implementação real e dos consumidores, o AGENTE 28 **aprova tecnicamente esta Bíblia para o SHA auditado**, com as seguintes ressalvas preservadas:
+
+- `224-001` e `224-002` continuam HIGH e não são convertidas em prova por existirem testes isolados dos backends;
+- `224-003` permanece válida porque títulos de casos afirmam mais do que algumas assertions observam;
+- `224-004` permanece válida para branches/formas de dados não exercitados;
+- o cleanup do harness apaga somente dois exports focais; essa descrição foi corrigida nesta reauditoria;
+- Popup/Options confirmam o consumo real de `shared-ui.js` porque seus HTMLs carregam `../shared/shared-ui.js` antes dos scripts consumidores e `loadExtensionPage()` executa dependências anteriores ao script alvo;
+- as integrações Popup/Options ainda substituem `chrome.runtime.sendMessage`, portanto não provam o backend composto;
+- no HEAD observado `5b10c0e9373086e3c8ac226c432eab03aaf825c2`, a execução `MangaTranslator CI` #3192 estava `pending`, sem jobs publicados; nenhum resultado verde foi reivindicado.
+
+### Decisão
+
+**Veredito técnico local:** ✅ APROVADO PELO AGENTE 28.
+
+**Veredito global do projeto:** ⏳ PENDENTE, porque `docs/biblia/AUDITORIA.md` ainda não contém entrada individual de #224 e as visões agregadas continuam desatualizadas. O estado individual permanece `IN_PROGRESS` até esse gate ser registrado pelo processo autorizado.
