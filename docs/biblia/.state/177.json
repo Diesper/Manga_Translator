@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "177-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/dom-modules.test.js",
       "found_while_auditing": "tests/unit/content-gemini/dom-modules.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Fortalecer suíte.",
       "possible_regression": "Automação clica controle errado/stale.",
       "impact": "Submit do prompt.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 042-001 e 042-002. A falta de casos para fallback geométrico falso-positivo e botão semanticamente forte porém oculto já está registrada e aceita no módulo `dom.js`.",
+      "auditor_recommended_action": "Centralizar a correção/testes nos requests 042-001/042-002.",
+      "superseded_by": "042-001"
     },
     {
       "id": "177-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/dom-modules.test.js",
       "found_while_auditing": "tests/unit/content-gemini/dom-modules.test.js",
@@ -40,7 +45,12 @@
       "expected_auditor_action": "Fortalecer suíte.",
       "possible_regression": "Resultado gerado ignorado, levando a timeout/manual.",
       "impact": "Detecção automática.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 042-003. O risco de blacklist por substring rejeitar URL legítima já foi auditado no módulo `dom.js`.",
+      "auditor_recommended_action": "Centralizar a matriz de URLs/regressão em 042-003.",
+      "superseded_by": "042-003"
     },
     {
       "id": "177-003",
