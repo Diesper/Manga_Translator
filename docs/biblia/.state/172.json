@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "172-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_NAMING_REVIEW",
       "target_file": "extension/background/actions/calculate-visual-fingerprint.js",
       "related_files": [
@@ -24,7 +24,11 @@
       "requested_action": "Definir a nomenclatura canônica e alinhar comentários/logs/títulos em alteração separada, preservando o payload.",
       "expected_evidence": "Uma única versão nominal usada consistentemente nos artefatos e testes pertinentes.",
       "possible_regression": "Triagem ou migração baseada na versão nominal errada.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:25:00Z",
+      "audit_finding": "ACCEPTED. O teste e o contrato atual falam visual-v4, o comentário da action ainda diz visual-v3/v4 e os logs VISUAL_FP_OK/VISUAL_FP_FAIL continuam nomeando visual-v3. O comportamento pode estar correto, mas a observabilidade/documentação está semanticamente desalinhada.",
+      "auditor_recommended_action": "Alinhar comentário e mensagens de log à versão efetivamente emitida ou documentar explicitamente compatibilidade híbrida se v3 ainda for intencional."
     }
   ],
   "document_quality": {
