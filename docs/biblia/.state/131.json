@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "131-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_QUALITY",
       "target_file": "tests/unit/background/batch-actions.test.js",
       "found_while_auditing": "tests/unit/background/batch-actions.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e, se a semântica de retorno fizer parte do contrato, criar cobertura em alteração de teste separada.",
       "possible_regression": "Canal de mensagem pode ser mantido aberto/fechado incorretamente em branch síncrono sem falha desta suíte.",
       "impact": "Precisão do contrato do router para mensagens inválidas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:47:00Z",
+      "audit_finding": "ACCEPTED. O helper `dispatch` resolve dentro de `sendResponse`; em validações síncronas, o callback pode executar antes de `keepAlive = listener(...)` terminar, produzindo `keepAlive: undefined` apesar de o listener real retornar false. O harness não representa fielmente o contrato síncrono.",
+      "auditor_recommended_action": "Capturar separadamente retorno do listener e resposta síncrona, ou testar keepAlive fora da Promise; adicionar caso que exija false no short-circuit."
     },
     {
       "id": "131-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/batch-actions.test.js",
       "found_while_auditing": "tests/unit/background/batch-actions.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Avaliar se esses campos integram o contrato do wrapper e, se sim, adicionar prova em mudança separada.",
       "possible_regression": "Prompt ou identidade da aba do mangá pode deixar de ser propagado sem detecção deste teste.",
       "impact": "Contrato de delegação START_BATCH.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:47:00Z",
+      "audit_finding": "ACCEPTED. O START_BATCH feliz usa `expect.objectContaining({images})` e não fixa `action`, `prompt` e `mangaTabId`, embora a action encaminhe o request inteiro ao lifecycle. Alteração nesses campos pode passar sem sinal.",
+      "auditor_recommended_action": "Fortalecer a assertion de delegação com os campos contratuais relevantes sem congelar metadados irrelevantes."
     },
     {
       "id": "131-003",
