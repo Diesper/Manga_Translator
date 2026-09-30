@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "004-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/background/actions/check-extraction-tab.js",
       "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar invariantes do estado persistido antes de qualquer alteração.",
       "possible_regression": "Aba de extração pode não ser reconhecida após estado corrompido/migrado.",
       "impact": "Detecção de abas auxiliares e entrega de resultado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:40:00Z",
+      "audit_finding": "ACCEPTED — bug de robustez confirmado. O retorno é `{ isExtractionTab: true, ...mapping }`; portanto um mapping persistido malformado com `isExtractionTab:false` sobrescreve o discriminador e retorna falso mesmo existindo mapping válido pela chave.",
+      "auditor_recommended_action": "Colocar o discriminador depois do spread (`{ ...mapping, isExtractionTab: true }`) ou sanitizar mapping; adicionar regressão com campo conflitante."
     },
     {
       "id": "004-002",
