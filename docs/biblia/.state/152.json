@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "152-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-reconciliation-batch-queue.test.js",
       "found_while_auditing": "tests/unit/background/jobs-reconciliation-batch-queue.test.js",
@@ -24,7 +24,11 @@
       "expected_auditor_action": "Expandir cobertura sem reimplementar o reconciler.",
       "possible_regression": "Worker reidratado pode manter ou descartar jobs, ou retomar fila incorretamente.",
       "impact": "Resiliência do Service Worker e contabilidade de concorrência.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:08:00Z",
+      "audit_finding": "ACCEPTED. A suíte executa `jobs-reconciliation.js` real, mas contém somente dois casos: foreign batch com tabs existentes/recoveries false e currentBatchId nulo sem foreign. Os branches de recoverPending*, tab órfã, reconstrução de activeMangaTabId e `reconcileAndContinue()` não são exercitados.",
+      "auditor_recommended_action": "Adicionar casos focais no reconciler real para recovery true, tab inexistente, colaboradores rejeitando, activeMangaTabId vazio e sync/processNextJob em `reconcileAndContinue`."
     },
     {
       "id": "152-002",
