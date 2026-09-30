@@ -1,0 +1,11 @@
+{
+  "index": 4,
+  "file": "extension/background/actions/check-extraction-tab.js",
+  "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+  "started_at_utc": "2026-09-30T12:54:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
