@@ -44,7 +44,7 @@
     },
     {
       "id": "220-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/popup/resize-and-tabs.test.js",
       "found_while_auditing": "tests/unit/popup/resize-and-tabs.test.js",
@@ -57,7 +57,11 @@
       "expected_auditor_action": "Fortalecer gate da UI.",
       "possible_regression": "Aba fica inacessível ao usuário com suíte verde.",
       "impact": "Navegação do popup.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "ACCEPTED. O teste da aba Banidas faz `if (bannedTabBtn) bannedTabBtn.click()`. Se o controle de navegação desaparecer, a suíte ainda pode validar folders já renderizados e permanecer verde.",
+      "auditor_recommended_action": "Exigir existência do botão da aba e clicar incondicionalmente após a assertion; validar estado ativo/visibilidade da aba se fizer parte do contrato."
     }
   ],
   "document_quality": {
