@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "072-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/playwright-gate-reporter-selftest.js",
       "found_while_auditing": "scripts/ci/playwright-gate-reporter.js",
@@ -20,7 +20,12 @@
       "requested_action": "Adicionar cenário ao self-test real que espere { status: 'failed' }.",
       "expected_auditor_action": "Confirmar a lacuna e solicitar teste funcional separado se a proteção precisar de prova focal.",
       "possible_regression": "O branch de resultado final ausente pode regredir sem teste específico.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "SUPERSEDED por 080-001. É a mesma lacuna focal do branch `attemptsById.size < total` com run global passed já aceita na auditoria do self-test.",
+      "auditor_recommended_action": "Adicionar o cenário no self-test sob 080-001 e manter este request consolidado.",
+      "superseded_by": "080-001"
     },
     {
       "id": "072-002",
@@ -42,7 +47,7 @@
     },
     {
       "id": "072-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/ci/playwright-gate-reporter.js",
       "found_while_auditing": "scripts/ci/playwright-gate-reporter.js",
@@ -52,7 +57,11 @@
       "requested_action": "Classificar os pressupostos como contrato aceito ou solicitar testes adicionais em mudança separada.",
       "expected_auditor_action": "Revisar robustez e decidir se há necessidade de alteração funcional.",
       "possible_regression": "Mudança de metadata/callback pode alterar classificação de flaky ou diagnóstico.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. O reporter assume `test.id` estável/único e converte `result.retry` via `Number(result.retry || 0)` sem validar NaN; não há cenário com ids intercalados/retry malformado/status desconhecido. O contrato atual funciona com Playwright normal, mas os pressupostos não estão protegidos.",
+      "auditor_recommended_action": "Decidir/documentar os pressupostos aceitos e adicionar casos de robustez para ids intercalados, retry inválido e status inesperado."
     }
   ]
 }
