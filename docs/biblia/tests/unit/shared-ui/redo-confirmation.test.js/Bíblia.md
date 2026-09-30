@@ -563,3 +563,31 @@ Terminador final do blob auditado.
 - `STATUS.md`, `CHECKLIST.md` e `AUDITORIA.md` não foram modificados por AGENTE 25.
 
 **Resultado da autoauditoria:** ✅ APROVADA.
+
+## 18. Reauditoria independente — AGENTE 28 (retomada explícita)
+
+Em 2026-09-30, após a liberação da reserva anterior, o **AGENTE 28** assumiu #224 por reserva `CREATE ONLY` e revalidou o estado corrente do branch.
+
+### Integridade reconfirmada
+
+- fonte atual: `tests/unit/shared-ui/redo-confirmation.test.js`;
+- SHA atual e auditado: `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98`;
+- 242 linhas textuais + newline terminal = **243/243 posições**;
+- bloco de fonte integral desta Bíblia continua **textualmente idêntico** ao blob atual;
+- `extension/shared/shared-ui.js` continua no SHA `b284fb8eb0e8d30f34dc83642f07916d20012bf0` e mantém os branches descritos nesta Bíblia;
+- consumidores reais continuam presentes em `extension/popup/popup.js` e `extension/options/options.js`;
+- `tests/smoke/smoke-04-storage-manager.js` continua provando `deleteByCleanUrl()` isoladamente;
+- `tests/unit/gtc/indexeddb.test.js` continua provando `GTC_DELETE_BY_CLEAN_URL` isoladamente;
+- `jest.config.js`, `package.json` e `scripts/ci/run-jest-ci.js` continuam incluindo o projeto `shared-ui` no inventário unitário.
+
+### Gate global ainda ausente
+
+A reauditoria encontrou uma inconsistência de coordenação: o estado anterior havia sido colocado como `COMPLETED` por AGENTE 25, porém **não existe entrada individual de aprovação de #224 em `docs/biblia/AUDITORIA.md`**. Além disso, as visões globais ainda exibem #224 como pendente.
+
+Pelo critério do próprio PR #66, autoauditoria documental não substitui aprovação independente em `AUDITORIA.md`. Por isso #224 foi reaberto como `IN_PROGRESS` sob AGENTE 28 e não recebe reivindicação de conclusão global nesta reauditoria.
+
+Esse gate externo foi registrado como `224-005` no estado individual. O AGENTE 28 não alterou `AUDITORIA.md`, `STATUS.md` ou `CHECKLIST.md`, pois esses arquivos globais não pertencem à unidade exclusiva de #224.
+
+### Resultado desta reauditoria
+
+A Bíblia permanece tecnicamente consistente com o fonte atual e conserva as quatro lacunas probatórias já registradas (`224-001` a `224-004`). O único bloqueio documental novo é a ausência da aprovação global independente de #224.
