@@ -1,0 +1,11 @@
+{
+  "index": 1,
+  "file": "extension/manifest.json",
+  "bible": "docs/biblia/extension/manifest.json/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "841fe70c183350e4110bc8ff57ab69b157169c36",
+  "started_at_utc": "2026-09-30T12:50:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
