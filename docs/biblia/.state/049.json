@@ -2,10 +2,54 @@
   "index": 49,
   "file": "extension/content/gemini/temporary-chat.js",
   "bible": "docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc",
   "started_at_utc": "2026-09-30T13:22:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:28:00Z",
+  "audit_requests": [
+    {
+      "id": "049-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
+      "found_while_auditing": "extension/content/gemini/temporary-chat.js",
+      "finding": "As suítes cobrem estados principais, mas não AbortSignal, control_not_actionable, travessia por ShadowRoot, closest em descendente semântico, falha de element.click nem root customizado inválido.",
+      "current_evidence": "already_active, activated_verified, state_not_verified, unavailable, detecção PT/EN e click único têm assertions diretas do módulo real.",
+      "missing_evidence": "Branches defensivos e semânticos restantes.",
+      "why_needed": "Esses ramos diferenciam indisponibilidade, cancelamento e controle encontrado porém não acionável.",
+      "requested_action": "Adicionar casos focais ao módulo real, especialmente aborted, control_not_actionable e Shadow DOM.",
+      "expected_evidence": "Cada status/reason e fallback semântico recebe assertion específica.",
+      "expected_auditor_action": "Completar cobertura em alteração separada.",
+      "possible_regression": "Falhas de interação ou cancelamento podem ser classificadas incorretamente sem gate.",
+      "impact": "Ativação verificável de Temporary Chat.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "049-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/content/gemini/job-runner.js",
+      "found_while_auditing": "extension/content/gemini/temporary-chat.js",
+      "finding": "job-runner reduz verification_failed ao status, não preserva tempStatus.reason e continua o job; aborted/control_not_actionable/state_not_verified geram o mesmo aviso genérico.",
+      "current_evidence": "job-runner linhas atuais 901-950 tratam success por status e logam GEMINI_TEMP_CHAT_VERIFY_FAILED sem reason.",
+      "missing_evidence": "Decisão explícita sobre quais reasons devem bloquear, cancelar ou apenas avisar.",
+      "why_needed": "Abortamento solicitado e falha real de acionamento podem merecer políticas distintas.",
+      "requested_action": "Auditar contrato entre TemporaryChat e JobRunner; se reasons tiverem semântica operacional diferente, propagá-los/logá-los e testar em mudança separada.",
+      "expected_evidence": "Política explícita por reason com testes de integração.",
+      "expected_auditor_action": "Revisar integração sem alterar esta Bíblia.",
+      "possible_regression": "Job pode continuar após cancelamento/falha de controle sem diagnóstico granular.",
+      "impact": "Lifecycle e observabilidade do job Gemini.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "214/214",
+    "source_text_lines": 213,
+    "external_audit_requests_open": 2,
+    "note": "Duas suítes executam diretamente o módulo real; lacunas restantes são branches defensivos e contrato com job-runner."
+  }
 }
