@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "064-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "BUG_REVIEW",
       "target_file": "playwright.config.js",
       "found_while_auditing": "playwright.config.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar parser de concorrência.",
       "possible_regression": "Execução E2E pode falhar ou assumir semântica inesperada para workers=0.",
       "impact": "Disponibilidade/execução dos shards E2E.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — bug numérico confirmado. `Number('0.5')` é finito e >0, então passa no guard; `Math.floor(0.5)` produz `ciWorkers=0`. Em CI isso é repassado a Playwright como `workers:0`, fora do contrato esperado de worker positivo.",
+      "auditor_recommended_action": "Validar inteiro >=1 depois da normalização/clamp; testar 0.5, 0, negativo, NaN e valores inteiros."
     },
     {
       "id": "064-002",
@@ -61,7 +65,7 @@
     },
     {
       "id": "064-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/e2e",
       "found_while_auditing": "playwright.config.js",
@@ -74,7 +78,11 @@
       "expected_auditor_action": "Revisar autenticidade da configuração E2E.",
       "possible_regression": "Config muda sem afetar os contexts reais, deixando CI com comportamento divergente do documentado.",
       "impact": "Diagnóstico e fidelidade do E2E.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — autenticidade confirmada. Os três specs E2E abrem `chromium.launchPersistentContext(...)` manualmente e definem `headless/args/viewport` localmente. Os defaults `use.channel`, `launchOptions`, screenshot/video do config não são herdados automaticamente por esses contexts.",
+      "auditor_recommended_action": "Extrair helper que derive options canônicas do config ou testar explicitamente que os persistent contexts aplicam os defaults necessários; não atribuir cobertura desses defaults ao simples carregamento do config."
     }
   ],
   "document_quality": {
