@@ -104,7 +104,6 @@ Depois de `downloads.download`, a action usa o helper real `waitForDownload`. O 
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 9. Rastreabilidade 32/32
