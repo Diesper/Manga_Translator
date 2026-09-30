@@ -1,0 +1,11 @@
+{
+  "index": 171,
+  "file": "tests/unit/background/tab-replacement-observability.test.js",
+  "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 2",
+  "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
+  "started_at_utc": "2026-09-30T06:39:19.269Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
