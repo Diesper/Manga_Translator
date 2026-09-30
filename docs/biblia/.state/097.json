@@ -1,0 +1,11 @@
+{
+  "index": 97,
+  "file": "tests/fixtures/manga-page.html",
+  "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 7",
+  "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+  "started_at_utc": "2026-09-30T06:15:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
