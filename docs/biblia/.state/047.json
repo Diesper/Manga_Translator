@@ -1,0 +1,12 @@
+{
+  "index": 47,
+  "file": "extension/content/gemini/result-extractor.js",
+  "bible": "docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 29",
+  "source_sha": "a3efd499a0b090f12701533a96f2602bf29bbcbb",
+  "started_at_utc": "2026-09-30T16:03:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [],
+  "note": "Reconciliation of missing per-file state. Preexisting approved Bible is preserved without modification."
+}
