@@ -52,7 +52,7 @@
     },
     {
       "id": "185-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "related_files": [
@@ -68,7 +68,11 @@
       "expected_auditor_action": "Revisar em mudança separada.",
       "possible_regression": "Normalização aplicada a host não pretendido.",
       "impact": "Correção/segurança de URL.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:38:00Z",
+      "audit_finding": "ACCEPTED. O runner usa `resultUrl.includes('googleusercontent.com')` antes de elevar `=sNNN`, sem parsear hostname. Uma URL cujo path/query/host contenha essa substring pode entrar no branch mesmo sem pertencer a googleusercontent.com.",
+      "auditor_recommended_action": "Se a elevação deve ser restrita ao domínio Google, parsear URL e validar hostname/sufixo de host; adicionar casos positivos/negativos de boundary."
     }
   ],
   "document_quality": {
