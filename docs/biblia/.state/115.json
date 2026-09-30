@@ -1,0 +1,11 @@
+{
+  "index": 115,
+  "file": "tests/integration/popup-translated-thumbnails.test.js",
+  "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 11",
+  "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+  "started_at_utc": "2026-09-30T06:35:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
