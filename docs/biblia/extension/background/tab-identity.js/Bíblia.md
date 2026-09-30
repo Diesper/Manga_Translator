@@ -1,11 +1,11 @@
 # Bíblia técnica — `extension/background/tab-identity.js`
 
-> **Estado:** ✅ DOCUMENTAÇÃO REAUDITADA PELO AGENTE 11; ⬜ gate global de `AUDITORIA.md` permanece reaberto  
+> **Estado:** ✅ DOCUMENTAÇÃO REAUDITADA PELO AGENTE 23; evidências e lacunas reconferidas no estado atual  
 > **SHA auditado:** `008c9a054ae417e0f31224617346e24fc9dbc1b4`  
 > **Linhas textuais:** **362**  
 > **Posições documentais:** **363** contando newline final  
 > **Teste focal:** `tests/unit/background/tab-identity.test.js` — `1f2dd52513037f061613d04453a961fbaeddef84`  
-> **Reauditoria:** `AGENTE 11` — fonte, teste focal, consumidores, 363 posições e bloco integral reconferidos no branch `docs/project-bible` em 2026-09-30.
+> **Reauditoria:** `AGENTE 23` — fonte, teste focal, consumers, bloco integral e 363 posições reconferidos no branch `docs/project-bible` em 2026-09-30.
 
 ## Identidade e papel arquitetural
 
@@ -502,379 +502,378 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 ## Rastreabilidade 363/363
 
-| Posição | Unidade | Fonte | Papel local |
+| Posição | Unidade | Fonte | Papel local específico |
 |---:|---|---|---|
-| 001 | U01 | 'use strict'; | Ativa strict mode. |
-| 002 | U01 | // background/tab-identity.js — Identidade canônica de abas Gemini. | Comentário de arquitetura/recovery: background/tab-identity.js — Identidade canônica de abas Gemini.. |
-| 003 | U01 | // | Comentário de arquitetura/recovery: . |
-| 004 | U01 | // tabId é uma identidade física e pode ser substituído pelo Chromium. Este | Comentário de arquitetura/recovery: tabId é uma identidade física e pode ser substituído pelo Chromium. Este. |
-| 005 | U01 | // módulo mantém um alias durável old -> new, migra todas as referências do job | Comentário de arquitetura/recovery: módulo mantém um alias durável old -> new, migra todas as referências do job. |
-| 006 | U01 | // e usa um journal pequeno para tornar o rekey recuperável após suspensão do | Comentário de arquitetura/recovery: e usa um journal pequeno para tornar o rekey recuperável após suspensão do. |
-| 007 | U01 | // Service Worker. | Comentário de arquitetura/recovery: Service Worker.. |
-| 008 | U01 | ␠ [linha vazia] | Separador visual da unidade U01. |
-| 009 | U02 | (function(scope) { | Abre função/escopo de U02: (function(scope) { |
-| 010 | U02 |   const ALIAS_PREFIX = 'gemini_tab_alias_'; | Declara constante/binding de U02: const ALIAS_PREFIX = 'gemini_tab_alias_'; |
-| 011 | U02 |   const ALIAS_INDEX_KEY = 'gemini_tab_alias_index'; | Declara constante/binding de U02: const ALIAS_INDEX_KEY = 'gemini_tab_alias_index'; |
-| 012 | U02 |   const MIGRATION_PREFIX = 'gemini_tab_migration_'; | Declara constante/binding de U02: const MIGRATION_PREFIX = 'gemini_tab_migration_'; |
-| 013 | U02 |   const MIGRATION_INDEX_KEY = 'gemini_tab_migration_index'; | Declara constante/binding de U02: const MIGRATION_INDEX_KEY = 'gemini_tab_migration_index'; |
-| 014 | U02 |   const DEFAULT_ALIAS_TTL_MS = 10 * 60 * 1000; | Declara constante/binding de U02: const DEFAULT_ALIAS_TTL_MS = 10 * 60 * 1000; |
-| 015 | U02 |   const MAX_ALIAS_HOPS = 8; | Declara constante/binding de U02: const MAX_ALIAS_HOPS = 8; |
-| 016 | U03 | ␠ [linha vazia] | Separador visual da unidade U03. |
-| 017 | U03 |   function createTabIdentity({ | Abre função/escopo de U03: function createTabIdentity({ |
-| 018 | U03 |     state, | Parte concreta de U03: state, |
-| 019 | U03 |     log = function() {}, | Parte concreta de U03: log = function() {}, |
-| 020 | U03 |     moveFinalizedTabId = function() {}, | Migra tombstone in-memory de finalização fornecido pelo background. |
-| 021 | U03 |     aliasTtlMs = DEFAULT_ALIAS_TTL_MS, | Parte concreta de U03: aliasTtlMs = DEFAULT_ALIAS_TTL_MS, |
-| 022 | U03 |     now = () => Date.now(), | Parte concreta de U03: now = () => Date.now(), |
-| 023 | U03 |   } = {}) { | Parte concreta de U03: } = {}) { |
-| 024 | U03 |     if (!state) throw new Error('tab-identity requer state'); | Guard/branch de segurança da unidade: if (!state) throw new Error('tab-identity requer state'); |
-| 025 | U03 | ␠ [linha vazia] | Separador visual da unidade U03. |
-| 026 | U03 |     const aliasKey = tabId => `${ALIAS_PREFIX}${tabId}`; | Declara constante/binding de U03: const aliasKey = tabId => `${ALIAS_PREFIX}${tabId}`; |
-| 027 | U03 |     const migrationKey = (oldTabId, newTabId, jobId) => | Declara constante/binding de U03: const migrationKey = (oldTabId, newTabId, jobId) => |
-| 028 | U03 |       `${MIGRATION_PREFIX}${jobId \|\| `${oldTabId}_${newTabId}`}`; | Propaga/compara identidade física/canônica do job. |
-| 029 | U03 | ␠ [linha vazia] | Separador visual da unidade U03. |
-| 030 | U04 |     async function addIndexValue(key, value) { | Abre função/escopo de U04: async function addIndexValue(key, value) { |
-| 031 | U04 |       const data = await chrome.storage.local.get([key]); | Declara constante/binding de U04: const data = await chrome.storage.local.get([key]); |
-| 032 | U04 |       const list = Array.isArray(data[key]) ? data[key].slice() : []; | Declara constante/binding de U04: const list = Array.isArray(data[key]) ? data[key].slice() : []; |
-| 033 | U04 |       if (!list.includes(value)) list.push(value); | Guard/branch de segurança da unidade: if (!list.includes(value)) list.push(value); |
-| 034 | U04 |       await chrome.storage.local.set({ [key]: list }); | Persiste alias/journal/registro migrado antes de prosseguir. |
-| 035 | U04 |     } | Fecha/continua estrutura sintática de U04. |
-| 036 | U04 | ␠ [linha vazia] | Separador visual da unidade U04. |
-| 037 | U04 |     async function removeIndexValue(key, value) { | Abre função/escopo de U04: async function removeIndexValue(key, value) { |
-| 038 | U04 |       const data = await chrome.storage.local.get([key]); | Declara constante/binding de U04: const data = await chrome.storage.local.get([key]); |
-| 039 | U04 |       const list = Array.isArray(data[key]) ? data[key].filter(item => item !== value) : []; | Declara constante/binding de U04: const list = Array.isArray(data[key]) ? data[key].filter(item => item !== value) : []; |
-| 040 | U04 |       await chrome.storage.local.set({ [key]: list }); | Persiste alias/journal/registro migrado antes de prosseguir. |
-| 041 | U04 |     } | Fecha/continua estrutura sintática de U04. |
-| 042 | U04 | ␠ [linha vazia] | Separador visual da unidade U04. |
-| 043 | U05 |     function validTabId(tabId) { | Abre função/escopo de U05: function validTabId(tabId) { |
-| 044 | U05 |       return Number.isInteger(tabId) && tabId >= 0; | Retorna/encerra caminho: return Number.isInteger(tabId) && tabId >= 0; |
-| 045 | U05 |     } | Fecha/continua estrutura sintática de U05. |
-| 046 | U05 | ␠ [linha vazia] | Separador visual da unidade U05. |
-| 047 | U06 |     async function resolveCanonicalTabId(tabId) { | Abre função/escopo de U06: async function resolveCanonicalTabId(tabId) { |
-| 048 | U06 |       if (!validTabId(tabId)) return tabId; | Guard/branch de segurança da unidade: if (!validTabId(tabId)) return tabId; |
-| 049 | U06 |       const original = tabId; | Declara constante/binding de U06: const original = tabId; |
-| 050 | U06 |       let current = tabId; | Declara estado local temporário da migração. |
-| 051 | U06 |       const visited = new Set(); | Declara constante/binding de U06: const visited = new Set(); |
-| 052 | U06 | ␠ [linha vazia] | Separador visual da unidade U06. |
-| 053 | U06 |       for (let hop = 0; hop < MAX_ALIAS_HOPS; hop += 1) { | Itera cadeia/índice de forma limitada: for (let hop = 0; hop < MAX_ALIAS_HOPS; hop += 1) { |
-| 054 | U06 |         if (visited.has(current)) { | Guard/branch de segurança da unidade: if (visited.has(current)) { |
-| 055 | U06 |           log('error', 'bg', 'TAB_ALIAS_CYCLE', 'Ciclo detectado em aliases de aba', { | Emite telemetria específica de alias/rekey. |
-| 056 | U06 |             oldTabId: original, | Propaga/compara identidade física/canônica do job. |
-| 057 | U06 |             cycleTabId: current, | Parte concreta de U06: cycleTabId: current, |
-| 058 | U06 |           }); | Fecha/continua estrutura sintática de U06. |
-| 059 | U06 |           return original; | Retorna/encerra caminho: return original; |
-| 060 | U06 |         } | Fecha/continua estrutura sintática de U06. |
-| 061 | U06 |         visited.add(current); | Parte concreta de U06: visited.add(current); |
-| 062 | U06 | ␠ [linha vazia] | Separador visual da unidade U06. |
-| 063 | U06 |         const key = aliasKey(current); | Declara constante/binding de U06: const key = aliasKey(current); |
-| 064 | U06 |         const data = await chrome.storage.local.get([key]); | Declara constante/binding de U06: const data = await chrome.storage.local.get([key]); |
-| 065 | U06 |         const alias = data && data[key]; | Declara constante/binding de U06: const alias = data && data[key]; |
-| 066 | U06 |         if (!alias) return current; | Guard/branch de segurança da unidade: if (!alias) return current; |
-| 067 | U06 |         if (!validTabId(alias.newTabId) \|\| !alias.expiresAt \|\| alias.expiresAt <= now()) { | Guard/branch de segurança da unidade: if (!validTabId(alias.newTabId) // !alias.expiresAt // alias.expiresAt <= now()) { |
-| 068 | U06 |           return current; | Retorna/encerra caminho: return current; |
-| 069 | U06 |         } | Fecha/continua estrutura sintática de U06. |
-| 070 | U06 |         current = alias.newTabId; | Propaga/compara identidade física/canônica do job. |
-| 071 | U06 |       } | Fecha/continua estrutura sintática de U06. |
-| 072 | U06 | ␠ [linha vazia] | Separador visual da unidade U06. |
-| 073 | U06 |       log('error', 'bg', 'TAB_ALIAS_MAX_HOPS', 'Limite de aliases excedido', { | Emite telemetria específica de alias/rekey. |
-| 074 | U06 |         oldTabId: original, | Propaga/compara identidade física/canônica do job. |
-| 075 | U06 |         lastTabId: current, | Parte concreta de U06: lastTabId: current, |
-| 076 | U06 |       }); | Fecha/continua estrutura sintática de U06. |
-| 077 | U06 |       return original; | Retorna/encerra caminho: return original; |
-| 078 | U06 |     } | Fecha/continua estrutura sintática de U06. |
-| 079 | U06 | ␠ [linha vazia] | Separador visual da unidade U06. |
-| 080 | U07 |     async function persistAlias(oldTabId, newTabId) { | Abre função/escopo de U07: async function persistAlias(oldTabId, newTabId) { |
-| 081 | U07 |       if (!validTabId(oldTabId) \|\| !validTabId(newTabId) \|\| oldTabId === newTabId) return null; | Guard/branch de segurança da unidade: if (!validTabId(oldTabId) // !validTabId(newTabId) // oldTabId === newTabId) return null; |
-| 082 | U07 |       const alias = { | Declara constante/binding de U07: const alias = { |
-| 083 | U07 |         oldTabId, | Propaga/compara identidade física/canônica do job. |
-| 084 | U07 |         newTabId, | Propaga/compara identidade física/canônica do job. |
-| 085 | U07 |         createdAt: now(), | Parte concreta de U07: createdAt: now(), |
-| 086 | U07 |         expiresAt: now() + aliasTtlMs, | Parte concreta de U07: expiresAt: now() + aliasTtlMs, |
-| 087 | U07 |       }; | Fecha/continua estrutura sintática de U07. |
-| 088 | U07 |       await chrome.storage.local.set({ [aliasKey(oldTabId)]: alias }); | Persiste alias/journal/registro migrado antes de prosseguir. |
-| 089 | U07 |       await addIndexValue(ALIAS_INDEX_KEY, oldTabId); | Indexa alias/journal para recovery sem scan global. |
-| 090 | U07 |       log('info', 'bg', 'TAB_ALIAS_CREATED', 'Alias durável de aba criado', { oldTabId, newTabId }); | Propaga/compara identidade física/canônica do job. |
-| 091 | U07 |       return alias; | Retorna/encerra caminho: return alias; |
-| 092 | U07 |     } | Fecha/continua estrutura sintática de U07. |
-| 093 | U07 | ␠ [linha vazia] | Separador visual da unidade U07. |
-| 094 | U08 |     async function migrateReferences(oldTabId, newTabId) { | Abre função/escopo de U08: async function migrateReferences(oldTabId, newTabId) { |
-| 095 | U08 |       const mutateSnapshot = snapshot => { | Declara constante/binding de U08: const mutateSnapshot = snapshot => { |
-| 096 | U08 |         const next = { ...snapshot }; | Declara constante/binding de U08: const next = { ...snapshot }; |
-| 097 | U08 |         next.jobIndex = (Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : []).map(entry => | Atualiza referência em state para a nova tab canônica. |
-| 098 | U08 |           entry && entry.geminiTabId === oldTabId | Propaga/compara identidade física/canônica do job. |
-| 099 | U08 |             ? { ...entry, geminiTabId: newTabId } | Propaga/compara identidade física/canônica do job. |
-| 100 | U08 |             : entry | Parte concreta de U08: : entry |
-| 101 | U08 |         ); | Fecha/continua estrutura sintática de U08. |
-| 102 | U08 | ␠ [linha vazia] | Separador visual da unidade U08. |
-| 103 | U08 |         const extractionTabs = { ...(snapshot.extractionTabs \|\| {}) }; | Declara constante/binding de U08: const extractionTabs = { ...(snapshot.extractionTabs // {}) }; |
-| 104 | U08 |         Object.keys(extractionTabs).forEach(key => { | Atualiza referência em state para a nova tab canônica. |
-| 105 | U08 |           const info = extractionTabs[key]; | Declara constante/binding de U08: const info = extractionTabs[key]; |
-| 106 | U08 |           if (info && info.geminiTabId === oldTabId) { | Guard/branch de segurança da unidade: if (info && info.geminiTabId === oldTabId) { |
-| 107 | U08 |             extractionTabs[key] = { ...info, geminiTabId: newTabId }; | Propaga/compara identidade física/canônica do job. |
-| 108 | U08 |           } | Fecha/continua estrutura sintática de U08. |
-| 109 | U08 |         }); | Fecha/continua estrutura sintática de U08. |
-| 110 | U08 |         next.extractionTabs = extractionTabs; | Atualiza referência em state para a nova tab canônica. |
-| 111 | U08 |         return next; | Retorna/encerra caminho: return next; |
-| 112 | U08 |       }; | Fecha/continua estrutura sintática de U08. |
-| 113 | U08 | ␠ [linha vazia] | Separador visual da unidade U08. |
-| 114 | U08 |       if (typeof state.replaceGeminiTabReferences === 'function') { | Guard/branch de segurança da unidade: if (typeof state.replaceGeminiTabReferences === 'function') { |
-| 115 | U08 |         await state.replaceGeminiTabReferences(oldTabId, newTabId); | Propaga/compara identidade física/canônica do job. |
-| 116 | U08 |       } else if (typeof state.mutate === 'function') { | Parte concreta de U08: } else if (typeof state.mutate === 'function') { |
-| 117 | U08 |         await state.mutate(mutateSnapshot); | Parte concreta de U08: await state.mutate(mutateSnapshot); |
-| 118 | U08 |       } else { | Parte concreta de U08: } else { |
-| 119 | U08 |         const snapshot = typeof state.get === 'function' ? state.get() : state; | Declara constante/binding de U08: const snapshot = typeof state.get === 'function' ? state.get() : state; |
-| 120 | U08 |         const next = mutateSnapshot(snapshot \|\| {}); | Declara constante/binding de U08: const next = mutateSnapshot(snapshot // {}); |
-| 121 | U08 |         if (typeof state.patch === 'function') state.patch(next); | Guard/branch de segurança da unidade: if (typeof state.patch === 'function') state.patch(next); |
-| 122 | U08 |         else { | Parte concreta de U08: else { |
-| 123 | U08 |           state.jobIndex = next.jobIndex; | Atualiza referência em state para a nova tab canônica. |
-| 124 | U08 |           state.extractionTabs = next.extractionTabs; | Atualiza referência em state para a nova tab canônica. |
-| 125 | U08 |         } | Fecha/continua estrutura sintática de U08. |
-| 126 | U08 |       } | Fecha/continua estrutura sintática de U08. |
-| 127 | U08 |       moveFinalizedTabId(oldTabId, newTabId); | Migra tombstone in-memory de finalização fornecido pelo background. |
-| 128 | U08 |     } | Fecha/continua estrutura sintática de U08. |
-| 129 | U08 | ␠ [linha vazia] | Separador visual da unidade U08. |
-| 130 | U09 |     function alarmGet(name) { | Abre função/escopo de U09: function alarmGet(name) { |
-| 131 | U09 |       return new Promise(resolve => { | Retorna/encerra caminho: return new Promise(resolve => { |
-| 132 | U09 |         try { | Abre bloco tolerante a falha de API. |
-| 133 | U09 |           chrome.alarms.get(name, alarm => resolve(alarm \|\| null)); | Lê alarme existente para preservar deadline. |
-| 134 | U09 |         } catch (_error) { | Captura/degrada falha da operação anterior. |
-| 135 | U09 |           resolve(null); | Parte concreta de U09: resolve(null); |
-| 136 | U09 |         } | Fecha/continua estrutura sintática de U09. |
-| 137 | U09 |       }); | Fecha/continua estrutura sintática de U09. |
-| 138 | U09 |     } | Fecha/continua estrutura sintática de U09. |
-| 139 | U09 | ␠ [linha vazia] | Separador visual da unidade U09. |
-| 140 | U09 |     async function moveAlarm(oldName, newName) { | Abre função/escopo de U09: async function moveAlarm(oldName, newName) { |
-| 141 | U09 |       const alarm = await alarmGet(oldName); | Declara constante/binding de U09: const alarm = await alarmGet(oldName); |
-| 142 | U09 |       if (!alarm) return false; | Guard/branch de segurança da unidade: if (!alarm) return false; |
-| 143 | U09 |       await chrome.alarms.clear(oldName); | Remove alarme com identidade antiga. |
-| 144 | U09 |       const when = Number(alarm.scheduledTime); | Declara constante/binding de U09: const when = Number(alarm.scheduledTime); |
-| 145 | U09 |       if (Number.isFinite(when) && when > now()) chrome.alarms.create(newName, { when }); | Guard/branch de segurança da unidade: if (Number.isFinite(when) && when > now()) chrome.alarms.create(newName, { when }); |
-| 146 | U09 |       else chrome.alarms.create(newName, { delayInMinutes: 0.01 }); | Recria alarme sob identidade nova preservando quando possível o horário. |
-| 147 | U09 |       return true; | Retorna/encerra caminho: return true; |
-| 148 | U09 |     } | Fecha/continua estrutura sintática de U09. |
-| 149 | U09 | ␠ [linha vazia] | Separador visual da unidade U09. |
-| 150 | U10 |     async function writeJournal(key, journal, phase) { | Abre função/escopo de U10: async function writeJournal(key, journal, phase) { |
-| 151 | U10 |       const next = { ...journal, phase, updatedAt: now() }; | Declara constante/binding de U10: const next = { ...journal, phase, updatedAt: now() }; |
-| 152 | U10 |       await chrome.storage.local.set({ [key]: next }); | Persiste alias/journal/registro migrado antes de prosseguir. |
-| 153 | U10 |       return next; | Retorna/encerra caminho: return next; |
-| 154 | U10 |     } | Fecha/continua estrutura sintática de U10. |
-| 155 | U10 | ␠ [linha vazia] | Separador visual da unidade U10. |
-| 156 | U11 |     async function performMigration(oldTabId, requestedNewTabId, { | Abre função/escopo de U11: async function performMigration(oldTabId, requestedNewTabId, { |
-| 157 | U11 |       journalKey = null, | Parte concreta de U11: journalKey = null, |
-| 158 | U11 |       jobId = null, | Propaga/compara identidade física/canônica do job. |
-| 159 | U11 |       recovering = false, | Parte concreta de U11: recovering = false, |
-| 160 | U11 |     } = {}) { | Parte concreta de U11: } = {}) { |
-| 161 | U11 |       if (!validTabId(oldTabId) \|\| !validTabId(requestedNewTabId) \|\| oldTabId === requestedNewTabId) { | Guard/branch de segurança da unidade: if (!validTabId(oldTabId) // !validTabId(requestedNewTabId) // oldTabId === requestedNewTabId) { |
-| 162 | U11 |         return requestedNewTabId; | Retorna/encerra caminho: return requestedNewTabId; |
-| 163 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 164 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 165 | U11 |       const newTabId = await resolveCanonicalTabId(requestedNewTabId); | Declara constante/binding de U11: const newTabId = await resolveCanonicalTabId(requestedNewTabId); |
-| 166 | U11 |       const key = journalKey \|\| migrationKey(oldTabId, newTabId, jobId); | Declara constante/binding de U11: const key = journalKey // migrationKey(oldTabId, newTabId, jobId); |
-| 167 | U11 |       const existing = await chrome.storage.local.get([key]); | Declara constante/binding de U11: const existing = await chrome.storage.local.get([key]); |
-| 168 | U11 |       let journal = existing && existing[key]; | Declara estado local temporário da migração. |
-| 169 | U11 |       if (!journal) { | Guard/branch de segurança da unidade: if (!journal) { |
-| 170 | U11 |         journal = { | Parte concreta de U11: journal = { |
-| 171 | U11 |           oldTabId, | Propaga/compara identidade física/canônica do job. |
-| 172 | U11 |           newTabId, | Propaga/compara identidade física/canônica do job. |
-| 173 | U11 |           jobId: jobId \|\| null, | Propaga/compara identidade física/canônica do job. |
-| 174 | U11 |           phase: 'alias_written', | Parte concreta de U11: phase: 'alias_written', |
-| 175 | U11 |           createdAt: now(), | Parte concreta de U11: createdAt: now(), |
-| 176 | U11 |           updatedAt: now(), | Parte concreta de U11: updatedAt: now(), |
-| 177 | U11 |         }; | Fecha/continua estrutura sintática de U11. |
-| 178 | U11 |         await chrome.storage.local.set({ [key]: journal }); | Persiste alias/journal/registro migrado antes de prosseguir. |
-| 179 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 180 | U11 |       await addIndexValue(MIGRATION_INDEX_KEY, key); | Indexa alias/journal para recovery sem scan global. |
-| 181 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 182 | U11 |       log('info', 'bg', recovering ? 'TAB_REKEY_RECOVERED' : 'TAB_REKEY_BEGIN', | Emite telemetria específica de alias/rekey. |
-| 183 | U11 |         recovering ? 'Retomando migração de identidade de aba' : 'Iniciando migração de identidade de aba', | Parte concreta de U11: recovering ? 'Retomando migração de identidade de aba' : 'Iniciando migração de identidade de aba', |
-| 184 | U11 |         { oldTabId, newTabId, phase: journal.phase }); | Propaga/compara identidade física/canônica do job. |
-| 185 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 186 | U11 |       const oldJobKey = `gemini_job_${oldTabId}`; | Declara constante/binding de U11: const oldJobKey = `gemini_job_${oldTabId}`; |
-| 187 | U11 |       const newJobKey = `gemini_job_${newTabId}`; | Declara constante/binding de U11: const newJobKey = `gemini_job_${newTabId}`; |
-| 188 | U11 |       const oldWdKey = `wd_data_${oldTabId}`; | Declara constante/binding de U11: const oldWdKey = `wd_data_${oldTabId}`; |
-| 189 | U11 |       const newWdKey = `wd_data_${newTabId}`; | Declara constante/binding de U11: const newWdKey = `wd_data_${newTabId}`; |
-| 190 | U11 |       const oldRecoveryKey = `gemini_delete_recovery_${oldTabId}`; | Declara constante/binding de U11: const oldRecoveryKey = `gemini_delete_recovery_${oldTabId}`; |
-| 191 | U11 |       const newRecoveryKey = `gemini_delete_recovery_${newTabId}`; | Declara constante/binding de U11: const newRecoveryKey = `gemini_delete_recovery_${newTabId}`; |
-| 192 | U11 |       const oldFinalizedKey = `gemini_finalized_${oldTabId}`; | Declara constante/binding de U11: const oldFinalizedKey = `gemini_finalized_${oldTabId}`; |
-| 193 | U11 |       const newFinalizedKey = `gemini_finalized_${newTabId}`; | Declara constante/binding de U11: const newFinalizedKey = `gemini_finalized_${newTabId}`; |
-| 194 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 195 | U11 |       const keys = [ | Declara constante/binding de U11: const keys = [ |
-| 196 | U11 |         oldJobKey, newJobKey, | Parte concreta de U11: oldJobKey, newJobKey, |
-| 197 | U11 |         oldWdKey, newWdKey, | Parte concreta de U11: oldWdKey, newWdKey, |
-| 198 | U11 |         oldRecoveryKey, newRecoveryKey, | Parte concreta de U11: oldRecoveryKey, newRecoveryKey, |
-| 199 | U11 |         oldFinalizedKey, newFinalizedKey, | Parte concreta de U11: oldFinalizedKey, newFinalizedKey, |
-| 200 | U11 |       ]; | Fecha/continua estrutura sintática de U11. |
-| 201 | U11 |       const data = await chrome.storage.local.get(keys); | Declara constante/binding de U11: const data = await chrome.storage.local.get(keys); |
-| 202 | U11 |       const writes = {}; | Declara constante/binding de U11: const writes = {}; |
-| 203 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 204 | U11 |       const oldJob = data[oldJobKey]; | Declara constante/binding de U11: const oldJob = data[oldJobKey]; |
-| 205 | U11 |       const newJob = data[newJobKey]; | Declara constante/binding de U11: const newJob = data[newJobKey]; |
-| 206 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 207 | U11 |       if ( | Guard/branch de segurança da unidade: if ( |
-| 208 | U11 |         oldJob && newJob && | Parte concreta de U11: oldJob && newJob && |
-| 209 | U11 |         oldJob.jobId && newJob.jobId && | Propaga/compara identidade física/canônica do job. |
-| 210 | U11 |         oldJob.jobId !== newJob.jobId | Propaga/compara identidade física/canônica do job. |
-| 211 | U11 |       ) { | Parte concreta de U11: ) { |
-| 212 | U11 |         log('error', 'bg', 'TAB_REKEY_CONFLICT', 'Destino de rekey já pertence a outro job', { | Emite telemetria específica de alias/rekey. |
-| 213 | U11 |           oldTabId, | Propaga/compara identidade física/canônica do job. |
-| 214 | U11 |           newTabId, | Propaga/compara identidade física/canônica do job. |
-| 215 | U11 |           oldJobIdPrefix: String(oldJob.jobId).slice(0, 8), | Propaga/compara identidade física/canônica do job. |
-| 216 | U11 |           newJobIdPrefix: String(newJob.jobId).slice(0, 8), | Propaga/compara identidade física/canônica do job. |
-| 217 | U11 |         }); | Fecha/continua estrutura sintática de U11. |
-| 218 | U11 |         throw new Error('TAB_REKEY_CONFLICT'); | Parte concreta de U11: throw new Error('TAB_REKEY_CONFLICT'); |
-| 219 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 220 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 221 | U11 |       if (oldJob) { | Guard/branch de segurança da unidade: if (oldJob) { |
-| 222 | U11 |         if (!newJob \|\| !newJob.jobId \|\| !oldJob.jobId \|\| newJob.jobId === oldJob.jobId) { | Guard/branch de segurança da unidade: if (!newJob // !newJob.jobId // !oldJob.jobId // newJob.jobId === oldJob.jobId) { |
-| 223 | U11 |           writes[newJobKey] = { | Parte concreta de U11: writes[newJobKey] = { |
-| 224 | U11 |             ...oldJob, | Parte concreta de U11: ...oldJob, |
-| 225 | U11 |             geminiTabId: newTabId, | Propaga/compara identidade física/canônica do job. |
-| 226 | U11 |             canonicalTabId: newTabId, | Propaga/compara identidade física/canônica do job. |
-| 227 | U11 |             replacementCount: (Number(oldJob.replacementCount) \|\| 0) + 1, | Parte concreta de U11: replacementCount: (Number(oldJob.replacementCount) // 0) + 1, |
-| 228 | U11 |             updatedAt: now(), | Parte concreta de U11: updatedAt: now(), |
-| 229 | U11 |           }; | Fecha/continua estrutura sintática de U11. |
-| 230 | U11 |           if (!journal.jobId && oldJob.jobId) journal.jobId = oldJob.jobId; | Guard/branch de segurança da unidade: if (!journal.jobId && oldJob.jobId) journal.jobId = oldJob.jobId; |
-| 231 | U11 |         } | Fecha/continua estrutura sintática de U11. |
-| 232 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 233 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 234 | U11 |       if (data[oldWdKey] && !data[newWdKey]) { | Guard/branch de segurança da unidade: if (data[oldWdKey] && !data[newWdKey]) { |
-| 235 | U11 |         writes[newWdKey] = { ...data[oldWdKey], geminiTabId: newTabId }; | Propaga/compara identidade física/canônica do job. |
-| 236 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 237 | U11 |       if (data[oldRecoveryKey] && !data[newRecoveryKey]) { | Guard/branch de segurança da unidade: if (data[oldRecoveryKey] && !data[newRecoveryKey]) { |
-| 238 | U11 |         const value = data[oldRecoveryKey]; | Declara constante/binding de U11: const value = data[oldRecoveryKey]; |
-| 239 | U11 |         writes[newRecoveryKey] = value && typeof value === 'object' | Parte concreta de U11: writes[newRecoveryKey] = value && typeof value === 'object' |
-| 240 | U11 |           ? { ...value, geminiTabId: newTabId } | Propaga/compara identidade física/canônica do job. |
-| 241 | U11 |           : value; | Parte concreta de U11: : value; |
-| 242 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 243 | U11 |       if (data[oldFinalizedKey] && !data[newFinalizedKey]) { | Guard/branch de segurança da unidade: if (data[oldFinalizedKey] && !data[newFinalizedKey]) { |
-| 244 | U11 |         writes[newFinalizedKey] = data[oldFinalizedKey]; | Parte concreta de U11: writes[newFinalizedKey] = data[oldFinalizedKey]; |
-| 245 | U11 |       } | Fecha/continua estrutura sintática de U11. |
-| 246 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 247 | U11 |       if (Object.keys(writes).length) await chrome.storage.local.set(writes); | Guard/branch de segurança da unidade: if (Object.keys(writes).length) await chrome.storage.local.set(writes); |
-| 248 | U11 |       journal = await writeJournal(key, journal, 'records_copied'); | Avança fase do journal durável da migração. |
-| 249 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 250 | U11 |       await migrateReferences(oldTabId, newTabId); | Atualiza referências residentes/persistidas em mt_state. |
-| 251 | U11 |       journal = await writeJournal(key, journal, 'state_updated'); | Avança fase do journal durável da migração. |
-| 252 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 253 | U11 |       const legacyWatchdogMoved = await moveAlarm(`watchdog_${oldTabId}`, `watchdog_${newTabId}`); | Declara constante/binding de U11: const legacyWatchdogMoved = await moveAlarm(`watchdog_${oldTabId}`, `watchdog_${newTabId}`); |
-| 254 | U11 |       await moveAlarm(`finalization_marker_${oldTabId}`, `finalization_marker_${newTabId}`); | Propaga/compara identidade física/canônica do job. |
-| 255 | U11 |       journal = await writeJournal(key, { ...journal, legacyWatchdogMoved }, 'alarms_updated'); | Avança fase do journal durável da migração. |
-| 256 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 257 | U11 |       await chrome.storage.local.remove([ | Remove chaves antigas ou expiradas após o estado novo estar disponível. |
-| 258 | U11 |         oldJobKey, | Parte concreta de U11: oldJobKey, |
-| 259 | U11 |         oldWdKey, | Parte concreta de U11: oldWdKey, |
-| 260 | U11 |         oldRecoveryKey, | Parte concreta de U11: oldRecoveryKey, |
-| 261 | U11 |         oldFinalizedKey, | Parte concreta de U11: oldFinalizedKey, |
-| 262 | U11 |       ]); | Fecha/continua estrutura sintática de U11. |
-| 263 | U11 |       journal = await writeJournal(key, journal, 'old_keys_removed'); | Avança fase do journal durável da migração. |
-| 264 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 265 | U11 |       journal = await writeJournal(key, journal, 'completed'); | Avança fase do journal durável da migração. |
-| 266 | U11 |       await removeIndexValue(MIGRATION_INDEX_KEY, key); | Remove item já concluído/descartado do índice durável. |
-| 267 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 268 | U11 |       log('info', 'bg', 'TAB_REKEY_END', 'Migração de identidade de aba concluída', { | Emite telemetria específica de alias/rekey. |
-| 269 | U11 |         oldTabId, | Propaga/compara identidade física/canônica do job. |
-| 270 | U11 |         newTabId, | Propaga/compara identidade física/canônica do job. |
-| 271 | U11 |         phase: journal.phase, | Parte concreta de U11: phase: journal.phase, |
-| 272 | U11 |       }); | Fecha/continua estrutura sintática de U11. |
-| 273 | U11 |       return newTabId; | Retorna/encerra caminho: return newTabId; |
-| 274 | U11 |     } | Fecha/continua estrutura sintática de U11. |
-| 275 | U11 | ␠ [linha vazia] | Separador visual da unidade U11. |
-| 276 | U12 |     async function migrateTabIdentity(oldTabId, newTabId, options = {}) { | Abre função/escopo de U12: async function migrateTabIdentity(oldTabId, newTabId, options = {}) { |
-| 277 | U12 |       return performMigration(oldTabId, newTabId, options); | Retorna/encerra caminho: return performMigration(oldTabId, newTabId, options); |
-| 278 | U12 |     } | Fecha/continua estrutura sintática de U12. |
-| 279 | U12 | ␠ [linha vazia] | Separador visual da unidade U12. |
-| 280 | U13 |     async function recordReplacement(addedTabId, removedTabId) { | Abre função/escopo de U13: async function recordReplacement(addedTabId, removedTabId) { |
-| 281 | U13 |       if (!validTabId(addedTabId) \|\| !validTabId(removedTabId) \|\| addedTabId === removedTabId) { | Guard/branch de segurança da unidade: if (!validTabId(addedTabId) // !validTabId(removedTabId) // addedTabId === removedTabId) { |
-| 282 | U13 |         return addedTabId; | Retorna/encerra caminho: return addedTabId; |
-| 283 | U13 |       } | Fecha/continua estrutura sintática de U13. |
-| 284 | U13 |       await persistAlias(removedTabId, addedTabId); | Cria alias durável antes do rekey. |
-| 285 | U13 |       return performMigration(removedTabId, addedTabId); | Retorna/encerra caminho: return performMigration(removedTabId, addedTabId); |
-| 286 | U13 |     } | Fecha/continua estrutura sintática de U13. |
-| 287 | U13 | ␠ [linha vazia] | Separador visual da unidade U13. |
-| 288 | U14 |     async function recoverPendingMigrations() { | Abre função/escopo de U14: async function recoverPendingMigrations() { |
-| 289 | U14 |       const data = await chrome.storage.local.get([MIGRATION_INDEX_KEY]); | Declara constante/binding de U14: const data = await chrome.storage.local.get([MIGRATION_INDEX_KEY]); |
-| 290 | U14 |       const keys = Array.isArray(data[MIGRATION_INDEX_KEY]) ? data[MIGRATION_INDEX_KEY].slice() : []; | Declara constante/binding de U14: const keys = Array.isArray(data[MIGRATION_INDEX_KEY]) ? data[MIGRATION_INDEX_KEY].slice() : []; |
-| 291 | U14 |       let recovered = 0; | Declara estado local temporário da migração. |
-| 292 | U14 | ␠ [linha vazia] | Separador visual da unidade U14. |
-| 293 | U14 |       for (const key of keys) { | Itera cadeia/índice de forma limitada: for (const key of keys) { |
-| 294 | U14 |         // eslint-disable-next-line no-await-in-loop | Comentário de arquitetura/recovery: eslint-disable-next-line no-await-in-loop. |
-| 295 | U14 |         const stored = await chrome.storage.local.get([key]); | Declara constante/binding de U14: const stored = await chrome.storage.local.get([key]); |
-| 296 | U14 |         const journal = stored && stored[key]; | Declara constante/binding de U14: const journal = stored && stored[key]; |
-| 297 | U14 |         if (!journal \|\| journal.phase === 'completed') { | Guard/branch de segurança da unidade: if (!journal // journal.phase === 'completed') { |
-| 298 | U14 |           // eslint-disable-next-line no-await-in-loop | Comentário de arquitetura/recovery: eslint-disable-next-line no-await-in-loop. |
-| 299 | U14 |           await removeIndexValue(MIGRATION_INDEX_KEY, key); | Remove item já concluído/descartado do índice durável. |
-| 300 | U14 |           continue; | Parte concreta de U14: continue; |
-| 301 | U14 |         } | Fecha/continua estrutura sintática de U14. |
-| 302 | U14 |         if (!validTabId(journal.oldTabId) \|\| !validTabId(journal.newTabId)) { | Guard/branch de segurança da unidade: if (!validTabId(journal.oldTabId) // !validTabId(journal.newTabId)) { |
-| 303 | U14 |           // eslint-disable-next-line no-await-in-loop | Comentário de arquitetura/recovery: eslint-disable-next-line no-await-in-loop. |
-| 304 | U14 |           await removeIndexValue(MIGRATION_INDEX_KEY, key); | Remove item já concluído/descartado do índice durável. |
-| 305 | U14 |           continue; | Parte concreta de U14: continue; |
-| 306 | U14 |         } | Fecha/continua estrutura sintática de U14. |
-| 307 | U14 |         // A migração é idempotente: copiar um registro já copiado e remover | Comentário de arquitetura/recovery: A migração é idempotente: copiar um registro já copiado e remover. |
-| 308 | U14 |         // uma chave já removida não altera a contabilidade. | Comentário de arquitetura/recovery: uma chave já removida não altera a contabilidade.. |
-| 309 | U14 |         // eslint-disable-next-line no-await-in-loop | Comentário de arquitetura/recovery: eslint-disable-next-line no-await-in-loop. |
-| 310 | U14 |         await performMigration(journal.oldTabId, journal.newTabId, { | Executa/reexecuta protocolo de migração idempotente. |
-| 311 | U14 |           journalKey: key, | Parte concreta de U14: journalKey: key, |
-| 312 | U14 |           jobId: journal.jobId \|\| null, | Propaga/compara identidade física/canônica do job. |
-| 313 | U14 |           recovering: true, | Parte concreta de U14: recovering: true, |
-| 314 | U14 |         }); | Fecha/continua estrutura sintática de U14. |
-| 315 | U14 |         recovered += 1; | Parte concreta de U14: recovered += 1; |
-| 316 | U14 |       } | Fecha/continua estrutura sintática de U14. |
-| 317 | U14 |       return recovered; | Retorna/encerra caminho: return recovered; |
-| 318 | U14 |     } | Fecha/continua estrutura sintática de U14. |
-| 319 | U14 | ␠ [linha vazia] | Separador visual da unidade U14. |
-| 320 | U15 |     async function cleanupExpiredAliases() { | Abre função/escopo de U15: async function cleanupExpiredAliases() { |
-| 321 | U15 |       const data = await chrome.storage.local.get([ALIAS_INDEX_KEY]); | Declara constante/binding de U15: const data = await chrome.storage.local.get([ALIAS_INDEX_KEY]); |
-| 322 | U15 |       const ids = Array.isArray(data[ALIAS_INDEX_KEY]) ? data[ALIAS_INDEX_KEY].slice() : []; | Declara constante/binding de U15: const ids = Array.isArray(data[ALIAS_INDEX_KEY]) ? data[ALIAS_INDEX_KEY].slice() : []; |
-| 323 | U15 |       const keep = []; | Declara constante/binding de U15: const keep = []; |
-| 324 | U15 |       const remove = []; | Declara constante/binding de U15: const remove = []; |
-| 325 | U15 | ␠ [linha vazia] | Separador visual da unidade U15. |
-| 326 | U15 |       for (const tabId of ids) { | Itera cadeia/índice de forma limitada: for (const tabId of ids) { |
-| 327 | U15 |         const key = aliasKey(tabId); | Declara constante/binding de U15: const key = aliasKey(tabId); |
-| 328 | U15 |         // eslint-disable-next-line no-await-in-loop | Comentário de arquitetura/recovery: eslint-disable-next-line no-await-in-loop. |
-| 329 | U15 |         const stored = await chrome.storage.local.get([key]); | Declara constante/binding de U15: const stored = await chrome.storage.local.get([key]); |
-| 330 | U15 |         const alias = stored && stored[key]; | Declara constante/binding de U15: const alias = stored && stored[key]; |
-| 331 | U15 |         if (alias && validTabId(alias.newTabId) && alias.expiresAt > now()) keep.push(tabId); | Guard/branch de segurança da unidade: if (alias && validTabId(alias.newTabId) && alias.expiresAt > now()) keep.push(tabId); |
-| 332 | U15 |         else remove.push(key); | Parte concreta de U15: else remove.push(key); |
-| 333 | U15 |       } | Fecha/continua estrutura sintática de U15. |
-| 334 | U15 | ␠ [linha vazia] | Separador visual da unidade U15. |
-| 335 | U15 |       if (remove.length) await chrome.storage.local.remove(remove); | Guard/branch de segurança da unidade: if (remove.length) await chrome.storage.local.remove(remove); |
-| 336 | U15 |       await chrome.storage.local.set({ [ALIAS_INDEX_KEY]: keep }); | Persiste alias/journal/registro migrado antes de prosseguir. |
-| 337 | U15 |       return { kept: keep.length, removed: remove.length }; | Retorna/encerra caminho: return { kept: keep.length, removed: remove.length }; |
-| 338 | U15 |     } | Fecha/continua estrutura sintática de U15. |
-| 339 | U16 | ␠ [linha vazia] | Separador visual da unidade U16. |
-| 340 | U16 |     return { | Retorna/encerra caminho: return { |
-| 341 | U16 |       recordReplacement, | Parte concreta de U16: recordReplacement, |
-| 342 | U16 |       resolveCanonicalTabId, | Resolve destino/cadeia de alias canônica. |
-| 343 | U16 |       migrateTabIdentity, | Parte concreta de U16: migrateTabIdentity, |
-| 344 | U16 |       recoverPendingMigrations, | Parte concreta de U16: recoverPendingMigrations, |
-| 345 | U16 |       migrateReferences, | Atualiza referências residentes/persistidas em mt_state. |
-| 346 | U16 |       cleanupExpiredAliases, | Parte concreta de U16: cleanupExpiredAliases, |
-| 347 | U16 |       constants: { | Parte concreta de U16: constants: { |
-| 348 | U16 |         ALIAS_PREFIX, | Parte concreta de U16: ALIAS_PREFIX, |
-| 349 | U16 |         ALIAS_INDEX_KEY, | Parte concreta de U16: ALIAS_INDEX_KEY, |
-| 350 | U16 |         MIGRATION_PREFIX, | Parte concreta de U16: MIGRATION_PREFIX, |
-| 351 | U16 |         MIGRATION_INDEX_KEY, | Parte concreta de U16: MIGRATION_INDEX_KEY, |
-| 352 | U16 |         DEFAULT_ALIAS_TTL_MS, | Parte concreta de U16: DEFAULT_ALIAS_TTL_MS, |
-| 353 | U16 |         MAX_ALIAS_HOPS, | Parte concreta de U16: MAX_ALIAS_HOPS, |
-| 354 | U16 |       }, | Fecha/continua estrutura sintática de U16. |
-| 355 | U16 |     }; | Fecha/continua estrutura sintática de U16. |
-| 356 | U16 |   } | Fecha/continua estrutura sintática de U16. |
-| 357 | U16 | ␠ [linha vazia] | Separador visual da unidade U16. |
-| 358 | U16 |   scope.MangaTranslatorTabIdentity = { createTabIdentity }; | Parte concreta de U16: scope.MangaTranslatorTabIdentity = { createTabIdentity }; |
-| 359 | U16 |   if (typeof module !== 'undefined' && module.exports) { | Guard/branch de segurança da unidade: if (typeof module !== 'undefined' && module.exports) { |
-| 360 | U17 |     module.exports = { createTabIdentity }; | Parte concreta de U17: module.exports = { createTabIdentity }; |
-| 361 | U17 |   } | Fecha/continua estrutura sintática de U17. |
-| 362 | U17 | })(typeof self !== 'undefined' ? self : globalThis); | Parte concreta de U17: })(typeof self !== 'undefined' ? self : globalThis); |
-| 363 | U18 | ⏎ [newline final] | Newline terminal editorial. |
-
+| 001 | U01 | 'use strict'; | Ativa strict mode para que erros de escopo e atribuições inválidas não sejam silenciosamente tolerados. |
+| 002 | U01 | // background/tab-identity.js — Identidade canônica de abas Gemini. | Nomeia o módulo e fixa seu domínio: identidade canônica de abas Gemini. |
+| 003 | U01 | // | Mantém a continuidade do comentário introdutório sem efeito de runtime. |
+| 004 | U01 | // tabId é uma identidade física e pode ser substituído pelo Chromium. Este | Documenta a premissa de que tabId é identidade física e pode ser substituído pelo Chromium. |
+| 005 | U01 | // módulo mantém um alias durável old -> new, migra todas as referências do job | Explica que alias durável old→new e migração de referências preservam a identidade lógica do job. |
+| 006 | U01 | // e usa um journal pequeno para tornar o rekey recuperável após suspensão do | Introduz o journal como mecanismo para retomar um rekey interrompido. |
+| 007 | U01 | // Service Worker. | Relaciona o journal à suspensão/restart do Service Worker MV3. |
+| 008 | U01 | ␠ [linha vazia] | Separa contrato arquitetural do módulo de namespace, TTL e limite de aliases; não executa código. |
+| 009 | U02 | (function(scope) { | Abre a IIFE e recebe o scope onde a factory será publicada para browser/worker ou Node. |
+| 010 | U02 |   const ALIAS_PREFIX = 'gemini_tab_alias_'; | Em namespace, TTL e limite de aliases, `ALIAS_PREFIX` padroniza as chaves individuais de alias. |
+| 011 | U02 |   const ALIAS_INDEX_KEY = 'gemini_tab_alias_index'; | Em namespace, TTL e limite de aliases, `ALIAS_INDEX_KEY` nomeia o índice que permite localizar aliases sem scan global. |
+| 012 | U02 |   const MIGRATION_PREFIX = 'gemini_tab_migration_'; | Em namespace, TTL e limite de aliases, `MIGRATION_PREFIX` padroniza as chaves de journals de rekey. |
+| 013 | U02 |   const MIGRATION_INDEX_KEY = 'gemini_tab_migration_index'; | Em namespace, TTL e limite de aliases, `MIGRATION_INDEX_KEY` nomeia o índice usado pelo recovery no startup. |
+| 014 | U02 |   const DEFAULT_ALIAS_TTL_MS = 10 * 60 * 1000; | Em namespace, TTL e limite de aliases, `DEFAULT_ALIAS_TTL_MS` limita a autoridade de um alias antigo a dez minutos por padrão. |
+| 015 | U02 |   const MAX_ALIAS_HOPS = 8; | Em namespace, TTL e limite de aliases, `MAX_ALIAS_HOPS` limita a resolução de cadeias a oito saltos. |
+| 016 | U03 | ␠ [linha vazia] | Separa namespace, TTL e limite de aliases de configuração de createTabIdentity; não executa código. |
+| 017 | U03 |   function createTabIdentity({ | Declara `createTabIdentity` como a unidade executável responsável por configuração de createTabIdentity. |
+| 018 | U03 |     state, | Em configuração de createTabIdentity, o campo `state` injeta a facade obrigatória usada para migrar referências do background. |
+| 019 | U03 |     log = function() {}, | Em configuração de createTabIdentity, atualiza `log` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 020 | U03 |     moveFinalizedTabId = function() {}, | Em configuração de createTabIdentity, atualiza `moveFinalizedTabId` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 021 | U03 |     aliasTtlMs = DEFAULT_ALIAS_TTL_MS, | Em configuração de createTabIdentity, atualiza `aliasTtlMs` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 022 | U03 |     now = () => Date.now(), | Em configuração de createTabIdentity, atualiza `now` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 023 | U03 |   } = {}) { | Em configuração de createTabIdentity, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 024 | U03 |     if (!state) throw new Error('tab-identity requer state'); | Impede criar a identidade sem `state`, porque uma migração sem essa facade deixaria referências incoerentes. |
+| 025 | U03 | ␠ [linha vazia] | Separa configuração de createTabIdentity de derivação das chaves de alias/journal; não executa código. |
+| 026 | U03 |     const aliasKey = tabId => `${ALIAS_PREFIX}${tabId}`; | Em derivação das chaves de alias/journal, define `aliasKey` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 027 | U03 |     const migrationKey = (oldTabId, newTabId, jobId) => | Em derivação das chaves de alias/journal, define `migrationKey` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 028 | U03 |       `${MIGRATION_PREFIX}${jobId \|\| `${oldTabId}_${newTabId}`}`; | Usa jobId como chave estável quando existe; sem jobId, distingue o journal pelo par oldTabId_newTabId. |
+| 029 | U03 | ␠ [linha vazia] | Separa derivação das chaves de alias/journal de addIndexValue; não executa código. |
+| 030 | U04 |     async function addIndexValue(key, value) { | Declara `addIndexValue` como a unidade executável responsável por addIndexValue. |
+| 031 | U04 |       const data = await chrome.storage.local.get([key]); | Em addIndexValue, `data` recebe o snapshot de storage necessário à etapa corrente. |
+| 032 | U04 |       const list = Array.isArray(data[key]) ? data[key].slice() : []; | Em addIndexValue, define `list` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 033 | U04 |       if (!list.includes(value)) list.push(value); | Evita duplicar a mesma chave/ID no array-índice antes de persistir. |
+| 034 | U04 |       await chrome.storage.local.set({ [key]: list }); | Em addIndexValue, persiste o novo estado antes de avançar, tornando a etapa observável/recuperável após suspensão. |
+| 035 | U04 |     } | Encerra o bloco sintático de addIndexValue depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 036 | U04 | ␠ [linha vazia] | Separa addIndexValue de removeIndexValue; não executa código. |
+| 037 | U04 |     async function removeIndexValue(key, value) { | Declara `removeIndexValue` como a unidade executável responsável por removeIndexValue. |
+| 038 | U04 |       const data = await chrome.storage.local.get([key]); | Em removeIndexValue, `data` recebe o snapshot de storage necessário à etapa corrente. |
+| 039 | U04 |       const list = Array.isArray(data[key]) ? data[key].filter(item => item !== value) : []; | Em removeIndexValue, define `list` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 040 | U04 |       await chrome.storage.local.set({ [key]: list }); | Em removeIndexValue, persiste o novo estado antes de avançar, tornando a etapa observável/recuperável após suspensão. |
+| 041 | U04 |     } | Encerra o bloco sintático de removeIndexValue depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 042 | U04 | ␠ [linha vazia] | Separa removeIndexValue de validTabId; não executa código. |
+| 043 | U05 |     function validTabId(tabId) { | Declara `validTabId` como a unidade executável responsável por validTabId. |
+| 044 | U05 |       return Number.isInteger(tabId) && tabId >= 0; | Define formalmente tabId válido como inteiro não negativo. |
+| 045 | U05 |     } | Encerra o bloco sintático de validTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 046 | U05 | ␠ [linha vazia] | Separa validTabId de resolveCanonicalTabId; não executa código. |
+| 047 | U06 |     async function resolveCanonicalTabId(tabId) { | Declara `resolveCanonicalTabId` como a unidade executável responsável por resolveCanonicalTabId. |
+| 048 | U06 |       if (!validTabId(tabId)) return tabId; | Mantém tabId inválido inalterado e evita consultar storage como se ele concedesse ownership. |
+| 049 | U06 |       const original = tabId; | Em resolveCanonicalTabId, `original` preserva o tabId solicitado para retorno fail-closed. |
+| 050 | U06 |       let current = tabId; | Em resolveCanonicalTabId, `current` mantém o cursor do hop atualmente resolvido. |
+| 051 | U06 |       const visited = new Set(); | Em resolveCanonicalTabId, `visited` registra tabIds já percorridos para detectar ciclos. |
+| 052 | U06 | ␠ [linha vazia] | Separa resolveCanonicalTabId de resolveCanonicalTabId; não executa código. |
+| 053 | U06 |       for (let hop = 0; hop < MAX_ALIAS_HOPS; hop += 1) { | Itera sequencialmente as entradas de resolveCanonicalTabId para classificar/processar cada identidade de forma determinística. |
+| 054 | U06 |         if (visited.has(current)) { | Detecta que o cursor já foi visitado, caracterizando ciclo antes de seguir outro alias. |
+| 055 | U06 |           log('error', 'bg', 'TAB_ALIAS_CYCLE', 'Ciclo detectado em aliases de aba', { | Emite `TAB_ALIAS_CYCLE` com metadados suficientes para diagnosticar a cadeia corrompida. |
+| 056 | U06 |             oldTabId: original, | Em resolveCanonicalTabId, o campo `oldTabId` registra a identidade física de origem da migração. |
+| 057 | U06 |             cycleTabId: current, | Em resolveCanonicalTabId, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 058 | U06 |           }); | Encerra o bloco sintático de resolveCanonicalTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 059 | U06 |           return original; | Em ciclo, devolve a origem para falhar fechado sem escolher arbitrariamente uma ponta. |
+| 060 | U06 |         } | Encerra o bloco sintático de resolveCanonicalTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 061 | U06 |         visited.add(current); | Marca o cursor atual como visitado antes de consultar seu próximo alias, permitindo detectar retorno ao mesmo tabId. |
+| 062 | U06 | ␠ [linha vazia] | Separa resolveCanonicalTabId de resolveCanonicalTabId; não executa código. |
+| 063 | U06 |         const key = aliasKey(current); | Em resolveCanonicalTabId, `key` guarda a chave de storage/journal usada na operação corrente. |
+| 064 | U06 |         const data = await chrome.storage.local.get([key]); | Em resolveCanonicalTabId, `data` recebe o snapshot de storage necessário à etapa corrente. |
+| 065 | U06 |         const alias = data && data[key]; | Em resolveCanonicalTabId, `alias` representa o redirecionamento persistido do tabId corrente. |
+| 066 | U06 |         if (!alias) return current; | Encerra a resolução quando não existe alias para o cursor: ele já é a identidade conhecida mais recente. |
+| 067 | U06 |         if (!validTabId(alias.newTabId) \|\| !alias.expiresAt \|\| alias.expiresAt <= now()) { | Recusa redirecionar por alias com destino inválido, sem expiração ou já expirado. |
+| 068 | U06 |           return current; | Ao encontrar alias inválido/expirado, mantém o cursor atual como limite seguro da resolução. |
+| 069 | U06 |         } | Encerra o bloco sintático de resolveCanonicalTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 070 | U06 |         current = alias.newTabId; | Em resolveCanonicalTabId, atualiza `current` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 071 | U06 |       } | Encerra o bloco sintático de resolveCanonicalTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 072 | U06 | ␠ [linha vazia] | Separa resolveCanonicalTabId de resolveCanonicalTabId; não executa código. |
+| 073 | U06 |       log('error', 'bg', 'TAB_ALIAS_MAX_HOPS', 'Limite de aliases excedido', { | Emite `TAB_ALIAS_MAX_HOPS` quando a cadeia consome todos os oito saltos permitidos. |
+| 074 | U06 |         oldTabId: original, | Em resolveCanonicalTabId, o campo `oldTabId` registra a identidade física de origem da migração. |
+| 075 | U06 |         lastTabId: current, | Em resolveCanonicalTabId, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 076 | U06 |       }); | Encerra o bloco sintático de resolveCanonicalTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 077 | U06 |       return original; | Após exceder oito hops, devolve a origem em vez do último cursor parcial. |
+| 078 | U06 |     } | Encerra o bloco sintático de resolveCanonicalTabId depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 079 | U06 | ␠ [linha vazia] | Separa resolveCanonicalTabId de persistAlias; não executa código. |
+| 080 | U07 |     async function persistAlias(oldTabId, newTabId) { | Declara `persistAlias` como a unidade executável responsável por persistAlias. |
+| 081 | U07 |       if (!validTabId(oldTabId) \|\| !validTabId(newTabId) \|\| oldTabId === newTabId) return null; | Bloqueia persistência de alias para IDs inválidos ou iguais, impedindo autoridade degenerada. |
+| 082 | U07 |       const alias = { | Em persistAlias, `alias` representa o redirecionamento persistido do tabId corrente. |
+| 083 | U07 |         oldTabId, | Em persistAlias, o campo `oldTabId` registra a identidade física de origem da migração. |
+| 084 | U07 |         newTabId, | Em persistAlias, o campo `newTabId` registra a identidade física/canônica de destino. |
+| 085 | U07 |         createdAt: now(), | Em persistAlias, o campo `createdAt` registra quando o objeto durável foi criado. |
+| 086 | U07 |         expiresAt: now() + aliasTtlMs, | Em persistAlias, o campo `expiresAt` define até quando o alias continua autorizado a redirecionar. |
+| 087 | U07 |       }; | Encerra o bloco sintático de persistAlias depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 088 | U07 |       await chrome.storage.local.set({ [aliasKey(oldTabId)]: alias }); | Em persistAlias, persiste o novo estado antes de avançar, tornando a etapa observável/recuperável após suspensão. |
+| 089 | U07 |       await addIndexValue(ALIAS_INDEX_KEY, oldTabId); | Indexa a chave/ID recém-persistida para que recovery ou cleanup possa encontrá-la sem scan global. |
+| 090 | U07 |       log('info', 'bg', 'TAB_ALIAS_CREATED', 'Alias durável de aba criado', { oldTabId, newTabId }); | Emite `TAB_ALIAS_CREATED` somente após o alias individual e seu índice terem sido persistidos. |
+| 091 | U07 |       return alias; | Entrega ao caller o alias que já foi persistido e indexado. |
+| 092 | U07 |     } | Encerra o bloco sintático de persistAlias depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 093 | U07 | ␠ [linha vazia] | Separa persistAlias de migrateReferences; não executa código. |
+| 094 | U08 |     async function migrateReferences(oldTabId, newTabId) { | Declara `migrateReferences` como a unidade executável responsável por migrateReferences. |
+| 095 | U08 |       const mutateSnapshot = snapshot => { | Em migrateReferences, `mutateSnapshot` define a transformação de jobIndex/extractionTabs usada pelos fallbacks de state. |
+| 096 | U08 |         const next = { ...snapshot }; | Em migrateReferences, `next` carrega a versão transformada do snapshot/journal sem mutar a entrada original. |
+| 097 | U08 |         next.jobIndex = (Array.isArray(snapshot.jobIndex) ? snapshot.jobIndex : []).map(entry => | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 098 | U08 |           entry && entry.geminiTabId === oldTabId | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 099 | U08 |             ? { ...entry, geminiTabId: newTabId } | Reescreve a referência física copiada para o novo tabId canônico. |
+| 100 | U08 |             : entry | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 101 | U08 |         ); | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 102 | U08 | ␠ [linha vazia] | Separa migrateReferences de migrateReferences; não executa código. |
+| 103 | U08 |         const extractionTabs = { ...(snapshot.extractionTabs \|\| {}) }; | Em migrateReferences, `extractionTabs` clona o mapa de extraction tabs antes da substituição de referências. |
+| 104 | U08 |         Object.keys(extractionTabs).forEach(key => { | Percorre todas as extraction tabs para substituir somente referências que ainda apontam à origem. |
+| 105 | U08 |           const info = extractionTabs[key]; | Em migrateReferences, `info` aponta para o registro de extraction tab que está sendo inspecionado. |
+| 106 | U08 |           if (info && info.geminiTabId === oldTabId) { | Seleciona somente extraction tabs ainda ligadas ao tabId antigo para serem copiadas com o destino. |
+| 107 | U08 |             extractionTabs[key] = { ...info, geminiTabId: newTabId }; | Reescreve a referência física copiada para o novo tabId canônico. |
+| 108 | U08 |           } | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 109 | U08 |         }); | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 110 | U08 |         next.extractionTabs = extractionTabs; | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 111 | U08 |         return next; | Entrega o snapshot transformado à API de state escolhida. |
+| 112 | U08 |       }; | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 113 | U08 | ␠ [linha vazia] | Separa migrateReferences de migrateReferences; não executa código. |
+| 114 | U08 |       if (typeof state.replaceGeminiTabReferences === 'function') { | Prefere a API especializada de state, garantindo a via runtime mais forte antes dos fallbacks. |
+| 115 | U08 |         await state.replaceGeminiTabReferences(oldTabId, newTabId); | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 116 | U08 |       } else if (typeof state.mutate === 'function') { | Em migrateReferences, aplica esta condição para decidir se a etapa pode avançar sem violar a integridade do rekey. |
+| 117 | U08 |         await state.mutate(mutateSnapshot); | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 118 | U08 |       } else { | Seleciona a compatibilidade com facades antigas quando `replaceGeminiTabReferences` e `mutate` não existem. |
+| 119 | U08 |         const snapshot = typeof state.get === 'function' ? state.get() : state; | Em migrateReferences, define `snapshot` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 120 | U08 |         const next = mutateSnapshot(snapshot \|\| {}); | Em migrateReferences, `next` carrega a versão transformada do snapshot/journal sem mutar a entrada original. |
+| 121 | U08 |         if (typeof state.patch === 'function') state.patch(next); | Usa `state.patch` quando a facade antiga não oferece replace/mutate, antes de cair em atribuição direta. |
+| 122 | U08 |         else { | Cai em atribuição direta de `jobIndex/extractionTabs` somente quando `state.patch` também não existe. |
+| 123 | U08 |           state.jobIndex = next.jobIndex; | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 124 | U08 |           state.extractionTabs = next.extractionTabs; | Em migrateReferences, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 125 | U08 |         } | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 126 | U08 |       } | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 127 | U08 |       moveFinalizedTabId(oldTabId, newTabId); | Move o tombstone in-memory de finalização depois de atualizar as referências da facade state. |
+| 128 | U08 |     } | Encerra o bloco sintático de migrateReferences depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 129 | U08 | ␠ [linha vazia] | Separa migrateReferences de alarmGet; não executa código. |
+| 130 | U09 |     function alarmGet(name) { | Declara `alarmGet` como a unidade executável responsável por alarmGet. |
+| 131 | U09 |       return new Promise(resolve => { | Converte `chrome.alarms.get` callback-based em Promise que resolve com alarme ou null. |
+| 132 | U09 |         try { | Em alarmGet, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 133 | U09 |           chrome.alarms.get(name, alarm => resolve(alarm \|\| null)); | Consulta o alarme antigo e normaliza ausência para null dentro do adaptador assíncrono. |
+| 134 | U09 |         } catch (_error) { | Em alarmGet, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 135 | U09 |           resolve(null); | Em alarmGet, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 136 | U09 |         } | Encerra o bloco sintático de alarmGet depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 137 | U09 |       }); | Encerra o bloco sintático de alarmGet depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 138 | U09 |     } | Encerra o bloco sintático de alarmGet depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 139 | U09 | ␠ [linha vazia] | Separa alarmGet de moveAlarm; não executa código. |
+| 140 | U09 |     async function moveAlarm(oldName, newName) { | Declara `moveAlarm` como a unidade executável responsável por moveAlarm. |
+| 141 | U09 |       const alarm = await alarmGet(oldName); | Em moveAlarm, `alarm` representa o alarme antigo que pode ser transferido. |
+| 142 | U09 |       if (!alarm) return false; | Se o alarme antigo não existe/não pôde ser lido, retorna false e não fabrica um alarme novo. |
+| 143 | U09 |       await chrome.alarms.clear(oldName); | Remove o nome de alarme ligado ao tabId antigo antes de recriá-lo no destino. |
+| 144 | U09 |       const when = Number(alarm.scheduledTime); | Em moveAlarm, `when` normaliza scheduledTime para decidir entre preservar deadline e usar fallback curto. |
+| 145 | U09 |       if (Number.isFinite(when) && when > now()) chrome.alarms.create(newName, { when }); | Preserva o deadline absoluto somente quando scheduledTime é finito e ainda futuro. |
+| 146 | U09 |       else chrome.alarms.create(newName, { delayInMinutes: 0.01 }); | Quando o deadline não é reutilizável, reativa o alarme com fallback curto de 0,01 minuto. |
+| 147 | U09 |       return true; | Indica que o alarme antigo existia e foi processado/movido. |
+| 148 | U09 |     } | Encerra o bloco sintático de moveAlarm depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 149 | U09 | ␠ [linha vazia] | Separa moveAlarm de writeJournal; não executa código. |
+| 150 | U10 |     async function writeJournal(key, journal, phase) { | Declara `writeJournal` como a unidade executável responsável por writeJournal. |
+| 151 | U10 |       const next = { ...journal, phase, updatedAt: now() }; | Em writeJournal, `next` carrega a versão transformada do snapshot/journal sem mutar a entrada original. |
+| 152 | U10 |       await chrome.storage.local.set({ [key]: next }); | Em writeJournal, persiste o novo estado antes de avançar, tornando a etapa observável/recuperável após suspensão. |
+| 153 | U10 |       return next; | Retorna o journal exatamente na versão recém-persistida para a fase seguinte. |
+| 154 | U10 |     } | Encerra o bloco sintático de writeJournal depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 155 | U10 | ␠ [linha vazia] | Separa writeJournal de preparação e indexação do journal em performMigration; não executa código. |
+| 156 | U11 |     async function performMigration(oldTabId, requestedNewTabId, { | Declara `performMigration` como a unidade executável responsável por preparação e indexação do journal em performMigration. |
+| 157 | U11 |       journalKey = null, | Em preparação e indexação do journal em performMigration, atualiza `journalKey` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 158 | U11 |       jobId = null, | Em preparação e indexação do journal em performMigration, atualiza `jobId` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 159 | U11 |       recovering = false, | Em preparação e indexação do journal em performMigration, atualiza `recovering` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 160 | U11 |     } = {}) { | Em preparação e indexação do journal em performMigration, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 161 | U11 |       if (!validTabId(oldTabId) \|\| !validTabId(requestedNewTabId) \|\| oldTabId === requestedNewTabId) { | Aborta cedo para IDs inválidos ou iguais antes de tocar journal, storage, state ou alarms. |
+| 162 | U11 |         return requestedNewTabId; | No guard de entrada, devolve o destino pedido sem criar efeitos colaterais. |
+| 163 | U11 |       } | Encerra o bloco sintático de preparação e indexação do journal em performMigration depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 164 | U11 | ␠ [linha vazia] | Separa preparação e indexação do journal em performMigration de preparação e indexação do journal em performMigration; não executa código. |
+| 165 | U11 |       const newTabId = await resolveCanonicalTabId(requestedNewTabId); | Em preparação e indexação do journal em performMigration, `newTabId` armazena o destino já canonicalizado antes de migrar registros. |
+| 166 | U11 |       const key = journalKey \|\| migrationKey(oldTabId, newTabId, jobId); | Em preparação e indexação do journal em performMigration, `key` guarda a chave de storage/journal usada na operação corrente. |
+| 167 | U11 |       const existing = await chrome.storage.local.get([key]); | Em preparação e indexação do journal em performMigration, `existing` recebe eventual journal já persistido para permitir replay idempotente. |
+| 168 | U11 |       let journal = existing && existing[key]; | Em preparação e indexação do journal em performMigration, `journal` mantém o checkpoint durável da migração. |
+| 169 | U11 |       if (!journal) { | Cria journal inicial apenas se a chave ainda não tinha checkpoint persistido. |
+| 170 | U11 |         journal = { | Em preparação e indexação do journal em performMigration, atualiza `journal` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 171 | U11 |           oldTabId, | Em preparação e indexação do journal em performMigration, o campo `oldTabId` registra a identidade física de origem da migração. |
+| 172 | U11 |           newTabId, | Em preparação e indexação do journal em performMigration, o campo `newTabId` registra a identidade física/canônica de destino. |
+| 173 | U11 |           jobId: jobId \|\| null, | Em preparação e indexação do journal em performMigration, o campo `jobId` correlaciona a migração ao job lógico quando disponível. |
+| 174 | U11 |           phase: 'alias_written', | Em preparação e indexação do journal em performMigration, o campo `phase` registra o checkpoint atual do protocolo. |
+| 175 | U11 |           createdAt: now(), | Em preparação e indexação do journal em performMigration, o campo `createdAt` registra quando o objeto durável foi criado. |
+| 176 | U11 |           updatedAt: now(), | Em preparação e indexação do journal em performMigration, o campo `updatedAt` registra quando o checkpoint/job foi atualizado. |
+| 177 | U11 |         }; | Encerra o bloco sintático de preparação e indexação do journal em performMigration depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 178 | U11 |         await chrome.storage.local.set({ [key]: journal }); | Em preparação e indexação do journal em performMigration, persiste o novo estado antes de avançar, tornando a etapa observável/recuperável após suspensão. |
+| 179 | U11 |       } | Encerra o bloco sintático de preparação e indexação do journal em performMigration depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 180 | U11 |       await addIndexValue(MIGRATION_INDEX_KEY, key); | Indexa a chave/ID recém-persistida para que recovery ou cleanup possa encontrá-la sem scan global. |
+| 181 | U11 | ␠ [linha vazia] | Separa preparação e indexação do journal em performMigration de telemetria de begin/recovery; não executa código. |
+| 182 | U11 |       log('info', 'bg', recovering ? 'TAB_REKEY_RECOVERED' : 'TAB_REKEY_BEGIN', | Em telemetria de begin/recovery, registra telemetria distinguindo início normal de retomada por recovery. |
+| 183 | U11 |         recovering ? 'Retomando migração de identidade de aba' : 'Iniciando migração de identidade de aba', | Em telemetria de begin/recovery, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 184 | U11 |         { oldTabId, newTabId, phase: journal.phase }); | Em telemetria de begin/recovery, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 185 | U11 | ␠ [linha vazia] | Separa telemetria de begin/recovery de derivação e leitura das chaves origem/destino; não executa código. |
+| 186 | U11 |       const oldJobKey = `gemini_job_${oldTabId}`; | Em derivação e leitura das chaves origem/destino, `oldJobKey` nomeia o registro de job ligado ao tabId antigo. |
+| 187 | U11 |       const newJobKey = `gemini_job_${newTabId}`; | Em derivação e leitura das chaves origem/destino, `newJobKey` nomeia o registro de job ligado ao destino canônico. |
+| 188 | U11 |       const oldWdKey = `wd_data_${oldTabId}`; | Em derivação e leitura das chaves origem/destino, `oldWdKey` nomeia watchdog data da origem. |
+| 189 | U11 |       const newWdKey = `wd_data_${newTabId}`; | Em derivação e leitura das chaves origem/destino, `newWdKey` nomeia watchdog data do destino. |
+| 190 | U11 |       const oldRecoveryKey = `gemini_delete_recovery_${oldTabId}`; | Em derivação e leitura das chaves origem/destino, `oldRecoveryKey` nomeia o marker de recovery de deleção da origem. |
+| 191 | U11 |       const newRecoveryKey = `gemini_delete_recovery_${newTabId}`; | Em derivação e leitura das chaves origem/destino, `newRecoveryKey` nomeia o marker de recovery de deleção do destino. |
+| 192 | U11 |       const oldFinalizedKey = `gemini_finalized_${oldTabId}`; | Em derivação e leitura das chaves origem/destino, `oldFinalizedKey` nomeia o marker durável de finalização da origem. |
+| 193 | U11 |       const newFinalizedKey = `gemini_finalized_${newTabId}`; | Em derivação e leitura das chaves origem/destino, `newFinalizedKey` nomeia o marker durável de finalização do destino. |
+| 194 | U11 | ␠ [linha vazia] | Separa derivação e leitura das chaves origem/destino de derivação e leitura das chaves origem/destino; não executa código. |
+| 195 | U11 |       const keys = [ | Em derivação e leitura das chaves origem/destino, `keys` agrupa as chaves origem/destino para leitura em lote. |
+| 196 | U11 |         oldJobKey, newJobKey, | Em derivação e leitura das chaves origem/destino, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 197 | U11 |         oldWdKey, newWdKey, | Em derivação e leitura das chaves origem/destino, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 198 | U11 |         oldRecoveryKey, newRecoveryKey, | Em derivação e leitura das chaves origem/destino, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 199 | U11 |         oldFinalizedKey, newFinalizedKey, | Em derivação e leitura das chaves origem/destino, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 200 | U11 |       ]; | Encerra o bloco sintático de derivação e leitura das chaves origem/destino depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 201 | U11 |       const data = await chrome.storage.local.get(keys); | Em derivação e leitura das chaves origem/destino, `data` recebe o snapshot de storage necessário à etapa corrente. |
+| 202 | U11 |       const writes = {}; | Em derivação e leitura das chaves origem/destino, `writes` acumula apenas gravações compatíveis antes do set em lote. |
+| 203 | U11 | ␠ [linha vazia] | Separa derivação e leitura das chaves origem/destino de derivação e leitura das chaves origem/destino; não executa código. |
+| 204 | U11 |       const oldJob = data[oldJobKey]; | Em derivação e leitura das chaves origem/destino, `oldJob` referencia o job persistido na origem. |
+| 205 | U11 |       const newJob = data[newJobKey]; | Em derivação e leitura das chaves origem/destino, `newJob` referencia eventual job já existente no destino. |
+| 206 | U11 | ␠ [linha vazia] | Separa derivação e leitura das chaves origem/destino de proteção TAB_REKEY_CONFLICT; não executa código. |
+| 207 | U11 |       if ( | Inicia o guard que impede takeover quando origem e destino pertencem a jobs diferentes. |
+| 208 | U11 |         oldJob && newJob && | Exige presença simultânea de jobs em origem e destino para que o guard de conflito seja aplicável. |
+| 209 | U11 |         oldJob.jobId && newJob.jobId && | Exige jobIds definidos nos dois registros antes de compará-los como ownership lógico. |
+| 210 | U11 |         oldJob.jobId !== newJob.jobId | Caracteriza conflito somente quando os jobIds definidos são diferentes. |
+| 211 | U11 |       ) { | Em proteção TAB_REKEY_CONFLICT, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 212 | U11 |         log('error', 'bg', 'TAB_REKEY_CONFLICT', 'Destino de rekey já pertence a outro job', { | Emite `TAB_REKEY_CONFLICT` antes da exceção que bloqueia takeover destrutivo do destino. |
+| 213 | U11 |           oldTabId, | Em proteção TAB_REKEY_CONFLICT, o campo `oldTabId` registra a identidade física de origem da migração. |
+| 214 | U11 |           newTabId, | Em proteção TAB_REKEY_CONFLICT, o campo `newTabId` registra a identidade física/canônica de destino. |
+| 215 | U11 |           oldJobIdPrefix: String(oldJob.jobId).slice(0, 8), | Em proteção TAB_REKEY_CONFLICT, o campo `oldJobIdPrefix` expõe só um prefixo do jobId de origem no diagnóstico de conflito. |
+| 216 | U11 |           newJobIdPrefix: String(newJob.jobId).slice(0, 8), | Em proteção TAB_REKEY_CONFLICT, o campo `newJobIdPrefix` expõe só um prefixo do jobId de destino no diagnóstico de conflito. |
+| 217 | U11 |         }); | Encerra o bloco sintático de proteção TAB_REKEY_CONFLICT depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 218 | U11 |         throw new Error('TAB_REKEY_CONFLICT'); | Interrompe o rekey antes de qualquer remoção da origem quando o destino pertence a outro job. |
+| 219 | U11 |       } | Encerra o bloco sintático de proteção TAB_REKEY_CONFLICT depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 220 | U11 | ␠ [linha vazia] | Separa proteção TAB_REKEY_CONFLICT de cópia compatível de job/watchdog/recovery/finalized; não executa código. |
+| 221 | U11 |       if (oldJob) { | Só prepara cópia do registro principal se realmente existe job persistido na origem. |
+| 222 | U11 |         if (!newJob \|\| !newJob.jobId \|\| !oldJob.jobId \|\| newJob.jobId === oldJob.jobId) { | Autoriza escrever no destino apenas quando ele está vazio/sem jobId ou pertence ao mesmo job lógico. |
+| 223 | U11 |           writes[newJobKey] = { | Em cópia compatível de job/watchdog/recovery/finalized, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 224 | U11 |             ...oldJob, | Preserva todos os campos do job antigo antes de sobrescrever os campos que dependem da identidade da aba. |
+| 225 | U11 |             geminiTabId: newTabId, | Em cópia compatível de job/watchdog/recovery/finalized, o campo `geminiTabId` reescreve a referência física para o destino canônico. |
+| 226 | U11 |             canonicalTabId: newTabId, | Em cópia compatível de job/watchdog/recovery/finalized, o campo `canonicalTabId` fixa explicitamente o destino canônico no job copiado. |
+| 227 | U11 |             replacementCount: (Number(oldJob.replacementCount) \|\| 0) + 1, | Em cópia compatível de job/watchdog/recovery/finalized, o campo `replacementCount` incrementa a contagem de substituições físicas da aba. |
+| 228 | U11 |             updatedAt: now(), | Em cópia compatível de job/watchdog/recovery/finalized, o campo `updatedAt` registra quando o checkpoint/job foi atualizado. |
+| 229 | U11 |           }; | Encerra o bloco sintático de cópia compatível de job/watchdog/recovery/finalized depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 230 | U11 |           if (!journal.jobId && oldJob.jobId) journal.jobId = oldJob.jobId; | Preenche jobId do journal a partir do job antigo somente quando o journal ainda não o conhece. |
+| 231 | U11 |         } | Encerra o bloco sintático de cópia compatível de job/watchdog/recovery/finalized depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 232 | U11 |       } | Encerra o bloco sintático de cópia compatível de job/watchdog/recovery/finalized depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 233 | U11 | ␠ [linha vazia] | Separa cópia compatível de job/watchdog/recovery/finalized de cópia compatível de job/watchdog/recovery/finalized; não executa código. |
+| 234 | U11 |       if (data[oldWdKey] && !data[newWdKey]) { | Copia watchdog data apenas se existe na origem e o destino ainda não possui valor. |
+| 235 | U11 |         writes[newWdKey] = { ...data[oldWdKey], geminiTabId: newTabId }; | Preserva o watchdog data antigo e troca somente o `geminiTabId` pelo destino. |
+| 236 | U11 |       } | Encerra o bloco sintático de cópia compatível de job/watchdog/recovery/finalized depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 237 | U11 |       if (data[oldRecoveryKey] && !data[newRecoveryKey]) { | Copia recovery marker somente se a origem possui valor e a chave de destino está livre. |
+| 238 | U11 |         const value = data[oldRecoveryKey]; | Em cópia compatível de job/watchdog/recovery/finalized, `value` preserva o formato original do recovery marker antes de copiá-lo. |
+| 239 | U11 |         writes[newRecoveryKey] = value && typeof value === 'object' | Em cópia compatível de job/watchdog/recovery/finalized, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 240 | U11 |           ? { ...value, geminiTabId: newTabId } | Clona o recovery marker em formato objeto e atualiza seu `geminiTabId` sem perder os demais campos. |
+| 241 | U11 |           : value; | Em cópia compatível de job/watchdog/recovery/finalized, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 242 | U11 |       } | Encerra o bloco sintático de cópia compatível de job/watchdog/recovery/finalized depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 243 | U11 |       if (data[oldFinalizedKey] && !data[newFinalizedKey]) { | Copia finalization marker apenas se não houver marker pré-existente no destino. |
+| 244 | U11 |         writes[newFinalizedKey] = data[oldFinalizedKey]; | Preserva integralmente o finalization marker já contabilizado ao copiá-lo para a chave nova. |
+| 245 | U11 |       } | Encerra o bloco sintático de cópia compatível de job/watchdog/recovery/finalized depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 246 | U11 | ␠ [linha vazia] | Separa cópia compatível de job/watchdog/recovery/finalized de checkpointing, migração de state/alarms e remoção da origem; não executa código. |
+| 247 | U11 |       if (Object.keys(writes).length) await chrome.storage.local.set(writes); | Evita chamada `storage.set` vazia; persiste apenas quando houve registros compatíveis a copiar. |
+| 248 | U11 |       journal = await writeJournal(key, journal, 'records_copied'); | Em checkpointing, migração de state/alarms e remoção da origem, atualiza `journal` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 249 | U11 | ␠ [linha vazia] | Separa checkpointing, migração de state/alarms e remoção da origem de checkpointing, migração de state/alarms e remoção da origem; não executa código. |
+| 250 | U11 |       await migrateReferences(oldTabId, newTabId); | Atualiza jobIndex/extractionTabs e o marcador in-memory para que state acompanhe o tabId canônico. |
+| 251 | U11 |       journal = await writeJournal(key, journal, 'state_updated'); | Em checkpointing, migração de state/alarms e remoção da origem, atualiza `journal` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 252 | U11 | ␠ [linha vazia] | Separa checkpointing, migração de state/alarms e remoção da origem de checkpointing, migração de state/alarms e remoção da origem; não executa código. |
+| 253 | U11 |       const legacyWatchdogMoved = await moveAlarm(`watchdog_${oldTabId}`, `watchdog_${newTabId}`); | Em checkpointing, migração de state/alarms e remoção da origem, `legacyWatchdogMoved` registra se havia watchdog antigo efetivamente transferido. |
+| 254 | U11 |       await moveAlarm(`finalization_marker_${oldTabId}`, `finalization_marker_${newTabId}`); | Transfere o alarme associado à identidade antiga para o novo tabId sem reiniciar arbitrariamente o deadline. |
+| 255 | U11 |       journal = await writeJournal(key, { ...journal, legacyWatchdogMoved }, 'alarms_updated'); | Em checkpointing, migração de state/alarms e remoção da origem, atualiza `journal` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 256 | U11 | ␠ [linha vazia] | Separa checkpointing, migração de state/alarms e remoção da origem de checkpointing, migração de state/alarms e remoção da origem; não executa código. |
+| 257 | U11 |       await chrome.storage.local.remove([ | Em checkpointing, migração de state/alarms e remoção da origem, remove apenas dados já considerados obsoletos depois de o estado substituto estar preparado. |
+| 258 | U11 |         oldJobKey, | Em checkpointing, migração de state/alarms e remoção da origem, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 259 | U11 |         oldWdKey, | Em checkpointing, migração de state/alarms e remoção da origem, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 260 | U11 |         oldRecoveryKey, | Em checkpointing, migração de state/alarms e remoção da origem, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 261 | U11 |         oldFinalizedKey, | Em checkpointing, migração de state/alarms e remoção da origem, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 262 | U11 |       ]); | Encerra o bloco sintático de checkpointing, migração de state/alarms e remoção da origem depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 263 | U11 |       journal = await writeJournal(key, journal, 'old_keys_removed'); | Em checkpointing, migração de state/alarms e remoção da origem, atualiza `journal` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 264 | U11 | ␠ [linha vazia] | Separa checkpointing, migração de state/alarms e remoção da origem de checkpointing, migração de state/alarms e remoção da origem; não executa código. |
+| 265 | U11 |       journal = await writeJournal(key, journal, 'completed'); | Em checkpointing, migração de state/alarms e remoção da origem, atualiza `journal` para refletir o resultado acumulado desta fase antes do próximo checkpoint. |
+| 266 | U11 |       await removeIndexValue(MIGRATION_INDEX_KEY, key); | Desindexa a entrada já concluída/descartada para que startups futuros não a reprocessem. |
+| 267 | U11 | ␠ [linha vazia] | Separa checkpointing, migração de state/alarms e remoção da origem de conclusão e telemetria TAB_REKEY_END; não executa código. |
+| 268 | U11 |       log('info', 'bg', 'TAB_REKEY_END', 'Migração de identidade de aba concluída', { | Emite `TAB_REKEY_END` apenas depois de o journal chegar a completed e sair do índice. |
+| 269 | U11 |         oldTabId, | Em conclusão e telemetria TAB_REKEY_END, o campo `oldTabId` registra a identidade física de origem da migração. |
+| 270 | U11 |         newTabId, | Em conclusão e telemetria TAB_REKEY_END, o campo `newTabId` registra a identidade física/canônica de destino. |
+| 271 | U11 |         phase: journal.phase, | Em conclusão e telemetria TAB_REKEY_END, o campo `phase` registra o checkpoint atual do protocolo. |
+| 272 | U11 |       }); | Encerra o bloco sintático de conclusão e telemetria TAB_REKEY_END depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 273 | U11 |       return newTabId; | Entrega ao caller o destino canonicalizado depois de completar e desindexar o journal. |
+| 274 | U11 |     } | Encerra o bloco sintático de conclusão e telemetria TAB_REKEY_END depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 275 | U11 | ␠ [linha vazia] | Separa conclusão e telemetria TAB_REKEY_END de migrateTabIdentity; não executa código. |
+| 276 | U12 |     async function migrateTabIdentity(oldTabId, newTabId, options = {}) { | Declara `migrateTabIdentity` como a unidade executável responsável por migrateTabIdentity. |
+| 277 | U12 |       return performMigration(oldTabId, newTabId, options); | Delega a fachada pública diretamente ao protocolo recuperável `performMigration`. |
+| 278 | U12 |     } | Encerra o bloco sintático de migrateTabIdentity depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 279 | U12 | ␠ [linha vazia] | Separa migrateTabIdentity de recordReplacement; não executa código. |
+| 280 | U13 |     async function recordReplacement(addedTabId, removedTabId) { | Declara `recordReplacement` como a unidade executável responsável por recordReplacement. |
+| 281 | U13 |       if (!validTabId(addedTabId) \|\| !validTabId(removedTabId) \|\| addedTabId === removedTabId) { | Ignora replacement com IDs inválidos ou iguais antes de criar alias/journal. |
+| 282 | U13 |         return addedTabId; | No replacement degenerado, devolve addedTabId e encerra sem persistência. |
+| 283 | U13 |       } | Encerra o bloco sintático de recordReplacement depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 284 | U13 |       await persistAlias(removedTabId, addedTabId); | Persiste o redirecionamento removed→added antes de iniciar o rekey dos demais registros. |
+| 285 | U13 |       return performMigration(removedTabId, addedTabId); | Executa a migração removed→added somente depois de o alias ter sido persistido. |
+| 286 | U13 |     } | Encerra o bloco sintático de recordReplacement depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 287 | U13 | ␠ [linha vazia] | Separa recordReplacement de recoverPendingMigrations; não executa código. |
+| 288 | U14 |     async function recoverPendingMigrations() { | Declara `recoverPendingMigrations` como a unidade executável responsável por recoverPendingMigrations. |
+| 289 | U14 |       const data = await chrome.storage.local.get([MIGRATION_INDEX_KEY]); | Em recoverPendingMigrations, `data` recebe o snapshot de storage necessário à etapa corrente. |
+| 290 | U14 |       const keys = Array.isArray(data[MIGRATION_INDEX_KEY]) ? data[MIGRATION_INDEX_KEY].slice() : []; | Em recoverPendingMigrations, `keys` agrupa as chaves origem/destino para leitura em lote. |
+| 291 | U14 |       let recovered = 0; | Em recoverPendingMigrations, `recovered` conta somente migrations que foram realmente retomadas. |
+| 292 | U14 | ␠ [linha vazia] | Separa recoverPendingMigrations de recoverPendingMigrations; não executa código. |
+| 293 | U14 |       for (const key of keys) { | Itera sequencialmente as entradas de recoverPendingMigrations para classificar/processar cada identidade de forma determinística. |
+| 294 | U14 |         // eslint-disable-next-line no-await-in-loop | Autoriza explicitamente o await sequencial nesta iteração porque recoverPendingMigrations precisa processar cada entrada sem interleaving acidental. |
+| 295 | U14 |         const stored = await chrome.storage.local.get([key]); | Em recoverPendingMigrations, define `stored` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 296 | U14 |         const journal = stored && stored[key]; | Em recoverPendingMigrations, `journal` mantém o checkpoint durável da migração. |
+| 297 | U14 |         if (!journal \|\| journal.phase === 'completed') { | Desindexa journal ausente ou já completed em vez de tentar replay desnecessário. |
+| 298 | U14 |           // eslint-disable-next-line no-await-in-loop | Autoriza explicitamente o await sequencial nesta iteração porque recoverPendingMigrations precisa processar cada entrada sem interleaving acidental. |
+| 299 | U14 |           await removeIndexValue(MIGRATION_INDEX_KEY, key); | Desindexa a entrada já concluída/descartada para que startups futuros não a reprocessem. |
+| 300 | U14 |           continue; | Pula o replay da entrada já saneada/desindexada e avança para a próxima journal key. |
+| 301 | U14 |         } | Encerra o bloco sintático de recoverPendingMigrations depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 302 | U14 |         if (!validTabId(journal.oldTabId) \|\| !validTabId(journal.newTabId)) { | Desindexa journal cujos IDs não satisfazem `validTabId`, evitando loop eterno de recovery. |
+| 303 | U14 |           // eslint-disable-next-line no-await-in-loop | Autoriza explicitamente o await sequencial nesta iteração porque recoverPendingMigrations precisa processar cada entrada sem interleaving acidental. |
+| 304 | U14 |           await removeIndexValue(MIGRATION_INDEX_KEY, key); | Desindexa a entrada já concluída/descartada para que startups futuros não a reprocessem. |
+| 305 | U14 |           continue; | Pula o replay da entrada já saneada/desindexada e avança para a próxima journal key. |
+| 306 | U14 |         } | Encerra o bloco sintático de recoverPendingMigrations depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 307 | U14 |         // A migração é idempotente: copiar um registro já copiado e remover | Documenta a premissa que autoriza replay: copiar novamente um registro já copiado deve ser inócuo. |
+| 308 | U14 |         // uma chave já removida não altera a contabilidade. | Completa a premissa de idempotência: remover chave já ausente não deve alterar a contabilidade. |
+| 309 | U14 |         // eslint-disable-next-line no-await-in-loop | Autoriza explicitamente o await sequencial nesta iteração porque recoverPendingMigrations precisa processar cada entrada sem interleaving acidental. |
+| 310 | U14 |         await performMigration(journal.oldTabId, journal.newTabId, { | Executa/reexecuta o protocolo de rekey com journal, preservando a ordem recuperável das fases. |
+| 311 | U14 |           journalKey: key, | Em recoverPendingMigrations, o campo `journalKey` permite ao recovery reutilizar exatamente o journal já indexado. |
+| 312 | U14 |           jobId: journal.jobId \|\| null, | Em recoverPendingMigrations, o campo `jobId` correlaciona a migração ao job lógico quando disponível. |
+| 313 | U14 |           recovering: true, | Em recoverPendingMigrations, o campo `recovering` distingue replay de uma migração iniciada normalmente. |
+| 314 | U14 |         }); | Encerra o bloco sintático de recoverPendingMigrations depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 315 | U14 |         recovered += 1; | Incrementa a métrica de recovery somente após uma migração pendente terminar sem erro. |
+| 316 | U14 |       } | Encerra o bloco sintático de recoverPendingMigrations depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 317 | U14 |       return recovered; | Informa quantas migrations pendentes foram efetivamente retomadas nesta passagem. |
+| 318 | U14 |     } | Encerra o bloco sintático de recoverPendingMigrations depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 319 | U14 | ␠ [linha vazia] | Separa recoverPendingMigrations de cleanupExpiredAliases; não executa código. |
+| 320 | U15 |     async function cleanupExpiredAliases() { | Declara `cleanupExpiredAliases` como a unidade executável responsável por cleanupExpiredAliases. |
+| 321 | U15 |       const data = await chrome.storage.local.get([ALIAS_INDEX_KEY]); | Em cleanupExpiredAliases, `data` recebe o snapshot de storage necessário à etapa corrente. |
+| 322 | U15 |       const ids = Array.isArray(data[ALIAS_INDEX_KEY]) ? data[ALIAS_INDEX_KEY].slice() : []; | Em cleanupExpiredAliases, `ids` clona o índice de tabIds que serão avaliados pelo cleanup. |
+| 323 | U15 |       const keep = []; | Em cleanupExpiredAliases, `keep` acumula aliases ainda válidos que permanecerão indexados. |
+| 324 | U15 |       const remove = []; | Em cleanupExpiredAliases, `remove` acumula chaves inválidas/expiradas que serão apagadas. |
+| 325 | U15 | ␠ [linha vazia] | Separa cleanupExpiredAliases de cleanupExpiredAliases; não executa código. |
+| 326 | U15 |       for (const tabId of ids) { | Itera sequencialmente as entradas de cleanupExpiredAliases para classificar/processar cada identidade de forma determinística. |
+| 327 | U15 |         const key = aliasKey(tabId); | Em cleanupExpiredAliases, `key` guarda a chave de storage/journal usada na operação corrente. |
+| 328 | U15 |         // eslint-disable-next-line no-await-in-loop | Autoriza explicitamente o await sequencial nesta iteração porque cleanupExpiredAliases precisa processar cada entrada sem interleaving acidental. |
+| 329 | U15 |         const stored = await chrome.storage.local.get([key]); | Em cleanupExpiredAliases, define `stored` como valor intermediário necessário para esta etapa antes de qualquer efeito posterior. |
+| 330 | U15 |         const alias = stored && stored[key]; | Em cleanupExpiredAliases, `alias` representa o redirecionamento persistido do tabId corrente. |
+| 331 | U15 |         if (alias && validTabId(alias.newTabId) && alias.expiresAt > now()) keep.push(tabId); | Mantém no índice somente alias existente, destino válido e TTL ainda vigente. |
+| 332 | U15 |         else remove.push(key); | Classifica alias ausente/inválido/expirado para remoção do storage. |
+| 333 | U15 |       } | Encerra o bloco sintático de cleanupExpiredAliases depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 334 | U15 | ␠ [linha vazia] | Separa cleanupExpiredAliases de cleanupExpiredAliases; não executa código. |
+| 335 | U15 |       if (remove.length) await chrome.storage.local.remove(remove); | Remove chaves obsoletas em lote apenas quando a lista de remoção não está vazia. |
+| 336 | U15 |       await chrome.storage.local.set({ [ALIAS_INDEX_KEY]: keep }); | Em cleanupExpiredAliases, persiste o novo estado antes de avançar, tornando a etapa observável/recuperável após suspensão. |
+| 337 | U15 |       return { kept: keep.length, removed: remove.length }; | Expõe métricas do garbage collection: aliases mantidos e removidos. |
+| 338 | U15 |     } | Encerra o bloco sintático de cleanupExpiredAliases depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 339 | U16 | ␠ [linha vazia] | Separa cleanupExpiredAliases de API retornada por createTabIdentity; não executa código. |
+| 340 | U16 |     return { | Inicia o objeto de API pública devolvido por `createTabIdentity`. |
+| 341 | U16 |       recordReplacement, | Expõe `recordReplacement` para o listener real de `tabs.onReplaced`. |
+| 342 | U16 |       resolveCanonicalTabId, | Expõe o resolver para lifecycle, reconciler e ações de ownership. |
+| 343 | U16 |       migrateTabIdentity, | Expõe a fachada de rekey explícito com suporte a opções/jobId. |
+| 344 | U16 |       recoverPendingMigrations, | Expõe recovery de journals para bootstrap/startup. |
+| 345 | U16 |       migrateReferences, | Atualiza jobIndex/extractionTabs e o marcador in-memory para que state acompanhe o tabId canônico. |
+| 346 | U16 |       cleanupExpiredAliases, | Expõe garbage collection de aliases para manutenção no startup. |
+| 347 | U16 |       constants: { | Em API retornada por createTabIdentity, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 348 | U16 |         ALIAS_PREFIX, | Expõe o prefixo das chaves individuais de alias para inspeção/testes. |
+| 349 | U16 |         ALIAS_INDEX_KEY, | Expõe a chave do índice de aliases para inspeção/testes. |
+| 350 | U16 |         MIGRATION_PREFIX, | Expõe o prefixo dos journals de migração para inspeção/testes. |
+| 351 | U16 |         MIGRATION_INDEX_KEY, | Expõe a chave do migration index para inspeção/testes. |
+| 352 | U16 |         DEFAULT_ALIAS_TTL_MS, | Expõe o TTL padrão adotado pela factory quando não há override. |
+| 353 | U16 |         MAX_ALIAS_HOPS, | Expõe o limite de oito hops usado pelo resolver. |
+| 354 | U16 |       }, | Em API retornada por createTabIdentity, este fragmento completa a operação corrente e mantém a ordem necessária para que o rekey permaneça recuperável. |
+| 355 | U16 |     }; | Encerra o bloco sintático de API retornada por createTabIdentity depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 356 | U16 |   } | Encerra o bloco sintático de API retornada por createTabIdentity depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 357 | U16 | ␠ [linha vazia] | Separa API retornada por createTabIdentity de exports global/CommonJS e fechamento da IIFE; não executa código. |
+| 358 | U16 |   scope.MangaTranslatorTabIdentity = { createTabIdentity }; | Publica a factory no namespace global consumido pelo Service Worker. |
+| 359 | U16 |   if (typeof module !== 'undefined' && module.exports) { | Só usa `module.exports` quando o ambiente CommonJS está presente, preservando execução no browser. |
+| 360 | U17 |     module.exports = { createTabIdentity }; | Exporta a mesma factory para Jest/Node carregar exatamente a implementação de runtime. |
+| 361 | U17 |   } | Encerra o bloco sintático de exports global/CommonJS e fechamento da IIFE depois de consolidar a decisão/efeito descrito nas linhas imediatamente anteriores. |
+| 362 | U17 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha/invoca a IIFE usando `self` no worker/browser e `globalThis` como fallback em Node. |
+| 363 | U18 | ⏎ [newline final] | Registra explicitamente o LF terminal; não executa código, mas completa a equivalência física 363/363. |
 ## Análise por unidade
 
 ### U01 — linhas 1–8 — Cabeçalho e IIFE
 
 **O que faz:** Explica por que tabId físico não é identidade durável e abre o módulo.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Combina strict mode com o comentário de contrato que liga replacement físico, alias durável e journal recuperável ao ciclo de vida MV3.
 
 **Por que foi feito assim:** Define o problema de tab replacement como responsabilidade própria.
 
@@ -884,7 +883,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Define prefixes, índices duráveis, TTL padrão de 10 min e máximo de 8 hops.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Isola o módulo em IIFE e separa chaves individuais/índices, com TTL de 10 minutos e limite de oito hops.
 
 **Por que foi feito assim:** Mantém alias/journal enumeráveis sem usar storage.get(null).
 
@@ -894,7 +893,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Cria instância com state/log/moveFinalized/clock configuráveis e exige state.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Injeta state/log/hook/TTL/clock, exige state e deriva chaves de alias/journal; com jobId, a chave do journal passa a ser baseada no job lógico.
 
 **Por que foi feito assim:** Injeção permite testes determinísticos de TTL e integração com facade real.
 
@@ -904,7 +903,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Adiciona/remove chaves dos arrays-index de alias e migrations.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Executa read-modify-write dos arrays-índice no storage, evitando duplicata na inclusão e filtrando a entrada na remoção.
 
 **Por que foi feito assim:** Permite enumerar somente registros relevantes.
 
@@ -914,7 +913,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Aceita apenas inteiro >=0.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Usa `Number.isInteger(tabId) && tabId >= 0` como predicado único antes de aceitar identidade em alias/recovery.
 
 **Por que foi feito assim:** Evita aliases/migrations sobre valores não representativos de tabId.
 
@@ -924,7 +923,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Segue cadeia old→new até ausência/expiração, detecta ciclo e limita hops.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Segue um alias por vez, registra visitados, valida destino+TTL em cada hop e devolve a origem em ciclo ou excesso de oito saltos.
 
 **Por que foi feito assim:** Visited Set + TTL + hop cap evitam loop e takeover via alias antigo.
 
@@ -934,7 +933,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Persiste alias old→new com timestamps/TTL, indexa oldTabId e loga criação.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Monta old/new/createdAt/expiresAt, grava a chave individual, indexa oldTabId e só então emite `TAB_ALIAS_CREATED`.
 
 **Por que foi feito assim:** Alias é escrito antes do rekey para que callers possam resolver a nova identidade cedo.
 
@@ -944,7 +943,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Migra jobIndex/extractionTabs usando a melhor API de state disponível e move tombstone in-memory.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Reconstrói jobIndex/extractionTabs e escolhe, em ordem, `replaceGeminiTabReferences`, `mutate`, `patch` ou atribuição direta; depois move o tombstone in-memory.
 
 **Por que foi feito assim:** Mantém referências do snapshot coerentes com a nova tab canônica.
 
@@ -954,7 +953,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Obtém alarme com tolerância a throw e move schedule antigo para novo nome.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Lê o alarme com adaptador Promise tolerante a throw, remove o nome antigo e recria com `when` futuro ou fallback `delayInMinutes:0.01`.
 
 **Por que foi feito assim:** Preserva deadlines de watchdog/finalization marker através do rekey.
 
@@ -964,7 +963,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Persiste fase e updatedAt da migração.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Clona o journal, troca a fase, atualiza `updatedAt`, persiste na mesma chave e retorna a versão efetivamente gravada.
 
 **Por que foi feito assim:** Transforma rekey multi-etapa em operação recuperável após crash.
 
@@ -974,7 +973,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Canonicaliza destino, cria/reusa journal, detecta conflito de jobs, copia registros, migra state/alarms, remove chaves antigas e marca completed.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Canonicaliza o destino, cria/reusa journal, protege conflito de jobId, copia registros, checkpointa state/alarms, remove origem, marca completed e desindexa.
 
 **Por que foi feito assim:** Ordena fases para que cada passo seja idempotente/repetível.
 
@@ -984,7 +983,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Facade explícita para migração solicitada por lifecycle/reconciler.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Repassa oldTabId/newTabId/options diretamente a `performMigration`, sem duplicar qualquer regra de journal.
 
 **Por que foi feito assim:** Separa API pública do helper interno.
 
@@ -994,7 +993,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Valida evento Chromium, persiste alias e executa migração removed→added.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Valida added/removed, persiste primeiro `removed→added` e somente depois migra registros/referências da origem ao destino.
 
 **Por que foi feito assim:** Garante que alias existe antes da cópia/rekey.
 
@@ -1004,7 +1003,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Varre migration index, descarta entradas concluídas/inválidas e reexecuta migrations pendentes idempotentemente.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Varre o migration index sequencialmente, desindexa journals inúteis/inválidos e reaplica `performMigration` com a mesma journalKey em modo recovering.
 
 **Por que foi feito assim:** Permite recovery após suspensão/restart em qualquer fase registrada.
 
@@ -1014,7 +1013,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Varre alias index, mantém aliases válidos e remove chaves expiradas/inválidas.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Classifica cada alias indexado por existência, tabId de destino e TTL; remove chaves obsoletas e regrava o índice apenas com `keep`.
 
 **Por que foi feito assim:** Limita janela de takeover e crescimento de storage.
 
@@ -1024,7 +1023,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Expõe operações e constantes necessárias ao background/tests.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Retorna somente operações públicas e constantes auditáveis e publica a factory em `scope.MangaTranslatorTabIdentity` para o background.
 
 **Por que foi feito assim:** Mantém detalhes internos escondidos e fornece constantes auditáveis.
 
@@ -1034,7 +1033,7 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Publica factory no namespace global e CommonJS quando disponível.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Exporta a mesma factory via CommonJS quando disponível e fecha a IIFE com `self`/`globalThis`, permitindo browser e Jest usarem o mesmo código.
 
 **Por que foi feito assim:** Suporta importScripts no MV3 e require/Jest.
 
@@ -1044,21 +1043,26 @@ As lacunas abaixo não foram convertidas em alterações externas por este agent
 
 **O que faz:** Representa newline terminal auditado.
 
-**Como faz:** usa storage/index/journal/state/alarms exatamente na ordem mostrada na fonte e mantém o rekey repetível.
+**Como faz:** Conta o LF depois da linha 362 como posição física 363 e confirma que o bloco integral preserva esse terminador.
 
 **Por que foi feito assim:** Mantém equivalência física explícita.
 
 **Por que uma alternativa ingênua seria pior:** Ignorá-lo quebraria a convenção das Bíblias.
 
-## Auditoria final
+## Auditoria final — AGENTE 23
 
-- [x] SHA/fonte integral;
-- [x] 362 linhas + newline = 363/363;
-- [x] alias/cycle/TTL/hops analisados;
-- [x] journal e recovery por fases analisados;
-- [x] storage/state/alarms/markers mapeados;
-- [x] testes diretos separados de integrações;
-- [x] riscos concorrentes e journal por jobId explicitados;
-- [x] nenhum código funcional alterado.
+- [x] reserva exclusiva reconfirmada para `AGENTE 23`;
+- [x] SHA da fonte reconfirmado: `008c9a054ae417e0f31224617346e24fc9dbc1b4`;
+- [x] 362 linhas textuais + newline final = 363/363 posições;
+- [x] bloco em **Fonte integral** comparado exatamente com a fonte atual;
+- [x] rastreabilidade regenerada com 363 papéis locais contextualizados por função/fase;
+- [x] teste focal real reconfirmado no SHA `1f2dd52513037f061613d04453a961fbaeddef84`;
+- [x] TAB-01/02/03/04/05/07-08/09/12 mantidos somente no nível suportado pelas assertions reais;
+- [x] wiring de `background.js`, `jobs-lifecycle.js`, `jobs-reconciliation.js` e `state.js` reconferido;
+- [x] lacunas externas não foram corrigidas para fabricar evidência;
+- [x] solicitações 033-001..033-006 permanecem OPEN e coerentes com as lacunas observadas;
+- [x] nenhum arquivo fora da Bíblia/reserva/state de #033 foi modificado.
 
-**Veredito:** ✅ APROVADO para `008c9a054ae417e0f31224617346e24fc9dbc1b4`.
+**Veredito documental local:** ✅ **APROVADO** para `008c9a054ae417e0f31224617346e24fc9dbc1b4`.
+
+> `STATUS.md`, `CHECKLIST.md` e `AUDITORIA.md` são visões agregadas e permanecem fora do escopo de escrita deste agente.
