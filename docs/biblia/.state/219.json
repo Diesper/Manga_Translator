@@ -61,7 +61,7 @@
     },
     {
       "id": "219-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/popup/popup.js",
       "found_while_auditing": "tests/unit/popup/progress-panel.test.js",
@@ -74,7 +74,11 @@
       "expected_auditor_action": "Revisar interação popup/content e tratamento de erro.",
       "possible_regression": "Painel mostra tradução em andamento quando o comando não foi entregue.",
       "impact": "Confiabilidade do início de tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "ACCEPTED — comportamento funcional confirmado. `sendMessageToTab` transforma `chrome.runtime.lastError` de `START_TRANSLATION_FROM_POPUP` em callback `{ok:true}`. Assim o fluxo pode abrir painel/estado de tradução mesmo sem entrega ao content script; a suíte não cobre esse erro.",
+      "auditor_recommended_action": "Definir se a exceção é intencional. Se não, propagar falha e testar ausência de painel; se sim, documentar mecanismo de convergência e adicionar teste específico de lastError."
     }
   ],
   "document_quality": {
