@@ -44,7 +44,7 @@
     },
     {
       "id": "160-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/process-finalize-real.test.js",
       "found_while_auditing": "tests/unit/background/process-finalize-real.test.js",
@@ -57,7 +57,11 @@
       "expected_auditor_action": "Priorizar os checkpoints tardios de cancelamento por risco de concorrência e persistência residual.",
       "possible_regression": "STOP pode deixar job órfão, watchdog ativo ou contaminar a contabilidade se ocorrer depois do primeiro checkpoint.",
       "impact": "Integridade de cancelamento/lotes concorrentes e estabilidade do Service Worker.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:08:00Z",
+      "audit_finding": "ACCEPTED. `jobs-lifecycle.js` chama `abortInvalidatedLaunch` em quatro fases (`after_tab_create`, `after_job_persist`, `after_tab_identity`, `after_watchdog_arm`). BG-76b controla STOP durante `tabs.create` e prova apenas a primeira. Não há barreiras assíncronas que injetem STOP nos três checkpoints posteriores.",
+      "auditor_recommended_action": "Adicionar três testes determinísticos que interrompam após persistência/indexação, após canonicalização/rekey e após armWatchdog, assertando cleanup integral de job/index/watchdog/superfície/contadores."
     }
   ],
   "document_quality": {
