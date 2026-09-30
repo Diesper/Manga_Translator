@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "164-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/background/actions/request-image-data.js",
       "related_files": [
@@ -26,7 +26,12 @@
       "expected_auditor_action": "Revisar contrato sem alterar esta Bíblia.",
       "possible_regression": "Request malformado pode produzir erro Chrome ou lookup de imagem inconsistente.",
       "impact": "Robustez do relay de dados de imagem.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "SUPERSEDED por 022-001. A ausência de validate para mangaTabId/index em request-image-data já está registrada e aceita.",
+      "auditor_recommended_action": "Acompanhar 022-001.",
+      "superseded_by": "022-001"
     },
     {
       "id": "164-002",
