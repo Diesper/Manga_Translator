@@ -52,7 +52,7 @@
     },
     {
       "id": "211-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/gtc/fingerprint.test.js",
       "found_while_auditing": "tests/unit/gtc/fingerprint.test.js",
@@ -65,11 +65,15 @@
       "expected_auditor_action": "Criar fixtures/oracle documentado para evitar tautologia.",
       "possible_regression": "Erro matemático persistente ou branch randomUUID quebrado sem detecção.",
       "impact": "Qualidade de fingerprint e IDs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "ACCEPTED. wHash/pHash são validados por formato/determinismo, mas sem vetor independente conhecido; `generateId` testa getRandomValues e fallback sem crypto, não o branch prioritário `crypto.randomUUID`.",
+      "auditor_recommended_action": "Adicionar vetores de referência independentes para wHash/pHash e caso explícito em que randomUUID existe e é escolhido."
     },
     {
       "id": "211-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/gtc/fingerprint.test.js",
       "found_while_auditing": "tests/unit/gtc/fingerprint.test.js",
@@ -82,7 +86,11 @@
       "expected_auditor_action": "Tratar como cleanup de baixo risco.",
       "possible_regression": "Nenhuma funcional direta; risco documental.",
       "impact": "Rastreabilidade.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "ACCEPTED. Os IDs FP-19 e FP-20 são reutilizados em blocos distintos (`generateId` e fingerprint descriptor), reduzindo rastreabilidade dos markers.",
+      "auditor_recommended_action": "Renumerar markers ou separar namespace por seção sem alterar semântica dos testes."
     }
   ],
   "document_quality": {
