@@ -31,7 +31,7 @@
     },
     {
       "id": "013-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/fetch-image-base64-action.test.js",
       "found_while_auditing": "extension/background/actions/fetch-image-base64.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Completar cobertura de robustez.",
       "possible_regression": "Falha de leitura pode deixar diagnóstico ou cleanup inconsistentes.",
       "impact": "Robustez do fallback de imagem.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:26:00Z",
+      "audit_finding": "ACCEPTED com escopo refinado. A suíte atual já cobre HTTP não-ok, content-type não-imagem e timeout, mas não há caso focal para `FileReader.onerror`, `readAsDataURL` lançando, `response.blob()` rejeitando, objeto `headers` ausente/malformado nem MIME de imagem com casing incomum. Esses branches de conversão/robustez continuam sem prova.",
+      "auditor_recommended_action": "Adicionar casos focais na action real para falha de blob/FileReader/headers e confirmar a política de casing do MIME, sem duplicar os cenários HTTP/timeout já cobertos."
     }
   ],
   "document_quality": {
