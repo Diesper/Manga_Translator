@@ -52,15 +52,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **65**
-- 🟠 Em andamento: **12**
+- ✅ Concluídos auditados: **66**
+- 🟠 Em andamento: **11**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **27,90%**
+- Cobertura realmente aprovada: **28,33%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `scripts/maintenance/diagnose-background-leak.js`
+- Último aprovado: `scripts/ci/data/regression-matrix.json`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -71,7 +71,6 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#054 extension/popup/popup.js` — `GPT-5.6-Sol#J` — Bíblia: `docs/biblia/extension/popup/popup.js/Bíblia.md`
   - `#055 extension/reader/reader.html` — `GPT-5.6-Sol#G` — Bíblia: `docs/biblia/extension/reader/reader.html/Bíblia.md`
   - `#060 extension/shared/storage-manager.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/storage-manager.js/Bíblia.md`
-  - `#069 scripts/ci/data/regression-matrix.json` — `AGENTE 6` — Bíblia: `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
 
   - `#075 scripts/ci/run-jest-ci.js` — `AGENTE 5` — Bíblia: `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
   - `#077 scripts/maintenance/diagnose-jest-workers.js` — `AGENTE 3` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
@@ -411,7 +410,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 66 | ✅ CONCLUÍDO | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
 | 67 | ✅ CONCLUÍDO | `.github/workflows/recover-cancelled-ci.yml` | `4809f824f177` | `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` |
 | 68 | ✅ CONCLUÍDO | `scripts/ci/data/e2e-shard-plan.json` | `22e8c20df9f4` | `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` |
-| 69 | 🟠 EM ANDAMENTO — AGENTE 6 | `scripts/ci/data/regression-matrix.json` | `f9b9e17e5870` | `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` |
+| 69 | ✅ CONCLUÍDO | `scripts/ci/data/regression-matrix.json` | `f9b9e17e5870` | `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` |
 | 70 | ✅ CONCLUÍDO | `scripts/ci/data/test-baseline.json` | `52a4b3c1500d` | `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` |
 | 71 | ✅ CONCLUÍDO | `scripts/ci/jest-worker-warning.js` | `b1379b6811e5` | `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` |
 | 72 | ✅ CONCLUÍDO | `scripts/ci/playwright-gate-reporter.js` | `71fb92c1215a` | `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` |
