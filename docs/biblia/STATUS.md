@@ -48,15 +48,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **69**
-- ✅ Concluídos auditados: **55**
+- ✅ Concluídos auditados: **56**
 - 🟠 Em andamento: **21**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **164**
-- ⬜ Pendentes: **157**
+- ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **23,61%**
+- Cobertura realmente aprovada: **24,03%**
 - Cobertura apenas materializada: **29,61%**
-- Último aprovado: `playwright.config.js`
+- Último aprovado: `.github/workflows/ci.yml`
 - Arquivos atualmente em andamento:
   - `#041 extension/content/gemini/deletion.js` — `GPT-5.6-Sol#B` — Bíblia: `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md`
   - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
@@ -70,7 +70,6 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#058 extension/shared/gtc-indexeddb.js` — `GPT-5.6-Sol#K` — Bíblia: `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md`
   - `#060 extension/shared/storage-manager.js` — `GPT-5.6-Sol#Agent-A` — Bíblia: `docs/biblia/extension/shared/storage-manager.js/Bíblia.md`
   - `#063 package.json` — `Agente L` — Bíblia: `docs/biblia/package.json/Bíblia.md`
-  - `#065 .github/workflows/ci.yml` — `AGENTE 3` — Bíblia: `docs/biblia/.github/workflows/ci.yml/Bíblia.md`
   - `#067 .github/workflows/recover-cancelled-ci.yml` — `AGENTE 4` — Bíblia: `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md`
   - `#069 scripts/ci/data/regression-matrix.json` — `AGENTE 6` — Bíblia: `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md`
   - `#071 scripts/ci/jest-worker-warning.js` — `AGENTE 8` — Bíblia: `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md`
@@ -79,7 +78,8 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
   - `#074 scripts/ci/run-e2e-group.js` — `AGENTE 2` — Bíblia: `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md`
   - `#075 scripts/ci/run-jest-ci.js` — `AGENTE 5` — Bíblia: `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
   - `#076 scripts/maintenance/diagnose-background-leak.js` — `AGENTE 1` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
-- Menor índice pendente sem reserva no momento desta atualização: `#077 scripts/maintenance/diagnose-jest-workers.js`
+  - `#077 scripts/maintenance/diagnose-jest-workers.js` — `AGENTE 3` — Bíblia: `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
+- Menor índice pendente sem reserva no momento desta atualização: `#078 scripts/release/sync-version.js`
 
 ## Auditoria de 2026-09-29
 
@@ -143,6 +143,7 @@ A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satis
 
 54. ✅ `scripts/ci/data/test-baseline.json`
 55. ✅ `playwright.config.js`
+56. ✅ `.github/workflows/ci.yml`
 
 ### Revisão obrigatória
 
@@ -218,7 +219,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 62 | ✅ CONCLUÍDO | `jest.config.js` | `f0b7c55a5c8c` | `docs/biblia/jest.config.js/Bíblia.md` |
 | 63 | 🟠 EM ANDAMENTO — Agente L | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
 | 64 | ✅ CONCLUÍDO | `playwright.config.js` | `6a27b774a000` | `docs/biblia/playwright.config.js/Bíblia.md` |
-| 65 | 🟠 EM ANDAMENTO — AGENTE 3 | `.github/workflows/ci.yml` | `ebee75820db9` | `docs/biblia/.github/workflows/ci.yml/Bíblia.md` |
+| 65 | ✅ CONCLUÍDO | `.github/workflows/ci.yml` | `ebee75820db9` | `docs/biblia/.github/workflows/ci.yml/Bíblia.md` |
 | 66 | ✅ CONCLUÍDO | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
 | 67 | 🟠 EM ANDAMENTO — AGENTE 4 | `.github/workflows/recover-cancelled-ci.yml` | `4809f824f177` | `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` |
 | 68 | ✅ CONCLUÍDO | `scripts/ci/data/e2e-shard-plan.json` | `22e8c20df9f4` | `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` |
@@ -230,7 +231,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 74 | 🟠 EM ANDAMENTO — AGENTE 2 | `scripts/ci/run-e2e-group.js` | `e23c7aaa1712` | `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` |
 | 75 | 🟠 EM ANDAMENTO — AGENTE 5 | `scripts/ci/run-jest-ci.js` | `6d2e36a647aa` | `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` |
 | 76 | 🟠 EM ANDAMENTO — AGENTE 1 | `scripts/maintenance/diagnose-background-leak.js` | `6b5a15d0d255` | `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` |
-| 77 | ⬜ PENDENTE | `scripts/maintenance/diagnose-jest-workers.js` | `87d25d2b61cc` | `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` |
+| 77 | 🟠 EM ANDAMENTO — AGENTE 3 | `scripts/maintenance/diagnose-jest-workers.js` | `87d25d2b61cc` | `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` |
 | 78 | ⬜ PENDENTE | `scripts/release/sync-version.js` | `9bc8fa5ae3fb` | `docs/biblia/scripts/release/sync-version.js/Bíblia.md` |
 | 79 | ⬜ PENDENTE | `scripts/validation/check-js-syntax.js` | `fbc69cf9f910` | `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md` |
 | 80 | ⬜ PENDENTE | `scripts/validation/playwright-gate-reporter-selftest.js` | `478d6673dbb6` | `docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md` |

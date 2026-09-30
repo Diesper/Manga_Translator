@@ -1,6 +1,6 @@
 # Bíblia técnica — .github/workflows/ci.yml
 
-> **Estado:** 🟠 EM ANDAMENTO — REVISÃO DE QUALIDADE  
+> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
 > **SHA auditado:** `ebee75820db9bfab618bf3c3016065c5bc857ed7`  
 > **Agente responsável pela auditoria:** AGENTE 3  
 > **Tipo:** workflow GitHub Actions / CI  
@@ -8541,4 +8541,4 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 - Lacunas de runtime/segurança/timeout/pinning permanecem explícitas.
 - Nenhum código funcional foi alterado.
 
-**Estado documental desta materialização:** REVISÃO DE QUALIDADE ativa; a conclusão global ainda depende de reconciliar `AUDITORIA.md`, `STATUS.md` e `CHECKLIST.md` sob o mutex compartilhado.
+**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md`; fonte integral, 558/558 posições, consumers/dependências e força das evidências foram reconfirmados para o SHA auditado.
