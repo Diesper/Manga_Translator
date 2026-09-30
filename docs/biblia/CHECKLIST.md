@@ -50,7 +50,7 @@
 - [x] 030 — `extension/background/log.js` → `docs/biblia/extension/background/log.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 031 — `extension/background/router.js` → `docs/biblia/extension/background/router.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 032 — `extension/background/state.js` → `docs/biblia/extension/background/state.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [x] 033 — `extension/background/tab-identity.js` → `docs/biblia/extension/background/tab-identity.js/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 033 — `extension/background/tab-identity.js` → `docs/biblia/extension/background/tab-identity.js/Bíblia.md`
 - [x] 034 — `extension/content/cm-auto-restore.js` → `docs/biblia/extension/content/cm-auto-restore.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 035 — `extension/content/cm-chapter.js` → `docs/biblia/extension/content/cm-chapter.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 036 — `extension/content/cm-dom-replace.js` → `docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md` **✅ AUDITORIA APROVADA**
@@ -83,7 +83,7 @@
 - [x] 063 — `package.json` → `docs/biblia/package.json/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 064 — `playwright.config.js` → `docs/biblia/playwright.config.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [x] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **✅ AUDITORIA APROVADA**
+- [ ] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md`
 - [x] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` **✅ AUDITORIA APROVADA**
