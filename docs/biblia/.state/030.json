@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "030-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ARCHITECTURE_REVIEW",
       "target_file": "extension/background.js",
       "found_while_auditing": "extension/background/log.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar arquitetura de modularização.",
       "possible_regression": "As duas cópias podem divergir sem que os testes percebam a versão não executada.",
       "impact": "Manutenibilidade e confiabilidade do logging.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — arquitetura duplicada confirmada. O Service Worker `background.js` não importa `background/log.js`; ele define `log/_flushLog` inline. O módulo `MangaTranslatorLog` existe isoladamente, criando duas implementações que podem divergir.",
+      "auditor_recommended_action": "Escolher implementação canônica: carregar `background/log.js` e remover duplicação inline, ou remover módulo morto após migrar testes/docs."
     },
     {
       "id": "030-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/background/log.test.js",
       "found_while_auditing": "extension/background/log.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Resolver autenticidade da cobertura.",
       "possible_regression": "Módulo modular quebra ou deriva enquanto CI permanece verde.",
       "impact": "Qualidade da cobertura.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — autenticidade de teste confirmada como lacuna. O módulo real `extension/background/log.js` não é carregado pelo wiring do runtime e não foi localizada suíte focal que o importe diretamente; qualquer prova sobre logging runtime hoje recai na implementação inline de `background.js`.",
+      "auditor_recommended_action": "Se o módulo continuar existindo, adicionar teste direto e wiring real; caso contrário tratar como dead code/remover em mudança funcional."
     },
     {
       "id": "030-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "extension/background/log.js",
       "found_while_auditing": "extension/background/log.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Revisar confiabilidade do logger.",
       "possible_regression": "Perda silenciosa de observabilidade após erro de storage.",
       "impact": "Diagnóstico de falhas.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:31:00Z",
+      "audit_finding": "ACCEPTED — perda silenciosa de logs confirmada no módulo. `_flushLog` remove toda a fila via `splice` antes de `storage.get/set`; qualquer exceção cai em `catch (e) {}` e o batch removido não volta à fila. Entradas podem ser perdidas sem diagnóstico.",
+      "auditor_recommended_action": "Só remover após persistência bem-sucedida ou recolocar batch em falha; registrar erro com backoff/limite e testar falha de get/set."
     }
   ],
   "document_quality": {
