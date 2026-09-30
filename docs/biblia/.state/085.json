@@ -91,7 +91,7 @@
     },
     {
       "id": "085-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "API_CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-coverage.js",
       "found_while_auditing": "scripts/validation/verify-coverage.js",
@@ -103,7 +103,11 @@
       "expected_evidence": "Teste cobrindo todos os campos em sucesso e falhas precoces, ou decisão registrada de que o shape é deliberadamente variante.",
       "possible_regression": "TypeError ou tratamento especial não previsto em futuros consumidores do helper exportado.",
       "impact": "Robustez da API interna.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:14:00Z",
+      "audit_finding": "ACCEPTED. `verifyCoverage()` retorna sem `lcovFiles` nos erros precoces de artefato/summary, enquanto o retorno normal inclui esse campo. O self-test atual usa apenas `ok/problems`, então não há consumidor quebrado hoje, mas a função é exportada e o shape não está declarado como variante.",
+      "auditor_recommended_action": "Decidir se a API interna terá shape estável. Se sim, normalizar os retornos e testar todos os campos; se não, documentar que somente `ok/problems` são contrato."
     }
   ]
 }
