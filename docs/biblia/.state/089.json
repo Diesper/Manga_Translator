@@ -50,7 +50,7 @@
     },
     {
       "id": "089-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -62,7 +62,11 @@
       "expected_evidence": "Casos controlados que alterem uma regra por vez e verifiquem exit code/mensagem correspondente.",
       "possible_regression": "Uma regra pode ser enfraquecida ou quebrada e permanecer verde enquanto o repositório atual não contém o caso negativo.",
       "impact": "Cobertura probatória do gate estrutural.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. `verify-repository-structure.js` roda contra o checkout atual, mas não possui self-test em sandbox que muta uma regra por vez. O snapshot verde não prova cada detector negativo.",
+      "auditor_recommended_action": "Criar self-test de infraestrutura com árvore temporária usando o verifier real para presença/ausência, Bíblias, trackers, reservas, manifest, paths/configs/test discipline."
     },
     {
       "id": "089-004",
@@ -86,7 +90,7 @@
     },
     {
       "id": "089-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "FILESYSTEM_TYPE_REVIEW",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -98,7 +102,11 @@
       "expected_evidence": "Fixture em que um diretório requerido é substituído por arquivo e o gate falha com diagnóstico específico.",
       "possible_regression": "Mudança estrutural incorreta pode escapar da regra de presença e ser detectada apenas indiretamente ou mais tarde.",
       "impact": "Precisão do contrato estrutural.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. `requirePresent` usa apenas `fs.existsSync`; para entradas cujo tipo é parte do contrato, arquivo e diretório homônimos são indistinguíveis nessa etapa.",
+      "auditor_recommended_action": "Definir quais paths exigem file/dir e usar stat/lstat; adicionar fixture substituindo diretório requerido por arquivo."
     }
   ]
 }
