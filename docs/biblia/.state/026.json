@@ -1,0 +1,11 @@
+{
+  "index": 26,
+  "file": "extension/background/jobs-dom-ack.js",
+  "bible": "docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "07b4197a206f85559f2e843d74c71d4858734be7",
+  "started_at_utc": "2026-09-30T13:43:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
