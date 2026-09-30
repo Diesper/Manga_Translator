@@ -26,7 +26,7 @@
     },
     {
       "id": "085-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/validation/verify-coverage.js",
       "found_while_auditing": "scripts/validation/verify-coverage.js",
@@ -38,7 +38,11 @@
       "expected_evidence": "Casos negativos provando que política inválida não desabilita silenciosamente os pisos e produz diagnóstico determinístico.",
       "possible_regression": "Uma edição acidental do baseline pode deixar coverage abaixo da política passar pelo verificador local ou falhar apenas com stack genérico.",
       "impact": "Possível enfraquecimento de gate de CI/coverage.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — robustez/gate confirmados. Baseline ausente deixa `{}` e desliga minimum/criticalMinimum/minInstrumentedFiles; threshold global não numérico é ignorado; critical não numérico vira NaN sem reprovação; JSON de baseline inválido lança fora do resultado estruturado.",
+      "auditor_recommended_action": "Tratar baseline ausente/malformado e thresholds inválidos como falha explícita do gate; validar schema antes de aplicar coverage."
     },
     {
       "id": "085-003",
