@@ -1,0 +1,12 @@
+{
+  "index": 2,
+  "file": "extension/background.js",
+  "bible": "docs/biblia/extension/background.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 29",
+  "source_sha": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+  "started_at_utc": "2026-09-30T15:46:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [],
+  "note": "Reconciliation of missing per-file state. Preexisting approved Bible is preserved without modification."
+}
