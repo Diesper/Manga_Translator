@@ -1,0 +1,11 @@
+{
+  "index": 188,
+  "file": "tests/unit/content-gemini/safe-background-delete.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
+  "started_at_utc": "2026-09-30T15:03:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
