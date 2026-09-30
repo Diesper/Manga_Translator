@@ -2,10 +2,78 @@
   "index": 166,
   "file": "tests/unit/background/router.test.js",
   "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
   "started_at_utc": "2026-09-30T13:05:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:20:00Z",
+  "audit_requests": [
+    {
+      "id": "166-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/router.test.js",
+      "found_while_auditing": "tests/unit/background/router.test.js",
+      "finding": "O caso INVALID_PAYLOAD registra execute: jest.fn(), porém não exige execute.not.toHaveBeenCalled().",
+      "current_evidence": "A resposta INVALID_PAYLOAD com keepAlive=false é provada.",
+      "missing_evidence": "Assertion explícita de ausência de execute após validate retornar erro.",
+      "why_needed": "Resposta correta não basta para excluir efeitos colaterais indevidos.",
+      "requested_action": "Adicionar not.toHaveBeenCalled ao execute e, se desejado, observar contextFactory.",
+      "expected_evidence": "Validator inválido encerra fluxo antes da execução.",
+      "expected_auditor_action": "Adicionar cobertura focal em alteração separada.",
+      "possible_regression": "Action pode executar mesmo após erro de validação.",
+      "impact": "Segurança/isolamento de efeitos do router.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "166-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/router.test.js",
+      "found_while_auditing": "tests/unit/background/router.test.js",
+      "finding": "Os catches ACTION_ERROR para execute síncrono que lança e execute assíncrono que rejeita não possuem prova focal localizada.",
+      "current_evidence": "Há sucesso sync e async, SOURCE_DENIED e INVALID_PAYLOAD.",
+      "missing_evidence": "Casos de throw sync e reject/throw async exigindo INTERNAL_ERROR e keepAlive coerente.",
+      "why_needed": "São branches de contenção de exceção do núcleo de roteamento.",
+      "requested_action": "Adicionar dois casos de erro focal.",
+      "expected_evidence": "Sync retorna keepAlive=false + INTERNAL_ERROR; async keepAlive=true + INTERNAL_ERROR.",
+      "expected_auditor_action": "Adicionar/validar cobertura em mudança separada.",
+      "possible_regression": "Exceção pode escapar, perder resposta ou quebrar canal.",
+      "impact": "Robustez central do message router.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "166-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/router.test.js",
+      "found_while_auditing": "tests/unit/background/router.test.js",
+      "finding": "ACTION_NOT_FOUND ocorre quando o nome legado mapeia mas actionRegistry não contém definição; ramo sem caso focal.",
+      "current_evidence": "UNKNOWN prova mapping inexistente; actions registradas provam execução normal.",
+      "missing_evidence": "GET_TAB_ID em router sem registerAction, exigindo retorno false/sem resposta e log ACTION_NOT_FOUND.",
+      "why_needed": "Congela salvaguarda de bootstrap parcial.",
+      "requested_action": "Adicionar caso focal de action mapeada porém não registrada.",
+      "expected_evidence": "Canal fechado sem execução e log de warning.",
+      "expected_auditor_action": "Tratar como baixa severidade.",
+      "possible_regression": "Carregamento parcial pode falhar de forma diferente e sem observabilidade.",
+      "impact": "Diagnóstico de bootstrap incompleto.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "162/162",
+    "source_text_lines": 161,
+    "bible_lines": 1398,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; seis casos passaram individualmente; global 109/109 suítes e 851/851 testes."
+  }
 }
