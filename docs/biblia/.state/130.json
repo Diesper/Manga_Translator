@@ -31,7 +31,7 @@
     },
     {
       "id": "130-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/background-strict-load.test.js",
       "found_while_auditing": "tests/unit/background/background-strict-load.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Avaliar quais efeitos top-level são contrato e adicionar prova em alteração separada.",
       "possible_regression": "Remoção silenciosa de listener/import obrigatório sem falha neste teste.",
       "impact": "Especificidade limitada do teste de startup.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:46:00Z",
+      "audit_finding": "ACCEPTED. `background-strict-load.test.js` só exige que o processo filho não lance; não verifica listeners registrados, imports carregados, APIs expostas ou estado final. Uma carga parcial que não exploda pode continuar verde.",
+      "auditor_recommended_action": "Adicionar assertions observáveis do bootstrap estrito (listeners/APIs/estado mínimo) sem duplicar toda a suíte funcional."
     },
     {
       "id": "130-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_POLICY_REVIEW",
       "target_file": "tests/unit/background/background-strict-load.test.js",
       "found_while_auditing": "tests/unit/background/background-strict-load.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Classificar risco e solicitar mudança separada se necessário.",
       "possible_regression": "CI prolongada ou travada em vez de diagnóstico rápido de bootstrap.",
       "impact": "Duração e diagnóstico da suíte.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:46:00Z",
+      "audit_finding": "ACCEPTED. `execFileSync` é chamado sem `timeout`; um bootstrap que trave pode pendurar esta unidade até o limite externo do runner.",
+      "auditor_recommended_action": "Definir timeout local coerente com o bootstrap esperado e adicionar diagnóstico claro para timeout."
     }
   ],
   "document_quality": {
