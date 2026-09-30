@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "037-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASYNC_LIFECYCLE_REVIEW",
       "target_file": "extension/content/cm-gtc-client.js",
       "found_while_auditing": "extension/content/cm-gtc-client.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar lifecycle IPC.",
       "possible_regression": "Pipeline pode ficar pendente aguardando GTC.",
       "impact": "Latência/liveness da tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — lifecycle pendente confirmado. `sendRuntimeMessageAsync` resolve apenas no callback de `chrome.runtime.sendMessage`; não há timeout. Se o callback nunca ocorrer, todas as queries/fingerprint/save que aguardam esse wrapper podem ficar pendentes indefinidamente.",
+      "auditor_recommended_action": "Adicionar timeout/cancelamento e resposta de erro determinística; testar callback ausente."
     },
     {
       "id": "037-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/cm-gtc-client.js",
       "found_while_auditing": "extension/content/cm-gtc-client.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar contrato de segurança de matching.",
       "possible_regression": "Falso positivo de cache aplicado à página errada.",
       "impact": "Correção visual da tradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — fail-open confirmado. `confirmWithRegionalHashes` retorna false se dados/API ausentes, mas retorna `true` quando a API existe e `matchRegionalHashes` não é função. Um match perceptual que deveria exigir confirmação regional passa sem comparação.",
+      "auditor_recommended_action": "Falhar fechado quando o método de comparação não estiver disponível, ou formalizar fallback alternativo; adicionar teste com API parcial."
     },
     {
       "id": "037-003",
