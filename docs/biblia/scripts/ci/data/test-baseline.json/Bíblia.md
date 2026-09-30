@@ -948,6 +948,8 @@ O próprio baseline é uma **autoridade mutável**. Para a maioria dos campos, o
 
 `measuredBaseline` está desacoplado do sistema: tem aparência de dado operacional, mas nenhum consumidor. Ou ele precisa ganhar uma função verificável, ou a documentação deve continuar deixando claro que é apenas snapshot humano.
 
+Há também uma tensão documental concreta: `docs/Documentação.md` descreve `test-baseline.json` como “contrato, não estatística informativa”, mas a busca de consumidores mostra que justamente o subobjeto `measuredBaseline` não participa de nenhum gate. Portanto, a afirmação arquitetural é verdadeira para os campos efetivamente consumidos, porém ampla demais para esse subobjeto no estado atual.
+
 ## Checklist de revisão futura
 
 Antes de alterar este arquivo:
