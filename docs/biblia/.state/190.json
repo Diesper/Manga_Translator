@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "190-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
       "found_while_auditing": "tests/unit/content-gemini/temporary-chat-v2.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Completar cobertura de cancelamento.",
       "possible_regression": "Automação continua tocando a UI após cancelamento.",
       "impact": "Segurança/lifecycle do job Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. `ensureActive` possui saída `aborted`/verificação interrompida via AbortSignal, mas a suíte não fornece signal já abortado nem abort durante a espera.",
+      "auditor_recommended_action": "Adicionar casos de AbortSignal antes e durante a ativação, exigindo status/reason e ausência de cliques posteriores."
     },
     {
       "id": "190-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
       "found_while_auditing": "tests/unit/content-gemini/temporary-chat-v2.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Fortalecer cobertura do estado intermediário.",
       "possible_regression": "UI presente porém inoperante pode ser classificada incorretamente.",
       "impact": "Robustez da ativação temporária.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. Não há cenário com controle semântico localizado porém `triggerClick` falhando; o status `control_not_actionable` permanece sem prova direta.",
+      "auditor_recommended_action": "Injetar controle válido com triggerClick=false/throw conforme contrato e exigir `control_not_actionable`."
     },
     {
       "id": "190-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INTEGRATION_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "found_while_auditing": "tests/unit/content-gemini/temporary-chat-v2.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Revisar integração em processo separado.",
       "possible_regression": "Falha de ativação pode ser tratada como sucesso ou vice-versa.",
       "impact": "Fluxo de envio ao Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. A suíte prova os statuses do helper isolado, mas não o efeito deles no `job-runner`: activated/already_active/verification_failed/aborted/unavailable não estão todos mapeados por integração focal.",
+      "auditor_recommended_action": "Adicionar integração mínima do runner para os reasons que alteram telemetria/decisão de continuar, sem duplicar toda a suíte do helper."
     }
   ],
   "document_quality": {
