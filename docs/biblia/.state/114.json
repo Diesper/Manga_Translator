@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "114-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_VALIDITY",
       "target_file": "tests/integration/performance.test.js",
       "found_while_auditing": "tests/integration/performance.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a validade do contrato e decidir a correção de teste apropriada em mudança separada.",
       "possible_regression": "CI verde apesar de política real de quota/persistência incorreta.",
       "impact": "Confiabilidade do gate de storage.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — validade do PERF-09 insuficiente. O cenário usa helper local `saveImagesWithIndexedDbFallback` e `createInMemoryRepository`; não atravessa `cm-chapter.js`, `storage-manager.js` nem o fluxo real de persistência/quota. O teste pode passar mesmo se o fallback de produção quebrar.",
+      "auditor_recommended_action": "Criar teste de performance/integração sobre o caminho canônico de persistência real com quota/falha controlada, ou reclassificar PERF-09 como benchmark do modelo auxiliar."
     },
     {
       "id": "114-002",
