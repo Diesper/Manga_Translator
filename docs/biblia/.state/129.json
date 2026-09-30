@@ -1,0 +1,11 @@
+{
+  "index": 129,
+  "file": "tests/unit/background/actions-low-risk.test.js",
+  "bible": "docs/biblia/tests/unit/background/actions-low-risk.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 12",
+  "source_sha": "e5d4d54674b5a4a3b00dc15112afb40c874d81c3",
+  "started_at_utc": "2026-09-30T06:44:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
