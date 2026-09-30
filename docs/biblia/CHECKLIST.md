@@ -93,7 +93,7 @@
 - [x] 073 — `scripts/ci/playwright-merge.config.js` → `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 074 — `scripts/ci/run-e2e-group.js` → `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 075 — `scripts/ci/run-jest-ci.js` → `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 5**
-- [ ] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 1**
+- [x] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 077 — `scripts/maintenance/diagnose-jest-workers.js` → `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 3**
 - [ ] 078 — `scripts/release/sync-version.js` → `docs/biblia/scripts/release/sync-version.js/Bíblia.md`
 - [ ] 079 — `scripts/validation/check-js-syntax.js` → `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md`
