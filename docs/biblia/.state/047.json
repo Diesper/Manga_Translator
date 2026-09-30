@@ -26,7 +26,7 @@
     },
     {
       "id": "047-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -38,11 +38,15 @@
       "expected_evidence": "Falha/fallback controlado, resposta tardia ignorada e listener removido após resolução/timeout.",
       "possible_regression": "Leak de listener ou exceção em ambiente DOM incompleto.",
       "impact": "Estabilidade da bridge isolated-world ↔ MAIN-world.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. A suíte possui timeout/requestId básico, mas não cria `pageWindow` sem addEventListener/dispatchEvent, CustomEvent ausente, resposta posterior ao timeout nem assertion explícita de listener removido. Os helpers de teste sempre fornecem essas capacidades.",
+      "auditor_recommended_action": "Adicionar casos com DOM parcial, relógio controlado e evento tardio; assertar removeEventListener e que late response é ignorada."
     },
     {
       "id": "047-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONCURRENCY_TEST",
       "target_file": "tests/unit/content-gemini/result-extractor.test.js",
       "found_while_auditing": "extension/content/gemini/result-extractor.js",
@@ -54,7 +58,11 @@
       "expected_evidence": "Cada requisição resolve apenas com sua resposta; colisão tem comportamento explicitamente definido e testado.",
       "possible_regression": "Uma imagem pode ser entregue ao job errado.",
       "impact": "Integridade de resultados concorrentes.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. Não foi localizado `Promise.all`/duas chamadas simultâneas da bridge nem injeção deliberada de requestId colidido. O caso existente apenas envia ID incorreto dentro de uma única solicitação.",
+      "auditor_recommended_action": "Adicionar duas requisições concorrentes com eventos intercalados e cenário de colisão controlada de ID."
     },
     {
       "id": "047-004",
@@ -169,7 +177,7 @@
     },
     {
       "id": "047-010",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INTEGRATION_TEST_REQUIRED",
       "target_file": "tests/integration/ipc/image-translation-routing.test.js",
       "related_files": [
@@ -185,7 +193,11 @@
       "expected_evidence": "Resultado explicitamente esperado (rejeição segura ou fallback permitido) com assertion de credenciais/host.",
       "possible_regression": "Refactor pode enviar credenciais a host arbitrário ou eliminar fallback necessário.",
       "impact": "Segurança e compatibilidade do modo background_delete.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. `tests/integration/ipc/image-translation-routing.test.js` usa runtime responder mock para fluxos manga e não executa em conjunto `result-extractor.js` + action real `fetch-image-base64.js`; não há cenário background_delete, canvas/MAIN falhando e host não-Google.",
+      "auditor_recommended_action": "Adicionar integração focal com extractor e action reais, mantendo política de credenciais/host explícita e provando rejeição segura ou fallback suportado."
     },
     {
       "id": "047-011",
