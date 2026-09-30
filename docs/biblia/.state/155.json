@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "155-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/marker-anchor-real.test.js",
       "found_while_auditing": "tests/unit/background/marker-anchor-real.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar que reutilização de download existente é contrato intencional e adicionar cobertura focal sem modificar esta Bíblia.",
       "possible_regression": "Fallback artificial para marcador mesmo quando a pasta já pode ser revelada por download concluído.",
       "impact": "Abertura nativa de pasta e criação desnecessária de arquivo-âncora.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. `marker-anchor-real.test.js` força `downloads.search=[]` nos cenários existentes e não executa o branch que encontra anchor `exists=true,state=complete`, chama `downloads.show(valid.id)` e evita criar outro marcador.",
+      "auditor_recommended_action": "Adicionar caso focal de reutilização do anchor concluído, assertando show e ausência de novo download."
     },
     {
       "id": "155-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/marker-anchor-real.test.js",
       "found_while_auditing": "tests/unit/background/marker-anchor-real.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Validar o contrato de erro da âncora interrompida e adicionar a cobertura em mudança separada.",
       "possible_regression": "Falha/interrupção de download pode deixar o popup aguardando, responder texto incorreto ou tentar abrir/remover marcador incompleto.",
       "impact": "Robustez do fallback de abertura de pasta.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre completion de `waitForDownload` e falha imediata de `downloads.download`, mas não o callback de erro posterior do wait que deve responder `{ok:false,error:'Interrompido'}`.",
+      "auditor_recommended_action": "Adicionar cenário de anchor criado seguido de onError de waitForDownload, assertando resposta e cleanup."
     }
   ],
   "document_quality": {
