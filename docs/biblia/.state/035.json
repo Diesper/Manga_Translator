@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "035-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/canonical-title-full.test.js",
       "found_while_auditing": "extension/content/cm-chapter.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Resolver autenticidade da cobertura em alteração separada.",
       "possible_regression": "Capítulos duplicados ou títulos canonicalizados de forma inconsistente passam com testes verdes.",
       "impact": "Identidade/deduplicação de capítulos.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — autenticidade de teste confirmada. `canonical-title-full.test.js` importa `tests/helpers/extracted-functions.js`; esse helper aceita prefixo textual opcional (`Cap 5:`) e remove sufixo de site, enquanto `cm-chapter.js#canonicalTitle` atual só remove prefixo numérico e não possui o strip final de site. A suíte não prova a implementação real.",
+      "auditor_recommended_action": "Migrar testes para carregar/exportar `cm-chapter.js` real e remover/alinhar mirror; manter casos que exponham as divergências atuais."
     },
     {
       "id": "035-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RACE_CONDITION_REVIEW",
       "target_file": "extension/content/cm-chapter.js",
       "found_while_auditing": "extension/content/cm-chapter.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Revisar concorrência de persistência.",
       "possible_regression": "Duplicação de capítulo ou perda de entrada no histórico.",
       "impact": "Persistência e histórico.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — race cross-tab possível. `getOrCreateChapterIdImpl` lê `chapterList`, busca/cria e grava o array completo sem lock/CAS; duas content scripts podem partir do mesmo snapshot e criar duplicatas ou sobrescrever atualização concorrente.",
+      "auditor_recommended_action": "Centralizar a criação em storage manager/background com serialização/transação, ou adotar retry/CAS; criar interleaving de duas abas."
     },
     {
       "id": "035-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONSISTENCY_REVIEW",
       "target_file": "extension/content/cm-chapter.js",
       "found_while_auditing": "extension/content/cm-chapter.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Revisar ordem/durabilidade.",
       "possible_regression": "Auto-restore legado pode perder dados após reload imediato.",
       "impact": "Persistência de traduções e restauração.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — persistência assíncrona inconsistente confirmada. No fallback legado, `storageGetAsync(...).then(...storageSetAsync...)` é disparado sem await e erros são engolidos; `persistTranslatedPage` pode resolver após SM_SAVE_PAGE/chapter lookup antes de restoreMap/images estarem gravados. O update de capítulo aproximado também usa `chrome.storage.local.set` sem callback/await.",
+      "auditor_recommended_action": "Await/serializar gravações legadas e atualização de chapterList quando fazem parte do contrato de persistência; adicionar teste que atrase storage.set e verifique resolução."
     }
   ],
   "document_quality": {
