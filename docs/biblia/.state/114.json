@@ -48,7 +48,7 @@
     },
     {
       "id": "114-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/integration/performance.test.js",
       "found_while_auditing": "tests/integration/performance.test.js",
@@ -61,7 +61,11 @@
       "expected_auditor_action": "Revisar o contrato de performance antes de qualquer alteração.",
       "possible_regression": "Bootstrap inicial pode degradar sem afetar este gate.",
       "impact": "Interpretação do orçamento de performance.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. PERF-05 chama `loadExtensionPage()` antes de iniciar o cronômetro; o orçamento <=1s mede a renderização após clicar a aba traduzida, não cold start do popup. O teste é válido para esse intervalo, mas o contrato precisa ser nomeado com precisão.",
+      "auditor_recommended_action": "Renomear/documentar como orçamento pós-clique ou adicionar benchmark separado para cold start se ele também for requisito."
     }
   ],
   "document_quality": {
