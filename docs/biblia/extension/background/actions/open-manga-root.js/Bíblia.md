@@ -67,7 +67,6 @@ A action não usa `meta.async:false`. Portanto o router mantém o canal aberto e
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 20/20
