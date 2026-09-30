@@ -2,10 +2,10 @@
   "index": 78,
   "file": "scripts/release/sync-version.js",
   "bible": "docs/biblia/scripts/release/sync-version.js/Bíblia.md",
-  "status": "PENDING",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 12",
   "source_sha": "9bc8fa5ae3fb127698e6f35988fd6efab7e56c07",
-  "started_at_utc": null,
+  "started_at_utc": "2026-09-30T15:34:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -64,6 +64,6 @@
     "documented_positions": "173/173",
     "bible_lines": 762,
     "external_audit_requests_open": 3,
-    "note": "Historical documentation-quality data preserved after explicit reopening; the item is currently PENDING and unowned. A new owner must revalidate it before completion."
+    "note": "Historical documentation-quality data preserved after explicit reopening; revalidation in progress by AGENTE 12."
   }
 }
