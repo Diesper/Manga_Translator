@@ -36,7 +36,7 @@
     },
     {
       "id": "165-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/routed-actions-legacy.test.js",
       "related_files": [
@@ -52,7 +52,11 @@
       "expected_auditor_action": "Tratar como melhoria de baixa severidade.",
       "possible_regression": "Router/contexto pode ser reconstruído por mensagem sem falhar nos casos atuais.",
       "impact": "Eficiência e consistência do worker.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "ACCEPTED. `routeRegisteredAction` mantém `registeredActionRouter` em cache, mas cada caso atual reinicializa o worker e despacha uma única action. Não há prova de reutilização do mesmo router entre mensagens sucessivas no mesmo lifecycle.",
+      "auditor_recommended_action": "Adicionar duas ou mais mensagens no mesmo worker e afirmar criação única/reuso do router, caso essa cache seja contrato."
     }
   ],
   "document_quality": {
