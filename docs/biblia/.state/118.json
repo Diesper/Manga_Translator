@@ -2,10 +2,41 @@
   "index": 118,
   "file": "tests/integration/reader.ui.test.js",
   "bible": "docs/biblia/tests/integration/reader.ui.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 7",
   "source_sha": "810a207f1264d78836b6e72c6f701bfc0cbce447",
   "started_at_utc": "2026-09-30T06:24:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:28:00Z",
+  "audit_requests": [
+    {
+      "id": "118-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/reader.ui.test.js",
+      "found_while_auditing": "tests/integration/reader.ui.test.js",
+      "finding": "O teste de fallback de largura cobre apenas um valor acima do máximo (`5000`). A implementação real aceita somente 400..1200 e também cai para 800 quando o valor é menor que 400, ausente/não numérico ou resulta em NaN; esses ramos equivalentes não têm assertion focal localizada em outra suíte.",
+      "current_evidence": "Este arquivo prova largura válida 950, persistência de 1100 e fallback de 5000 para 800. Busca por `readerWidth` localizou apenas este teste e `extension/reader/reader.js`.",
+      "missing_evidence": "Casos de valor abaixo de 400 e valor não numérico/ausente; também não há assertion específica para as bordas exatas 400 e 1200.",
+      "why_needed": "Uma mudança futura pode quebrar apenas um lado do intervalo ou o tratamento de NaN sem afetar o caso 5000 atualmente coberto.",
+      "requested_action": "Ampliar a suíte em alteração separada com tabela de valores cobrindo 399, 400, 1200, 1201 e string não numérica, executando `reader.js` real via `loadExtensionPage`.",
+      "expected_evidence": "Assertions de slider, width-val e maxWidth para cada limite/fallback, sem duplicar a lógica do reader no teste.",
+      "expected_auditor_action": "Confirmar a lacuna e decidir se a cobertura de fronteira é necessária para o contrato RD de largura.",
+      "possible_regression": "Reader pode aceitar largura inválida baixa ou rejeitar uma borda válida sem falhar nos testes atuais.",
+      "impact": "Robustez do contrato de preferência de largura; não invalida a prova direta existente para valor válido e overflow superior.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "150/150",
+    "range_blocks": 19,
+    "ranges_contiguous": true,
+    "source_has_final_newline": true,
+    "bible_lines": 312,
+    "direct_scenarios": 5,
+    "external_audit_requests_open": 1,
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
+  }
 }
