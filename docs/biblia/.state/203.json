@@ -1,0 +1,11 @@
+{
+  "index": 203,
+  "file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/extraction-and-handlers-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 21",
+  "source_sha": "038961e8228c7b5f1a87023a739ad5f33288423b",
+  "started_at_utc": "2026-09-30T06:55:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
