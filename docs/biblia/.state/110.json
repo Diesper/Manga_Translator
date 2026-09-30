@@ -50,7 +50,7 @@
     },
     {
       "id": "110-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ARCHITECTURE_DRIFT",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -62,11 +62,15 @@
       "expected_evidence": "Teste da implementação real que force falha/ausência da resposta runtime e observe uso de `gtc_<hash>`, ou teste moderno do caminho primário.",
       "possible_regression": "Remoção/quebra do caminho primário ou legado pode ficar mascarada por um espelho que não compartilha o mesmo wiring.",
       "impact": "Aderência do teste à arquitetura corrente.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. A suíte representa exclusivamente o fallback legado `storage.local gtc_<hash>` enquanto o caminho primário atual é runtime/IndexedDB. Sem rotulagem, parece cobrir a arquitetura corrente.",
+      "auditor_recommended_action": "Classificar explicitamente como fallback legacy e testar esse fallback no runtime real, ou migrar para o fluxo primário."
     },
     {
       "id": "110-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -78,7 +82,11 @@
       "expected_evidence": "Assertion de call count/estratégia ou benchmark controlado, se eficiência for requisito.",
       "possible_regression": "Uma implementação pode voltar a N consultas e a alegação de eficiência continuar aparentemente coberta.",
       "impact": "Precisão da evidência automatizada.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. O teste chamado de 'eficiência' faz apenas um batch get e valida valores; não executa N gets individuais, não conta chamadas e não mede desempenho.",
+      "auditor_recommended_action": "Renomear para equivalência funcional ou adicionar call-count/benchmark controlado se eficiência for requisito."
     },
     {
       "id": "110-005",
