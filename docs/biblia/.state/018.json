@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "018-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/open-manga-root-action.test.js",
       "found_while_auditing": "extension/background/actions/open-manga-root.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Fortalecer cobertura em mudança separada.",
       "possible_regression": "Abertura da pasta raiz pode falhar sem resposta útil.",
       "impact": "Ação do popup para abrir a pasta principal.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "ACCEPTED. `execute` chama diretamente `context.handleMarkerAndShow`; ausência ou valor não-função lança antes de resposta e não há caso focal correspondente.",
+      "auditor_recommended_action": "Adicionar guard/dependency contract e teste para helper ausente/inválido."
     },
     {
       "id": "018-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASYNC_LIFECYCLE_REVIEW",
       "target_file": "extension/background/actions/open-manga-root.js",
       "found_while_auditing": "extension/background/actions/open-manga-root.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar contrato assíncrono.",
       "possible_regression": "Popup pode ficar aguardando indefinidamente.",
       "impact": "UX e lifecycle de mensagens.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "ACCEPTED como lifecycle review. A Promise resolve somente quando `handleMarkerAndShow` invoca callback; não há timeout/rejeição local. Callback perdido deixa a action pendente indefinidamente.",
+      "auditor_recommended_action": "Adicionar timeout/cancelamento ou garantir contrato durável do helper; testar callback que nunca chega."
     }
   ],
   "document_quality": {
