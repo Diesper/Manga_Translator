@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "165-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/routed-actions-legacy.test.js",
       "related_files": [
@@ -28,7 +28,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "sendResponseCompat pode parar de remover ok sem quebrar os testes atuais.",
       "impact": "Compatibilidade de shape com consumidores legados.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:30:00Z",
+      "audit_finding": "ACCEPTED. `DOWNLOAD_IMAGE` está em `legacyResponseActions` e o background remove `ok:true` antes de responder, mas a integração usa assertions permissivas e não fixa a ausência de `ok`. O teste direto da action prova envelope moderno, não o wrapper legado.",
+      "auditor_recommended_action": "Adicionar assertion exata da resposta legacy de DOWNLOAD_IMAGE, garantindo que `ok` não esteja presente após routeRegisteredAction."
     },
     {
       "id": "165-002",
