@@ -53,7 +53,7 @@
     },
     {
       "id": "150-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "tests/unit/background/jobs-dom-ack-staging.test.js",
@@ -66,7 +66,11 @@
       "expected_auditor_action": "Cobrir catch real sem mockar settle.",
       "possible_regression": "Exceção síncrona pode virar Promise pendente ou erro não tratado.",
       "impact": "Robustez da entrega IPC.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. O catch síncrono em torno de `chrome.tabs.sendMessage` não é exercitado; todos os mocks retornam normalmente. Throw antes do callback segue caminho distinto de runtime.lastError.",
+      "auditor_recommended_action": "Adicionar mock que lance sincronicamente e exigir Promise resolvida com falha/reason e política de finalize coerente."
     },
     {
       "id": "150-004",
