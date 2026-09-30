@@ -627,3 +627,13 @@ O AGENTE 28 reconferiu diretamente os limites citados contra o blob atual:
 - newline terminal: posição 243.
 
 Os sete `test(...)` começam exatamente nas linhas 61, 83, 101, 167, 197, 216 e 236. As faixas documentais 1–243 permanecem contíguas, sem lacunas.
+
+### 224-006 — robustez do teardown dos exports globais
+
+Durante a reauditoria foi observado que `shared-ui.js` expõe vários símbolos em `globalThis`, enquanto o `afterEach` desta suíte remove explicitamente apenas `requestRedoConfirmation` e `deleteSavedTranslationForEntry`.
+
+Seria útil testar se **adicionar cleanup explícito dos demais exports globais expostos por `shared-ui.js`** no teardown torna a suíte mais robusta e mais isolada entre casos, especialmente contra vazamento de estado global, interferência entre testes ou dependência acidental da ordem de execução.
+
+Isto não é tratado como correção obrigatória neste PR documental. O comportamento deve primeiro ser medido: comparar a suíte atual com uma variante que limpe todos os exports globais relevantes e verificar se aparecem diferenças de isolamento, flakiness, estado residual ou necessidade real de preservação de algum símbolo.
+
+**Classificação atual:** hipótese de robustez / investigação requerida; não há prova de defeito no estado atual.
