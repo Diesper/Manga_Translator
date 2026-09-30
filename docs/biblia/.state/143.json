@@ -2,10 +2,40 @@
   "index": 143,
   "file": "tests/unit/background/export-all-action.test.js",
   "bible": "docs/biblia/tests/unit/background/export-all-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 15",
   "source_sha": "9ab092d95ac1cef8b2111e76a23422f7159a4fcf",
   "started_at_utc": "2026-09-30T06:38:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:39:12Z",
+  "audit_requests": [
+    {
+      "id": "143-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/export-all-action.test.js",
+      "found_while_auditing": "tests/unit/background/export-all-action.test.js",
+      "finding": "O teste afirma abrir o último download concluído, mas o fake waitForDownload chama done(id) imediatamente e preserva a mesma ordem da criação.",
+      "current_evidence": "O cenário 11→12 em criação e 11→12 em conclusão prova show(12); o mesmo blob aparece como PASS no run 36577447500.",
+      "missing_evidence": "Conclusão fora de ordem, por exemplo criar 11→12 mas concluir 12→11, além dos branches lastError/id undefined/error callback.",
+      "why_needed": "Sem conclusão fora de ordem, o teste não distingue último solicitado de último efetivamente concluído.",
+      "requested_action": "Adicionar em processo separado um caso com callbacks de waitForDownload controlados manualmente e, se pertinente, cobrir falhas de download.",
+      "expected_evidence": "Quando 12 conclui antes de 11, chrome.downloads.show recebe 11 somente após todos os itens serem contabilizados.",
+      "expected_auditor_action": "Validar o contrato de 'último concluído' e ampliar a cobertura caso seja requisito funcional.",
+      "possible_regression": "A implementação pode passar a abrir o último solicitado e o teste atual continuar verde.",
+      "impact": "Arquivo exibido ao final da exportação.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "54/54",
+    "source_text_lines": 53,
+    "bible_lines": 327,
+    "external_audit_requests_open": 1,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [109437162616, 109437162754],
+    "evidence_summary": "Mesmo blob; PASS explícito em Node 20.x e matriz Unit+Integration 20/22 integralmente verde."
+  }
 }
