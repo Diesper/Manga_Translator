@@ -2,10 +2,54 @@
   "index": 6,
   "file": "extension/background/actions/commit-result.js",
   "bible": "docs/biblia/extension/background/actions/commit-result.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
   "started_at_utc": "2026-09-30T13:16:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:22:00Z",
+  "audit_requests": [
+    {
+      "id": "006-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/commit-result-action.test.js",
+      "found_while_auditing": "extension/background/actions/commit-result.js",
+      "finding": "A suíte não cobre as condições assimétricas do gate de persistência nem journals expirado/fromError/jobId divergente e storage.get rejeitando.",
+      "current_evidence": "Commit válido, ambos estados prematuros, batch mismatch, ownership inválido, jobId ausente e journal válido têm prova direta.",
+      "missing_evidence": "resultPersisted=true com state antigo; resultPersisted=false/ausente com state=dom_applied; journals negativos e falha de lookup.",
+      "why_needed": "O commit libera/finaliza job e a condição usa OR implícito de compatibilidade; regressão pode finalizar antes da persistência ou quebrar retry idempotente.",
+      "requested_action": "Adicionar casos parametrizados da matriz de persistência e do journal durável.",
+      "expected_evidence": "Aceitação/rejeição explicitamente provada para cada combinação e log de lookup failure quando storage rejeita.",
+      "expected_auditor_action": "Fortalecer gate de finalização.",
+      "possible_regression": "Resultado pode ser finalizado cedo ou retry legítimo rejeitado.",
+      "impact": "Durabilidade do resultado e idempotência de commit.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "006-002",
+      "status": "OPEN",
+      "type": "RELIABILITY_REVIEW",
+      "target_file": "tests/unit/background/commit-result-action.test.js",
+      "found_while_auditing": "extension/background/actions/commit-result.js",
+      "finding": "Não há teste focal para ensureInitialized/updateJobState/finalizeJob rejeitando nem para fallbacks de geminiTabId/mangaTabId.",
+      "current_evidence": "Happy path prova update antes de finalize e argumentos principais.",
+      "missing_evidence": "Política de erro e estado intermediário se update ou finalize falhar.",
+      "why_needed": "Falha depois de result_committed pode deixar lifecycle parcialmente avançado.",
+      "requested_action": "Adicionar testes de rejeição e documentar/revisar atomicidade do fluxo.",
+      "expected_evidence": "Resposta INTERNAL_ERROR e efeitos anteriores claramente assertados.",
+      "expected_auditor_action": "Revisar robustez em alteração separada.",
+      "possible_regression": "Job pode ficar preso como committed sem finalização ou vice-versa.",
+      "impact": "Contabilidade de slots e cleanup do job.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "107/107",
+    "source_text_lines": 106,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia concorrente revalidada; fonte integral normalizada."
+  }
 }
