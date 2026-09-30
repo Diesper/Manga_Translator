@@ -85,14 +85,14 @@
 - [ ] 065 — `.github/workflows/ci.yml` → `docs/biblia/.github/workflows/ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 3**
 - [x] 066 — `.github/workflows/publish.yml` → `docs/biblia/.github/workflows/publish.yml/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 067 — `.github/workflows/recover-cancelled-ci.yml` → `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` **← EM ANDAMENTO — AGENTE 4**
-- [ ] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 5**
+- [x] 068 — `scripts/ci/data/e2e-shard-plan.json` → `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 069 — `scripts/ci/data/regression-matrix.json` → `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 6**
 - [ ] 070 — `scripts/ci/data/test-baseline.json` → `docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md` **← EM ANDAMENTO — AGENTE 7**
 - [ ] 071 — `scripts/ci/jest-worker-warning.js` → `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 8**
 - [ ] 072 — `scripts/ci/playwright-gate-reporter.js` → `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 9**
 - [ ] 073 — `scripts/ci/playwright-merge.config.js` → `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 10**
 - [ ] 074 — `scripts/ci/run-e2e-group.js` → `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 2**
-- [ ] 075 — `scripts/ci/run-jest-ci.js` → `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
+- [ ] 075 — `scripts/ci/run-jest-ci.js` → `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 5**
 - [ ] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
 - [ ] 077 — `scripts/maintenance/diagnose-jest-workers.js` → `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
 - [ ] 078 — `scripts/release/sync-version.js` → `docs/biblia/scripts/release/sync-version.js/Bíblia.md`
