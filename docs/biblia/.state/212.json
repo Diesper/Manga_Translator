@@ -52,7 +52,7 @@
     },
     {
       "id": "212-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/shared/gtc-indexeddb.js",
       "found_while_auditing": "tests/unit/gtc/indexeddb.test.js",
@@ -65,11 +65,15 @@
       "expected_auditor_action": "Revisar consumidores/telemetria antes de mudar o contrato.",
       "possible_regression": "UI/logs podem mascarar descarte de entradas.",
       "impact": "Observabilidade e confiabilidade de GTC_SAVE_MANY.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "ACCEPTED. `putMany` retorna `count` igual ao tamanho do payload de entrada, embora entries inválidas possam ser ignoradas; a própria suíte aceita `count:3` com `stats.count:2`. O significado do campo é 'recebidos', não 'persistidos', mas isso não está explicitamente nomeado.",
+      "auditor_recommended_action": "Definir contrato: renomear/documentar count como attempted/received ou retornar número realmente salvo; proteger com teste correspondente."
     },
     {
       "id": "212-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "extension/shared/gtc-indexeddb.js",
       "found_while_auditing": "tests/unit/gtc/indexeddb.test.js",
@@ -82,7 +86,11 @@
       "expected_auditor_action": "Cleanup documental de baixo risco.",
       "possible_regression": "Nenhuma funcional direta.",
       "impact": "Manutenibilidade.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "ACCEPTED. O comentário de instalação limpa ainda diz 'v3' embora `DB_VERSION=4` e índices crop v4 sejam criados no mesmo branch.",
+      "auditor_recommended_action": "Atualizar comentário/documentação para v4."
     }
   ],
   "document_quality": {
