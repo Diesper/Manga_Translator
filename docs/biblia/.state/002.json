@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "002-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/sm-message-routing-real.test.js",
       "related_files": [
@@ -27,11 +27,15 @@
       "expected_evidence": "Assertions específicas para SAVE/GET/DELETE/STATS e caminho default/erro no listener real.",
       "possible_regression": "Quebra silenciosa da ponte de storage entre páginas da extensão e o background.",
       "impact": "Persistência e consulta de páginas via Storage Manager.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. `tests/smoke/smoke-06-sm-message-routing.js` define `handleStorageManagerMessage` local em vez de carregar `background.js`; a cópia diverge: action SM_* desconhecida retorna true/responde erro, enquanto o handler real cai em `default: return false`. Portanto não prova diretamente SM_SAVE_PAGE/SM_GET_PAGE/SM_DELETE*/SM_STATS do listener real.",
+      "auditor_recommended_action": "Criar teste do listener/handler real de background.js, sem mirror, cobrindo routes e default desconhecido."
     },
     {
       "id": "002-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STATIC_GATE_REQUIRED",
       "target_file": "tests/unit/background/background-strict-load.test.js",
       "related_files": [
@@ -46,7 +50,11 @@
       "expected_evidence": "Assertion da sequência exata ou de invariantes estruturais suficientes sobre os imports.",
       "possible_regression": "Falha de bootstrap por dependência carregada fora de ordem.",
       "impact": "Inicialização do service worker MV3.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. `background-strict-load.test.js` seleciona o branch Service Worker, mas define `global.importScripts = function() {}`; assim não verifica a lista nem a ordem efetiva de router/state/tab-identity/jobs/actions/shared imports.",
+      "auditor_recommended_action": "Instrumentar importScripts no teste para registrar e comparar sequência exata, ou executar loader real em sandbox com módulos controlados."
     },
     {
       "id": "002-003",
@@ -82,7 +90,7 @@
     },
     {
       "id": "002-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-replacement-observability.test.js",
       "related_files": [
@@ -98,7 +106,11 @@
       "expected_evidence": "Assertion direta de chamada/efeito de recordReplacement e, se contratual, do log.",
       "possible_regression": "Perda de journal/rekey quando Chrome substitui uma tab.",
       "impact": "Reconciliação de identidade e ownership de tabs.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED. `tab-replacement-observability.test.js` apenas registra um listener próprio no mock e usa `_simulateReplacement`; não carrega `background.js`, portanto não prova o wiring real `chrome.tabs.onReplaced -> TAB_REPLACED -> recordReplacement(added,removed)`.",
+      "auditor_recommended_action": "Adicionar teste carregando background.js real e emitindo onReplaced, com spy/efeito em tabIdentity e log."
     },
     {
       "id": "002-006",
