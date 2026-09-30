@@ -61,7 +61,7 @@
     },
     {
       "id": "039-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INPUT_VALIDATION_REVIEW",
       "target_file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
       "found_while_auditing": "extension/content/content_manga.js",
@@ -74,7 +74,11 @@
       "expected_auditor_action": "Revisar contrato de entrada do UPDATE_IMAGE e distinguir erro de protocolo de falha de persistência.",
       "possible_regression": "Mensagem parcial pode lançar no listener (por exemplo em newSrc.match) ou gravar valor inválido e quebrar restauração posterior.",
       "impact": "Robustez do IPC e integridade do cache/persistência de páginas.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:35:00Z",
+      "audit_finding": "ACCEPTED — validação estrutural insuficiente confirmada. `UPDATE_IMAGE` não valida tipos de `index/newSrc`; compara index por coerção, passa `newSrc` a replacement/persistência e, com `origHash`, chama `request.newSrc.match(...)`. `newSrc` não-string pode lançar depois de mutação DOM parcial.",
+      "auditor_recommended_action": "Validar `index` inteiro e `newSrc` como Data URL/string permitida antes de qualquer efeito; adicionar payload ausente/não-string/índice inválido."
     }
   ],
   "document_quality": {
