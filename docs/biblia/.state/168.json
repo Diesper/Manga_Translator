@@ -59,7 +59,7 @@
     },
     {
       "id": "168-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/background/startup-recovery.test.js",
       "found_while_auditing": "tests/unit/background/startup-recovery.test.js",
@@ -72,7 +72,11 @@
       "expected_auditor_action": "Limpeza de baixa severidade.",
       "possible_regression": "Confusão de manutenção, não regressão funcional direta.",
       "impact": "Clareza e confiança documental.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:20:00Z",
+      "audit_finding": "ACCEPTED. `startup-recovery.test.js` mantém `fs` e `getRuntimeMock` sem uso e comentários `CORRECAO` descrevendo algoritmo histórico que não representa o contrato atual. É dívida de manutenção/documentação.",
+      "auditor_recommended_action": "Remover imports mortos e atualizar o cabeçalho para descrever o comportamento atual, preservando os testes funcionais."
     }
   ],
   "document_quality": {
