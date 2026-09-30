@@ -1,0 +1,11 @@
+{
+  "index": 210,
+  "file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/twin-backdrop-sync.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "5d2151b3673af6ca7c4faf39b4a23d039d9aaa64",
+  "started_at_utc": "2026-09-30T13:55:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
