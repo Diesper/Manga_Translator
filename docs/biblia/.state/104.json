@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "104-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/helpers/repo-root.test.js",
       "found_while_auditing": "tests/helpers/repo-root.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e decidir se a cobertura focal deve ser criada.",
       "possible_regression": "Mudança futura pode inverter a prioridade dos ancestrais, introduzir dependência de cwd, quebrar terminação/portabilidade ou alterar o sentinela sem o layout normal detectar.",
       "impact": "Falha no helper pode impedir dezenas de suítes de inicializar ou fazê-las carregar arquivos a partir de uma raiz incorreta.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. O helper é amplamente usado e o caminho saudável roda em CI, mas não há teste focal para raiz atual, subida multinível, ancestral mais próximo, ausência de sentinela e mensagem de erro.",
+      "auditor_recommended_action": "Adicionar teste em árvore temporária usando `findRepoRoot` real, cobrindo retorno e erro."
     }
   ],
   "document_quality": {
