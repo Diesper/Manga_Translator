@@ -91,7 +91,7 @@
 - [ ] 071 — `scripts/ci/jest-worker-warning.js` → `docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 8**
 - [ ] 072 — `scripts/ci/playwright-gate-reporter.js` → `docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 9**
 - [ ] 073 — `scripts/ci/playwright-merge.config.js` → `docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 10**
-- [ ] 074 — `scripts/ci/run-e2e-group.js` → `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md`
+- [ ] 074 — `scripts/ci/run-e2e-group.js` → `docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md` **← EM ANDAMENTO — AGENTE 2**
 - [ ] 075 — `scripts/ci/run-jest-ci.js` → `docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md`
 - [ ] 076 — `scripts/maintenance/diagnose-background-leak.js` → `docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md`
 - [ ] 077 — `scripts/maintenance/diagnose-jest-workers.js` → `docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md`
