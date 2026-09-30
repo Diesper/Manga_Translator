@@ -24,7 +24,7 @@
     },
     {
       "id": "072-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/ci/playwright-gate-reporter.js",
@@ -34,7 +34,11 @@
       "requested_action": "Reconfirmar e, se persistir, validar maxSkipped em alteração funcional separada.",
       "expected_auditor_action": "Abrir correção funcional separada se a ausência for confirmada.",
       "possible_regression": "maxSkipped ausente ou não numérico pode gerar comparação com NaN e enfraquecer o bloqueio de skips.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — lacuna estrutural confirmada. O CI Contract valida `e2e.maxFlaky` como inteiro >=0, mas não há validação correspondente de `e2e.maxSkipped`, embora o reporter use esse campo para o gate de skips.",
+      "auditor_recommended_action": "Adicionar validação de presença/tipo/faixa de maxSkipped e self-test negativo removendo/corrompendo o campo."
     },
     {
       "id": "072-003",
