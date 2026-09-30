@@ -52,7 +52,7 @@
     },
     {
       "id": "026-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "extension/background/jobs-dom-ack.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Completar cobertura em processo separado.",
       "possible_regression": "ACK implícito ou falha interna pode ser tratado como sucesso silencioso.",
       "impact": "Compatibilidade e diagnóstico do ACK.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:02:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre ACK positivo/negativo, timeout, runtime.lastError comum e channel-closed em staging, mas não `legacy_no_ack` com `finalizeOnAck=true`, callback undefined sem lastError, callback tardio pós-timeout nem rejeições internas de `updateJobState/finalizeJob`. A implementação engole essas rejeições.",
+      "auditor_recommended_action": "Adicionar casos focais para compatibilidade legada, corrida callback/timeout e falhas internas, assertando resultado, logs e finalização."
     }
   ],
   "document_quality": {
