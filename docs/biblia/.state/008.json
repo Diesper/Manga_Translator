@@ -31,7 +31,7 @@
     },
     {
       "id": "008-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/deliver-result-url-action.test.js",
       "found_while_auditing": "extension/background/actions/deliver-result-url.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Fortalecer cobertura em alteração separada.",
       "possible_regression": "Fallback pode abrir URL errada ou aceitar identidade divergente sem gate.",
       "impact": "Segurança e confiabilidade do fallback de resultado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:39:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre HTTPS, batch mismatch, ownership inválido e payload básico, mas não prova mismatch de index/mangaTabId, aceitação de blob/data:image, substituição/preservação de hash/query, fallbacks de campos do job nem falha de `chrome.tabs.create`. Esses ramos determinam a URL auxiliar e o ownership final.",
+      "auditor_recommended_action": "Adicionar matriz focal contra a action real cobrindo identidade, esquemas permitidos, normalização da URL e falha da Chrome API, exigindo zero criação em mismatch e URL final correta nos casos válidos."
     },
     {
       "id": "008-003",
