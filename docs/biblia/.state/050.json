@@ -44,7 +44,7 @@
     },
     {
       "id": "050-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/inject/raf-replacement.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -57,7 +57,11 @@
       "expected_auditor_action": "Revisar semântica de cancelamento e colisão de IDs.",
       "possible_regression": "cancelAnimationFrame pode cancelar callback nativo de terceiros por colisão numérica.",
       "impact": "Interferência no scheduler do app Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:42:00Z",
+      "audit_finding": "ACCEPTED — bug de ID confirmado. `requestAnimationFrame` devolve um ID sintético próprio (`nextRafId`), mas não armazena o ID retornado por `origRaf`. `cancelAnimationFrame(id)` remove o callback do Map e chama `origCancelRaf(id)` com o ID sintético, que pode não corresponder ao rAF nativo agendado.",
+      "auditor_recommended_action": "Armazenar synthetic→native id e cancelar o native correto; adicionar teste com IDs nativos diferentes dos sintéticos."
     },
     {
       "id": "050-004",
@@ -78,7 +82,7 @@
     },
     {
       "id": "050-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "LIFECYCLE_REVIEW",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -91,7 +95,11 @@
       "expected_auditor_action": "Avaliar leaks e interferência após encerramento do worker.",
       "possible_regression": "Patches antigos podem continuar afetando uma página reutilizada após o job.",
       "impact": "Estabilidade de sessões longas e isolamento de jobs.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:42:00Z",
+      "audit_finding": "ACCEPTED — lifecycle sem teardown confirmado. O script sobrescreve visibility/hidden/hasFocus/rAF/idle, registra listeners e timers recorrentes, mas termina sem rotina que restaure propriedades/funções, remova listeners ou cancele `focusIntervalId/rafFlushTimer` enquanto o Document permanece vivo.",
+      "auditor_recommended_action": "Implementar teardown idempotente e acioná-lo quando a aba deixa de ser worker/ao reinjetar; testar restauração completa e ausência de timers/listeners duplicados."
     },
     {
       "id": "050-006",
@@ -112,7 +120,7 @@
     },
     {
       "id": "050-007",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "SECURITY_TEST_REQUIRED",
       "target_file": "tests/e2e/translation-flow.spec.js",
       "found_while_auditing": "extension/content/inject.js",
@@ -125,7 +133,11 @@
       "expected_auditor_action": "Revisar superfície de segurança da ponte autenticada.",
       "possible_regression": "Evento manipulado pela página pode induzir fetch indesejado ou aceitar resposta inadequada.",
       "impact": "Segurança e privacidade da sessão Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:42:00Z",
+      "audit_finding": "ACCEPTED — superfície MAIN fetch ampla. A ponte aceita `detail.url` fornecida por evento, faz `fetch(...,{credentials:'include'})` e só valida `response.ok` e MIME do blob. Não restringe scheme/host nem redirect final/tamanho. No MAIN world, isso merece política explícita porque usa credenciais da página.",
+      "auditor_recommended_action": "Aplicar allowlist de protocolos/origens esperadas, validar URL final/MIME/tamanho e testar hosts/schemes/redirects anômalos."
     },
     {
       "id": "050-008",
