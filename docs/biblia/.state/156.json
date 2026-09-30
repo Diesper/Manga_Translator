@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "156-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/message-handlers-real.test.js",
       "found_while_auditing": "tests/unit/background/message-handlers-real.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar se blob: deve permanecer explicitamente bloqueado e então fortalecer a suíte ou ajustar o nome sem alterar silenciosamente a documentação.",
       "possible_regression": "Uma regressão futura específica para blob: poderia passar enquanto o teste continuasse verde, apesar do nome sugerir cobertura.",
       "impact": "Precisão da evidência de segurança/protocolo do fingerprint visual.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. O nome do teste afirma `data/blob URL`, mas o estímulo enviado é apenas `data:image...`; não há chamada com `blob:`. A cobertura declarada é maior que a executada.",
+      "auditor_recommended_action": "Adicionar caso blob separado ou corrigir o título/comentário para mencionar somente data URL."
     }
   ],
   "document_quality": {
