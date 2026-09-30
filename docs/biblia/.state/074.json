@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "074-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/ci/run-e2e-group.js",
       "found_while_auditing": "scripts/ci/run-e2e-group.js",
@@ -20,11 +20,15 @@
       "requested_action": "Adicionar self-test/unit test que carregue a implementação real do runner em processo/sandbox controlado ou com spawn mockado sem copiar a lógica.",
       "expected_auditor_action": "Confirmar a lacuna e decidir se a prova focal deve ser exigida em alteração funcional/teste separada.",
       "possible_regression": "Mudanças em argv/env/cwd/shell/exit code podem quebrar a orquestração sem serem detectadas pelos gates atuais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. Não há self-test do runner `run-e2e-group.js`; os gates atuais validam plano/markers, mas não executam branches grupo inválido, workers inválidos, `spawn` error, `close(0/n/null)` nem contrato exato de argv/cwd/env/stdio/shell.",
+      "auditor_recommended_action": "Adicionar self-test da implementação real com child_process controlado."
     },
     {
       "id": "074-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_LOCAL_PARITY_REVIEW",
       "target_file": "playwright.config.js",
       "found_while_auditing": "scripts/ci/run-e2e-group.js",
@@ -34,11 +38,15 @@
       "requested_action": "Definir o contrato desejado para execução local de test:e2e:group e adicionar teste que prove esse contrato.",
       "expected_auditor_action": "Classificar a assimetria como decisão arquitetural aceita ou solicitar ajuste/teste em mudança separada.",
       "possible_regression": "Desenvolvedor pode acreditar que reproduziu o shard da CI localmente, embora workers/reporter sejam diferentes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. O runner seta `MANGA_E2E_SHARD` e `MANGA_E2E_WORKERS`, mas não `CI`. `playwright.config.js` só aplica workers/retries/forbidOnly/reporter de CI quando `process.env.CI` é truthy. No GitHub Actions a variável existe; localmente `test:e2e:group` não reproduz integralmente o shard de CI.",
+      "auditor_recommended_action": "Formalizar se execução local deve simular CI; se sim, propagar CI ou introduzir flag explícita e testar. Se não, documentar a assimetria."
     },
     {
       "id": "074-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DEPENDENCY_ROBUSTNESS",
       "target_file": "scripts/ci/run-e2e-group.js",
       "found_while_auditing": "scripts/ci/run-e2e-group.js",
@@ -48,11 +56,15 @@
       "requested_action": "Validar a resolução canônica do CLI e, se necessário, trocar para mecanismo suportado/publicamente resolvível em alteração separada.",
       "expected_auditor_action": "Confirmar se o caminho atual é contrato aceitável ou acoplamento frágil que merece correção.",
       "possible_regression": "Atualização de dependências pode manter @playwright/test funcional e ainda remover/mover o CLI no caminho esperado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED como revisão de robustez. O runner aponta diretamente para `node_modules/playwright/cli.js`, enquanto o contrato declarado é `@playwright/test`; o layout atual funciona via dependências instaladas, mas o path físico não é protegido por API pública/gate focal.",
+      "auditor_recommended_action": "Preferir resolução suportada (`require.resolve`/bin canônico) ou adicionar gate que prove o path após `npm ci`."
     },
     {
       "id": "074-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "scripts/ci/run-e2e-group.js",
       "found_while_auditing": "scripts/ci/run-e2e-group.js",
@@ -62,7 +74,11 @@
       "requested_action": "Reproduzir falhas de plano em sandbox e decidir se diagnóstico controlado/validação adicional é necessário.",
       "expected_auditor_action": "Classificar como risco aceito ou solicitar hardening/testes em mudança separada.",
       "possible_regression": "Invocação manual isolada pode falhar com stack genérico ou executar tag semanticamente ruim se o gate do plano não tiver sido rodado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:17:00Z",
+      "audit_finding": "ACCEPTED. O plano é lido e `JSON.parse`ado sem tratamento; o runner só valida existência do grupo e `workers > 0`. Campos como tag/expectedTests/estimatedSeconds dependem do verificador externo, então invocação manual isolada pode falhar com stack genérico ou usar tag semanticamente ruim.",
+      "auditor_recommended_action": "Definir quanto hardening local é exigido; adicionar casos plano ausente/malformado e validação/diagnóstico controlado se necessário."
     }
   ]
 }
