@@ -58,7 +58,7 @@
     },
     {
       "id": "002-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DEAD_CODE_REVIEW",
       "target_file": "extension/background.js",
       "found_while_auditing": "extension/background.js",
@@ -70,11 +70,15 @@
       "expected_evidence": "Busca de referências + teste/contrato que justifique manutenção ou remoção segura.",
       "possible_regression": "Futuras alterações podem usar acidentalmente estratégia de cleanup incompatível com o mecanismo durável.",
       "impact": "Clareza e manutenção da finalização durável.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED. `armFinalizationMarkerCleanup(geminiTabId)` é declarada em background.js e não possui chamada no source atual; o lifecycle moderno usa journal/marker durável e alarm handlers próprios.",
+      "auditor_recommended_action": "Remover dead code em alteração separada ou documentar/reativar consumidor real; adicionar gate se a função continuar necessária."
     },
     {
       "id": "002-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "DOCUMENTATION_DRIFT",
       "target_file": "extension/background.js",
       "found_while_auditing": "extension/background.js",
@@ -86,7 +90,11 @@
       "expected_evidence": "Comentário alinhado ao fluxo atual e sem alteração funcional.",
       "possible_regression": "Mudança futura baseada em premissa documental obsoleta.",
       "impact": "Manutenibilidade do fluxo de substituição de tabs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED. O comentário diz que 'PR 0 apenas observa a transição', mas o listener `chrome.tabs.onReplaced` chama `recordReplacement(addedTabId, removedTabId)` e inicia migração/rekey durável.",
+      "auditor_recommended_action": "Atualizar comentário para refletir o rekey durável atual, sem alterar comportamento."
     },
     {
       "id": "002-005",
@@ -114,7 +122,7 @@
     },
     {
       "id": "002-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/background.js",
       "found_while_auditing": "extension/background.js",
@@ -126,11 +134,15 @@
       "expected_evidence": "Teste/instrumentação de lifecycle que demonstre o comportamento decidido diante de suspensão/reativação.",
       "possible_regression": "Listener/artefato temporário pode sobreviver ou cleanup pode nunca ocorrer após suspensão.",
       "impact": "Confiabilidade de downloads e limpeza de marcador.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED. `waitForDownload` depende de listener dinâmico + `setTimeout(600000)` e cleanup de anchor usa `setTimeout(4000)`. Esses estados não são persistidos; reinício/suspensão do MV3 elimina esse estado em memória e não há recovery específico para esse fluxo.",
+      "auditor_recommended_action": "Definir estratégia durável para downloads longos/cleanup ou documentar limitação; adicionar teste/recovery focado."
     },
     {
       "id": "002-007",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/download-images-and-show.test.js",
       "related_files": [
@@ -145,11 +157,15 @@
       "expected_evidence": "Assertions específicas de sucesso parcial, falha parcial, ordem/merge e valor final usado para exibição.",
       "possible_regression": "Export/download em lote apresenta pasta/resultado incorreto após falha parcial.",
       "impact": "UX e consistência do download em lote.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED. `downloadImagesAndShow` contém lógica própria de merge de `${chapId}_paths`, `mangaTranslatorLastPath`, `${chapId}_dlId`, falha parcial e show do último ID; não foi localizado teste focal do helper real.",
+      "auditor_recommended_action": "Adicionar teste direto/integração do helper real com múltiplos índices, falha parcial e storage preexistente."
     },
     {
       "id": "002-008",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "OBSERVABILITY_REVIEW",
       "target_file": "extension/background.js",
       "found_while_auditing": "extension/background.js",
@@ -161,11 +177,15 @@
       "expected_evidence": "Teste que injete erro de reconcile e confirme o comportamento de observabilidade decidido.",
       "possible_regression": "Estado inconsistente persiste sem sinalização diagnóstica.",
       "impact": "Diagnóstico de recovery/reconciliation.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED. `ensureInitialized()` envolve `await reconcileJobs()` em `try/catch` vazio, sem log ou telemetria. Falha de reconciliação é silenciada totalmente.",
+      "auditor_recommended_action": "Adicionar observabilidade mínima para falha de reconcile e teste que prove diagnóstico sem impedir disponibilidade."
     },
     {
       "id": "002-009",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ARCHITECTURE_ASSUMPTION_REVIEW",
       "target_file": "extension/background.js",
       "related_files": [
@@ -180,7 +200,11 @@
       "expected_evidence": "Teste de browser/integração ou documentação explícita do comportamento suportado.",
       "possible_regression": "Perda de associação entre job e tab após startup/restauração.",
       "impact": "Recovery MV3 e continuidade de jobs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:35:00Z",
+      "audit_finding": "ACCEPTED como revisão arquitetural. `onStartup` zera `state().extractionTabs = {}` antes da reconciliação. O contrato pressupõe que esses mappings transitórios não devam sobreviver ao restart, mas a suíte não modela sessões/reabertura com tabs relevantes.",
+      "auditor_recommended_action": "Formalizar a política de lifecycle das extraction tabs e adicionar teste de startup com tabs/mappings plausíveis conforme o comportamento alvo."
     }
   ],
   "document_quality": {
