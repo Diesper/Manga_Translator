@@ -31,7 +31,7 @@
     },
     {
       "id": "086-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CI_POLICY_REVIEW",
       "target_file": "scripts/validation/verify-e2e-shard-plan.js",
       "found_while_auditing": "scripts/validation/verify-e2e-shard-plan.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Classificar se a política externa atual é suficiente; se não, solicitar mudança funcional separada.",
       "possible_regression": "CI pode ficar presa ou produzir diagnóstico insuficiente em falha anômala do Playwright/Node.",
       "impact": "Tempo de CI e capacidade de diagnóstico de falhas de infraestrutura.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. `runList` usa `spawnSync` com maxBuffer, mas sem timeout e sem branch específico para `result.error`. Hang, erro de spawn ou estouro de buffer dependem do limite externo e podem produzir diagnóstico genérico.",
+      "auditor_recommended_action": "Definir política de timeout/erro para descoberta Playwright e adicionar self-test com processo controlado para hang/spawn error/maxBuffer."
     },
     {
       "id": "086-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/ci/data/e2e-shard-plan.json",
       "found_while_auditing": "scripts/validation/verify-e2e-shard-plan.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Confirmar se o layering atual é intencional ou solicitar consolidação/validação adicional.",
       "possible_regression": "Execução isolada de test:e2e:plan pode aceitar configuração fora da política global atual.",
       "impact": "Consistência entre plano E2E, runner de grupos e contrato global da CI.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED com escopo refinado. 068-001 já cobre version/kind não validados; aqui resta a divisão de responsabilidade: `estimatedSeconds` não é validado e este gate aceita >=5 grupos enquanto `verify-ci-contract.js` congela exatamente 5.",
+      "auditor_recommended_action": "Documentar o layering entre plano local e contrato global; validar `estimatedSeconds` e topologia aqui se forem parte do schema operacional."
     }
   ],
   "document_quality": {
