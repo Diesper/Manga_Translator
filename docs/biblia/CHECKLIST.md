@@ -75,7 +75,7 @@
 - [ ] 055 — `extension/reader/reader.html` → `docs/biblia/extension/reader/reader.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#G**
 - [x] 056 — `extension/reader/reader.js` → `docs/biblia/extension/reader/reader.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 057 — `extension/shared/gtc-fingerprint.js` → `docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 058 — `extension/shared/gtc-indexeddb.js` → `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#K**
+- [x] 058 — `extension/shared/gtc-indexeddb.js` → `docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 059 — `extension/shared/shared-ui.js` → `docs/biblia/extension/shared/shared-ui.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 060 — `extension/shared/storage-manager.js` → `docs/biblia/extension/shared/storage-manager.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#Agent-A**
 - [x] 061 — `.gitignore` → `docs/biblia/.gitignore/Bíblia.md` **✅ AUDITORIA APROVADA**
