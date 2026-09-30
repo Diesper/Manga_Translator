@@ -2,10 +2,78 @@
   "index": 178,
   "file": "tests/unit/content-gemini/editor-submit.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/editor-submit.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
   "started_at_utc": "2026-09-30T15:20:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T15:35:00Z",
+  "audit_requests": [
+    {
+      "id": "178-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/editor-submit.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/editor-submit.test.js",
+      "finding": "submitWithConfirmation reobtém editor e sendButton após nudge e a cada tentativa para tolerar re-render; todos os casos atuais retornam os mesmos nós.",
+      "current_evidence": "SEND-06 prova reavaliação do mesmo botão após input/nudge.",
+      "missing_evidence": "Desconectar/substituir editor ou botão entre tentativas e fazer getters retornarem novos nós; exigir uso dos novos controles sem mutar os antigos.",
+      "why_needed": "Composer do Gemini pode re-renderizar durante o submit.",
+      "requested_action": "Adicionar caso focal de re-render/stale controls.",
+      "expected_evidence": "Submit continua no novo editor/botão ou falha de forma controlada, sem click em nó stale.",
+      "expected_auditor_action": "Priorizar por resiliência a UI dinâmica.",
+      "possible_regression": "Automação pode clicar elemento desconectado ou falhar após re-render.",
+      "impact": "Confiabilidade do submit.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "178-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/editor-submit.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/editor-submit.test.js",
+      "finding": "Quando Send continua disabled na primeira tentativa, editor.js usa pressEnter(editor) antes de MAIN; SEND-03 implica a ordem, mas não observa o KeyboardEvent.",
+      "current_evidence": "Fallback MAIN só ocorre uma vez e na segunda tentativa.",
+      "missing_evidence": "Listener keydown exigindo key/code Enter, keyCode/which=13, bubbles/cancelable/composed e um único dispatch; sem transição deve continuar não confirmado.",
+      "why_needed": "Congela o fallback local que precede o bridge MAIN.",
+      "requested_action": "Adicionar teste direto do Enter dentro de submitWithConfirmation.",
+      "expected_evidence": "Evento correto disparado uma vez e ainda subordinado ao Observer.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Fallback Enter pode quebrar silenciosamente enquanto MAIN mantém testes verdes.",
+      "impact": "Fallback de envio.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "178-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/editor-submit.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/editor-submit.test.js",
+      "finding": "Erro do observer com code diferente de GEMINI_SUBMISSION_NOT_CONFIRMED é relançado imediatamente; nenhum caso focal cobre esse branch.",
+      "current_evidence": "Todos os failures usam o código canônico de não confirmação.",
+      "missing_evidence": "Observer controlado rejeitando com código estrutural distinto; exigir propagação do mesmo erro e ausência de tentativa seguinte.",
+      "why_needed": "Evita mascarar falhas reais do Observer como timeout normal de submit.",
+      "requested_action": "Adicionar caso focal de erro alternativo.",
+      "expected_evidence": "Erro original/código preservado e loop interrompido.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Falha estrutural pode ser engolida/reclassificada.",
+      "impact": "Diagnóstico e controle de erro.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "265/265",
+    "source_text_lines": 264,
+    "bible_lines": 2211,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; sete casos SEND passaram individualmente; global 109/109 suítes e 851/851 testes."
+  }
 }
