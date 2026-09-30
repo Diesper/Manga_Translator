@@ -2,11 +2,11 @@
   "index": 145,
   "file": "tests/unit/background/fetch-image-base64-action.test.js",
   "bible": "docs/biblia/tests/unit/background/fetch-image-base64-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 10",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 20",
   "source_sha": "1246da7bd3992499b1a21a4a00dc32b83f9486c3",
   "started_at_utc": "2026-09-30T06:45:00Z",
-  "completed_at_utc": "2026-09-30T15:47:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "145-001",
@@ -94,5 +94,11 @@
       "source_commit": "3ce36e62c062acf505a09ac4e4d9edd4bdac1f6f"
     },
     "note": "Bíblia criada pelo AGENTE 10 usando router/action reais; nenhuma alteração funcional externa foi feita para fabricar evidência."
+  },
+  "takeover": {
+    "previous_agent": "AGENTE 10",
+    "taken_over_by": "AGENTE 20",
+    "requested_by_user": true,
+    "note": "Índice 145 reaberto sob ownership do AGENTE 20 por instrução explícita do usuário; Bíblia e audit_requests existentes preservados."
   }
 }
