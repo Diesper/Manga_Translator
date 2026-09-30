@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "202-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
       "related_files": [
@@ -26,11 +26,15 @@
       "expected_auditor_action": "Confirmar e adicionar cobertura em mudança separada.",
       "possible_regression": "Itens cacheados podem ser reenviados ao Gemini, misses podem ser omitidos ou contadores divergir.",
       "impact": "Eficiência, custo e consistência de lotes híbridos.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. A suíte prova 0% cache (START_BATCH) e 100% cache (short-circuit), mas não há lote híbrido com hits e misses simultâneos. O branch de combinação pode regredir sem afetar os extremos.",
+      "auditor_recommended_action": "Adicionar cenário real com subconjunto cache hit e restante miss; exigir aplicação apenas dos hits, START_BATCH apenas dos misses e contadores cacheHits/geminiTotal coerentes."
     },
     {
       "id": "202-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
       "related_files": [
@@ -46,7 +50,11 @@
       "expected_auditor_action": "Confirmar e tratar cobertura separadamente.",
       "possible_regression": "Página pode receber tradução de imagem visualmente parecida porém incorreta.",
       "impact": "Correção do conteúdo traduzido.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. O caso relaxed usa hashes regionais compatíveis e prova confirmação positiva. Não há caso em que hit perceptual relaxed é rejeitado por regionais incompatíveis e encaminhado ao Gemini.",
+      "auditor_recommended_action": "Adicionar regionais incompatíveis, exigindo resultado regional negativo, nenhuma substituição por cache e inclusão do índice em START_BATCH."
     },
     {
       "id": "202-003",
