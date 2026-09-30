@@ -2,10 +2,61 @@
   "index": 155,
   "file": "tests/unit/background/marker-anchor-real.test.js",
   "bible": "docs/biblia/tests/unit/background/marker-anchor-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "6a6c977a1a2bad89a49813153039e17a93945017",
   "started_at_utc": "2026-09-30T07:06:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T11:13:00Z",
+  "audit_requests": [
+    {
+      "id": "155-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/marker-anchor-real.test.js",
+      "found_while_auditing": "tests/unit/background/marker-anchor-real.test.js",
+      "finding": "handleMarkerAndShow possui ramo que reutiliza download existente com exists=true e state=complete, chama downloads.show(valid.id), responde sucesso e evita criar novo marcador; os testes atuais sempre forçam search=[] e nunca exercitam esse caminho.",
+      "current_evidence": "Os quatro casos atuais cobrem somente fallback do marcador: criação em path raiz/título, cleanup após 4s, ownership/cancelamento do timer e falha de criação.",
+      "missing_evidence": "Caso com resultados de search contendo pelo menos um item válido, assertion de show(valid.id), resposta {ok:true} e ausência de downloads.download.",
+      "why_needed": "Uma regressão pode criar _anchor.png desnecessário, abrir id incorreto ou ignorar download válido sem falhar a suíte.",
+      "requested_action": "Adicionar caso focal da implementação real em mudança separada, preferencialmente com resultados mistos para provar a seleção do item válido.",
+      "expected_evidence": "downloads.show chamado com o id válido, sendResponse {ok:true} e downloads.download não chamado.",
+      "expected_auditor_action": "Confirmar que reutilização de download existente é contrato intencional e adicionar cobertura focal sem modificar esta Bíblia.",
+      "possible_regression": "Fallback artificial para marcador mesmo quando a pasta já pode ser revelada por download concluído.",
+      "impact": "Abertura nativa de pasta e criação desnecessária de arquivo-âncora.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "155-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/marker-anchor-real.test.js",
+      "found_while_auditing": "tests/unit/background/marker-anchor-real.test.js",
+      "finding": "Depois que a âncora é criada, o callback de erro de waitForDownload responde {ok:false,error:'Interrompido'}, mas a suíte cobre apenas onComplete e falha imediata de downloads.download com id undefined.",
+      "current_evidence": "BG-39 prova o caminho onComplete; BG-42 prova falha antes de waitForDownload. O ramo onError de waitForDownload permanece sem caso focal.",
+      "missing_evidence": "Simulação do evento interrupted para o id do marcador, assertion de resposta Interrompido e prova de que show/removeFile/erase de sucesso não são executados.",
+      "why_needed": "Uma interrupção pode ser tratada como sucesso, gerar cleanup incorreto ou não responder ao chamador sem quebrar os casos existentes.",
+      "requested_action": "Adicionar teste focal usando o mock real de downloads/onChanged para conduzir waitForDownload ao ramo interrupted.",
+      "expected_evidence": "sendResponse {ok:false,error:'Interrompido'} e ausência de operações do caminho de sucesso.",
+      "expected_auditor_action": "Validar o contrato de erro da âncora interrompida e adicionar a cobertura em mudança separada.",
+      "possible_regression": "Falha/interrupção de download pode deixar o popup aguardando, responder texto incorreto ou tentar abrir/remover marcador incompleto.",
+      "impact": "Robustez do fallback de abertura de pasta.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "166/166",
+    "source_text_lines": 165,
+    "bible_lines": 1274,
+    "external_audit_requests_open": 2,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: quatro casos passaram, inclusive REG-WORKER-4S; jobs globais reportaram 109/109 suítes e 851/851 testes."
+  }
 }
