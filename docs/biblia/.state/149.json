@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "149-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/background.js",
       "related_files": [
@@ -26,11 +26,15 @@
       "expected_auditor_action": "Revisar a política de durabilidade do log e abrir alteração funcional/teste separada se perda silenciosa não for aceitável.",
       "possible_regression": "Telemetria e diagnóstico podem desaparecer justamente durante falhas de storage, reduzindo capacidade de investigação.",
       "impact": "Observabilidade e diagnóstico; não foi demonstrada corrupção de estado funcional do batch.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:12:00Z",
+      "audit_finding": "ACCEPTED. `_flushLog()` remove todo o batch da fila com `splice` antes do `storage.local.set`; se a escrita rejeita, o catch libera `_logFlushing` mas não reencola o batch. A suíte prova apenas que um flush posterior volta a funcionar, não que a entrada falhada sobreviva.",
+      "auditor_recommended_action": "Definir a política de durabilidade. Se logs devem sobreviver a falha transitória, reencolar/retry o batch e adicionar regressão; se best-effort for intencional, documentar explicitamente a possível perda."
     },
     {
       "id": "149-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/background.js",
       "related_files": [
@@ -46,11 +50,15 @@
       "expected_auditor_action": "Classificar a força de unicidade exigida pelos consumidores do log.",
       "possible_regression": "Consumidor que assuma chave absolutamente única pode tratar duas entradas como a mesma em colisão.",
       "impact": "Identidade de entradas de log.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:12:00Z",
+      "audit_finding": "ACCEPTED como revisão de contrato. O teste chama a propriedade de 'ids únicos', mas o runtime usa `${Date.now()}_${Math.random()}` sem deduplicação. Vinte amostras distintas provam apenas baixa probabilidade de colisão naquele run, não unicidade forte.",
+      "auditor_recommended_action": "Definir se identidade probabilística basta. Se unicidade forte for requisito, usar gerador robusto e teste determinístico; caso contrário, ajustar o nome/claim da suíte."
     },
     {
       "id": "149-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/helpers-real.test.js",
       "related_files": [
@@ -66,11 +74,15 @@
       "expected_auditor_action": "Confirmar se ordering é invariante exigida do watchdog.",
       "possible_regression": "Refactor pode inverter a ordem mantendo o mesmo estado final e a suíte continuar verde.",
       "impact": "Semântica temporal do rearme do watchdog.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:12:00Z",
+      "audit_finding": "ACCEPTED. O módulo real atualmente aguarda `chrome.alarms.clear` antes de persistir metadata e chamar `chrome.alarms.create`, mas a suíte só verifica presença/estado final e não congela essa ordem temporal.",
+      "auditor_recommended_action": "Se clear→create é invariante, adicionar assertion de ordem (`invocationCallOrder`/ledger equivalente) no módulo real."
     },
     {
       "id": "149-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/background/jobs-watchdog.js",
       "related_files": [
@@ -86,7 +98,11 @@
       "expected_auditor_action": "Classificar side effects atuais como aceitáveis ou solicitar correção separada.",
       "possible_regression": "Operações em chaves inválidas podem poluir diagnóstico ou mascarar erro de caller.",
       "impact": "Robustez de cleanup do watchdog.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:12:00Z",
+      "audit_finding": "ACCEPTED. `clear(undefined)` e `clear(null)` não são no-op: formam `watchdog_undefined`/`watchdog_null` e removem `wd_data_undefined`/`wd_data_null`. A suíte exige somente 'não lançar', então não define se esses side effects são aceitáveis.",
+      "auditor_recommended_action": "Definir o contrato para identificador ausente. Se a intenção for ignorar input inválido, adicionar guard e assertions de zero side effects; se o comportamento atual for aceitável, documentá-lo."
     }
   ],
   "document_quality": {
