@@ -2,10 +2,41 @@
   "index": 105,
   "file": "tests/helpers/track-background-delay-timers.js",
   "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 7",
   "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
   "started_at_utc": "2026-09-30T06:20:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:23:00Z",
+  "audit_requests": [
+    {
+      "id": "105-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/track-background-delay-timers.test.js",
+      "found_while_auditing": "tests/helpers/track-background-delay-timers.js",
+      "finding": "O helper tem prova direta focal para o delay de 4_000 ms por marker-anchor-real.test.js, mas não existe teste dedicado que prove os branches de 600 ms e 18_000 ms, a delegação de delays não rastreados e a remoção automática do Map quando um callback rastreado dispara naturalmente.",
+      "current_evidence": "marker-anchor-real.test.js executa o background real, verifica getPendingDelays() contendo 4_000, verifica o retorno do cancelamento contendo 4_000 e getPendingCount() igual a zero. process-finalize-real/lifecycle-alarms-real/regex-escape/message-handlers-real instalam e cancelam o tracker durante teardown, mas sem assertions focais equivalentes para 600/18_000.",
+      "missing_evidence": "Assertions diretas para captura/cancelamento de 600 e 18_000, passagem transparente de delay fora da allowlist, propagação dos argumentos do callback, remoção de pending após disparo natural e comportamento idempotente de cancelamentos repetidos.",
+      "why_needed": "Se os delays reais de finalizeJob mudarem ou um branch do helper regredir, o teardown pode deixar handles vivos e reintroduzir worker leak sem que a regressão de 4 s detecte o problema.",
+      "requested_action": "Adicionar um teste unitário focal para o helper, usando a implementação real e controlando timers, cobrindo 600, 4_000 e 18_000, um delay não rastreado, firing natural e cancelamento repetido. Não copiar a lógica do helper para o teste.",
+      "expected_evidence": "Assertions sobre getPendingDelays/getPendingCount, retorno do cancelador, callback/args e ausência de handle rastreado após disparo/cancelamento para todos os três delays.",
+      "expected_auditor_action": "Confirmar a lacuna e criar a cobertura em alteração separada, sem tratar o uso indireto atual como prova dos branches não assertados.",
+      "possible_regression": "Handles de 600 ms ou 18 s podem sobreviver ao teardown, atrasar o encerramento do worker Jest ou executar callbacks contra mocks já restaurados.",
+      "impact": "Confiabilidade e isolamento de suítes de background; a cobertura direta existente de 4 s continua válida.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "42/42",
+    "range_blocks": 10,
+    "ranges_contiguous": true,
+    "source_has_final_newline": true,
+    "bible_lines": 179,
+    "direct_specific_proof": "4_000 ms capture/cancel/count",
+    "external_audit_requests_open": 1,
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
+  }
 }
