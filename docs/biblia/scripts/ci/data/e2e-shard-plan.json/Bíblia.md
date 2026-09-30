@@ -749,7 +749,7 @@ Este arquivo não processa URL de usuário, imagens, Gemini, tabs, storage nem c
 
 **Por que uma implementação ingênua seria pior:** não ter qualquer grupo fast permitiria uma partição funcional mas pior para latência de CI.
 
-**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO PARCIAL: `verify-e2e-shard-plan.js` exige que algum grupo tenha `kind === 'fast'`; não fixa que necessariamente seja este id.
+**Evidência automatizada:** 🟦 GATE ESTÁTICO ESPECÍFICO: `verify-e2e-shard-plan.js` exige que algum grupo tenha `kind === 'fast'`; a proteção é global e não fixa que necessariamente seja este id.
 
 ### Linha/posição 40
 
