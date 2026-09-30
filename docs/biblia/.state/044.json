@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "044-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/image-quarantine.test.js",
       "found_while_auditing": "extension/content/gemini/image-quarantine.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer cobertura criptográfica sem alterar o objeto durante a auditoria.",
       "possible_regression": "Quarentena pode deixar de detectar igualdade byte-a-byte no navegador mesmo com suíte verde.",
       "impact": "Barreira anti-eco de imagem de entrada.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. `image-quarantine.test.js` instancia a factory com `cryptoImpl:null`, portanto nunca executa `crypto.subtle.digest`; também não foi localizada comparação do fallback SHA-256 com vetor canônico conhecido.",
+      "auditor_recommended_action": "Adicionar caso com crypto.subtle real/mock fiel e vetor SHA-256 canônico compartilhado entre caminho nativo e fallback."
     },
     {
       "id": "044-002",
