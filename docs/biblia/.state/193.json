@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "193-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_AUTHENTICITY",
       "target_file": "tests/unit/content-manga/auto-restore-system.test.js",
       "found_while_auditing": "tests/unit/content-manga/auto-restore-system.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar autenticidade e redundância.",
       "possible_regression": "Manutenção confunde mirror com integração real.",
       "impact": "Confiabilidade do Auto-Restore.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. O arquivo define `createAutoRestoreSystem()` local e todos os casos principais executam esse mirror; não importa nem instancia `cm-auto-restore.js`/content script real. Portanto a suíte é prova do espelho, não do runtime.",
+      "auditor_recommended_action": "Reclassificar como histórico/auxiliar ou migrar os cenários relevantes para a suíte real que carrega `cm-auto-restore.js`/content script."
     },
     {
       "id": "193-002",
@@ -44,7 +48,7 @@
     },
     {
       "id": "193-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/content-manga/auto-restore-system.test.js",
       "found_while_auditing": "tests/unit/content-manga/auto-restore-system.test.js",
@@ -57,7 +61,11 @@
       "expected_auditor_action": "Revisar validade do cenário.",
       "possible_regression": "Persistência real muda sem gate correspondente.",
       "impact": "Integridade de restore/cache.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. O caso intitulado `UPDATE_IMAGE salva restoreMap + GTC no mesmo set` apenas constrói `toSet` no teste e chama `storageMock.set(toSet)` diretamente. Nenhum handler UPDATE_IMAGE ou pipeline de produção é executado.",
+      "auditor_recommended_action": "Renomear/remover o claim ou substituir por dispatch real de UPDATE_IMAGE e assertions sobre o storage/IndexedDB atual."
     }
   ],
   "document_quality": {
