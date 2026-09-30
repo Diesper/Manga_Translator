@@ -174,6 +174,65 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 8. Se alguma fragilidade for reproduzida, **não corrigir silenciosamente durante a auditoria documental**: registrar a evidência, abrir correção funcional separada e exigir teste que falhe antes da correção e passe depois.
 9. Considerar a lacuna encerrada somente com assertion verificável; inspeção visual ou ocorrência textual não basta.
 
+
+## Observações técnicas para auditoria futura — #075 `scripts/ci/run-jest-ci.js`
+
+> **Registro somente documental pelo AGENTE 5.** Nenhum código funcional, teste, Bíblia, CHECKLIST, AUDITORIA, reserva ou descrição do PR foi alterado por esta observação. O objetivo é deixar para o auditor o que foi encontrado no arquivo, o que ainda precisa ser provado e quais verificações devem ser feitas antes de qualquer aprovação.
+
+### O que encontrei
+
+1. **O runner executa o Jest real e depois valida o inventário.** Ele monta `.ci-results/jest-results.json`, executa `node_modules/jest/bin/jest.js` com `--ci --json --outputFile` e reprova se o processo termina com status diferente de zero, se o relatório contém falhas, se faltam arquivos de teste ou se os pisos do baseline não são atingidos.
+2. **A partição unit/integration é verificada dinamicamente no modo normal.** Quando não está em `--coverage`, o script chama Jest com `--listTests --json --selectProjects`, compara unitários e integração, rejeita overlap, arquivos ausentes, arquivos inesperados e projetos descobrindo testes fora de `tests/unit/` ou `tests/integration/`.
+3. **O runner também protege o contrato de `package.json`.** No modo normal ele exige que `test:unit` e `test:integration` sejam exatamente os comandos canônicos esperados.
+4. **Worker leak é tratado como falha mesmo quando Jest retorna zero.** O stderr é capturado e passado a `hasForcedWorkerExit(jestStderr)`; o literal atual vem de `scripts/ci/jest-worker-warning.js`.
+5. **O baseline é realmente bloqueante.** O runner usa `test-baseline.json` para exigir pelo menos 108 suítes, 848 testes, zero skipped e zero TODO.
+6. **Coverage usa o mesmo runner, mas com comportamento diferente.** `--coverage` injeta `COVERAGE_MODE=1`, adiciona `--coverage` e `--maxWorkers=2`. Nesse caminho a prova explícita da partição unit/integration e a checagem dos scripts npm são puladas, embora o relatório final ainda seja comparado com o inventário de arquivos `.test.js`.
+7. **Não localizei self-test focal do próprio `run-jest-ci.js`.** O arquivo é executado de verdade por `npm run test:ci` e `npm run test:coverage`, e `verify-ci-contract.js` protege alguns marcadores por inspeção estática, mas isso não equivale a testes negativos exercitando cada branch do runner.
+8. **A leitura do JSON de resultados não está dentro de try/catch.** Se `jest-results.json` existir mas estiver truncado ou malformado, `JSON.parse` aborta o processo com exceção não tratada. Isso é fail-closed, mas falta prova de que o diagnóstico produzido é o desejado.
+9. **A remoção do resultado anterior ignora erro.** O trecho `try { fs.rmSync(resultFile, { force: true }); } catch (_error) {}` suprime qualquer falha ao limpar `jest-results.json`. É necessário provar que um arquivo stale nunca pode ser aceito como resultado da execução atual em uma combinação anômala de falha de limpeza/escrita.
+10. **Não há timeout no `spawnSync` que executa Jest.** Nos jobs `unit-and-integration` e `coverage` também não foi localizado `timeout-minutes` específico no workflow. Um hang pode, portanto, depender do limite externo do GitHub Actions em vez de uma política explícita do runner.
+11. **A detecção de worker forçado depende de texto literal em inglês.** O self-test de `jest-worker-warning.js` prova o literal atual, mas uma mudança futura na mensagem do Jest pode fazer o detector deixar de reconhecer o mesmo problema sem que o comportamento do runner tenha mudado.
+12. **O inventário esperado considera somente `*.test.js`.** O `walk()` percorre `tests/unit` e `tests/integration`, mas filtra apenas arquivos terminados em `.test.js`. O auditor deve confirmar se excluir `.spec.js` ou outros padrões é uma decisão canônica e protegida em outro gate.
+13. **No modo coverage há uma assimetria adicional.** O relatório garante que todos os `.test.js` esperados foram executados, porém a checagem `unexpectedInPartition` só existe na prova de partição do modo normal. O auditor deve verificar se um teste inesperado fora do inventário poderia entrar no coverage sem ser explicitamente rejeitado por este runner.
+14. **A estratégia de saída é deliberadamente não imediata.** Em caso de problemas, usa `process.exitCode = 1` em vez de `process.exit(1)` para evitar perder o fim do stderr/log no GitHub Actions. Isso parece intencional e coerente com o comentário, mas precisa ser classificado com a força de evidência correta.
+
+### O que é necessário verificar/provar
+
+- provar o caminho normal completo com sucesso, incluindo inventário, partição unit/integration e correspondência dos scripts npm;
+- provar falha por overlap entre unit e integration;
+- provar falha por arquivo `.test.js` ausente da partição;
+- provar falha por arquivo inesperado incluído na partição;
+- provar falha quando unit descobre algo fora de `tests/unit/` e integration fora de `tests/integration/`;
+- provar os pisos de suítes/testes e os limites zero para skipped/TODO;
+- provar que `report.success === false`, `numFailedTests` e `numFailedTestSuites` realmente tornam o runner vermelho;
+- provar que warning de worker forçado reprova uma execução cujo status Jest seja zero;
+- provar o comportamento quando o Jest não cria `jest-results.json`;
+- provar o comportamento quando o JSON de resultado existe, mas é inválido/truncado;
+- testar explicitamente a falha de remoção do arquivo de resultado anterior e descartar possibilidade de resultado stale ser aceito;
+- testar `spawnSync` com `run.error`, status não zero, status nulo/sinal e stderr grande;
+- decidir se o runner precisa de timeout próprio ou se o timeout deve existir no workflow, e documentar a política escolhida;
+- validar separadamente o modo `--coverage`, inclusive `COVERAGE_MODE=1`, `--maxWorkers=2`, inventário completo e a ausência deliberada da prova de partição nesse modo;
+- confirmar se o padrão oficial de testes é exclusivamente `.test.js`; se for, localizar o gate que impede introdução silenciosa de `.spec.js`; se não for, registrar a lacuna;
+- verificar se a dependência do literal de worker warning precisa de teste de compatibilidade ou estratégia menos frágil.
+
+### O que preciso que o auditor faça no #075
+
+1. Reabrir `scripts/ci/run-jest-ci.js` e reconfirmar o SHA `6d2e36a647aadeadb2b875c1b3f92df24cd2f494` antes de usar estas observações. Se o SHA mudou, reanalisar os trechos afetados.
+2. Ler as implementações reais de `jest.config.js`, `scripts/ci/data/test-baseline.json`, `scripts/ci/jest-worker-warning.js`, `package.json`, `.github/workflows/ci.yml` e `scripts/validation/verify-ci-contract.js`; não aceitar apenas referência textual.
+3. Conferir o self-test `scripts/validation/verify-jest-worker-warning-selftest.js` e limitar sua conclusão ao que as três assertions realmente provam.
+4. Localizar qualquer teste/self-test adicional do runner. Se não existir, classificar os branches acima como `⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO`, mesmo que a CI execute o runner normalmente.
+5. Diferenciar claramente:
+   - execução real do runner pela CI;
+   - gate estático de `verify-ci-contract.js`;
+   - prova direta de um branch específico;
+   - simples presença de string/código;
+   - lacunas sem teste focal.
+6. Criar, se a auditoria exigir prova, um self-test isolado que execute o runner em sandbox com Jest/relatório controlados e cubra sucesso e falhas negativas; não simular a lógica copiando-a manualmente e chamar isso de teste da implementação real.
+7. Dar atenção especial a quatro pontos antes de aprovar: **resultado stale**, **JSON malformado**, **ausência de timeout** e **assimetria do modo coverage**.
+8. Se alguma dessas lacunas revelar defeito funcional real, registrar correção em mudança funcional separada e exigir regressão correspondente; não corrigir silenciosamente durante a auditoria documental.
+9. Só considerar o #075 documentalmente aprovado quando a Bíblia distinguir corretamente o que está diretamente provado, o que é gate estático, o que é execução indireta e o que continua sem teste probatório específico.
+
+
 ## Auditoria de 2026-09-29
 
 A auditoria rebaixou os arquivos que estavam marcados como concluídos sem satisfazer o padrão atual. Isso não apaga o trabalho já produzido; significa que essas Bíblias precisam ser corrigidas antes de receber `[x]` novamente.
