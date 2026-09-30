@@ -1,0 +1,11 @@
+{
+  "index": 122,
+  "file": "tests/smoke/run-smoke.js",
+  "bible": "docs/biblia/tests/smoke/run-smoke.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 1",
+  "source_sha": "ea6fa903f7a68272a769804a29a97ae967bc1088",
+  "started_at_utc": "2026-09-30T06:28:19.840Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
