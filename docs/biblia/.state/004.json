@@ -2,10 +2,54 @@
   "index": 4,
   "file": "extension/background/actions/check-extraction-tab.js",
   "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
   "started_at_utc": "2026-09-30T12:54:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:01:00Z",
+  "audit_requests": [
+    {
+      "id": "004-001",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/background/actions/check-extraction-tab.js",
+      "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
+      "finding": "O retorno usa { isExtractionTab: true, ...mapping }; um mapping persistido malformado contendo isExtractionTab:false sobrescreveria o discriminador true.",
+      "current_evidence": "Hit/miss e reidratação com mappings normais têm prova direta.",
+      "missing_evidence": "Caso de mapping malformado com campo isExtractionTab e decisão explícita de precedência.",
+      "why_needed": "O discriminador da resposta pode ser controlado pelo conteúdo persistido, apesar de a existência do mapping já ter sido confirmada.",
+      "requested_action": "Auditar a origem dos mappings; se o discriminador deve ser invariável, considerar ordem { ...mapping, isExtractionTab:true } em mudança separada e adicionar teste.",
+      "expected_evidence": "Mapping malformado não consegue converter um hit real em isExtractionTab:false.",
+      "expected_auditor_action": "Confirmar invariantes do estado persistido antes de qualquer alteração.",
+      "possible_regression": "Aba de extração pode não ser reconhecida após estado corrompido/migrado.",
+      "impact": "Detecção de abas auxiliares e entrega de resultado.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "004-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/actions-low-risk.test.js",
+      "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
+      "finding": "Não há casos focais para sender sem tab, extractionTabs ausente/null, ensureInitialized rejeitando ou guard de bootstrap com router incompatível.",
+      "current_evidence": "Hit, miss e reidratação após worker novo são provados.",
+      "missing_evidence": "Branches defensivos de inicialização/estado/sender.",
+      "why_needed": "Esses caminhos definem o comportamento de recuperação quando o service worker renasce ou recebe contexto incompleto.",
+      "requested_action": "Adicionar testes focais sem modificar a implementação durante a produção documental.",
+      "expected_evidence": "Miss seguro para estado/sender ausentes e resposta INTERNAL_ERROR quando inicialização falha, conforme contrato escolhido.",
+      "expected_auditor_action": "Completar cobertura de robustez.",
+      "possible_regression": "Worker pode responder de forma inconsistente em contexto incompleto sem gate.",
+      "impact": "Recuperação de extração após restart.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "26/26",
+    "source_text_lines": 25,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia existente de auditoria anterior revalidada contra o mesmo SHA; bloco ```javascript reproduz a fonte integral exatamente."
+  }
 }
