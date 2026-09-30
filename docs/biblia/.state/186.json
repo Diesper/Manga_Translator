@@ -2,10 +2,81 @@
   "index": 186,
   "file": "tests/unit/content-gemini/result-extractor.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
   "started_at_utc": "2026-09-30T17:20:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T17:35:00Z",
+  "audit_requests": [
+    {
+      "id": "186-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/result-extractor.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/result-extractor.test.js",
+      "finding": "O caminho blob possui branches de falha para fetchImpl, FileReader ausente, construtor/readAsDataURL e reader.onerror; EXT-06 cobre apenas sucesso.",
+      "current_evidence": "Blob válido usa fetch local + FileReader e não chama SW.",
+      "missing_evidence": "Matriz focal dos branches de erro em blobToDataUrl/extractResultImage real, incluindo ausência de SW fallback para blob.",
+      "why_needed": "Blob gerado pode falhar em browser/ambiente específico apesar de CI verde.",
+      "requested_action": "Adicionar testes focais de falha do branch blob.",
+      "expected_evidence": "Erros originais propagados e nenhum SW acionado indevidamente.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Promise pode resolver shape inválido, engolir FileReader error ou acionar rota indevida.",
+      "impact": "Extração de resultado blob.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "186-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/result-extractor.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/result-extractor.test.js",
+      "finding": "sendRuntimeMessageForDataUrl trata runtime/sendMessage ausentes, runtime.lastError e throw síncrono; fixtures atuais fornecem runtime saudável.",
+      "current_evidence": "SW responde dataUrl ou error nos casos atuais; safe-background-delete cobre retries/ordem mas não esses guards.",
+      "missing_evidence": "runtime=null, sendMessage ausente, lastError com mensagem e sendMessage lançando, em rotas session/legacy aplicáveis.",
+      "why_needed": "Restart/perda do Service Worker é cenário real em MV3.",
+      "requested_action": "Adicionar matriz focal dos guards de runtime.",
+      "expected_evidence": "Rejeições determinísticas, sem Promise pendurada, com mensagem/fallback esperado.",
+      "expected_auditor_action": "Priorizar por robustez MV3.",
+      "possible_regression": "Falha de SW pode deixar extração sem resposta ou lançar fora do pipeline.",
+      "impact": "Entrega do resultado e fallback de extração.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "186-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/result-extractor.test.js",
+      "related_files": [
+        "tests/unit/content-gemini/job-runner.test.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/result-extractor.test.js",
+      "finding": "Se onAuxiliaryFallback rejeita/lança, extractOrAuxiliaryFallback propaga a falha; só há auxiliary feliz ou callback ausente.",
+      "current_evidence": "EXT-07/13 provam callback auxiliar bem-sucedido após logs diagnósticos; EXT-09 prova ausência de callback.",
+      "missing_evidence": "Callback auxiliary que lança erro conhecido; exigir uma chamada, logs diagnósticos preservados e rejeição original.",
+      "why_needed": "O último recurso também pode falhar e precisa manter diagnóstico e causalidade.",
+      "requested_action": "Adicionar caso focal de callback auxiliary rejeitado.",
+      "expected_evidence": "Erro original propagado depois de DIAGNOSTIC/AUXILIARY_FALLBACK.",
+      "expected_auditor_action": "Complementar com 181-004 no wiring runner/background.",
+      "possible_regression": "Erro do fallback pode ser engolido ou perder contexto.",
+      "impact": "Diagnóstico do caminho terminal de extração.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "491/491",
+    "source_text_lines": 490,
+    "bible_lines": 4031,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; 15 execuções efetivas (EXT-10 x3) passaram; global 109/109 suítes e 851/851 testes. safe-background-delete fornece prova externa de requestId, timeout MAIN, imagem não pronta e retries/logs."
+  }
 }
