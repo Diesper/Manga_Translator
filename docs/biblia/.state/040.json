@@ -31,7 +31,7 @@
     },
     {
       "id": "040-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/attachment.test.js",
       "found_while_auditing": "extension/content/gemini/attachment.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Completar cobertura de compatibilidade.",
       "possible_regression": "Upload pode falhar apenas em ambientes onde a API sintética difere do JSDOM atual.",
       "impact": "Confiabilidade do upload Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. `attachment.js` possui fallbacks para DataTransfer/ClipboardEvent/DragEvent ausentes ou construtores que lançam, mas a suíte instala mocks funcionais e não exercita esses paths nem falha de Object.defineProperty/input.files.",
+      "auditor_recommended_action": "Adicionar cenários com APIs ausentes/throwing e setter de files rejeitando, provando que a tentativa falha sem falso confirmed e que o fallback seguinte continua."
     },
     {
       "id": "040-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/attachment.test.js",
       "found_while_auditing": "extension/content/gemini/attachment.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Fortalecer lifecycle da suíte.",
       "possible_regression": "Observers/timers antigos podem reagir ao job seguinte ou consumir recursos.",
       "impact": "Isolamento entre jobs e estabilidade de execução longa.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre timeout/pending preview/deduplicação, mas não verifica cleanup completo de MutationObserver/timers/listeners em todos os exits nem reasons `editor_disconnected`/`dispatch_failed`. O módulo pode ser executado repetidamente na mesma aba.",
+      "auditor_recommended_action": "Instrumentar observers/timers/listeners e adicionar casos de disconnect/throw do dispatcher, exigindo cleanup idempotente e reasons corretos."
     }
   ],
   "document_quality": {
