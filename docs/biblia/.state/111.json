@@ -50,7 +50,7 @@
     },
     {
       "id": "111-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_CLEANUP",
       "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
@@ -64,7 +64,11 @@
       "expected_auditor_action": "Classificar o impacto do lifecycle no fake-indexeddb antes de alterar o teste.",
       "possible_regression": "Crescimento de estado no processo de teste e dívida de manutenção.",
       "impact": "Baixo no conjunto atual; potencial em sessões longas.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. Cada `beforeEach` cria um IndexedDB com nome único, mas `afterEach` não fecha/apaga explicitamente o database; no fake-indexeddb isso evita colisão porém mantém estado até o fim do processo. O import `fs` também está sem uso.",
+      "auditor_recommended_action": "Avaliar cleanup explícito do DB/repository para sessões longas e remover o import morto se não houver justificativa."
     }
   ],
   "document_quality": {
