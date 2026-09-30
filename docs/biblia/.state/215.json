@@ -32,7 +32,7 @@
     },
     {
       "id": "215-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "tests/unit/inject/visibility-spoof.test.js",
@@ -45,11 +45,16 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "pagehide/visibilitychange de document podem escapar sem falha da suíte.",
       "impact": "Anti-hibernação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "SUPERSEDED por 213-001. A ausência de prova do `pagehide` e do listener real de `document.visibilitychange` é manifestação específica do mesmo problema canônico: as suítes de inject não executam o `inject.js` real.",
+      "auditor_recommended_action": "Cobrir pagehide/visibilitychange no harness real proposto em 213-001.",
+      "superseded_by": "213-001"
     },
     {
       "id": "215-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ISOLATION_REVIEW",
       "target_file": "tests/unit/inject/visibility-spoof.test.js",
       "found_while_auditing": "tests/unit/inject/visibility-spoof.test.js",
@@ -62,7 +67,11 @@
       "expected_auditor_action": "Revisar cleanup em alteração separada.",
       "possible_regression": "Leak de estado pode mascarar outro cenário.",
       "impact": "Confiabilidade do ambiente Jest.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "ACCEPTED. O `afterEach` redefine `visibilityState='visible'` e `hidden=false` em vez de restaurar os descriptors originais; isso pode contaminar outras suítes no mesmo ambiente se os descriptors originais diferirem.",
+      "auditor_recommended_action": "Capturar descriptors originais no setup e restaurá-los integralmente no teardown."
     }
   ],
   "document_quality": {
