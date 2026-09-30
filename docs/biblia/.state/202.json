@@ -58,7 +58,7 @@
     },
     {
       "id": "202-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-manga/extract-flow-real.test.js",
       "related_files": [
@@ -74,7 +74,12 @@
       "expected_auditor_action": "Confirmar e adicionar teste em mudança separada.",
       "possible_regression": "Estado da aba pode divergir do lote ainda ativo no background.",
       "impact": "Confiabilidade de cancelamento e diagnóstico.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "SUPERSEDED por 039-002. Ambos pedem o mesmo branch negativo de `STOP_TRANSLATION_FROM_POPUP` quando STOP_BATCH falha/runtime.lastError produz `background_stop_failed`.",
+      "auditor_recommended_action": "Centralizar a regressão no request 039-002.",
+      "superseded_by": "039-002"
     }
   ],
   "document_quality": {
