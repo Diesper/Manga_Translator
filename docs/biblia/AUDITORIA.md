@@ -105,6 +105,7 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 77 | `scripts/maintenance/diagnose-jest-workers.js` | SHA `87d25d2b61cc...` reconfirmado; bloco integral exato | 200 linhas + newline final = 201/201 posições; mapa de cobertura contínuo | helper `hasForcedWorkerExit` possui self-test direto; CI Contract protege paths/comandos; runner matricial em si não possui self-test focal e isso permanece explícito | cases, spawn, artifacts, aggregate e exit policy documentados; 3 audit_requests OPEN preservadas em `.state/077.json` | ✅ APROVADO |
 | 79 | `scripts/validation/check-js-syntax.js` | SHA `fbc69cf9f910...` reconfirmado; fonte integral embutida byte-a-byte exata | 30 linhas + newline final = 31/31 posições; mapa 1–31 contínuo | run #36577447500 / job #109437162703 executou o mesmo blob e terminou verde com 218 arquivos; checkout efetivo do job foi o merge ref `c6d75b8...`, cujo blob é o mesmo; branches negativos permanecem sem teste focal | descoberta/`node --check`/exit policy documentados com classificações conservadoras; `079-001` e `079-002` permanecem OPEN em `.state/079.json` | ✅ APROVADO |
 | 80 | `scripts/validation/playwright-gate-reporter-selftest.js` | SHA `478d6673dbb6...` reconfirmado; fonte integral embutida exata | 79 linhas + newline final = 80/80 posições; linhas 1–79 documentadas + posição 80 explícita | assertions reais isolam happy path, skipped, flaky por retry, inventário <21 e estados finais; branch `attemptsById.size < total` permanece corretamente como gap | consumers CI/package e matriz de regressão cruzados; `080-001` e `080-002` permanecem OPEN em `.state/080.json` | ✅ APROVADO |
+| 81 | `scripts/validation/validate-manifest.js` | SHA `93dbb1882c69...` reconfirmado; fonte integral embutida exata | 18 linhas + newline final = 19/19 posições; cobertura linha/posição contínua | run #2167 teve o job `Manifest Validation` e o step `Validar manifest.json` em `success`; checkout efetivo `ae53a56...` contém o mesmo blob; branches negativos permanecem sem self-test focal | truthiness mínima, limites de schema e wiring da CI documentados sem inflar garantias; `081-001`..`081-003` permanecem OPEN | ✅ APROVADO |
 | 55 | `extension/reader/reader.html` | SHA `065fc4e201c5...` reconfirmado; bloco integral exato | 77 linhas + newline final = 78/78 posições; 78 headings sequenciais | `reader.ui.test.js` carrega HTML/JS reais e `reader-offline.spec.js` abre a extensão real, provando estrutura/contador/largura/navegação; CSS cosmético foi rebaixado | contratos de IDs/scripts/layout documentados; lacunas de acessibilidade/viewport/sincronização de offsets persistidas em `.state/055.json` | ✅ APROVADO |
 | 54 | `extension/popup/popup.js` | SHA `300cfe9a9c81...` reconfirmado; bloco integral exato | 2020 linhas + newline final = 2021/2021 posições; 2021 headings sequenciais | suítes `popup.ui`, `popup.advanced.ui`, thumbnails, dynamic-button, progress, resize/tabs e log-exporter carregam a implementação real; ramos sem assertion focal permanecem explícitos | composition root, ownership por tabId, storage, settings, downloads, miniaturas e logs documentados; 4 audit_requests OPEN em `.state/054.json` | ✅ APROVADO |
 
@@ -808,5 +809,19 @@ Para aprovar uma revisão:
 - `package.json#validate` e o job `ci-contract` executam o self-test; `verify-ci-contract.js` não contém proteção focal dessa invocação e apenas cruza a matriz genericamente, em linha com `080-002`;
 - `REG-E2E-FLAKY-RETRY-GATE` aponta para este arquivo e protege markers, sem ser confundido com prova semântica;
 - `080-001` e `080-002` permanecem OPEN e não bloqueiam a aprovação documental.
+
+**Veredito:** ✅ APROVADO.
+
+
+### `validate-manifest.js` — auditoria aprovada em 2026-09-30
+
+- SHA `93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1` reconfirmado contra o blob atual;
+- fonte integral da Bíblia é idêntica ao arquivo real; 18 linhas textuais + newline final = 19/19 posições documentadas;
+- `extension/manifest.json` atual possui o mesmo blob `841fe70c183350e4110bc8ff57ab69b157169c36` citado na Bíblia, com `manifest_version: 3`, nome, versão e permissões válidos para o caminho verde;
+- `package.json#validate:manifest`, `package.json#validate` e o job `manifest-validation` do workflow foram conferidos no branch atual;
+- `verify-ci-contract.js` protege o id `manifest-validation`, mas não fixa o comando `npm run validate:manifest` nem o alias npm, exatamente como documentado em `081-003`;
+- o workflow run #2167 (`run_id=36676692062`) terminou globalmente cancelado, porém o job `Manifest Validation` (`109763218316`) e o step `Validar manifest.json` concluíram `success`;
+- o job executou o merge ref `ae53a56...`, cujo `scripts/validation/validate-manifest.js` possui o mesmo blob `93dbb188...`, e o log registra `node scripts/validation/validate-manifest.js` seguido de `manifest.json válido: Manga Translator v6.5`;
+- os branches negativos e a limitação de truthiness/schema continuam corretamente classificados como lacunas; `081-001`, `081-002` e `081-003` permanecem OPEN.
 
 **Veredito:** ✅ APROVADO.
