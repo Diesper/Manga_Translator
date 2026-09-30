@@ -52,7 +52,7 @@
     },
     {
       "id": "070-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "POLICY_REVIEW",
       "target_file": "scripts/validation/verify-ci-contract.js",
       "found_while_auditing": "scripts/ci/data/test-baseline.json",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Revisar governança do baseline.",
       "possible_regression": "Inventário/skip policy pode regredir após baseline ser baixado junto.",
       "impact": "Força dos gates de teste.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. `verify-ci-contract.js` valida que pisos/máximos têm forma válida e relaciona E2E ao plano atual, mas não impede que um commit reduza minTests/minSuites/minFiles ou aumente limites permissivos junto com a mudança. O baseline pode ser enfraquecido pelo mesmo PR.",
+      "auditor_recommended_action": "Definir governança explícita de baseline update e adicionar mecanismo anti-relaxamento ou revisão deliberada para mudanças permissivas."
     },
     {
       "id": "070-004",
