@@ -31,7 +31,7 @@
     },
     {
       "id": "044-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/image-quarantine.js",
       "found_while_auditing": "extension/content/gemini/image-quarantine.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Revisar sem converter heurística em bloqueio automaticamente.",
       "possible_regression": "Entrada visualmente igual pode ser aceita como resultado após transformação de bytes.",
       "impact": "Qualidade da detecção de resultado Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED como decisão de contrato pendente. A suíte prova explicitamente que `perceptualEvaluator` retornar similar=true não coloca em quarentena quando os bytes diferem. Logo a garantia efetiva é estrutural + igualdade exata, não identidade visual.",
+      "auditor_recommended_action": "Decidir se esse fail-open perceptual é desejado. Se proteção contra eco recomprimido/redimensionado for requisito, definir thresholds/política com testes reais de falso positivo/negativo."
     },
     {
       "id": "044-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/image-quarantine.test.js",
       "found_while_auditing": "extension/content/gemini/image-quarantine.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Completar cobertura de robustez.",
       "possible_regression": "Ambientes sem APIs ou DOM alternativo podem mudar comportamento sem gate.",
       "impact": "Robustez da quarentena.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre base64 nominal, DOM/shadow e URL inválida, mas não Data URL não-base64/UTF-8, `atob` ausente, perceptualEvaluator rejeitando, factory sem DOM, getRootNode lançando nem variantes restantes de ATTACHMENT_SELECTOR.",
+      "auditor_recommended_action": "Adicionar matriz de decodificação/degradação e DOM alternativo, fixando erro/classificação/telemetria para cada branch."
     }
   ],
   "document_quality": {
