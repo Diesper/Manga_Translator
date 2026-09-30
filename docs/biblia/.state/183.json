@@ -2,10 +2,78 @@
   "index": 183,
   "file": "tests/unit/content-gemini/observer.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/observer.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "0eff259f673c32e44c6d5ccf6f627c0c6d5505cc",
   "started_at_utc": "2026-09-30T16:25:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T16:40:00Z",
+  "audit_requests": [
+    {
+      "id": "183-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/observer.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/observer.test.js",
+      "finding": "waitForSubmission e waitForResult possuem timeouts estruturados e stop rejeita waiters pendentes com OBSERVER_STOPPED; nenhum caso focal cobre esses três contratos.",
+      "current_evidence": "WaitForResult é resolvido/rejeitado por resultado/erro em vários casos; OBS-09 faz cleanup sem waiter pendente.",
+      "missing_evidence": "Fake timers para GEMINI_SUBMISSION_NOT_CONFIRMED e GEMINI_RESULT_TIMEOUT; waiter pendente + stop() exigindo OBSERVER_STOPPED e timer removido.",
+      "why_needed": "Promessas públicas do observer não podem vazar nem mudar códigos de erro silenciosamente.",
+      "requested_action": "Adicionar matriz focal de lifecycle dos waiters.",
+      "expected_evidence": "Timeouts/cancelamento com códigos corretos e timers/sets limpos.",
+      "expected_auditor_action": "Priorizar por cleanup e estabilidade assíncrona.",
+      "possible_regression": "Waiter pendurado, timer vazando ou erro com código errado.",
+      "impact": "Submit/result pipeline e teardown.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "183-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/observer.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/observer.test.js",
+      "finding": "Ao criar observer para jobId já registrado, createGeminiObserver chama stop() no anterior; todos os casos atuais usam jobId único.",
+      "current_evidence": "OBS-09 prova registry de uma instância e cleanup manual.",
+      "missing_evidence": "Observer A com waiter + observer B mesmo jobId; exigir A cleanedUp/OBSERVER_STOPPED, registry=B e apenas B reagindo a mutations.",
+      "why_needed": "Rebootstrap pode criar nova instância para o mesmo job.",
+      "requested_action": "Adicionar teste de replacement no registry.",
+      "expected_evidence": "Somente a instância mais recente permanece ativa.",
+      "expected_auditor_action": "Priorizar por isolamento de ownership.",
+      "possible_regression": "Dois observers podem disputar resultado do mesmo job.",
+      "impact": "Integridade do resultado e leak de observers.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "183-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/observer.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/observer.test.js",
+      "finding": "inspectControls marca generationFinished e emite generation_finished quando Stop desaparece após geração ativa e responseContainer segue conectado; branch sem assertion focal.",
+      "current_evidence": "OBS-02 prova Stop visível; OBS-12 prova geração ativa por response criada.",
+      "missing_evidence": "Ativar geração, manter response, remover/ocultar Stop e inspecionar; exigir flag generationFinished e evento único.",
+      "why_needed": "Congela o estado terminal de geração antes do resultado.",
+      "requested_action": "Adicionar caso focal de generation_finished.",
+      "expected_evidence": "Transição emitida uma vez quando o controle Stop some.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Telemetria/estado terminal pode não ser emitido ou repetir.",
+      "impact": "Observabilidade e sincronização da geração.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "486/486",
+    "source_text_lines": 485,
+    "bible_lines": 3993,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob em Node 20.x e 22.x; 22 casos (OBS, coalescing, PR6) passaram; global 109/109 suítes e 851/851 testes."
+  }
 }
