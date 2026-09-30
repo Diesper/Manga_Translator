@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "108-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_DESIGN_REVIEW",
       "target_file": "tests/integration/gtc-end-to-end.test.js",
       "found_while_auditing": "tests/integration/gtc-end-to-end.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar se o nome/escopo atual é aceitável; caso contrário, solicitar alteração de teste separada.",
       "possible_regression": "Falso senso de cobertura end-to-end e divergência silenciosa entre o espelho e o produto.",
       "impact": "Qualidade probatória da suíte de integração.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. Apesar do nome 'GTC End-to-End/Jornada Completa', o arquivo define e testa mirrors locais de getCleanUrl, UPDATE_IMAGE, Auto-Restore e lookup; o código de produção não é carregado.",
+      "auditor_recommended_action": "Renomear como model test ou migrar uma jornada para implementação real DOM/IPC/IndexedDB sem duplicar lógica."
     },
     {
       "id": "108-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_ARCHITECTURE_TEST",
       "target_file": "tests/integration/gtc-end-to-end.test.js",
       "found_while_auditing": "tests/integration/gtc-end-to-end.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Classificar o teste como intencionalmente legacy/modelado ou solicitar modernização separada.",
       "possible_regression": "Mudanças no GTC primário podem não ser percebidas por esta suíte enquanto a simulação antiga continua verde.",
       "impact": "Precisão do teste e detecção de regressões de cache.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. A suíte modela GTC primário por `storage.local gtc_<hash>`, enquanto o runtime atual usa `GTC_QUERY_MANY/GTC_SAVE` e IndexedDB antes do fallback legado.",
+      "auditor_recommended_action": "Atualizar para o caminho atual ou rotular explicitamente como teste legacy/modelado."
     },
     {
       "id": "108-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_GAP",
       "target_file": "tests/integration/gtc-end-to-end.test.js",
       "found_while_auditing": "tests/integration/gtc-end-to-end.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Confirmar a lacuna de causalidade e decidir entre fortalecer o teste ou restringir suas alegações.",
       "possible_regression": "Roteamento Gemini/fingerprint pode quebrar sem falhar esta suíte.",
       "impact": "Precisão das garantias cache-hit/cache-miss e cross-site.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. Claims como 'misses vão para Gemini' e cross-site por fingerprint não são observados: não há spy START_BATCH/Gemini e SITE_B reutiliza hash injetado diretamente.",
+      "auditor_recommended_action": "Adicionar roteamento/fingerprint real com spies/assertions ou reduzir títulos/comentários ao que o teste efetivamente prova."
     }
   ],
   "document_quality": {
