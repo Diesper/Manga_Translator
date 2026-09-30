@@ -31,7 +31,7 @@
     },
     {
       "id": "150-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "tests/unit/background/jobs-dom-ack-staging.test.js",
@@ -44,7 +44,12 @@
       "expected_auditor_action": "Fixar o contrato legado enquanto ele existir ou remover a compatibilidade de forma deliberada em mudança separada.",
       "possible_regression": "Fluxos legados podem parar de finalizar ou staging pode herdar tolerância indevida.",
       "impact": "Compatibilidade e segurança do ACK.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "SUPERSEDED por 026-003. O branch `legacy_no_ack` com finalizeOnAck=true já está incluído na lacuna canônica de compatibilidade do módulo jobs-dom-ack.",
+      "auditor_recommended_action": "Centralizar o teste legado em 026-003.",
+      "superseded_by": "026-003"
     },
     {
       "id": "150-003",
