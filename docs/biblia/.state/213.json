@@ -1,0 +1,11 @@
+{
+  "index": 213,
+  "file": "tests/unit/inject/inject-anti-hibernation.test.js",
+  "bible": "docs/biblia/tests/unit/inject/inject-anti-hibernation.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 25",
+  "source_sha": "22cc82c2ea7bc2b5fb5d588a29af5895648f4fc4",
+  "started_at_utc": "2026-09-30T14:20:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
