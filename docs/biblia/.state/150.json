@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "150-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_GAP",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "tests/unit/background/jobs-dom-ack-staging.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Fortalecer o caso existente sem substituir o módulo real.",
       "possible_regression": "Resultado pode ser enviado à aba/job/batch errado ou sem exigir ACK, mantendo a suíte verde.",
       "impact": "Integridade do IPC de entrega de resultado.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:04:00Z",
+      "audit_finding": "ACCEPTED. A suíte executa o módulo real e valida resultados do ACK, mas todos os mocks de `chrome.tabs.sendMessage` ignoram `_tabId` e `_message`; não existe assertion que fixe destino 77 nem o payload `{action:'UPDATE_IMAGE', index, newSrc, jobId, batchId, expectAck:true}`.",
+      "auditor_recommended_action": "Adicionar `toHaveBeenCalledWith` no caso positivo para tabId e campos essenciais da mensagem, mantendo callback como terceiro argumento."
     },
     {
       "id": "150-002",
