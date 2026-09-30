@@ -1,0 +1,11 @@
+{
+  "index": 150,
+  "file": "tests/unit/background/jobs-dom-ack-staging.test.js",
+  "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 4",
+  "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
+  "started_at_utc": "2026-09-30T06:40:30Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
