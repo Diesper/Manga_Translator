@@ -1,0 +1,11 @@
+{
+  "index": 114,
+  "file": "tests/integration/performance.test.js",
+  "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 16",
+  "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+  "started_at_utc": "2026-09-30T06:25:33.185Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
