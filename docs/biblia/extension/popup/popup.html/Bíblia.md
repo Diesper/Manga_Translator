@@ -39,6 +39,9 @@ O HTML inicia `#enable-page` como ativo/visível e deixa loading/app/settings oc
 
 Os IDs são APIs internas entre markup e controlador. Os mais críticos incluem:
 
+A auditoria cruzada com `popup.js` encontrou **68 IDs únicos buscados por `getElementById`**: **67 existem estaticamente neste HTML** e o único ausente, `btn-force-reload`, é criado dinamicamente pelo próprio controlador quando um site recém-habilitado ainda não tem imagens detectadas. Isso evita classificar esse ID dinâmico como defeito do markup.
+
+
 - tradução: `image-grid`, `selection-count`, `btn-translate`, `btn-progress-stop`;
 - enable gate: `enable-page`, `enable-section`, `btn-enable`;
 - tabs: `main-tab`, `banned-tab`, `translated-tab` + botões `data-target`;
