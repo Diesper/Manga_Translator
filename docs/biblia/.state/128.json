@@ -70,7 +70,7 @@
     },
     {
       "id": "128-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-06-sm-message-routing.js",
       "found_while_auditing": "tests/smoke/smoke-06-sm-message-routing.js",
@@ -82,11 +82,15 @@
       "expected_evidence": "Cada action relevante deve produzir a resposta e efeito esperados diretamente da implementação real.",
       "possible_regression": "Quebras específicas de ações menos usadas permanecem invisíveis.",
       "impact": "Cobertura do roteamento Storage Manager.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:43:00Z",
+      "audit_finding": "ACCEPTED. `run()` exercita SAVE_PAGE, PAGE_INDEX, GET_PAGE, STATS e DELETE_CHAPTER, mas não chama GET_ASSET, RESTORE_INDEX, LIST_RESTORE, CHAPTERS_STATS, DELETE_CLEAN_URL, MIGRATE_CHAPTER nem cenário de Promise rejeitada. Esses branches do handler copiado permanecem sem prova.",
+      "auditor_recommended_action": "Adicionar casos focais para os branches restantes ou reduzir explicitamente o escopo do smoke; incluir ao menos um erro assíncrono para provar envelope de falha."
     },
     {
       "id": "128-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ARCHITECTURE_REVIEW",
       "target_file": "extension/background.js",
       "found_while_auditing": "tests/smoke/smoke-06-sm-message-routing.js",
@@ -98,7 +102,11 @@
       "expected_evidence": "Teste passa executando o mesmo código de roteamento usado pelo background em produção.",
       "possible_regression": "Novo drift sempre que produção mudar e a cópia não for sincronizada.",
       "impact": "Arquitetura e confiabilidade dos testes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:43:00Z",
+      "audit_finding": "ACCEPTED. O smoke copia manualmente `handleStorageManagerMessage`; a cópia coincide amplamente hoje com `background.js`, mas já existe superfície de drift porque alterações do handler real não são automaticamente herdadas pelo teste.",
+      "auditor_recommended_action": "Extrair o handler canônico para módulo testável ou executar o handler real do background no smoke, eliminando a duplicação manual."
     }
   ]
 }
