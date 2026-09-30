@@ -1,0 +1,11 @@
+{
+  "index": 160,
+  "file": "tests/unit/background/process-finalize-real.test.js",
+  "bible": "docs/biblia/tests/unit/background/process-finalize-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 26",
+  "source_sha": "abb1b936fadf0e309933e39b4b705116eb320a1f",
+  "started_at_utc": "2026-09-30T11:16:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
