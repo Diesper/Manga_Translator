@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "212-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/gtc/indexeddb.test.js",
       "found_while_auditing": "tests/unit/gtc/indexeddb.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Adicionar testes de migração sob alteração externa autorizada.",
       "possible_regression": "Atualização da extensão pode quebrar cache de usuários antigos sem falha na suíte atual.",
       "impact": "Backward compatibility do Global Translation Cache.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "ACCEPTED. A suíte abre apenas bancos novos já em `DB_VERSION=4`. A implementação real possui `onupgradeneeded` com branches `oldVersion < 2`, `< 3` e `< 4`, mas não há fixture que crie v1/v2/v3 com dados e reabra via repositório atual.",
+      "auditor_recommended_action": "Adicionar bancos legados v1/v2/v3 com registros reais, reabrir na versão 4 e verificar preservação + índices adicionados em cada etapa."
     },
     {
       "id": "212-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/gtc/indexeddb.test.js",
       "found_while_auditing": "tests/unit/gtc/indexeddb.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Criar cobertura focal e cruzar com o consumidor content-manga.",
       "possible_regression": "Retorno correlacionado quebra e pode reintroduzir associação errada de traduções.",
       "impact": "Precisão do matching perceptual.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:55:00Z",
+      "audit_finding": "ACCEPTED. O handler real possui action `GTC_QUERY_PERCEPTUAL_V2` e delega `request.queries`/`mode` a `repository.queryPerceptual`, mas a suíte não possui caso de `createGtcRuntimeHandler` para essa action correlacionada. Os testes existentes exercitam repositório perceptual direto e rotas antigas.",
+      "auditor_recommended_action": "Adicionar casos do handler real para strict/crop/relaxed, `entriesByQueryId` e ausência de `queryPerceptual`, preservando correlação por queryId."
     },
     {
       "id": "212-003",
