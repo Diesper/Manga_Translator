@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "211-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/shared/gtc-fingerprint.js",
       "found_while_auditing": "tests/unit/gtc/fingerprint.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar impacto nos consumidores e tratar em alteração separada autorizada.",
       "possible_regression": "Falso match perceptual com hash corrompido.",
       "impact": "Integridade do Global Translation Cache.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:48:00Z",
+      "audit_finding": "ACCEPTED. `hammingDistance` valida apenas presença/comprimento e aplica `parseInt(char,16)` diretamente. Caracter não-hex produz NaN, que na operação bitwise é coerced para zero, podendo reduzir artificialmente a distância. A suíte só invalida null/comprimento diferente.",
+      "auditor_recommended_action": "Definir contrato para hash malformado e validar `[0-9a-f]` antes do cálculo; adicionar casos `zz`, `0g` e propagação nos matchers."
     },
     {
       "id": "211-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/gtc/fingerprint.test.js",
       "found_while_auditing": "tests/unit/gtc/fingerprint.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Ampliar suíte sem alterar thresholds para satisfazer o teste.",
       "possible_regression": "Off-by-one muda comportamento do cache sem falhar testes.",
       "impact": "Taxa de falso positivo/falso negativo do matching.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:48:00Z",
+      "audit_finding": "ACCEPTED. A suíte prova distâncias internas (20, 8, 44) e extremo 256, mas não testa os boundaries strict exatos 40/35/80/70 e imediatamente fora. Os comparadores são `<=` para match e `>` para reject, então off-by-one nesses pontos não tem gate focal.",
+      "auditor_recommended_action": "Adicionar matriz 40/41, 35/36, 80/81 e 70/71, validando `match`, `reason` e `confidence` para strict matcher."
     },
     {
       "id": "211-003",
