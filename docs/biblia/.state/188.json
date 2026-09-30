@@ -44,7 +44,7 @@
     },
     {
       "id": "188-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "STALE_TEST_CONTRACT",
       "target_file": "tests/unit/content-gemini/safe-background-delete.test.js",
       "found_while_auditing": "tests/unit/content-gemini/safe-background-delete.test.js",
@@ -57,7 +57,11 @@
       "expected_auditor_action": "Corrigir contrato do teste.",
       "possible_regression": "Ordem do último fallback pode mudar sem que este caso detecte.",
       "impact": "Confiabilidade da estratégia de extração.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. BGD-14 afirma repetir a cadeia antes do último recurso, mas chama somente `extractResultImageWithRetry`, que repete as rotas diretas e termina rejeitando. O teste não executa `extractOrAuxiliaryFallback` nem prova a posição do fallback auxiliar.",
+      "auditor_recommended_action": "Renomear o caso para refletir retries diretos ou reescrevê-lo usando `extractOrAuxiliaryFallback` e assertar que o auxiliar só roda depois de esgotar as tentativas diretas."
     }
   ],
   "document_quality": {
