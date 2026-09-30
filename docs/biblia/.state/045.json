@@ -1,0 +1,12 @@
+{
+  "index": 45,
+  "file": "extension/content/gemini/job-runner.js",
+  "bible": "docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 29",
+  "source_sha": "1b16fd656e82e64ef2d26977e061f87e469aa3ff",
+  "started_at_utc": "2026-09-30T15:55:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [],
+  "note": "Reconciliation of missing per-file state. Preexisting approved Bible is preserved without modification."
+}
