@@ -31,7 +31,7 @@
     },
     {
       "id": "092-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/e2e/cache-and-storage.spec.js",
       "found_while_auditing": "tests/e2e/cache-and-storage.spec.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Decidir se o modo visível é contrato suportado; se for, solicitar cobertura separada.",
       "possible_regression": "Modo visual de depuração pode quebrar sem afetar os shards stealth.",
       "impact": "Diagnóstico manual/local dos E2E.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. `getBrowserModeConfig` suporta aliases visíveis e altera slowMo/args, mas os shards CI fixam modo stealth e não existe prova automatizada do branch visible/headed/ui.",
+      "auditor_recommended_action": "Se modo visível é contrato suportado, adicionar teste focal do config/launch args ou job manual controlado."
     },
     {
       "id": "092-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "RESOURCE_CLEANUP",
       "target_file": "tests/e2e/cache-and-storage.spec.js",
       "found_while_auditing": "tests/e2e/cache-and-storage.spec.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Classificar se há leak de diretório e solicitar cleanup apenas se o runtime não o fizer automaticamente.",
       "possible_regression": "Consumo progressivo de disco por perfis E2E temporários.",
       "impact": "Higiene de recursos em execuções repetidas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. A suíte cria `userDataDir` externo em `os.tmpdir()` e fecha apenas o browserContext; `fs` está importado mas não há `rm/rmSync`. Não há prova de remoção automática garantida para diretório fornecido pelo chamador.",
+      "auditor_recommended_action": "Confirmar lifecycle do Playwright; se o diretório persistir, remover explicitamente em teardown/finally e adicionar prova de ausência residual."
     }
   ],
   "document_quality": {
