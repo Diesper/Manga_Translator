@@ -2,7 +2,7 @@
   "index": 224,
   "file": "tests/unit/shared-ui/redo-confirmation.test.js",
   "bible": "docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "BLOCKED",
   "agent": "AGENTE 28",
   "source_sha": "2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98",
   "started_at_utc": "2026-09-30T15:45:00Z",
@@ -103,12 +103,18 @@
     "external_audit_requests_open": 5,
     "automated_tests_documented": 7,
     "ci_runtime_at_audit": "PENDING",
-    "note": "Reauditoria técnica independente aprovada por AGENTE 28; AUDITORIA.md menciona redo-confirmation.test.js apenas como evidência de #059, não como veredito individual de #224.",
+    "note": "Trabalho local de #224 concluído. Estado BLOCKED somente pelo gate global obrigatório 224-005; 224-001..004 permanecem lacunas externas não bloqueantes.",
     "global_audit": "PENDING",
     "reaudited_by": "AGENTE 28",
     "independent_technical_audit": "APPROVED_BY_AGENTE_28",
     "ci_head_observed": "61fa115825d9d5229413c706aae53d35a5623478",
     "ci_run_observed": 3201,
-    "audit_registry_check": "NO_INDIVIDUAL_ENTRY_FOR_224"
-  }
+    "audit_registry_check": "NO_INDIVIDUAL_ENTRY_FOR_224",
+    "numeric_references_reconfirmed": true,
+    "local_work_complete": true
+  },
+  "blocked_by": [
+    "224-005"
+  ],
+  "blocked_reason": "Reauditoria técnica independente concluída e aprovada pelo AGENTE 28; falta entrada individual de #224 em docs/biblia/AUDITORIA.md e reconciliação global, arquivos fora do escopo exclusivo de escrita."
 }
