@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 20
+ARQUIVO: tests/visual/helpers.js
+BÍBLIA: docs/biblia/tests/visual/helpers.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 8d740eb3ee276d99c8a82acfb3eada6712e2efed
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T06:49:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T06:49:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA — EM ANÁLISE
