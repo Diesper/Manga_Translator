@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "105-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/track-background-delay-timers.test.js",
       "found_while_auditing": "tests/helpers/track-background-delay-timers.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e criar a cobertura em alteração separada, sem tratar o uso indireto atual como prova dos branches não assertados.",
       "possible_regression": "Handles de 600 ms ou 18 s podem sobreviver ao teardown, atrasar o encerramento do worker Jest ou executar callbacks contra mocks já restaurados.",
       "impact": "Confiabilidade e isolamento de suítes de background; a cobertura direta existente de 4 s continua válida.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. Há prova direta do delay 4_000 ms, mas não de 600/18_000, delays não rastreados, firing natural, callback args e cancelamento repetido. Esses ramos controlam handles que podem reintroduzir worker leak.",
+      "auditor_recommended_action": "Adicionar teste unitário do tracker cobrindo 600/4000/18000, delay fora da allowlist, disparo natural e cancel idempotente."
     }
   ],
   "document_quality": {
