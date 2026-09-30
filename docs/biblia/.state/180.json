@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "180-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/image-quarantine.test.js",
       "found_while_auditing": "tests/unit/content-gemini/image-quarantine.test.js",
@@ -23,11 +23,16 @@
       "expected_auditor_action": "Fortalecer cobertura criptográfica em mudança separada.",
       "possible_regression": "Quarentena exata pode falhar somente no navegador real.",
       "impact": "Barreira anti-eco do anexo.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 044-001, que já registra ausência de prova do caminho `crypto.subtle.digest`.",
+      "auditor_recommended_action": "Cobrir WebCrypto no request 044-001.",
+      "superseded_by": "044-001"
     },
     {
       "id": "180-002",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-gemini/image-quarantine.test.js",
       "found_while_auditing": "tests/unit/content-gemini/image-quarantine.test.js",
@@ -40,7 +45,12 @@
       "expected_auditor_action": "Fortalecer força da prova sem duplicar a implementação.",
       "possible_regression": "Fallback incompatível com SHA-256 real passa na suíte.",
       "impact": "Identidade exata em ambientes sem WebCrypto.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 044-001, que também registra que o fallback não é comparado com vetores SHA-256 canônicos.",
+      "auditor_recommended_action": "Cobrir vetores conhecidos no request 044-001.",
+      "superseded_by": "044-001"
     },
     {
       "id": "180-003",
