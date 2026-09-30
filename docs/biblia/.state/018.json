@@ -6,7 +6,7 @@
   "agent": "AGENTE 17",
   "source_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
   "started_at_utc": "2026-09-30T12:27:00Z",
-  "completed_at_utc": "2026-09-30T12:31:00Z",
+  "completed_at_utc": "2026-09-30T12:37:00Z",
   "audit_requests": [
     {
       "id": "018-001",
@@ -14,33 +14,33 @@
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/open-manga-root-action.test.js",
       "found_while_auditing": "extension/background/actions/open-manga-root.js",
-      "finding": "A suíte direta cobre helper funcional, mas não handleMarkerAndShow ausente/não-função, helper que lança ou helper que nunca chama o callback.",
-      "current_evidence": "Sucesso/erro do helper, null como safeTitle e keepAlive:true têm prova direta.",
-      "missing_evidence": "Comportamento dos caminhos de dependência ausente/throw/callback nunca chamado.",
-      "why_needed": "A action é inteiramente dependente do helper e sua Promise pode rejeitar ou permanecer pendente sem gate focal.",
-      "requested_action": "Adicionar casos focais contra a action real e router sem modificar a implementação auditada.",
-      "expected_evidence": "Resposta/erro e ausência de hang indefinido documentados por assertions.",
-      "expected_auditor_action": "Fortalecer cobertura de robustez em alteração separada.",
-      "possible_regression": "OPEN_MANGA_ROOT pode ficar pendente ou falhar de forma não diagnosticada.",
-      "impact": "Abertura da pasta raiz pelo popup.",
+      "finding": "Não há teste focal para context.handleMarkerAndShow ausente ou inválido.",
+      "current_evidence": "Sucesso e erro do helper são preservados e keepAlive=true é provado.",
+      "missing_evidence": "Comportamento do router quando a dependência não existe.",
+      "why_needed": "Falha de montagem do contexto pode virar exceção genérica sem diagnóstico específico.",
+      "requested_action": "Adicionar teste da action real sem helper e confirmar resposta/erro do router.",
+      "expected_evidence": "Ausência do helper produz comportamento controlado e não fica pendente.",
+      "expected_auditor_action": "Fortalecer cobertura em mudança separada.",
+      "possible_regression": "Abertura da pasta raiz pode falhar sem resposta útil.",
+      "impact": "Ação do popup para abrir a pasta principal.",
       "severity": "NORMAL"
     },
     {
       "id": "018-002",
       "status": "OPEN",
-      "type": "RELIABILITY_REVIEW",
-      "target_file": "extension/background.js",
+      "type": "ASYNC_LIFECYCLE_REVIEW",
+      "target_file": "extension/background/actions/open-manga-root.js",
       "found_while_auditing": "extension/background/actions/open-manga-root.js",
-      "finding": "O helper real cria marcador temporário e agenda remoção por timer; o timer não é persistido através de restart do service worker.",
-      "current_evidence": "Testes do helper cobrem criação/show/remoção no mesmo ciclo de execução.",
-      "missing_evidence": "Restart/hibernação do worker entre criação e remoção.",
-      "why_needed": "Timers do service worker podem desaparecer em reinicialização, potencialmente deixando marcador órfão.",
-      "requested_action": "Auditar se marcadores órfãos são aceitáveis; se não, definir cleanup/reconciliação e teste de regressão.",
-      "expected_evidence": "Cenário de restart com política explícita de cleanup.",
-      "expected_auditor_action": "Revisar lifecycle do marcador em processo separado.",
-      "possible_regression": "Arquivos temporários podem permanecer na pasta MangaTranslator.",
-      "impact": "Higiene da pasta de downloads.",
-      "severity": "LOW"
+      "finding": "A Promise só resolve quando handleMarkerAndShow invoca o callback; não há timeout local.",
+      "current_evidence": "Os testes existentes sempre chamam o callback.",
+      "missing_evidence": "Garantia de conclusão quando o helper não responde.",
+      "why_needed": "Um ramo sem callback pode manter o canal de mensagem aberto indefinidamente.",
+      "requested_action": "Auditar o helper e, se necessário, definir timeout/cancelamento em mudança separada com teste.",
+      "expected_evidence": "Lifecycle de conclusão explicitamente provado.",
+      "expected_auditor_action": "Revisar contrato assíncrono.",
+      "possible_regression": "Popup pode ficar aguardando indefinidamente.",
+      "impact": "UX e lifecycle de mensagens.",
+      "severity": "NORMAL"
     }
   ],
   "document_quality": {
@@ -50,6 +50,6 @@
     "documented_positions": "20/20",
     "source_text_lines": 19,
     "external_audit_requests_open": 2,
-    "note": "Reauditoria solicitada pelo usuário; lacunas já descritas foram convertidas em audit_requests persistentes."
+    "note": "Reauditoria solicitada pelo usuário concluída; duas lacunas persistidas sem alterar código funcional."
   }
 }
