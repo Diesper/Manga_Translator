@@ -1,0 +1,11 @@
+{
+  "index": 230,
+  "file": "tests/visual/helpers.js",
+  "bible": "docs/biblia/tests/visual/helpers.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 20",
+  "source_sha": "8d740eb3ee276d99c8a82acfb3eada6712e2efed",
+  "started_at_utc": "2026-09-30T06:49:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
