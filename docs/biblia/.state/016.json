@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "016-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "extension/background/actions/log-entry.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Cobrir os branches negativos em alteração separada.",
       "possible_regression": "Logs malformados podem chegar ao logger/persistência.",
       "impact": "Integridade da infraestrutura de logging.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:46:00Z",
+      "audit_finding": "ACCEPTED. `log-entry.js` possui validação explícita para os quatro campos string opcionais e para `extra` objeto não-null/não-array, mas `actions-low-risk.test.js` cobre apenas o caminho válido. Nenhum branch negativo do validator é exercitado.",
+      "auditor_recommended_action": "Adicionar casos parametrizados via router para campos string não-string e `extra` null/array/primitivo, exigindo INVALID_PAYLOAD e `context.log` não chamado."
     },
     {
       "id": "016-002",
