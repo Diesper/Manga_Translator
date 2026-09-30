@@ -1,0 +1,11 @@
+{
+  "index": 191,
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "e53e43da4f20d727355666e444f0adf0428fc6dc",
+  "started_at_utc": "2026-09-30T14:41:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
