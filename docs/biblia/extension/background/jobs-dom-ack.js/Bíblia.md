@@ -198,7 +198,6 @@ O timeout local de 30 s impede Promise infinita enquanto o worker está vivo, ma
 
   scope.MangaTranslatorJobsDomAck = { createDomAckDelivery };
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 90/90
