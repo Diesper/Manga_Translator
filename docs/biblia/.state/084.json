@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "084-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-coverage-selftest.js",
       "found_while_auditing": "scripts/validation/verify-coverage-selftest.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e solicitar mudança de teste separada caso esse nível de prova seja obrigatório.",
       "possible_regression": "Um branch nominal pode quebrar enquanto outro erro mantém result.ok=false, mascarando a regressão.",
       "impact": "Reduz a especificidade probatória do gate de infraestrutura de coverage.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — self-test fraco confirmado. `expectCase` só compara `result.ok` com esperado. Os cenários não verificam `problems`, métricas, inventário instrumentado/LCOV/sourceFiles; implementação pode falhar pelo motivo errado e o self-test ainda ficar verde.",
+      "auditor_recommended_action": "Adicionar assertions específicas por cenário sobre problema esperado e campos estruturais relevantes, não apenas booleano final."
     },
     {
       "id": "084-002",
