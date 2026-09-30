@@ -106,7 +106,6 @@ A resposta final é `{ok:true}` mesmo se alguns itens falharem. A action não re
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 8. Rastreabilidade 41/41
