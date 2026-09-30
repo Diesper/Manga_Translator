@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "128-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_VALIDITY",
       "target_file": "tests/smoke/smoke-06-sm-message-routing.js",
       "found_while_auditing": "tests/smoke/smoke-06-sm-message-routing.js",
@@ -22,11 +22,15 @@
       "expected_evidence": "O teste deve falhar quando a implementação real de roteamento SM for alterada de maneira incompatível.",
       "possible_regression": "Drift silencioso entre smoke e background, com falso positivo de CI.",
       "impact": "Validade da evidência de roteamento SM.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — smoke não usa handler real. `smoke-06` contém cópia própria de `handleStorageManagerMessage`; `background.js` não é carregado/chamado para esses casos.",
+      "auditor_recommended_action": "Extrair/usar handler canônico ou carregar background real; não classificar o mirror como prova de roteamento runtime."
     },
     {
       "id": "128-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "REGRESSION",
       "target_file": "tests/smoke/smoke-06-sm-message-routing.js",
       "found_while_auditing": "tests/smoke/smoke-06-sm-message-routing.js",
@@ -38,11 +42,15 @@
       "expected_evidence": "Assertion sobre a resposta produzida pelo handler real, incluindo localização de assets/pages/bytes.",
       "possible_regression": "Consumidores podem ler campo incorreto ou o smoke pode mascarar quebra de compatibilidade.",
       "impact": "Contrato IPC do Storage Manager.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — divergência concreta. A cópia do smoke retorna stats diretamente e exige `resp.assets`; o background atual responde `sm.stats().then(stats => ({stats}))`, portanto o shape real é `resp.stats.assets`. O smoke verde protege contrato obsoleto.",
+      "auditor_recommended_action": "Atualizar teste para handler real e shape atual ou alterar produção se o contrato desejado for topo; escolher uma fonte única."
     },
     {
       "id": "128-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "REGRESSION",
       "target_file": "tests/smoke/smoke-06-sm-message-routing.js",
       "found_while_auditing": "tests/smoke/smoke-06-sm-message-routing.js",
@@ -54,7 +62,11 @@
       "expected_evidence": "Assertion de retorno/response do handler real para `SM_UNKNOWN`.",
       "possible_regression": "Mensagens podem ser interceptadas indevidamente ou ficar sem fallback.",
       "impact": "Roteamento e compatibilidade IPC.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — divergência concreta para ação desconhecida. O mirror envia `{ok:false,error}` e retorna true; o background atual cai no default e retorna false sem responder.",
+      "auditor_recommended_action": "Alinhar o smoke ao comportamento real e adicionar assertion via listener real para SM_* desconhecida."
     },
     {
       "id": "128-004",
