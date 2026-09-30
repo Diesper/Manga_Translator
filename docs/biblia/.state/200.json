@@ -1,0 +1,11 @@
+{
+  "index": 200,
+  "file": "tests/unit/content-manga/close-interval.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/close-interval.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 21",
+  "source_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
+  "started_at_utc": "2026-09-30T06:27:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
