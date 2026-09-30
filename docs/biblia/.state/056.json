@@ -3,10 +3,20 @@
   "file": "extension/reader/reader.js",
   "bible": "docs/biblia/extension/reader/reader.js/Bíblia.md",
   "status": "IN_PROGRESS",
-  "agent": "AGENTE 29",
+  "agent": "AGENTE 15",
   "source_sha": "490bbb1842348e792cd593c37699a822d81f555b",
   "started_at_utc": "2026-09-30T16:10:00Z",
   "completed_at_utc": null,
   "audit_requests": [],
-  "note": "Reconciliation of missing per-file state. Preexisting approved Bible is preserved without modification."
+  "note": "Reconciliation of missing per-file state. Preexisting approved Bible is preserved without modification.",
+  "takeover_history": [
+    {
+      "from_agent": "AGENTE 29",
+      "to_agent": "AGENTE 15",
+      "authorized_by": "user",
+      "authorized_at_utc": "2026-09-30T22:00:00Z",
+      "reason": "Usuário informou que os demais agentes não estão mais ativos e autorizou o AGENTE 15 a herdar todas as autorizações dos arquivos ainda em progresso."
+    }
+  ],
+  "last_update_utc": "2026-09-30T22:00:00Z"
 }
