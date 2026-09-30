@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "123-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CONTRACT_MISMATCH",
       "target_file": "tests/smoke/smoke-01-batch-lifecycle.js",
       "found_while_auditing": "tests/smoke/smoke-01-batch-lifecycle.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar qual contrato é canônico e alinhar o smoke sem enfraquecer a validação real.",
       "possible_regression": "Uma futura mudança pode reabrir aceitação sem jobId ou manter documentação/teste contraditórios sem que este smoke detecte o desvio.",
       "impact": "Contrato de ownership e limite de confiança de resultados Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — contrato do smoke diverge da produção. O helper local aceita `!jobId` como ownership válido; `jobs-lifecycle.js#assertJobOwnership` atual retorna owns=false quando jobId está ausente. O smoke preserva uma retrocompatibilidade que o runtime já não oferece.",
+      "auditor_recommended_action": "Remover/atualizar o caso legado e executar a implementação real de ownership no smoke ou em teste focal."
     },
     {
       "id": "123-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_QUALITY",
       "target_file": "tests/smoke/smoke-01-batch-lifecycle.js",
       "found_while_auditing": "tests/smoke/smoke-01-batch-lifecycle.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Escolher entre integração real no smoke e redução formal de escopo, preservando cobertura rápida sem duplicação enganosa.",
       "possible_regression": "Código real pode regredir enquanto cópias locais independentes continuam verdes.",
       "impact": "Confiabilidade do gate Smoke Tests e interpretação de cobertura de lifecycle.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:05:00Z",
+      "audit_finding": "ACCEPTED — autenticidade insuficiente. Índice, STOP_BATCH, ACK e limite de concorrência são arrays/funções/timers locais; state/jobs-lifecycle/jobs-dom-ack/router reais não são carregados.",
+      "auditor_recommended_action": "Reclassificar como smoke algorítmico ou substituir pelos módulos reais com mocks mínimos."
     },
     {
       "id": "123-003",
