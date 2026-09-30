@@ -31,7 +31,7 @@
     },
     {
       "id": "106-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_QUALITY",
       "target_file": "tests/integration/banned-images-flow.test.js",
       "found_while_auditing": "tests/integration/banned-images-flow.test.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Revisar a utilidade da simulação diante das suítes reais existentes e exigir alinhamento de índice/filtro se ela permanecer.",
       "possible_regression": "Seleção ou roteamento por índice pode se deslocar sem quebrar assertions baseadas apenas em src.",
       "impact": "Reduz a confiabilidade da suíte, embora não invalide provas reais existentes em outras suítes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. `simulateGetPageImages` renumera índices após filtrar e o caso nominal não verifica o conjunto completo (incluindo banner válido). Isso diverge do produto real, que preserva índice DOM e aplica filtros adicionais.",
+      "auditor_recommended_action": "Preferir o content script real; se a simulação permanecer, restringir seu contrato e adicionar caso que preserve índice original após remover item anterior."
     }
   ],
   "document_quality": {
