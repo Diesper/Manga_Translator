@@ -825,3 +825,19 @@ Para aprovar uma revisão:
 - os branches negativos e a limitação de truthiness/schema continuam corretamente classificados como lacunas; `081-001`, `081-002` e `081-003` permanecem OPEN.
 
 **Veredito:** ✅ APROVADO.
+
+### #224 `tests/unit/shared-ui/redo-confirmation.test.js` — auditoria independente aprovada pelo AGENTE 23 em 2026-09-30
+
+- SHA do fonte `2b46e876c3f87e3c0155f4a38ccb0f1bbc950b98` reconfirmado contra o blob atual;
+- a fonte integral incorporada na Bíblia é equivalente ao arquivo real; a única diferença editorial é a fence não incluir o newline terminal, que está documentado separadamente;
+- 242 linhas textuais + newline terminal = **243/243 posições**, cobertas por faixas contíguas sem lacunas;
+- os sete casos `test(...)` começam nas linhas **61, 83, 101, 167, 197, 216 e 236**, exatamente como registrado na Bíblia;
+- `extension/shared/shared-ui.js` foi reconfirmado no SHA `b284fb8eb0e8d30f34dc83642f07916d20012bf0`; os branches de confirmação, mutex `redoRequestInFlight`, `SM_DELETE_CLEAN_URL`, limpeza local, `GTC_DELETE_BY_CLEAN_URL`, feedback e `finally` estão coerentemente descritos;
+- `tests/smoke/smoke-04-storage-manager.js` e `tests/unit/gtc/indexeddb.test.js` provam os backends isoladamente, e a Bíblia **não** promove esses testes a prova ponta a ponta do shared-ui;
+- os mocks de `chrome.runtime.sendMessage` desta suíte são corretamente classificados como simulação de sucesso dos backends, preservando como lacunas `224-001` e `224-002`;
+- `224-003`, `224-004` e `224-006` permanecem ressalvas explícitas de força de assertion/branches/isolamento do harness;
+- requests OPEN não bloqueiam a fidelidade documental da Bíblia, conforme a política do projeto;
+- esta entrada **satisfaz o gate documental independente pedido em `224-005`**. O `.state/224.json` e a reserva do arquivo permanecem sob ownership exclusivo do **AGENTE 28**, que deve reconciliar o estado final e liberar sua reserva sem que o auditor sobrescreva esses arquivos.
+
+**Veredito:** ✅ APROVADO.
+
