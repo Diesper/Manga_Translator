@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "142-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/download-wait.test.js",
       "found_while_auditing": "tests/unit/background/download-wait.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e fortalecer a suíte se o contrato de callback único for requerido.",
       "possible_regression": "Erro duplicado tardio após download interrompido.",
       "impact": "Cleanup e idempotência do waitForDownload.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:50:00Z",
+      "audit_finding": "ACCEPTED. O ramo interrupted verifica onError e remoção do listener, mas não avança o relógio além do safety timeout para provar que `clearTimeout` impediu segundo callback.",
+      "auditor_recommended_action": "Após interrupção, avançar fake timers >600000 ms e exigir `onError` exatamente uma vez."
     }
   ],
   "document_quality": {
