@@ -52,15 +52,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **98**
-- ✅ Concluídos auditados: **77**
+- ✅ Concluídos auditados: **78**
 - 🟠 Em andamento: **0**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **135**
-- ⬜ Pendentes: **156**
+- ⬜ Pendentes: **155**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **33,05%**
+- Cobertura realmente aprovada: **33,48%**
 - Cobertura apenas materializada: **42,06%**
-- Último aprovado: `scripts/validation/playwright-gate-reporter-selftest.js`
+- Último aprovado: `scripts/validation/validate-manifest.js`
 - Arquivos atualmente em andamento:
 
 - Menor índice pendente sem reserva no momento desta atualização: `#033 extension/background/tab-identity.js`
@@ -409,7 +409,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 78 | ⬜ PENDENTE | `scripts/release/sync-version.js` | `9bc8fa5ae3fb` | `docs/biblia/scripts/release/sync-version.js/Bíblia.md` |
 | 79 | ✅ CONCLUÍDO | `scripts/validation/check-js-syntax.js` | `fbc69cf9f910` | `docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md` |
 | 80 | ✅ CONCLUÍDO | `scripts/validation/playwright-gate-reporter-selftest.js` | `478d6673dbb6` | `docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md` |
-| 81 | ⬜ PENDENTE | `scripts/validation/validate-manifest.js` | `93dbb1882c69` | `docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md` |
+| 81 | ✅ CONCLUÍDO | `scripts/validation/validate-manifest.js` | `93dbb1882c69` | `docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md` |
 | 82 | ⬜ PENDENTE | `scripts/validation/verify-ci-contract-selftest.js` | `8d34dee0d632` | `docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md` |
 | 83 | ⬜ PENDENTE | `scripts/validation/verify-ci-contract.js` | `636e4bfbaa06` | `docs/biblia/scripts/validation/verify-ci-contract.js/Bíblia.md` |
 | 84 | ⬜ PENDENTE | `scripts/validation/verify-coverage-selftest.js` | `ac08dd661f2d` | `docs/biblia/scripts/validation/verify-coverage-selftest.js/Bíblia.md` |
