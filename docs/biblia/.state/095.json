@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "095-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/e2e/gemini-mock-server-contract.spec.js",
       "found_while_auditing": "tests/fixtures/gemini-mock-server.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar quais superfícies são contrato e criar cobertura focal apenas para as que devem permanecer suportadas.",
       "possible_regression": "Falhas futuras de infraestrutura podem aparecer apenas quando um novo teste depender de branch hoje não coberto.",
       "impact": "Infraestrutura E2E; não código de produção.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. O mock server possui knobs/rotas sem prova focal (attachmentFailAttempts/delay, OPTIONS, /health, 405 de barreira, disconnect cleanup, fallbacks/default/404). E2E cobre caminhos centrais, não a superfície completa do fixture.",
+      "auditor_recommended_action": "Adicionar contract spec HTTP dedicado apenas para superfícies que devem permanecer suportadas, usando o servidor real."
     },
     {
       "id": "095-002",
@@ -44,7 +48,7 @@
     },
     {
       "id": "095-003",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "CONTRACT_REVIEW",
       "target_file": "playwright.config.js",
       "found_while_auditing": "tests/fixtures/gemini-mock-server.js",
@@ -57,7 +61,12 @@
       "expected_auditor_action": "Revisar sem modificar esta Bíblia; qualquer correção deve ocorrer com ownership próprio.",
       "possible_regression": "E2E pode reutilizar serviço errado e falhar com sintomas enganosos.",
       "impact": "Confiabilidade da infraestrutura E2E.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "SUPERSEDED por 064-003. É o mesmo risco de `reuseExistingServer:true` com `port:3999` sem validar `/health`/identidade do mock.",
+      "auditor_recommended_action": "Centralizar a correção/contrato em 064-003 e alinhar o comentário do fixture.",
+      "superseded_by": "064-003"
     },
     {
       "id": "095-004",
