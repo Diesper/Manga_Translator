@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "012-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/export-all-action.test.js",
       "found_while_auditing": "extension/background/actions/export-all.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Fortalecer cobertura sem alterar o objeto auditado nesta etapa.",
       "possible_regression": "Exportação pode reportar sucesso apesar de falhas invisíveis no lote.",
       "impact": "Confiabilidade da exportação em massa.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED. A suíte precisa cobrir shapes inválidos/itens incompletos e falhas de download/wait, pois a implementação usa `filename.startsWith` sem validação de item e possui múltiplos branches de erro.",
+      "auditor_recommended_action": "Adicionar casos focais para payload não-array/itens inválidos, lastError, id ausente, wait failure e ordenação."
     },
     {
       "id": "012-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/background/actions/export-all.js",
       "found_while_auditing": "extension/background/actions/export-all.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar comportamento funcional em processo separado.",
       "possible_regression": "Mensagem de sucesso enganosa após falha real de exportação.",
       "impact": "Experiência do usuário e diagnóstico de download.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — contrato de sucesso parcial confirmado. Falhas em `downloads.download` e `waitForDownload` chamam `finishOne()` e são contabilizadas como conclusão; ao final sempre resolve `{ok:true}` e pode mostrar apenas o último download bem-sucedido, sem contagem de falhas.",
+      "auditor_recommended_action": "Definir resposta agregada (success/fail counts ou erro) e testar cenário parcial/todos falham."
     }
   ],
   "document_quality": {
