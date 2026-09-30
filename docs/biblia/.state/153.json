@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "153-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-watchdog-ordering.test.js",
       "found_while_auditing": "tests/unit/background/jobs-watchdog-ordering.test.js",
@@ -23,7 +23,11 @@
       "expected_evidence": "Assertion determinística do estado de extractionTabs/tabs.remove e do tratamento da rejeição após finalizeJob falhar.",
       "possible_regression": "Timeout com falha de finalização pode vazar tab auxiliar/estado ou produzir unhandled rejection.",
       "known_impact": "Robustez do lifecycle de jobs em timeout.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:18:00Z",
+      "audit_finding": "ACCEPTED. `jobs-watchdog.js` faz `await finalizeJob(...)` dentro do callback async de `storage.local.get` e só depois limpa extraction tabs; não há try/finally ao redor. Se finalizeJob rejeitar, cleanup subsequente é pulado e a rejeição pode escapar do callback.",
+      "auditor_recommended_action": "Definir política de erro e garantir cleanup/telemetria via try/finally ou equivalente; adicionar teste com finalizeJob rejeitando."
     }
   ]
 }
