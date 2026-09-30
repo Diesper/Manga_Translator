@@ -397,7 +397,6 @@ Clones parciais reduzem mutação acidental, mas não constituem isolamento de s
   };
 
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 268/268
