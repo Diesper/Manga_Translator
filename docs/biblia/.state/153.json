@@ -2,10 +2,28 @@
   "index": 153,
   "file": "tests/unit/background/jobs-watchdog-ordering.test.js",
   "bible": "docs/biblia/tests/unit/background/jobs-watchdog-ordering.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 22",
   "source_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
   "started_at_utc": "2026-09-30T06:44:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:47:00Z",
+  "audit_requests": [
+    {
+      "id": "153-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/jobs-watchdog-ordering.test.js",
+      "found_while_auditing": "tests/unit/background/jobs-watchdog-ordering.test.js",
+      "behavior_affected": "Comportamento do cleanup de timeout quando finalizeJob rejeita.",
+      "finding": "jobs-watchdog.js aguarda finalizeJob antes do cleanup de extraction tabs, porém o await ocorre dentro do callback async de chrome.storage.local.get sem try/catch/finally. Não foi localizado teste focal para rejeição de finalizeJob.",
+      "current_evidence": "O #153 usa Promise-gate e prova que Promise pendente bloqueia o cleanup e Promise resolvida libera remoção seletiva das tabs.",
+      "missing_evidence": "Caso em que finalizeJob rejeita, com expectativa explícita sobre log, retenção/remoção de extraction tabs, estado residual e tratamento da rejeição.",
+      "why_needed": "Sem contrato de falha, uma exceção de finalização pode deixar recursos residuais e/ou gerar rejeição assíncrona não observada.",
+      "requested_action": "Definir a política de falha e adicionar teste com finalizeJob mockRejectedValue. Se a política exigir captura, logging ou cleanup, tratar a implementação em auditoria/correção autorizada separada.",
+      "expected_evidence": "Assertion determinística do estado de extractionTabs/tabs.remove e do tratamento da rejeição após finalizeJob falhar.",
+      "possible_regression": "Timeout com falha de finalização pode vazar tab auxiliar/estado ou produzir unhandled rejection.",
+      "known_impact": "Robustez do lifecycle de jobs em timeout.",
+      "severity": "NORMAL"
+    }
+  ]
 }
