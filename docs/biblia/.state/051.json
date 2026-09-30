@@ -1,0 +1,34 @@
+{
+  "index": 51,
+  "file": "extension/options/options.html",
+  "bible": "docs/biblia/extension/options/options.html/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 6",
+  "source_sha": "3ca95e66641d2884fa653f25f7bedbb2a8ac3b2b",
+  "completed_at_utc": "2026-09-30T06:04:22.601Z",
+  "audit_requests": [
+    {
+      "id": "051-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/options.ui.test.js",
+      "finding": "Faltam cliques focais em Restaurar, autoRestoreEnabled, modo minimized e atualizar/limpar bloqueios.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "051-002",
+      "status": "OPEN",
+      "type": "ACCESSIBILITY_REVIEW",
+      "target_file": "extension/options/options.html",
+      "finding": "Grupo de radios não usa fieldset/legend e faltam testes de labels/navegação por teclado.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "105/105",
+    "bible_lines": 1686
+  }
+}
