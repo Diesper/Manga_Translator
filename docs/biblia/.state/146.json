@@ -2,10 +2,61 @@
   "index": 146,
   "file": "tests/unit/background/force-send-activation-action.test.js",
   "bible": "docs/biblia/tests/unit/background/force-send-activation-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "cab687a5e5d5dd849b6986aeeca5ac642e5b5a6a",
   "started_at_utc": "2026-09-30T06:59:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T07:05:00Z",
+  "audit_requests": [
+    {
+      "id": "146-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/force-send-activation-action.test.js",
+      "found_while_auditing": "tests/unit/background/force-send-activation-action.test.js",
+      "finding": "A action resolve o modo pela precedência executionMode do request -> storage.geminiExecutionMode -> temp_chat, mas os testes cobrem request explícito somente com storage vazio e storage minimized_window somente com request ausente.",
+      "current_evidence": "O cenário 1 prova a origem storage e o cenário 2 prova a origem request; o mesmo blob passou em Node 20.x e 22.x.",
+      "missing_evidence": "Caso com request e storage conflitantes para provar a precedência e caso com ambos ausentes para provar o default temp_chat.",
+      "why_needed": "Uma mudança de ordem de precedência ou default pode alterar o modo escolhido sem quebrar os happy paths atuais.",
+      "requested_action": "Adicionar testes focais usando router/action reais para conflito request-vs-storage e default sem valores.",
+      "expected_evidence": "Request temp_chat com storage minimized_window segue ativação por aba; ausência de ambos também segue o caminho default temp_chat.",
+      "expected_auditor_action": "Confirmar a precedência como contrato e adicionar a cobertura sem duplicar a lógica de produção.",
+      "possible_regression": "A extensão pode escolher minimized_window ou outro modo diferente do solicitado/esperado sem falha da suíte.",
+      "impact": "Seleção do modo de ativação do Gemini.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "146-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/force-send-activation-action.test.js",
+      "found_while_auditing": "tests/unit/background/force-send-activation-action.test.js",
+      "finding": "Fallbacks defensivos da action não possuem prova focal: minimized_window sem windowId, ausência de geminiTabId, ausência de mangaTabId e tabs.get retornando aba sem windowId.",
+      "current_evidence": "Os dois testes sempre fornecem os IDs necessários e, no cenário minimizado, tabs.get retorna windowId 73.",
+      "missing_evidence": "Assertions negativas para chamadas indevidas e prova de que minimized_window sem windowId cai no caminho de ativação por aba quando geminiTabId existe.",
+      "why_needed": "Requests incompletos ou estados transitórios de aba/janela fazem parte da superfície real de runtime e podem regredir fora dos happy paths.",
+      "requested_action": "Adicionar casos de borda usando a implementação real e spies das APIs Chrome.",
+      "expected_evidence": "No-op seguro sem geminiTabId; sem restauração quando mangaTabId falta; sem windows.update quando tabs.get não fornece windowId; fallback por aba quando windowId da janela Gemini não é informado.",
+      "expected_auditor_action": "Validar quais fallbacks são contrato suportado e cobrir os que forem intencionais.",
+      "possible_regression": "Foco incorreto, chamadas com IDs inválidos ou ausência de envio em estados parcialmente disponíveis.",
+      "impact": "Robustez do envio forçado e restauração de foco.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "119/119",
+    "source_text_lines": 118,
+    "bible_lines": 938,
+    "external_audit_requests_open": 2,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: os dois testes de force-send-activation passaram; jobs globais reportaram 109/109 suítes e 851/851 testes."
+  }
 }
