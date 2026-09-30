@@ -1,0 +1,11 @@
+{
+  "index": 84,
+  "file": "scripts/validation/verify-coverage-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-coverage-selftest.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 8",
+  "source_sha": "ac08dd661f2d2410a56a7fd685cd9b55e85901f9",
+  "started_at_utc": "2026-09-30T06:11:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
