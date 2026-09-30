@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 17
+ARQUIVO: extension/background/actions/open-manga-root.js
+BÍBLIA: docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 71c83df253cdac601a118104fc1d7e467f35bfd6
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T11:43:00Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T11:43:00Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
