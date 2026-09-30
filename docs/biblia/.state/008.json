@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "008-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONSISTENCY_REVIEW",
       "target_file": "extension/background/actions/deliver-result-url.js",
       "found_while_auditing": "extension/background/actions/deliver-result-url.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Revisar consistência e lifecycle em alteração separada.",
       "possible_regression": "Abas auxiliares órfãs e jobs presos em estado incoerente.",
       "impact": "Lifecycle de extração auxiliar e consistência do background.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — consistência confirmada. `chrome.tabs.create` ocorre antes de registrar mapping, `updateJobState` e `syncState`. Se qualquer etapa posterior rejeitar, não existe rollback local da aba criada nem do mapping parcialmente instalado.",
+      "auditor_recommended_action": "Adicionar compensação/rollback para aba+mapping quando persistência falhar; testar falha após `tabs.create`."
     },
     {
       "id": "008-002",
@@ -44,7 +48,7 @@
     },
     {
       "id": "008-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASYNC_LIFECYCLE_REVIEW",
       "target_file": "extension/background/actions/deliver-result-url.js",
       "found_while_auditing": "extension/background/actions/deliver-result-url.js",
@@ -57,7 +61,11 @@
       "expected_auditor_action": "Revisar lifecycle assíncrono.",
       "possible_regression": "Gemini pode ficar esperando indefinidamente pelo registro da extração.",
       "impact": "UX e lifecycle de jobs.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED. Tanto `assertJobOwnership` quanto `chrome.tabs.create` são adaptados para Promise que só resolve pelo callback, sem timeout; `tabs.create` também não verifica `runtime.lastError` nem valida `newTab.id`. Callback ausente pode deixar `execute()` pendente.",
+      "auditor_recommended_action": "Adicionar timeout/erro explícito e validar callback/id antes de usar a aba; testar callback ausente e lastError."
     }
   ],
   "document_quality": {
