@@ -1,0 +1,54 @@
+{
+  "index": 72,
+  "file": "scripts/ci/playwright-gate-reporter.js",
+  "bible": "docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": "AGENTE 9",
+  "source_sha": "71fb92c1215a86cdb309f4599ea8d0b422e9b02e",
+  "started_at_utc": "2026-09-30T03:30:21Z",
+  "completed_at_utc": "2026-09-30T05:09:12Z",
+  "audit_requests": [
+    {
+      "id": "072-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/playwright-gate-reporter-selftest.js",
+      "found_while_auditing": "scripts/ci/playwright-gate-reporter.js",
+      "finding": "O branch que reprova run global passed quando attemptsById.size < total não possui self-test focal.",
+      "current_evidence": "O self-test executa a implementação real e cobre happy path, skip, baseline mínimo, status terminais e flaky por retry.",
+      "missing_evidence": "Assertion com total descoberto maior que a quantidade de test.id que produziram onTestEnd e runStatus='passed'.",
+      "requested_action": "Adicionar cenário ao self-test real que espere { status: 'failed' }.",
+      "expected_auditor_action": "Confirmar a lacuna e solicitar teste funcional separado se a proteção precisar de prova focal.",
+      "possible_regression": "O branch de resultado final ausente pode regredir sem teste específico.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "072-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/validation/verify-ci-contract.js",
+      "found_while_auditing": "scripts/ci/playwright-gate-reporter.js",
+      "finding": "Existe validação estrutural de e2e.maxFlaky, mas não foi localizada validação equivalente de e2e.maxSkipped.",
+      "current_evidence": "O baseline atual define maxSkipped=0 e o reporter o usa diretamente.",
+      "missing_evidence": "Gate de schema/valor inteiro não negativo para maxSkipped e self-test negativo correspondente.",
+      "requested_action": "Reconfirmar e, se persistir, validar maxSkipped em alteração funcional separada.",
+      "expected_auditor_action": "Abrir correção funcional separada se a ausência for confirmada.",
+      "possible_regression": "maxSkipped ausente ou não numérico pode gerar comparação com NaN e enfraquecer o bloqueio de skips.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "072-003",
+      "status": "OPEN",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "scripts/ci/playwright-gate-reporter.js",
+      "found_while_auditing": "scripts/ci/playwright-gate-reporter.js",
+      "finding": "A classificação pressupõe test.id estável/único e callbacks onTestEnd ordenados; retry é convertido com Number sem validação de NaN.",
+      "current_evidence": "Contrato operacional do Playwright e inspeção direta da implementação.",
+      "missing_evidence": "Teste focal de IDs intercalados e decisão explícita para retry malformado/status desconhecido.",
+      "requested_action": "Classificar os pressupostos como contrato aceito ou solicitar testes adicionais em mudança separada.",
+      "expected_auditor_action": "Revisar robustez e decidir se há necessidade de alteração funcional.",
+      "possible_regression": "Mudança de metadata/callback pode alterar classificação de flaky ou diagnóstico.",
+      "severity": "NORMAL"
+    }
+  ]
+}
