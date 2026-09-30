@@ -2,10 +2,58 @@
   "index": 98,
   "file": "tests/helpers/background-test-utils.js",
   "bible": "docs/biblia/tests/helpers/background-test-utils.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 20",
   "source_sha": "1c38cfc47917f2a42788c467b9dbf58648b73e2b",
   "started_at_utc": "2026-09-30T06:17:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:32:08Z",
+  "audit_requests": [
+    {
+      "id": "098-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/helpers/background-test-utils.test.js",
+      "found_while_auditing": "tests/helpers/background-test-utils.js",
+      "finding": "O helper compartilhado é executado por múltiplas suítes, mas não existe teste focal localizado para seus branches negativos e parâmetros de borda.",
+      "current_evidence": "Nove consumers reais importam o helper; o mesmo blob passou no CI Linux e Windows. Há assertions diretas para retorno truthy de waitFor e alguns pares keepAlive/response de dispatchToBackground.",
+      "missing_evidence": "delay isolado; contagem/rounds de flush; timeout, erro e opções de waitFor; zero/múltiplos listeners; false/true/undefined sem response; múltiplas chamadas de sendResponse.",
+      "why_needed": "As assertions principais dos consumers miram o background, portanto mudanças raras no harness podem não ser isoladas nem diagnosticadas como defeito do helper.",
+      "requested_action": "Adicionar, em alteração separada, suíte focal da implementação real com timers e mocks controlados, sem copiar a lógica do helper.",
+      "expected_evidence": "Assertions específicas sobre resolução/rejeição, quantidade de polls/rodadas, mensagem de timeout e campos keepAlive/response.",
+      "expected_auditor_action": "Confirmar a lacuna e decidir/criar a cobertura focal sem alterar esta Bíblia como fonte de prova.",
+      "possible_regression": "Uma regressão no harness pode mascarar falhas do background, criar falso positivo/negativo ou pendurar o Jest.",
+      "impact": "Infraestrutura compartilhada de testes unitários do background.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "098-002",
+      "status": "OPEN",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "tests/helpers/background-test-utils.js",
+      "found_while_auditing": "tests/helpers/background-test-utils.js",
+      "finding": "Em dispatchToBackground, sendResponse síncrono pode resolver usando keepAlive=false antes de o listener retornar true; retorno undefined sem response não aciona o fallback estrito keepAlive === false.",
+      "current_evidence": "A ordem das linhas 39 e 41-46 e o guard da linha 47 tornam a semântica observável. Consumers atuais exercitados permanecem verdes.",
+      "missing_evidence": "Contrato/teste focal para sendResponse síncrono + return true e para return undefined sem response.",
+      "why_needed": "O helper modela o contrato assíncrono do runtime para várias suítes; divergência de settlement pode produzir keepAlive enganoso ou Promise pendente.",
+      "requested_action": "Definir explicitamente a semântica desejada. Se o comportamento atual for intencional, fixá-lo com testes; se não, corrigir o helper em mudança separada e adicionar regressão.",
+      "expected_evidence": "Teste focal com expectativa explícita de settlement/keepAlive para resposta síncrona seguida de true e para undefined sem response.",
+      "expected_auditor_action": "Revisar o contrato antes de qualquer alteração funcional e preservar histórico desta solicitação.",
+      "possible_regression": "Testes podem interpretar keepAlive incorretamente ou aguardar indefinidamente um listener que não abriu canal assíncrono.",
+      "impact": "Harness de testes; potencial de afetar diversas suítes background.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "61/61",
+    "bible_lines": 317,
+    "external_audit_requests_open": 2,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [
+      109437162616,
+      109437162789
+    ]
+  }
 }
