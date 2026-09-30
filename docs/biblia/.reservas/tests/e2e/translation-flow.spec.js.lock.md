@@ -1,0 +1,11 @@
+# RESERVA DE ARQUIVO
+
+AGENTE: AGENTE 2
+ARQUIVO: tests/e2e/translation-flow.spec.js
+BÍBLIA: docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: db1da42c48ff795c41c7103cd5778e5a5d98e878
+DATA/HORA_UTC_DA_RESERVA: 2026-09-30T06:16:55.086Z
+ÚLTIMA_ATUALIZAÇÃO_UTC: 2026-09-30T06:16:55.086Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
