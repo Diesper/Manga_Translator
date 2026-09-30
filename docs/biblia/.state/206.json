@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "206-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_CORRECTION",
       "target_file": "tests/unit/content-manga/get-page-images-filter.test.js",
       "found_while_auditing": "tests/unit/content-manga/get-page-images-filter.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a redundância do mirror e decidir migração/remoção sem alterar esta Bíblia até reauditoria.",
       "possible_regression": "Falso verde após regressão funcional real.",
       "impact": "Seleção de páginas para tradução via popup e botão flutuante.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. A suíte testa simulateGetPageImages local e não o handler real; o mirror não modela limites configuráveis, dataset.translated, canonicalização, backdrops/duplicatas nem envelope assíncrono.",
+      "auditor_recommended_action": "Rebaixar/remover o mirror como prova principal e mover a matriz para testes que carreguem content_manga/cm-dom-replace reais."
     },
     {
       "id": "206-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "INDEX_SEMANTICS",
       "target_file": "tests/unit/content-manga/get-page-images-filter.test.js",
       "found_while_auditing": "tests/unit/content-manga/get-page-images-filter.test.js",
@@ -40,11 +44,15 @@
       "expected_auditor_action": "Adicionar cobertura e revisar outros mirrors que usam map pós-filtro.",
       "possible_regression": "Seleção/substituição pode apontar para imagem errada sem falha nos testes baseados no mirror.",
       "impact": "Correção posicional da tradução de imagens.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. O mirror atribui index após filter e renumera candidatos; produção captura o índice DOM antes da filtragem. Falta caso real com índice 0 filtrado e índice 1 elegível preservado como 1.",
+      "auditor_recommended_action": "Adicionar teste real que exija preservação do índice DOM original."
     },
     {
       "id": "206-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/unit/content-manga/get-page-images-filter.test.js",
       "found_while_auditing": "tests/unit/content-manga/get-page-images-filter.test.js",
@@ -57,7 +65,11 @@
       "expected_auditor_action": "Fortalecer/reclassificar a suíte.",
       "possible_regression": "Retorno de imagem já traduzida ou nova inconsistência entre consumidores pode ficar invisível.",
       "impact": "Consistência de UI e prevenção de retradução.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:46:00Z",
+      "audit_finding": "ACCEPTED. O claim popup×botão chama a mesma função local duas vezes; o cenário 'traduzida' simula banimento em vez de dataset.translated. As assertions não provam os contratos descritos.",
+      "auditor_recommended_action": "Comparar consumidores reais independentes e usar elemento realmente marcado translated; remover claims não executados."
     },
     {
       "id": "206-004",
