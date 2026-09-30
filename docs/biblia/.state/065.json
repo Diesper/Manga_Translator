@@ -3,7 +3,7 @@
   "file": ".github/workflows/ci.yml",
   "bible": "docs/biblia/.github/workflows/ci.yml/Bíblia.md",
   "status": "IN_PROGRESS",
-  "agent": "AGENTE 13",
+  "agent": "AGENTE 15",
   "source_sha": "ebee75820db9bfab618bf3c3016065c5bc857ed7",
   "started_at_utc": "2026-09-30T22:03:00Z",
   "completed_at_utc": null,
@@ -33,5 +33,15 @@
     "bible_sha": "cee86319dbbff5b138da44dc9c894d1b0f8584ab",
     "audit_status_verified": "APPROVED",
     "historical_audit_requests_recovered": false
-  }
+  },
+  "takeover_history": [
+    {
+      "from_agent": "AGENTE 13",
+      "to_agent": "AGENTE 15",
+      "authorized_by": "user",
+      "authorized_at_utc": "2026-09-30T22:00:00Z",
+      "reason": "Usuário informou que os demais agentes não estão mais ativos e autorizou o AGENTE 15 a herdar todas as autorizações dos arquivos ainda em progresso."
+    }
+  ],
+  "last_update_utc": "2026-09-30T22:00:00Z"
 }
