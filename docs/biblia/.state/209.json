@@ -2,10 +2,53 @@
   "index": 209,
   "file": "tests/unit/content-manga/replacement-and-completion-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/replacement-and-completion-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 25",
   "source_sha": "9dcd26cf4a963ab22c11f8535421603d83260572",
   "started_at_utc": "2026-09-30T13:46:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:51:00Z",
+  "audit_requests": [
+    {
+      "id": "209-001",
+      "status": "OPEN",
+      "type": "CONTRACT_INTEGRATION_REVIEW",
+      "target_file": "tests/unit/content-manga/replacement-and-completion-real.test.js",
+      "found_while_auditing": "tests/unit/content-manga/replacement-and-completion-real.test.js",
+      "finding": "A suíte carrega o content script real, mas simula as respostas de GTC_QUERY_MANY, GTC_SAVE, DOWNLOAD_IMAGE, START_BATCH e GET_TAB_ID em installRuntimeResponder.",
+      "current_evidence": "Os efeitos e mensagens do content script são assertions diretas; o lado background/download/GTC é um double local.",
+      "missing_evidence": "Prova contratual/composição de que handlers reais continuam entregando payloads e respostas compatíveis com as expectativas desta suíte.",
+      "why_needed": "Mudança incompatível no background pode deixar esta suíte verde.",
+      "requested_action": "Confirmar cobertura contratural existente ou adicionar testes de integração que atravessem os dois lados para os contratos críticos.",
+      "expected_evidence": "Requests emitidos pelo content script sendo aceitos por handlers reais e respostas reais sendo consumidas corretamente.",
+      "expected_auditor_action": "Cruzar com suítes background e preencher eventuais lacunas sem modificar esta suíte para fabricar evidência.",
+      "possible_regression": "Quebra de integração content↔background não detectada aqui.",
+      "impact": "Cache, download, batch e telemetria.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "209-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/replacement-and-completion-real.test.js",
+      "found_while_auditing": "tests/unit/content-manga/replacement-and-completion-real.test.js",
+      "finding": "Caminhos de falha de integrações externas, especialmente DOWNLOAD_IMAGE e GTC_SAVE, não são exercitados nesta suíte de replacement/completion.",
+      "current_evidence": "Os responders desses actions retornam sucesso por padrão; áudio possui cenário de falha próprio.",
+      "missing_evidence": "Estado/telemetria/cleanup esperado quando download ou save de cache falham após replacement.",
+      "why_needed": "Falha externa pode produzir estado parcial enquanto o content side segue concluindo.",
+      "requested_action": "Localizar cobertura equivalente ou adicionar cenários de falha content-side com respostas de erro/rejeição para serviços externos.",
+      "expected_evidence": "Assertions sobre UI, storage e logs após falhas sem corromper o replacement concluído.",
+      "expected_auditor_action": "Avaliar cobertura existente antes de criar novos testes.",
+      "possible_regression": "Estado parcial ou erro silencioso após falha externa.",
+      "impact": "Robustez pós-tradução.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "525/525",
+    "bible_lines": 725,
+    "external_audit_requests_open": 2
+  }
 }
