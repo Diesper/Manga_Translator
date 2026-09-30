@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "115-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ASSERTION_GAP",
       "target_file": "tests/integration/popup-translated-thumbnails.test.js",
       "found_while_auditing": "tests/integration/popup-translated-thumbnails.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Confirmar a lacuna e fortalecer o teste sem alterar a documentação como substituto de prova.",
       "possible_regression": "Uma regressão que marque cards irmãos ou o capítulo inteiro como falho pode continuar passando.",
       "impact": "Isolamento visual de falhas por miniatura.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:49:00Z",
+      "audit_finding": "ACCEPTED. O teste intitulado 'somente a miniatura afetada' cria apenas um card; sem uma miniatura irmã saudável, não prova isolamento seletivo da falha.",
+      "auditor_recommended_action": "Adicionar segundo card saudável no mesmo capítulo e falha seletiva por asset, exigindo apenas o alvo com classe/estado failed."
     },
     {
       "id": "115-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH",
       "target_file": "tests/integration/popup-translated-thumbnails.test.js",
       "found_while_auditing": "tests/integration/popup-translated-thumbnails.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Confirmar a força atual e tratar a cobertura adicional em alteração separada.",
       "possible_regression": "Mapeamento card→asset, atualização visual ou deduplicação podem quebrar sem falhar o teste atual.",
       "impact": "Confiabilidade do lazy loading de miniaturas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:49:00Z",
+      "audit_finding": "ACCEPTED. O cenário lazy com IntersectionObserver verifica apenas número de observers e contagem de `SM_GET_ASSET`; não fixa assetId/card correto, `img.src`, disconnect nem idempotência após trigger repetido.",
+      "auditor_recommended_action": "Fortalecer com assertions de payload, DOM do card disparado, cleanup do observer e uma única leitura após retrigger."
     }
   ],
   "document_quality": {
