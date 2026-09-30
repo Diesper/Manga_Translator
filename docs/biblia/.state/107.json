@@ -1,0 +1,11 @@
+{
+  "index": 107,
+  "file": "tests/integration/chapter-dedup.test.js",
+  "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 22",
+  "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
+  "started_at_utc": "2026-09-30T06:32:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
