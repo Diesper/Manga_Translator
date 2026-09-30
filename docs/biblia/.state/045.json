@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "045-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "extension/content/gemini/job-runner.js",
@@ -22,7 +22,11 @@
       "expected_evidence": "Assertion do código GEMINI_COMPOSER_NOT_READY e ausência de submit.",
       "possible_regression": "Prompt enviado para composer stale/incorreto.",
       "impact": "Confiabilidade do submit no Gemini.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. `waitForStableComposer` possui branch terminal `GEMINI_COMPOSER_NOT_READY`, mas a suíte não mantém composer ausente/instável até expirar; os casos atuais fornecem composer funcional.",
+      "auditor_recommended_action": "Adicionar fake timers/clock controlado mantendo composer instável até timeout e assertar code/mensagem."
     },
     {
       "id": "045-002",
@@ -77,7 +81,7 @@
     },
     {
       "id": "045-005",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "extension/content/gemini/job-runner.js",
@@ -89,11 +93,15 @@
       "expected_evidence": "Assertion de RESULT_COMMIT_FAILED, ausência de deleção indevida e cleanup final.",
       "possible_regression": "Job pode terminar com estado/código incorreto após esgotar commit.",
       "impact": "Consistência entre staging e commit do resultado.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. RUN-14 faz duas falhas de commit seguidas de sucesso na terceira tentativa; não há caso com três falhas que percorra o branch `RESULT_COMMIT_FAILED`.",
+      "auditor_recommended_action": "Adicionar regressão com três ACKs de commit negativos/ausentes e assertar `RESULT_COMMIT_FAILED` sem reenvio da imagem."
     },
     {
       "id": "045-006",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "extension/content/gemini/job-runner.js",
@@ -105,7 +113,11 @@
       "expected_evidence": "Assertion do código AUXILIARY_REGISTRATION_FAILED e ausência de falso sucesso.",
       "possible_regression": "Resultado não registrado pode ser aceito como concluído.",
       "impact": "Entrega/registro auxiliar do resultado.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. O código lança `AUXILIARY_REGISTRATION_FAILED` quando o registro da aba auxiliar não confirma; não foi localizado caso dedicado com ACK ausente/inválido.",
+      "auditor_recommended_action": "Adicionar caso focal do runner com registro auxiliar rejeitado/sem ACK e assertar erro + cleanup."
     },
     {
       "id": "045-007",
@@ -144,7 +156,7 @@
     },
     {
       "id": "045-009",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "found_while_auditing": "extension/content/gemini/job-runner.js",
@@ -156,7 +168,11 @@
       "expected_evidence": "Nenhum observer/HUD/listener/interval/outline residual após erro.",
       "possible_regression": "Estado visual/listeners vazam entre jobs.",
       "impact": "Isolamento e estabilidade de execuções sequenciais.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:02:00Z",
+      "audit_finding": "ACCEPTED. Há testes parciais de HUD/observer, mas não um cenário que force cada classe de falha e verifique conjuntamente limpeza de activeObserver/global observer, HUD, listener manual, interval e outlines no `finally`.",
+      "auditor_recommended_action": "Adicionar matriz de falhas com assertor comum de cleanup completo pós-run."
     },
     {
       "id": "045-010",
