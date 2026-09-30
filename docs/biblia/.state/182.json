@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "182-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-gemini/manual-assist-hud.test.js",
       "found_while_auditing": "tests/unit/content-gemini/manual-assist-hud.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Ajustar teste em mudança separada.",
       "possible_regression": "Interferência cross-job.",
       "impact": "Isolamento do fallback manual.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. `removeGeminiManualPanel()` remove o listener capture guardado em `__mangaTranslatorManualPickHandler` e limpa `data-mt-gemini-pickable`/outline, mas o teste de remoção só verifica o desaparecimento do HUD. O cleanup completo só é parcialmente observado no caso de seleção normal.",
+      "auditor_recommended_action": "Fortalecer o teste iniciando seleção pendente, chamar removeGeminiManualPanel, disparar clique posterior e exigir handler inativo, dataset removido e outline restaurado."
     },
     {
       "id": "182-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "extension/content/gemini/job-runner.js",
       "found_while_auditing": "tests/unit/content-gemini/manual-assist-hud.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Revisar fallback manual.",
       "possible_regression": "Usuário marca imagem anterior ao clicar 'Usar última'.",
       "impact": "Correção do resultado manual.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:30:00Z",
+      "audit_finding": "ACCEPTED. O botão `Usar última` chama `findGeneratedResultImages(...)` e escolhe literalmente `images[images.length - 1]`, isto é, a última candidata na ordem DOM. O teste possui uma única imagem e não prova que ordem DOM corresponde à geração mais recente nem exclui stale/Shadow DOM adversarial.",
+      "auditor_recommended_action": "Definir contrato temporal/ownership para 'última' e adicionar cenário com múltiplos resultados antigos/novos; se necessário usar turn/owner/timestamp em vez de posição DOM."
     },
     {
       "id": "182-003",
