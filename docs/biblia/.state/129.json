@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "129-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "tests/unit/background/actions-low-risk.test.js",
@@ -22,7 +22,12 @@
       "expected_evidence": "Assertions de response.error.code === INVALID_PAYLOAD, mensagem correspondente e MangaTranslatorLog.log não chamado.",
       "possible_regression": "Payload inválido pode alcançar o logger ou alterar o contrato de erro sem detecção automática.",
       "impact": "Robustez do contrato de logging roteado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "superseded_by": "016-001",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "SUPERSEDED por 016-001. A ausência de casos negativos de `LOG_ENTRY` nesta suíte é a mesma lacuna já auditada e aceita no módulo canônico `log-entry.js`.",
+      "auditor_recommended_action": "Centralizar a matriz de validação negativa em 016-001; esta suíte pode apenas consumir o contrato sem duplicar todos os casos."
     }
   ]
 }
