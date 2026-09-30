@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "171-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-replacement-observability.test.js",
       "found_while_auditing": "tests/unit/background/tab-replacement-observability.test.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Implementar e validar os casos em alteração separada, sem usar esta Bíblia como substituto da prova.",
       "possible_regression": "Inputs inválidos podem corromper o mapa do mock e contaminar testes subsequentes sem falha focal.",
       "impact": "Confiabilidade da infraestrutura de testes de tab replacement.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:36:00Z",
+      "audit_finding": "ACCEPTED. `_simulateReplacement` possui guards explícitos para aba antiga inexistente, `oldTabId===newTabId` e target já existente; a suíte executa apenas replacement nominal. Esses contratos do mock podem regredir sem sinal.",
+      "auditor_recommended_action": "Adicionar casos focais para os três guards, exigindo throw e ausência de mutação/listener quando o replacement é inválido."
     },
     {
       "id": "171-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/tab-replacement-observability.test.js",
       "found_while_auditing": "tests/unit/background/tab-replacement-observability.test.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada e manter a distinção entre estado interno e efeito observável.",
       "possible_regression": "Handlers stale podem vazar entre testes ou o alocador implícito pode criar colisões artificiais.",
       "impact": "Isolamento e determinismo das suítes que usam ChromeTabsMock.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:36:00Z",
+      "audit_finding": "ACCEPTED. O caso nominal prova que o handler funciona no newTabId, mas não afirma diretamente que `_messageHandlers` removeu a chave antiga nem exercita `newTabId` omitido, que usa `_nextTabId++`.",
+      "auditor_recommended_action": "Adicionar assertions da transferência/remoção de handlers e um replacement com id automático, fixando a monotonicidade esperada."
     },
     {
       "id": "171-003",
