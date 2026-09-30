@@ -73,7 +73,7 @@
     },
     {
       "id": "213-004",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_MAINTENANCE",
       "target_file": "tests/unit/inject/inject-anti-hibernation.test.js",
       "found_while_auditing": "tests/unit/inject/inject-anti-hibernation.test.js",
@@ -86,7 +86,11 @@
       "expected_auditor_action": "Cleanup documental de baixo risco.",
       "possible_regression": "Nenhuma funcional direta.",
       "impact": "Rastreabilidade e manutenção.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:03:00Z",
+      "audit_finding": "ACCEPTED. O cabeçalho diz '5 sistemas' mas enumera seis e afirma substituir stubs, embora a própria suíte continue contendo mirrors/stubs locais.",
+      "auditor_recommended_action": "Corrigir cabeçalho e claims para refletir seis sistemas e a natureza parcial/mirror da prova."
     }
   ],
   "document_quality": {
