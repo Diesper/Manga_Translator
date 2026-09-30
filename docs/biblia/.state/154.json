@@ -1,0 +1,11 @@
+{
+  "index": 154,
+  "file": "tests/unit/background/lifecycle-alarms-real.test.js",
+  "bible": "docs/biblia/tests/unit/background/lifecycle-alarms-real.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 19",
+  "source_sha": "1d4c22ba9a78ef994906c4dd16617ddb6079942b",
+  "started_at_utc": "2026-09-30T06:49:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
