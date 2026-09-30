@@ -31,7 +31,7 @@
     },
     {
       "id": "178-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "tests/unit/content-gemini/editor-submit.test.js",
@@ -44,11 +44,15 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Fallback Enter pode quebrar silenciosamente enquanto MAIN mantém testes verdes.",
       "impact": "Fallback de envio.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. Quando Send permanece disabled na primeira tentativa, `editor.js` chama `pressEnter(editor)` antes do fallback MAIN. SEND-03 implica a sequência pelo resultado final, mas não observa o KeyboardEvent/payload nem prova que Enter ocorreu.",
+      "auditor_recommended_action": "Adicionar listener/spy de keydown e exigir Enter com propriedades contratuais antes do fallback MAIN."
     },
     {
       "id": "178-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/editor-submit.test.js",
       "found_while_auditing": "tests/unit/content-gemini/editor-submit.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Adicionar cobertura em alteração separada.",
       "possible_regression": "Falha estrutural pode ser engolida/reclassificada.",
       "impact": "Diagnóstico e controle de erro.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. Erros do observer cujo `code` difere de `GEMINI_SUBMISSION_NOT_CONFIRMED` são relançados imediatamente; todos os casos atuais focam timeout/não-confirmação e não provam esse fail-fast.",
+      "auditor_recommended_action": "Injetar observer que rejeita com código distinto e exigir a mesma exceção sem retry/fallback adicional."
     }
   ],
   "document_quality": {
