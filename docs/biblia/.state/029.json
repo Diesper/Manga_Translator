@@ -52,7 +52,7 @@
     },
     {
       "id": "029-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-watchdog-ordering.test.js",
       "found_while_auditing": "extension/background/jobs-watchdog.js",
@@ -65,7 +65,17 @@
       "expected_auditor_action": "Completar cobertura em alteração separada.",
       "possible_regression": "Watchdog pode ser rearmado ou limpo de modo incorreto sem CI detectar.",
       "impact": "Persistência e deadline de jobs.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:34:00Z",
+      "audit_finding": "ACCEPTED. No SHA atual do #153, `jobs-watchdog-ordering.test.js` possui um único caso focado em `handleAlarm` e ordenação de `finalizeJob`. Não há chamadas/assertions para `arm()` ou `clear()`, nem cenário para segunda canonicalização após o primeiro persist, falhas de `storage.local`/`alarms`, ou fallback de metadata pelo `jobIndex` quando `wd_data_*` não está presente.",
+      "auditor_recommended_action": "Após o #153 estabilizar, adicionar casos focais contra `jobs-watchdog.js` real para arm/clear, rekey/canonicalização tardia, storage/alarms failure e fallback via jobIndex. Reauditar este request quando esses cenários existirem.",
+      "audit_snapshot": {
+        "target_source_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
+        "production_sha": "c17b766d7fbc34ea925fb82b19149d3d977de413",
+        "target_owner_at_audit": "AGENTE 15",
+        "target_status_at_audit": "IN_PROGRESS"
+      }
     }
   ],
   "document_quality": {
