@@ -239,3 +239,70 @@ Isso é wiring verificável, não uma afirmação de execução nova.
 - [x] nenhuma fonte/teste externo alterado.
 
 **Conclusão:** documentação completa do #153; a propriedade central de ordering está diretamente provada no código real.
+
+---
+
+## 13. Continuidade do plano — takeover pelo AGENTE 15
+
+### 13.1 Reabertura
+
+O usuário autorizou explicitamente o **AGENTE 15** a desfazer a reserva residual do AGENTE 22, assumir o #153 e continuar o plano associado à solicitação `153-001`.
+
+A conclusão documental histórica acima é preservada como registro do trabalho original. Esta reabertura não converte automaticamente a lacuna em prova e não altera o objeto auditado.
+
+### 13.2 Revalidação da solicitação 153-001
+
+Estado observado após o takeover:
+
+- `tests/unit/background/jobs-watchdog-ordering.test.js` permanece no SHA `2102182a1e313a02cdb511846a4561c3a0f607eb`;
+- `extension/background/jobs-watchdog.js` permanece no SHA `c17b766d7fbc34ea925fb82b19149d3d977de413`;
+- o teste #153 prova diretamente a ordenação no caminho de sucesso: enquanto `finalizeJob` está pendente, nenhuma extraction tab é removida; depois da resolução, somente a tab pertencente ao Gemini correspondente é removida;
+- não foi localizada assertion focal para o caso em que `finalizeJob` rejeita;
+- busca independente por `mockRejectedValue finalizeJob` não encontrou cenário equivalente em outra suíte.
+
+### 13.3 Causalidade do caminho de rejeição
+
+No `handleAlarm` real, o fluxo relevante é:
+
+1. resolve dados persistidos/indexados do watchdog;
+2. resolve o tab canônico e emite telemetria `JOB_TIMEOUT`;
+3. opcionalmente envia `SHOW_ERROR_INTEGRATED` ao manga tab;
+4. executa `await finalizeJob(tabId, watchdog.mangaTabId, true)`;
+5. **somente depois do await** obtém `getExtractionTabs()` e remove as tabs auxiliares relacionadas.
+
+Não existe `try/catch/finally` envolvendo o passo 4 e o cleanup do passo 5.
+
+Consequência estrutural comprovável pela fonte: se a Promise de `finalizeJob` rejeitar, a continuação que remove as extraction tabs não é alcançada pelo fluxo normal daquele callback assíncrono.
+
+Isso **não** é promovido a teste automatizado do caso de rejeição; a classificação permanece:
+
+**⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO** para `finalizeJob` rejeitando.
+
+### 13.4 Plano de correção solicitado ao auditor
+
+A solicitação `153-001` permanece **ACCEPTED**. O próximo tratamento funcional/testável deve ocorrer em mudança separada da produção desta Bíblia.
+
+Plano mínimo recomendado:
+
+1. definir explicitamente a política quando `finalizeJob` rejeita;
+2. decidir se o cleanup das extraction tabs deve ser garantido por `finally` (ou mecanismo equivalente);
+3. decidir a telemetria de falha: nível, código e payload mínimos;
+4. adicionar cenário focal usando a implementação real do watchdog com `finalizeJob = jest.fn().mockRejectedValue(...)`;
+5. verificar deterministicamente:
+   - `handleAlarm` reconhece o alarme;
+   - `finalizeJob` recebe `(geminiTabId, mangaTabId, true)`;
+   - comportamento decidido para `tabs.remove`;
+   - comportamento decidido para o mapa `extractionTabs`;
+   - logging/telemetria da rejeição, se exigido;
+   - ausência de `unhandled rejection`, se esse for o contrato definido;
+6. manter assertion negativa de que tabs pertencentes a outro Gemini não são removidas;
+7. depois da implementação e do teste externos, reauditar esta Bíblia e somente então considerar `153-001` como `RESOLVED`.
+
+### 13.5 Estado desta reabertura
+
+- ownership atual: **AGENTE 15**;
+- estado do arquivo: **IN_PROGRESS**;
+- `153-001`: **ACCEPTED**, ainda não resolvida;
+- nenhuma alteração foi feita em `jobs-watchdog.js`, no teste #153 ou em qualquer outro objeto externo para fabricar evidência;
+- próxima etapa depende do processo separado de correção/auditoria funcional descrito em `153-001`.
+
