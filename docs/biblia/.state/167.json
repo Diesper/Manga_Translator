@@ -2,10 +2,78 @@
   "index": 167,
   "file": "tests/unit/background/single-image-context-menu.test.js",
   "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 26",
   "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
   "started_at_utc": "2026-09-30T13:25:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T13:40:00Z",
+  "audit_requests": [
+    {
+      "id": "167-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/single-image-context-menu.test.js",
+      "found_while_auditing": "tests/unit/background/single-image-context-menu.test.js",
+      "finding": "singleImageContextMenuSyncVersion protege contra callback tardio de contextMenus.remove, mas o mock atual invoca o callback sincronicamente e não cria a corrida.",
+      "current_evidence": "Criação, clique e desativação sequenciais são provados.",
+      "missing_evidence": "Dois rebuilds concorrentes com callbacks remove retidos; resolver callback antigo após configuração nova e exigir que somente a versão atual possa criar.",
+      "why_needed": "É a razão específica de existir o version gate.",
+      "requested_action": "Adicionar teste determinístico de callback stale/out-of-order.",
+      "expected_evidence": "Configuração antiga não recria item nem patterns antigos após mudança mais nova.",
+      "expected_auditor_action": "Priorizar por risco de configuração obsoleta.",
+      "possible_regression": "Menu pode ressuscitar com allowlist antiga após mudanças rápidas.",
+      "impact": "Isolamento por domínio e estado da preferência.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "167-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/single-image-context-menu.test.js",
+      "found_while_auditing": "tests/unit/background/single-image-context-menu.test.js",
+      "finding": "enabledDomainToMatchPattern faz trim/lowercase/validação e rebuild deduplica patterns; caso atual usa apenas hosts já válidos, lower-case e distintos.",
+      "current_evidence": "Dois domínios válidos produzem os patterns esperados.",
+      "missing_evidence": "Entradas com espaços/maiúsculas, duplicatas e inválidas; todos inválidos devem impedir create. Clique fora da allowlist também deve resultar em zero mensagens.",
+      "why_needed": "Congela saneamento e aplicação da allowlist.",
+      "requested_action": "Adicionar matriz focal de normalização/filtro e domínio não habilitado.",
+      "expected_evidence": "Patterns únicos normalizados; inválidos filtrados; host fora da allowlist bloqueado.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Menu pode aparecer/agir em host incorreto ou falhar por pattern inválido.",
+      "impact": "Escopo de ativação da tradução individual.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "167-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/single-image-context-menu.test.js",
+      "found_while_auditing": "tests/unit/background/single-image-context-menu.test.js",
+      "finding": "Branches de log CREATE_FAILED, DELIVERY_FAILED e REJECTED não possuem assertions focais.",
+      "current_evidence": "Caminho nominal de create e resposta ok:true do content são provados.",
+      "missing_evidence": "create com lastError/throw, sendMessage com lastError e resposta ausente/ok:false+reason; exigir logs e ausência de exceção.",
+      "why_needed": "Garante observabilidade e degradação segura quando APIs/content falham.",
+      "requested_action": "Adicionar casos focais de erro.",
+      "expected_evidence": "Eventos de log corretos com tabId/error/reason quando aplicável.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Falhas podem ficar silenciosas ou propagar exceção do listener.",
+      "impact": "Diagnóstico e robustez de UI.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "173/173",
+    "source_text_lines": 172,
+    "bible_lines": 1477,
+    "external_audit_requests_open": 3,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob em Node 20.x e 22.x; três casos passaram individualmente; global 109/109 suítes e 851/851 testes."
+  }
 }
