@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "125-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_SEMANTICS_REVIEW",
       "target_file": "tests/smoke/smoke-03-chapter-persistence.js",
       "found_while_auditing": "tests/smoke/smoke-03-chapter-persistence.js",
@@ -23,11 +23,15 @@
       "expected_auditor_action": "Revisar a intenção histórica do smoke e alinhar nome, mensagens e prova executável em alteração separada.",
       "possible_regression": "O caminho de cache pode deixar de gerar/reaplicar restore e este smoke ainda passar porque só chama savePageResult diretamente.",
       "impact": "Risco de falso senso de cobertura sobre cache; a persistência direta continua bem coberta.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:35:00Z",
+      "audit_finding": "ACCEPTED. O cenário rotulado como `cache hit gerando restore` chama diretamente `savePageResult` e depois `listRestoreEntries`; não atravessa lookup/hit de cache. A nomenclatura superestima a cobertura local do smoke.",
+      "auditor_recommended_action": "Renomear o cenário para refletir `savePageResult`→restore entry ou adicionar um cenário separado que atravesse um hit real de cache."
     },
     {
       "id": "125-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-03-chapter-persistence.js",
       "found_while_auditing": "tests/smoke/smoke-03-chapter-persistence.js",
@@ -40,7 +44,11 @@
       "expected_auditor_action": "Cruzar a cobertura já existente de storage-manager/smoke-04/E2E e adicionar somente a prova focal que não estiver duplicada.",
       "possible_regression": "Referências quebradas em restoreEntries podem sobreviver às assertions atuais enquanto IDs não vazios continuam presentes.",
       "impact": "Lacuna localizada de integridade referencial; não invalida a prova de sobrevivência das dez páginas.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:35:00Z",
+      "audit_finding": "ACCEPTED. O smoke verifica `assetId` truthy e alguns índices, mas não dereferencia o restore adicional para provar que o asset existe/corresponde, nem fixa `index===15` no quarto cenário. Integridade referencial local fica parcialmente implícita.",
+      "auditor_recommended_action": "Se essa integridade fizer parte do smoke, dereferenciar `assetId` via storage-manager e afirmar o index esperado; evitar duplicar cobertura já existente sem necessidade."
     }
   ],
   "document_quality": {
