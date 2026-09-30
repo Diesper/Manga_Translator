@@ -1,0 +1,11 @@
+{
+  "index": 119,
+  "file": "tests/mocks/chrome-api.mock.js",
+  "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 18",
+  "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+  "started_at_utc": "2026-09-30T06:32:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
