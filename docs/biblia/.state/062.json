@@ -2,10 +2,54 @@
   "index": 62,
   "file": "jest.config.js",
   "bible": "docs/biblia/jest.config.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
   "started_at_utc": "2026-09-30T14:36:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T14:42:00Z",
+  "audit_requests": [
+    {
+      "id": "062-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/ci/run-jest-ci.js",
+      "found_while_auditing": "jest.config.js",
+      "finding": "O runner usa --listTests para validar união/interseção dos projetos, mas não foi localizado self-test que muta testMatch/displayName e prova end-to-end que arquivo perdido, overlap ou projeto renomeado é rejeitado pelo gate.",
+      "current_evidence": "A execução normal do runner compara inventários reais e package.json protege a lista principal de projetos.",
+      "missing_evidence": "Teste negativo da própria infraestrutura de inventário contra drift deliberado em jest.config.js.",
+      "why_needed": "Um bug futuro no algoritmo de inventário/partição pode tornar o gate permissivo sem que as suítes funcionais detectem.",
+      "requested_action": "Adicionar self-test isolado que muta testMatch/displayName em sandbox e exige falha por arquivo ausente/overlap/projeto inválido.",
+      "expected_evidence": "O self-test falha se a partição unit/integration deixar de ser exaustiva e disjunta.",
+      "expected_auditor_action": "Fortalecer o gate de inventário em alteração separada.",
+      "possible_regression": "Testes podem sair silenciosamente da partição executada pela CI.",
+      "impact": "Integralidade do inventário Jest.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "062-002",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "jest.config.js",
+      "found_while_auditing": "jest.config.js",
+      "finding": "Não há prova focal dos setupFilesAfterEnv nos projetos jsdom nem dos boundaries de COVERAGE_MODE/cache/testTimeout; a configuração é consumida, mas essas propriedades podem derivar sem um gate específico.",
+      "current_evidence": "Suítes DOM dependem na prática dos mocks e coverage é executado com COVERAGE_MODE=1 pelo runner.",
+      "missing_evidence": "Casos que validem presença dos mocks por projeto, COVERAGE_MODE estrito e os valores de timeout/cache quando coverage está ativo/inativo.",
+      "why_needed": "Drift de setup pode alterar ambiente de teste; drift de coverage pode reutilizar cache inadequado ou timeout curto.",
+      "requested_action": "Adicionar teste de configuração que carregue jest.config.js sob envs controladas e valide projetos/setup/cache/timeout.",
+      "expected_evidence": "Config exportada corresponde aos ambientes esperados em modo normal e coverage.",
+      "expected_auditor_action": "Cobrir o contrato de configuração sem acoplar desnecessariamente detalhes não críticos.",
+      "possible_regression": "Testes podem rodar com ambiente incompleto ou coverage com configuração divergente.",
+      "impact": "Fidelidade e estabilidade do runner Jest.",
+      "severity": "LOW"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "91/91",
+    "source_text_lines": 90,
+    "external_audit_requests_open": 2,
+    "note": "Config canônico e partição dos oito projetos revalidados; lacunas limitadas a self-tests da infraestrutura/configuração."
+  }
 }
