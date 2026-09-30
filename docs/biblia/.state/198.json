@@ -52,7 +52,7 @@
     },
     {
       "id": "198-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-manga/chapter-id-cache.test.js",
       "found_while_auditing": "tests/unit/content-manga/chapter-id-cache.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Fortalecer apenas se esse detalhe for contratual.",
       "possible_regression": "Mudança na coalescência pode passar despercebida.",
       "impact": "Baixo; eficiência/concorrência do stub.",
-      "severity": "LOW"
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:38:00Z",
+      "audit_finding": "ACCEPTED. O caso chamado de 'reutiliza Promise cacheada' aguarda as duas chamadas e compara apenas IDs resolvidos. Ele não prova identidade da Promise nem que a mesma Promise foi retornada antes do await.",
+      "auditor_recommended_action": "Comparar diretamente as Promises retornadas (`p1 === p2`) antes de await, se identidade da Promise for o contrato; caso contrário, renomear o teste para reutilização de resultado/cache."
     }
   ],
   "document_quality": {
