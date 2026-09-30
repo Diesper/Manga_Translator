@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "174-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/attachment.test.js",
       "found_while_auditing": "tests/unit/content-gemini/attachment.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Priorizar por resiliência a re-render.",
       "possible_regression": "Eventos enviados a nó morto ou upload travado após re-render.",
       "impact": "Confiabilidade do attachment em UI dinâmica.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. Os 12 casos de attachment cobrem retries, Shadow DOM e preview pendente, mas todos mantêm o mesmo editor/composer. A implementação real reconsulta `getEditor`/`getEditorRoot` antes de cada método e produz `reason:'editor_disconnected'` para nó morto; esse contrato não é exercitado.",
+      "auditor_recommended_action": "Adicionar cenário em que editor inicial desconecta entre tentativas e getters passam a devolver novo composer; também cenário sem substituto, verificando onAttempt/editor_disconnected."
     },
     {
       "id": "174-002",
