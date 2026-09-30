@@ -68,7 +68,7 @@
 - [x] 048 — `extension/content/gemini/selectors.js` → `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 049 — `extension/content/gemini/temporary-chat.js` → `docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [x] 050 — `extension/content/inject.js` → `docs/biblia/extension/content/inject.js/Bíblia.md` **✅ AUDITORIA APROVADA**
-- [ ] 051 — `extension/options/options.html` → `docs/biblia/extension/options/options.html/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#D**
+- [x] 051 — `extension/options/options.html` → `docs/biblia/extension/options/options.html/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 052 — `extension/options/options.js` → `docs/biblia/extension/options/options.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#F**
 - [x] 053 — `extension/popup/popup.html` → `docs/biblia/extension/popup/popup.html/Bíblia.md` **✅ AUDITORIA APROVADA**
 - [ ] 054 — `extension/popup/popup.js` → `docs/biblia/extension/popup/popup.js/Bíblia.md` **← EM ANDAMENTO — GPT-5.6-Sol#J**
