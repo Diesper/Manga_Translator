@@ -1,7 +1,7 @@
 # Bíblia técnica — tests/unit/content-manga/close-interval.test.js
 
 > **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA DOCUMENTAL APROVADA  
-> **SHA auditado:** ccbf20485608a223c723adf638860cb7151c8886  
+> **SHA auditado:** e9bcb9c9267176fab8ec8229c66514c21ebbc814  
 > **Agente responsável:** AGENTE 21  
 > **Índice do corpus:** 200  
 > **Tipo:** suíte Jest unitária em JSDOM com implementação espelho local de countdown  
@@ -155,7 +155,7 @@ Se onTick lançar, o cleanup daquele tick não é alcançado. Se onComplete lan�
 7. um novo start após cancel funciona;
 8. assertions do espelho não devem ser promovidas a prova do content_manga.js;
 9. qualquer alegação de equivalência deve ser reconfirmada contra o SHA de produção;
-10. esta Bíblia vale apenas para ccbf20485608a223c723adf638860cb7151c8886.
+10. esta Bíblia vale apenas para e9bcb9c9267176fab8ec8229c66514c21ebbc814.
 
 ## 12. Side effects
 
@@ -482,7 +482,7 @@ Posição vazia do newline LF terminal. Sem comportamento; faz parte do blob exa
 ## 17. Autoauditoria documental
 
 - reserva exclusiva confirmada para **AGENTE 21**;
-- SHA do fonte reconfirmado: **ccbf20485608a223c723adf638860cb7151c8886**;
+- SHA do fonte reconfirmado: **e9bcb9c9267176fab8ec8229c66514c21ebbc814**;
 - fonte integral embutida diretamente do blob;
 - **168 linhas textuais + newline final = 169/169 posições**;
 - produção confrontada: content_manga.js SHA **a8b3698019f6f22027f09f544f15c0563a9f6515**;
