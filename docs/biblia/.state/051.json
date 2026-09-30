@@ -9,19 +9,28 @@
   "audit_requests": [
     {
       "id": "051-001",
-      "status": "OPEN",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/options.ui.test.js",
       "finding": "Faltam cliques focais em Restaurar, autoRestoreEnabled, modo minimized e atualizar/limpar bloqueios.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "SUPERSEDED por 052-001. Ambos pedem exatamente a mesma ampliação de `options.ui.test.js` para Restaurar prompt, toggle global de auto-restore, modo minimized e refresh/clear de bloqueios.",
+      "auditor_recommended_action": "Centralizar a cobertura comportamental no request 052-001.",
+      "superseded_by": "052-001"
     },
     {
       "id": "051-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "ACCESSIBILITY_REVIEW",
       "target_file": "extension/options/options.html",
       "finding": "Grupo de radios não usa fieldset/legend e faltam testes de labels/navegação por teclado.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. Os três radios estão dentro de labels individuais, porém o grupo 'Modo de Execução do Gemini' usa `div` + `h3`, sem `fieldset/legend`. A suíte não possui prova de navegação por teclado/agrupamento acessível do radio group.",
+      "auditor_recommended_action": "Revisar semântica com fieldset/legend ou role/group apropriado e adicionar teste de labels/navegação por teclado."
     }
   ],
   "document_quality": {
