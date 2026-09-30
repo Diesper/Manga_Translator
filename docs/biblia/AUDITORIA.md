@@ -111,6 +111,22 @@ Uma Bíblia é reprovada se qualquer um destes casos ocorrer:
 | 62 | `jest.config.js` | SHA `f0b7c55a5c8c...` reconfirmado; bloco integral exato | 90 linhas + newline final = 91/91 posições; 91 headings sequenciais | `run-jest-ci.js` executa este config via Jest/listTests e prova partição unit/integration; `verify-ci-contract.js` protege provider V8, escopo `extension/**/*.js` e reporters-chave; ambientes/setup/cache/timeout classificados conservadoramente | 8 projetos específicos + cobertura condicional + trust boundary dos mocks + riscos de duas listas nominais, jsdom integrado e threshold externo | ✅ APROVADO |
 | 66 | `.github/workflows/publish.yml` | SHA `f673d445a3cc...` reconfirmado; bloco integral exato | 131 linhas + newline final = 132/132 posições; 24 blocos contíguos com faixas explícitas 1–132, sem lacunas | `verify-publish-contract.js` protege gatilhos/caminhos/ZIP/checksum; `version-sync.test.js` lê o workflow real e prova nomes derivados/anti-hardcode; execução de `gh release`, tag/checkout e races permanece conservadoramente como gap | lifecycle completo da release + trust boundaries de token/ref + montagem ZIP/docs/checksum + três ramos `gh`; riscos de mismatch checkout↔tag, `--clobber`, ausência de gate CI e concorrência registrados | ✅ APROVADO |
 | 68 | `scripts/ci/data/e2e-shard-plan.json` | SHA `22e8c20df9f4...` reconfirmado; bloco integral exato | 45 linhas + newline final = 46/46 posições; 46 headings sequenciais | `verify-e2e-shard-plan.js` executa `playwright --list` real por tag e prova cardinalidade, união exata, ausência de omissões e duplicatas; `verify-ci-contract.js` fixa ids/contagens/workers; `version`, `kind` não operacional e `estimatedSeconds` permanecem gaps explícitos | 5 grupos específicos + fluxo workflow→runner→Playwright + trust boundary CI; riscos de tag↔id, schema/version, workers e benchmark stale documentados | ✅ APROVADO |
+| 70 | `scripts/ci/data/test-baseline.json` | SHA `52a4b3c1500d...` reconfirmado; bloco integral exato | 67 linhas + newline final = 68/68 posições; 68 headings sequenciais; fonte integral conferida | `playwright-gate-reporter-selftest.js` carrega o consumidor real e prova 21 E2E mínimos, zero skipped e zero flaky/retry; Jest/visual/smoke/coverage classificados conservadoramente; `measuredBaseline` sem consumidor automatizado; gaps de anti-enfraquecimento explícitos | 5 blocos de política + thresholds por arquivo; trust boundary da CI, fallbacks fail-open de coverage, divergência documental de `measuredBaseline` e invariantes de não-redução documentados | ✅ APROVADO |
+
+### `test-baseline.json` — auditoria aprovada em 2026-09-30
+
+- SHA `52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e` reconfirmado contra o blob atual;
+- fonte integral conferida e 67 linhas + newline final = 68/68 posições, com 68 headings `Linha N` sequenciais;
+- `playwright-gate-reporter-selftest.js` importa o reporter real, que importa este baseline real, e suas assertions provam diretamente `e2e.minTests = 21`, `e2e.maxSkipped = 0` e `e2e.maxFlaky = 0`;
+- `run-jest-ci.js`, `tests/visual/runner.js`, `tests/smoke/run-smoke.js`, `verify-e2e-shard-plan.js` e `verify-coverage.js` foram tratados como execução real/indireta dos campos que consomem, sem promover uso do valor a assertion anti-redução;
+- `verify-ci-contract.js` valida shape/coerência de mínimos selecionados e relaciona `e2e.minTests` ao plano de shards, mas não congela a maioria dos números exatos;
+- `verify-coverage-selftest.js` usa baseline sintético: prova a mecânica de rejeição de thresholds, não os valores reais 78/71/80/78 nem os cinco mapas críticos deste arquivo;
+- `measuredBaseline` não possui consumidor de código encontrado; isso contrasta com a formulação ampla de `docs/Documentação.md` de que o arquivo inteiro é “contrato, não estatística informativa”;
+- lacunas críticas ficaram explícitas: redução de mínimos sem gate anti-enfraquecimento, remoção de `criticalMinimum` em modo fail-open, thresholds inválidos ignoráveis e ausência de self-tests focais para Jest/visual/smoke.
+
+**Veredito:** ✅ APROVADO.
+
+
 
 ### `temporary-chat.js` — criação e auditoria em 2026-09-29
 
