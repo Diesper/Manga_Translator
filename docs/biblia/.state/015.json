@@ -2,10 +2,20 @@
   "index": 15,
   "file": "extension/background/actions/get-tab-id.js",
   "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
   "started_at_utc": "2026-09-30T11:25:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T11:31:00Z",
+  "audit_requests": [],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "18/18",
+    "source_text_lines": 17,
+    "bible_lines": 135,
+    "external_audit_requests_open": 0,
+    "note": "Durante a posse do AGENTE 17 a Bíblia apareceu por atualização concorrente no branch. O proprietário relê/auditou o artefato existente, confirmou SHA/fonte integral e o aceitou sem sobrescrevê-lo."
+  }
 }
