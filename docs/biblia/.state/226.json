@@ -1,0 +1,11 @@
+{
+  "index": 226,
+  "file": "tests/visual/content-manga-pipeline.visual.js",
+  "bible": "docs/biblia/tests/visual/content-manga-pipeline.visual.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 3",
+  "source_sha": "61bc86351c914a1d9bb6bb4a13168b4567ac3cf9",
+  "started_at_utc": "2026-09-30T15:04:28.429Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
