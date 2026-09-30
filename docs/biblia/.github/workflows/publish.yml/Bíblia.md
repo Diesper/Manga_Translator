@@ -1,8 +1,9 @@
 # Bíblia técnica — .github/workflows/publish.yml
 
-> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
+> **Estado:** 🟠 REAUDITORIA DOCUMENTAL CONCLUÍDA — AGUARDANDO AUDITORIA SEPARADA  
 > **SHA auditado:** f673d445a3cc022d473f9b59ae1e0c8972ecd013  
-> **Agente responsável pela auditoria:** AGENTE 2  
+> **Autor/auditoria histórica:** AGENTE 2  
+> **Reauditoria documental atual:** AGENTE 10  
 > **Tipo:** GitHub Actions workflow de publicação/release  
 > **Linhas textuais:** **131**  
 > **Posições documentais:** **132**, contando o newline final  
@@ -819,3 +820,40 @@ Fonte auditada:
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE quando GitHub interpreta o run; não há parser shell/YAML focal.
 
+
+
+## 13. Reauditoria documental — AGENTE 10 — 2026-09-30
+
+A reauditoria atual releu o fonte, a Bíblia e as evidências relacionadas no branch `docs/project-bible`.
+
+### Integridade reconfirmada
+
+- SHA do fonte reconfirmado: `f673d445a3cc022d473f9b59ae1e0c8972ecd013`;
+- 131 linhas textuais + newline final = **132/132 posições documentais**;
+- o bloco integral em `## 11. Fonte integral` é textualmente idêntico ao fonte atual;
+- `scripts/validation/verify-publish-contract.js` lê o workflow real e exige marcadores específicos de nome, `workflow_dispatch`, `version:check`, `sync-version --print-env`, cópia de `extension/`, ZIP, documentação e `sha256sum`;
+- `tests/unit/background/version-sync.test.js` lê o workflow real e verifica `docs/Documentação.md`, `sync-version.js --print-env`, `${RELEASE_BASENAME}`, `${DOC_ARTIFACT}` e ausência dos hardcodes versionados legados que ele enumera;
+- `scripts/validation/verify-ci-contract.js` exige que a CI execute `npm run validate:publish`;
+- essas evidências são gates estáticos/asserções sobre o texto do workflow; elas **não** provam a execução real dos três ramos do `gh release`, a integridade do ZIP produzido, a igualdade entre checkout e commit da tag, nem coordenação entre runs de publicação.
+
+### Solicitações externas persistidas no estado #066
+
+#### 066-001 — RELEASE_INTEGRITY — HIGH
+
+Em `workflow_dispatch`, o guard de tag só atua quando `GITHUB_REF_TYPE == tag`. Se `RELEASE_TAG` já existir, o workflow pode executar `gh release edit` + `gh release upload --clobber` usando artifacts construídos do `GITHUB_SHA` selecionado manualmente sem provar que esse SHA é o commit da tag. É necessário definir e testar um guard checkout↔tag antes de qualquer clobber.
+
+#### 066-002 — CI_GATING — HIGH
+
+O workflow de publicação possui gatilhos próprios e não exige explicitamente que os checks completos de `MangaTranslator CI` tenham sido aprovados para o commit que será publicado. `npm run version:check` é necessário, mas não substitui unit/integration/smoke/visual/E2E/coverage. É necessário definir um gate de release verificável.
+
+#### 066-003 — CONCURRENCY_CONTROL — NORMAL
+
+O workflow não declara `concurrency`. Dois runs para a mesma `RELEASE_TAG` podem disputar edição/upload e `--clobber` torna o resultado dependente do último escritor. É necessário definir serialização por tag/versão e provar o comportamento de rerun concorrente.
+
+#### 066-004 — TEST_REQUIRED — NORMAL
+
+Não foi localizado harness que execute a lógica shell real do workflow em sandbox e prove: condição tag correta/divergente/branch, montagem do ZIP, checksum, os três ramos de `gh release`, falha parcial, ou idempotência por mesmo commit/tag. Os gates atuais permanecem corretamente classificados como estáticos onde aplicável.
+
+### Gate de conclusão
+
+A autoauditoria documental do AGENTE 10 está aprovada, mas o registro canônico em `docs/biblia/AUDITORIA.md` marca o #066 como **reaberto e não auditado**. Pelas regras do PR #66, o estado não deve ser promovido a `COMPLETED` enquanto essa auditoria separada não for concluída. Nenhum código-fonte, teste, workflow ou configuração funcional foi alterado para fabricar evidência.
