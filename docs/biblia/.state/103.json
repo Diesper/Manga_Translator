@@ -2,10 +2,54 @@
   "index": 103,
   "file": "tests/helpers/load-extension-page.js",
   "bible": "docs/biblia/tests/helpers/load-extension-page.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 11",
   "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
   "started_at_utc": "2026-09-30T06:27:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T06:32:00Z",
+  "audit_requests": [
+    {
+      "id": "103-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/helpers/load-extension-page.test.js",
+      "found_while_auditing": "tests/helpers/load-extension-page.js",
+      "finding": "Não foi localizado teste focal do helper; suas funções internas e branches são exercitados sobretudo de forma indireta por suítes de popup/options/reader.",
+      "current_evidence": "Múltiplas suítes usam loadExtensionPage/flushAsyncTasks com HTML real e fazem assertions funcionais; buscas por stripExternalScripts/getScriptDependencies só retornaram o próprio helper.",
+      "missing_evidence": "Assertions diretas para remoção de scripts externos, ordem/resolução de dependências, alvo ausente, URL/query/hash, restauração de addEventListener, ambos os caminhos fireDOMContentLoaded e drenagem assíncrona.",
+      "why_needed": "Uma regressão no harness pode contaminar muitas suítes ou produzir falso verde sem que exista um teste que localize a falha no helper.",
+      "requested_action": "Adicionar teste focal em ambiente jsdom usando a implementação real e fixtures mínimas/temporárias, sem duplicar a lógica interna.",
+      "expected_evidence": "Assertions sobre DOM final, ordem de requires/efeitos, location, callbacks DOMContentLoaded, restauração do método e avanço de timers.",
+      "expected_auditor_action": "Confirmar a lacuna e criar cobertura separada se a prova focal for exigida.",
+      "possible_regression": "Falha no harness pode aparecer como falha difusa de UI ou, pior, ocultar diferenças do browser real.",
+      "impact": "Confiabilidade de diversas suítes unitárias e de integração.",
+      "severity": "NORMAL"
+    },
+    {
+      "id": "103-002",
+      "status": "OPEN",
+      "type": "HARNESS_SEMANTICS_REVIEW",
+      "target_file": "tests/helpers/load-extension-page.js",
+      "found_while_auditing": "tests/helpers/load-extension-page.js",
+      "finding": "O caminho sintético de DOMContentLoaded chama cada listener diretamente com await, em vez de usar dispatchEvent real.",
+      "current_evidence": "Linhas 50-69 interceptam document.addEventListener, armazenam listeners e executam `await listener(new Event(...))`.",
+      "missing_evidence": "Contrato/testes sobre this do listener, listener-objects com handleEvent, opções once/signal e diferença entre aguardar ou não promises retornadas pelo callback.",
+      "why_needed": "A semântica sintética pode divergir do EventTarget do navegador e fazer um teste se comportar de forma diferente da extensão real.",
+      "requested_action": "Definir a fidelidade necessária; se essas semânticas importarem, ajustar o harness e adicionar regressões em mudança separada; se não, documentar a simplificação como intencional.",
+      "expected_evidence": "Testes comparando o comportamento escolhido com EventTarget/jsdom para os casos suportados.",
+      "expected_auditor_action": "Classificar o risco e registrar decisão de contrato.",
+      "possible_regression": "Novo código de página que dependa de `this`, handleEvent, once/signal ou timing de Promise pode ser testado de forma não representativa.",
+      "impact": "Fidelidade do ambiente de teste de UI.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "86/86",
+    "bible_lines": 1086,
+    "external_audit_requests_open": 2,
+    "note": "Conclusão documental particionada; agregadores globais permaneceram somente leitura para AGENTE 11."
+  }
 }
