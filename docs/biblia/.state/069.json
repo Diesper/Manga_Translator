@@ -23,21 +23,29 @@
     },
     {
       "id": "069-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-ci-contract-selftest.js",
       "finding": "O self-test cobre remoção de marker, mas não todos os ramos negativos de validação.",
       "requested_action": "Adicionar casos negativos focais para as demais regras estruturais.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. O self-test remove apenas um marker obrigatório e prova esse mecanismo, mas não muta os demais ramos estruturais do `verify-ci-contract.js`. Várias regras podem regredir sem self-test negativo próprio.",
+      "auditor_recommended_action": "Adicionar mutation cases focais para os principais ramos estruturais restantes, especialmente gates cuja implementação é regex/textual."
     },
     {
       "id": "069-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "CONTRACT_REVIEW",
       "target_file": "scripts/ci/data/regression-matrix.json",
       "finding": "Campos de metadados não são validados semanticamente e marker textual não equivale sozinho a assertion comportamental.",
       "requested_action": "Decidir quais metadados devem ser contratuais e se o gate deve ganhar validação semântica.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. `regression-matrix.json` possui metadados como id/error/file/markers, mas o gate valida principalmente presença de markers no arquivo alvo. Isso não prova que o marker representa assertion comportamental nem que metadados semânticos permaneçam coerentes.",
+      "auditor_recommended_action": "Definir quais campos são contratuais e validar schema/semântica adicional onde necessário; manter markers classificados como gate estático."
     }
   ],
   "document_quality": {
