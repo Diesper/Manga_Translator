@@ -2,10 +2,37 @@
   "index": 17,
   "file": "extension/background/actions/open-existing-folder.js",
   "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "agent": "AGENTE 17",
   "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
   "started_at_utc": "2026-09-30T12:12:00Z",
-  "completed_at_utc": null,
-  "audit_requests": []
+  "completed_at_utc": "2026-09-30T12:18:00Z",
+  "audit_requests": [
+    {
+      "id": "017-001",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/open-existing-folder-action.test.js",
+      "found_while_auditing": "extension/background/actions/open-existing-folder.js",
+      "finding": "A action não possui validate() e fallbackSearch chama folderPath.replace diretamente; não há teste focal para folderPath ausente/não-string nem safeTitle/anchorId malformados.",
+      "current_evidence": "Há prova direta de anchorId válido, fallback para handleMarkerAndShow, escape de regex e fallback que encontra download existente.",
+      "missing_evidence": "Casos de payload inválido e comportamento esperado antes de efeitos colaterais.",
+      "why_needed": "folderPath inválido pode gerar TypeError e depender do catch genérico do router, sem contrato explícito.",
+      "requested_action": "Adicionar testes parametrizados contra a action real e decidir se payload inválido deve receber INVALID_PAYLOAD em vez de INTERNAL_ERROR.",
+      "expected_evidence": "Comportamento definido/assertado para folderPath, safeTitle e anchorId inválidos.",
+      "expected_auditor_action": "Revisar contrato de payload em alteração separada.",
+      "possible_regression": "Erros de payload podem virar falhas genéricas ou acionar fallback incorreto.",
+      "impact": "Abertura de pasta/histórico de downloads.",
+      "severity": "NORMAL"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "39/39",
+    "source_text_lines": 38,
+    "external_audit_requests_open": 1,
+    "note": "Bíblia concorrente validada; fonte integral normalizada para equivalência física exata."
+  }
 }
