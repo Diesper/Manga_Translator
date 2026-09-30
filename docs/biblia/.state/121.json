@@ -1,0 +1,11 @@
+{
+  "index": 121,
+  "file": "tests/setup/create-test-images.js",
+  "bible": "docs/biblia/tests/setup/create-test-images.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 1",
+  "source_sha": "f35e7896ffb5fea9091876544c8351bbba3c86da",
+  "started_at_utc": "2026-09-30T06:21:25.000Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
