@@ -41,6 +41,23 @@
       "possible_regression": "Backdrops duplicados reaparecem em layouts alternativos.",
       "impact": "Seleção de imagens em Reddit/lightboxes.",
       "severity": "NORMAL"
+    },
+    {
+      "id": "210-003",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+      "found_while_auditing": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+      "finding": "applyImageReplacement sincroniza twins comparando getCleanUrl, mas o teste de sincronização usa exatamente a mesma string de URL nos dois elementos.",
+      "current_evidence": "O caso atual prova sincronização quando backdrop e principal usam https://i.redd.it/page1.png literalmente igual.",
+      "missing_evidence": "Caso com URLs textualmente diferentes que canonicalizem para a mesma clean URL.",
+      "why_needed": "Drift na canonicalização pode quebrar Twin Backdrop Sync sem afetar o caso de igualdade literal.",
+      "requested_action": "Adicionar cenário real com variantes canônicas equivalentes, como URLs Reddit preview/canônica compatíveis ou variantes de resize.",
+      "expected_evidence": "UPDATE_IMAGE sincronizando twin apesar de src literal diferente, porque getCleanUrl converge.",
+      "expected_auditor_action": "Adicionar cobertura focal e cruzar com a política getCleanUrl documentada no #205.",
+      "possible_regression": "Twin backdrop deixa de acompanhar a principal em sites que usam variantes de URL.",
+      "impact": "Consistência visual do replacement.",
+      "severity": "HIGH"
     }
   ],
   "document_quality": {
@@ -48,7 +65,8 @@
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "147/147",
-    "bible_lines": 288,
-    "external_audit_requests_open": 2
+    "bible_lines": 298,
+    "external_audit_requests_open": 3,
+    "reaudit_consistency": true
   }
 }
