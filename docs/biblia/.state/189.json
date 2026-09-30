@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "189-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/temp-chat-activator.test.js",
       "found_while_auditing": "tests/unit/content-gemini/temp-chat-activator.test.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Completar cobertura sem alterar o runtime durante a auditoria documental.",
       "possible_regression": "Estado ativo pode deixar de ser reconhecido em uma variante de UI.",
       "impact": "Ativação verificável do Temporary Chat.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. `isAlreadyActive` reconhece sinais adicionais (`aria-pressed`, `data-state=active`, classes active/selected/checked), enquanto a suíte isola aria-checked, textos/banners e alguns indicadores. Esses sinais restantes não têm casos focais.",
+      "auditor_recommended_action": "Adicionar tabela de sinais ativos suportados, incluindo atributos e classes, com negativos próximos."
     },
     {
       "id": "189-002",
@@ -48,7 +52,7 @@
     },
     {
       "id": "189-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_STRENGTH_REVIEW",
       "target_file": "tests/unit/content-gemini/temp-chat-activator.test.js",
       "found_while_auditing": "tests/unit/content-gemini/temp-chat-activator.test.js",
@@ -61,7 +65,11 @@
       "expected_auditor_action": "Fortalecer cobertura do helper.",
       "possible_regression": "ensureActive pode classificar incorretamente controle não acionável.",
       "impact": "Robustez da ativação.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:52:00Z",
+      "audit_finding": "ACCEPTED. `triggerClick` é provado somente no caminho feliz; não há caso de dispatch/click lançando ou alvo não acionável que fixe retorno false/cleanup.",
+      "auditor_recommended_action": "Adicionar casos com eventos/click lançando e elemento incapaz de receber ação, exigindo retorno/efeitos definidos."
     }
   ],
   "document_quality": {
