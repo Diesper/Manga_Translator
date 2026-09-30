@@ -52,17 +52,16 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **72**
-- ✅ Concluídos auditados: **68**
-- 🟠 Em andamento: **9**
+- ✅ Concluídos auditados: **69**
+- 🟠 Em andamento: **8**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **161**
 - ⬜ Pendentes: **156**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **29,18%**
+- Cobertura realmente aprovada: **29,61%**
 - Cobertura apenas materializada: **30,90%**
-- Último aprovado: `extension/content/gemini/deletion.js`
+- Último aprovado: `extension/content/gemini/editor.js`
 - Arquivos atualmente em andamento:
-  - `#043 extension/content/gemini/editor.js` — `GPT-5.6-Sol#E` — Bíblia: `docs/biblia/extension/content/gemini/editor.js/Bíblia.md`
   - `#046 extension/content/gemini/observer.js` — `GPT-5.6-Sol#H` — Bíblia: `docs/biblia/extension/content/gemini/observer.js/Bíblia.md`
   - `#048 extension/content/gemini/selectors.js` — `GPT-5.6-Sol#C` — Bíblia: `docs/biblia/extension/content/gemini/selectors.js/Bíblia.md`
   - `#051 extension/options/options.html` — `GPT-5.6-Sol#D` — Bíblia: `docs/biblia/extension/options/options.html/Bíblia.md`
@@ -382,7 +381,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 40 | ✅ CONCLUÍDO | `extension/content/gemini/attachment.js` | `50092e4d7d71` | `docs/biblia/extension/content/gemini/attachment.js/Bíblia.md` |
 | 41 | ✅ CONCLUÍDO | `extension/content/gemini/deletion.js` | `2cec17f19e52` | `docs/biblia/extension/content/gemini/deletion.js/Bíblia.md` |
 | 42 | ✅ CONCLUÍDO | `extension/content/gemini/dom.js` | `d3694ea70cdd` | `docs/biblia/extension/content/gemini/dom.js/Bíblia.md` |
-| 43 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#E | `extension/content/gemini/editor.js` | `0adbd4374758` | `docs/biblia/extension/content/gemini/editor.js/Bíblia.md` |
+| 43 | ✅ CONCLUÍDO | `extension/content/gemini/editor.js` | `0adbd4374758` | `docs/biblia/extension/content/gemini/editor.js/Bíblia.md` |
 | 44 | ✅ CONCLUÍDO | `extension/content/gemini/image-quarantine.js` | `ddca93d17ca2` | `docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md` |
 | 45 | ✅ CONCLUÍDO | `extension/content/gemini/job-runner.js` | `1b16fd656e82` | `docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md` |
 | 46 | 🟠 EM ANDAMENTO — GPT-5.6-Sol#H | `extension/content/gemini/observer.js` | `59c5335e1b4f` | `docs/biblia/extension/content/gemini/observer.js/Bíblia.md` |
