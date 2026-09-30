@@ -21,19 +21,27 @@
     },
     {
       "id": "060-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-04-storage-manager.js",
       "finding": "Faltam fault injection de IndexedDB, concorrência save/delete, DB promise rejeitada, Data URL malformada e stats exatos.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. `smoke-04-storage-manager.js` cobre round-trip, overwrite, deleteChapter e migração, mas não fault injection de IndexedDB, rejeição persistente/reabertura da DB promise, concorrência save/delete, Data URL malformada nem stats exatos.",
+      "auditor_recommended_action": "Adicionar fault-injection e concorrência controlada com fake-indexeddb, incluindo transação abortada, open error, Data URL inválida e contagens de stats."
     },
     {
       "id": "060-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "PERFORMANCE_REVIEW",
       "target_file": "extension/shared/storage-manager.js",
       "finding": "_chapterWriters cresce por chapterId e Blob/DataURL pode duplicar picos de memória em páginas grandes.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. `_chapterWriters` guarda uma Promise por chapterId e não remove explicitamente a entrada após conclusão; capítulos distintos acumulam chaves ao longo da vida do worker. Conversões DataURL→Blob e Blob→DataURL também podem coexistir com buffers equivalentes em memória para páginas grandes.",
+      "auditor_recommended_action": "Medir/limitar memória e limpar `_chapterWriters` quando a cauda correspondente concluir; adicionar teste de muitos chapterIds e benchmark/política para páginas grandes."
     }
   ],
   "document_quality": {
