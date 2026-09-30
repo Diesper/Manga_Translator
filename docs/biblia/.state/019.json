@@ -31,7 +31,7 @@
     },
     {
       "id": "019-002",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/refresh-job-watchdog-action.test.js",
       "found_while_auditing": "extension/background/actions/refresh-job-watchdog.js",
@@ -44,7 +44,11 @@
       "expected_auditor_action": "Revisar integrações com jobs-watchdog/tab-identity.",
       "possible_regression": "Renovação pode falhar silenciosamente ou rejeitar ownership legítimo após replacement de aba.",
       "impact": "Recuperação de jobs e prevenção de timeout prematuro.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre owner nominal e mismatch canônico, mas não `armWatchdog` ausente/rejeitando, `ensureInitialized` rejeitando, fallback sem `tabIdentity` nem aliases físicos distintos convergindo ao mesmo canônico. Esses ramos de integração continuam sem prova focal.",
+      "auditor_recommended_action": "Adicionar casos de dependência ausente/rejeição e alias convergente, assertando resposta do router e argumentos finais de armWatchdog."
     }
   ],
   "document_quality": {
