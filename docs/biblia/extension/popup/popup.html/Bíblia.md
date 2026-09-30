@@ -81,6 +81,8 @@ Configurações podem alterar comportamento sensível (debug preserva abas; exec
 
 ## 8. Evidência automatizada lida
 
+`tests/helpers/load-extension-page.js` lê o arquivo HTML real com `fs.readFileSync`, grava esse markup no `document`, descobre os `<script src>` anteriores ao alvo, executa essas dependências em ordem e então `require()` o script real indicado. Portanto, as suites abaixo exercitam a estrutura real deste arquivo em conjunto com o controlador real; o ambiente DOM/Chrome continua mockado, então isso não equivale a um navegador E2E completo.
+
 | Superfície | Evidência lida | Classificação |
 |---|---|---|
 | Manifest / entrada do popup | `manifest.json` aponta `action.default_popup` para `popup/popup.html` | 🟦 GATE ESTÁTICO ESPECÍFICO |
