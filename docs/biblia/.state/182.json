@@ -52,7 +52,7 @@
     },
     {
       "id": "182-003",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/manual-assist-hud.test.js",
       "found_while_auditing": "tests/unit/content-gemini/manual-assist-hud.test.js",
@@ -65,7 +65,11 @@
       "expected_auditor_action": "Completar cobertura.",
       "possible_regression": "Seleção manual não encerra espera automática.",
       "impact": "Fallback manual Gemini.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. A suíte do HUD cobre seleção manual básica, mas não prova entrega ao `observer.acceptResult`, seleção por `event.composedPath()` em ShadowRoot nem substituição/cleanup do handler ao recriar o painel.",
+      "auditor_recommended_action": "Adicionar cenários com observer ativo, imagem dentro de Shadow DOM e recriação do HUD, exigindo acceptResult único e nenhum handler residual."
     }
   ],
   "document_quality": {
