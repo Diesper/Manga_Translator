@@ -211,7 +211,6 @@ Essa ordem é importante porque `finalizeJob` grava marker/accounting durável. 
 
   scope.MangaTranslatorJobsWatchdog = { createWatchdog };
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## Rastreabilidade 110/110
