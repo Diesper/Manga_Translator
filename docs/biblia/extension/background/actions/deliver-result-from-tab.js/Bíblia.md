@@ -211,7 +211,6 @@ O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal
     },
   });
 })(typeof self !== 'undefined' ? self : globalThis);
-
 ~~~
 
 ## 11. Rastreabilidade 104/104
