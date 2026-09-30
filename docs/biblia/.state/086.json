@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "086-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-e2e-shard-plan-selftest.js",
       "found_while_auditing": "scripts/validation/verify-e2e-shard-plan.js",
@@ -23,7 +23,11 @@
       "expected_auditor_action": "Confirmar a lacuna e implementar a suíte apenas em alteração autorizada separada da Bíblia.",
       "possible_regression": "O gate pode deixar de detectar duplicação, omissão ou drift de contagem sem que a CI corrente revele o enfraquecimento.",
       "impact": "Integridade da partição E2E e confiança no gate de 5 shards.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — falta de prova focal confirmada. O verificador executa Playwright real e possui muitos `fail(...)`, mas não existe `verify-e2e-shard-plan-selftest.js` no tree que mutacione plano/relatório para comprovar grupos duplicados, omissões, overlaps, contagens e schema negativos.",
+      "auditor_recommended_action": "Criar self-test em sandbox/mocks controlados ou extrair funções puras para mutation tests dos branches negativos sem duplicar a lógica."
     },
     {
       "id": "086-002",
