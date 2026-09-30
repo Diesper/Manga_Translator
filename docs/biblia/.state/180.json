@@ -1,0 +1,11 @@
+{
+  "index": 180,
+  "file": "tests/unit/content-gemini/image-quarantine.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 17",
+  "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+  "started_at_utc": "2026-09-30T14:45:00Z",
+  "completed_at_utc": null,
+  "audit_requests": []
+}
