@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "112-001",
-      "status": "OPEN",
+      "status": "ACCEPTED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/ipc/image-translation-routing.test.js",
       "found_while_auditing": "tests/integration/ipc/image-translation-routing.test.js",
@@ -22,7 +22,11 @@
       "expected_evidence": "Assertions diretas sobre src/data-translated da hit, ausência do índice hit em START_BATCH e presença exclusiva do índice miss.",
       "possible_regression": "Uma regressão pode reenviar hits ao Gemini ou deixar misses fora do lote sem quebrar os cenários 100% hit/100% miss existentes.",
       "impact": "Cobertura do roteamento híbrido cache + Gemini no content script real.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:45:00Z",
+      "audit_finding": "ACCEPTED. A suíte real cobre 100% miss, 100% hit e filtro de imagem pequena, mas não combina cache hit e miss no mesmo lote real. O branch híbrido precisa provar simultaneamente substituição da hit e START_BATCH contendo somente as misses.",
+      "auditor_recommended_action": "Adicionar cenário com pelo menos duas imagens e resposta GTC parcial, assertando DOM/data-translated da hit e payload START_BATCH exclusivo das misses."
     }
   ]
 }
