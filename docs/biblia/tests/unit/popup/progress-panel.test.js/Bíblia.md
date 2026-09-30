@@ -81,7 +81,7 @@ Com G em queuePosition 6 e A globalmente ativo, o painel mostra `Posição #6`, 
 
 **Cleanup não assertado.** `clearInterval`, remoção de `mt_popup_state`, restauração das tabs e autoclose não são verificados.
 
-**Stop negativo sem cobertura.** O branch `response.ok !== true` mostra toast e não fecha; não há assertion.
+**Stop negativo pode congelar o painel.** O listener executa `clearInterval(pollProgress)` antes de enviar STOP. Se `response.ok !== true`, mostra toast e retorna sem reiniciar o polling; a tradução pode continuar enquanto a UI deixa de atualizar.
 
 **START_TRANSLATION lastError é mascarado.** `sendMessageToTab` trata `chrome.runtime.lastError` especificamente para START_TRANSLATION_FROM_POPUP como callback `{ok:true}` e continua abrindo o painel. O teste não força esse erro; é necessário confirmar se essa política é intencional.
 
@@ -107,15 +107,17 @@ Com G em queuePosition 6 e A globalmente ativo, o painel mostra `Posição #6`, 
 
 **Severidade:** NORMAL.
 
-### 219-003 — TEST_REQUIRED — OPEN
+### 219-003 — BUG_REVIEW — OPEN
 
-**Encontrado:** stop só cobre `ok:true`; o branch de falha deve mostrar toast e manter popup aberto.
+**Encontrado:** stop só cobre `ok:true`. Na implementação real, `clearInterval(pollProgress)` ocorre antes do request; se STOP falhar, o código mostra toast e retorna sem reiniciar o polling.
 
-**Necessário:** responder `ok:false`/undefined e testar toast, ausência de close e interval cleanup conforme contrato.
+**Evidência atual:** popup.js linhas 827–836; não existe teste com `ok:false`/undefined.
 
-**Risco:** usuário pode perder feedback ou popup fechar após cancelamento não efetivado.
+**Necessário:** definir recuperação do polling em falha de cancelamento e adicionar cenário que prove que a UI continua acompanhando o lote se ele permaneceu ativo.
 
-**Severidade:** NORMAL.
+**Risco:** painel congela enquanto a tradução continua em background.
+
+**Severidade:** HIGH.
 
 ### 219-004 — ROBUSTNESS_REVIEW — OPEN
 
