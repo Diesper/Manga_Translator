@@ -35,12 +35,13 @@
     "version:check": "node scripts/release/sync-version.js --check",
     "validate:manifest": "node scripts/validation/validate-manifest.js",
     "lint": "node scripts/validation/check-js-syntax.js",
-    "validate": "npm run version:check && npm run validate:manifest && npm run lint && npm run validate:structure && npm run validate:test-policy && npm run test:test-policy:infra && npm run validate:publish && node scripts/validation/verify-ci-contract.js && npm run test:ci-contract:infra && npm run test:coverage:infra && node scripts/validation/playwright-gate-reporter-selftest.js && node scripts/validation/verify-jest-worker-warning-selftest.js && npm run test:e2e:plan",
+    "validate": "npm run version:check && npm run validate:manifest && npm run lint && npm run validate:structure && npm run test:bible-coordination:infra && npm run validate:test-policy && npm run test:test-policy:infra && npm run validate:publish && node scripts/validation/verify-ci-contract.js && npm run test:ci-contract:infra && npm run test:coverage:infra && node scripts/validation/playwright-gate-reporter-selftest.js && node scripts/validation/verify-jest-worker-warning-selftest.js && npm run test:e2e:plan",
     "validate:structure": "node scripts/validation/verify-repository-structure.js",
     "test:ci-contract:infra": "node scripts/validation/verify-ci-contract-selftest.js",
     "validate:test-policy": "node scripts/validation/verify-test-policy.js",
     "test:test-policy:infra": "node scripts/validation/verify-test-policy-selftest.js",
-    "validate:publish": "node scripts/validation/verify-publish-contract.js"
+    "validate:publish": "node scripts/validation/verify-publish-contract.js",
+    "test:bible-coordination:infra": "node scripts/validation/verify-bible-coordination-selftest.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
