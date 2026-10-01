@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 138,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 58",
+  "file": "tests/unit/background/deliver-result-from-tab-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/deliver-result-from-tab-action.test.js/Bíblia.md",
+  "source_sha": "263cb827e30468c377c5b1eb5863e90bd6cf26b0",
+  "bible_sha": "343af4a3747cb34ee9dc58bb3dc2359696e0bff4",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T20:25:14.573Z"
+}
