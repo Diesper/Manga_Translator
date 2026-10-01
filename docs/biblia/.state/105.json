@@ -2,8 +2,8 @@
   "index": 105,
   "file": "tests/helpers/track-background-delay-timers.js",
   "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
   "started_at_utc": "2026-09-30T06:20:00Z",
   "completed_at_utc": null,
@@ -48,7 +48,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:41:00Z",
+  "updated_at_utc": "2026-10-01T05:47:07Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:41:00Z",
@@ -58,6 +58,15 @@
       "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
       "auditor": "AGENTE 1",
       "reason": "A Bíblia rotula a request 105-001 como OPEN, mas o state canônico atual registra a request como ACCEPTED após auditoria do AGENTE 23."
+    },
+    {
+      "at_utc": "2026-10-01T05:47:07Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "agent": "AGENTE 23",
+      "reason": "Align Bible request lifecycle 105-001 with canonical state ACCEPTED."
     }
   ],
   "evidence": [
