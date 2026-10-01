@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/helpers-and-regressions-real.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 65c66f1a756d127909ed6661386e72c19e3a3a2c
-CLAIMED_AT_UTC: 2026-10-01T21:28:13.904Z
-UPDATED_AT_UTC: 2026-10-01T21:28:13.904Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
