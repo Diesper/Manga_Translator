@@ -43,6 +43,15 @@ describe('load-content-script helper selftest', () => {
     document.documentElement.innerHTML = '<head></head><body></body>';
   });
 
+  test('JSDoc de loadContentScript permanece anexado à função pública', () => {
+    const source = fs.readFileSync(path.join(ROOT, 'tests/helpers/load-content-script.js'), 'utf8');
+    const signature = '*/\nasync function loadContentScript({';
+    const jsdoc = '@returns {Promise<Object>} Helpers { sendMessage, getButton, getMainContent }';
+
+    expect(source).toContain(jsdoc);
+    expect(source.indexOf(jsdoc)).toBeLessThan(source.indexOf(signature));
+    expect(source).toContain(signature);
+  });
   test('deriva o bundle Manga diretamente do manifest atual', () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'extension/manifest.json'), 'utf8')
