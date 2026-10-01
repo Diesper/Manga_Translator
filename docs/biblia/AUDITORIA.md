@@ -1044,3 +1044,16 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #087 / SHA `4c8ce078abcf58f66ded7918650b2f54d9fa40cf`**.
 
+### `verify-publish-contract.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #088 — `scripts/validation/verify-publish-contract.js`.
+- **SHA auditado:** `f5b3f6c69f85f90fe43689de2e44b6ed70cca757`.
+- **Integridade:** **71 linhas textuais + newline final = 72/72 posições**; state, fonte atual e SHA declarado na Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao source.
+- **Papel confirmado:** o CLI protege a existência dos artefatos canônicos de publicação, oito marcadores do workflow, ausência de três paths legados, trigger de tags `v*`, quatro marcadores de `sync-version.js` e ausência de dois paths legados do antigo workspace.
+- **Wiring:** `package.json#validate:publish` aponta para este arquivo; `validate` o inclui; o job `ci-contract` executa `npm run validate:publish`; `verify-ci-contract.js` protege o wiring e marcadores essenciais do verificador.
+- **Request 088-001:** permanece **ACCEPTED** — não existe self-test focal em sandbox/subprocesso que force arquivo ausente, marker removido, path legado, trigger quebrado, agregação de problemas e exit status.
+- **Request 088-002:** permanece **ACCEPTED** — o gate é deliberadamente textual hoje (`includes`/regex); comentários/strings inativas podem satisfazer markers e YAML semanticamente equivalente pode ser rejeitado pela forma textual.
+- **Conclusão:** a Bíblia descreve fielmente o gate atual e seus limites sem promover o caminho verde a prova dos branches negativos.
+
+**Veredito documental independente:** ✅ **APROVADO — #088 / SHA `f5b3f6c69f85f90fe43689de2e44b6ed70cca757`**.
+
