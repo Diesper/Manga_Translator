@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "index": 180,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/content-gemini/image-quarantine.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
+  "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+  "bible_sha": "ec1f513271011f8b9a8b6aab91174d9d93afde3c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-180-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O mapa cobre 140/140 posições, mas as faixas QUA-05..QUA-08 atravessam declarações/setup de cenários diferentes.",
+      "evidence": [
+        "Source linha 94 inicia `test.each` de QUA-05 e QUA-05 termina na linha 105; linha 106 é separador.",
+        "Source linha 107 já declara QUA-06, mas a Bíblia inclui 107 em `93–107 | QUA-05`.",
+        "Bíblia atribui `108–122` a QUA-06, omitindo sua declaração na linha 107 e incluindo a declaração/setup de QUA-07 nas linhas 120–122.",
+        "Bíblia atribui `123–134` a QUA-07, embora QUA-07 comece na linha 120 e QUA-08 já comece na linha 133.",
+        "Bíblia atribui `135–139` a QUA-08, omitindo sua declaração e setup nas linhas 133–134.",
+        "A união matemática permanece completa; o defeito é responsabilidade semântica posição↔cenário."
+      ],
+      "relation_to_primary": "Confirma integralmente 180-PRI-001.",
+      "requested_documentation_fix": "Realinhar as faixas para não cruzarem declarações de testes vizinhos e revalidar o mapa após a correção."
+    },
+    {
+      "id": "A8-180-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 180-001/002/003 como OPEN, mas todas as requests foram SUPERSEDED no state canônico.",
+      "evidence": [
+        "Bíblia §5 usa `OPEN` para 180-001, 180-002 e 180-003.",
+        "`.state/180.json`: 180-001 e 180-002 = SUPERSEDED por 044-001; 180-003 = SUPERSEDED por 044-003.",
+        "`.state/044.json`: 044-001 e 044-003 estão ACCEPTED e cobrem os mesmos gaps de WebCrypto/vetores SHA-256 e branches residuais."
+      ],
+      "relation_to_primary": "Confirma 180-PRI-002.",
+      "requested_documentation_fix": "Marcar as três requests como SUPERSEDED e apontar para 044-001/044-003; não reabrir localmente gaps já centralizados."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "140/140"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:34:11.973Z"
+}
