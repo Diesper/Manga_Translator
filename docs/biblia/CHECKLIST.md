@@ -137,7 +137,7 @@
 - [ ] 133 — `tests/unit/background/calculate-visual-fingerprint-action.test.js` — READY_FOR_AUDIT
 - [ ] 134 — `tests/unit/background/chrome-runtime-mock-lifecycle.test.js` — READY_FOR_AUDIT
 - [ ] 135 — `tests/unit/background/claim-gemini-job-action.test.js` — READY_FOR_AUDIT
-- [ ] 136 — `tests/unit/background/commit-result-action.test.js` — READY_FOR_AUDIT
+- [ ] 136 — `tests/unit/background/commit-result-action.test.js` — CHANGES_REQUIRED
 - [ ] 137 — `tests/unit/background/deliver-result-action.test.js` — READY_FOR_AUDIT
 - [ ] 138 — `tests/unit/background/deliver-result-from-tab-action.test.js` — READY_FOR_AUDIT
 - [ ] 139 — `tests/unit/background/deliver-result-url-action.test.js` — READY_FOR_AUDIT
@@ -234,4 +234,4 @@
 - [ ] 230 — `tests/visual/helpers.js` — READY_FOR_AUDIT
 - [ ] 231 — `tests/visual/integration.visual.js` — READY_FOR_AUDIT
 - [ ] 232 — `tests/visual/run-all.js` — READY_FOR_AUDIT
-- [ ] 233 — `tests/visual/runner.js` — CHANGES_REQUIRED
+- [ ] 233 — `tests/visual/runner.js` — READY_FOR_AUDIT
