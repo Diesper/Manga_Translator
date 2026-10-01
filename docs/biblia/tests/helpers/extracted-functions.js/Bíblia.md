@@ -1,6 +1,6 @@
 # Bíblia técnica — extracted-functions.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `ccbf20485608a223c723adf638860cb7151c8886`  
 > **Agente responsável:** AGENTE 3  
 > **Arquivo:** `tests/helpers/extracted-functions.js`  
@@ -57,15 +57,15 @@ A lógica real correspondente está em `extension/background/actions/open-existi
 
 ## 8. Solicitações ao auditor
 
-### 099-001 — MIRROR_DRIFT — OPEN — HIGH
+### 099-001 — MIRROR_DRIFT — ACCEPTED — HIGH
 
 Migrar vetores de `canonicalTitle` para a implementação real/compartilhada ou criar equivalência explícita. Risco: testes verdes validarem comportamento ausente na extensão.
 
-### 099-002 — TEST_ARCHITECTURE_REVIEW — OPEN
+### 099-002 — TEST_ARCHITECTURE_REVIEW — SUPERSEDED → 191-001
 
 Exercitar `playErrorSound` real ou estabelecer fonte compartilhada/equivalence gate; a factory existe apenas no mirror.
 
-### 099-003 — STALE_HELPER_REVIEW — OPEN
+### 099-003 — STALE_HELPER_REVIEW — ACCEPTED
 
 Confirmar ausência de consumers de `waitForDownload`/`escapeForRegex` e remover/deprecar/documentar os mirrors em alteração separada, pois produção já tem testes reais.
 
@@ -209,3 +209,5 @@ module.exports = {
 ## 11. Conclusão
 
 O helper deve ser tratado como mirror. A auditoria encontrou drift real em `canonicalTitle`; correções externas foram registradas e não fabricadas pelo AGENTE 3.
+
+> **Lifecycle pós-REAUDIT:** 099-001 e 099-003 estão ACCEPTED; 099-002 está SUPERSEDED por `191-001`, que centraliza a dívida de autenticidade de `playErrorSound`.
