@@ -173,6 +173,20 @@ expectPass('coverage V1 passa',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
   write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### Linha 1\nok\n\n### Linha 2\nok'));
 });
+expectPass('coverage Bloco linhas dentro da seção final passa',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  const coverage='### Linhas 90–99 — referência fora do mapa\n\n## Cobertura documental por faixas contíguas\n\n### Bloco 01 — linhas 1–2\nfixture';
+  write(root,s.bible,v2Bible(s.file,s.source_sha,source,coverage));
+});
+expectPass('gaps somente de linhas vazias são estruturais',(root)=>{
+  const s=readJson(root,statePath(1));
+  const source='const a = 1;\n\nconst b = 2;\n';
+  write(root,s.file,source);
+  s.source_sha=gitBlobSha(source);
+  writeJson(root,statePath(1),s);
+  const coverage='## Mapa integral por faixas\n\n| Linhas | Papel |\n|---:|---|\n| 1 | a |\n| 3 | b |\n| posição 4 | newline |';
+  write(root,s.bible,v2Bible(s.file,s.source_sha,source,coverage));
+});
 expectFail('gap falha','gap de cobertura',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
   write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### Posição 2'));
