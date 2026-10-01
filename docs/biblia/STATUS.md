@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **130**
-- CHANGES_REQUIRED: **2**
+- READY_FOR_AUDIT: **132**
+- CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
 - COMPLETED: **101**
 - requests OPEN: **0**
@@ -87,7 +87,7 @@
 | 062 | jest.config.js | COMPLETED | APPROVED | - | f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc | 2 |
 | 063 | package.json | COMPLETED | APPROVED | - | 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48 | 3 |
 | 064 | playwright.config.js | COMPLETED | APPROVED | - | 6a27b774a0009db800a70969eaad18716fb5f565 | 4 |
-| 065 | .github/workflows/ci.yml | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a | 1 |
+| 065 | .github/workflows/ci.yml | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a | 1 |
 | 066 | .github/workflows/publish.yml | COMPLETED | APPROVED | - | f673d445a3cc022d473f9b59ae1e0c8972ecd013 | 5 |
 | 067 | .github/workflows/recover-cancelled-ci.yml | COMPLETED | APPROVED | - | 4809f824f177e93686c11270793eb672aee5952b | 3 |
 | 068 | scripts/ci/data/e2e-shard-plan.json | COMPLETED | APPROVED | - | 22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc | 3 |
@@ -158,7 +158,7 @@
 | 133 | tests/unit/background/calculate-visual-fingerprint-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | f51a0b629ac17be3eda349333192b9480494a07e | 1 |
 | 134 | tests/unit/background/chrome-runtime-mock-lifecycle.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1bd33ea5e027db04ae17bb78810780474a31856e | 0 |
 | 135 | tests/unit/background/claim-gemini-job-action.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 0cb6cb2f100d7493abfdf4038546e8be747289f1 | 2 |
-| 136 | tests/unit/background/commit-result-action.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 1a185784edd118aeee377d7e3f1ed4a9c8375914 | 3 |
+| 136 | tests/unit/background/commit-result-action.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 1a185784edd118aeee377d7e3f1ed4a9c8375914 | 3 |
 | 137 | tests/unit/background/deliver-result-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 654194bf502f3a2c4c21feae64e256bb0ecc49eb | 4 |
 | 138 | tests/unit/background/deliver-result-from-tab-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 263cb827e30468c377c5b1eb5863e90bd6cf26b0 | 4 |
 | 139 | tests/unit/background/deliver-result-url-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 09a0f891434bccf30dbc6e0d244e8f18a40a17d9 | 4 |
