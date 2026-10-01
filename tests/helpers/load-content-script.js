@@ -214,11 +214,11 @@ function attachCleanupError(primaryError, cleanupError) {
         cleanupError
         && primaryError
         && (typeof primaryError === 'object' || typeof primaryError === 'function')
+        && Object.isExtensible(primaryError)
     ) {
-        try {
+        const descriptor = Object.getOwnPropertyDescriptor(primaryError, 'cleanupError');
+        if (!descriptor || descriptor.writable === true) {
             primaryError.cleanupError = cleanupError;
-        } catch (_error) {
-            // O erro primário continua sendo a evidência causal do caminho original.
         }
     }
     return primaryError;
