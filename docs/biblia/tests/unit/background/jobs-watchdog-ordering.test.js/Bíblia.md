@@ -306,3 +306,22 @@ Plano mínimo recomendado:
 - nenhuma alteração foi feita em `jobs-watchdog.js`, no teste #153 ou em qualquer outro objeto externo para fabricar evidência;
 - próxima etapa depende do processo separado de correção/auditoria funcional descrito em `153-001`.
 
+## 14. Execução real após reabertura
+
+**✅ PROVADO DIRETAMENTE POR EXECUÇÃO**
+
+O job `Unit + Integration (20.x)` do GitHub Actions foi reexecutado especificamente após a solicitação do usuário para testar o #153.
+
+Evidência observada:
+
+- workflow run: `36791191322`;
+- workflow job: `110170457309`;
+- ambiente: Node.js 20.x;
+- `tests/unit/background/jobs-watchdog-ordering.test.js`: **PASS**;
+- `WATCHDOG-ORDER-01: aguarda finalizeJob antes de fechar abas auxiliares`: **PASS (11 ms)**;
+- total do Jest: **109/109 test suites passed**;
+- total de testes: **851/851 passed**;
+- inventário executado em 8 projetos Jest.
+
+Limite desta prova: a execução valida o cenário existente de ordenação no caminho de sucesso. Ela **não** adiciona nem executa um cenário em que `finalizeJob` rejeita. Portanto, a solicitação `153-001` permanece **ACCEPTED** e sem resolução funcional.
+
