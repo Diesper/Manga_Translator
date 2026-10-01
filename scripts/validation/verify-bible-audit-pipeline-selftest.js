@@ -95,4 +95,35 @@ if (!blockers.some((item) => item.includes('adversarial obrigatória pendente=1'
 }
 process.stdout.write('PASS adversarial obrigatória no merge readiness\n');
 
+p = resolveAuditPipeline(s, [
+  result(s, 'PRIMARY', 'APPROVED', 'AUDITOR-1', '2026-10-01T12:00:00Z'),
+  result(s, 'ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', '2026-10-01T12:10:00Z'),
+  result(s, 'REAUDIT', 'APPROVED', 'AUDITOR-1', '2026-10-01T12:20:00Z'),
+]);
+if (!p.problems.some((item) => item.includes('REAUDIT deve ser independente'))) {
+  throw new Error('re-auditor igual ao PRIMARY deveria falhar');
+}
+process.stdout.write('PASS independência do REAUDIT\n');
+
+const versioned = { ...s, bible_sha: 'b'.repeat(40) };
+const baseline = {
+  schema_version: 1,
+  bibles: {
+    '001': { bible: versioned.bible, bible_sha: versioned.bible_sha },
+  },
+};
+const legacyV1Primary = { ...result(versioned, 'PRIMARY', 'APPROVED', 'AUDITOR-1', '2026-10-01T12:00:00Z'), bible_sha: null };
+const legacyV1Adversarial = { ...result(versioned, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-2', '2026-10-01T12:10:00Z'), bible_sha: null };
+p = resolveAuditPipeline(versioned, [legacyV1Primary, legacyV1Adversarial], new Map(), { baseline });
+assertEqual('schema v1 continua válido na Bible baseline', p.decision, 'APPROVED');
+
+const changedBible = { ...versioned, bible_sha: 'c'.repeat(40) };
+p = resolveAuditPipeline(changedBible, [legacyV1Primary, legacyV1Adversarial], new Map(), { baseline });
+assertEqual('editar apenas a Bíblia invalida auditorias v1 antigas', p.decision, 'WAITING_PRIMARY');
+
+const currentPrimary = { ...result(changedBible, 'PRIMARY', 'APPROVED', 'AUDITOR-3', '2026-10-01T13:00:00Z'), bible_sha: changedBible.bible_sha };
+const currentAdversarial = { ...result(changedBible, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-4', '2026-10-01T13:10:00Z'), bible_sha: changedBible.bible_sha };
+p = resolveAuditPipeline(changedBible, [legacyV1Primary, legacyV1Adversarial, currentPrimary, currentAdversarial], new Map(), { baseline });
+assertEqual('schema v2 revalida a nova revisão da Bíblia', p.decision, 'APPROVED');
+
 process.stdout.write('Bible audit pipeline self-test: SUCCESS\n');
