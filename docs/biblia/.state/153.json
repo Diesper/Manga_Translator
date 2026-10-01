@@ -40,7 +40,7 @@
       ]
     }
   ],
-  "last_update_utc": "2026-09-30T22:00:00Z",
+  "last_update_utc": "2026-10-01T01:08:06Z",
   "takeover_history": [
     {
       "from_agent": "AGENTE 22",
@@ -51,5 +51,21 @@
     }
   ],
   "reopened_reason": "Continuidade explícita do plano da solicitação 153-001 após takeover autorizado pelo usuário.",
-  "progress_note": "Takeover concluído por AGENTE 15; 153-001 revalidada e plano detalhado registrado na Bíblia. Nenhum objeto externo foi alterado para fabricar evidência."
+  "progress_note": "Takeover concluído por AGENTE 15; 153-001 revalidada e plano detalhado registrado na Bíblia. Nenhum objeto externo foi alterado para fabricar evidência.",
+  "execution_evidence": [
+    {
+      "executed_at_utc": "2026-10-01T01:08:06Z",
+      "workflow_run_id": 36791191322,
+      "workflow_job_id": 110170457309,
+      "environment": "GitHub Actions / Node.js 20.x",
+      "test_file": "tests/unit/background/jobs-watchdog-ordering.test.js",
+      "test_case": "WATCHDOG-ORDER-01: aguarda finalizeJob antes de fechar abas auxiliares",
+      "result": "PASS",
+      "duration_ms": 11,
+      "suite_summary": "109 passed / 109 total",
+      "test_summary": "851 passed / 851 total",
+      "classification": "PROVADO_DIRETAMENTE_POR_EXECUCAO",
+      "limitation": "Esta execução cobre o caminho de sucesso existente. Não cobre finalizeJob rejeitando; 153-001 permanece aberta."
+    }
+  ]
 }
