@@ -99,7 +99,7 @@
 - [x] 095 — `tests/fixtures/gemini-mock-server.js` — COMPLETED
 - [ ] 096 — `tests/fixtures/manga-images.js` — READY_FOR_AUDIT
 - [x] 097 — `tests/fixtures/manga-page.html` — COMPLETED
-- [ ] 098 — `tests/helpers/background-test-utils.js` — READY_FOR_AUDIT
+- [x] 098 — `tests/helpers/background-test-utils.js` — COMPLETED
 - [ ] 099 — `tests/helpers/extracted-functions.js` — READY_FOR_AUDIT
 - [ ] 100 — `tests/helpers/load-background-module.js` — READY_FOR_AUDIT
 - [ ] 101 — `tests/helpers/load-content-gemini-module.js` — READY_FOR_AUDIT
