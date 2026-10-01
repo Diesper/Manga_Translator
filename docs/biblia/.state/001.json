@@ -2,11 +2,11 @@
   "index": 1,
   "file": "extension/manifest.json",
   "bible": "docs/biblia/extension/manifest.json/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
   "source_sha": "841fe70c183350e4110bc8ff57ab69b157169c36",
   "started_at_utc": "2026-09-30T12:50:00Z",
-  "completed_at_utc": "2026-09-30T12:56:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "001-001",
@@ -62,7 +62,15 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T02:28:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T02:28:00Z",
+      "type": "AUDIT_PROTOCOL_RECLASSIFICATION",
+      "from_status": "COMPLETED",
+      "to_status": "READY_FOR_AUDIT",
+      "reason": "Aprovação histórica recuperada não registra SHA explícito vinculável ao source atual; requer auditoria independente sob o registro V2."
+    }
+  ],
   "evidence": []
 }
