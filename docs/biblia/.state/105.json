@@ -2,8 +2,8 @@
   "index": 105,
   "file": "tests/helpers/track-background-delay-timers.js",
   "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
   "started_at_utc": "2026-09-30T06:20:00Z",
   "completed_at_utc": null,
@@ -49,7 +49,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:47:30Z",
+  "updated_at_utc": "2026-10-01T20:04:40.191Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:41:00Z",
@@ -77,6 +77,14 @@
       "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
       "agent": "AGENTE 23",
       "reason": "Reparo documental #105: request 105-001 alinhada ao state canônico ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T20:04:40.191Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "reason": "ADV-105-01: corrigir classificação de evidência para timers 600 ms/18 s."
     }
   ],
   "evidence": [
