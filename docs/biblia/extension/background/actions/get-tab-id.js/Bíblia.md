@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/get-tab-id.js`
 
-> **Estado:** ✅ CRIADO E AUDITADO  
+> **Estado:** 🟡 CORRIGIDO APÓS REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `2f3b26304ac12a671927b1abefc2a914d7eaa372`  
 > **Linhas textuais:** **17**  
 > **Posições documentais:** **18** contando newline final
@@ -31,6 +31,8 @@ A action ignora completamente o request e deriva o id de `context.sender`. Isso 
 
 Ao mesmo tempo, `allowedSources:['any']` significa que o router não restringe a categoria de origem desta action. Cada caller recebe apenas o id de sua própria sender tab quando existe.
 
+O caso sem tab não é apenas teórico: `gtc-runtime-bridge.test.js` atravessa `background.js`/router reais com um sender do próprio runtime (`id === chrome.runtime.id`, `tab:null`). Nesse wiring, a source é classificada como `popup` e a action devolve `tabId:null`.
+
 ## Evidência
 
 | Fonte | Classificação | O que realmente prova |
@@ -39,13 +41,14 @@ Ao mesmo tempo, `allowedSources:['any']` significa que o router não restringe a
 | `tests/unit/background/router.test.js` | 🟨 PROVA DO ROUTER | O router síncrono adiciona `ok:true`; o teste usa uma action registrada inline, não este arquivo real. |
 | `tests/unit/background/routed-actions-legacy.test.js` | ✅ PROVADO NO BACKGROUND INTEGRADO | GET_TAB_ID passa pelo roteador e a compatibilidade remove `ok`, retornando apenas `tabId`. |
 | `tests/unit/background/message-handlers-real.test.js` | ✅ PROVADO NO BACKGROUND INTEGRADO | Um sender de manga recebe seu próprio tabId. |
+| `tests/unit/background/gtc-runtime-bridge.test.js` | ✅ PROVADO NO BACKGROUND INTEGRADO | Carrega `background.js` real e envia `GET_TAB_ID` com runtime mock cujo `sender.tab === null`; recebe exatamente `{tabId:null}`. Como `sender.id === chrome.runtime.id` e não há tab, o router classifica esse caso como source `popup`. |
 | `content_gemini.js` | 🟨 CONSUMIDOR REAL | Usa GET_TAB_ID apenas no fallback legado após claim não suportado. |
 | `content_manga.js` | 🟨 CONSUMIDOR REAL | Usa GET_TAB_ID para atribuir telemetria de áudio à aba leitora. |
 
 ## Lacunas
 
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `context` ausente, `sender` ausente ou sender sem `tab`; o código deve retornar `tabId:null`.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para popup/external source chamando esta action, apesar de `allowedSources:['any']`.
+- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** apenas para `context` inteiramente ausente ou `context.sender` inteiramente ausente. O caso **sender presente com `tab:null`** é provado de forma integrada por `gtc-runtime-bridge.test.js`, que recebe `{tabId:null}`.
+- ✅ **POPUP PROVADO INTEGRADAMENTE:** em `gtc-runtime-bridge.test.js`, o runtime mock fornece `sender.id === chrome.runtime.id` e `tab:null`; `router.js` classifica esse sender sem tab como `popup` e a action real retorna `{tabId:null}`. ⚠️ **External source** continua sem caso focal localizado.
 - ⚠️ Não existe `validate()`, porque o payload não é utilizado.
 - ⚠️ A telemetria `TAB_ID_OBSERVED` é emitida em `background.js`, não nesta action; não deve ser atribuída ao arquivo.
 - ⚠️ O fallback legado do Gemini depende de `GET_TAB_ID`, mas o fluxo principal atual prefere `CLAIM_GEMINI_JOB`.
@@ -132,4 +135,6 @@ Posição editorial para equivalência física.
 - [x] lacunas de sender ausente/source ampla explicitadas;
 - [x] nenhum código funcional alterado.
 
-**Veredito:** ✅ APROVADO para `2f3b26304ac12a671927b1abefc2a914d7eaa372`.
+**Veredito documental da revisão atual:** 🟡 corrigida após REAUDIT; requer nova PRIMARY + ADVERSARIAL vinculadas ao novo `BIBLE_SHA`.
+
+> **Correção pós-REAUDIT:** `sender.tab:null` e source `popup` foram promovidos a evidência integrada real via `gtc-runtime-bridge.test.js`; permanecem como lacunas distintas apenas context/sender totalmente ausentes e source external.
