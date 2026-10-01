@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/resolution-elevation.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** a8ef465959d231766ee41b9397183b7cb6b53e36  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest de elevação de URL de resolução Google CDN  
@@ -55,7 +55,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 
 ## 8. Solicitações ao auditor
 
-### 185-001 — TEST_STRENGTH_REVIEW — OPEN — HIGH
+### 185-001 — TEST_STRENGTH_REVIEW — ACCEPTED — HIGH
 
 Encontrado: o primeiro teste reimplementa elevateUrl dentro do próprio teste em vez de chamar código de produção.
 
@@ -65,7 +65,7 @@ Evidência esperada: a matriz s512/s1024/s2048/query/fragment/non-Google falha s
 
 Risco: espelho local e produção podem divergir mantendo CI verde.
 
-### 185-002 — TEST_REQUIRED — OPEN — NORMAL
+### 185-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: a integração real cobre somente =s1024-rw sem query/hash.
 
@@ -75,7 +75,7 @@ Evidência esperada: preservação correta de query/fragment e ausência de alte
 
 Risco: regex pode remover sufixo demais ou alterar URL indevida sem ser detectada.
 
-### 185-003 — CONTRACT_REVIEW — OPEN — LOW
+### 185-003 — CONTRACT_REVIEW — ACCEPTED — LOW
 
 Encontrado: produção decide domínio com resultUrl.includes('googleusercontent.com'), não valida hostname via URL parser.
 
@@ -2611,3 +2611,5 @@ describe('Elevação de Resolução CDN (=s0) — content_gemini.js', () => {
 ## 11. Conclusão documental
 
 Foram documentadas 314 linhas textuais e a posição 315 do newline final. A integração real prova a elevação s1024-rw→s0; a matriz mais ampla foi corretamente reclassificada como espelho local e gerou solicitações para fortalecer a prova de produção.
+
+> **Lifecycle pós-adversarial:** 185-001, 185-002 e 185-003 estão ACCEPTED em `.state/185.json`; as lacunas técnicas permanecem registradas, mas não são requests OPEN.
