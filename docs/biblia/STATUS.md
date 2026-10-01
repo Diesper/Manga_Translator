@@ -111,7 +111,7 @@
 | 086 | scripts/validation/verify-e2e-shard-plan.js | COMPLETED | APPROVED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
 | 087 | scripts/validation/verify-jest-worker-warning-selftest.js | COMPLETED | APPROVED | - | 4c8ce078abcf58f66ded7918650b2f54d9fa40cf | 1 |
 | 088 | scripts/validation/verify-publish-contract.js | COMPLETED | APPROVED | - | f5b3f6c69f85f90fe43689de2e44b6ed70cca757 | 2 |
-| 089 | scripts/validation/verify-repository-structure.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 04d0337a168e14994bd855a455f11dd61fcabcb6 | 5 |
+| 089 | scripts/validation/verify-repository-structure.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 04d0337a168e14994bd855a455f11dd61fcabcb6 | 5 |
 | 090 | scripts/validation/verify-test-policy-selftest.js | COMPLETED | APPROVED | - | ac0318e4d90c5014180eb3d3a6ac4784cc70a24a | 2 |
 | 091 | scripts/validation/verify-test-policy.js | COMPLETED | APPROVED | - | 4a821403353445023452a0b5055e3a0893beaad2 | 3 |
 | 092 | tests/e2e/cache-and-storage.spec.js | COMPLETED | APPROVED | - | b181989a9b89151ca17cbcbeb7db9342b98c9add | 3 |
@@ -127,7 +127,7 @@
 | 102 | tests/helpers/load-content-script.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0 | 4 |
 | 103 | tests/helpers/load-extension-page.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | c2325598f10b3ef9dd656a4e87db8569748e66b0 | 2 |
 | 104 | tests/helpers/repo-root.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b2520d65820e7b9072602018b0f46609ac967c58 | 1 |
-| 105 | tests/helpers/track-background-delay-timers.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
+| 105 | tests/helpers/track-background-delay-timers.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
 | 106 | tests/integration/banned-images-flow.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
 | 107 | tests/integration/chapter-dedup.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | e62187cd957a2fe241e4e704aaa9f8285e89162e | 3 |
 | 108 | tests/integration/gtc-end-to-end.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
