@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "index": 99,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 9",
+  "file": "tests/helpers/extracted-functions.js",
+  "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
+  "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
+  "bible_sha": "ae41ca769109b40fff187beb597192e5925e1878",
+  "verdict": "APPROVED",
+  "findings": [],
+  "nonblocking_observations": [
+    "state.document_quality.external_audit_requests_open=3 permanece como contador derivado stale; os estados canônicos das requests são 099-001 ACCEPTED, 099-002 SUPERSEDED e 099-003 ACCEPTED."
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_102_DE_102_SEM_GAPS_OVERLAPS",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_ACCEPTED_SUPERSEDED_ACCEPTED",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_9_DIFERENTE_DE_AGENTE_18",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 101,
+    "source_final_newline": true,
+    "documented_positions": "102/102",
+    "embedded_source_exact": true,
+    "production_snapshots": {
+      "extension/content/cm-chapter.js": "44b621d570b6492ef08982ec4e093ffcfe6d24f8",
+      "extension/content/content_manga.js": "a8b3698019f6f22027f09f544f15c0563a9f6515",
+      "extension/background.js": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+      "extension/background/actions/open-existing-folder.js": "59ef82cbf960e360eb404fbd969067f017021607"
+    },
+    "adversarial_checks": [
+      "canonicalTitle do helper remove prefixo textual opcional e sufixo de site; produção cm-chapter remove apenas prefixo numérico e não executa strip de site.",
+      "canonical-title.test.js e canonical-title-full.test.js importam o helper, logo provam apenas o mirror; a Bíblia declara essa limitação e 099-001 ACCEPTED.",
+      "playErrorSound do helper aceita audioCtxFactory ausente na produção; parâmetros de síntese observados permanecem equivalentes e a dívida foi SUPERSEDED por 191-001.",
+      "Busca de consumers localizou imports atuais somente para canonicalTitle e playErrorSound; nenhum import atual do helper usa waitForDownload/escapeForRegex.",
+      "download-wait.test.js executa waitForDownload real do background.js; regex-escape.test.js executa SHOW_EXISTING_FOLDER no background real e verifica filenameRegex.",
+      "chapter-dedup.test.js mantém mirror próprio de canonicalTitle, como documentado."
+    ],
+    "evidence_run": 36577447500,
+    "evidence_run_head_sha": "b6ad13fce47adcab3fcd10281f28848f7b4ce50f",
+    "evidence_run_conclusion": "success",
+    "exact_run_blobs_match_current": [
+      "tests/helpers/extracted-functions.js",
+      "canonical-title.test.js",
+      "canonical-title-full.test.js",
+      "audio-synthesis.test.js",
+      "audio-synthesis-full.test.js",
+      "download-wait.test.js",
+      "regex-escape.test.js"
+    ],
+    "focal_ci_observed": [
+      "Linux Unit + Integration 20.x: 109/109 suites, 851/851 tests; canonical/audio/download/regex suites PASS.",
+      "Windows Portability: 109/109 suites, 851/851 tests; mesmos testes focais PASS."
+    ],
+    "formal_rejection_attempt": "Não sustentada. Os riscos reais de mirror drift, ausência de equivalence gate e exports legados sem consumers estão explicitamente representados e não são promovidos a prova da produção."
+  },
+  "triple_check": {
+    "document_matches_current_source": "SIM",
+    "all_claims_true_and_supported": "SIM",
+    "limitations_honestly_represented": "SIM"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:55:24.114Z"
+}
