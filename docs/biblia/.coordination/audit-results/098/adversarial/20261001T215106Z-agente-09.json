@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "index": 98,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 9",
+  "file": "tests/helpers/background-test-utils.js",
+  "bible": "docs/biblia/tests/helpers/background-test-utils.js/Bíblia.md",
+  "source_sha": "1c38cfc47917f2a42788c467b9dbf58648b73e2b",
+  "bible_sha": "29370494a6794ce4d0240b4ecd525bbce38f06b9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "098-ADV2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INDIRECT_SIDE_EFFECT_SCOPE_OVERSTATEMENT",
+      "finding": "A frase absoluta 'Não abre rede ... não persiste dados' não separa I/O próprio do helper de efeitos indiretos desencadeados por dispatchToBackground ao executar o listener real. Para a API adaptadora, esses efeitos delegados são semanticamente observáveis.",
+      "evidence": [
+        "background-test-utils.js invoca getBackgroundListener(runtimeMock)(request, sender, sendResponse) dentro de dispatchToBackground.",
+        "test_bg59.test.js usa dispatchToBackground(CALCULATE_VISUAL_FINGERPRINT) e exige global.fetch com a URL da imagem.",
+        "plan-missing-handlers-real.test.js usa dispatchToBackground(LOG_ENTRY) e depois observa translatorLog persistido em chrome.storage.local.",
+        "A Bíblia não contém qualificação equivalente a 'efeitos indiretos/delegados'; mantém somente a negação absoluta de rede/persistência."
+      ],
+      "required_change": "Qualificar que o módulo não implementa I/O de rede/persistência próprios, porém dispatchToBackground delega ao listener real e pode provocar fetch, storage, tabs e outros efeitos do handler chamado."
+    },
+    {
+      "id": "098-ADV2-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EXECUTABLE_TEST_CI_WIRING_OMISSION",
+      "finding": "A Bíblia usa nove consumers e a run CI como evidência, mas não documenta o wiring executável que descobre as suítes e as leva ao gate, deixando incompleta a cadeia de dependências/config/workflow da prova.",
+      "evidence": [
+        "package.json define test:ci = node scripts/ci/run-jest-ci.js.",
+        "scripts/ci/run-jest-ci.js usa jest.config.js e inclui o projeto background no inventário de projetos unitários.",
+        "jest.config.js define background com testMatch tests/unit/background/**/*.test.js e setup chrome-api.mock.js.",
+        ".github/workflows/ci.yml executa npm run test:ci nos jobs Unit + Integration 20.x/22.x e Windows Portability.",
+        "Run 36577447500 terminou success; os três jobs citados terminaram success.",
+        "Busca independente confirma exatamente nove imports atuais de background-test-utils.js sob tests/unit/background.",
+        "A Bíblia atual não menciona package.json, run-jest-ci.js, jest.config.js, ci.yml, npm run test:ci ou chrome-api.mock.js."
+      ],
+      "required_change": "Adicionar a cadeia ci.yml → npm run test:ci → package.json → scripts/ci/run-jest-ci.js → jest.config.js#background → tests/unit/background/**/*.test.js + chrome-api.mock.js → nove consumers → helper, distinguindo discovery/configuração das assertions."
+    }
+  ],
+  "nonblocking_observations": [
+    "state.document_quality.external_audit_requests_open=2 está defasado em relação aos dois audit_requests canônicos, ambos ACCEPTED; a decisão de lifecycle deve seguir audit_requests[].status."
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_61_DE_61",
+    "semantics": "CONTRADITO_EFEITOS_INDIRETOS",
+    "dependencies": "CONTRADITO_WIRING_CI_OMITIDO",
+    "consumers": "CONFIRMADO_3X_9",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X_NAS_LACUNAS_EXISTENTES",
+    "audit_requests": "CONFIRMADO_3X_098-001_ACCEPTED_098-002_ACCEPTED",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_9_DIFERENTE_DE_AGENTE_14",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 60,
+    "documented_positions": "61/61",
+    "embedded_source_exact": true,
+    "ci_run": 36577447500,
+    "ci_head_sha": "b6ad13fce47adcab3fcd10281f28848f7b4ce50f",
+    "ci_run_conclusion": "success",
+    "ci_jobs": [
+      "109437162616 Unit + Integration (20.x): success",
+      "109437162754 Unit + Integration (22.x): success",
+      "109437162789 Windows Portability: success"
+    ],
+    "formal_rejection_attempt": "Sustentada em dois blockers independentes: escopo de side effects indiretos e omissão do wiring executável da evidência CI."
+  },
+  "triple_check": {
+    "document_matches_current_source": "SIM",
+    "all_claims_true_and_supported": "NAO — negação absoluta de rede/persistência não qualifica efeitos delegados",
+    "limitations_honestly_represented": "NAO_COMPLETAMENTE — CI é citada sem sua cadeia executável de discovery/configuração"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:51:06.153Z"
+}
