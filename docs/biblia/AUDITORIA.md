@@ -1571,3 +1571,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** ✅ APROVADO
 
+### `load-background-module.js` — auditoria independente SHA-bound pelo AGENTE 6 em 2026-10-01
+
+- **Índice:** #100 — `tests/helpers/load-background-module.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113`.
+- **Integridade:** state, claim, source e Bíblia apontam para o mesmo SHA; a seção `Fonte integral auditada` é byte-a-byte idêntica ao helper atual.
+- **Cobertura:** 120 linhas textuais + LF final = 121 posições; headings `Linha 001` → `Linha 121` completos e sequenciais.
+- **Background real:** o SHA atual de `extension/background.js` é `667c05eb2d7adfca16a79d3e706c39a1e9398b72`, igual ao registrado; os branches `importScripts`/CommonJS, runtimeState, `_finalizedTabs`, logs, lifecycle e wrappers citados existem no source atual.
+- **Consumers:** foram reconfirmados 11 consumers diretos do helper, incluindo `helpers-real.test.js`, `process-finalize-real.test.js`, `performance.test.js` e `test_bg59.test.js`.
+- **Evidência:** `helpers-real` prova `__getState/__setState` e controle de `_logQueue/_logFlushing`; `process-finalize-real` exercita `processNextJob/finalizeJob`; `test_bg59` verifica o `fetch` injetado. Resolução via `createRequire` e isolamento completo permanecem corretamente classificados como indireto/lacuna.
+- **Trust boundaries:** cache CommonJS, globals, ausência de teardown, referências mutáveis e bypass de invariantes estão descritos sem promoção indevida de evidência.
+- **Requests:** 100-001..004 estão `ACCEPTED` no state canônico e permanecem dívida externa não bloqueante; rótulos `OPEN` na Bíblia são snapshot documental conforme o protocolo atual.
+- **Metadata state:** `external_audit_requests_open=4` é derivado stale e será normalizado para 0 na finalização; não é defeito da Bíblia.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; requests/lifecycle canônico=CONFIRMADO_3X; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=SIM; Honestidade=SIM.
+
+**Veredito:** ✅ APROVADO
+
