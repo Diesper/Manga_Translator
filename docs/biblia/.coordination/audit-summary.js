@@ -58,6 +58,9 @@ function main(argv = process.argv.slice(2)) {
     + ' ADVERSARIAL=' + summary.results.adversarial
     + ' REAUDIT=' + summary.results.reaudit);
   console.log('decisions ' + Object.entries(summary.decisions).sort().map(([k,v]) => k + '=' + v).join(' '));
+  if (summary.decision_indices.APPROVED?.length) {
+    console.log('approved_indices=' + summary.decision_indices.APPROVED.map((i) => String(i).padStart(3, '0')).join(','));
+  }
   if (summary.decision_indices.CHANGES_REQUIRED?.length) {
     console.log('changes_required_indices=' + summary.decision_indices.CHANGES_REQUIRED.map((i) => String(i).padStart(3, '0')).join(','));
   }
