@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "index": 222,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 62",
+  "file": "tests/unit/reader/keyboard-nav.test.js",
+  "bible": "docs/biblia/tests/unit/reader/keyboard-nav.test.js/Bíblia.md",
+  "source_sha": "0d64775426e24655f8fedcfaf0c7051b7996b3ff",
+  "bible_sha": "41ed95ecb2b6c8fb985f2ed9e881f25406b6c647",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "222-PRI-001",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "severity": "NORMAL",
+      "location": "Bíblia.md seção 6 — solicitações 222-001/002/003",
+      "problem": "A Bíblia mantém as três solicitações como OPEN, mas o state canônico registra 222-001, 222-002 e 222-003 como ACCEPTED após auditoria.",
+      "evidence": [
+        "docs/biblia/.state/222.json: 222-001.status=ACCEPTED, 222-002.status=ACCEPTED e 222-003.status=ACCEPTED, todas auditadas por AGENTE 23.",
+        "A Bíblia contém `### 222-001 — TEST_REQUIRED — OPEN`, `### 222-002 — TEST_STRENGTH_REVIEW — OPEN` e `### 222-003 — UX_CONTRACT_REVIEW — OPEN`, sem qualquer ocorrência reconciliando os statuses.",
+        "As lacunas técnicas continuam sustentadas pelo source/assertions atuais: fullscreen só usa Promises resolvidas; preventDefault não é assertado para ArrowDown/ArrowUp/Home/End; o listener keydown não filtra target editável."
+      ],
+      "required_change": "Atualizar as três solicitações para ACCEPTED, preservando suas lacunas técnicas e sem fabricar evidência."
+    },
+    {
+      "id": "222-PRI-002",
+      "type": "COVERAGE_MAP_INCOMPLETE_AND_MISBOUND",
+      "severity": "NORMAL",
+      "location": "Bíblia.md seção 8 e autoauditoria",
+      "problem": "A Bíblia declara cobertura posicional 137/137, mas a união matemática das faixas documentadas cobre apenas 132 posições e ainda desloca fronteiras semânticas de testes.",
+      "evidence": [
+        "A união das faixas `1–5, 7–8, 10–15, 17–55, 57–61, 63–82, 83–102, 103–116, 117–125, 126–135, 136, posição 137` cobre 132/137 posições.",
+        "As posições 6, 9, 16, 56 e 62 são linhas vazias reais do source e ficam fora de qualquer faixa, embora a política documental conte posições vazias e o LF final.",
+        "O teste ArrowLeft/ArrowUp ocupa efetivamente 84–103; o mapa usa 83–102 e põe a posição 103 (fechamento desse teste) dentro da faixa `fullscreen` 103–116.",
+        "Fullscreen inicia na posição 105, Home/End na 118 e tecla não mapeada na 127; as faixas incluem separadores/fechamentos como se já pertencessem ao bloco seguinte.",
+        "A fonte integral embutida permanece byte-a-byte exata; o defeito é da cobertura/semântica do mapa."
+      ],
+      "required_change": "Documentar todas as 137 posições, incluindo as linhas vazias, e ajustar as faixas aos limites reais dos blocos sem antecipar contexto."
+    },
+    {
+      "id": "222-PRI-003",
+      "type": "CURRENT_UX_RISK_UNDERSTATED",
+      "severity": "NORMAL",
+      "location": "Bíblia.md seção 222-003 e limites arquiteturais",
+      "problem": "A Bíblia enquadra a interceptação de controles editáveis principalmente como risco para campos futuros, mas o reader real já possui um controle `<input type=\"range\">` que recebe navegação por setas.",
+      "evidence": [
+        "`extension/reader/reader.html` atual contém na linha 65 `<input type=\"range\" id=\"width-slider\" ...>`.",
+        "`extension/reader/reader.js` registra um listener global `document.addEventListener('keydown', ...)` a partir da linha 103, sem guard por `event.target`, `input`, `textarea`, `select` ou `contenteditable`.",
+        "Para ArrowRight/ArrowDown/ArrowLeft/ArrowUp o listener chama `preventDefault()` e executa scroll customizado; portanto a questão de foco em input não é apenas hipotética/futura.",
+        "O próprio setup da suíte carrega reader.html/reader.js reais, mas os testes disparam KeyboardEvent no document e nunca exercitam o slider focado."
+      ],
+      "required_change": "Reformular 222-003 para registrar que já existe um input range real afetável pelo listener global; manter a eventual correção funcional em mudança separada."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:29:44Z"
+}
