@@ -6,10 +6,6 @@ const {
   parseAuditRegistry,
   buildDerived,
 } = require('./bible-coordination');
-const {
-  loadAuditResults,
-  evaluateAuditPipelines,
-} = require('./bible-audit-pipeline');
 
 const root = path.resolve(__dirname, '../..');
 const bibleRoot = path.join(root, 'docs', 'biblia');
@@ -30,19 +26,7 @@ function normalized(s) {
 const states = readStates();
 const auditSource = fs.readFileSync(path.join(bibleRoot, 'AUDITORIA.md'), 'utf8');
 const audits = parseAuditRegistry(auditSource);
-const distributed = loadAuditResults(root, states);
-if (distributed.problems.length) {
-  console.error('Bible audit result store invalid:');
-  for (const problem of distributed.problems) console.error('- ' + problem);
-  process.exit(1);
-}
-const pipelines = evaluateAuditPipelines(states, distributed.records, audits);
-if (pipelines.problems.length) {
-  console.error('Bible audit pipeline invalid:');
-  for (const problem of pipelines.problems) console.error('- ' + problem);
-  process.exit(1);
-}
-const generated = buildDerived(states, audits, 'states-v2', pipelines.byIndex);
+const generated = buildDerived(states, audits, 'states-v2');
 
 const outputs = [
   ['STATUS.md', generated.status],
