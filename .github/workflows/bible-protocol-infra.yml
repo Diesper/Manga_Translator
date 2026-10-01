@@ -28,6 +28,10 @@ on:
       - 'package.json'
       - '.github/workflows/bible-protocol-infra.yml'
 
+concurrency:
+  group: bible-protocol-infra-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   protocol-infra:
     name: Distributed Bible Protocol Infra (${{ matrix.os }})
