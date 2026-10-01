@@ -2,8 +2,8 @@
   "index": 180,
   "file": "tests/unit/content-gemini/image-quarantine.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
   "started_at_utc": "2026-09-30T14:45:00Z",
   "completed_at_utc": null,
@@ -81,7 +81,7 @@
     "embedded_source_exact": true,
     "documented_positions": "140/140",
     "source_text_lines": 139,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Suíte autêntica do módulo real; fallback SHA e classificação DOM têm cobertura forte, WebCrypto permanece sem prova focal."
   },
   "schema_version": 2,
@@ -95,6 +95,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
       "reason": "A8-180-01/02: realinhar QUA-05..08 e sincronizar lifecycle."
+    },
+    {
+      "at_utc": "2026-10-01T18:51:02.979Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+      "bible_sha": "4d291d6e1946b57fb49895d0127860c5e427581c",
+      "reason": "A8-180-01/02 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
