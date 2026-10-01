@@ -2,11 +2,11 @@
   "index": 87,
   "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 10",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
   "started_at_utc": "2026-09-30T06:11:00Z",
-  "completed_at_utc": "2026-09-30T06:14:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "087-001",
@@ -39,5 +39,10 @@
     "bible_lines": 448,
     "external_audit_requests_open": 1,
     "note": "Bíblia concluída sem alterar código, testes, fixtures, workflows, configurações ou arquivos globais."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

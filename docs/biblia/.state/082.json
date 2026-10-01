@@ -2,11 +2,11 @@
   "index": 82,
   "file": "scripts/validation/verify-ci-contract-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 5",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
   "started_at_utc": "2026-09-30T06:08:00Z",
-  "completed_at_utc": "2026-09-30T06:19:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "082-001",
@@ -82,5 +82,10 @@
     "external_audit_requests_open": 3,
     "global_files_modified": false,
     "note": "Concluída segundo o escopo particionado desta execução; AUDITORIA.md/STATUS.md/CHECKLIST.md não foram modificados pelo AGENTE 5."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

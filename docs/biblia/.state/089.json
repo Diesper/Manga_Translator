@@ -2,11 +2,11 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 12",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c4509784d71a0f52dc98e822159ffd6b45b0cd7d",
   "started_at_utc": "2026-09-30T06:14:00Z",
-  "completed_at_utc": "2026-09-30T06:18:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "089-001",
@@ -108,5 +108,10 @@
       "audit_finding": "ACCEPTED. `requirePresent` usa apenas `fs.existsSync`; para entradas cujo tipo é parte do contrato, arquivo e diretório homônimos são indistinguíveis nessa etapa.",
       "auditor_recommended_action": "Definir quais paths exigem file/dir e usar stat/lstat; adicionar fixture substituindo diretório requerido por arquivo."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

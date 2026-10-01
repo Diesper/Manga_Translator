@@ -2,11 +2,11 @@
   "index": 83,
   "file": "scripts/validation/verify-ci-contract.js",
   "bible": "docs/biblia/scripts/validation/verify-ci-contract.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 7",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "636e4bfbaa0646cd8259e1f27f09004a92541294",
   "started_at_utc": "2026-09-30T06:08:00Z",
-  "completed_at_utc": "2026-09-30T06:13:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "083-001",
@@ -63,5 +63,10 @@
     "direct_negative_proofs": 3,
     "external_audit_requests_open": 2,
     "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 86,
   "file": "scripts/validation/verify-e2e-shard-plan.js",
   "bible": "docs/biblia/scripts/validation/verify-e2e-shard-plan.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
   "started_at_utc": "2026-09-30T06:11:43.307Z",
-  "completed_at_utc": "2026-09-30T06:22:11.065Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "086-001",
@@ -81,5 +81,10 @@
     "external_audit_requests_open": 3,
     "evidence_policy": "Prova direta/gate estático/execução indireta/lacuna diferenciados sem promover ocorrência textual a prova.",
     "note": "Bíblia concluída pelo AGENTE 6 no escopo exclusivo do #086; nenhuma alteração funcional externa foi usada para fabricar evidência."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
