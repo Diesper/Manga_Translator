@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "index": 174,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 14",
+  "file": "tests/unit/content-gemini/attachment.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/attachment.test.js/Bíblia.md",
+  "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "174-ADV-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "bible_location": "Bíblia.md seção 11 — Auditoria linha a linha",
+      "finding": "A cobertura cardinal é 406/406 linhas + posição 407 do newline, mas a semântica linha-a-linha não é fiel. A frase `Observa arquivos atribuídos ao input` aparece 146 vezes como campo `Função`, inclusive para `constructor()`, `let api`, `jest.isolateModules`, `writable: true`, armazenamento de attempts, parâmetros de attachFile, criação/append de model-response, addPreview fora do composer e fechamentos estruturais. Essas linhas têm funções distintas e várias existem para setup, stubs, controle de fluxo ou construção de evidência negativa, não para observar arquivos atribuídos ao input.",
+      "required_change": "Reescrever a função/semântica das posições afetadas com descrição específica do que cada linha realmente faz; não basta manter contagem 407/407."
+    },
+    {
+      "id": "174-ADV-002",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_OVERCLAIM",
+      "bible_location": "Bíblia.md:51 — matriz de evidência ATT-07",
+      "finding": "A matriz classifica `método não é repetido no mesmo attach` como diretamente provado por ATT-07. O teste, porém, cria apenas listeners de `paste` e `drop` e só afirma `pasteCount === 1` e `dropCount === 1`; não existe input file nesse cenário nem assertion de unicidade para `file_input`/todos os métodos. A própria seção 3 é mais precisa ao limitar o alcance a paste e drop.",
+      "required_change": "Restringir a matriz ao que ATT-07 realmente afirma/prova (paste e drop no cenário exercitado) ou adicionar prova focal separada para a formulação universal."
+    },
+    {
+      "id": "174-ADV-003",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "bible_location": "Bíblia.md:63, 71, 79 e conclusão",
+      "finding": "A Bíblia apresenta 174-001, 174-002 e 174-003 como OPEN e conclui que há três solicitações OPEN. O state canônico atual registra os três requests como ACCEPTED, com audit_finding e auditor_recommended_action persistidos. As lacunas técnicas continuam reais e estão honestamente descritas; o erro é o lifecycle/status documental stale.",
+      "required_change": "Atualizar os estados das três audit_requests para ACCEPTED sem alterar o conteúdo técnico das lacunas."
+    },
+    {
+      "id": "174-ADV-004",
+      "severity": "NORMAL",
+      "type": "DEPENDENCY_CONSUMER_OMISSION",
+      "bible_location": "Papel arquitetural / Evidência CI",
+      "finding": "A Bíblia identifica os módulos reais carregados pelo spec e cita a execução CI, mas omite a cadeia executável que descobre e roda este teste: package.json#test:ci chama scripts/ci/run-jest-ci.js; esse runner usa jest.config.js; o projeto `content-scripts` seleciona tests/unit/content-gemini/**/*.test.js, usa ambiente jsdom e carrega chrome-api.mock.js/dom-environment.js; o workflow Unit + Integration executa npm run test:ci em Node 20.x/22.x. Esse wiring é relevante para interpretar corretamente a natureza da evidência.",
+      "required_change": "Documentar a cadeia de descoberta/execução Jest e o ambiente/mocks relevantes, distinguindo implementação real carregada pelo teste do harness jsdom e seus setup files."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:29:30Z"
+}
