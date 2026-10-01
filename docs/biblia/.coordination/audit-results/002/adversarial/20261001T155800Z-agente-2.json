@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "index": 2,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 2",
+  "file": "extension/background.js",
+  "bible": "docs/biblia/extension/background.js/Bíblia.md",
+  "source_sha": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "BLOQUEANTE — inventário de consumers da Bíblia é materialmente incompleto e parcialmente mal classificado. Em §3 (linha 33), a Bíblia resume os consumers como “content scripts do leitor/Gemini, popup/actions IPC e suítes Jest”, mas não registra extension/shared/shared-ui.js nem extension/options/options.js. Evidência primária: background.js implementa SM_GET_ASSET (linha 196), SM_LIST_RESTORE (204), SM_GET_PAGE (198), SM_PAGE_INDEX (200) e SM_MIGRATE_CHAPTER (212); shared-ui.js envia SM_LIST_RESTORE via chrome.runtime.sendMessage (linhas 35/47); options/options.js chama SM_GET_ASSET (linha 188) e options.html carrega ../shared/shared-ui.js (linha 100); reader/reader.js chama SM_MIGRATE_CHAPTER, SM_PAGE_INDEX e SM_GET_PAGE (linhas 145–161) e é carregado por reader.html como página da extensão, não como content script. Assim, alguém lendo apenas a Bíblia não recebe a superfície real de consumers do bridge Storage Manager."
+  ],
+  "completed_at_utc": "2026-10-01T15:58:00Z"
+}
