@@ -89,7 +89,7 @@ Ownership e cleanup de listeners storage/runtime/globais cobertos em reinjeção
 
 ## 11. Evidência focal
 
-Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — SHA `43d45452eb664b2a1fe11fae3a97e2a4ff3cc175`.
+Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — SHA `ab21c4a581e2e36496e92b83d9bebc8709d5300d`.
 
 O self-test cobre, entre outros: reentrada, JSDoc, Manifest, DOM fixture, listeners externos síncronos/assíncronos, restore de `addEventListener`, storage/runtime/global ownership, `jest.resetModules`, teardown normal e com erro, cleanup best-effort quando `removeListener` lança, erro primário não extensível com erro secundário de cleanup, falha parcial, bootstrap exception/timeout e semântica de `sendMessage`.
 
