@@ -71,7 +71,7 @@ Logo, este arquivo pertence estruturalmente ao projeto Jest de integração.
 
 ### 3.2 package.json
 
-`package.json` observado no SHA **33e0b91d1a6f1790124b700d2ce331f80d2b7095**:
+`package.json` observado no SHA **51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48**:
 
 - `test:integration` executa Jest com `--selectProjects integration`;
 - `test:ci` executa `scripts/ci/run-jest-ci.js`;
@@ -245,7 +245,7 @@ Estas provas são independentes do #106 e evitam confundir sua simulação com o
 
 ## 11. Solicitações ao auditor
 
-### 106-001 — TEST_REQUIRED — OPEN
+### 106-001 — TEST_REQUIRED — ACCEPTED
 
 - **Arquivo alvo:** `tests/integration/banned-images-flow.test.js`
 - **Encontrado ao auditar:** este arquivo.
@@ -259,7 +259,7 @@ Estas provas são independentes do #106 e evitam confundir sua simulação com o
 - **Impacto:** a regressão que o próprio cabeçalho identifica como BUG #9 + INCONS #2 pode voltar sem ser detectada por esta suíte específica.
 - **Severidade:** HIGH.
 
-### 106-002 — TEST_QUALITY — OPEN
+### 106-002 — TEST_QUALITY — ACCEPTED
 
 - **Arquivo alvo:** `tests/integration/banned-images-flow.test.js`
 - **Encontrado ao auditar:** fidelidade das fixtures/assertions deste arquivo em relação ao comportamento real.
