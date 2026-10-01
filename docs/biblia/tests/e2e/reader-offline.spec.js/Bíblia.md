@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/e2e/reader-offline.spec.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `1ab953d0a031f77cb458befd31650e9ba9c4c052`  
 > **Agente responsável:** AGENTE 16  
 > **Tipo:** Playwright E2E — Chromium persistente + extensão MV3 real + leitor offline  
@@ -296,7 +296,7 @@ O run real demonstra:
 
 ## 10. Solicitações ao auditor
 
-### 093-001 — TEST_SETUP_ROBUSTNESS — OPEN
+### 093-001 — TEST_SETUP_ROBUSTNESS — ACCEPTED
 
 **Encontrado:** `resetExtensionState` considera tanto `tx.oncomplete` quanto `tx.onerror` como resolução bem-sucedida e ainda engole exceções externas com `catch (_e) {}`.
 
@@ -316,7 +316,7 @@ O run real demonstra:
 
 **Severidade:** HIGH.
 
-### 093-002 — TEST_REQUIRED — OPEN
+### 093-002 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** o caso de ordem semeia apenas `chapterList` + `${chapterId}_images` legado. O reader chama migração e índice, mas, se o índice novo não estiver disponível, possui fallback para o mesmo objeto legado.
 
@@ -336,7 +336,7 @@ O run real demonstra:
 
 **Severidade:** HIGH.
 
-### 093-003 — RESOURCE_CLEANUP — OPEN
+### 093-003 — RESOURCE_CLEANUP — ACCEPTED
 
 **Encontrado:** `beforeAll` cria `userDataDir` sob `os.tmpdir()`; `afterAll` fecha o contexto, mas não remove explicitamente o diretório. O módulo `fs` é importado e não utilizado.
 
@@ -1031,4 +1031,4 @@ Fecha o `describe` e documenta explicitamente o newline final. Não há comporta
 - [x] lacunas relevantes persistidas como 3 solicitações ao auditor;
 - [x] nenhum código, teste, fixture, workflow ou configuração externo foi modificado para fabricar evidência.
 
-**Resultado da autoauditoria:** APPROVED para conclusão documental, mantendo as solicitações externas abertas.
+**Resultado da revisão documental:** as lacunas técnicas continuam registradas; 093-001, 093-002 e 093-003 estão ACCEPTED no state canônico e não permanecem OPEN. A revisão atual retorna a READY_FOR_AUDIT.
