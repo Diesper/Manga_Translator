@@ -2,11 +2,11 @@
   "index": 88,
   "file": "scripts/validation/verify-publish-contract.js",
   "bible": "docs/biblia/scripts/validation/verify-publish-contract.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
   "started_at_utc": "2026-09-30T06:13:00Z",
-  "completed_at_utc": "2026-10-01T04:19:39Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "088-001",
@@ -62,7 +62,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:19:39Z",
+  "updated_at_utc": "2026-10-01T19:52:15.811Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:19:39Z",
@@ -72,6 +72,14 @@
       "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou 72/72 posições, fonte integral exata e classificação correta do gate textual e da ausência de self-test focal."
+    },
+    {
+      "at_utc": "2026-10-01T19:52:15.811Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+      "reason": "088-REA2-001/002: lifecycle e reclassificação de wiring estático."
     }
   ],
   "evidence": [
