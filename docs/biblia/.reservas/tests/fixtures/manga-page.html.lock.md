@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/fixtures/manga-page.html
-BÍBLIA: docs/biblia/tests/fixtures/manga-page.html/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 71d78eea7eddb51bc93c74bbb3bf652119551ce4
-CLAIMED_AT_UTC: 2026-10-01T21:35:53.547Z
-UPDATED_AT_UTC: 2026-10-01T21:35:53.547Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
