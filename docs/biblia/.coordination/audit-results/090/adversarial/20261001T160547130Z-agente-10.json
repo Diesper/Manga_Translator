@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "index": 90,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 10",
+  "file": "scripts/validation/verify-test-policy-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-test-policy-selftest.js/Bíblia.md",
+  "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "090-ADV-001",
+      "severity": "BLOCKING",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "finding": "A seção 7 da Bíblia marca 090-001 e 090-002 como OPEN, mas o state canônico registra 090-001=ACCEPTED e 090-002=SUPERSEDED por 083-002.",
+      "evidence": [
+        "Bíblia §7: `090-001 — ... — OPEN` e `090-002 — ... — OPEN`",
+        "state 090: 090-001.status=ACCEPTED",
+        "state 090: 090-002.status=SUPERSEDED e superseded_by=083-002"
+      ],
+      "required_change": "Atualizar a Bíblia para refletir o lifecycle canônico atual e a supersessão de 090-002."
+    },
+    {
+      "id": "090-ADV-002",
+      "severity": "BLOCKING",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "finding": "As linhas documentais 8 e 9 classificam `root = path.resolve(...)` e `verifierRel = scripts/validation/verify-test-policy.js` como GATE ESTÁTICO ESPECÍFICO protegido por verify-ci-contract.js, mas esse gate não verifica esses detalhes internos do self-test.",
+      "evidence": [
+        "Bíblia Linha 8 e Linha 9: `🟦 GATE ESTÁTICO ESPECÍFICO — verify-ci-contract.js protege o wiring/marcador correspondente`",
+        "verify-ci-contract.js lê o self-test e só exige `test.skip`, `--forceExit em script npm` e `teste mascarado com || true` por includes()",
+        "o gate checa package.json e workflow para a entrada do self-test, não o valor de `root` nem `verifierRel` dentro do self-test"
+      ],
+      "required_change": "Rebaixar essas linhas para evidência de execução/sem prova estática específica, ou adicionar gate que realmente verifique os literais/estrutura internos."
+    },
+    {
+      "id": "090-ADV-003",
+      "severity": "BLOCKING",
+      "type": "SEMANTIC_OVERSTATEMENT",
+      "finding": "A Bíblia afirma que cada sandbox é removido em finally e que cleanup ocorre em sucesso e exceção, porém `createSandbox()` é chamado antes do bloco try/finally em expectBaselinePasses() e expectFailure(). Uma exceção durante a própria criação após mkdtemp pode deixar diretório temporário sem cleanup.",
+      "evidence": [
+        "source linha 47: `const sandbox = createSandbox();` antes de `try` na baseline",
+        "source linha 60: `const sandbox = createSandbox();` antes de `try` no helper negativo",
+        "Bíblia §2/§3/Invariant 8 afirma remoção de cada sandbox em finally e cleanup em sucesso e exceção"
+      ],
+      "required_change": "Qualificar a promessa de cleanup ao período após createSandbox retornar com sucesso, ou mover a criação para região protegida que permita cleanup parcial."
+    }
+  ],
+  "confidence": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15",
+  "completed_at_utc": "2026-10-01T16:05:47.130Z"
+}
