@@ -2,8 +2,8 @@
   "index": 115,
   "file": "tests/integration/popup-translated-thumbnails.test.js",
   "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
   "started_at_utc": "2026-09-30T06:35:00Z",
   "completed_at_utc": null,
@@ -62,7 +62,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T13:33:41.887Z",
+  "updated_at_utc": "2026-10-01T13:36:31Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:33:41.887Z",
@@ -72,6 +72,15 @@
       "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
       "auditor": "AGENTE 6",
       "reason": "Falha documental material: requests 115-001 e 115-002 permanecem rotuladas OPEN na Bíblia, enquanto o state canônico registra ambas como ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T13:36:31Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+      "agent": "AGENTE 23",
+      "reason": "Alinhar lifecycle documental 115-001..002 com o state canônico ACCEPTED sem alterar source/testes."
     }
   ],
   "evidence": [
