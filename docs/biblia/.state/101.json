@@ -2,7 +2,7 @@
   "index": 101,
   "file": "tests/helpers/load-content-gemini-module.js",
   "bible": "docs/biblia/tests/helpers/load-content-gemini-module.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
   "started_at_utc": "2026-09-30T06:20:00Z",
@@ -26,7 +26,10 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. O helper carrega dez módulos Gemini em ordem fixa e só invalida `content_gemini.js`; não há teste focal da ordem, paths, cache ou identidade entre cargas sucessivas.",
-      "auditor_recommended_action": "Adicionar teste do helper com inspeção controlada de require.cache/exports, provando módulos obrigatórios, ordem e recarga do bootstrap."
+      "auditor_recommended_action": "Adicionar teste do helper com inspeção controlada de require.cache/exports, provando módulos obrigatórios, ordem e recarga do bootstrap.",
+      "reaudited_by": "AGENTE 7",
+      "reaudited_at_utc": "2026-10-01T05:11:00Z",
+      "reaudit_finding": "Permanece ACCEPTED. Não há teste focal do contrato do helper; a nova auditoria restringe a exigência a dependências realmente necessárias e comportamento de cache, sem assumir que dez módulos sejam exigidos diretamente pelo bootstrap."
     },
     {
       "id": "101-002",
@@ -46,7 +49,10 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. Os dez submódulos permanecem cacheados salvo reset externo do Jest. Como alguns módulos possuem estado/global registries, duas chamadas podem compartilhar estado sem contrato explícito.",
-      "auditor_recommended_action": "Auditar estado dos submódulos e definir política de isolamento; testar quais identities/estados devem persistir ou ser recriados."
+      "auditor_recommended_action": "Auditar estado dos submódulos e definir política de isolamento; testar quais identities/estados devem persistir ou ser recriados.",
+      "reaudited_by": "AGENTE 7",
+      "reaudited_at_utc": "2026-10-01T05:11:00Z",
+      "reaudit_finding": "Permanece ACCEPTED. A preservação do cache dos submódulos foi reconfirmada; impacto de estado interno deve ser demonstrado por teste. A acumulação de side effects do próprio bootstrap foi separada em 101-005."
     },
     {
       "id": "101-003",
@@ -66,7 +72,10 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. `manual-assist-hud.test.js` passa `{skipAutoProcess:true}`, mas `loadContentGeminiModule()` não aceita argumentos; a opção é ignorada. Hoje CommonJS evita autoexec por outro mecanismo.",
-      "auditor_recommended_action": "Remover o argumento enganoso ou implementar opção real; adicionar prova que deixe explícito como auto-process é desativado em testes."
+      "auditor_recommended_action": "Remover o argumento enganoso ou implementar opção real; adicionar prova que deixe explícito como auto-process é desativado em testes.",
+      "reaudited_by": "AGENTE 7",
+      "reaudited_at_utc": "2026-10-01T05:11:00Z",
+      "reaudit_finding": "Permanece ACCEPTED. manual-assist-hud.test.js passa {skipAutoProcess:true}, mas a função não aceita opções; o branch CommonJS de content_gemini.js é quem impede auto-start."
     },
     {
       "id": "101-004",
@@ -86,12 +95,54 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:22:00Z",
       "audit_finding": "ACCEPTED. `rpa-flow.test.js` e `resolution-elevation.test.js` repetem manualmente a sequência de requires do content Gemini em vez de usar `load-content-gemini-module.js`. A duplicação hoje é funcional, mas pode derivar quando novos módulos obrigatórios entrarem.",
-      "auditor_recommended_action": "Decidir se o controle fino desses loaders justifica a duplicação; caso contrário, centralizar a sequência ou ao menos protegê-la por gate anti-drift."
+      "auditor_recommended_action": "Decidir se o controle fino desses loaders justifica a duplicação; caso contrário, centralizar a sequência ou ao menos protegê-la por gate anti-drift.",
+      "reaudited_by": "AGENTE 7",
+      "reaudited_at_utc": "2026-10-01T05:11:00Z",
+      "reaudit_finding": "Permanece ACCEPTED com escopo corrigido: rpa-flow.test.js e resolution-elevation.test.js mantêm loaders paralelos semelhantes, não uma cópia byte-a-byte da sequência (não requerem image-quarantine explicitamente). O risco de drift permanece."
+    },
+    {
+      "id": "101-005",
+      "status": "ACCEPTED",
+      "type": "TEST_ISOLATION_REVIEW",
+      "target_file": "tests/helpers/load-content-gemini-module.js",
+      "found_while_auditing": "tests/helpers/load-content-gemini-module.js",
+      "finding": "Cada chamada invalida e reexecuta content_gemini.js; esse bootstrap registra novamente chrome.storage.onChanged.addListener. O mock de storage preserva _listeners entre beforeEach, e manual-assist-hud.test.js chama o helper repetidamente sem jest.resetModules().",
+      "current_evidence": "content_gemini.js registra o listener no top-level; ChromeStorageMock.clear() limpa somente _store e initChromeMocks() não limpa storageMock._listeners; manual-assist-hud.test.js chama loadContentGeminiModule() em cada beforeEach.",
+      "missing_evidence": "Teste focal de duas cargas que meça a contagem/identidade dos listeners e defina se a acumulação é intencional.",
+      "why_needed": "Listeners duplicados podem executar callbacks múltiplas vezes e contaminar estado/observabilidade entre testes no mesmo worker.",
+      "requested_action": "Definir a política para side effects top-level ao recarregar content_gemini.js; adicionar teste de duas cargas e, se necessário, cleanup/isolamento em mudança funcional separada.",
+      "expected_evidence": "Duas chamadas demonstram deterministicamente a contagem/identidade dos listeners e a ausência de acumulação ou documentam/provam explicitamente a acumulação intencional.",
+      "possible_regression": "Flakiness ou falsos positivos por listeners residuais e callbacks duplicados.",
+      "impact": "Isolamento e determinismo dos testes content-gemini.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 7",
+      "audited_at_utc": "2026-10-01T05:11:00Z",
+      "audit_finding": "ACCEPTED. O cache-busting reexecuta o bootstrap e adiciona novo storage.onChanged listener; o mock não limpa esses listeners entre beforeEach e há consumer que recarrega sem jest.resetModules().",
+      "auditor_recommended_action": "Testar duas cargas e definir cleanup/isolamento explícito para os side effects de bootstrap."
     }
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T05:11:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T05:11:00Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+      "auditor": "AGENTE 7",
+      "reason": "Bíblia superestima dez dependências diretas/ordem do bootstrap, omite side effects de reload com acumulação potencial de storage.onChanged listeners e mantém lifecycle OPEN para requests já ACCEPTED."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 7",
+      "at_utc": "2026-10-01T05:11:00Z",
+      "note": "Passagens 0–15: integridade/cobertura passam; semântica/evidence honesty falham nos findings registrados em AUDITORIA.md."
+    }
+  ]
 }
