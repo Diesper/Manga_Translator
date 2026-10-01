@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "index": 161,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 1",
+  "file": "tests/unit/background/refresh-job-watchdog-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/refresh-job-watchdog-action.test.js/Bíblia.md",
+  "source_sha": "d2acd697b78872400a16bfdac3a4866446d2239f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "PRI-161-01",
+      "type": "EVIDENCE_OVERCLAIM",
+      "severity": "HIGH",
+      "location": "Bíblia.md — seções 4 e 8; fonte linhas 49–54, 71–80",
+      "problem": "A Bíblia classifica como PROVADO DIRETAMENTE que os dados enviados a armWatchdog vêm de state.jobIndex. No cenário WATCHDOG-REFRESH-01, porém, o payload repete exatamente geminiTabId=321, mangaTabId=77 e index=4 presentes no jobIndex. A assertion armWatchdog(77,4,321,'job-1') não distingue a implementação correta de uma regressão que passasse a confiar nos campos do payload.",
+      "evidence": [
+        "O source do teste injeta jobIndex com geminiTabId 321, mangaTabId 77, index 4.",
+        "O mesmo teste envia request com geminiTabId 321, mangaTabId 77, index 4.",
+        "A action atual usa indexed.mangaTabId/index/canonicalIndexed, mas uma mutação para request.mangaTabId/request.index/request.geminiTabId manteria a assertion verde.",
+        "A própria Bíblia afirma em seção 2 que os valores do payload não devem ser confiados, tornando a classificação forte incompatível com a capacidade discriminatória real do teste."
+      ],
+      "required_change": "Rebaixar a classificação/claim ou registrar explicitamente a lacuna; preferencialmente adicionar audit_request para um caso diferencial em alteração separada (payload com sentinelas conflitantes e state canônico), sem modificar o teste durante esta auditoria."
+    },
+    {
+      "id": "PRI-161-02",
+      "type": "EVIDENCE_OVERCLAIM",
+      "severity": "NORMAL",
+      "location": "Bíblia.md — seção 4 / ordem de inicialização",
+      "problem": "A Bíblia diz que WATCHDOG-REFRESH-01 prova diretamente a ordem de inicialização suficiente. A única assertion sobre ensureInitialized é toHaveBeenCalledTimes(1); não há assertion de ordering em relação ao lookup/armWatchdog. Uma regressão que chamasse ensureInitialized depois do armWatchdog poderia continuar satisfazendo essa assertion.",
+      "evidence": [
+        "Linha 79 do teste apenas exige uma chamada de ensureInitialized.",
+        "Não há invocationCallOrder, mock order, estado de dependência condicionado à inicialização ou outra oracle de sequência no arquivo."
+      ],
+      "required_change": "Limitar o claim a 'ensureInitialized é chamado uma vez no caminho feliz' ou registrar/adicionar prova de ordem em alteração de teste separada."
+    },
+    {
+      "id": "PRI-161-03",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "severity": "NORMAL",
+      "location": "Bíblia.md — seção 9 e conclusão",
+      "problem": "A Bíblia marca 161-001, 161-002 e 161-003 como OPEN e conclui referindo-se às solicitações OPEN, mas o state canônico atual registra 161-001 como SUPERSEDED por 019-001 e 161-002/161-003 como ACCEPTED.",
+      "evidence": [
+        ".state/161.json: 161-001=SUPERSEDED (superseded_by 019-001), 161-002=ACCEPTED, 161-003=ACCEPTED.",
+        ".state/019.json: 019-001=ACCEPTED e cobre os guards que supersedem 161-001.",
+        "Bíblia.md seção 9 ainda usa headings OPEN para as três requests."
+      ],
+      "required_change": "Atualizar a Bíblia para refletir os estados canônicos e a ligação 161-001 → 019-001, sem reabrir requests já triadas."
+    },
+    {
+      "id": "PRI-161-04",
+      "type": "LINE_SEMANTICS",
+      "severity": "NORMAL",
+      "location": "Bíblia.md — documentação das linhas 74–76 e 79",
+      "problem": "O mapa linha-a-linha atribui aos campos geminiTabId/mangaTabId/index do payload a função de fixar valores usados/repassados, embora a action real ignore esses três campos e derive os valores do jobIndex; a linha 79 também é descrita como criação/fornecimento da dependência quando é uma assertion de contagem de chamadas.",
+      "evidence": [
+        "refresh-job-watchdog.js referencia request.jobId, mas não request.geminiTabId/request.mangaTabId/request.index.",
+        "Bíblia seção 2 reconhece explicitamente que o sucesso usa valores do índice durável.",
+        "Linha 79 é expect(ensureInitialized).toHaveBeenCalledTimes(1), não criação/injeção da dependência."
+      ],
+      "required_change": "Corrigir a semântica linha-a-linha para distinguir dados decorativos/não consumidos do payload, dados canônicos do state e assertions reais."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T15:51:00Z"
+}
