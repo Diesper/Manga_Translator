@@ -2,8 +2,8 @@
   "index": 181,
   "file": "tests/unit/content-gemini/job-runner.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
   "started_at_utc": "2026-09-30T16:00:00Z",
   "completed_at_utc": null,
@@ -116,7 +116,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T18:50:14.016Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:50:14.016Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+      "reason": "A8-181-01: sincronizar lifecycle documental das quatro audit_requests."
+    }
+  ],
   "evidence": []
 }
