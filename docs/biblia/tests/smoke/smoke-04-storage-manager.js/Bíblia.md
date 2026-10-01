@@ -1,135 +1,131 @@
-# Bíblia técnica — tests/smoke/smoke-04-storage-manager.js
+# Bíblia técnica — `tests/smoke/smoke-04-storage-manager.js`
 
-> **Estado documental:** ✅ CONCLUÍDA PELO AGENTE 7 — consolidação global fora do escopo deste agente  
-> **SHA auditado:** `0ba92d74356cb092a7706dca7d280168cd5c512e`  
-> **Agente responsável:** AGENTE 7  
-> **Tipo:** smoke Node.js do storage-manager com fake IndexedDB  
-> **Linhas textuais:** **122**  
-> **Posições documentais:** **123**, contando o newline final  
+> **Estado documental:** 🟡 CORRIGIDA — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
+> **SHA auditado:** `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`  
+> **Agente da correção:** AGENTE 30  
+> **Tipo:** smoke Node.js do storage-manager real com fake IndexedDB e falhas controladas de chrome.storage  
+> **Linhas textuais:** **256**  
+> **Posições documentais:** **257**, contando o newline terminal  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
 
-`smoke-04-storage-manager.js` é um smoke funcional que executa o `extension/shared/storage-manager.js` real em Node usando `fake-indexeddb`. Ele fornece apenas um mock mínimo de `chrome.storage.local` para a parte de migração, enquanto operações de asset/página/restore passam pelo IndexedDB implementado pelo módulo de produção.
+`smoke-04-storage-manager.js` executa diretamente `extension/shared/storage-manager.js` em Node com `fake-indexeddb`. O arquivo não replica a lógica de persistência: chama a API de produção e usa apenas um mock controlável de `chrome.storage.local`/ `chrome.runtime.lastError` para testar migração, falhas e retry.
 
-A suíte é sequencial e stateful dentro do próprio processo: o resultado de save/overwrite alimenta deleteByCleanUrl, depois o capítulo recebe outra página para deleteChapter, e por fim um capítulo separado exercita migração legada. Uma falha em qualquer `assert` rejeita `run()` e sai com código 1.
+A revisão atual amplia o smoke de happy paths para invariantes de consistência: troca de `cleanUrl`, deleção completa de restore/página/asset, mesma URL em múltiplos capítulos, corrida save/delete sem exigir ordem artificial, migração exata, falha parcial retryable, propagação de `lastError`, recuperação após IndexedDB temporariamente ausente, Data URLs inválidas e contadores de `stats()`.
 
-## 2. Integração com a CI e dependências
+## 2. Integração e dependências
 
-- **Implementação sob teste:** `extension/shared/storage-manager.js` real.
-- **Ambiente IDB:** `fake-indexeddb/auto`.
-- **Chrome mock local:** somente `storage.local.get/set/remove`, com storage em objeto.
-- **Runner:** `tests/smoke/run-smoke.js` descobre automaticamente arquivos `smoke-\d+*.js`, exige o piso do baseline e executa cada arquivo em processo Node separado.
-- **Script npm:** `test:smoke = node tests/smoke/run-smoke.js`; `npm test` inclui `test:smoke`.
-- **Efeito persistente do processo:** apenas memória/fake IndexedDB; o smoke não grava arquivos do repositório.
+- **Implementação exercitada:** `extension/shared/storage-manager.js` real.
+- **IndexedDB:** `fake-indexeddb/auto`; não é mock de métodos internos do storage-manager.
+- **Chrome mock:** `storage.local.get/set/remove` sobre memória com injeção controlada de `runtime.lastError`.
+- **Runner:** `tests/smoke/run-smoke.js` descobre os arquivos `smoke-\d+*.js`, executa processos Node e propaga falha.
+- **Script npm:** `test:smoke = node tests/smoke/run-smoke.js`; `npm test` inclui o smoke.
+- **Isolamento:** cada arquivo smoke executa em processo dedicado; o fake IDB e o mock local não persistem em disco.
 
 ## 3. Sequência funcional
 
-1. round-trip de PNG Data URL para Blob e retorno;
-2. save de página 0 e leitura de asset/page/index;
-3. overwrite da página 0 e coleta do asset antigo;
-4. delete por cleanUrl;
-5. save de página 1 e delete do capítulo;
-6. migração de duas imagens legadas + restore e segunda execução idempotente;
-7. saída 0 no sucesso ou 1 em qualquer rejeição.
+1. round-trip DataURL↔Blob e rejeição de entradas inválidas;
+2. primeira abertura sem IndexedDB, rejeição esperada e retry bem-sucedido após restauração da API;
+3. save/overwrite da mesma página e coleta de asset antigo;
+4. troca de `cleanUrl` com remoção do restore/asset anterior;
+5. `deleteByCleanUrl` provando ausência de restore, página, índice e asset;
+6. mesma `cleanUrl` em dois capítulos, removida integralmente dos dois;
+7. corrida save/delete validada por invariantes finais, não por uma ordem específica;
+8. `deleteChapter` provando página, restore e asset removidos;
+9. migração de duas páginas + restore com contagem/conteúdo exatos e idempotência;
+10. migração parcialmente falha preservando legado/flag para retry;
+11. fault injection de `storage.local.get/remove/set` via `runtime.lastError`, com retries;
+12. `stats()` com deltas exatos de pages/assets/bytes e retorno ao baseline após cleanup.
 
-## 4. Evidência automatizada
+## 4. Evidência automatizada da revisão
 
-| Contrato | Evidência deste arquivo | Classificação |
+| Contrato | Evidência no smoke atual | Classificação |
 |---|---|---|
-| Round-trip DataURL→Blob→DataURL | MIME/tamanho do Blob e igualdade exata da Data URL de retorno | ✅ PROVADO DIRETAMENTE |
-| Save inicial cria asset/página/index coerentes | `savePageResult`, `getAssetBlob`, `getPageAsset`, `getChapterPageIndex` com assertions | ✅ PROVADO DIRETAMENTE |
-| Overwrite cria novo asset e remove antigo | assetId muda; asset antigo `null`; novo asset existe | ✅ PROVADO DIRETAMENTE |
-| Rollback atômico em falha de transaction | nenhuma fault-injection é executada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| deleteByCleanUrl remove restore | deleted >=1 e restoreIndex sem cleanUrl | ✅ PROVADO DIRETAMENTE |
-| deleteByCleanUrl remove também página/asset | não há assertion pós-delete sobre page/asset | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| deleteChapter esvazia capítulo | retorno deleted >0 e pageCount 0 | ✅ PROVADO DIRETAMENTE |
-| Migração marca sucesso, limpa legado e é idempotente | mig1 >=1, flag true, chave images removida, mig2 skipped=true | ✅ PROVADO DIRETAMENTE para essas propriedades |
-| Migração preserva exatamente todos os itens semeados | não compara page index/restore resultante nem quantidade exata | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| Este smoke participa do gate `test:smoke` | `run-smoke.js` descobre `smoke-\d+*.js`, executa cada um e reprova status não-zero; package aponta `test:smoke` ao runner | 🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 EXECUTADO INDIRETAMENTE |
+| DataURL↔Blob preserva conteúdo/MIME | igualdade exata do PNG e Blob válido | ✅ PROVADO DIRETAMENTE |
+| Data URL inválida é rejeitada | `assert.throws` para não-data URL e base64 inválido | ✅ PROVADO DIRETAMENTE |
+| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; segunda chamada abre DB | ✅ PROVADO DIRETAMENTE |
+| overwrite troca asset e coleta anterior | IDs distintos + `getAssetBlob(old) === null` | ✅ PROVADO DIRETAMENTE |
+| troca A→B de `cleanUrl` remove restore/asset de A | restore A ausente, restore B aponta ao novo asset, asset anterior null | ✅ PROVADO DIRETAMENTE |
+| `deleteByCleanUrl` remove restore/página/asset | assertions focais sobre todos os três e índice de página | ✅ PROVADO DIRETAMENTE |
+| mesma cleanUrl em dois capítulos | `deleted === 2` + ausência de restores/pages/assets em ambos | ✅ PROVADO DIRETAMENTE |
+| corrida save/delete mantém consistência | pós-condição exige página e restore sobreviverem/sumirem juntos; asset sobrevivente deve existir | ✅ PROVADO POR INVARIANTE, SEM FIXAR ORDEM |
+| `deleteChapter` limpa página/restore/asset | pageCount 0, restoreIndex vazio, asset null | ✅ PROVADO DIRETAMENTE |
+| migração feliz é completa | `migrated === 2`, índices [0,1], restore/asset presentes, legado removido | ✅ PROVADO DIRETAMENTE |
+| migração parcial não consolida perda | item inválido produz `failed=true`, sem flag e com legado preservado; retry migra 2 | ✅ PROVADO DIRETAMENTE |
+| `runtime.lastError` de get/remove/set é propagado | três `assert.rejects`; remove mantém legado/sem flag; retries concluem | ✅ PROVADO DIRETAMENTE |
+| `stats()` é coerente | pages/assets +1, bytes + tamanho exato; após delete volta ao baseline | ✅ PROVADO DIRETAMENTE |
+| rollback atômico sob abort/error interno de transaction IDB | nenhuma transaction é deliberadamente abortada no meio de put/delete | ⚠️ NÃO PROVADO; permanece centralizado em 060-002 |
+| picos de memória Blob↔DataURL em imagens grandes | smoke usa PNGs mínimos | ⚠️ NÃO PROVADO / requer benchmark ou política separada |
 
-O termo “transações atômicas” do cabeçalho foi interpretado de forma conservadora: o smoke prova consistência após overwrite bem-sucedido, mas atomicidade sob abort/falha exige fault-injection que não existe neste arquivo.
+## 5. Invariantes e casos adversariais
 
-## 5. Invariantes
+1. O teste deve importar o storage-manager real; não deve copiar `savePageResult`, `delete*` ou migração.
+2. Fault injection de Chrome deve existir apenas no mock da fronteira `chrome.storage.local`, deixando IndexedDB realista via fake-indexeddb.
+3. Um overwrite confirmado não pode deixar asset anterior acessível.
+4. Mudar a `cleanUrl` da mesma página não pode deixar restore antigo nem o asset que ele referenciava.
+5. `deleteByCleanUrl` deve remover todos os registros que poderiam ressuscitar a tradução, inclusive em múltiplos capítulos.
+6. Corridas podem ter mais de uma ordem válida; o estado final, porém, nunca pode conter página sem restore correspondente ou restore apontando para asset ausente no cenário exercitado.
+7. Uma falha parcial de migração não pode gravar a flag nem remover o legado necessário para retry.
+8. Falha de cleanup legado não pode gravar a flag; o retry deve permanecer possível.
+9. `runtime.lastError` não pode virar sucesso silencioso.
+10. O smoke não afirma rollback IDB sob abort sem executar fault injection correspondente.
 
-1. O smoke deve continuar importando o storage-manager real, não uma cópia.
-2. O mock de chrome.storage deve permanecer suficiente para a migração sem substituir IndexedDB.
-3. O round-trip PNG precisa preservar MIME e conteúdo exato.
-4. Overwrite da mesma página deve trocar assetId e eliminar o asset anterior no caminho feliz.
-5. Delete por cleanUrl deve invalidar o restore associado; o contrato funcional mais amplo precisa de cobertura de página/asset.
-6. Delete de capítulo deve deixar contagem de páginas zero.
-7. Migração concluída deve marcar flag e segunda execução deve pular.
-8. Qualquer assertion/rejeição precisa resultar em exit code 1 para o runner agregado.
+## 6. Limitações remanescentes
 
-## 6. Casos-limite e análise crítica
+- **Rollback transacional por abort/error interno:** continua sem injeção de falha no meio de uma transaction IndexedDB. O request 126-001 foi **SUPERSEDED por 060-002**, que é o request canônico desse gap.
+- **Memória em payloads grandes:** os PNGs usados são mínimos; este smoke não é benchmark de pico de memória.
+- **Browser real:** fake-indexeddb aproxima a semântica IDB em Node; E2E Chromium continua sendo evidência complementar para diferenças de runtime.
+- **Concorrência:** o cenário save/delete comprova uma pós-condição de consistência para a corrida exercitada; não é prova formal de todas as interleavings possíveis.
 
-- **Atomicidade sem falha:** não há abort/error artificial, então rollback não é provado.
-- **Delete parcial observado:** `deleteByCleanUrl` verifica restore, não page/asset.
-- **Migração permissiva:** `migrated >= 1` aceita migração parcial embora duas páginas e um restore sejam semeados.
-- **Mock Chrome simplificado:** não modela `runtime.lastError`, quotas ou falhas assíncronas de storage.
-- **Stateful por design:** cenários 2–4 compartilham o mesmo capítulo; isso é útil para fluxo, mas reduz isolamento diagnóstico se uma etapa anterior deixar estado inesperado.
-- **Sem cleanup explícito do fake IDB:** o processo dedicado do runner encerra após o smoke, evitando contaminação entre arquivos de smoke.
+## 7. Lifecycle das solicitações de auditoria
 
-## 7. Solicitações ao auditor
+### 126-001 — TEST_REQUIRED — SUPERSEDED por 060-002
 
-### 126-001 — TEST_REQUIRED — OPEN
-- **Encontrado:** O cenário rotulado como `transações atômicas` prova overwrite bem-sucedido e remoção do asset substituído, mas não injeta falha/abort em uma transaction IndexedDB para comprovar rollback atômico.
-- **Arquivo relacionado:** `tests/smoke/smoke-04-storage-manager.js`
-- **Evidência atual:** Duas chamadas reais de savePageResult para a mesma página produzem assetIds distintos; após a segunda, o asset antigo é null e o novo existe.
-- **Evidência ausente:** Falha proposital durante put/delete/commit e assertion de que estado anterior permanece íntegro sem registros/asset parcialmente escritos.
-- **Por que é necessário:** Atomicidade forte é propriedade de falha, não apenas do caminho feliz; uma regressão no tratamento de abort pode continuar passando neste smoke.
-- **Ação solicitada:** Adicionar fault-injection em alteração separada contra fake-indexeddb/transaction real ou camada controlável equivalente, fazendo uma operação intermediária falhar e verificando rollback completo.
-- **Evidência esperada:** Após falha induzida, page index, restore e assets devem permanecer no estado consistente anterior e a Promise deve rejeitar.
-- **Ação esperada do auditor:** Confirmar se o contrato exige rollback explícito e implementar cobertura sem modificar storage-manager apenas para fabricar a prova.
-- **Regressão possível:** Falha de IndexedDB pode deixar página, restore e asset divergentes apesar de o overwrite normal continuar verde.
-- **Impacto:** Integridade persistente em falhas; caminho feliz atual continua diretamente provado.
-- **Severidade:** NORMAL
+O gap de rollback atômico por falha/abort continua real, mas não é mais uma request independente desta unidade. O state canônico marca 126-001 como `SUPERSEDED` e aponta `superseded_by: 060-002`. Esta Bíblia não o conta como OPEN nem como resolvido artificialmente.
 
-### 126-002 — TEST_REQUIRED — OPEN
-- **Encontrado:** O cenário `deleteByCleanUrl` verifica contagem deletada e ausência do restore, mas não verifica diretamente que a página correspondente e seu asset também foram removidos.
-- **Arquivo relacionado:** `tests/smoke/smoke-04-storage-manager.js`
-- **Evidência atual:** Após deleteByCleanUrl(cleanUrl), o teste exige `deleted >= 1` e `restoreIndex[cleanUrl]` ausente.
-- **Evidência ausente:** Assertions sobre `getPageAsset(chapterId, 0)`/page index e `getAssetBlob(save2.assetId)` após a deleção, além de caso da mesma cleanUrl em mais de um capítulo.
-- **Por que é necessário:** O contrato funcional de refazer exige remover tudo que poderia restaurar a tradução antiga; remover apenas restore não seria suficiente.
-- **Ação solicitada:** Ampliar o smoke ou criar teste focal que capture o assetId antes da deleção e prove ausência de restore, página e asset após deleteByCleanUrl, incluindo multi-capítulo se esse contrato permanecer.
-- **Evidência esperada:** Restore ausente, page/asset inacessíveis e deleted coerente após execução real.
-- **Ação esperada do auditor:** Validar a semântica esperada e adicionar assertions sobre todos os registros afetados.
-- **Regressão possível:** Asset/página órfãos podem acumular ou reaparecer por caminhos que não dependem apenas do restoreIndex.
-- **Impacto:** Cleanup de refazer e uso de quota do IndexedDB.
-- **Severidade:** NORMAL
+### 126-002 — TEST_REQUIRED — CORRIGIDO NESTA REVISÃO
 
-### 126-003 — TEST_REQUIRED — OPEN
-- **Encontrado:** A migração semeia duas páginas legadas e um restore, mas aceita `mig1.migrated >= 1` e não verifica o conteúdo migrado. Assim, uma migração parcial de apenas parte dos dados ainda satisfaria as assertions atuais.
-- **Arquivo relacionado:** `tests/smoke/smoke-04-storage-manager.js`
-- **Evidência atual:** A suíte prova `skipped=false`, migrated >=1, flag `_sm_migrated_*` true, remoção de `<chapter>_images` e segunda execução `skipped=true`.
-- **Evidência ausente:** Contagem/conteúdo exatos das duas páginas e restore após migração e comportamento quando uma das gravações internas falha.
-- **Por que é necessário:** A implementação pode marcar a migração como concluída e limpar legado mesmo se apenas parte dos itens for migrada; a assertion `>=1` não detecta perda parcial.
-- **Ação solicitada:** Adicionar assertions exatas do page index/restore e cenário de falha parcial antes de aceitar flag/cleanup como seguros.
-- **Evidência esperada:** Todos os itens semeados aparecem no storage novo antes da limpeza; em falha parcial, dados legados necessários não são perdidos conforme o contrato decidido.
-- **Ação esperada do auditor:** Revisar a política de falha parcial e criar cobertura separada.
-- **Regressão possível:** Perda silenciosa de páginas/restores legados durante migração enquanto o smoke permanece verde.
-- **Impacto:** Confiabilidade da migração de instalações antigas.
-- **Severidade:** NORMAL
+A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` adiciona prova focal de `deleteByCleanUrl` sobre restore, página, índice e asset, além do caso da mesma cleanUrl em dois capítulos. A request pode ser marcada `RESOLVED` no state com essa evidência, sujeita à nova auditoria independente da revisão.
+
+### 126-003 — TEST_REQUIRED — CORRIGIDO NESTA REVISÃO
+
+A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` troca `migrated >= 1` por `migrated === 2`, valida índices/restores/assets e adiciona falha parcial seguida de retry. A request pode ser marcada `RESOLVED` no state com essa evidência, sujeita à nova auditoria independente da revisão.
 
 ## 8. Fonte integral exata
 
-O bloco abaixo reproduz integralmente o blob `0ba92d74356cb092a7706dca7d280168cd5c512e`. O arquivo possui newline terminal.
+O bloco abaixo reproduz integralmente o blob `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`. O arquivo possui newline terminal.
 
 ```javascript
 /**
  * smoke-04-storage-manager.js
- * Cobre: Transações atômicas, round-trip Blob↔DataURL, assets órfãos,
- * deleteByCleanUrl, deleteChapter, migração idempotente.
+ * Cobre: persistência/cleanup, round-trip Blob↔DataURL, concorrência,
+ * migração/retry e falhas controladas de chrome.storage.local.
  */
 'use strict';
 
 const assert = require('assert');
 require('fake-indexeddb/auto');
 
-// Mock mínimo do chrome.storage.local para testes do storage-manager
+// Mock controlável do chrome.storage.local para happy path + runtime.lastError.
 const localStore = {};
+let forcedLocalError = null;
+
+function invokeStorageCallback(kind, cb, value) {
+    const previousError = global.chrome.runtime.lastError;
+    global.chrome.runtime.lastError = forcedLocalError === kind
+        ? { message: `forced storage ${kind} failure` }
+        : null;
+    try {
+        if (cb) cb(value);
+    } finally {
+        global.chrome.runtime.lastError = previousError;
+    }
+}
+
 global.chrome = {
+    runtime: { lastError: null },
     storage: {
         local: {
             get: (keys, cb) => {
@@ -137,18 +133,18 @@ global.chrome = {
                 if (typeof keys === 'string') res[keys] = localStore[keys];
                 else if (Array.isArray(keys)) keys.forEach(k => { if (k in localStore) res[k] = localStore[k]; });
                 else if (keys === null) Object.assign(res, localStore);
-                if (cb) cb(res);
+                invokeStorageCallback('get', cb, res);
                 return Promise.resolve(res);
             },
             set: (items, cb) => {
-                Object.assign(localStore, items);
-                if (cb) cb();
+                if (forcedLocalError !== 'set') Object.assign(localStore, items);
+                invokeStorageCallback('set', cb);
                 return Promise.resolve();
             },
             remove: (keys, cb) => {
                 const arr = Array.isArray(keys) ? keys : [keys];
-                arr.forEach(k => delete localStore[k]);
-                if (cb) cb();
+                if (forcedLocalError !== 'remove') arr.forEach(k => delete localStore[k]);
+                invokeStorageCallback('remove', cb);
                 return Promise.resolve();
             }
         }
@@ -168,6 +164,21 @@ async function run() {
     const convertedBack = await sm.blobToDataUrl(blob);
     assert.strictEqual(convertedBack, sampleDataUrl);
     console.log('  -> Round-trip Blob <-> DataURL OK');
+
+    assert.throws(() => sm.dataUrlToBlob('not-a-data-url'), /Entrada inválida/);
+    assert.throws(() => sm.dataUrlToBlob('data:image/png;base64,%%%'));
+    console.log('  -> Entradas Data URL inválidas rejeitadas OK');
+
+    const installedIndexedDB = global.indexedDB;
+    try {
+        global.indexedDB = undefined;
+        await assert.rejects(() => sm.openStorageDb(), /IndexedDB indisponível/);
+    } finally {
+        global.indexedDB = installedIndexedDB;
+    }
+    const reopenedDb = await sm.openStorageDb();
+    assert(reopenedDb, 'openStorageDb deve recuperar após indisponibilidade transitória');
+    console.log('  -> Retry de openStorageDb após IDB indisponível OK');
 
     console.log('[smoke-04] 2. Testando transações atômicas e eliminação de assets órfãos...');
     const chapterId = 'chap_test_04';
@@ -197,23 +208,64 @@ async function run() {
 
     const newAsset = await sm.getAssetBlob(save2.assetId);
     assert(newAsset, 'Novo asset deve existir');
-    console.log('  -> Substituição atômica e eliminação de órfãos OK');
 
-    console.log('[smoke-04] 3. Testando deleteByCleanUrl...');
-    const delCleanRes = await sm.deleteByCleanUrl(cleanUrl);
-    assert(delCleanRes.deleted >= 1, 'Deve deletar entrada pelo cleanUrl');
+    // Troca de cleanUrl na mesma página não pode deixar restore/asset antigo.
+    const cleanUrl2 = 'https://example.com/clean/img1-v2.png';
+    const save3 = await sm.savePageResult(chapterId, 0, sampleDataUrl, origUrl, cleanUrl2, { width: 100, height: 200, host: 'example.com' });
+    const restoreAfterUrlChange = await sm.getRestoreIndex(chapterId);
+    assert(!restoreAfterUrlChange[cleanUrl], 'Restore da cleanUrl antiga deve ser removido');
+    assert.strictEqual(restoreAfterUrlChange[cleanUrl2].assetId, save3.assetId);
+    assert.strictEqual(await sm.getAssetBlob(save2.assetId), null, 'Asset da cleanUrl antiga deve ser coletado');
+    console.log('  -> Substituição e troca de cleanUrl sem órfãos OK');
+
+    console.log('[smoke-04] 3. Testando deleteByCleanUrl completo...');
+    const delCleanRes = await sm.deleteByCleanUrl(cleanUrl2);
+    assert.strictEqual(delCleanRes.deleted, 1, 'Deve deletar exatamente um restore neste capítulo');
     const restoreIndex = await sm.getRestoreIndex(chapterId);
-    assert(!restoreIndex[cleanUrl], 'Restore entry não deve mais existir');
-    console.log('  -> deleteByCleanUrl OK');
+    assert(!restoreIndex[cleanUrl2], 'Restore entry não deve mais existir');
+    assert.strictEqual(await sm.getPageAsset(chapterId, 0), null, 'Página associada deve ser removida');
+    assert.strictEqual(await sm.getAssetBlob(save3.assetId), null, 'Asset associado deve ser removido');
+    assert(!(await sm.getChapterPageIndex(chapterId)).some(p => p.pageIndex === 0), 'Índice da página deletada deve sumir');
 
-    console.log('[smoke-04] 4. Testando deleteChapter...');
-    // Grava mais uma página
-    await sm.savePageResult(chapterId, 1, sampleDataUrl2, 'orig2', 'clean2');
+    const sharedCleanUrl = 'https://example.com/clean/shared.png';
+    const multiChapterA = 'chap_delete_multi_a';
+    const multiChapterB = 'chap_delete_multi_b';
+    const multiSaveA = await sm.savePageResult(multiChapterA, 0, sampleDataUrl, 'orig-a', sharedCleanUrl);
+    const multiSaveB = await sm.savePageResult(multiChapterB, 0, sampleDataUrl2, 'orig-b', sharedCleanUrl);
+    const multiDelete = await sm.deleteByCleanUrl(sharedCleanUrl);
+    assert.strictEqual(multiDelete.deleted, 2, 'Mesma cleanUrl em dois capítulos deve remover dois restores');
+    for (const [chapter, assetId] of [[multiChapterA, multiSaveA.assetId], [multiChapterB, multiSaveB.assetId]]) {
+        assert.deepStrictEqual(await sm.getRestoreIndex(chapter), {});
+        assert.strictEqual(await sm.getPageAsset(chapter, 0), null);
+        assert.strictEqual(await sm.getAssetBlob(assetId), null);
+    }
+    console.log('  -> deleteByCleanUrl remove restore/página/asset inclusive multi-capítulo OK');
+
+    console.log('[smoke-04] 4. Testando concorrência save/delete e deleteChapter completo...');
+    const concurrentChapter = 'chap_concurrent_04';
+    const concurrentCleanUrl = 'https://example.com/clean/concurrent.png';
+    await Promise.all([
+        sm.savePageResult(concurrentChapter, 0, sampleDataUrl, 'orig-concurrent', concurrentCleanUrl),
+        sm.deleteByCleanUrl(concurrentCleanUrl),
+    ]);
+    const concurrentPages = await sm.getChapterPageIndex(concurrentChapter);
+    const concurrentRestore = await sm.getRestoreIndex(concurrentChapter);
+    const survivingPage = concurrentPages.find(p => p.pageIndex === 0);
+    const survivingRestore = concurrentRestore[concurrentCleanUrl];
+    assert.strictEqual(Boolean(survivingPage), Boolean(survivingRestore), 'Página e restore devem sobreviver ou sumir juntos');
+    if (survivingPage) {
+        assert.strictEqual(survivingPage.assetId, survivingRestore.assetId);
+        assert(await sm.getAssetBlob(survivingPage.assetId), 'Asset sobrevivente deve existir');
+    }
+    await sm.deleteChapter(concurrentChapter);
+
+    const chapterDeleteSave = await sm.savePageResult(chapterId, 1, sampleDataUrl2, 'orig2', 'clean2');
     const delChapterRes = await sm.deleteChapter(chapterId);
     assert(delChapterRes.deleted > 0, 'Deve deletar registros do capítulo');
-    const countAfter = await sm.getChapterPageCount(chapterId);
-    assert.strictEqual(countAfter, 0, 'Capítulo deve estar vazio');
-    console.log('  -> deleteChapter OK');
+    assert.strictEqual(await sm.getChapterPageCount(chapterId), 0, 'Capítulo deve ficar sem páginas');
+    assert.deepStrictEqual(await sm.getRestoreIndex(chapterId), {}, 'Capítulo deve ficar sem restores');
+    assert.strictEqual(await sm.getAssetBlob(chapterDeleteSave.assetId), null, 'Asset do capítulo deletado deve sumir');
+    console.log('  -> Concorrência preserva invariantes e deleteChapter limpa página/restore/asset OK');
 
     console.log('[smoke-04] 5. Testando migração idempotente do storage legado...');
     const legacyChapter = 'chap_legacy_99';
@@ -222,15 +274,78 @@ async function run() {
     localStore[`${legacyChapter}_restoreMeta`] = { 'https://site.com/c0.png': { index: 0, host: 'site.com' } };
 
     const mig1 = await sm.migrateChapterFromLegacy(legacyChapter);
-    assert(mig1.migrated >= 1, 'Deve migrar páginas');
+    assert.strictEqual(mig1.migrated, 2, 'As duas páginas legadas devem migrar');
     assert.strictEqual(mig1.skipped, false);
+    assert.deepStrictEqual((await sm.getChapterPageIndex(legacyChapter)).map(p => p.pageIndex), [0, 1]);
+    const migratedRestore = await sm.getRestoreIndex(legacyChapter);
+    assert(migratedRestore['https://site.com/c0.png'], 'Restore legado deve migrar');
+    assert(await sm.getAssetBlob(migratedRestore['https://site.com/c0.png'].assetId), 'Asset do restore migrado deve existir');
     assert.strictEqual(localStore[`_sm_migrated_${legacyChapter}`], true, 'Flag de migração deve ser setada');
-    assert(!localStore[`${legacyChapter}_images`], 'Storage legado deve ser limpo');
+    assert(!localStore[`${legacyChapter}_images`]);
+    assert(!localStore[`${legacyChapter}_restoreMap`]);
+    assert(!localStore[`${legacyChapter}_restoreMeta`]);
 
-    // Segunda execução da migração deve pular (idempotente)
     const mig2 = await sm.migrateChapterFromLegacy(legacyChapter);
     assert.strictEqual(mig2.skipped, true, 'Segunda migração deve ser ignorada');
-    console.log('  -> Migração idempotente OK');
+    console.log('  -> Migração completa e idempotente OK');
+
+    console.log('[smoke-04] 6. Testando falha parcial, retry e runtime.lastError...');
+    const partialChapter = 'chap_legacy_partial_04';
+    localStore[`${partialChapter}_images`] = { '0': sampleDataUrl, '1': 'not-a-data-url' };
+    localStore[`${partialChapter}_restoreMap`] = {};
+    localStore[`${partialChapter}_restoreMeta`] = {};
+    const partial1 = await sm.migrateChapterFromLegacy(partialChapter);
+    assert.strictEqual(partial1.failed, true);
+    assert.strictEqual(partial1.migrated, 1);
+    assert(!localStore[`_sm_migrated_${partialChapter}`], 'Falha parcial não pode consolidar flag');
+    assert(localStore[`${partialChapter}_images`], 'Falha parcial deve preservar legado para retry');
+    localStore[`${partialChapter}_images`]['1'] = sampleDataUrl2;
+    const partial2 = await sm.migrateChapterFromLegacy(partialChapter);
+    assert.strictEqual(partial2.migrated, 2);
+    assert.strictEqual(localStore[`_sm_migrated_${partialChapter}`], true);
+    assert.deepStrictEqual((await sm.getChapterPageIndex(partialChapter)).map(p => p.pageIndex), [0, 1]);
+
+    const getFailChapter = 'chap_storage_get_fail_04';
+    forcedLocalError = 'get';
+    await assert.rejects(() => sm.migrateChapterFromLegacy(getFailChapter), /forced storage get failure/);
+    forcedLocalError = null;
+    assert(!localStore[`_sm_migrated_${getFailChapter}`]);
+
+    const removeFailChapter = 'chap_storage_remove_fail_04';
+    localStore[`${removeFailChapter}_images`] = { '0': sampleDataUrl };
+    localStore[`${removeFailChapter}_restoreMap`] = {};
+    localStore[`${removeFailChapter}_restoreMeta`] = {};
+    forcedLocalError = 'remove';
+    await assert.rejects(() => sm.migrateChapterFromLegacy(removeFailChapter), /forced storage remove failure/);
+    forcedLocalError = null;
+    assert(localStore[`${removeFailChapter}_images`], 'Falha de remove deve preservar legado');
+    assert(!localStore[`_sm_migrated_${removeFailChapter}`], 'Falha de remove não pode gravar flag');
+    const removeRetry = await sm.migrateChapterFromLegacy(removeFailChapter);
+    assert.strictEqual(removeRetry.migrated, 1);
+    assert.strictEqual(localStore[`_sm_migrated_${removeFailChapter}`], true);
+
+    const setFailChapter = 'chap_storage_set_fail_04';
+    forcedLocalError = 'set';
+    await assert.rejects(() => sm.migrateChapterFromLegacy(setFailChapter), /forced storage set failure/);
+    forcedLocalError = null;
+    assert(!localStore[`_sm_migrated_${setFailChapter}`]);
+    const setRetry = await sm.migrateChapterFromLegacy(setFailChapter);
+    assert.strictEqual(setRetry.skipped, false);
+    assert.strictEqual(localStore[`_sm_migrated_${setFailChapter}`], true);
+    console.log('  -> Falha parcial e lastError permanecem retryable OK');
+
+    console.log('[smoke-04] 7. Testando stats exatos e cleanup reversível...');
+    const baselineStats = await sm.stats();
+    const statsChapter = 'chap_stats_04';
+    const statsBlob = sm.dataUrlToBlob(sampleDataUrl2);
+    await sm.savePageResult(statsChapter, 0, sampleDataUrl2, 'orig-stats', 'clean-stats');
+    const statsAfterSave = await sm.stats();
+    assert.strictEqual(statsAfterSave.pages, baselineStats.pages + 1);
+    assert.strictEqual(statsAfterSave.assets, baselineStats.assets + 1);
+    assert.strictEqual(statsAfterSave.bytes, baselineStats.bytes + statsBlob.size);
+    await sm.deleteChapter(statsChapter);
+    assert.deepStrictEqual(await sm.stats(), baselineStats);
+    console.log('  -> stats pages/assets/bytes e cleanup exatos OK');
 
     console.log('✅ smoke-04-storage-manager passou com sucesso.');
 }
@@ -243,62 +358,49 @@ run().catch(err => {
 
 ## 9. Cobertura documental por faixas contíguas
 
-As 123 posições são cobertas pelas 16 faixas abaixo sem lacunas ou sobreposição.
+As **257 posições** são cobertas integralmente, em ordem, sem gaps nem overlap.
 
-### Bloco 01 — linhas/posições 1–6
-Cabeçalho documenta o escopo pretendido do smoke e ativa strict mode.
+### Bloco 01 — linhas/posições 1–9
+Cabeçalho, strict mode, `assert` e instalação de `fake-indexeddb/auto`.
 
-### Bloco 02 — linhas/posições 7–10
-Importa `assert` nativo e instala `fake-indexeddb/auto`, fornecendo IndexedDB realista em Node para o storage-manager de produção.
+### Bloco 02 — linhas/posições 10–52
+Mock controlável de `chrome.storage.local` e `chrome.runtime.lastError`, incluindo injeção `get/set/remove`.
 
-### Bloco 03 — linhas/posições 11–37
-Implementa mock mínimo de `chrome.storage.local` sobre um objeto em memória, com `get`, `set` e `remove` compatíveis com callback e Promise; isso atende especificamente às APIs usadas pela migração.
+### Bloco 03 — linhas/posições 53–81
+Import do storage-manager real, round-trip, entradas inválidas e recuperação de `openStorageDb` após indisponibilidade transitória.
 
-### Bloco 04 — linhas/posições 38–39
-Carrega diretamente `extension/shared/storage-manager.js`; todas as chamadas seguintes exercitam a implementação real.
+### Bloco 04 — linhas/posições 82–119
+Save inicial, overwrite, coleta de asset e troca de `cleanUrl` sem restore/asset stale.
 
-### Bloco 05 — linhas/posições 40–51
-Inicia `run`, cria PNG Data URL real, converte para Blob, verifica MIME/tamanho e converte de volta exigindo igualdade exata da Data URL.
+### Bloco 05 — linhas/posições 120–142
+`deleteByCleanUrl` completo e caso multi-capítulo com a mesma URL.
 
-### Bloco 06 — linhas/posições 52–60
-Prepara capítulo/URLs e realiza o primeiro `savePageResult`, exigindo geração de `assetId`.
+### Bloco 06 — linhas/posições 143–168
+Corrida save/delete validada por invariantes e `deleteChapter` com cleanup de página/restore/asset.
 
-### Bloco 07 — linhas/posições 61–68
-Busca asset, page asset e índice do capítulo e confirma que o registro da página aponta ao asset recém-criado.
+### Bloco 07 — linhas/posições 169–190
+Migração feliz de duas páginas, restore/asset, limpeza exata do legado e idempotência.
 
-### Bloco 08 — linhas/posições 69–81
-Sobrescreve a mesma página com novo PNG, exige novo assetId, prova que o asset antigo foi removido e que o novo existe. Isso prova cleanup no caminho feliz do overwrite.
+### Bloco 08 — linhas/posições 191–235
+Falha parcial retryable e fault injection de `runtime.lastError` para get/remove/set com retries.
 
-### Bloco 09 — linhas/posições 82–88
-Executa `deleteByCleanUrl`, exige contagem positiva e ausência da entrada correspondente no restore index; não verifica diretamente página/asset.
+### Bloco 09 — linhas/posições 236–248
+`stats()` com deltas exatos e retorno ao baseline após `deleteChapter`.
 
-### Bloco 10 — linhas/posições 89–97
-Salva uma segunda página, executa `deleteChapter` e exige retorno positivo e contagem de páginas zero.
+### Bloco 10 — linhas/posições 249–256
+Mensagem final e wrapper `run().catch` que transforma qualquer rejeição/assertion em exit code 1.
 
-### Bloco 11 — linhas/posições 98–104
-Monta storage legado com duas imagens, um restoreMap e metadado de restore para um capítulo de migração.
+### Bloco 11 — linhas/posições 257–257
+Posição do newline terminal.
 
-### Bloco 12 — linhas/posições 105–110
-Executa a primeira migração e exige algum item migrado, `skipped=false`, flag de migração e remoção da chave legado de imagens.
+## 10. Revalidação editorial
 
-### Bloco 13 — linhas/posições 111–114
-Executa a migração novamente e exige `skipped=true`, provando idempotência pela flag.
-
-### Bloco 14 — linhas/posições 115–117
-Imprime sucesso global e fecha a função `run`.
-
-### Bloco 15 — linhas/posições 118–122
-Executa o smoke; qualquer rejeição imprime erro e encerra o processo com código 1, permitindo ao runner agregado marcar o arquivo como falho.
-
-### Bloco 16 — linhas/posições 123–123
-Posição do newline terminal do arquivo.
-
-## 10. Verificação final desta Bíblia
-
-- SHA do fonte reconfirmado: `0ba92d74356cb092a7706dca7d280168cd5c512e`.
+- SHA do fonte: `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`.
 - Fonte integral incorporada: **sim**.
-- Linhas textuais: **122**; newline terminal: **sim**; posições documentadas: **123/123**.
-- Faixas documentais: **16**, contíguas e sem overlap.
-- Evidência direta separada de claims não provados por fault-injection/completude de cleanup.
-- `audit_requests` abertas: **126-001**, **126-002**, **126-003**.
-- Nenhum fonte, teste, fixture, workflow ou configuração externa foi alterado.
+- Posições: **257/257**, cobertas por 11 faixas contíguas.
+- `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME: **nenhum encontrado**.
+- 126-001: **SUPERSEDED por 060-002**, não OPEN.
+- 126-002: **corrigido por regressões focais nesta revisão**.
+- 126-003: **corrigido por regressões focais nesta revisão**.
+- Gap de rollback IDB sob abort: **explicitamente não reivindicado como provado**.
+- A revisão precisa de nova auditoria PRIMARY + ADVERSARIAL porque source e Bíblia mudaram.
