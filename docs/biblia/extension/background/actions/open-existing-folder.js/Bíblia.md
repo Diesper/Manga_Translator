@@ -15,6 +15,15 @@ Esta action tenta revelar uma pasta já existente usando o histórico de downloa
 
 O consumidor real é o popup ao abrir a pasta de um capítulo que já possui paths salvos.
 
+### Cadeia de loading/dispatch em produção
+
+- `extension/manifest.json` declara `extension/background.js` como service worker;
+- `extension/background.js` carrega `open-existing-folder.js` em produção via `importScripts` (e por `require` no harness Node), monta o router/contexto e fornece helpers como `handleMarkerAndShow`;
+- `extension/background/router.js` registra/resolve a action e `chrome.runtime.onMessage` encaminha a mensagem para o dispatcher;
+- `extension/popup/popup.js` é o **emissor/consumer** que monta `folderPath`/anchor e solicita `SHOW_EXISTING_FOLDER`.
+
+Portanto popup é consumidor; manifest/background/router são loader/dispatcher/dependências de execução, papéis distintos que não devem ser confundidos.
+
 ## Ramo 1 — anchorId
 
 Quando `anchorId` é truthy, a action chama `chrome.downloads.search({id: anchorId})`.
@@ -145,7 +154,7 @@ Os testes do helper real provam criação do `_anchor.png`, show, remoção apó
 | 022 | U04 | ␠ [linha vazia] | Separador visual da unidade U04. |
 | 023 | U04 |         if (anchorId) { | Prioriza id persistido quando truthy. |
 | 024 | U04 |           chrome.downloads.search({ id: anchorId }, results => { | Busca exatamente o registro do anchorId. |
-| 025 | U04 |             if (results?.length > 0 && results[0].exists) { | Considera sucesso quando há ao menos um resultado; neste ramo não verifica exists/state. |
+| 025 | U04 |             if (results?.length > 0 && results[0].exists) { | No ramo `anchorId`, exige ao menos um resultado **e `results[0].exists === truthy`**; não valida `state === 'complete'`. |
 | 026 | U04 |               chrome.downloads.show(anchorId); | Revela diretamente o anchor conhecido. |
 | 027 | U04 |               resolve({ ok: true }); | Resolve sucesso logo após solicitar downloads.show. |
 | 028 | U04 |             } else { | Parte da expressão da unidade U04: } else { |
