@@ -90,7 +90,7 @@
 - [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
 - [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED
 - [x] 088 — `scripts/validation/verify-publish-contract.js` — COMPLETED
-- [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
+- [ ] 089 — `scripts/validation/verify-repository-structure.js` — CHANGES_REQUIRED
 - [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED
 - [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED
 - [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED
@@ -106,7 +106,7 @@
 - [ ] 102 — `tests/helpers/load-content-script.js` — READY_FOR_AUDIT
 - [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
 - [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
-- [ ] 105 — `tests/helpers/track-background-delay-timers.js` — CHANGES_REQUIRED
+- [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
 - [ ] 106 — `tests/integration/banned-images-flow.test.js` — READY_FOR_AUDIT
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT
 - [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
