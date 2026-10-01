@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **134**
-- CHANGES_REQUIRED: **0**
+- READY_FOR_AUDIT: **132**
+- CHANGES_REQUIRED: **2**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **0**
@@ -133,7 +133,7 @@
 | 108 | tests/integration/gtc-end-to-end.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
 | 109 | tests/integration/ipc/gemini-cors-fallback.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1f5a1236139d85640cb5fa24590f434859155c62 | 2 |
 | 110 | tests/integration/ipc/gtc-cache-flow.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | e6eb5c744499fcaa0309a187a173841c185bbaea | 5 |
-| 111 | tests/integration/ipc/gtc-indexeddb-deep.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 39d0542f9bad4ee59fe1939396e2fb3e41e2c38d | 3 |
+| 111 | tests/integration/ipc/gtc-indexeddb-deep.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 39d0542f9bad4ee59fe1939396e2fb3e41e2c38d | 3 |
 | 112 | tests/integration/ipc/image-translation-routing.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 4f1674c12311a48215b97faabb0415011a6cba87 | 1 |
 | 113 | tests/integration/options.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 33c34c89f7131ade147ea65b5f5015b79917b708 | 2 |
 | 114 | tests/integration/performance.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a | 3 |
