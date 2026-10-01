@@ -13,20 +13,6 @@ function normalizeRequestStatus(status) {
   return status === 'SATISFIED' ? 'RESOLVED' : status;
 }
 
-function declaredRequestStatuses(bibleSource, requestId) {
-  const id = String(requestId || '');
-  if (!/^\d{3}-\d{3}$/.test(id)) return [];
-  const found = new Set();
-  for (const rawLine of normalizeText(bibleSource || '').split('\n')) {
-    if (!rawLine.includes(id)) continue;
-    if (!/^\s*(?:#{2,6}\s+|[-*]\s+|\|)/.test(rawLine)) continue;
-    for (const match of rawLine.matchAll(/\b(OPEN|ACCEPTED|RESOLVED|REJECTED|SUPERSEDED|SATISFIED)\b/g)) {
-      found.add(normalizeRequestStatus(match[1]));
-    }
-  }
-  return [...found];
-}
-
 const slash = (p) => p.replace(/\\/g, '/');
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -422,20 +408,12 @@ function validateBibleCoordination(root, options = {}) {
     }
 
     const stateRequests = Array.isArray(state.audit_requests) ? state.audit_requests : [];
-    const requestBibleSource = fs.existsSync(bibleAbs) ? fs.readFileSync(bibleAbs, 'utf8') : null;
     for (const request of stateRequests) {
       if (request.status === 'SATISFIED') problems.push(stateFile + '/' + (request.id || 'sem-id') + ': SATISFIED deve migrar para RESOLVED preservando resolution');
       else if (!REQUEST_STATUSES.has(request.status)) problems.push(stateFile + '/' + (request.id || 'sem-id') + ': audit_request status inválido=' + request.status);
-
-      if (requestBibleSource && request.id) {
-        const canonical = normalizeRequestStatus(request.status);
-        const declared = declaredRequestStatuses(requestBibleSource, request.id);
-        for (const bibleStatus of declared) {
-          if (bibleStatus !== canonical) {
-            problems.push(stateFile + '/' + request.id + ': audit_request lifecycle divergente na Bíblia; state=' + canonical + ' bible=' + bibleStatus);
-          }
-        }
-      }
+      // O lifecycle mutável da request é canônico somente no .state.
+      // Textos OPEN/ACCEPTED/etc. dentro da Bíblia são snapshots documentais
+      // e não devem obrigar reescrita de uma Bíblia já auditada a cada triagem.
     }
     if (state.status === 'IN_PROGRESS' && !state.agent) problems.push(stateFile + ': IN_PROGRESS sem agent');
     if (state.status !== 'IN_PROGRESS' && state.agent) problems.push(stateFile + ': agent deve ser null fora de IN_PROGRESS');

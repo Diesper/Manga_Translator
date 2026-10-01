@@ -105,7 +105,7 @@ O gate fail-closed exige:
 
 Requests `ACCEPTED`, `RESOLVED`, `REJECTED` e `SUPERSEDED` são estados triados e não bloqueiam por si só o fechamento documental.
 
-O validador canônico também exige que qualquer lifecycle explicitamente escrito ao lado de um request na Bíblia coincida com o lifecycle do `.state`; por exemplo, uma Bíblia não pode continuar mostrando `OPEN` depois que o state já foi triado como `ACCEPTED`.
+O lifecycle mutável de cada `audit_request` é canônico **somente em `.state/<ÍNDICE>.json`**. Rótulos como `OPEN`, `ACCEPTED` ou `SUPERSEDED` eventualmente presentes no texto de uma Bíblia são snapshots documentais e não participam da validação de lifecycle. Triar uma request não deve forçar a reescrita de uma Bíblia já auditada; consumers, projeções e merge readiness usam o status do `.state`.
 
 A CI verde do SHA final continua sendo uma condição externa adicional; o comando não inventa nem substitui o resultado do GitHub Actions.
 

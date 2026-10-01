@@ -211,7 +211,7 @@ expectReadiness('audit claim ativo bloqueia merge readiness', false, (root)=>{
 }, {}, 'audit claims ativos=1');
 expectReadiness('PROGRESS lock residual bloqueia merge readiness', false, null, {progressLockActive:true}, 'PROGRESS.lock.md ainda está ativo');
 expectReadiness('BOOTSTRAP lock residual bloqueia merge readiness', false, null, {bootstrapLockActive:true}, 'BOOTSTRAP.lock.md ainda está ativo');
-expectFail('lifecycle explícito da Bíblia deve coincidir com state','audit_request lifecycle divergente na Bíblia',(root)=>{
+expectPass('lifecycle de audit_request é canônico no state; status textual da Bíblia é informativo',(root)=>{
   const s=readJson(root,statePath(1));
   s.audit_requests=[{id:'001-001',status:'ACCEPTED'}];
   writeJson(root,statePath(1),s);
