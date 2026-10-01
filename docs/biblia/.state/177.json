@@ -2,11 +2,11 @@
   "index": 177,
   "file": "tests/unit/content-gemini/dom-modules.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/dom-modules.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "32441920c27f69aef629f33fc6175ff5b48b0859",
   "started_at_utc": "2026-09-30T14:55:00Z",
-  "completed_at_utc": "2026-09-30T15:00:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "177-001",
@@ -82,5 +82,10 @@
     "source_text_lines": 162,
     "external_audit_requests_open": 3,
     "note": "Suíte real; lacunas materiais de Send/blacklist persistidas."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

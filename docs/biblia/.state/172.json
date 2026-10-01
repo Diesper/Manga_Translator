@@ -2,11 +2,11 @@
   "index": 172,
   "file": "tests/unit/background/test_bg59.test.js",
   "bible": "docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 2",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
   "started_at_utc": "2026-09-30T06:30:47.120Z",
-  "completed_at_utc": "2026-09-30T06:35:12.967Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "172-001",
@@ -40,5 +40,10 @@
     "bible_lines": 2979,
     "external_audit_requests_open": 1,
     "note": "Teste documentado como prova de wiring do background real; algoritmo de hash permanece explicitamente classificado como mockado neste arquivo."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 174,
   "file": "tests/unit/content-gemini/attachment.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/attachment.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
   "started_at_utc": "2026-09-30T14:20:00Z",
-  "completed_at_utc": "2026-09-30T14:35:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "174-001",
@@ -87,5 +87,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; 12 casos ATT passaram individualmente; global 109/109 suítes e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

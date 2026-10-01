@@ -2,11 +2,11 @@
   "index": 171,
   "file": "tests/unit/background/tab-replacement-observability.test.js",
   "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 2",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
   "started_at_utc": "2026-09-30T06:39:19.269Z",
-  "completed_at_utc": "2026-09-30T14:56:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "171-001",
@@ -83,5 +83,10 @@
     "external_audit_requests_open": 3,
     "evidence_run": null,
     "evidence_summary": "Assertions do arquivo e implementação real do mock foram inspecionadas; inclusão Jest/CI foi confirmada estaticamente. O workflow run 36733799276 estava pending e não foi usado como prova de sucesso."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

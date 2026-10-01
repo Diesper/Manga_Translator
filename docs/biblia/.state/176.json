@@ -2,11 +2,11 @@
   "index": 176,
   "file": "tests/unit/content-gemini/deletion.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
   "started_at_utc": "2026-09-30T15:00:00Z",
-  "completed_at_utc": "2026-09-30T15:15:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "176-001",
@@ -93,5 +93,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; dez casos DEL passaram individualmente; global 109/109 suítes e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

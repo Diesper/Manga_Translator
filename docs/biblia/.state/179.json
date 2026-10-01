@@ -2,11 +2,11 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
   "started_at_utc": "2026-09-30T15:40:00Z",
-  "completed_at_utc": "2026-09-30T15:55:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "179-001",
@@ -95,5 +95,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 15 casos passaram; global 109/109 suítes e 851/851 testes. Cobertura externa de File API indisponível já existe em job-runner.test.js."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
