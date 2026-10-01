@@ -2,8 +2,8 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
@@ -121,7 +121,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:28:13.904Z",
+  "updated_at_utc": "2026-10-01T21:30:22.653Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:52:55.822Z",
@@ -156,6 +156,14 @@
       "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
       "bible_sha": "dd7f6c9f81ebc135931906274e07952944efd6ce",
       "reason": "A15-179-P01 corrigido; request 179-004 aberta para cobertura focal DataUrlAtob/atob ausente. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:30:22.653Z",
+      "type": "AUDIT_REQUEST_RESOLUTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "reason": "Resolver 179-004 após cobertura DataUrlAtob:null adicionada ao source #181."
     }
   ],
   "evidence": []
