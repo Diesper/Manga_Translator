@@ -17,7 +17,7 @@ O loader executa content_gemini.js e os módulos Gemini associados. Isso dá for
 
 ## 2. dataURLtoFile
 
-CG-01/CG-02 provam a conversão nominal de Data URL para `File` com MIME correto em PNG/JPEG. CG-03/CG-04 provam a rejeição de Data URL sem vírgula ou sem MIME. A ausência das APIs File/atob já possui cobertura em job-runner.test.js e não é duplicada como gap nesta Bíblia.
+CG-01/CG-02 provam a conversão nominal de Data URL para `File` com MIME correto em PNG/JPEG. CG-03/CG-04 provam a rejeição de Data URL sem vírgula ou sem MIME. `job-runner.test.js` possui cobertura focal para **`FileImpl:null`**, mas não há caso focal equivalente para **`DataUrlAtob/atob` ausente**. Essa segunda lacuna é registrada abaixo como `179-004`.
 
 ## 3. waitForElement / sleep / helpers DOM
 
@@ -55,6 +55,8 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 |---|---|---|
 | dataURL válida vira File | CG-01 | ✅ PROVADO DIRETAMENTE |
 | dataURL sem vírgula/MIME falha | CG-03/CG-04 | ✅ PROVADO DIRETAMENTE |
+| `FileImpl` ausente falha | job-runner RUN-01B | ✅ PROVADO DIRETAMENTE |
+| `DataUrlAtob/atob` ausente falha | sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | waitForElement imediato/tardio/timeout | CG-05/06/07 | ✅ PROVADO DIRETAMENTE |
 | processGeminiJob respeita deleting_urls | regressão real | ✅ PROVADO DIRETAMENTE |
 | wrappers de delete/export respondem | cenários reais | ✅ PROVADO DIRETAMENTE |
@@ -81,6 +83,16 @@ Encontrado: títulos/comentários REG-03/CG-22 e CG-24 ainda descrevem fallback 
 Ação pedida: atualizar nomenclatura e assertions para a arquitetura atual; se execCommand tiver sido intencionalmente removido, não mantê-lo como requisito implícito.
 
 Risco: documentação de teste obsoleta pode induzir manutenção regressiva ou falsa leitura de cobertura.
+
+### 179-004 — TEST_REQUIRED — OPEN — NORMAL
+
+Encontrado: `createGeminiJobRunner` trata `DataUrlAtob` ausente como `APIs de arquivo indisponíveis`, mas a suíte focal cobre apenas `FileImpl:null`.
+
+Evidência ausente: criar runner real com `DataUrlAtob:null` (ou `atob` indisponível no scope relevante) e exigir o erro/diagnóstico canônico sem prosseguir para conversão/upload.
+
+Risco: uma regressão específica na guarda de `DataUrlAtob` pode permanecer verde enquanto o branch de `FileImpl:null` continua funcionando.
+
+Severidade: NORMAL.
 
 ### 179-003 — TEST_REQUIRED — ACCEPTED — NORMAL
 
