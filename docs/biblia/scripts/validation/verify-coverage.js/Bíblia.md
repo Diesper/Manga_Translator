@@ -49,8 +49,8 @@ A função principal é exportada e aceita paths/criticalFiles/quiet injetáveis
 | Contrato | Evidência real encontrada | Classificação |
 |---|---|---|
 | fixture válida retorna `ok:true` | `verify-coverage-selftest.js` chama `verifyCoverage` real e compara `result.ok` | ✅ PROVADO DIRETAMENTE |
-| LCOV literalmente vazio reprova | caso `lcov vazio` | ✅ PROVADO DIRETAMENTE |
-| coverage 0% reprova | caso `coverage 0%` | ✅ PROVADO DIRETAMENTE |
+| LCOV literalmente vazio reprova | caso `lcov vazio` | 🟨 CENÁRIO PROVA `ok:false`, mas não isola causalmente o precheck de LCOV vazio |
+| coverage 0% reprova | caso `coverage 0%` | 🟨 CENÁRIO PROVA `ok:false`, mas não isola causalmente a guarda `pct <= 0` do threshold mínimo |
 | threshold global 80 com actual 75 reprova | caso `threshold abaixo do mínimo` | ✅ PROVADO DIRETAMENTE |
 | threshold crítico 80 com actual 75 reprova | caso `threshold crítico abaixo do mínimo` | ✅ PROVADO DIRETAMENTE |
 | crítico omitido leva a `ok:false` | caso `arquivo crítico ausente` | 🟨 EXECUTADO, mas a causa não é isolada: as checagens gerais também reprovam |
@@ -91,11 +91,11 @@ A função principal é exportada e aceita paths/criticalFiles/quiet injetáveis
 
 ## 7. Solicitações ao auditor registradas em `.state/085.json`
 
-- **085-001 — TEST_REQUIRED — OPEN:** ampliar o self-test para summary ausente/vazio/JSON inválido, LCOV não vazio sem `SF:`, fonte não crítica ausente, métrica ausente/NaN e `minInstrumentedFiles` abaixo do piso, com assertions sobre diagnósticos.
-- **085-002 — ROBUSTNESS_REVIEW — OPEN — HIGH:** decidir política fail-closed para baseline ausente/malformado e validar schema/thresholds globais/críticos não numéricos, negativos, `null` e ausentes.
-- **085-003 — TEST_QUALITY — OPEN:** tornar o caso “arquivo crítico ausente” causalmente específico para as guardas críticas e verificar mensagens/ramo, não apenas `ok:false`.
-- **085-004 — PORTABILITY_TEST_REQUIRED — OPEN:** testar `parseLcovFiles` com absoluto, relativo ao repo, relativo a `tests/`, CRLF, duplicatas e caminhos Windows.
-- **085-005 — API_CONTRACT_REVIEW — OPEN:** decidir e testar um shape de retorno consistente para falhas precoces versus retorno normal.
+- **085-001 — TEST_REQUIRED — SUPERSEDED → 084-002:** ampliar o self-test para summary ausente/vazio/JSON inválido, LCOV não vazio sem `SF:`, fonte não crítica ausente, métrica ausente/NaN e `minInstrumentedFiles` abaixo do piso, com assertions sobre diagnósticos.
+- **085-002 — ROBUSTNESS_REVIEW — ACCEPTED — HIGH:** decidir política fail-closed para baseline ausente/malformado e validar schema/thresholds globais/críticos não numéricos, negativos, `null` e ausentes.
+- **085-003 — TEST_QUALITY — ACCEPTED:** tornar o caso “arquivo crítico ausente” causalmente específico para as guardas críticas e verificar mensagens/ramo, não apenas `ok:false`.
+- **085-004 — PORTABILITY_TEST_REQUIRED — ACCEPTED:** testar `parseLcovFiles` com absoluto, relativo ao repo, relativo a `tests/`, CRLF, duplicatas e caminhos Windows.
+- **085-005 — API_CONTRACT_REVIEW — ACCEPTED:** decidir e testar um shape de retorno consistente para falhas precoces versus retorno normal.
 
 ## 8. Fonte integral exata
 
@@ -901,7 +901,7 @@ module.exports = {
 - **O que faz:** Aplica a mesma pré-condição de existência/tamanho ao LCOV.
 - **Como:** a linha participa do bloco **pré-condições dos artefatos de coverage** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Validar presença/tamanho antes da leitura evita exceções triviais e produz um erro operacional mais útil no caminho normal.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para LCOV vazio pelo caso `lcov vazio`; summary ausente/vazio não possui caso focal equivalente.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA ISOLADA — `lcov vazio` termina `ok:false`, porém checks posteriores também reprovariam LCOV sem entradas; summary ausente/vazio segue sem caso focal.
 
 ### Linha 073 — pré-condições dos artefatos de coverage
 
@@ -909,7 +909,7 @@ module.exports = {
 - **O que faz:** Registra o diagnóstico correspondente para LCOV ausente/vazio.
 - **Como:** a linha participa do bloco **pré-condições dos artefatos de coverage** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Validar presença/tamanho antes da leitura evita exceções triviais e produz um erro operacional mais útil no caminho normal.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para LCOV vazio pelo caso `lcov vazio`; summary ausente/vazio não possui caso focal equivalente.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA ISOLADA — `lcov vazio` termina `ok:false`, porém checks posteriores também reprovariam LCOV sem entradas; summary ausente/vazio segue sem caso focal.
 
 ### Linha 074 — pré-condições dos artefatos de coverage
 
@@ -917,7 +917,7 @@ module.exports = {
 - **O que faz:** Fecha a construção sintática pertencente ao bloco de pré-condições dos artefatos de coverage; seu efeito é delimitar corretamente o escopo iniciado nas linhas anteriores.
 - **Como:** a linha participa do bloco **pré-condições dos artefatos de coverage** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Validar presença/tamanho antes da leitura evita exceções triviais e produz um erro operacional mais útil no caminho normal.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para LCOV vazio pelo caso `lcov vazio`; summary ausente/vazio não possui caso focal equivalente.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA ISOLADA — `lcov vazio` termina `ok:false`, porém checks posteriores também reprovariam LCOV sem entradas; summary ausente/vazio segue sem caso focal.
 
 ### Linha 075 — pré-condições dos artefatos de coverage
 
@@ -933,7 +933,7 @@ module.exports = {
 - **O que faz:** Se qualquer artefato obrigatório falhou na pré-condição, interrompe antes de leituras/parses.
 - **Como:** a linha participa do bloco **pré-condições dos artefatos de coverage** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Validar presença/tamanho antes da leitura evita exceções triviais e produz um erro operacional mais útil no caminho normal.
-- **Evidência:** ✅ PROVADO DIRETAMENTE no caminho de LCOV vazio, que retorna `ok:false` antes do parse.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, NÃO CAUSAL — o caso `lcov vazio` retorna `ok:false`, mas não isola este precheck de checks posteriores de ausência de `SF:`.
 
 ### Linha 077 — pré-condições dos artefatos de coverage
 
@@ -941,7 +941,7 @@ module.exports = {
 - **O que faz:** Retorna resultado estruturado de falha com métricas nulas e inventários vazios, evitando acesso a arquivos ausentes.
 - **Como:** a linha participa do bloco **pré-condições dos artefatos de coverage** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Validar presença/tamanho antes da leitura evita exceções triviais e produz um erro operacional mais útil no caminho normal.
-- **Evidência:** ✅ PROVADO DIRETAMENTE no caminho de LCOV vazio, que retorna `ok:false` antes do parse.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, NÃO CAUSAL — o caso `lcov vazio` retorna `ok:false`, mas não isola este precheck de checks posteriores de ausência de `SF:`.
 
 ### Linha 078 — pré-condições dos artefatos de coverage
 
@@ -949,7 +949,7 @@ module.exports = {
 - **O que faz:** Fecha o early return.
 - **Como:** a linha participa do bloco **pré-condições dos artefatos de coverage** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Validar presença/tamanho antes da leitura evita exceções triviais e produz um erro operacional mais útil no caminho normal.
-- **Evidência:** ✅ PROVADO DIRETAMENTE no caminho de LCOV vazio, que retorna `ok:false` antes do parse.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, NÃO CAUSAL — o caso `lcov vazio` retorna `ok:false`, mas não isola este precheck de checks posteriores de ausência de `SF:`.
 
 ### Linha 079 — separação estrutural
 
@@ -1389,7 +1389,7 @@ module.exports = {
 - **O que faz:** Cria o objeto das quatro métricas globais usadas pelo gate.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 134 — métricas globais e rejeição de zero/NaN
 
@@ -1397,7 +1397,7 @@ module.exports = {
 - **O que faz:** Extrai `statements` pelo helper que converte inválidos para NaN.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 135 — métricas globais e rejeição de zero/NaN
 
@@ -1405,7 +1405,7 @@ module.exports = {
 - **O que faz:** Extrai `branches`.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 136 — métricas globais e rejeição de zero/NaN
 
@@ -1413,7 +1413,7 @@ module.exports = {
 - **O que faz:** Extrai `functions`.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 137 — métricas globais e rejeição de zero/NaN
 
@@ -1421,7 +1421,7 @@ module.exports = {
 - **O que faz:** Extrai `lines`.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 138 — métricas globais e rejeição de zero/NaN
 
@@ -1429,7 +1429,7 @@ module.exports = {
 - **O que faz:** Fecha o objeto de métricas.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 139 — métricas globais e rejeição de zero/NaN
 
@@ -1437,7 +1437,7 @@ module.exports = {
 - **O que faz:** Linha em branco que separa blocos do métricas globais e rejeição de zero/NaN; não altera runtime, mas preserva legibilidade entre responsabilidades distintas.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 140 — métricas globais e rejeição de zero/NaN
 
@@ -1445,7 +1445,7 @@ module.exports = {
 - **O que faz:** Itera as quatro métricas globais como pares nome/percentual.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 141 — métricas globais e rejeição de zero/NaN
 
@@ -1453,7 +1453,7 @@ module.exports = {
 - **O que faz:** Reprova percentual não finito, cobrindo campos ausentes, NaN e coerções inválidas.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 142 — métricas globais e rejeição de zero/NaN
 
@@ -1461,7 +1461,7 @@ module.exports = {
 - **O que faz:** Reprova coverage igual ou abaixo de zero, evitando relatório formalmente presente mas sem cobertura útil.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 143 — métricas globais e rejeição de zero/NaN
 
@@ -1469,7 +1469,7 @@ module.exports = {
 - **O que faz:** Fecha o loop global.
 - **Como:** a linha participa do bloco **métricas globais e rejeição de zero/NaN** e opera sobre os valores/estado definidos nesse mesmo fluxo, sem efeitos implícitos fora do módulo além de filesystem/log/exit onde explicitado.
 - **Por que assim / risco de alternativa:** Percentuais finitos e positivos são pré-condições mínimas para considerar o relatório semanticamente válido.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para `coverage 0%`; percentuais ausentes/NaN não têm caso focal.
+- **Evidência:** 🟨 CENÁRIO EXECUTADO, MAS NÃO PROVA CAUSAL DA GUARDA `pct <= 0` — `coverage 0%` também viola o threshold mínimo padrão; percentuais ausentes/NaN seguem sem caso focal.
 
 ### Linha 144 — separação estrutural
 
@@ -2122,3 +2122,5 @@ module.exports = {
 ## 10. Conclusão documental
 
 O blob `45f920bd2db5ba3a1273438b1814b29aeafc3be4` foi documentado integralmente: 223 linhas textuais + newline final. O arquivo é um gate funcional e realmente consumido pela CI; o self-test executa a implementação real, mas cobre apenas um subconjunto dos ramos e, em alguns casos, comprova somente o resultado agregado. As lacunas acima permanecem explicitamente classificadas e foram encaminhadas ao auditor sem alterar código, testes, baseline, workflow ou qualquer arquivo externo ao ownership do AGENTE 9.
+
+> **Correção pós-REAUDIT:** evidência de LCOV vazio (6 ocorrências) e coverage zero (11 ocorrências) foi rebaixada de prova causal direta para prova de cenário/result.ok. 085-001 está SUPERSEDED por `084-002`; 085-002..005 estão ACCEPTED.
