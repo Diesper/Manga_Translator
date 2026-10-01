@@ -45,7 +45,19 @@
     "validate:bible-projections": "node scripts/validation/generate-bible-projections.js",
     "write:bible-projections": "node scripts/validation/generate-bible-projections.js --write",
     "test:bible-audit-pipeline:infra": "node scripts/validation/verify-bible-audit-pipeline-selftest.js",
-    "test:bible-audit-shards:infra": "node scripts/validation/verify-bible-audit-shards-selftest.js"
+    "test:bible-audit-shards:infra": "node scripts/validation/verify-bible-audit-shards-selftest.js",
+    "test:bible-protocol:infra": "node docs/biblia/.coordination/audit-protocol-selftest.js && node scripts/validation/verify-bible-audit-pipeline-selftest.js && node scripts/validation/verify-bible-audit-shards-selftest.js && node docs/biblia/.coordination/reconcile-audit-results-selftest.js && node docs/biblia/.coordination/bible-correction-work-plan-selftest.js && node scripts/validation/verify-bible-coordination-selftest.js",
+    "bible:audit:status": "node docs/biblia/.coordination/audit-protocol.js status",
+    "bible:audit:verify": "node docs/biblia/.coordination/audit-protocol.js verify",
+    "bible:audit:summary": "node docs/biblia/.coordination/audit-summary.js",
+    "bible:audit:work-plan": "node scripts/validation/bible-audit-work-plan.js",
+    "bible:corrections:work-plan": "node docs/biblia/.coordination/bible-correction-work-plan.js",
+    "bible:reconcile:check": "node docs/biblia/.coordination/reconcile-audit-results.js --check",
+    "bible:reconcile:write": "node docs/biblia/.coordination/reconcile-audit-results.js --write",
+    "bible:lease-gc": "node docs/biblia/.coordination/audit-lease-gc.js",
+    "bible:lease-gc:write": "node docs/biblia/.coordination/audit-lease-gc.js --write-safe",
+    "bible:merge-readiness": "node scripts/validation/verify-bible-merge-readiness.js",
+    "bible:final-readiness": "npm run test:bible-protocol:infra && npm run bible:reconcile:check && npm run bible:audit:verify && npm run bible:merge-readiness"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
