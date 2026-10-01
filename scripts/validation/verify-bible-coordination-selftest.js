@@ -7,6 +7,7 @@ const {
   gitBlobSha,
   buildDerived,
   validateBibleCoordination,
+  evaluateMergeReadiness,
 } = require('./bible-coordination');
 
 function write(root, rel, content) {
@@ -131,6 +132,24 @@ function progressLockFor(root,state,auditor='AUDITOR-X'){
 function validate(root,checkDerived=false){
   return validateBibleCoordination(root,{checkDerived,headLabel:'fixture'}).problems;
 }
+function readiness(root, options = {}) {
+  const validation = validateBibleCoordination(root,{checkDerived:false,headLabel:'fixture'});
+  return evaluateMergeReadiness(validation, options);
+}
+function expectReadiness(name, expectedReady, setup, options = {}, needle = null) {
+  const root=makeFixture();
+  try {
+    if (setup) setup(root);
+    const result=readiness(root,options);
+    if (result.ready !== expectedReady) {
+      throw new Error(name+' expected ready='+expectedReady+', got '+JSON.stringify(result));
+    }
+    if (needle && !result.blockers.some((blocker)=>blocker.includes(needle))) {
+      throw new Error(name+' expected blocker containing '+JSON.stringify(needle)+', got '+JSON.stringify(result.blockers));
+    }
+    process.stdout.write('PASS '+name+' -> merge-ready='+result.ready+'\n');
+  } finally { fs.rmSync(root,{recursive:true,force:true}); }
+}
 function expectPass(name,setup){
   const root=makeFixture();
   try{
@@ -153,6 +172,37 @@ function expectFail(name,needle,setup,checkDerived=false){
 }
 
 expectPass('.state/.reservas/.coordination permitidos');
+
+expectReadiness('merge readiness baseline passa', true);
+expectReadiness('request ACCEPTED não bloqueia merge readiness', true, (root)=>{
+  const s=readJson(root,statePath(1));
+  s.audit_requests=[{id:'001-001',status:'ACCEPTED'}];
+  writeJson(root,statePath(1),s);
+});
+expectReadiness('request OPEN bloqueia merge readiness', false, (root)=>{
+  const s=readJson(root,statePath(1));
+  s.audit_requests=[{id:'001-001',status:'OPEN'}];
+  writeJson(root,statePath(1),s);
+}, {}, 'audit_requests OPEN=1');
+expectReadiness('state READY_FOR_AUDIT bloqueia merge readiness', false, (root)=>{
+  const s=readJson(root,statePath(1));
+  s.status='READY_FOR_AUDIT';
+  s.completed_at_utc=null;
+  writeJson(root,statePath(1),s);
+}, {}, 'states não-COMPLETED=1');
+expectReadiness('PROGRESS lock residual bloqueia merge readiness', false, null, {progressLockActive:true}, 'PROGRESS.lock.md ainda está ativo');
+expectFail('lifecycle explícito da Bíblia deve coincidir com state','audit_request lifecycle divergente na Bíblia',(root)=>{
+  const s=readJson(root,statePath(1));
+  s.audit_requests=[{id:'001-001',status:'ACCEPTED'}];
+  writeJson(root,statePath(1),s);
+  const bible=fs.readFileSync(path.join(root,s.bible),'utf8')+'\n### 001-001 — TEST_REQUIRED — OPEN\n';
+  write(root,s.bible,bible);
+});
+expectFail('contador OPEN documental stale falha','document_quality.external_audit_requests_open divergente',(root)=>{
+  const s=readJson(root,statePath(1));
+  s.document_quality={external_audit_requests_open:1};
+  writeJson(root,statePath(1),s);
+});
 
 expectFail('state ausente','quantidade de states deve ser 233',(root)=>fs.unlinkSync(path.join(root,statePath(1))));
 expectFail('Bible ausente','Bible ausente',(root)=>fs.unlinkSync(path.join(root,biblePath(1))));
