@@ -135,6 +135,47 @@ describe('load-content-script helper selftest', () => {
     expect(jest.getTimerCount()).toBe(0);
   });
 
+  test('sendMessage preserva resposta assíncrona que chega antes do fallback', async () => {
+    const context = await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    runtimeMock._messageListeners = [
+      (_request, _sender, sendResponse) => {
+        setTimeout(() => sendResponse({ async: true }), 20);
+        return true;
+      },
+    ];
+
+    jest.useFakeTimers();
+    const promise = context.sendMessage('ASYNC_EARLY');
+    expect(jest.getTimerCount()).toBe(2);
+    jest.advanceTimersByTime(20);
+    await expect(promise).resolves.toEqual({ async: true });
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('sendMessage mantém limite de 50 ms mesmo se listener retornar true', async () => {
+    const context = await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    runtimeMock._messageListeners = [
+      (_request, _sender, sendResponse) => {
+        setTimeout(() => sendResponse({ tooLate: true }), 60);
+        return true;
+      },
+    ];
+
+    jest.useFakeTimers();
+    const promise = context.sendMessage('ASYNC_LATE');
+    jest.advanceTimersByTime(50);
+    await expect(promise).resolves.toBeNull();
+    expect(jest.getTimerCount()).toBe(1);
+    jest.advanceTimersByTime(10);
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
   test('sendMessage resolve null após 50 ms quando nenhum listener responde', async () => {
     const context = await loadContentScript({
       hostname: 'reader.test',
@@ -148,6 +189,27 @@ describe('load-content-script helper selftest', () => {
     jest.advanceTimersByTime(50);
     await expect(promise).resolves.toBeNull();
     expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('extra.action não sobrescreve a action explícita', async () => {
+    const context = await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    let observed = null;
+    runtimeMock._messageListeners = [
+      (request, _sender, sendResponse) => {
+        observed = request;
+        sendResponse({ ok: true });
+      },
+    ];
+
+    await expect(context.sendMessage('EXPECTED', {
+      action: 'OVERRIDE_ATTEMPT',
+      value: 7,
+    })).resolves.toEqual({ ok: true });
+
+    expect(observed).toEqual({ action: 'EXPECTED', value: 7 });
   });
 
   test('throw antes do settlement rejeita e limpa fallback', async () => {
