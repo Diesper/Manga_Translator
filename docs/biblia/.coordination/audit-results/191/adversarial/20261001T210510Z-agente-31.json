@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 31",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "e53e43da4f20d727355666e444f0adf0428fc6dc",
+  "bible_sha": "6de02f5ae1e020be70e7fec0e74046b9d2c766dd",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-ADV-001",
+      "severity": "HIGH",
+      "type": "COVERAGE_MAP_INCOMPLETE_AND_MISBOUNDED",
+      "summary": "O mapa declarado como integral cobre 223/226 posições e atribui fronteiras de seção incorretamente.",
+      "evidence": [
+        "As posições 16, 25 e 79 não pertencem a nenhuma faixa do mapa.",
+        "A linha 151 inicia o describe de playSuccessSound, enquanto a faixa 150–190 é rotulada integralmente como testes do mirror de sucesso; a linha 190 já é o marcador do bloco Polyfill.",
+        "A linha 212 inicia describe('Grafo de áudio: osc → gain → destination'), mas a faixa 191–212 é rotulada como fallback webkitAudioContext.",
+        "A fonte integral embutida foi comparada byte a byte e corresponde ao source atual; o defeito está no mapeamento documental de posições."
+      ]
+    },
+    {
+      "id": "191-ADV-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia apresenta 191-001, 191-002 e 191-003 como OPEN, mas o state canônico atual registra os três como ACCEPTED.",
+      "evidence": [
+        "Bíblia: headings '191-001 — TEST_AUTHENTICITY — OPEN', '191-002 — STALE_TEST_CONTRACT — OPEN' e '191-003 — TEST_STRENGTH_REVIEW — OPEN'.",
+        "State #191: 191-001=ACCEPTED, 191-002=ACCEPTED, 191-003=ACCEPTED.",
+        "As três lacunas foram revalidadas contra o source, tests/helpers/extracted-functions.js, content_manga.js e replacement-and-completion-real.test.js; os findings são reais e não devem ser removidos, apenas representados com lifecycle correto."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:05:10Z"
+}
