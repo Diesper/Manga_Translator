@@ -1436,3 +1436,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### Auditoria independente — #107 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #107 — `tests/integration/chapter-dedup.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `e62187cd957a2fe241e4e704aaa9f8285e89162e`.
+- **Integridade:** source real, `.state/107.json`, claim e SHA declarado na Bíblia apontam para o mesmo blob; 261 linhas textuais + newline final = 262 posições, com cobertura 1–262 sem gaps, duplicidades ou extras.
+- **Semântica principal:** a Bíblia descreve corretamente que a suíte executa `buildChapterSystem`/ `canonicalTitle` locais e não importa `extension/content/cm-chapter.js`; a divergência funcional do mirror contra produção foi reconfirmada.
+- **Requests externas:** 107-001, 107-002 e 107-003 permanecem materialmente válidas como dívida funcional/testável separada e não bloqueiam, por si só, a fidelidade documental.
+- **Falha documental bloqueante 1 — fonte integral canônica ausente:** a Bíblia não possui seção `Fonte integral` reconhecível. O validador canônico `bible-coordination.js` rejeita estado `COMPLETED` sem essa seção; portanto a Bíblia não pode ser aprovada no formato atual.
+- **Falha documental bloqueante 2 — SHA stale de dependência:** as seções de wiring/SHAs registram `package.json` como `33e0b91d1a6f1790124b700d2ce331f80d2b7095`, enquanto o branch atual usa `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`. O conteúdo relevante de `test:integration`/`test:ci` continua compatível, mas a evidência criptográfica declarada está stale.
+- **Falha documental bloqueante 3 — classificação de execução:** a matriz classifica “CI está configurada para executar integração” como `EXECUTADO INDIRETAMENTE`, embora cite apenas wiring estático de workflow/package e diga explicitamente que nenhuma run nova é reivindicada. Configuração prova discoverability/wiring, não execução.
+- **Falha documental bloqueante 4 — lifecycle stale:** os headings 107-001/107-002/107-003 permanecem `OPEN` e a conclusão repete “solicitações OPEN”, enquanto o state canônico registra as três como `ACCEPTED`.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica principal=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; assertions=CONFIRMADO_3X; fonte integral=CONTRADITO; evidence classification=CONTRADITO; lifecycle de requests=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
