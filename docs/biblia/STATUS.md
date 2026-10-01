@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **135**
+- READY_FOR_AUDIT: **134**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **98**
+- COMPLETED: **99**
 - requests OPEN: **0**
 - requests ACCEPTED: **585**
 - requests RESOLVED: **8**
@@ -85,7 +85,7 @@
 | 060 | extension/shared/storage-manager.js | COMPLETED | APPROVED | - | d1cd5a2c83ed5fe5a36e67966ea835806b863395 | 3 |
 | 061 | .gitignore | COMPLETED | APPROVED | - | e48fc70b1acc14aabb245f0db1820bc6c7a2849e | 2 |
 | 062 | jest.config.js | COMPLETED | APPROVED | - | f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc | 2 |
-| 063 | package.json | READY_FOR_AUDIT | APPROVED | - | 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48 | 3 |
+| 063 | package.json | COMPLETED | APPROVED | - | 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48 | 3 |
 | 064 | playwright.config.js | COMPLETED | APPROVED | - | 6a27b774a0009db800a70969eaad18716fb5f565 | 4 |
 | 065 | .github/workflows/ci.yml | READY_FOR_AUDIT | NOT_AUDITED | - | 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a | 1 |
 | 066 | .github/workflows/publish.yml | COMPLETED | APPROVED | - | f673d445a3cc022d473f9b59ae1e0c8972ecd013 | 5 |
