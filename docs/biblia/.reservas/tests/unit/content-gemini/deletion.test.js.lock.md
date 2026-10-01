@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/deletion.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: c570bbdc340761412746a1347f297c352e2ff1a4
-CLAIMED_AT_UTC: 2026-10-01T18:43:45.955Z
-UPDATED_AT_UTC: 2026-10-01T18:43:45.955Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
