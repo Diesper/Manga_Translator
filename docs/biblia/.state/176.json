@@ -2,8 +2,8 @@
   "index": 176,
   "file": "tests/unit/content-gemini/deletion.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
   "started_at_utc": "2026-09-30T15:00:00Z",
   "completed_at_utc": null,
@@ -96,7 +96,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T18:43:45.955Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:43:45.955Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
+      "reason": "176-ADV-001..005: ordering, line semantics, lifecycle, DEL-03 scope e cadeia Jest/CI."
+    }
+  ],
   "evidence": []
 }
