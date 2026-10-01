@@ -2,8 +2,8 @@
   "index": 8,
   "file": "extension/background/actions/deliver-result-url.js",
   "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
   "started_at_utc": "2026-09-30T13:00:00Z",
   "completed_at_utc": null,
@@ -92,6 +92,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
       "reason": "008 REAUDIT: qualificar guardas condicionais, ordering de syncState e origem do alias GEMINI_RESULT_URL."
+    },
+    {
+      "at_utc": "2026-10-01T16:48:03.082Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+      "bible_sha": "6feb448c74445e061abb7deb47efd4d52003d921",
+      "reason": "008 findings corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
