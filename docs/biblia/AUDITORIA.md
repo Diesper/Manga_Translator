@@ -1016,3 +1016,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #085 / SHA `45f920bd2db5ba3a1273438b1814b29aeafc3be4`**.
 
+### `verify-e2e-shard-plan.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #086 — `scripts/validation/verify-e2e-shard-plan.js`.
+- **SHA auditado:** `ea1149ced74425ad27ede90ec409c2548cb5b65d`.
+- **Integridade:** **155 linhas textuais + newline final = 156/156 posições**; state, fonte atual e SHA declarado na Bíblia coincidem. A fonte integral embutida é **byte a byte idêntica** ao arquivo real.
+- **Papel confirmado:** o gate executa `playwright test --list --reporter=json` para o inventário completo e para cada tag do plano, constrói chaves compostas de teste e exige partição exata sem omissões ou duplicações.
+- **Plano atual:** cinco grupos, somando 21 testes esperados; o baseline E2E protege mínimo 21. O verificador local aceita no mínimo 5 grupos, enquanto `verify-ci-contract.js` congela exatamente os cinco grupos/IDs/contagens/workers desta fase.
+- **Wiring:** `package.json#test:e2e:plan` aponta para este arquivo; `validate` inclui o gate; o job agregado de E2E executa `npm run test:e2e:plan` antes da consolidação dos shards.
+- **Request 086-001 (HIGH):** permanece **ACCEPTED** — não existe `verify-e2e-shard-plan-selftest.js`; branches negativos de schema, inventário, overlap, omissão, contagem e saída Playwright não possuem mutation/self-test focal.
+- **Request 086-002:** permanece **ACCEPTED** — `spawnSync` possui `maxBuffer`, mas não timeout nem branch específica para `result.error`; hang/spawn error/maxBuffer carecem de política/teste controlado.
+- **Request 086-003:** permanece **ACCEPTED** — `version`, `estimatedSeconds`, domínio de `kind` e a divisão “>=5 local / exatamente 5 global” continuam parcialmente fora do schema deste gate.
+- **Conclusão:** a Bíblia é fiel à implementação e não transforma a execução nominal do gate em prova inexistente dos branches negativos.
+
+**Veredito documental independente:** ✅ **APROVADO — #086 / SHA `ea1149ced74425ad27ede90ec409c2548cb5b65d`**.
+
