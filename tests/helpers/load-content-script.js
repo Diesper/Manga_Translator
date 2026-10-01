@@ -21,7 +21,16 @@ const ROOT = findRepoRoot(__dirname);
 
 const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
 
-let previousStorageListeners = [];
+const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
+
+function getTrackedStorageListeners() {
+    const tracked = globalThis[STORAGE_LISTENER_REGISTRY_KEY];
+    return Array.isArray(tracked) ? tracked : [];
+}
+
+function setTrackedStorageListeners(listeners) {
+    globalThis[STORAGE_LISTENER_REGISTRY_KEY] = [...listeners];
+}
 
 function getMangaContentScriptRelativePaths() {
     const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
@@ -45,12 +54,16 @@ function storageListenersSnapshot() {
     return Array.isArray(listeners) ? [...listeners] : [];
 }
 
-function cleanupPreviousStorageListeners() {
+function removeStorageListeners(listeners) {
     const removeListener = global.chrome?.storage?.onChanged?.removeListener;
     if (typeof removeListener === 'function') {
-        previousStorageListeners.forEach(listener => removeListener(listener));
+        listeners.forEach(listener => removeListener(listener));
     }
-    previousStorageListeners = [];
+}
+
+function cleanupPreviousStorageListeners() {
+    removeStorageListeners(getTrackedStorageListeners());
+    setTrackedStorageListeners([]);
 }
 
 /**
@@ -63,7 +76,9 @@ function cleanupPreviousStorageListeners() {
  * @param {number}   options.imageMinWidth    - Largura mínima configurada para varredura
  * @param {number}   options.imageMinHeight   - Altura mínima configurada para varredura
  * @param {Array}    options.domImages        - Array de { src, width, height, className, attributes } para criar no DOM
- * @param {number}   options.readyTimeoutMs    - Timeout do bootstrap do botão (default: 1000 ms)
+ * @param {boolean}  options.floatingButtonEnabled - Controla a visibilidade persistente do botão
+ * @param {boolean}  options.clickToTranslateEnabled - Controla tradução individual por clique
+ * @param {number}   options.readyTimeoutMs    - Timeout do bootstrap do botão (default: 250 ms)
  * @returns {Promise<Object>} Helpers { sendMessage, getButton, getMainContent }
  */
 async function loadContentScript({
@@ -75,7 +90,7 @@ async function loadContentScript({
     floatingButtonEnabled,
     clickToTranslateEnabled,
     domImages = [],
-    readyTimeoutMs = 1000,
+    readyTimeoutMs = 250,
 } = {}) {
     cleanupPreviousStorageListeners();
     const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
@@ -152,20 +167,28 @@ async function loadContentScript({
     delete window.__manga_translator_content_injected;
 
     // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
+    let bundleLoaded = false;
     try {
         jest.isolateModules(() => {
             getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
         });
+        bundleLoaded = true;
     } finally {
-        previousStorageListeners = storageListenersSnapshot()
+        const addedStorageListeners = storageListenersSnapshot()
             .filter(listener => !storageListenersBeforeLoad.has(listener));
+        if (bundleLoaded) {
+            setTrackedStorageListeners(addedStorageListeners);
+        } else {
+            removeStorageListeners(addedStorageListeners);
+            setTrackedStorageListeners([]);
+        }
     }
 
     // 9. Aguarda a inicialização assíncrona do content script de forma determinística
     const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
     const normalizedReadyTimeoutMs = Number.isFinite(Number(readyTimeoutMs)) && Number(readyTimeoutMs) >= 0
         ? Number(readyTimeoutMs)
-        : 1000;
+        : 250;
     const startedAt = Date.now();
     while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
         const button = document.getElementById('manga-translator-trigger');
@@ -176,6 +199,10 @@ async function loadContentScript({
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
+            cleanupPreviousStorageListeners();
+            window.__manga_translator_active_instance =
+                `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            if (button) button.remove();
             throw new Error(
                 `Timeout aguardando botão do content_manga ficar pronto após ${normalizedReadyTimeoutMs} ms`
             );
