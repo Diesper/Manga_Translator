@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/e2e/reader-offline.spec.js
+BÍBLIA: docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 1ab953d0a031f77cb458befd31650e9ba9c4c052
+CLAIMED_AT_UTC: 2026-10-01T16:44:58.439Z
+UPDATED_AT_UTC: 2026-10-01T16:44:58.439Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
