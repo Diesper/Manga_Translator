@@ -982,3 +982,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #083 / SHA `636e4bfbaa0646cd8259e1f27f09004a92541294`**.
 
+### `verify-coverage-selftest.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #084 — `scripts/validation/verify-coverage-selftest.js`.
+- **SHA auditado:** `ac08dd661f2d2410a56a7fd685cd9b55e85901f9`.
+- **Integridade:** 104 linhas textuais + newline final = **105/105 posições**; state, fonte atual e SHA declarado na Bíblia coincidem, com fonte integral validada pelo gate V2.
+- **Implementação real:** o self-test importa `verifyCoverage` de `verify-coverage.js` e executa a função real contra fixtures temporárias; não replica o algoritmo do gate.
+- **Seis cenários confirmados:** happy path, LCOV vazio, coverage 0%, arquivo crítico ausente, threshold global abaixo do mínimo e threshold crítico abaixo do mínimo.
+- **Força probatória:** `expectCase` compara somente `result.ok`; portanto os cinco negativos provam rejeição global, mas **não** provam que cada falha ocorreu pelo motivo textual/branch pretendido.
+- **Fixture:** `coverageEntry` pode produzir `covered/total` aritmeticamente incompatível com `pct`; o verifier atual governa thresholds por `pct` e não reconcilia essas contagens.
+- **Request 084-001 (HIGH):** permanece **ACCEPTED** — fortalecer assertions por cenário sobre `problems`, métricas e inventários.
+- **Request 084-002:** permanece **ACCEPTED** — vários branches fail-closed/normalização do verifier ainda não possuem fixture focal.
+- **Request 084-003:** permanece **ACCEPTED** — o CI Contract protege cinco labels do self-test, mas não pina explicitamente o cenário de threshold crítico.
+- **Request 084-004:** permanece **ACCEPTED** — falta decisão/teste sobre consistência interna entre `covered/total` e `pct`.
+- **Conclusão:** a Bíblia descreve corretamente o que os seis cenários provam e, principalmente, o que eles **não** provam; as lacunas não foram mascaradas por aprovação documental.
+
+**Veredito documental independente:** ✅ **APROVADO — #084 / SHA `ac08dd661f2d2410a56a7fd685cd9b55e85901f9`**.
+
