@@ -66,7 +66,7 @@
 - [x] 062 — `jest.config.js` — COMPLETED
 - [ ] 063 — `package.json` — READY_FOR_AUDIT
 - [x] 064 — `playwright.config.js` — COMPLETED
-- [x] 065 — `.github/workflows/ci.yml` — COMPLETED
+- [ ] 065 — `.github/workflows/ci.yml` — READY_FOR_AUDIT
 - [x] 066 — `.github/workflows/publish.yml` — COMPLETED
 - [x] 067 — `.github/workflows/recover-cancelled-ci.yml` — COMPLETED
 - [x] 068 — `scripts/ci/data/e2e-shard-plan.json` — COMPLETED

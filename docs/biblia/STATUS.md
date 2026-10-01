@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **134**
+- READY_FOR_AUDIT: **135**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **99**
+- COMPLETED: **98**
 - requests OPEN: **0**
 - requests ACCEPTED: **585**
 - requests RESOLVED: **8**
@@ -87,7 +87,7 @@
 | 062 | jest.config.js | COMPLETED | APPROVED | - | f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc | 2 |
 | 063 | package.json | READY_FOR_AUDIT | APPROVED | - | 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48 | 3 |
 | 064 | playwright.config.js | COMPLETED | APPROVED | - | 6a27b774a0009db800a70969eaad18716fb5f565 | 4 |
-| 065 | .github/workflows/ci.yml | COMPLETED | APPROVED | - | ebee75820db9bfab618bf3c3016065c5bc857ed7 | 1 |
+| 065 | .github/workflows/ci.yml | READY_FOR_AUDIT | APPROVED | - | 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a | 1 |
 | 066 | .github/workflows/publish.yml | COMPLETED | APPROVED | - | f673d445a3cc022d473f9b59ae1e0c8972ecd013 | 5 |
 | 067 | .github/workflows/recover-cancelled-ci.yml | COMPLETED | APPROVED | - | 4809f824f177e93686c11270793eb672aee5952b | 3 |
 | 068 | scripts/ci/data/e2e-shard-plan.json | COMPLETED | APPROVED | - | 22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc | 3 |
