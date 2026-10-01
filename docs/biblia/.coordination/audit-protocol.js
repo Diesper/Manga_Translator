@@ -229,14 +229,7 @@ function validateClaims(states, options = {}) {
     }
   }
 
-  for (const [auditor, paths] of activeByAuditor) {
-    if (paths.length > 1) {
-      strictProblems.push('auditor possui >1 claim/lease ativo: ' + auditor + ' -> ' + paths.join(', '));
-    }
-  }
-  for (const rel of expired) {
-    strictProblems.push('lease expirado residual deve ser reconciliado/removido por CAS: ' + rel);
-  }
+  strictProblems.push(...strictOwnershipProblems(activeByAuditor, expired));
 
   return {
     problems,
@@ -247,6 +240,23 @@ function validateClaims(states, options = {}) {
     activeByAuditor,
     reservations: [...reservations.values()].sort(),
   };
+}
+
+function strictOwnershipProblems(activeByAuditor, expired = []) {
+  const strictProblems = [];
+  const entries = activeByAuditor instanceof Map
+    ? activeByAuditor.entries()
+    : Object.entries(activeByAuditor || {});
+  for (const [auditor, pathsValue] of entries) {
+    const paths = Array.isArray(pathsValue) ? pathsValue : [];
+    if (paths.length > 1) {
+      strictProblems.push('auditor possui >1 claim/lease ativo: ' + auditor + ' -> ' + paths.join(', '));
+    }
+  }
+  for (const rel of expired || []) {
+    strictProblems.push('lease expirado residual deve ser reconciliado/removido por CAS: ' + rel);
+  }
+  return strictProblems;
 }
 
 function loadResults(states) {
@@ -375,6 +385,7 @@ module.exports = {
   parseClaimField,
   reservationFilesBySource,
   validateClaims,
+  strictOwnershipProblems,
   loadResults,
   resolvePipeline,
   loadModel,
