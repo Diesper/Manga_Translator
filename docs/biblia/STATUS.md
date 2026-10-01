@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **132**
+- READY_FOR_AUDIT: **131**
 - CHANGES_REQUIRED: **3**
 - BLOCKED: **0**
-- COMPLETED: **98**
+- COMPLETED: **99**
 - requests OPEN: **1**
 - requests ACCEPTED: **584**
 - requests RESOLVED: **7**
@@ -121,7 +121,7 @@
 | 096 | tests/fixtures/manga-images.js | COMPLETED | APPROVED | - | cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b | 3 |
 | 097 | tests/fixtures/manga-page.html | COMPLETED | APPROVED | - | 71d78eea7eddb51bc93c74bbb3bf652119551ce4 | 0 |
 | 098 | tests/helpers/background-test-utils.js | COMPLETED | APPROVED | - | 1c38cfc47917f2a42788c467b9dbf58648b73e2b | 2 |
-| 099 | tests/helpers/extracted-functions.js | READY_FOR_AUDIT | NOT_AUDITED | - | ccbf20485608a223c723adf638860cb7151c8886 | 3 |
+| 099 | tests/helpers/extracted-functions.js | COMPLETED | APPROVED | - | ccbf20485608a223c723adf638860cb7151c8886 | 3 |
 | 100 | tests/helpers/load-background-module.js | READY_FOR_AUDIT | NOT_AUDITED | - | b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113 | 4 |
 | 101 | tests/helpers/load-content-gemini-module.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee | 5 |
 | 102 | tests/helpers/load-content-script.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0 | 4 |
