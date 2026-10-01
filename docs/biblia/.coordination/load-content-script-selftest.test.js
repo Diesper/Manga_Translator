@@ -55,6 +55,26 @@ describe('load-content-script helper selftest', () => {
     expect(getMangaContentScriptRelativePaths()).toEqual(mangaEntry.js);
   });
 
+  test('fixture de imagem usa DOM API e não transforma valor de atributo em markup', async () => {
+    const injectedValue = '" onerror="globalThis.__fixtureInjected = true';
+    await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+      domImages: [{
+        src: 'https://reader.test/panel.png',
+        width: 800,
+        height: 1200,
+        attributes: { 'data-note': injectedValue },
+      }],
+    });
+
+    const img = document.querySelector('[data-testid="img-0"]');
+    expect(img).toBeTruthy();
+    expect(img.getAttribute('data-note')).toBe(injectedValue);
+    expect(img.hasAttribute('onerror')).toBe(false);
+    expect(globalThis.__fixtureInjected).toBeUndefined();
+  });
+
   test('reinjeção remove listeners de storage da carga anterior', async () => {
     await loadContentScript({
       hostname: 'reader.test',
@@ -68,6 +88,26 @@ describe('load-content-script helper selftest', () => {
       floatingButtonEnabled: false,
     });
     const secondListeners = [...storageMock._listeners];
+
+    expect(secondListeners).toHaveLength(firstListeners.length);
+    for (const listener of firstListeners) {
+      expect(secondListeners).not.toContain(listener);
+    }
+  });
+
+  test('reinjeção remove listeners runtime da carga anterior', async () => {
+    await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    const firstListeners = [...runtimeMock._messageListeners];
+    expect(firstListeners.length).toBeGreaterThan(0);
+
+    await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    const secondListeners = [...runtimeMock._messageListeners];
 
     expect(secondListeners).toHaveLength(firstListeners.length);
     for (const listener of firstListeners) {
@@ -118,6 +158,7 @@ describe('load-content-script helper selftest', () => {
     })).rejects.toThrow('__missing_selftest__');
 
     expect(storageMock._listeners).toHaveLength(0);
+    expect(runtimeMock._messageListeners).toHaveLength(0);
   });
 
   test('sendMessage cancela fallback quando listener responde imediatamente', async () => {
@@ -189,6 +230,47 @@ describe('load-content-script helper selftest', () => {
     jest.advanceTimersByTime(50);
     await expect(promise).resolves.toBeNull();
     expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('sendMessage honra return true e permite resposta assíncrona além de 50 ms', async () => {
+    const context = await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+
+    jest.useFakeTimers();
+    runtimeMock._messageListeners = [
+      (_request, _sender, sendResponse) => {
+        setTimeout(() => sendResponse({ async: true }), 75);
+        return true;
+      },
+    ];
+
+    const promise = context.sendMessage('ASYNC');
+    jest.advanceTimersByTime(75);
+    await expect(promise).resolves.toEqual({ async: true });
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('argumento action não pode ser sobrescrito por extra.action', async () => {
+    const context = await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    let received;
+    runtimeMock._messageListeners = [
+      (request, _sender, sendResponse) => {
+        received = request;
+        sendResponse({ ok: true });
+      },
+    ];
+
+    await expect(context.sendMessage('CANONICAL', {
+      action: 'OVERRIDE',
+      value: 7,
+    })).resolves.toEqual({ ok: true });
+
+    expect(received).toEqual({ action: 'CANONICAL', value: 7 });
   });
 
   test('extra.action não sobrescreve a action explícita', async () => {
