@@ -2,8 +2,8 @@
   "index": 135,
   "file": "tests/unit/background/claim-gemini-job-action.test.js",
   "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
   "started_at_utc": "2026-09-30T06:36:00Z",
   "completed_at_utc": null,
@@ -54,7 +54,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:09:54Z",
+  "updated_at_utc": "2026-10-01T12:11:14Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:05:00Z",
@@ -73,6 +73,15 @@
       "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
       "agent": "AGENTE 23",
       "reason": "Corrigir findings documentais da auditoria independente #135: classificação de wiring CI e lifecycle das requests 135-001/135-002."
+    },
+    {
+      "at_utc": "2026-10-01T12:11:14Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
+      "agent": "AGENTE 23",
+      "reason": "Reparo #135 concluído sem alterar o source; classificação de evidência e lifecycle das requests alinhados à auditoria independente."
     }
   ],
   "evidence": [
@@ -83,6 +92,21 @@
       "auditor": "AGENTE 16",
       "at_utc": "2026-10-01T12:05:00Z",
       "note": "Passagens 0-15 executadas. SHA/fonte/cobertura/semântica principal/assertions passaram; evidence classification e lifecycle das audit requests falharam após múltiplas revalidações."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T12:11:14Z",
+      "note": "Fonte 202/202 permaneceu inalterada; wiring CI rebaixado a gate estático e requests 135-001/002 alinhadas ao state. Reauditoria independente necessária."
     }
-  ]
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "202/202",
+    "source_text_lines": 201,
+    "repair_note": "Corrigidos findings do AGENTE 16: CI classificada como wiring/gate estático e lifecycle 135-001=ACCEPTED / 135-002=SUPERSEDED por 005-002. Source inalterado; reauditoria independente necessária."
+  }
 }

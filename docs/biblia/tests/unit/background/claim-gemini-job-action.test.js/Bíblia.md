@@ -119,7 +119,7 @@ Esta suíte não afirma provar cada sub-branch desse módulo. Ela prova que, par
 | migração remove chave antiga | linha 197 | ✅ PROVADO DIRETAMENTE |
 | migração cria job sob chave nova | linhas 198–199 | ✅ PROVADO DIRETAMENTE |
 | arquivo pertence ao projeto Jest background | `jest.config.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| CI está configurada para executar inventário Jest | `package.json#test:ci` + workflow | 🟨 EXECUTADO INDIRETAMENTE pelo pipeline configurado; nenhuma execução nova é reivindicada nesta auditoria |
+| CI está configurada para executar inventário Jest | `package.json#test:ci` + workflow | 🟦 GATE ESTÁTICO ESPECÍFICO — wiring do pipeline; nenhuma execução concreta é reivindicada nesta Bíblia |
 | sender Gemini sem `tab.id` inteiro retorna claim nulo | ramo 30–33 da action sem assertion específica localizada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | job indexado com jobId correto mas ownership canônico de outra tab é rejeitado | ramo 76–82 da action sem assertion específica localizada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | falha/conflito durante migração vira `INTERNAL_ERROR` no router | combinação de branches existe, mas não é alvo desta suíte | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO nesta suíte |
@@ -157,7 +157,7 @@ O source guard é exercitado com `https://reader.example/chapter`, que o router 
 
 ## 10. Solicitações ao auditor
 
-### 135-001 — TEST_REQUIRED — OPEN — severidade HIGH
+### 135-001 — TEST_REQUIRED — ACCEPTED — severidade HIGH
 
 **Encontrado:** o branch de `claim-gemini-job.js` que rejeita ownership canônico divergente (linhas 76–82) não possui assertion específica localizada nas suítes que referenciam `CLAIM_GEMINI_JOB`.
 
@@ -171,7 +171,7 @@ O source guard é exercitado com `https://reader.example/chapter`, que o router 
 
 **Risco:** regressão nessa guarda permitiria claim cruzado entre abas Gemini, associando trabalho/resultados à aba errada.
 
-### 135-002 — TEST_REQUIRED — OPEN — severidade NORMAL
+### 135-002 — TEST_REQUIRED — SUPERSEDED por 005-002 — severidade NORMAL
 
 **Encontrado:** o guard de sender sem `tab.id` inteiro (linhas 30–33 da action) não possui assertion focal nesta suíte.
 
