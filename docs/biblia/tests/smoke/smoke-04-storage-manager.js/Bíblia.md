@@ -398,7 +398,7 @@ run().catch(err => {
 
 ## 9. Cobertura documental por faixas contíguas
 
-As **257 posições** são cobertas integralmente, em ordem, sem gaps nem overlap.
+As **291 posições** são cobertas integralmente, em ordem, sem gaps nem overlap.
 
 ### Bloco 01 — linhas/posições 1–9
 Cabeçalho, strict mode, `assert` e instalação de `fake-indexeddb/auto`.
@@ -406,44 +406,44 @@ Cabeçalho, strict mode, `assert` e instalação de `fake-indexeddb/auto`.
 ### Bloco 02 — linhas/posições 10–52
 Mock controlável de `chrome.storage.local` e `chrome.runtime.lastError`, incluindo injeção `get/set/remove`.
 
-### Bloco 03 — linhas/posições 53–81
-Import do storage-manager real, round-trip, entradas inválidas e recuperação de `openStorageDb` após indisponibilidade transitória.
+### Bloco 03 — linhas/posições 53–86
+Import do storage-manager real, round-trip, entradas inválidas, ausência transitória de IndexedDB, `indexedDB.open()` síncrono falhando, retry e presença de `onversionchange`.
 
-### Bloco 04 — linhas/posições 82–119
-Save inicial, overwrite, coleta de asset e troca de `cleanUrl` sem restore/asset stale.
+### Bloco 04 — linhas/posições 87–154
+Save inicial/overwrite, coleta de asset, fault injection de transaction abortada com rollback e troca de `cleanUrl` sem restore/asset stale.
 
-### Bloco 05 — linhas/posições 120–142
+### Bloco 05 — linhas/posições 155–177
 `deleteByCleanUrl` completo e caso multi-capítulo com a mesma URL.
 
-### Bloco 06 — linhas/posições 143–168
+### Bloco 06 — linhas/posições 178–203
 Corrida save/delete validada por invariantes e `deleteChapter` com cleanup de página/restore/asset.
 
-### Bloco 07 — linhas/posições 169–190
+### Bloco 07 — linhas/posições 204–225
 Migração feliz de duas páginas, restore/asset, limpeza exata do legado e idempotência.
 
-### Bloco 08 — linhas/posições 191–235
+### Bloco 08 — linhas/posições 226–270
 Falha parcial retryable e fault injection de `runtime.lastError` para get/remove/set com retries.
 
-### Bloco 09 — linhas/posições 236–248
+### Bloco 09 — linhas/posições 271–282
 `stats()` com deltas exatos e retorno ao baseline após `deleteChapter`.
 
-### Bloco 10 — linhas/posições 249–256
+### Bloco 10 — linhas/posições 283–290
 Mensagem final e wrapper `run().catch` que transforma qualquer rejeição/assertion em exit code 1.
 
-### Bloco 11 — linhas/posições 257–257
+### Bloco 11 — linhas/posições 291–291
 Posição do newline terminal.
 
 ## 10. Revalidação editorial
 
-- SHA do fonte: `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`.
+- SHA do fonte: `500853da2950c31fd5fb4e2a91765a9331c28153`.
 - Fonte integral incorporada: **sim**.
-- Posições: **257/257**, cobertas por 11 faixas contíguas.
+- Posições: **291/291**, cobertas por 11 faixas contíguas.
 - `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME: **nenhum encontrado**.
-- 126-001: **SUPERSEDED por 060-002**, não OPEN.
+- 126-001: **SUPERSEDED por 060-002**; fault injection de abort foi adicionado nesta revisão, sem reescrever o lifecycle histórico.
 - 126-002: **ACCEPTED; regressão implementada e aguardando execução**.
 - 126-003: **ACCEPTED; regressão implementada e aguardando execução**.
-- Gap de rollback IDB sob abort: **explicitamente não reivindicado como provado**.
-- Execução CI `MangaTranslator CI` run **36936712283**, job **110618800485 (Smoke Tests)**: **FAIL** em `smoke-04`, ao tentar reabrir o DB após indisponibilidade transitória.
-- Causa confirmada por leitura do source #060: `_smDbPromise = null` dentro do executor é sobrescrito pela atribuição externa `_smDbPromise = new Promise(...)`; a rejeição permanece cacheada.
-- 126-002/126-003 continuam `ACCEPTED`; nenhuma request foi resolvida artificialmente.
-- Após corrigir #060 e obter execução verde, esta revisão deve ser revalidada e então seguir para nova auditoria PRIMARY + ADVERSARIAL.
+- Retry após ausência transitória de IDB e após `indexedDB.open()` síncrono falhar: **implementado; CI do SHA atual pendente**.
+- Rollback de transaction abortada via fake-indexeddb: **implementado; CI do SHA atual pendente**.
+- Run 36936712283 permanece evidência negativa do SHA anterior: revelou o bug de cache em #060 e **não** valida esta revisão.
+- Nenhuma request é marcada como resolvida antes de execução verde do SHA atual.
+- Após CI verde, revalidar o blob final e devolver #126 a nova auditoria PRIMARY + ADVERSARIAL.
