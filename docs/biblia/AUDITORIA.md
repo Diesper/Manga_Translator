@@ -1360,3 +1360,23 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO enquanto a Bíblia mantiver OPEN stale; Honestidade da classificação de evidência=SIM.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `load-content-script.js` — reauditoria independente pelo AGENTE 11 em 2026-10-01
+
+- **Índice:** #102 — `tests/helpers/load-content-script.js`.
+- **Auditor:** AGENTE 11.
+- **SHA auditado:** `40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0`.
+- **Integridade criptográfica:** state, source, claim e SHA declarado na Bíblia coincidem no mesmo blob; o source possui **171 linhas textuais + LF final = 172 posições**.
+- **Fonte integral:** o bloco embutido na seção de fonte integral foi comparado novamente com o blob e é **byte/texto idêntico**, com 7509 caracteres e newline final preservado.
+- **Cobertura:** 35 faixas formam a união exata **1–172**, sem gaps, overlaps ou posições fora da fonte.
+- **Reparos anteriores revalidados:** os dois blockers do AGENTE 8 foram corrigidos: `UPDATE_IMAGE` não é mais promovido a resposta assertada, e `sendMessage` agora documenta corretamente que o fallback de 50 ms pode vencer respostas tardias e que `return true` não é preservado.
+- **Falha documental bloqueante 1 — neutralização de listeners stale generalizada além do source:** a Bíblia afirma que trocar `window.__manga_translator_active_instance` torna listeners antigos logicamente stale antes que mutações de storage possam acioná-los, e a cobertura repete que listeners antigos falham em `isActiveContentInstance`. Porém `content_manga.js` registra, para `imageMinWidth/imageMinHeight`, um `chrome.storage.onChanged` que **não consulta** `isActiveContentInstance()`. O `ChromeStorageMock` mantém `storageMock._listeners` entre resets normais e `loadContentScript` reinjeta o módulo via `jest.isolateModules`; portanto callbacks antigos de dimensões continuam sendo invocados em cargas posteriores. A invalidação protege handlers que realmente consultam o guard, não todos os listeners de storage.
+- **Falha documental bloqueante 2 — throw síncrono após settlement descrito incorretamente:** o caso-limite 19 afirma que, se um listener lançar dentro do `forEach`, o executor da Promise captura a exception e a Promise rejeita. Isso só é verdade se o throw ocorrer **antes** de uma resolução efetiva. Como todos os listeners compartilham o mesmo `resolve`, um listener anterior pode resolver a Promise; se um listener posterior lançar sincronamente, o reject implícito do executor é ignorado porque a Promise já está settled, e o resultado permanece fulfilled. A própria regra “primeira resolução ganha” exige essa distinção.
+- **Consumers/dependências:** foram reconfirmados dez consumers diretos do helper. Os quatro destacados na Bíblia são reais, mas não são inventário exaustivo. Manifest, Jest config, repo-root, Chrome mock e `content_manga.js` confirmam o wiring principal descrito.
+- **Assertions/evidência:** `GET_FLOATING_BUTTON_STATUS`, `TRANSLATE_CONTEXT_IMAGE` e `GET_PAGE_IMAGES` possuem assertions reais de resposta; `gtc-indexeddb-deep.test.js` dispara `UPDATE_IMAGE` sem asserir a resposta, apenas persistência posterior. A classificação reparada é conservadora nesse ponto.
+- **Audit requests:** 102-001..004 foram revalidadas e permanecem **ACCEPTED**. Foi adicionada **102-005 — RESOURCE_LIFECYCLE_REVIEW — ACCEPTED** para o acúmulo/execução de storage listeners stale em reinjeções repetidas.
+- **Teste adversarial mental:** uma regressão que deixe callbacks antigos de dimensões acumularem continua compatível com a alegação atual de “listeners antigos stale”; e uma sequência de dois listeners em que o primeiro responde e o segundo lança contradiz o caso-limite 19 sem violar a implementação. Ambos os contraexemplos sobreviveram a três verificações independentes.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica principal=CONTRADITO; dependências=CONFIRMADO_3X; consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONTRADITO no claim de neutralização de listeners; audit requests=CONFIRMADO_3X; histórico/state=CONFIRMADO_3X; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto os dois claims semânticos acima permanecerem.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
