@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/job-runner.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: feae92421dd98e682caf3f970ba7ff86b8b6aa4a
-CLAIMED_AT_UTC: 2026-10-01T21:29:40.752Z
-UPDATED_AT_UTC: 2026-10-01T21:29:40.752Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
