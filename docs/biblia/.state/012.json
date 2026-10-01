@@ -2,11 +2,11 @@
   "index": 12,
   "file": "extension/background/actions/export-all.js",
   "bible": "docs/biblia/extension/background/actions/export-all.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
   "started_at_utc": "2026-09-30T12:33:00Z",
-  "completed_at_utc": "2026-09-30T12:39:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "012-001",
@@ -62,7 +62,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T16:49:19.133Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T16:49:19.133Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
+      "reason": "012-REA-001/002: limitar prova de wait/show ordering e qualificar ChromeDownloadsMock."
+    }
+  ],
   "evidence": []
 }
