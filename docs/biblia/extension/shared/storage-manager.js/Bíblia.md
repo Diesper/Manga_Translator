@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/shared/storage-manager.js`
 
 > **Estado:** 🟡 CORRIGIDO — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `eff459953f6f2cf4c60a236b491f818a1ee1b88e`  
+> **SHA auditado:** `f9b5c5b330eaab35477582344e8b0f088825aca1`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — persistência IndexedDB do Manga Translator  
 > **Runtime principal:** Chromium MV3 Service Worker / páginas internas da extensão  
@@ -44,7 +44,7 @@ O desenho separa **metadados** de **bytes da imagem**. Popup/reader podem listar
 
 ### 3.4 Migração legada
 
-A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapter>_restoreMap` e `<chapter>_restoreMeta`. Páginas são migradas primeiro; restores sem página recebem índices negativos temporários. Se qualquer `savePageResult` falhar, retorna imediatamente `{ failed: true }` antes da flag e do cleanup; somente um percurso sem falha chega à gravação da flag e, se houve migração, à remoção das três chaves legadas.
+A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapter>_restoreMap` e `<chapter>_restoreMeta`. Páginas são migradas primeiro; restores sem página recebem índices negativos temporários. Se qualquer `savePageResult` falhar, retorna imediatamente `{ failed: true }`. Em percurso sem falha, o legado é removido primeiro (quando `migrated > 0`) e **só depois** a flag `_sm_migrated_<chapterId>` é gravada; assim uma falha de cleanup permanece retryable.
 
 ## 4. Evidências automatizadas auditadas
 
@@ -611,11 +611,11 @@ async function migrateChapterFromLegacy(chapterId) {
         } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
-    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
     if (migrated > 0) {
         await new Promise((resolve, reject) => chrome.storage.local.remove(
             [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));
     }
+    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
 
     return { migrated, skipped: false };
 }
@@ -4911,48 +4911,48 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0473
 
-**Fonte:** `await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));`  
-**O que faz:** Grava a flag de migração por uma Promise que resolve no sucesso e rejeita se o callback expõe `runtime.lastError`.  
-**Como faz:** O callback consulta `chrome.runtime?.lastError`; se presente, rejeita com `Error`, caso contrário resolve.  
+**Fonte:** `if (migrated > 0) {`  
+**O que faz:** Entra no cleanup legado somente quando ao menos um item foi migrado.  
+**Como faz:** Guarda a chamada de `chrome.storage.local.remove`; se `migrated === 0`, nenhuma chave de payload é removida.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** Falha de `set` já não vira sucesso silencioso, mas ainda não há fault-injection focal desta API.  
-**Evidência:** 🟨 SUCESSO PROVADO; ERRO AINDA NÃO INJETADO — smoke-04 confirma flag no happy path.
+**Risco/alternativa:** A flag ainda não foi gravada neste ponto, então falha do cleanup permanece elegível a retry.  
+**Evidência:** 🟨 HAPPY PATH PROVADO; ERRO DE CLEANUP AINDA NÃO INJETADO — smoke-04 exerce o ramo `migrated > 0`.  
 
 ### Linha 0474
 
-**Fonte:** `if (migrated > 0) {`  
-**O que faz:** Aplica a guarda `if (migrated > 0) {`.  
-**Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
+**Fonte:** `await new Promise((resolve, reject) => chrome.storage.local.remove(`  
+**O que faz:** Inicia a remoção assíncrona das chaves legadas antes de consolidar a flag de migração.  
+**Como faz:** Cria Promise com `resolve/reject`; o callback e a inspeção de `runtime.lastError` ficam na linha 475.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** Falha de remove rejeita e impede a execução da linha 477, preservando a possibilidade de retry.  
+**Evidência:** 🟨 SUCESSO PROVADO; `lastError` DE REMOVE AINDA NÃO INJETADO.  
 
 ### Linha 0475
 
-**Fonte:** `await new Promise((resolve, reject) => chrome.storage.local.remove(`  
-**O que faz:** Inicia a Promise de remoção das chaves legadas com caminhos explícitos de resolve/reject.  
-**Como faz:** O callback completo está na linha 476 e rejeita quando `runtime.lastError` existe.  
+**Fonte:** `[\`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));`  
+**O que faz:** Passa as três chaves legadas e conclui/rejeita a Promise conforme `chrome.runtime.lastError`.  
+**Como faz:** No callback, rejeita em `lastError`; só resolve quando a remoção não reporta erro.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** Falha de remove é propagada; ainda falta fault-injection focal e uma falha depois da flag pode deixar flag=true com legado presente.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** Sem fault-injection, o branch negativo depende de inspeção estática; a ordem agora impede flag=true após falha de cleanup.  
+**Evidência:** 🟨 SUCESSO PROVADO; BRANCH `lastError` AINDA NÃO ISOLADO.  
 
 ### Linha 0476
 
-**Fonte:** `[\`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));`  
-**O que faz:** Passa as três chaves legadas do capítulo para `chrome.storage.local.remove`.  
-**Como faz:** Passa as três chaves em uma chamada; o callback consulta `runtime.lastError`, rejeita em erro e resolve somente quando a API não reporta falha.  
+**Fonte:** `}`  
+**O que faz:** Fecha o branch de cleanup condicionado a `migrated > 0`.  
+**Como faz:** Somente após este fechamento o fluxo pode consolidar a flag na linha 477.  
 **Por que assim:** Libera a cota ocupada por Base64 antigo depois da migração.  
-**Risco/alternativa:** A migração parcial retorna antes desta linha; porém uma falha de remove acontece depois da flag ter sido gravada e pode exigir política de recuperação específica.  
-**Evidência:** 🟨 SUCESSO PROVADO; ERRO DE REMOVE AINDA NÃO INJETADO — smoke-04 confirma cleanup no happy path.
+**Risco/alternativa:** Sem efeito funcional isolado além de garantir a ordem cleanup → flag.  
+**Evidência:** 🟨 ORDEM CONFIRMADA POR LEITURA DO SOURCE; falta fault-injection focal.  
 
 ### Linha 0477
 
-**Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `}`.  
-**Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
+**Fonte:** `await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));`  
+**O que faz:** Consolida a flag de migração somente depois de concluir qualquer cleanup necessário.  
+**Como faz:** `storage.local.set` rejeita em `runtime.lastError` e resolve apenas no callback sem erro.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** Se o `set` falhar após cleanup bem-sucedido, o retry reencontra payload legado ausente e pode tentar gravar a flag novamente sem perda de dados.  
+**Evidência:** 🟨 FLAG NO HAPPY PATH PROVADA; branch `lastError` ainda não tem fault-injection.  
 
 ### Linha 0478
 
