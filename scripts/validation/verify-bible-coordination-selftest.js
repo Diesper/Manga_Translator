@@ -115,6 +115,28 @@ function auditClaimFor(root,state,auditor='AUDITOR-X',overrides={}){
   ].join('\n'));
   return rel;
 }
+function stagedAuditClaimFor(root,state,phase='PRIMARY',auditor='AUDITOR-X',overrides={}){
+  const index=overrides.index ?? state.index;
+  const dir=phase.toLowerCase();
+  const filename=overrides.filename ?? String(index).padStart(3,'0')+'.lock.md';
+  const rel='docs/biblia/.coordination/audit-claims/'+dir+'/'+filename;
+  write(root,rel,[
+    'AUDITOR: '+auditor,
+    'PHASE: '+(overrides.declaredPhase ?? phase),
+    'INDEX: '+index,
+    'ARQUIVO: '+(overrides.file ?? state.file),
+    'BIBLIA: '+(overrides.bible ?? state.bible),
+    'SOURCE_SHA: '+(overrides.sourceSha ?? state.source_sha),
+    'CLAIMED_AT_UTC: 2026-10-01T04:20:00Z',
+    'UPDATED_AT_UTC: 2026-10-01T04:20:00Z',
+    'LEASE_EXPIRES_AT_UTC: '+(overrides.leaseExpiresAt ?? '2099-01-01T00:00:00Z'),
+    'PR: #66',
+    'BRANCH: docs/project-bible',
+    'ESTADO: '+(overrides.claimState ?? 'ACTIVE'),
+    ''
+  ].join('\n'));
+  return rel;
+}
 function progressLockFor(root,state,auditor='AUDITOR-X'){
   const rel='docs/biblia/.coordination/PROGRESS.lock.md';
   write(root,rel,[
@@ -272,65 +294,28 @@ expectFail('lock de outro arquivo não satisfaz ownership','lock não satisfaz o
   const s=readJson(root,statePath(1));s.status='IN_PROGRESS';s.agent='AGENT-X';writeJson(root,statePath(1),s);lockFor(root,s,'AGENT-Y');
 });
 
-expectPass('audit claim em READY_FOR_AUDIT passa',(root)=>{
+expectPass('audit claim legado PRIMARY em READY_FOR_AUDIT passa',(root)=>{
   const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);auditClaimFor(root,s);
 });
-expectFail('audit claim em COMPLETED falha','audit claim exige READY_FOR_AUDIT',(root)=>{
+expectFail('audit claim legado PRIMARY em COMPLETED falha','audit claim PRIMARY incompatível com status',(root)=>{
   const s=readJson(root,statePath(1));auditClaimFor(root,s);
 });
-expectPass('audit claim terminal passa durante finalização transacional',(root)=>{
-  const s=readJson(root,statePath(1));
-  s.history.push({
-    at_utc:'2026-10-01T04:21:00Z',
-    type:'INDEPENDENT_AUDIT_APPROVED',
-    from_status:'READY_FOR_AUDIT',
-    to_status:'COMPLETED',
-    source_sha:s.source_sha,
-    auditor:'AUDITOR-X'
-  });
-  writeJson(root,statePath(1),s);
-  auditClaimFor(root,s,'AUDITOR-X');
-  progressLockFor(root,s,'AUDITOR-X');
+expectPass('claim PRIMARY particionado em READY_FOR_AUDIT passa',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);stagedAuditClaimFor(root,s,'PRIMARY');
 });
-expectFail('audit claim terminal com PROGRESS de outro auditor falha','audit claim exige READY_FOR_AUDIT',(root)=>{
-  const s=readJson(root,statePath(1));
-  s.history.push({
-    at_utc:'2026-10-01T04:21:00Z',
-    type:'INDEPENDENT_AUDIT_APPROVED',
-    from_status:'READY_FOR_AUDIT',
-    to_status:'COMPLETED',
-    source_sha:s.source_sha,
-    auditor:'AUDITOR-X'
-  });
-  writeJson(root,statePath(1),s);
-  auditClaimFor(root,s,'AUDITOR-X');
-  progressLockFor(root,s,'AUDITOR-Y');
+expectPass('claim ADVERSARIAL pode revisar COMPLETED legado',(root)=>{
+  const s=readJson(root,statePath(1));stagedAuditClaimFor(root,s,'ADVERSARIAL','AUDITOR-Y');
 });
-expectFail('audit claim terminal sem history de veredito falha','audit claim exige READY_FOR_AUDIT',(root)=>{
-  const s=readJson(root,statePath(1));
-  auditClaimFor(root,s,'AUDITOR-X');
-  progressLockFor(root,s,'AUDITOR-X');
+expectFail('claim PRIMARY particionado não aceita COMPLETED','audit claim PRIMARY incompatível com status',(root)=>{
+  const s=readJson(root,statePath(1));stagedAuditClaimFor(root,s,'PRIMARY');
 });
-expectFail('audit claim terminal com evento posterior ao veredito falha','audit claim exige READY_FOR_AUDIT',(root)=>{
-  const s=readJson(root,statePath(1));
-  s.history.push({
-    at_utc:'2026-10-01T04:21:00Z',
-    type:'INDEPENDENT_AUDIT_APPROVED',
-    from_status:'READY_FOR_AUDIT',
-    to_status:'COMPLETED',
-    source_sha:s.source_sha,
-    auditor:'AUDITOR-X'
-  });
-  s.history.push({
-    at_utc:'2026-10-01T04:22:00Z',
-    type:'COORDINATION_NOTE',
-    source_sha:s.source_sha,
-    reason:'evento posterior ao veredito'
-  });
-  writeJson(root,statePath(1),s);
-  auditClaimFor(root,s,'AUDITOR-X');
-  progressLockFor(root,s,'AUDITOR-X');
+expectFail('claim particionado exige lease válido','audit claim LEASE_EXPIRES_AT_UTC inválido/ausente',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);stagedAuditClaimFor(root,s,'PRIMARY','AUDITOR-X',{leaseExpiresAt:''});
 });
+expectFail('claim particionado rejeita PHASE divergente','audit claim PHASE diverge do path',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);stagedAuditClaimFor(root,s,'PRIMARY','AUDITOR-X',{declaredPhase:'ADVERSARIAL'});
+});
+
 expectPass('modo ativo tolera auditor com dois claims transitórios',(root)=>{
   for(const i of [1,2]){
     const s=readJson(root,statePath(i));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(i),s);auditClaimFor(root,s,'AUDITOR-X');
