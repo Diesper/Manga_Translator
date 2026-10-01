@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "index": 7,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 2",
+  "file": "extension/background/actions/deliver-result-from-tab.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md",
+  "source_sha": "59543c1359669ced02a1d05c251b272abaad6709",
+  "bible_sha": "39d4fc3e04954d4ea338fdca969412c2197cfc69",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "007-A2-ADV-001",
+      "severity": "MATERIAL",
+      "category": "AUDIT_REQUEST_GAP_ASYNC_LIFECYCLE",
+      "finding": "A revisão atual não representa a parte mais crítica da request ACCEPTED 007-003: assertJobOwnership é adaptado para Promise sem timeout/cancelamento local. Se o callback não ocorrer, execute fica pendente indefinidamente; a Bíblia documenta ownership negativo e rejeições de sync/finalize, mas não o callback ausente nem o risco de Promise permanentemente pendente.",
+      "evidence": [
+        "Source linhas 33–37: new Promise(resolve => context.assertJobOwnership(... callback ... resolve(...))) sem timer, reject ou cancelamento.",
+        ".state/007.json: 007-003 está ACCEPTED e exige explicitamente revisão de callback ausente/timeout de ownership.",
+        "Bíblia seção 7/U04 apenas registra ownership.owns=false/job=null, callback convertido para Promise e rejeição/erro do helper; busca por callback/timeout não contém a limitação de callback ausente.",
+        "deliver-result-from-tab-action.test.js sempre invoca o callback de ownership sincronicamente; não existe caso de callback omitido."
+      ],
+      "required_change": "Documentar explicitamente a dependência de callback sem timeout, o estado pendente resultante e a ausência de prova focal; manter 007-003 como limitação não resolvida até existir contrato/teste específico."
+    },
+    {
+      "id": "007-A2-ADV-002",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION_ACK_PERSISTENCE",
+      "finding": "A Bíblia afirma que o helper de ACK é a 'garantia efetiva de persistência' e classifica a suíte como prova direta de persistência dom_applied/resultPersisted, mas o helper considera sucesso qualquer callback sem runtime.lastError e sem response.ok===false — inclusive response undefined — e engole falha de updateJobState. A suíte usa updateJobState mockado com sucesso e não prova persistência real nesses casos.",
+      "evidence": [
+        "jobs-dom-ack.js: callback sem runtime.lastError e sem response.ok===false chama settle(true,'ack',response).",
+        "jobs-dom-ack.js: persisted = ok && response?.persisted !== false; com response undefined e ok=true, persisted resulta true.",
+        "jobs-dom-ack.js: updateJobState(... state:'dom_applied', resultPersisted:true ...) está em try/catch vazio; rejeição não transforma o ACK em falha.",
+        "jobs-dom-ack-staging.test.js verifica chamada ao mock updateJobState e usa mockResolvedValue; não cobre callback undefined sem lastError nem mockRejectedValue da persistência.",
+        "Bíblia §8 item 5: 'O helper de ACK é a garantia efetiva de persistência.'"
+      ],
+      "required_change": "Rebaixar a linguagem para o contrato exato do helper: ele interpreta o ACK segundo a regra atual e tenta atualizar o estado, mas isso não é garantia absoluta de persistência. Reclassificar a evidência como chamada/execução do helper com dependência mockada e registrar os casos não provados."
+    },
+    {
+      "id": "007-A2-ADV-003",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_ENVIRONMENT_MISMATCH",
+      "finding": "A rastreabilidade da posição 103 diz que a IIFE usa self no worker e globalThis no harness. O teste focal, porém, define global.self = global antes de carregar router/action; portanto o harness citado exerce o ramo self, não o fallback globalThis.",
+      "evidence": [
+        "Source linha 103: (typeof self !== 'undefined' ? self : globalThis). A decisão é condicional à existência de self, não ao rótulo worker versus harness.",
+        "Bíblia posição 103: 'Fecha a IIFE usando self no worker e globalThis no harness.'",
+        "deliver-result-from-tab-action.test.js loadRouter(): global.self = global antes de require(ROUTER_PATH) e require(ACTION_PATH)."
+      ],
+      "required_change": "Descrever literalmente a seleção de escopo: self quando definido; caso contrário globalThis. Não atribuir ao harness a cobertura do fallback globalThis sem teste específico."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:36:40Z"
+}
