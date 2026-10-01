@@ -8,15 +8,15 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **138**
-- CHANGES_REQUIRED: **0**
+- READY_FOR_AUDIT: **137**
+- CHANGES_REQUIRED: **1**
 - BLOCKED: **0**
 - COMPLETED: **95**
 - requests OPEN: **1**
-- requests ACCEPTED: **586**
-- requests RESOLVED: **5**
+- requests ACCEPTED: **583**
+- requests RESOLVED: **7**
 - requests REJECTED: **1**
-- requests SUPERSEDED: **62**
+- requests SUPERSEDED: **63**
 - snapshot/HEAD: `states-v2`
 
 ## Itens
@@ -111,7 +111,7 @@
 | 086 | scripts/validation/verify-e2e-shard-plan.js | COMPLETED | APPROVED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
 | 087 | scripts/validation/verify-jest-worker-warning-selftest.js | COMPLETED | APPROVED | - | 4c8ce078abcf58f66ded7918650b2f54d9fa40cf | 1 |
 | 088 | scripts/validation/verify-publish-contract.js | COMPLETED | APPROVED | - | f5b3f6c69f85f90fe43689de2e44b6ed70cca757 | 2 |
-| 089 | scripts/validation/verify-repository-structure.js | READY_FOR_AUDIT | NOT_AUDITED | - | 04d0337a168e14994bd855a455f11dd61fcabcb6 | 5 |
+| 089 | scripts/validation/verify-repository-structure.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 04d0337a168e14994bd855a455f11dd61fcabcb6 | 5 |
 | 090 | scripts/validation/verify-test-policy-selftest.js | COMPLETED | APPROVED | - | ac0318e4d90c5014180eb3d3a6ac4784cc70a24a | 2 |
 | 091 | scripts/validation/verify-test-policy.js | COMPLETED | APPROVED | - | 4a821403353445023452a0b5055e3a0893beaad2 | 3 |
 | 092 | tests/e2e/cache-and-storage.spec.js | COMPLETED | APPROVED | - | b181989a9b89151ca17cbcbeb7db9342b98c9add | 3 |
