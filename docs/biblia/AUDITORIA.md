@@ -1256,3 +1256,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #099 / SHA `ccbf20485608a223c723adf638860cb7151c8886`**.
 
+### `load-extension-page.js` — auditoria independente SHA-bound pelo AGENTE 9 em 2026-10-01
+
+- **Índice:** #103 — `tests/helpers/load-extension-page.js`.
+- **Auditor:** AGENTE 9.
+- **SHA auditado:** `c2325598f10b3ef9dd656a4e87db8569748e66b0`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; 85 linhas textuais + newline final = **86/86 posições**; a fonte integral embutida é byte a byte idêntica ao arquivo atual.
+- **Cobertura:** posições 1–86 presentes uma única vez, sem gaps, duplicidades ou posições fora da fonte.
+- **Consumers/wiring:** foram reconfirmados os 12 consumers listados na Bíblia; reader/options/popup carregam `shared-ui.js` antes do script alvo; os projetos popup, reader e integration usam jsdom.
+- **Assertions/evidência:** consumers fazem assertions funcionais reais sobre DOM/storage/runtime, sustentando execução indireta do helper. `stripExternalScripts` e `getScriptDependencies` não possuem teste focal; 103-001 permanece **ACCEPTED**. O dispatch sintético chama listeners diretamente com `await listener(event)`, confirmando 103-002 como **ACCEPTED**.
+- **Falha bloqueante 1 — restauração overstated:** a Bíblia diz que a posição 64 “restaura `document.addEventListener` original” e repete isso como invariante. Porém a posição 47 captura `document.addEventListener.bind(document)`, que cria uma nova função; a posição 64 reassocia esse wrapper bound, não a referência original. A Bíblia precisa descrever a semântica real sem afirmar identidade/restauração exata inexistente.
+- **Falha bloqueante 2 — evidência do branch errado:** a posição 70 documenta o ramo `else` (`fireDOMContentLoaded === false`), mas cita como evidência consumers com `fireDOMContentLoaded: true`. Essa evidência não executa o ramo focal. Existe execução indireta correta em `tests/integration/reader.ui.test.js`, que omite a flag e faz assertions no DOM; a Bíblia deve citar a prova que realmente exerce o branch.
+- **Falha bloqueante 3 — lifecycle de requests stale:** a seção 7 rotula 103-001 e 103-002 como `OPEN`, enquanto o state canônico registra ambas como `ACCEPTED` após auditoria independente anterior.
+- **Tentativa formal de reprovação:** os três findings sobreviveram à releitura do source/Bíblia, à busca independente por consumers/testes e à segunda auditoria da própria conclusão.
+- **Matriz crítica:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica=CONTRADITO; dependências=CONFIRMADO_3X; consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONTRADITO na posição 70; audit requests=CONTRADITO quanto aos status duplicados; lifecycle/state=CONFIRMADO_3X; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas; checks finais: Integridade=SIM, Veracidade=NÃO, Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
