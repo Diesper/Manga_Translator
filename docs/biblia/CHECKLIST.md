@@ -120,7 +120,7 @@
 - [ ] 116 — `tests/integration/popup.advanced.ui.test.js` — READY_FOR_AUDIT
 - [ ] 117 — `tests/integration/popup.ui.test.js` — READY_FOR_AUDIT
 - [ ] 118 — `tests/integration/reader.ui.test.js` — READY_FOR_AUDIT
-- [ ] 119 — `tests/mocks/chrome-api.mock.js` — READY_FOR_AUDIT
+- [x] 119 — `tests/mocks/chrome-api.mock.js` — COMPLETED
 - [ ] 120 — `tests/mocks/dom-environment.js` — READY_FOR_AUDIT
 - [ ] 121 — `tests/setup/create-test-images.js` — READY_FOR_AUDIT
 - [ ] 122 — `tests/smoke/run-smoke.js` — READY_FOR_AUDIT
