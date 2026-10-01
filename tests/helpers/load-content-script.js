@@ -23,6 +23,7 @@ const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
 
 const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
 const RUNTIME_LISTENER_REGISTRY_KEY = '__manga_translator_harness_runtime_listeners';
+const GLOBAL_EVENT_LISTENER_REGISTRY_KEY = '__manga_translator_harness_global_event_listeners';
 
 function getTrackedStorageListeners() {
     const tracked = globalThis[STORAGE_LISTENER_REGISTRY_KEY];
@@ -40,6 +41,15 @@ function getTrackedRuntimeListeners() {
 
 function setTrackedRuntimeListeners(listeners) {
     globalThis[RUNTIME_LISTENER_REGISTRY_KEY] = [...listeners];
+}
+
+function getTrackedGlobalEventListeners() {
+    const tracked = globalThis[GLOBAL_EVENT_LISTENER_REGISTRY_KEY];
+    return Array.isArray(tracked) ? tracked : [];
+}
+
+function setTrackedGlobalEventListeners(listeners) {
+    globalThis[GLOBAL_EVENT_LISTENER_REGISTRY_KEY] = [...listeners];
 }
 
 function getMangaContentScriptRelativePaths() {
@@ -83,11 +93,49 @@ function removeRuntimeListeners(listeners) {
     }
 }
 
+function removeGlobalEventListeners(listeners) {
+    listeners.forEach(({ target, type, listener, options }) => {
+        if (target && typeof target.removeEventListener === 'function') {
+            target.removeEventListener(type, listener, options);
+        }
+    });
+}
+
+function captureGlobalEventListeners(callback) {
+    const captured = [];
+    const targets = [window, document];
+    const originals = targets.map(target => ({
+        target,
+        addEventListener: target.addEventListener,
+    }));
+
+    originals.forEach(({ target, addEventListener }) => {
+        target.addEventListener = function trackedAddEventListener(type, listener, options) {
+            captured.push({ target, type, listener, options });
+            return addEventListener.call(this, type, listener, options);
+        };
+    });
+
+    try {
+        callback();
+        return captured;
+    } catch (error) {
+        removeGlobalEventListeners(captured);
+        throw error;
+    } finally {
+        originals.forEach(({ target, addEventListener }) => {
+            target.addEventListener = addEventListener;
+        });
+    }
+}
+
 function cleanupPreviousListeners() {
     removeStorageListeners(getTrackedStorageListeners());
     setTrackedStorageListeners([]);
     removeRuntimeListeners(getTrackedRuntimeListeners());
     setTrackedRuntimeListeners([]);
+    removeGlobalEventListeners(getTrackedGlobalEventListeners());
+    setTrackedGlobalEventListeners([]);
 }
 
 function disposePreviousContentInstance() {
@@ -209,9 +257,12 @@ async function loadContentScript({
 
     // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
     let bundleLoaded = false;
+    let addedGlobalEventListeners = [];
     try {
-        jest.isolateModules(() => {
-            getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
+        addedGlobalEventListeners = captureGlobalEventListeners(() => {
+            jest.isolateModules(() => {
+                getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
+            });
         });
         bundleLoaded = true;
     } finally {
@@ -222,12 +273,15 @@ async function loadContentScript({
         if (bundleLoaded) {
             setTrackedStorageListeners(addedStorageListeners);
             setTrackedRuntimeListeners(addedRuntimeListeners);
+            setTrackedGlobalEventListeners(addedGlobalEventListeners);
         } else {
             disposePreviousContentInstance();
             removeStorageListeners(addedStorageListeners);
             setTrackedStorageListeners([]);
             removeRuntimeListeners(addedRuntimeListeners);
             setTrackedRuntimeListeners([]);
+            removeGlobalEventListeners(addedGlobalEventListeners);
+            setTrackedGlobalEventListeners([]);
         }
     }
 
