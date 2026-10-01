@@ -2,8 +2,8 @@
   "index": 185,
   "file": "tests/unit/content-gemini/resolution-elevation.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/resolution-elevation.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
   "started_at_utc": "2026-09-30T17:05:00Z",
   "completed_at_utc": null,
@@ -82,7 +82,7 @@
     "documented_positions": "315/315",
     "source_text_lines": 314,
     "bible_lines": 2614,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -93,7 +93,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T19:30:32.424Z",
+  "updated_at_utc": "2026-10-01T19:30:58.034Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:30:32.424Z",
@@ -102,6 +102,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
       "reason": "185 PRIMARY+ADVERSARIAL: sincronizar lifecycle 185-001/002/003."
+    },
+    {
+      "at_utc": "2026-10-01T19:30:58.034Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
+      "bible_sha": "a8de2fdb6cc75cfbd908beb13064682ed79fbd99",
+      "reason": "185-PRI/A8 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
