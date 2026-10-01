@@ -300,23 +300,46 @@ async function loadContentScript({
     // 9. Aguarda a inicialização assíncrona do content script de forma determinística.
     // A captura de listeners globais permanece ativa até o bootstrap terminar para
     // incluir registros feitos por callbacks assíncronos de storage/createButton.
-    const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
-    const normalizedReadyTimeoutMs = Number.isFinite(Number(readyTimeoutMs)) && Number(readyTimeoutMs) >= 0
-        ? Number(readyTimeoutMs)
-        : 250;
-    const startedAt = Date.now();
-    while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
-        const button = document.getElementById('manga-translator-trigger');
-        if (!shouldCreateButton) break;
-        if (button && button.dataset.positionReady === 'true') break;
-        await new Promise(r => setTimeout(r, 10));
+    let shouldCreateButton = false;
+    let normalizedReadyTimeoutMs = 250;
+    let bootstrapError = null;
+    let addedGlobalEventListeners = [];
+    let addedStorageListeners = [];
+    let addedRuntimeListeners = [];
+
+    try {
+        shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
+        const numericReadyTimeoutMs = Number(readyTimeoutMs);
+        normalizedReadyTimeoutMs = Number.isFinite(numericReadyTimeoutMs) && numericReadyTimeoutMs >= 0
+            ? numericReadyTimeoutMs
+            : 250;
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
+            const button = document.getElementById('manga-translator-trigger');
+            if (!shouldCreateButton) break;
+            if (button && button.dataset.positionReady === 'true') break;
+            await new Promise(r => setTimeout(r, 10));
+        }
+    } catch (error) {
+        bootstrapError = error;
+    } finally {
+        addedGlobalEventListeners = globalEventCapture.stop();
+        addedStorageListeners = storageListenersSnapshot()
+            .filter(listener => !storageListenersBeforeLoad.has(listener));
+        addedRuntimeListeners = runtimeListenersSnapshot()
+            .filter(listener => !runtimeListenersBeforeLoad.has(listener));
     }
 
-    const addedGlobalEventListeners = globalEventCapture.stop();
-    const addedStorageListeners = storageListenersSnapshot()
-        .filter(listener => !storageListenersBeforeLoad.has(listener));
-    const addedRuntimeListeners = runtimeListenersSnapshot()
-        .filter(listener => !runtimeListenersBeforeLoad.has(listener));
+    if (bootstrapError) {
+        disposePreviousContentInstance(addedGlobalEventListeners);
+        removeStorageListeners(addedStorageListeners);
+        removeRuntimeListeners(addedRuntimeListeners);
+        removeGlobalEventListeners(addedGlobalEventListeners);
+        setTrackedStorageListeners([]);
+        setTrackedRuntimeListeners([]);
+        setTrackedGlobalEventListeners([]);
+        throw bootstrapError;
+    }
 
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
