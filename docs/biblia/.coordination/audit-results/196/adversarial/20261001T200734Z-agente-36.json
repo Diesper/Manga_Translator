@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 196,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/unit/content-manga/canonical-title-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/canonical-title-full.test.js/Bíblia.md",
+  "source_sha": "1b46903dbe4affda36a20b7fc140af2dc890a4dd",
+  "bible_sha": "25837269178d0e516fe28f1ba6c3c6823ffe1e12",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "196-ADV-001",
+      "severity": "MATERIAL",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia ainda marca 196-001/002/003 como OPEN e conclui haver três audit_requests externos abertos, enquanto o state canônico registra 196-001=SUPERSEDED por 035-001 e 196-002/003=ACCEPTED.",
+      "evidence": [
+        "Bíblia §8 usa os headings `196-001 — IMPLEMENTATION_DRIFT — OPEN`, `196-002 — TEST_ASSERTION_QUALITY — OPEN` e `196-003 — TEST_MAINTENANCE — OPEN`.",
+        "Bíblia §11 conclui `com três audit_requests externos abertos`.",
+        ".state/196.json registra 196-001 como SUPERSEDED, `superseded_by: 035-001`, e 196-002/196-003 como ACCEPTED.",
+        ".state/035.json confirma 035-001 ACCEPTED para o mesmo drift helper × produção; .state/099.json também confirma 099-001 ACCEPTED como MIRROR_DRIFT.",
+        "O próprio `document_quality.external_audit_requests_open` do state permanece 3, portanto essa view agregada também está stale e não pode substituir o lifecycle individual canônico."
+      ],
+      "required_change": "Alinhar a Bíblia ao lifecycle canônico: 196-001 SUPERSEDED por 035-001; 196-002 e 196-003 ACCEPTED. Corrigir a conclusão para não afirmar três requests OPEN e manter as lacunas técnicas descritas como dívidas externas não resolvidas."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:07:34Z"
+}
