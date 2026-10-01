@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/request-image-data-action.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** b04cd6cac53339fb479c19b7977acb61339ffdd9  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest da action real request-image-data  
@@ -60,7 +60,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 
 ## 8. Solicitações ao auditor
 
-### 164-001 — CONTRACT_REVIEW — OPEN — NORMAL
+### 164-001 — CONTRACT_REVIEW — SUPERSEDED → 022-001 — NORMAL
 
 Encontrado: request-image-data não possui validate e repassa request.mangaTabId/request.index diretamente para chrome.tabs.sendMessage.
 
@@ -70,7 +70,7 @@ Evidência/decisão ausente: definir se mangaTabId deve ser inteiro positivo e i
 
 Risco: payload estruturalmente inválido pode chegar à API Chrome ou consultar índice incorreto sem erro de contrato consistente.
 
-### 164-002 — TEST_REQUIRED — OPEN — LOW
+### 164-002 — TEST_REQUIRED — ACCEPTED — LOW
 
 Encontrado: quando o callback chama response=undefined e chrome.runtime.lastError não está definido, a action resolve undefined.
 
@@ -420,9 +420,9 @@ describe('background/actions/request-image-data.js', () => {
 ### Linha 039
 
 - **Código:** `        chrome.tabs.sendMessage = jest.fn((_tabId, _message, callback) => callback(contentResponse));`
-- **Função:** Cria objeto de resposta do content script para provar preservação por identidade de objeto.
+- **Função:** Instala o mock de `chrome.tabs.sendMessage` e entrega ao callback o `contentResponse` já criado na linha 38.
 - **Contexto:** sucesso: relay e preservação da resposta.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — prepara o boundary mockado usado pela action; a identidade do retorno é provada na linha 49.
 
 ### Linha 040
 
@@ -490,7 +490,7 @@ describe('background/actions/request-image-data.js', () => {
 ### Linha 049
 
 - **Código:** `        expect(result).toBe(contentResponse);`
-- **Função:** Cria objeto de resposta do content script para provar preservação por identidade de objeto.
+- **Função:** Afirma por identidade (`toBe`) que a action devolve exatamente o mesmo objeto `contentResponse` entregue pelo callback, sem transformação.
 - **Contexto:** sucesso: relay e preservação da resposta.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -608,3 +608,5 @@ describe('background/actions/request-image-data.js', () => {
 ## 11. Conclusão documental
 
 Foram documentadas 64 linhas textuais e a posição 65 do newline final. A fonte integral embutida corresponde ao SHA auditado; sucesso e lastError têm prova local e também prova integrada no background real.
+
+> **Lifecycle pós-adversarial:** 164-001 está SUPERSEDED por `022-001`; 164-002 está ACCEPTED. Esses statuses refletem `.state/164.json` e não reabrem requests já triadas.
