@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/rpa-flow.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 4bcd24983325106d82be04e2c547a99df1a74fd5  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest/JSDOM de fluxo RPA real do Gemini  
@@ -59,7 +59,7 @@ As linhas 495–513 exigem `GEMINI_ERROR` para o mesmo `mangaTabId/index` e mens
 
 ### 5.5 CG-12/13 — aba manual sem job
 
-As linhas 515–545 iniciam sem `gemini_job_321` e com job alheio em `999`. Após a janela de descoberta, as assertions provam que o job corrente não foi criado, o job alheio permaneceu intacto e nenhuma solicitação de imagem ou erro foi emitida.
+As linhas 515–545 iniciam sem `gemini_job_321` e com job alheio em `999`. Após `advance(800)`, as assertions provam que **até esse ponto observado** o job corrente não foi criado, o job alheio permaneceu intacto e nenhuma solicitação de imagem ou erro foi emitida. O claim manual real pode permanecer ativo por até ~5 s; o `afterEach` aguarda `processPromise`, mas não repete essas assertions depois do término.
 
 ### 5.6 CG-30/39 — fallback MAIN-world
 
@@ -92,7 +92,7 @@ As linhas 694–738 montam sidebar/menu/confirmação e instrumentam três cliqu
 | fallback de prompt é ativado e logado sem texto sensível | 482–492 | ✅ PROVADO DIRETAMENTE |
 | conteúdo exato do prompt de emergência injetado | não comparado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | falta de imagem de origem termina em erro correlacionado | 507–512 | ✅ PROVADO DIRETAMENTE |
-| aba manual não toma job de outra aba | 537–544 | ✅ PROVADO DIRETAMENTE |
+| nos primeiros 800 ms observados, aba manual não toma job de outra aba | 537–544 | ✅ PROVADO DIRETAMENTE nesse intervalo; o claim pode continuar até ~5 s e não há reassertion terminal após `processPromise` |
 | MAIN-world + `GEMINI_RESULT_URL` | 574–584 | ✅ PROVADO DIRETAMENTE |
 | erro visual gera delivery/log de erro | 616–629 | ✅ PROVADO DIRETAMENTE |
 | erro visual impede qualquer entrega tardia | não afirmado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -158,7 +158,7 @@ A seção 12 abaixo expande todas as 740 posições individualmente.
 
 ## 10. Solicitações ao auditor
 
-### 187-001 — TEST_REQUIRED — OPEN — NORMAL
+### 187-001 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** CG-25 prova o log `PROMPT_FALLBACK`, seu comprimento redigido e o sucesso posterior, mas nunca compara o texto de emergência que realmente chega ao editor.
 
@@ -170,7 +170,7 @@ A seção 12 abaixo expande todas as 740 posições individualmente.
 
 **Risco:** o fallback pode continuar logando sucesso enquanto envia texto errado, vazio ou incompleto.
 
-### 187-002 — TEST_REQUIRED — OPEN — NORMAL
+### 187-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** CG-27/35 termina assim que encontra o primeiro `GEMINI_ERROR`; não aguarda `processPromise` e não verifica ausência posterior de `GEMINI_IMAGE_EXTRACTED`/`GEMINI_RESULT_URL`.
 
@@ -182,7 +182,7 @@ A seção 12 abaixo expande todas as 740 posições individualmente.
 
 **Risco:** regressão de race pode produzir erro e, em seguida, resultado tardio para o mesmo job.
 
-### 187-003 — TEST_INFRA_REQUIRED — OPEN — NORMAL
+### 187-003 — TEST_INFRA_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** `afterEach` para observer ativo, registry e `processPromise`, mas a limpeza dos observers/timers é inferida pela estabilidade global; só CG-36 possui assertion direta sobre a Promise.
 
@@ -6125,3 +6125,5 @@ describe('content_gemini.js - RPA real do Gemini', () => {
 Foram cobertas individualmente as 739 linhas textuais e a posição 740 do newline final. O arquivo é uma suíte RPA de composição real, com dez cenários e 38 ocorrências de `expect(`; suas assertions fortes foram separadas dos passos apenas executados no caminho. As três lacunas externas permanecem OPEN em `.state/187.json` e não foram “corrigidas” para fabricar evidência.
 
 **Autoauditoria do AGENTE 26:** fonte integral incorporada a partir do mesmo blob auditado; ownership confirmado pela reserva; nenhuma alteração feita em código, testes, fixtures, workflows, `STATUS.md`, `CHECKLIST.md` ou `AUDITORIA.md`.
+
+> **Escopo CG-12/13 pós-adversarial:** o teste prova não apropriação do job alheio no snapshot após 800 ms; não congela o estado terminal de toda a janela de claim de ~5 s. 187-001/002/003 estão ACCEPTED.
