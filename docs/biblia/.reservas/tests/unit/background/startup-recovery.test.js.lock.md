@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/background/startup-recovery.test.js
-BÍBLIA: docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 649829ac36bb9428c9458c615365970349b741a1
-CLAIMED_AT_UTC: 2026-10-01T18:31:25.052Z
-UPDATED_AT_UTC: 2026-10-01T18:31:25.052Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
