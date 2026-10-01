@@ -2,8 +2,8 @@
   "index": 105,
   "file": "tests/helpers/track-background-delay-timers.js",
   "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
   "started_at_utc": "2026-09-30T06:20:00Z",
   "completed_at_utc": null,
@@ -85,6 +85,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
       "reason": "ADV-105-01: corrigir classificação de evidência para timers 600 ms/18 s."
+    },
+    {
+      "at_utc": "2026-10-01T20:04:40.191Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "bible_sha": "29b9247daa81df65ba83f8206141dd0ffd4c99af",
+      "reason": "ADV-105-01 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
