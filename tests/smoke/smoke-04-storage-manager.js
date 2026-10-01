@@ -73,12 +73,16 @@ async function run() {
     try {
         global.indexedDB = undefined;
         await assert.rejects(() => sm.openStorageDb(), /IndexedDB indisponível/);
+
+        global.indexedDB = { open: () => { throw new Error('forced synchronous IndexedDB.open failure'); } };
+        await assert.rejects(() => sm.openStorageDb(), /forced synchronous IndexedDB\.open failure/);
     } finally {
         global.indexedDB = installedIndexedDB;
     }
     const reopenedDb = await sm.openStorageDb();
-    assert(reopenedDb, 'openStorageDb deve recuperar após indisponibilidade transitória');
-    console.log('  -> Retry de openStorageDb após IDB indisponível OK');
+    assert(reopenedDb, 'openStorageDb deve recuperar após indisponibilidade/rejeição transitória');
+    assert.strictEqual(typeof reopenedDb.onversionchange, 'function', 'Conexão deve instalar cleanup de versionchange');
+    console.log('  -> Retry de openStorageDb após IDB ausente/open síncrono falhar OK');
 
     console.log('[smoke-04] 2. Testando transações atômicas e eliminação de assets órfãos...');
     const chapterId = 'chap_test_04';
@@ -108,6 +112,36 @@ async function run() {
 
     const newAsset = await sm.getAssetBlob(save2.assetId);
     assert(newAsset, 'Novo asset deve existir');
+
+    // Abort real no meio do overwrite deve reverter asset/página/restore.
+    const rollbackPageBefore = (await sm.getChapterPageIndex(chapterId)).find(p => p.pageIndex === 0);
+    const rollbackRestoreBefore = await sm.getRestoreIndex(chapterId);
+    const rollbackStatsBefore = await sm.stats();
+    const originalPut = global.IDBObjectStore.prototype.put;
+    let abortInjected = false;
+    global.IDBObjectStore.prototype.put = function (...args) {
+        const request = originalPut.apply(this, args);
+        if (!abortInjected && this.name === 'chapterPages') {
+            abortInjected = true;
+            this.transaction.abort();
+        }
+        return request;
+    };
+    try {
+        await assert.rejects(() => sm.savePageResult(
+            chapterId, 0, sampleDataUrl, origUrl, 'https://example.com/clean/aborted.png',
+            { width: 100, height: 200, host: 'example.com' }
+        ));
+    } finally {
+        global.IDBObjectStore.prototype.put = originalPut;
+    }
+    assert(abortInjected, 'Fault injection deve abortar a transaction de overwrite');
+    const rollbackPageAfter = (await sm.getChapterPageIndex(chapterId)).find(p => p.pageIndex === 0);
+    assert.strictEqual(rollbackPageAfter.assetId, rollbackPageBefore.assetId, 'Abort deve preservar página anterior');
+    assert.deepStrictEqual(await sm.getRestoreIndex(chapterId), rollbackRestoreBefore, 'Abort deve preservar restore anterior');
+    assert(await sm.getAssetBlob(rollbackPageBefore.assetId), 'Abort deve preservar asset anterior');
+    assert.deepStrictEqual(await sm.stats(), rollbackStatsBefore, 'Abort não pode deixar asset/página parcial');
+    console.log('  -> Abort de transaction reverte overwrite integralmente OK');
 
     // Troca de cleanUrl na mesma página não pode deixar restore/asset antigo.
     const cleanUrl2 = 'https://example.com/clean/img1-v2.png';
