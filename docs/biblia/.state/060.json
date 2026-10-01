@@ -2,9 +2,9 @@
   "index": 60,
   "file": "extension/shared/storage-manager.js",
   "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "d1cd5a2c83ed5fe5a36e67966ea835806b863395",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -17,7 +17,8 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:42:00Z",
       "audit_finding": "ACCEPTED — dois bugs de consistência confirmados. Na migração legacy, falhas por página são engolidas, mas ao final `_sm_migrated_<chapter>` é gravado `true`; se ao menos uma migrou, todo legado é removido, podendo perder páginas que falharam. Além disso, `savePageResult` ao substituir uma página com `cleanUrl` diferente marca o asset da página anterior como obsoleto, mas não remove a antiga restoreEntry por `previousPage.cleanUrl`; essa restore pode ficar apontando para asset apagado.",
-      "auditor_recommended_action": "Só marcar/remover legado após migração integral comprovada (ou registrar progresso por item). Ao trocar cleanUrl da mesma página, remover/atualizar restore antigo na mesma transação. Adicionar regressões para falha parcial e troca de cleanUrl."
+      "auditor_recommended_action": "Só marcar/remover legado após migração integral comprovada (ou registrar progresso por item). Ao trocar cleanUrl da mesma página, remover/atualizar restore antigo na mesma transação. Adicionar regressões para falha parcial e troca de cleanUrl.",
+      "repair_progress": "IMPLEMENTED_AWAITING_TARGETED_REGRESSION"
     },
     {
       "id": "060-002",
@@ -29,7 +30,8 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:52:00Z",
       "audit_finding": "ACCEPTED. `smoke-04-storage-manager.js` cobre round-trip, overwrite, deleteChapter e migração, mas não fault injection de IndexedDB, rejeição persistente/reabertura da DB promise, concorrência save/delete, Data URL malformada nem stats exatos.",
-      "auditor_recommended_action": "Adicionar fault-injection e concorrência controlada com fake-indexeddb, incluindo transação abortada, open error, Data URL inválida e contagens de stats."
+      "auditor_recommended_action": "Adicionar fault-injection e concorrência controlada com fake-indexeddb, incluindo transação abortada, open error, Data URL inválida e contagens de stats.",
+      "repair_progress": "PENDING_TEST_UNIT_126"
     },
     {
       "id": "060-003",
@@ -41,7 +43,8 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:52:00Z",
       "audit_finding": "ACCEPTED. `_chapterWriters` guarda uma Promise por chapterId e não remove explicitamente a entrada após conclusão; capítulos distintos acumulam chaves ao longo da vida do worker. Conversões DataURL→Blob e Blob→DataURL também podem coexistir com buffers equivalentes em memória para páginas grandes.",
-      "auditor_recommended_action": "Medir/limitar memória e limpar `_chapterWriters` quando a cauda correspondente concluir; adicionar teste de muitos chapterIds e benchmark/política para páginas grandes."
+      "auditor_recommended_action": "Medir/limitar memória e limpar `_chapterWriters` quando a cauda correspondente concluir; adicionar teste de muitos chapterIds e benchmark/política para páginas grandes.",
+      "repair_progress": "WRITER_MAP_CLEANUP_IMPLEMENTED; BLOB_MEMORY_REVIEW_AND_TARGETED_TEST_PENDING"
     }
   ],
   "document_quality": {
@@ -49,12 +52,13 @@
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "517/517",
-    "bible_lines": 5326
+    "bible_lines": 5328,
+    "note": "REAUDIT #060 corrigido; source endurecido contra restore stale, migração parcial, cache de open rejeitado, leak de _chapterWriters e lastError de chrome.storage.local. Regressões focais ainda serão adicionadas em tests/smoke/smoke-04-storage-manager.js antes de resolver requests 060-001/002/003."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:22:30Z",
-  "started_at_utc": "2026-10-01T22:22:30Z",
+  "updated_at_utc": "2026-10-01T22:34:30Z",
+  "started_at_utc": null,
   "history": [
     {
       "at_utc": "2026-10-01T22:22:30Z",
@@ -64,6 +68,17 @@
       "source_sha": "d1cd5a2c83ed5fe5a36e67966ea835806b863395",
       "agent": "AGENTE 30",
       "reason": "Corrigir findings materiais do REAUDIT #060: superclassificação de evidência, mapeamento semântico das linhas 445/464/473/475 e consumers options/shared-ui ausentes."
+    },
+    {
+      "at_utc": "2026-10-01T22:34:30Z",
+      "type": "SOURCE_AND_BIBLE_REPAIRED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "d1cd5a2c83ed5fe5a36e67966ea835806b863395",
+      "current_source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
+      "current_bible_sha": "a739fa3cfdac9a6cdcbf0fb2bfd91b5ea48aae46",
+      "agent": "AGENTE 30",
+      "reason": "Corrigidos findings do REAUDIT e bugs diretamente relacionados; fonte integral e 517/517 posições revalidadas. Requests de teste permanecem abertas até regressões focais."
     }
   ],
   "evidence": []
