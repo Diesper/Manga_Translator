@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/button-ui-real.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `a82baea685c1b325e8b21a9a914ef405a142ef97`  
 > **Agente responsável:** AGENTE 7  
 > **Tipo:** suíte Jest unitária/comportamental que carrega a implementação real de `content_manga.js` em JSDOM  
@@ -350,7 +350,7 @@ A suíte usa o conteúdo real do arquivo, não uma cópia dessas funções.
 | resize noroeste | sem cenário | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | resize sudoeste | sem cenário | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | cap superior de resize em 96/viewport | não exercitado por resize | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| rendering real em Chromium | ambiente JSDOM | 🟨 EXECUTADO INDIRETAMENTE / NÃO É OBJETO DESTA SUÍTE |
+| rendering real em Chromium | esta suíte executa somente em JSDOM; não há browser Chromium aqui | ⚠️ NÃO PROVADO NESTA SUÍTE / fora do escopo da evidência JSDOM |
 
 ## 9. Invariantes observáveis
 
@@ -390,7 +390,7 @@ Alguns desses comportamentos possuem cobertura em outras suítes, especialmente 
 
 ## 12. Solicitações ao auditor
 
-### 195-001 — TEST_REQUIRED — OPEN
+### 195-001 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** os testes de resize exercitam somente `e`, `w`, `s` e `se`. Os handles `n`, `ne`, `nw` e `sw` são apenas contados indiretamente pelo total de oito.
 
@@ -404,7 +404,7 @@ Alguns desses comportamentos possuem cobertura em outras suítes, especialmente 
 
 **Severidade:** NORMAL.
 
-### 195-002 — TEST_REQUIRED — OPEN
+### 195-002 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** o caso de `ENABLE_PAGE` começa com o botão já criado e prova apenas idempotência.
 
@@ -418,7 +418,7 @@ Alguns desses comportamentos possuem cobertura em outras suítes, especialmente 
 
 **Severidade:** NORMAL.
 
-### 195-003 — TRACEABILITY_REVIEW — OPEN
+### 195-003 — TRACEABILITY_REVIEW — ACCEPTED
 
 **Encontrado:** o `describe` declara coletivamente `CM-29` até `CM-50`, mas nenhum caso individual identifica qual marker está provando; busca no repositório encontrou esses markers somente no título desta suíte.
 
@@ -915,4 +915,6 @@ A suíte #195 é uma prova comportamental real e relevante da lógica do botão 
 
 A principal limitação probatória não é autenticidade da implementação, e sim **cobertura incompleta de alguns branches** e o fato de a geometria ser simulada sob JSDOM.
 
-As três solicitações ao auditor registradas acima não impedem a conclusão documental desta Bíblia.
+As três solicitações ao auditor registradas acima estão **ACCEPTED** no state canônico: permanecem lacunas/dívida externa reconhecida, mas não requests OPEN. Elas não transformam a execução JSDOM em prova de rendering Chromium.
+
+> **Correção pós-adversarial:** 195-001/002/003 estão ACCEPTED; a suíte prova lógica JavaScript/mutações DOM sob JSDOM, mas rendering, layout, hit-testing e pixel behavior em Chromium real permanecem explicitamente NÃO PROVADOS por este arquivo.
