@@ -37,12 +37,41 @@ function extractIntegralSource(bible) {
 
 function parseCoverageIntervals(bible) {
   const intervals = [];
-  for (const match of bible.matchAll(/^#{2,5}\s+(?:Linhas|Posi[cç][oõ]es)\s+0*(\d+)\s*[–—-]\s*0*(\d+)\b/gmi)) {
+
+  // V1/V2 headings. Aceita prefixo editorial opcional: "### 1. Linhas 1–8".
+  for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linhas|Posi[cç][oõ]es)\s+0*(\d+)\s*[–—-]\s*0*(\d+)\b/gmi)) {
     intervals.push({ start: Number(match[1]), end: Number(match[2]), raw: match[0] });
   }
-  for (const match of bible.matchAll(/^#{2,5}\s+(?:Linha|Posi[cç][aã]o)\s+0*(\d+)\b/gmi)) {
+  for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linha|Posi[cç][aã]o|Linhas)\s+0*(\d+)\b/gmi)) {
     intervals.push({ start: Number(match[1]), end: Number(match[1]), raw: match[0] });
   }
+
+  // Formatos legados em tabela. Só interpreta tabelas cujo primeiro cabeçalho
+  // identifica explicitamente Linha/Linhas/Posição/Posições, evitando confundir
+  // tabelas de casos, índices ou evidências com cobertura documental.
+  const lines = bible.split(/\r?\n/);
+  let coverageTable = false;
+  for (const line of lines) {
+    if (/^\|\s*(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es)\s*\|/i.test(line)) {
+      coverageTable = true;
+      continue;
+    }
+    if (coverageTable && /^\|\s*:?-{3,}/.test(line)) continue;
+    if (coverageTable && !/^\|/.test(line)) {
+      coverageTable = false;
+      continue;
+    }
+    if (!coverageTable) continue;
+
+    let match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*[–—-]\s*0*(\d+)\s*\|/i.exec(line);
+    if (match) {
+      intervals.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
+      continue;
+    }
+    match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*\|/i.exec(line);
+    if (match) intervals.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
+  }
+
   return intervals.sort((a,b) => a.start - b.start || a.end - b.end);
 }
 
