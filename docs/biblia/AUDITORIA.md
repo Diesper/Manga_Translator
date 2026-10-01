@@ -1238,3 +1238,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Checks finais:** Integridade = SIM; Veracidade = NÃO; Honestidade = NÃO.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `extracted-functions.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #099 — `tests/helpers/extracted-functions.js`.
+- **SHA auditado:** `ccbf20485608a223c723adf638860cb7151c8886`.
+- **Integridade:** **101 linhas textuais + newline final = 102/102 posições**; source, state, claim e SHA declarado na Bíblia coincidem. A fonte integral embutida é **byte a byte idêntica** ao arquivo atual.
+- **Natureza confirmada:** este arquivo é um helper de testes com **mirrors**, não a implementação de produção. A Bíblia explicita corretamente que testes verdes do helper não provam automaticamente o código real.
+- **Drift real confirmado:** `canonicalTitle` do helper aceita prefixo textual opcional+número e remove sufixo final de site; `extension/content/cm-chapter.js` não possui esses dois passos. Os testes `canonical-title.test.js` e `canonical-title-full.test.js` importam o mirror, e `chapter-dedup.test.js` mantém outro mirror com a mesma semântica ampliada.
+- **Áudio:** `audio-synthesis.test.js` e `audio-synthesis-full.test.js` exercitam `playErrorSound` deste helper. A produção atual usa os mesmos parâmetros sonoros centrais, mas não expõe o seam `audioCtxFactory`; essa dívida já está centralizada em 191-001.
+- **Helpers legados:** não foram localizados consumers atuais de `waitForDownload` e `escapeForRegex` deste helper. Os testes `download-wait.test.js` e `regex-escape.test.js` exercitam as implementações reais correspondentes do background/fluxo de produção.
+- **Evidência runtime SHA-bound:** a run **36577447500** contém exatamente o blob `ccbf20485608a223c723adf638860cb7151c8886`; nos jobs Linux e Windows, `canonical-title*`, `audio-synthesis*`, `download-wait` e `regex-escape` aparecem verdes. Isso prova execução do snapshot, não equivalência entre mirror e produção.
+- **Request 099-001 (HIGH):** permanece **ACCEPTED** — eliminar/alinhar o mirror de `canonicalTitle` ou criar gate de paridade usando a implementação real.
+- **Request 099-002:** permanece **SUPERSEDED por 191-001** — cobertura do `playErrorSound` real será tratada na auditoria da implementação de produção.
+- **Request 099-003:** permanece **ACCEPTED** — confirmar e remover/deprecar/documentar os exports sem consumers atuais.
+- **Conclusão:** a Bíblia é fiel ao snapshot e, crucialmente, não transforma mirrors divergentes em falsa prova da produção.
+
+**Veredito documental independente:** ✅ **APROVADO — #099 / SHA `ccbf20485608a223c723adf638860cb7151c8886`**.
+
