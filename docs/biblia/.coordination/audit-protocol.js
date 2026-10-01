@@ -91,6 +91,61 @@ function reservationFilesBySource() {
   return result;
 }
 
+function commonClaimProblems({
+  state,
+  index,
+  auditor,
+  sourceSha,
+  sourcePath,
+  biblePath,
+  rel,
+  phase,
+  reservationPath = null,
+}) {
+  const problems = [];
+  if (!auditor) problems.push('claim/lease sem AUDITOR: ' + rel);
+  if (!state) {
+    problems.push('claim/lease fora do corpus: ' + rel);
+    return problems;
+  }
+  if (sourceSha !== state.source_sha) problems.push('claim/lease SOURCE_SHA stale: ' + rel);
+  if (sourcePath && sourcePath !== state.file) problems.push('claim/lease ARQUIVO diverge do state: ' + rel);
+  if (biblePath && biblePath !== state.bible) problems.push('claim/lease BIBLIA diverge do state: ' + rel);
+  if (reservationPath) {
+    problems.push(
+      'claim/lease conflita com reserva de edição: #'
+      + String(index).padStart(3, '0') + ' (' + phase + ')'
+    );
+  }
+  return problems;
+}
+
+function duplicateIndexProblem(activeByIndex, index, rel) {
+  if (!activeByIndex.has(index)) return null;
+  return 'mais de um claim/lease ativo para índice '
+    + index + ': ' + activeByIndex.get(index).path + ', ' + rel;
+}
+
+function leaseRevisionProblems({ state, bibleSha, currentBibleSha, baseline, rel }) {
+  const problems = [];
+  if (!state) return problems;
+
+  if (bibleSha) {
+    if (!/^[0-9a-f]{40}$/i.test(bibleSha)) {
+      problems.push('lease BIBLE_SHA inválido: ' + rel);
+    } else if (currentBibleSha && bibleSha.toLowerCase() !== currentBibleSha.toLowerCase()) {
+      problems.push('lease BIBLE_SHA stale: ' + rel);
+    }
+    return problems;
+  }
+
+  const entry = core.baselineEntryFor(state, baseline);
+  if (!entry || !currentBibleSha || entry.bible_sha !== currentBibleSha) {
+    problems.push('lease legado sem BIBLE_SHA não corresponde à Bíblia atual: ' + rel);
+  }
+  return problems;
+}
+
 function validateClaims(states, options = {}) {
   const baseline = options.baseline || core.loadBibleBaseline(repoRoot);
   const stateByIndex = new Map(states.map((state) => [state.index, state]));
@@ -103,8 +158,9 @@ function validateClaims(states, options = {}) {
   const expired = [];
 
   function register(index, auditor, rel, phase) {
-    if (activeByIndex.has(index)) {
-      problems.push('mais de um claim/lease ativo para índice ' + index + ': ' + activeByIndex.get(index).path + ', ' + rel);
+    const duplicate = duplicateIndexProblem(activeByIndex, index, rel);
+    if (duplicate) {
+      problems.push(duplicate);
     } else {
       activeByIndex.set(index, { path: rel, auditor, phase });
     }
@@ -118,18 +174,18 @@ function validateClaims(states, options = {}) {
 
   function validateCommon({ index, auditor, sourceSha, sourcePath, biblePath, rel, phase }) {
     const state = stateByIndex.get(index);
-    if (!auditor) problems.push('claim/lease sem AUDITOR: ' + rel);
-    if (!state) {
-      problems.push('claim/lease fora do corpus: ' + rel);
-      return null;
-    }
-    if (sourceSha !== state.source_sha) problems.push('claim/lease SOURCE_SHA stale: ' + rel);
-    if (sourcePath && sourcePath !== state.file) problems.push('claim/lease ARQUIVO diverge do state: ' + rel);
-    if (biblePath && biblePath !== state.bible) problems.push('claim/lease BIBLIA diverge do state: ' + rel);
-    if (reservations.has(state.file)) {
-      problems.push('claim/lease conflita com reserva de edição: #' + String(index).padStart(3, '0') + ' (' + phase + ')');
-    }
-    return state;
+    problems.push(...commonClaimProblems({
+      state,
+      index,
+      auditor,
+      sourceSha,
+      sourcePath,
+      biblePath,
+      rel,
+      phase,
+      reservationPath: state ? reservations.get(state.file) : null,
+    }));
+    return state || null;
   }
 
   // Claims planos legados permanecem PRIMARY durante a migração.
@@ -197,17 +253,13 @@ function validateClaims(states, options = {}) {
 
     if (state) {
       const currentBibleSha = core.currentBibleSha(repoRoot, state);
-      if (bibleSha) {
-        if (!/^[0-9a-f]{40}$/i.test(bibleSha)) problems.push('lease BIBLE_SHA inválido: ' + rel);
-        else if (currentBibleSha && bibleSha.toLowerCase() !== currentBibleSha.toLowerCase()) {
-          problems.push('lease BIBLE_SHA stale: ' + rel);
-        }
-      } else {
-        const entry = core.baselineEntryFor(state, baseline);
-        if (!entry || !currentBibleSha || entry.bible_sha !== currentBibleSha) {
-          problems.push('lease legado sem BIBLE_SHA não corresponde à Bíblia atual: ' + rel);
-        }
-      }
+      problems.push(...leaseRevisionProblems({
+        state,
+        bibleSha,
+        currentBibleSha,
+        baseline,
+        rel,
+      }));
 
       if (pathPhase === 'PRIMARY' && state.status !== 'READY_FOR_AUDIT') {
         problems.push('lease PRIMARY incompatível com status: #' + index + '/' + state.status);
@@ -384,6 +436,9 @@ module.exports = {
   readStates,
   parseClaimField,
   reservationFilesBySource,
+  commonClaimProblems,
+  duplicateIndexProblem,
+  leaseRevisionProblems,
   validateClaims,
   strictOwnershipProblems,
   loadResults,
