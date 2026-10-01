@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/background/single-image-context-menu.test.js
-BÍBLIA: docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: c4e122e3fd2a5298b255e647dbc804c903ed17f5
-CLAIMED_AT_UTC: 2026-10-01T19:56:04.212Z
-UPDATED_AT_UTC: 2026-10-01T19:56:04.212Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
