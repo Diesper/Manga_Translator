@@ -1454,3 +1454,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### Auditoria independente — #111 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `39d0542f9bad4ee59fe1939396e2fb3e41e2c38d`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; a seção `Fonte integral auditada` é byte-a-byte idêntica ao source.
+- **Cobertura:** 18 faixas contíguas cobrem exatamente 1–312, sem gaps, duplicidades ou posições extras.
+- **CI:** run `36577447500` no commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f` contém o mesmo blob; o arquivo passa nominalmente em Node 20, Node 22, Coverage e Windows. As classificações de execução indireta desses jobs são suportadas.
+- **Semântica/assertions:** as assertions de fingerprint, `GTC_QUERY_MANY`, ausência de `START_BATCH`, persistência via `GTC_SAVE`, preservação de atributos e lote de 50 hits correspondem ao source. A Bíblia também limita corretamente a meta “<200 ms”, já que o teste só exige `elapsedMs < 1000`.
+- **Requests externas:** 111-001/002/003 permanecem materialmente válidas e não são, por si só, bloqueantes da documentação.
+- **Falha documental bloqueante 1 — lifecycle stale:** headings 111-001/002/003 e a verificação final ainda dizem `OPEN`/“3 abertas”, enquanto o state canônico registra as três como `ACCEPTED`; `document_quality.external_audit_requests_open` também está stale em 3.
+- **Falha documental bloqueante 2 — dependência/atribuição incompleta:** `load-content-script.js` carrega `extension/content/cm-gtc-client.js` antes de `content_manga.js`, e `content_manga.js` reatribui `queryGlobalTranslationCache` e `saveGlobalTranslationCacheEntry` para `window.MangaTranslatorGtcClient`. A Bíblia não menciona `cm-gtc-client.js` em nenhum ponto e descreve o envio `GTC_QUERY_MANY/GTC_SAVE` como se o boundary real estivesse apenas em `content_manga.js`. O caminho funcional continua real, mas a dependência/ownership da implementação está documentada de forma incompleta.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; CI=CONFIRMADO_3X; semântica funcional=CONFIRMADO_3X; assertions=CONFIRMADO_3X; dependências/ownership=CONTRADITO; lifecycle de requests=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto os dois defeitos acima permanecerem.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
