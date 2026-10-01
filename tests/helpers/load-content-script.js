@@ -101,7 +101,8 @@ function removeGlobalEventListeners(listeners) {
     });
 }
 
-function captureGlobalEventListeners(callback, captured = []) {
+function startGlobalEventListenerCapture() {
+    const captured = [];
     const targets = [window, document];
     const originals = targets.map(target => ({
         target,
@@ -109,6 +110,7 @@ function captureGlobalEventListeners(callback, captured = []) {
         descriptor: Object.getOwnPropertyDescriptor(target, 'addEventListener'),
         addEventListener: target.addEventListener,
     }));
+    let stopped = false;
 
     originals.forEach(({ target, addEventListener }) => {
         target.addEventListener = function trackedAddEventListener(type, listener, options) {
@@ -117,17 +119,21 @@ function captureGlobalEventListeners(callback, captured = []) {
         };
     });
 
-    try {
-        return callback();
-    } finally {
-        originals.forEach(({ target, hadOwn, descriptor }) => {
-            if (hadOwn && descriptor) {
-                Object.defineProperty(target, 'addEventListener', descriptor);
-            } else {
-                delete target.addEventListener;
+    return {
+        stop() {
+            if (!stopped) {
+                originals.forEach(({ target, hadOwn, descriptor }) => {
+                    if (hadOwn && descriptor) {
+                        Object.defineProperty(target, 'addEventListener', descriptor);
+                    } else {
+                        delete target.addEventListener;
+                    }
+                });
+                stopped = true;
             }
-        });
-    }
+            return [...captured];
+        },
+    };
 }
 
 function cleanupPreviousListeners() {
@@ -257,36 +263,36 @@ async function loadContentScript({
     delete window.__manga_translator_content_injected;
 
     // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
-    let bundleLoaded = false;
-    const addedGlobalEventListeners = [];
+    const globalEventCapture = startGlobalEventListenerCapture();
+    let bundleLoadError = null;
     try {
-        captureGlobalEventListeners(() => {
-            jest.isolateModules(() => {
-                getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
-            });
-        }, addedGlobalEventListeners);
-        bundleLoaded = true;
-    } finally {
+        jest.isolateModules(() => {
+            getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
+        });
+    } catch (error) {
+        bundleLoadError = error;
+    }
+
+    if (bundleLoadError) {
+        const addedGlobalEventListeners = globalEventCapture.stop();
         const addedStorageListeners = storageListenersSnapshot()
             .filter(listener => !storageListenersBeforeLoad.has(listener));
         const addedRuntimeListeners = runtimeListenersSnapshot()
             .filter(listener => !runtimeListenersBeforeLoad.has(listener));
-        if (bundleLoaded) {
-            setTrackedStorageListeners(addedStorageListeners);
-            setTrackedRuntimeListeners(addedRuntimeListeners);
-            setTrackedGlobalEventListeners(addedGlobalEventListeners);
-        } else {
-            disposePreviousContentInstance();
-            removeStorageListeners(addedStorageListeners);
-            setTrackedStorageListeners([]);
-            removeRuntimeListeners(addedRuntimeListeners);
-            setTrackedRuntimeListeners([]);
-            removeGlobalEventListeners(addedGlobalEventListeners);
-            setTrackedGlobalEventListeners([]);
-        }
+
+        disposePreviousContentInstance();
+        removeStorageListeners(addedStorageListeners);
+        removeRuntimeListeners(addedRuntimeListeners);
+        removeGlobalEventListeners(addedGlobalEventListeners);
+        setTrackedStorageListeners([]);
+        setTrackedRuntimeListeners([]);
+        setTrackedGlobalEventListeners([]);
+        throw bundleLoadError;
     }
 
-    // 9. Aguarda a inicialização assíncrona do content script de forma determinística
+    // 9. Aguarda a inicialização assíncrona do content script de forma determinística.
+    // A captura de listeners globais permanece ativa até o bootstrap terminar para
+    // incluir registros feitos por callbacks assíncronos de storage/createButton.
     const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
     const normalizedReadyTimeoutMs = Number.isFinite(Number(readyTimeoutMs)) && Number(readyTimeoutMs) >= 0
         ? Number(readyTimeoutMs)
@@ -298,11 +304,23 @@ async function loadContentScript({
         if (button && button.dataset.positionReady === 'true') break;
         await new Promise(r => setTimeout(r, 10));
     }
+
+    const addedGlobalEventListeners = globalEventCapture.stop();
+    const addedStorageListeners = storageListenersSnapshot()
+        .filter(listener => !storageListenersBeforeLoad.has(listener));
+    const addedRuntimeListeners = runtimeListenersSnapshot()
+        .filter(listener => !runtimeListenersBeforeLoad.has(listener));
+
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
             disposePreviousContentInstance();
-            cleanupPreviousListeners();
+            removeStorageListeners(addedStorageListeners);
+            removeRuntimeListeners(addedRuntimeListeners);
+            removeGlobalEventListeners(addedGlobalEventListeners);
+            setTrackedStorageListeners([]);
+            setTrackedRuntimeListeners([]);
+            setTrackedGlobalEventListeners([]);
             window.__manga_translator_active_instance =
                 `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
             if (button) button.remove();
@@ -311,6 +329,10 @@ async function loadContentScript({
             );
         }
     }
+
+    setTrackedStorageListeners(addedStorageListeners);
+    setTrackedRuntimeListeners(addedRuntimeListeners);
+    setTrackedGlobalEventListeners(addedGlobalEventListeners);
 
     // 10. Retorna helpers para os testes
     return {
