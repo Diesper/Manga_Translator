@@ -2,7 +2,7 @@
   "index": 103,
   "file": "tests/helpers/load-extension-page.js",
   "bible": "docs/biblia/tests/helpers/load-extension-page.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
   "started_at_utc": "2026-09-30T06:27:00Z",
@@ -27,7 +27,10 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. `load-extension-page.js` não possui suíte focal para scripts removidos, ordem de dependências, location/query/hash, restore de addEventListener, caminhos DOMContentLoaded e flush assíncrono.",
-      "auditor_recommended_action": "Criar teste próprio com fixture mínima/jsdom e assertions da implementação real."
+      "auditor_recommended_action": "Criar teste próprio com fixture mínima/jsdom e assertions da implementação real.",
+      "reaudited_by": "AGENTE 9",
+      "reaudited_at_utc": "2026-10-01T05:20:55Z",
+      "reaudit_finding": "Permanece ACCEPTED. A busca independente confirmou ausência de suíte focal para o helper; consumers exercitam o harness indiretamente. Uma prova futura de restauração deve distinguir equivalência funcional de identidade, pois o source reassocia um wrapper produzido por bind(document)."
     },
     {
       "id": "103-002",
@@ -48,7 +51,10 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. No caminho sintético de DOMContentLoaded, listeners são chamados diretamente com `await listener(event)` em vez de EventTarget real; `this`, handleEvent, once/signal e timing de Promises podem divergir do browser.",
-      "auditor_recommended_action": "Definir fidelidade suportada; usar dispatchEvent real ou documentar/testar explicitamente as simplificações."
+      "auditor_recommended_action": "Definir fidelidade suportada; usar dispatchEvent real ou documentar/testar explicitamente as simplificações.",
+      "reaudited_by": "AGENTE 9",
+      "reaudited_at_utc": "2026-10-01T05:20:55Z",
+      "reaudit_finding": "Permanece ACCEPTED. O source captura listeners DOMContentLoaded e os invoca diretamente com await listener(event), sem dispatchEvent real; this/handleEvent/once/signal/timing de promises seguem sem contrato focal."
     }
   ],
   "document_quality": {
@@ -62,7 +68,26 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T05:20:55Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T05:20:55Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "auditor": "AGENTE 9",
+      "reason": "Falhas documentais materiais: restauração de addEventListener descrita como original apesar de usar wrapper bound; evidência da posição 70 cita o branch true para o ramo else; lifecycle OPEN na Bíblia diverge de requests ACCEPTED no state."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 9",
+      "at_utc": "2026-10-01T05:20:55Z",
+      "note": "Passagens 0–15: SHA/fonte/cobertura/consumers passam; semântica e honestidade da evidência falham nos findings registrados em AUDITORIA.md."
+    }
+  ]
 }
