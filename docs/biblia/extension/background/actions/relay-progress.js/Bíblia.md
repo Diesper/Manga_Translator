@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/relay-progress.js`
 
-> **Estado:** ✅ CRIADO E AUDITADO  
+> **Estado:** 🟡 CORRIGIDO APÓS REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `24e377893c7151ea0579964453bfc63ce0ed77f4`  
 > **Linhas textuais:** **38**  
 > **Posições documentais:** **39** contando newline final
@@ -8,6 +8,13 @@
 ## Papel arquitetural
 
 `relay-progress.js` liga a telemetria de progresso do content script Gemini à aba leitora de mangá e, em paralelo, marca o job persistido da aba remetente como `running`.
+
+### Host, loader e contexto runtime
+
+- `extension/background.js` carrega `background/actions/relay-progress.js` diretamente via `importScripts` no service worker e via `require` no harness CommonJS.
+- O mesmo host cria o registered-action router por `routeRegisteredAction()`. Seu `contextFactory` injeta o estado compartilhado; `createContext()` do router completa o contexto com `sender` e o adapter `storage`.
+- `routed-actions-legacy.test.js` e `message-handlers-real.test.js` carregam `extension/background.js` real; por isso a evidência integrada atravessa o host/runtime, não apenas a action isolada.
+- `content_gemini.js::reportProgress()` é o **producer da mensagem** `GEMINI_PROGRESS`; `job-runner.js` chama esse producer em várias fases. Isso é diferente de `background.js`, que é loader/dispatcher/context provider.
 
 O consumidor real é `content_gemini.js::reportProgress()`, que envia `GEMINI_PROGRESS` com `text` e normalmente `mangaTabId`. O `job-runner` chama `reportProgress` em etapas como obter imagem, aguardar interface, anexar, enviar prompt, processar e extrair resultado.
 
@@ -30,7 +37,7 @@ Isso reduz a autoridade do payload sobre qual job é atualizado, mas não há va
 
 `tabs.sendMessage` é fire-and-forget: `chrome.runtime.lastError` é apenas consumido. Logo `{ok:true}` do router pode ocorrer mesmo que o relay visual para a aba de mangá falhe.
 
-Em contraste, erros/rejeições de `context.storage.get/set` propagam pela Promise e viram erro do router.
+`relay-progress.js` não captura exceções/rejeições de `context.storage.get/set`: se o seam realmente **lançar** ou devolver uma Promise rejeitada, o erro sobe até o catch do router e vira `INTERNAL_ERROR`. Porém o adapter real criado pelo router envolve `chrome.storage.local.get/set` somente com `new Promise(resolve => ...resolve)` e **não converte `chrome.runtime.lastError` em reject**. Portanto uma falha reportada apenas por callback/`lastError` não possui a mesma garantia de propagação.
 
 ## Evidência
 
@@ -41,6 +48,7 @@ Em contraste, erros/rejeições de `context.storage.get/set` propagam pela Promi
 | `message-handlers-real.test.js` | ✅ PROVADO NO BACKGROUND INTEGRADO | Destino explícito e fallback por `activeMangaTabId` encaminham progresso. |
 | `content_gemini.js` | 🟨 CONSUMIDOR REAL | `reportProgress` cria mensagens GEMINI_PROGRESS e absorve lastError do envio ao background. |
 | `job-runner.js` | 🟨 CONSUMIDOR INDIRETO | Emite progresso em várias fases do pipeline usando `job.mangaTabId`. |
+| `extension/background.js` | 🟨 HOST/WIRING REAL | Carrega a action, cria o router registrado e participa da construção do contexto runtime; não é producer de `GEMINI_PROGRESS`. |
 
 ## Lacunas e riscos
 
@@ -49,7 +57,7 @@ Em contraste, erros/rejeições de `context.storage.get/set` propagam pela Promi
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para ausência simultânea de `request.mangaTabId` e `activeMangaTabId`; nenhum relay ocorre, mas a action ainda pode atualizar storage.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para sender sem tab; nesse caso nenhum job é marcado `running`.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para job inexistente na chave do sender; a action retorna sucesso sem mutação.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para falha/rejeição de `storage.get` ou `storage.set`.
+- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para throw/Promise rejeitada do seam `storage.get/set`; nesse caso a action deixaria o erro subir ao router. Também não há prova de política para `chrome.runtime.lastError` do storage real, e o wrapper atual não o transforma explicitamente em rejeição.
 - ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para falha de `tabs.sendMessage`; ela é intencionalmente ignorada.
 - ⚠️ `allowedSources:['any']` permite qualquer source do router; não existe validator de source/job nesta action.
 - ⚠️ `context.state.activeMangaTabId` é acessado diretamente; se `context.state` não existir, haverá exceção.
@@ -184,4 +192,6 @@ Posição editorial para equivalência física.
 - [x] lacunas de payload/source/storage/sendMessage explicitadas;
 - [x] nenhum código funcional alterado.
 
-**Veredito:** ✅ APROVADO para `24e377893c7151ea0579964453bfc63ce0ed77f4`.
+**Veredito documental da revisão atual:** 🟡 corrigida após REAUDIT; requer nova PRIMARY + ADVERSARIAL vinculadas ao novo `BIBLE_SHA`.
+
+> **Correção pós-REAUDIT:** producer, loader/dispatcher e contexto runtime foram separados; somente throw/Promise efetivamente rejeitada do seam de storage é garantidamente capturada pelo router, enquanto `runtime.lastError` do wrapper callback não é convertido em reject.
