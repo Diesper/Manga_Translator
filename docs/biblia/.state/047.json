@@ -3,7 +3,7 @@
   "file": "extension/content/gemini/result-extractor.js",
   "bible": "docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 29",
+  "agent": null,
   "source_sha": "a3efd499a0b090f12701533a96f2602bf29bbcbb",
   "started_at_utc": "2026-09-30T16:03:00Z",
   "completed_at_utc": "2026-09-30T16:07:00Z",
@@ -275,5 +275,10 @@
     "bible_lines": 1052,
     "external_audit_requests_open": 12,
     "note": "AGENTE 29 reconciliou o state ausente; a Bíblia aprovada foi preservada e as lacunas/riscos já documentados foram persistidos como solicitações ao auditor."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

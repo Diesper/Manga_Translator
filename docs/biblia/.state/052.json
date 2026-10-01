@@ -3,7 +3,7 @@
   "file": "extension/options/options.js",
   "bible": "docs/biblia/extension/options/options.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "agent": null,
   "source_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
   "completed_at_utc": "2026-09-30T06:14:31.653Z",
   "audit_requests": [
@@ -50,5 +50,11 @@
     "embedded_source_exact": true,
     "documented_positions": "421/421",
     "bible_lines": 5531
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
 }
