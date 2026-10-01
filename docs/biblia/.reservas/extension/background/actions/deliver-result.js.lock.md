@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: extension/background/actions/deliver-result.js
+BÍBLIA: docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 3653bd10c2a0e65c14eb139f906feeafb30411a5
+CLAIMED_AT_UTC: 2026-10-01T19:53:26.635Z
+UPDATED_AT_UTC: 2026-10-01T19:53:26.635Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
