@@ -2,11 +2,11 @@
   "index": 62,
   "file": "jest.config.js",
   "bible": "docs/biblia/jest.config.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
   "started_at_utc": "2026-09-30T14:36:00Z",
-  "completed_at_utc": "2026-09-30T14:42:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "062-001",
@@ -63,7 +63,17 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T00:12:15Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T00:12:15Z",
+      "type": "SUPPORTING_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "#102 revelou que uma config Jest paralela viola o contrato de configuração única; projeto infra condicional será incorporado à config canônica e 062-002 receberá prova focal."
+    }
+  ],
   "evidence": []
 }
