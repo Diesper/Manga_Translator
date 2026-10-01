@@ -2,11 +2,11 @@
   "index": 199,
   "file": "tests/unit/content-manga/chapter-id-rejection.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/chapter-id-rejection.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "783c8abd86029345a97ce44f4eaf5415274bf4b3",
   "started_at_utc": "2026-09-30T14:47:10Z",
-  "completed_at_utc": "2026-09-30T14:52:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "199-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 227,
     "external_audit_requests_open": 3,
     "note": "Regressão histórica útil do BUG #11, porém baseada em mirror e não em cm-chapter.js real."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

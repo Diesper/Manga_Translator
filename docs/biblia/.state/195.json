@@ -2,11 +2,11 @@
   "index": 195,
   "file": "tests/unit/content-manga/button-ui-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 7",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
   "started_at_utc": "2026-09-30T15:04:00Z",
-  "completed_at_utc": "2026-09-30T15:11:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "195-001",
@@ -88,5 +88,10 @@
     "external_audit_requests_open": 3,
     "environment": "JSDOM com content_manga.js real e mocks Chrome do projeto",
     "note": "Bíblia concluída sem alterar código, testes, fixtures, workflows, configs ou arquivos globais de coordenação."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

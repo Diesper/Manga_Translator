@@ -2,11 +2,11 @@
   "index": 194,
   "file": "tests/unit/content-manga/auto-restorer-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/auto-restorer-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 5",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "cf792733e62f4b787073f1f7257e2701d29547a6",
   "started_at_utc": "2026-09-30T15:03:00Z",
-  "completed_at_utc": "2026-09-30T15:08:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "194-001",
@@ -89,5 +89,10 @@
     "external_audit_requests_open": 3,
     "global_files_modified": false,
     "note": "Bíblia concluída pelo AGENTE 5; código, testes, fixtures, workflows, STATUS, CHECKLIST e AUDITORIA permaneceram read-only."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

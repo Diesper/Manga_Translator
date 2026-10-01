@@ -2,11 +2,11 @@
   "index": 198,
   "file": "tests/unit/content-manga/chapter-id-cache.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/chapter-id-cache.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "7bc23a456be69aaac252e7acea2b498d61a07520",
   "started_at_utc": "2026-09-30T13:46:30Z",
-  "completed_at_utc": "2026-09-30T14:40:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "198-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 84,
     "external_audit_requests_open": 3,
     "note": "Stub histórico v3.0; não constitui prova direta do runtime atual cm-chapter.js. started_at corrigido pelo timestamp real do commit de reserva."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
