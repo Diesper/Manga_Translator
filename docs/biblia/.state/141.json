@@ -2,11 +2,11 @@
   "index": 141,
   "file": "tests/unit/background/download-image-action.test.js",
   "bible": "docs/biblia/tests/unit/background/download-image-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 8",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9305ba72e1d62406128ce7a5cd77b945a0b44c83",
   "started_at_utc": "2026-09-30T06:55:00Z",
-  "completed_at_utc": "2026-09-30T07:00:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "141-001",
@@ -102,5 +102,10 @@
     "bible_lines": 414,
     "external_audit_requests_open": 4,
     "note": "Happy path provado diretamente; branches de erro permanecem explicitamente não provados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

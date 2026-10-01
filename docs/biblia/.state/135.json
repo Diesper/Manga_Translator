@@ -2,11 +2,11 @@
   "index": 135,
   "file": "tests/unit/background/claim-gemini-job-action.test.js",
   "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 22",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
   "started_at_utc": "2026-09-30T06:36:00Z",
-  "completed_at_utc": "2026-09-30T06:39:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "135-001",
@@ -51,5 +51,10 @@
       "audit_finding": "SUPERSEDED por 005-002. O achado é um subconjunto da lacuna já auditada e aceita no request canônico correspondente da action de produção.",
       "auditor_recommended_action": "Centralizar a correção e a cobertura no request 005-002, evitando duas filas para o mesmo branch."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

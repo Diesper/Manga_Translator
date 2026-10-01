@@ -2,11 +2,11 @@
   "index": 140,
   "file": "tests/unit/background/download-chapter-action.test.js",
   "bible": "docs/biblia/tests/unit/background/download-chapter-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 4",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ff0ecb6249b24b8453bc886df4724be27f492e10",
   "started_at_utc": "2026-09-30T06:36:00Z",
-  "completed_at_utc": "2026-09-30T06:38:28Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "140-001",
@@ -83,5 +83,10 @@
     "evidence_quality": "Two happy paths directly exercise the real router and real action; unvisited branches remain explicitly unproved.",
     "external_audit_requests_open": 3,
     "note": "Nenhum código/teste externo foi modificado para fabricar evidência."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

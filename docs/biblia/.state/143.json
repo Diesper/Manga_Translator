@@ -2,11 +2,11 @@
   "index": 143,
   "file": "tests/unit/background/export-all-action.test.js",
   "bible": "docs/biblia/tests/unit/background/export-all-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 15",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9ab092d95ac1cef8b2111e76a23422f7159a4fcf",
   "started_at_utc": "2026-09-30T06:38:00Z",
-  "completed_at_utc": "2026-09-30T06:39:12Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "143-001",
@@ -44,5 +44,10 @@
       109437162754
     ],
     "evidence_summary": "Mesmo blob; PASS explícito em Node 20.x e matriz Unit+Integration 20/22 integralmente verde."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
