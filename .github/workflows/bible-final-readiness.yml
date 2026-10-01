@@ -1,0 +1,39 @@
+name: Bible Final Readiness
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - synchronize
+      - reopened
+
+jobs:
+  final-readiness:
+    name: Bible Final Readiness
+    if: contains(github.event.pull_request.labels.*.name, 'bible-final')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact PR SHA
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Protocol infrastructure self-tests
+        run: |
+          node docs/biblia/.coordination/audit-protocol-selftest.js
+          node scripts/validation/verify-bible-audit-pipeline-selftest.js
+          node scripts/validation/verify-bible-audit-shards-selftest.js
+          node docs/biblia/.coordination/reconcile-audit-results-selftest.js
+          node scripts/validation/verify-bible-coordination-selftest.js
+
+      - name: Require reconciled distributed projections
+        run: node docs/biblia/.coordination/reconcile-audit-results.js --check
+
+      - name: Require distributed protocol complete
+        run: node docs/biblia/.coordination/audit-protocol.js verify
+
+      - name: Require legacy and distributed merge readiness
+        run: node scripts/validation/verify-bible-merge-readiness.js
