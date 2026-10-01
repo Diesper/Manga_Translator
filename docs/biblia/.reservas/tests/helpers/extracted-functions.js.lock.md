@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/helpers/extracted-functions.js
+BÍBLIA: docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: ccbf20485608a223c723adf638860cb7151c8886
+CLAIMED_AT_UTC: 2026-10-01T21:37:31.520Z
+UPDATED_AT_UTC: 2026-10-01T21:37:31.520Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
