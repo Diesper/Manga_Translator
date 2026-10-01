@@ -95,6 +95,25 @@ function lockFor(root,state,agent='AGENT-X'){
   ].join('\n'));
   return rel;
 }
+function auditClaimFor(root,state,auditor='AUDITOR-X',overrides={}){
+  const index=overrides.index ?? state.index;
+  const filename=overrides.filename ?? String(index).padStart(3,'0')+'.lock.md';
+  const rel='docs/biblia/.coordination/audit-claims/'+filename;
+  write(root,rel,[
+    'AUDITOR: '+auditor,
+    'INDEX: '+index,
+    'ARQUIVO: '+(overrides.file ?? state.file),
+    'BIBLIA: '+(overrides.bible ?? state.bible),
+    'SOURCE_SHA: '+(overrides.sourceSha ?? state.source_sha),
+    'CLAIMED_AT_UTC: 2026-10-01T04:20:00Z',
+    'UPDATED_AT_UTC: 2026-10-01T04:20:00Z',
+    'PR: #66',
+    'BRANCH: docs/project-bible',
+    'ESTADO: '+(overrides.claimState ?? 'ACTIVE'),
+    ''
+  ].join('\n'));
+  return rel;
+}
 function validate(root,checkDerived=false){
   return validateBibleCoordination(root,{checkDerived,headLabel:'fixture'}).problems;
 }
@@ -134,6 +153,27 @@ expectFail('dois locks para agente','agente possui >1 lock ativo',(root)=>{
 });
 expectFail('lock de outro arquivo não satisfaz ownership','lock não satisfaz ownership',(root)=>{
   const s=readJson(root,statePath(1));s.status='IN_PROGRESS';s.agent='AGENT-X';writeJson(root,statePath(1),s);lockFor(root,s,'AGENT-Y');
+});
+
+expectPass('audit claim em READY_FOR_AUDIT passa',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);auditClaimFor(root,s);
+});
+expectFail('audit claim em COMPLETED falha','audit claim exige READY_FOR_AUDIT',(root)=>{
+  const s=readJson(root,statePath(1));auditClaimFor(root,s);
+});
+expectFail('auditor com dois claims falha','auditor possui >1 audit claim ativo',(root)=>{
+  for(const i of [1,2]){
+    const s=readJson(root,statePath(i));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(i),s);auditClaimFor(root,s,'AUDITOR-X');
+  }
+});
+expectFail('audit claim com SHA stale falha','audit claim SOURCE_SHA diverge do state',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);auditClaimFor(root,s,'AUDITOR-X',{sourceSha:'0'.repeat(40)});
+});
+expectFail('audit claim conflita com lock de edição','audit claim conflita com reserva de edição',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);lockFor(root,s);auditClaimFor(root,s);
+});
+expectFail('audit claim filename/index divergente','audit claim filename/index divergente',(root)=>{
+  const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);auditClaimFor(root,s,'AUDITOR-X',{filename:'002.lock.md'});
 });
 
 expectPass('SHA correto passa');
