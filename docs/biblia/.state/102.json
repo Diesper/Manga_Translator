@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "1eb37bc08852bab1bd6b060073690f9d756fc35a",
+  "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:55:00Z",
+  "updated_at_utc": "2026-10-02T00:02:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -282,6 +282,13 @@
       "previous_source_sha": "1eb37bc08852bab1bd6b060073690f9d756fc35a",
       "current_source_sha": "1eb37bc08852bab1bd6b060073690f9d756fc35a",
       "reason": "Cleanup best-effort agora continua entre storage/runtime/global listeners mesmo quando um removeListener lança; captura global filtra registrations pelo stack da extensão e preserva listeners externos."
+    },
+    {
+      "at_utc": "2026-10-02T00:02:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_FINAL_HARDENING",
+      "previous_source_sha": "1eb37bc08852bab1bd6b060073690f9d756fc35a",
+      "current_source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+      "reason": "attachCleanupError deixou de usar catch best-effort; metadata secundária só é anexada quando o erro primário é extensível e a propriedade é gravável."
     }
   ],
   "evidence": [
