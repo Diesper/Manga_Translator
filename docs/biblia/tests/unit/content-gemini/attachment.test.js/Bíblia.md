@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/attachment.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 43d4591bc9ff684de97d8010aea428a9f83ea321  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest de upload/attachment Gemini com confirmação observável  
@@ -14,6 +14,14 @@
 attachment.test.js congela a regra mais importante do upload para Gemini: disparar paste/change/drop é apenas tentativa; sucesso só existe quando aparece ou muda evidência DOM válida depois do baseline capturado antes do upload.
 
 A suíte carrega selectors.js, dom.js e attachment.js reais. Ela testa fallback entre file input, drop e paste, Shadow DOM, baseline estrutural, previews pendentes e exclusão de imagens de resposta do modelo.
+
+### Cadeia de descoberta e execução da suíte
+
+A implementação real carregada pelo teste deve ser distinguida do harness que o executa:
+
+`package.json#test:ci` → `scripts/ci/run-jest-ci.js` → `jest.config.js` → projeto Jest `content-scripts` → padrão `tests/unit/content-gemini/**/*.test.js` → ambiente `jsdom` + setup/mocks como `tests/mocks/chrome-api.mock.js` e `dom-environment.js` → esta suíte → módulos reais `selectors.js`, `dom.js` e `attachment.js`.
+
+No workflow de CI, o job **Unit + Integration** chama `npm run test:ci` em Node 20.x/22.x. Assim, CI verde prova descoberta/execução da suíte nesse harness; a força de cada contrato continua vindo das actions/assertions específicas do cenário, não do simples fato de o arquivo ter sido executado.
 
 ## 2. Confirmação baseada em evidência
 
@@ -48,7 +56,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 | mudança estrutural no mesmo container conta | ATT-04 | ✅ PROVADO DIRETAMENTE |
 | file input funciona | ATT-05 | ✅ PROVADO DIRETAMENTE |
 | drop funciona como fallback | ATT-06 | ✅ PROVADO DIRETAMENTE |
-| método não é repetido no mesmo attach | ATT-07 | ✅ PROVADO DIRETAMENTE |
+| paste e drop não são repetidos no cenário ATT-07 | contadores `pasteCount === 1` e `dropCount === 1` | ✅ PROVADO DIRETAMENTE — escopo restrito a paste/drop; não universaliza file input |
 | input file é encontrado em Shadow DOM | ATT-08 | ✅ PROVADO DIRETAMENTE |
 | cosmético ignorado / mídia nova aceita | ATT-09 | ✅ PROVADO DIRETAMENTE |
 | preview Shadow DOM completo confirma | ATT-09B | ✅ PROVADO DIRETAMENTE |
@@ -60,7 +68,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 
 ## 9. Solicitações ao auditor
 
-### 174-001 — TEST_REQUIRED — OPEN — HIGH
+### 174-001 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: attachFile chama getEditor/getEditorRoot antes de cada método e pula a tentativa com reason=editor_disconnected quando o editor/raiz foi removido. Nenhum caso focal simula re-render do composer entre tentativas.
 
@@ -68,7 +76,7 @@ Evidência ausente: editor inicial desconectado após primeira espera e getters 
 
 Risco: Gemini pode re-renderizar o composer durante upload e o fluxo ficar preso ou enviar evento a nó morto.
 
-### 174-002 — TEST_REQUIRED — OPEN — NORMAL
+### 174-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: evidenceReady exige IMG completa/dimensões positivas e ausência de aria-busy=true, role=progressbar ou mat-progress-spinner. ATT-10 cobre apenas imagem incompleta, não indicador explícito de progresso.
 
@@ -76,7 +84,7 @@ Evidência ausente: preview com IMG completa + progress indicator deve gerar sin
 
 Risco: UI ainda processando pode ser declarada pronta cedo e o runner avançar antes do attachment terminar.
 
-### 174-003 — TEST_REQUIRED — OPEN — NORMAL
+### 174-003 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: findFileInputsDeep filtra input disabled, inputs dentro de user/model responses e accept não compatível, além de ordenar inputs no composer antes dos externos. ATT-08 prova apenas travessia de Shadow DOM com um único input genérico.
 
@@ -570,7 +578,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 011
 
 - **Código:** `    constructor() {`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -598,49 +606,49 @@ describe('gemini/attachment.js', () => {
 ### Linha 015
 
 - **Código:** `        files.push(item);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 016
 
 - **Código:** `        return item;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 017
 
 - **Código:** `      };`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 018
 
 - **Código:** `      this.files = files;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 019
 
 - **Código:** `      this.items = items;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 020
 
 - **Código:** `    }`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 021
 
 - **Código:** `  }`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -661,7 +669,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 024
 
 - **Código:** `}`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** mock DataTransfer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -682,14 +690,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 027
 
 - **Código:** `  let api;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara ou inicializa a variável indicada especificamente por esta linha.
 - **Contexto:** loader attachment/selectors/dom.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 028
 
 - **Código:** `  jest.isolateModules(() => {`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Isola o carregamento de módulos Jest para evitar estado compartilhado entre cenários.
 - **Contexto:** loader attachment/selectors/dom.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -717,21 +725,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 032
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** loader attachment/selectors/dom.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 033
 
 - **Código:** `  return api;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** loader attachment/selectors/dom.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 034
 
 - **Código:** `}`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -752,14 +760,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 037
 
 - **Código:** `  return new File([new Uint8Array([1, 2, 3])], 'page.png', { type: 'image/png' });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 038
 
 - **Código:** `}`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -787,84 +795,84 @@ describe('gemini/attachment.js', () => {
 ### Linha 042
 
 - **Código:** `    x: 0,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 043
 
 - **Código:** `    y: 0,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 044
 
 - **Código:** `    top: 0,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 045
 
 - **Código:** `    left: 0,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 046
 
 - **Código:** `    right: width,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 047
 
 - **Código:** `    bottom: height,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 048
 
 - **Código:** `    width,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 049
 
 - **Código:** `    height,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 050
 
 - **Código:** `    toJSON() { return this; },`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 051
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 052
 
 - **Código:** `  return element;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 053
 
 - **Código:** `}`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -892,7 +900,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 057
 
 - **Código:** `  if (withImage) {`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Aplica a guarda condicional expressa nesta linha ao fluxo do cenário.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -934,14 +942,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 063
 
 - **Código:** `    preview.appendChild(image);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** helpers de fixture/preview.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 064
 
 - **Código:** `  }`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -955,14 +963,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 066
 
 - **Código:** `  return preview;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** setup/teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 067
 
 - **Código:** `}`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** setup/teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -997,14 +1005,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 072
 
 - **Código:** `    installDataTransferMock();`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Configura ou usa o mock Jest expresso nesta linha para controlar/observar o boundary.
 - **Contexto:** setup/teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 073
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** setup/teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1039,7 +1047,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 078
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** setup/teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1109,7 +1117,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 088
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-01 — sucesso só após nova evidência.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1137,7 +1145,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 092
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-01 — sucesso só após nova evidência.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1179,7 +1187,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 098
 
 - **Código:** `    })).resolves.toEqual(expect.objectContaining({`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-01 — sucesso só após nova evidência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1200,7 +1208,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 101
 
 - **Código:** `      evidence: expect.objectContaining({ type: 'container' }),`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-01 — sucesso só após nova evidência.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1214,14 +1222,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 103
 
 - **Código:** `    }));`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-01 — sucesso só após nova evidência.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 104
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-01 — sucesso só após nova evidência.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1291,7 +1299,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 114
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-02 — tentativa sem DOM novo não confirma.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1333,7 +1341,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 120
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-02 — tentativa sem DOM novo não confirma.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1347,7 +1355,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 122
 
 - **Código:** `    expect(result.attempted).toBe(true);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-02 — tentativa sem DOM novo não confirma.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1375,7 +1383,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 126
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-02 — tentativa sem DOM novo não confirma.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1452,7 +1460,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 137
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-03 — baseline antigo não conta.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1487,7 +1495,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 142
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-03 — baseline antigo não conta.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1522,7 +1530,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 147
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-03 — baseline antigo não conta.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1634,14 +1642,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 163
 
 - **Código:** `      preview.appendChild(image);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 164
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1669,7 +1677,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 168
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1704,7 +1712,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 173
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1718,21 +1726,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 175
 
 - **Código:** `    expect(result.confirmed).toBe(true);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 176
 
 - **Código:** `    expect(result.evidence.el).toBe(preview);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 177
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-04 — mudança estrutural em container existente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1788,7 +1796,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 185
 
 - **Código:** `    const input = document.createElement('input');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara uma referência DOM criada ou consultada nesta linha.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1802,14 +1810,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 187
 
 - **Código:** `    // JSDOM exige FileList no setter nativo; nesta fixture queremos observar`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Comentário/documentação do teste; não executa lógica de runtime.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 188
 
 - **Código:** `    // apenas o contrato do módulo ao atribuir os arquivos do DataTransfer.`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Comentário/documentação do teste; não executa lógica de runtime.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1823,28 +1831,28 @@ describe('gemini/attachment.js', () => {
 ### Linha 190
 
 - **Código:** `      value: [],`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 191
 
 - **Código:** `      writable: true,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 192
 
 - **Código:** `      configurable: true,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 193
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1858,7 +1866,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 195
 
 - **Código:** `    document.body.appendChild(input);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1886,7 +1894,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 199
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1921,7 +1929,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 204
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -1935,7 +1943,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 206
 
 - **Código:** `    expect(result.confirmed).toBe(true);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1949,14 +1957,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 208
 
 - **Código:** `    expect(input.files).toHaveLength(1);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 209
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-05 — fallback input file.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2019,21 +2027,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 218
 
 - **Código:** `      expect(event.dataTransfer).toBeTruthy();`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 219
 
 - **Código:** `      addPreview();`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 220
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2061,7 +2069,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 224
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2103,7 +2111,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 230
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2117,7 +2125,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 232
 
 - **Código:** `    expect(result.confirmed).toBe(true);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2131,7 +2139,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 234
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-06 — fallback drag/drop.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2187,14 +2195,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 242
 
 - **Código:** `    let pasteCount = 0;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara ou inicializa a variável indicada especificamente por esta linha.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 243
 
 - **Código:** `    let dropCount = 0;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara ou inicializa a variável indicada especificamente por esta linha.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2236,7 +2244,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 249
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2271,14 +2279,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 254
 
 - **Código:** `      sleep: async () => {},`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 255
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2299,21 +2307,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 258
 
 - **Código:** `    expect(pasteCount).toBe(1);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 259
 
 - **Código:** `    expect(dropCount).toBe(1);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 260
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-07 — cada método no máximo uma vez.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2348,14 +2356,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 265
 
 - **Código:** `    const shadow = host.attachShadow({ mode: 'open' });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Cria Shadow DOM para exercitar descoberta profunda de attachment.
 - **Contexto:** ATT-08 — input file em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 266
 
 - **Código:** `    const input = document.createElement('input');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara uma referência DOM criada ou consultada nesta linha.
 - **Contexto:** ATT-08 — input file em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2369,14 +2377,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 268
 
 - **Código:** `    shadow.appendChild(input);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-08 — input file em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 269
 
 - **Código:** `    document.body.appendChild(host);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-08 — input file em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2390,14 +2398,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 271
 
 - **Código:** `    expect(api.findFileInputsDeep(document.body)).toContain(input);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-08 — input file em Shadow DOM.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 272
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-08 — input file em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2425,14 +2433,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 276
 
 - **Código:** `    const preview = addPreview({ withImage: true });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara ou inicializa a variável indicada especificamente por esta linha.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 277
 
 - **Código:** `    const baseline = api.captureAttachmentBaseline(document);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Captura o baseline de attachment antes da tentativa de upload.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real e assertions subsequentes fixam o contrato.
 
@@ -2446,7 +2454,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 279
 
 - **Código:** `    expect(api.findAttachmentThumbnailDeep(document, baseline)).toBeNull();`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2460,14 +2468,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 281
 
 - **Código:** `    preview.classList.add('upload-complete');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 282
 
 - **Código:** `    expect(api.findAttachmentThumbnailDeep(document, baseline)).toBeNull();`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2495,28 +2503,28 @@ describe('gemini/attachment.js', () => {
 ### Linha 286
 
 - **Código:** `    expect(api.findAttachmentThumbnailDeep(document, baseline)).toEqual(`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 287
 
 - **Código:** `      expect.objectContaining({ el: preview, type: 'container' })`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 288
 
 - **Código:** `    );`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 289
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-09 — mudança cosmética vs estrutural.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2551,14 +2559,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 294
 
 - **Código:** `    const composer = document.createElement('rich-textarea');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara uma referência DOM criada ou consultada nesta linha.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 295
 
 - **Código:** `    const composerShadow = composer.attachShadow({ mode: 'open' });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Cria Shadow DOM para exercitar descoberta profunda de attachment.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2579,14 +2587,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 298
 
 - **Código:** `    composerShadow.appendChild(editor);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 299
 
 - **Código:** `    document.body.appendChild(composer);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2607,7 +2615,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 302
 
 - **Código:** `      if (composerShadow.querySelector('file-preview')) return;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Consulta o DOM pelo seletor expresso nesta linha.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2635,28 +2643,28 @@ describe('gemini/attachment.js', () => {
 ### Linha 306
 
 - **Código:** `        x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 307
 
 - **Código:** `        width: 120, height: 90, toJSON() { return this; },`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 308
 
 - **Código:** `      });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 309
 
 - **Código:** `      const previewShadow = preview.attachShadow({ mode: 'open' });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Cria Shadow DOM para exercitar descoberta profunda de attachment.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2698,21 +2706,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 315
 
 - **Código:** `      previewShadow.appendChild(image);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 316
 
 - **Código:** `      composerShadow.appendChild(preview);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 317
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2740,7 +2748,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 321
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2782,7 +2790,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 327
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2796,49 +2804,49 @@ describe('gemini/attachment.js', () => {
 ### Linha 329
 
 - **Código:** `    expect(result.confirmed).toBe(true);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 330
 
 - **Código:** `    expect(result.evidence).toEqual(expect.objectContaining({`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 331
 
 - **Código:** `      type: 'container',`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 332
 
 - **Código:** `      img: expect.any(HTMLImageElement),`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 333
 
 - **Código:** `    }));`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 334
 
 - **Código:** `    expect(result.evidence.img.src).toBe('blob:https://gemini.google.com/shadow-attachment');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 335
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-09B — preview em Shadow DOM do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2887,14 +2895,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 342
 
 - **Código:** `    const attempts = [];`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara ou inicializa a variável indicada especificamente por esta linha.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 343
 
 - **Código:** `    let pendingImage = null;`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara ou inicializa a variável indicada especificamente por esta linha.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2922,7 +2930,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 347
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2964,21 +2972,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 353
 
 - **Código:** `      onAttempt: attempt => attempts.push(attempt),`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 354
 
 - **Código:** `      dispatchMethodFn: async method => {`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 355
 
 - **Código:** `        if (method !== 'file_input') return { attempted: false };`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Retorna o valor ou resultado indicado pelo fluxo desta função auxiliar.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2999,7 +3007,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 358
 
 - **Código:** `        pendingImage.src = 'blob:https://gemini.test/pending';`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3027,7 +3035,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 362
 
 - **Código:** `        preview.appendChild(pendingImage);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3041,14 +3049,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 364
 
 - **Código:** `      },`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 365
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3062,21 +3070,21 @@ describe('gemini/attachment.js', () => {
 ### Linha 367
 
 - **Código:** `    await new Promise(resolve => setTimeout(resolve, 25));`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 368
 
 - **Código:** `    expect(attempts).toHaveLength(1);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 369
 
 - **Código:** `    expect(attempts[0].method).toBe('file_input');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -3111,7 +3119,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 374
 
 - **Código:** `    pendingImage.src = 'blob:https://gemini.test/pending-loaded';`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3125,7 +3133,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 376
 
 - **Código:** `    await expect(resultPromise).resolves.toEqual(expect.objectContaining({`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Assertion focal sobre o valor ou efeito expresso nesta linha.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -3146,14 +3154,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 379
 
 - **Código:** `    }));`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 380
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-10 — preview pendente bloqueia redisparo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3223,7 +3231,7 @@ describe('gemini/attachment.js', () => {
 ### Linha 390
 
 - **Código:** `      editor,`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3258,28 +3266,28 @@ describe('gemini/attachment.js', () => {
 ### Linha 395
 
 - **Código:** `      dispatchMethodFn: async () => {`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Atualiza a variável ou propriedade indicada para configurar o estado específico do cenário.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 396
 
 - **Código:** `        const response = document.createElement('model-response');`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Declara uma referência DOM criada ou consultada nesta linha.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 397
 
 - **Código:** `        document.body.appendChild(response);`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Insere o nó indicado na árvore DOM do cenário.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 398
 
 - **Código:** `        addPreview({ parent: response });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Invoca a operação indicada nesta linha como parte do setup, ação ou observação do cenário.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3293,14 +3301,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 400
 
 - **Código:** `      },`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Executa a instrução específica desta linha no contexto descrito; não é uma observação genérica de arquivos do input.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 401
 
 - **Código:** `    });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3328,14 +3336,14 @@ describe('gemini/attachment.js', () => {
 ### Linha 405
 
 - **Código:** `  });`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** ATT-11 — imagem de resposta fora do composer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 406
 
 - **Código:** `});`
-- **Função:** Observa arquivos atribuídos ao input.
+- **Função:** Fecha ou organiza o bloco sintático anterior; função estrutural.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3347,4 +3355,7 @@ describe('gemini/attachment.js', () => {
 
 ## 12. Conclusão documental
 
-Foram documentadas 406 linhas textuais e a posição 407 do newline final. Os 12 cenários principais estão diretamente provados no mesmo blob verde em Node 20/22; as três solicitações OPEN concentram-se em re-render do editor, estado busy explícito e seleção segura entre múltiplos inputs file.
+Foram documentadas 406 linhas textuais e a posição 407 do newline final. Os 12 cenários principais estão diretamente provados no mesmo blob verde em Node 20/22; as três solicitações ACCEPTED concentram-se em re-render do editor, estado busy explícito e seleção segura entre múltiplos inputs file.
+
+> **Correção pós-adversarial:** 146 descrições genéricas `Observa arquivos atribuídos ao input` foram substituídas por função derivada da linha concreta; linhas estruturais, assertions, declarações, chamadas e manipulações DOM não compartilham mais a mesma semântica copiada.
+> **Lifecycle:** 174-001, 174-002 e 174-003 estão ACCEPTED em `.state/174.json`.
