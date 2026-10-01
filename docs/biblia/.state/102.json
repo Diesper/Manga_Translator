@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "1528c716aac6580f7ca14d83d1b34660c3720ec6",
+  "source_sha": "48deaef8742e7629c46c8930128699c4443329ff",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:37:00Z",
+  "updated_at_utc": "2026-10-01T23:42:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -254,6 +254,13 @@
       "previous_source_sha": "d7bd13fc00c8ca807c8b8f91232ff11d27dc7c27",
       "current_source_sha": "1528c716aac6580f7ca14d83d1b34660c3720ec6",
       "reason": "Captura global agora sempre restaura addEventListener em finally e exceções de bootstrap executam teardown completo."
+    },
+    {
+      "at_utc": "2026-10-01T23:42:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "1528c716aac6580f7ca14d83d1b34660c3720ec6",
+      "current_source_sha": "48deaef8742e7629c46c8930128699c4443329ff",
+      "reason": "Harness passou a rejeitar cargas concorrentes no mesmo JSDOM com guard global liberado em finally; regressão focal adicionada."
     }
   ],
   "evidence": [
