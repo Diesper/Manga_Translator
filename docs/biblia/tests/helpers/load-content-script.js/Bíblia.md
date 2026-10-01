@@ -93,8 +93,8 @@ Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — 
 
 Workflow dedicado: `.github/workflows/load-content-script-selftest.yml` — SHA `e5689d6a5acbd81f633d906c24b6a8f6c6fcc663`.
 
-- Run `36941566574`: etapa focal concluiu `success` com 28/28 casos e `--detectOpenHandles`.
-- Run `36940601914` (job `110630946560`): suíte relacionada `content-scripts` concluiu `success` com **40/40 suites e 445/445 testes** sobre o mesmo `SOURCE_SHA=0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- Run `36941566574` (job `110634026523`): **SUCCESS** sobre os blobs atuais; self-test focal **28/28** com `--detectOpenHandles` e suíte relacionada `content-scripts` **40/40 suites, 445/445 testes**.
+- Run `36940601914` permanece evidência ampla complementar: **40/40 suites e 445/445 testes** sobre o mesmo `SOURCE_SHA=0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - Comparação `3d3dcddad0aa631290a5e3f9324a8eda9ac09cd1...49daf72b97f9ea24061f4aad6dbd76fd0f84d5d6`: nenhum arquivo do helper, `jest.config.js`, mocks ou projetos `content-manga`/`content-gemini`/`inject` mudou depois da execução 445/445; a evidência ampla permanece aplicável.
 - Run `36941566579`: `Repository Structure Selftest` concluiu `success`, confirmando que a infraestrutura focal não introduz segunda config Jest versionada nem quebra o gate estrutural.
 
