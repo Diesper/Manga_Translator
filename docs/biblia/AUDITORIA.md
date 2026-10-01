@@ -896,3 +896,7 @@ Para aprovar uma revisão:
 - **Coordenação:** state V2 sem ownership ativo; nenhuma alteração funcional em `jobs-watchdog.js` ou no teste foi necessária para esta reauditoria.
 
 **Veredito documental independente:** ✅ **APROVADO — #153 / SHA `2102182a1e313a02cdb511846a4561c3a0f607eb`**.
+
+#### Retificação de integridade pós-veredito — #153
+
+Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutural remanescente na Bíblia: o documento possuía mapa semântico 87/87 e SHA correto, mas não continha uma seção canônica de **Fonte integral**. A Bíblia foi retificada com o blob exato de `tests/unit/background/jobs-watchdog-ordering.test.js` no mesmo SHA `2102182a1e313a02cdb511846a4561c3a0f607eb`, sem alterar o teste, a implementação correlata, as alegações probatórias ou a solicitação `153-001`. O veredito SHA-bound permanece aplicável ao mesmo objeto auditado.

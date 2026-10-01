@@ -69,7 +69,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T03:06:00Z",
+  "updated_at_utc": "2026-10-01T03:10:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T01:44:00Z",
@@ -85,6 +85,13 @@
       "to_status": "COMPLETED",
       "source_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
       "reason": "Reauditoria independente confirmou a correção do desalinhamento semântico 060–087 e a fidelidade ao SHA atual. A solicitação 153-001 permanece ACCEPTED e não bloqueia a conclusão documental."
+    },
+    {
+      "at_utc": "2026-10-01T03:10:00Z",
+      "type": "POST_AUDIT_CANONICALIZATION",
+      "status": "COMPLETED",
+      "source_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
+      "reason": "Fonte integral exata adicionada à Bíblia após o gate V2 detectar ausência da seção canônica; sem mudança de fonte, evidência funcional, veredito ou request 153-001."
     }
   ],
   "evidence": []
