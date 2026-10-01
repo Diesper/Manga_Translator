@@ -42,7 +42,7 @@ jobs:
           };
           fs.writeFileSync(
             '/tmp/load-content-script-selftest.config.cjs',
-            'module.exports = ' + JSON.stringify(focal, null, 2) + ';\\n'
+            'module.exports = ' + JSON.stringify(focal, null, 2) + ';' + String.fromCharCode(10)
           );
           NODE
 
