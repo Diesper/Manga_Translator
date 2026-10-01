@@ -25,8 +25,8 @@ Depois de `downloads.download`, a action usa o helper real `waitForDownload`. O 
 
 | Fonte | Classificação | O que realmente prova |
 |---|---|---|
-| `download-image-action.test.js` | ✅ PROVADO DIRETAMENTE | Prefixo de filename, argumentos de `downloads.download`, wiring de `waitForDownload`, search e resposta `filePath/downloadId`. |
-| `message-handlers-real.test.js` — `1c2815cd1f2fecba58a07c568f24d69af0367af3` | ✅ PROVADO DIRETAMENTE EM BACKGROUND COMPLETO | DOWNLOAD_IMAGE com filename relativo e já prefixado produz paths sob `MangaTranslator/`. |
+| `download-image-action.test.js` | ✅ PROVADO DIRETAMENTE, COM ESCOPO LIMITADO | Prefixo de filename, argumentos de `downloads.download`, caminho feliz de espera e resposta `filePath/downloadId`. O mock de `downloads.search` existe, mas o teste isolado **não afirma sua chamada nem o payload `{id: doneId}`**. |
+| `message-handlers-real.test.js` — `1c2815cd1f2fecba58a07c568f24d69af0367af3` | ✅ PROVADO DIRETAMENTE EM BACKGROUND COMPLETO | DOWNLOAD_IMAGE com filename relativo/já prefixado produz paths sob `MangaTranslator/`; o `ChromeDownloadsMock.search` filtra por `query.id`, fornecendo evidência integrada mais forte do search/query que o teste isolado. |
 | `download-wait.test.js` — `1bb13ac03ab0bcaff68921211679355f9971678c` | ✅ PROVADO DIRETAMENTE DO HELPER | Complete, id estranho, cleanup de listener, interrupção, timeout, cancelamento de timer e paralelismo. Não prova a resposta desta action nos ramos de erro. |
 
 ## 5. Lacunas e riscos
@@ -132,9 +132,9 @@ Depois de `downloads.download`, a action usa o helper real `waitForDownload`. O 
 | 20 | U04 |             id, | Completa a expressão de U04 com `id,`. |
 | 21 | U04 |             doneId => chrome.downloads.search({ id: doneId }, results => { | Após complete, consulta metadata do download pelo id concluído. |
 | 22 | U04 |               if (results?.[0]) resolve({ filePath: results[0].filename, downloadId: doneId }); | Se há metadata, devolve filename real e downloadId. |
-| 23 | U04 |               else resolve({ error: 'Arquivo não encontrado' }); | Transforma falha imediata em resposta de erro consumível pelo caller. |
+| 23 | U04 |               else resolve({ error: 'Arquivo não encontrado' }); | Erro **pós-conclusão**: após `waitForDownload` completar, `downloads.search` não encontrou metadata para o id concluído. |
 | 24 | U04 |             }), | Fecha a estrutura sintática de U04. |
-| 25 | U04 |             err => resolve({ error: err.message }) | Transforma falha imediata em resposta de erro consumível pelo caller. |
+| 25 | U04 |             err => resolve({ error: err.message }) | Erro **terminal da espera**: callback de erro de `waitForDownload` (por exemplo interrupção/timeout) é convertido em resposta consumível pelo caller. |
 | 26 | U04 |           ); | Fecha a estrutura sintática de U04. |
 | 27 | U04 |         }); | Fecha a estrutura sintática de U04. |
 | 28 | U04 |       }); | Fecha a estrutura sintática de U04. |
