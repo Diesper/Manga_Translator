@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/smoke/smoke-02-uuid-and-reconcile.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA DOCUMENTAL APROVADA  
+> **Estado documental:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `d977f43a4b29653d01b0fd9c395cb04edb9c1a50`  
 > **Agente responsável:** AGENTE 10  
 > **Tipo:** smoke test Node standalone, baseado em simulações locais de geração de ID e reconciliação  
@@ -250,7 +250,7 @@ O maior risco deste smoke não é segurança; é **falsa confiança de cobertura
 
 ## 12. Solicitações ao auditor
 
-### 124-001 — TEST_AUTHENTICITY — OPEN — HIGH
+### 124-001 — TEST_AUTHENTICITY — ACCEPTED — HIGH
 
 **Encontrado:** o bloco de reconciliação redefine `tabExists` e `reconcileJobs` dentro do próprio smoke em vez de carregar `extension/background/jobs-reconciliation.js` ou o entrypoint real.
 
@@ -270,7 +270,7 @@ O maior risco deste smoke não é segurança; é **falsa confiança de cobertura
 
 **Severidade:** HIGH.
 
-### 124-002 — TEST_AUTHENTICITY — OPEN
+### 124-002 — TEST_AUTHENTICITY — ACCEPTED
 
 **Encontrado:** `generateId` é copiado para dentro do smoke.
 
@@ -286,7 +286,7 @@ O maior risco deste smoke não é segurança; é **falsa confiança de cobertura
 
 **Severidade:** NORMAL.
 
-### 124-003 — FALLBACK_TEST_VALIDITY — OPEN — HIGH
+### 124-003 — FALLBACK_TEST_VALIDITY — ACCEPTED — HIGH
 
 **Encontrado:** o smoke tenta remover `crypto.randomUUID`, mas engole falhas de atribuição/defineProperty e nunca confirma que a função deixou de existir antes de gerar `fallbackId`.
 
@@ -545,9 +545,9 @@ Objeto storage e lista clearedAlarms armazenam efeitos do reconciliador local.
 
 ### Linhas 59–102 — mockChrome local
 
-Implementa subset runtime/storage/tabs/alarms. tabs.get considera 101 viva e qualquer outra morta; storage é objeto in-memory; alarms.clear só registra nomes.
+Implementa subset runtime/storage/tabs/alarms. `tabs.get` considera 101 viva e qualquer outra morta; storage é objeto in-memory; `alarms.clear` só registra nomes.
 
-**Evidência:** ✅ PROVADO para a simulação; ⚠️ não é o mock Chrome canônico nem browser real.
+**Evidência:** 🟨 PARCIALMENTE EXERCITADO + ESTRUTURAL. O cenário usa `tabs.get` via `tabExists`, `alarms.clear` para o job descartado e `storage.local.remove(keys)` sem callback. `storage.local.get/set` e o branch de callback de `remove` são apenas definidos nesta faixa e não são exercitados; regressões nesses stubs podem manter o smoke verde. Continua sendo mock local, não browser real nem prova da implementação de produção.
 
 ### Linhas 103–111 — Estado inicial da reconciliação
 
@@ -608,3 +608,5 @@ LF terminal cria a 177ª posição documental.
 - nenhum arquivo externo foi alterado.
 
 **Conclusão documental:** Bíblia completa para o comportamento real deste smoke no SHA auditado. O arquivo pode ser marcado `COMPLETED`, mas sua função atual é parcialmente de **simulação/mirror**, e isso permanece explícito nas solicitações 124-001..003.
+
+> **Lifecycle pós-REAUDIT:** 124-001/002/003 estão ACCEPTED. A faixa 59–102 recebe prova apenas dos métodos/branches realmente usados pelo smoke; o restante é evidência estrutural.
