@@ -35,62 +35,114 @@ function extractIntegralSource(bible) {
   return contentEnd < 0 ? null : after.slice(0, contentEnd);
 }
 
+function isContiguousFromOne(intervals) {
+  if (!intervals.length || intervals[0].start !== 1) return false;
+  let expected = 1;
+  for (const interval of intervals) {
+    if (interval.start !== expected || interval.end < interval.start) return false;
+    expected = interval.end + 1;
+  }
+  return true;
+}
+
 function parseCoverageIntervals(bible) {
   const rangeHeadings = [];
   const singleHeadings = [];
 
-  // V1/V2 headings. Aceita prefixo editorial opcional: "### 1. Linhas 1–8".
-  for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linhas|Posi[cç][oõ]es)\s+0*(\d+)\s*[–—-]\s*0*(\d+)\b/gmi)) {
+  const rangeLabel = '(?:Linhas?|Posi[cç][aã]o(?:es)?|Posi[cç][oõ]es|Linha\\/posi[cç][aã]o|Linhas\\/posi[cç][aã]o)';
+  const singleLabel = '(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es|Pos\\.?|Linha\\/posi[cç][aã]o|Linhas\\/posi[cç][aã]o)';
+
+  const rangeRe = new RegExp(
+    '^#{2,5}\\\\s+(?:\\\\d+\\\\.\\\\s+)?' + rangeLabel
+      + '\\\\s+0*(\\\\d+)\\\\s*[–—-]\\\\s*0*(\\\\d+)\\\\b',
+    'gmi'
+  );
+  const singleRe = new RegExp(
+    '^#{2,5}\\\\s+(?:\\\\d+\\\\.\\\\s+)?' + singleLabel + '\\\\s+0*(\\\\d+)\\\\b',
+    'gmi'
+  );
+
+  for (const match of bible.matchAll(rangeRe)) {
     rangeHeadings.push({ start: Number(match[1]), end: Number(match[2]), raw: match[0] });
   }
-  for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es)\s+0*(\d+)\b/gmi)) {
+  for (const match of bible.matchAll(singleRe)) {
     singleHeadings.push({ start: Number(match[1]), end: Number(match[1]), raw: match[0] });
   }
 
-  // Se há faixas semânticas, elas são o mapa principal. Headings unitários
-  // duplicados dentro dessas faixas pertencem ao formato V1 detalhado e não
-  // devem gerar overlap. Singles fora das faixas continuam válidos para
-  // posições isoladas (ex.: newline terminal).
+  rangeHeadings.sort((a,b) => a.start - b.start || a.end - b.end);
+  singleHeadings.sort((a,b) => a.start - b.start || a.end - b.end);
+
+  // O formato V1 detalhado é inequívoco quando enumera 1,2,3... sem saltos.
+  // Nesse caso ele é preferido a quaisquer faixas-resumo coexistentes.
+  if (isContiguousFromOne(singleHeadings)) return singleHeadings;
+
+  // Se há faixas semânticas, elas são o mapa principal. Singles isolados fora
+  // das faixas completam newline/separadores sem duplicar cobertura interna.
   if (rangeHeadings.length) {
     const intervals = [...rangeHeadings];
     for (const single of singleHeadings) {
       const covered = rangeHeadings.some((range) => single.start >= range.start && single.end <= range.end);
       if (!covered) intervals.push(single);
     }
-    return intervals.sort((a,b) => a.start - b.start || a.end - b.end);
+    intervals.sort((a,b) => a.start - b.start || a.end - b.end);
+    if (isContiguousFromOne(intervals)) return intervals;
   }
 
-  // Formatos legados em tabela. Só interpreta tabelas cujo primeiro cabeçalho
-  // identifica explicitamente Linha/Linhas/Posição/Posições, evitando confundir
-  // tabelas de casos, índices ou evidências com cobertura documental.
-  const tableIntervals = [];
-  const lines = bible.split(/\r?\n/);
-  let coverageTable = false;
+  // Tabelas de cobertura podem usar quebras reais ou a sequência literal "\\n"
+  // criada por alguns geradores antigos. Cada tabela é avaliada isoladamente.
+  const normalizedForTables = bible.replace(/\\\\n/g, '\n');
+  const lines = normalizedForTables.split(/\r?\n/);
+  const tableCandidates = [];
+  let current = null;
+  const headerRe = /^\|\s*(?:Linha|Linhas|Linha\/posi[cç][aã]o|Linhas\/posi[cç][aã]o|Pos\.?|Posi[cç][aã]o|Posi[cç][oõ]es)\s*\|/i;
+
+  function finishTable() {
+    if (current && current.length) tableCandidates.push(current);
+    current = null;
+  }
+
   for (const line of lines) {
-    if (/^\|\s*(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es)\s*\|/i.test(line)) {
-      coverageTable = true;
+    if (headerRe.test(line)) {
+      finishTable();
+      current = [];
       continue;
     }
-    if (coverageTable && /^\|\s*:?-{3,}/.test(line)) continue;
-    if (coverageTable && !/^\|/.test(line)) {
-      coverageTable = false;
+    if (current && /^\|\s*:?-{3,}/.test(line)) continue;
+    if (current && !/^\|/.test(line)) {
+      finishTable();
       continue;
     }
-    if (!coverageTable) continue;
+    if (!current) continue;
 
     let match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*[–—-]\s*0*(\d+)\s*\|/i.exec(line);
     if (match) {
-      tableIntervals.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
+      current.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
       continue;
     }
     match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*\|/i.exec(line);
-    if (match) tableIntervals.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
+    if (match) current.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
   }
-  if (tableIntervals.length) {
-    return tableIntervals.sort((a,b) => a.start - b.start || a.end - b.end);
+  finishTable();
+
+  for (const candidate of tableCandidates) {
+    candidate.sort((a,b) => a.start - b.start || a.end - b.end);
+    if (isContiguousFromOne(candidate)) return candidate;
   }
 
-  return singleHeadings.sort((a,b) => a.start - b.start || a.end - b.end);
+  // Último fallback: retorna o candidato estrutural mais promissor para que
+  // validateCoverage produza gaps/overlaps objetivos em vez de "não reconhecido".
+  const candidates = [
+    ...(rangeHeadings.length ? [rangeHeadings] : []),
+    ...(singleHeadings.length ? [singleHeadings] : []),
+    ...tableCandidates,
+  ].filter((candidate) => candidate.length);
+  candidates.sort((a,b) => {
+    const aStarts = a[0]?.start === 1 ? 1 : 0;
+    const bStarts = b[0]?.start === 1 ? 1 : 0;
+    if (aStarts !== bStarts) return bStarts - aStarts;
+    return b.length - a.length;
+  });
+  return candidates[0] || [];
 }
 
 function validateCoverage(intervals, sourcePositions) {
