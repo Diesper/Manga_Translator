@@ -2,9 +2,9 @@
   "index": 204,
   "file": "tests/unit/content-manga/floating-button-guard-and-single-click.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/floating-button-guard-and-single-click.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
-  "source_sha": "8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "a417ca15acc4d2b604a3a72cecad19e476ff4626",
   "started_at_utc": "2026-09-30T07:05:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -90,11 +90,12 @@
     "source_text_lines": 410,
     "bible_lines": 801,
     "external_audit_requests_open": 3,
-    "evidence_note": "15 testes/43 expectations da implementação real foram mapeados; recovery por MutationObserver/PROGRESS foi separado do watchdog periódico e dos guards não exercitados."
+    "evidence_note": "15 testes/43 expectations da implementação real foram mapeados; recovery por MutationObserver/PROGRESS foi separado do watchdog periódico e dos guards não exercitados.",
+    "note": "Bíblia #204 sincronizada após correção de isolamento do teste Windows; número de linhas/posições preservado. O novo source_sha + bible_sha exige nova PRIMARY + ADVERSARIAL."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T16:28:14.755Z",
+  "updated_at_utc": "2026-10-01T16:28:54.618Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:24:00Z",
@@ -109,6 +110,16 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088",
       "reason": "Run #3893 falhou no Windows por assertion contaminada por START_BATCH observado fora da janela da ação; correção de isolamento do teste sem alterar comportamento funcional."
+    },
+    {
+      "at_utc": "2026-10-01T16:28:54.618Z",
+      "type": "CI_FAILURE_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088",
+      "current_source_sha": "a417ca15acc4d2b604a3a72cecad19e476ff4626",
+      "bible_sha": "16d5f45666ba2a5d887a029360ceaf69d3b34147",
+      "reason": "Assertion de ausência de START_BATCH passou a limpar o spy imediatamente antes de TRANSLATE_CONTEXT_IMAGE, isolando a ação testada de callbacks assíncronos anteriores sem alterar a implementação de produção."
     }
   ],
   "evidence": []
