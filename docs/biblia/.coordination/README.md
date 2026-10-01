@@ -36,7 +36,7 @@ A consolidação de uma Bíblia pode ser executada pelo agente editor, auditor P
 - não sobrescreva resultado de auditoria existente;
 - produza a mesma decisão para os mesmos resultados.
 
-STATUS.md, CHECKLIST.md e AUDITORIA.md são views/projeções ou compatibilidade legada. Eles não são mecanismo de ownership e não ficam no caminho crítico da auditoria distribuída.
+STATUS.md, CHECKLIST.md e AUDITORIA.md são views/projeções ou compatibilidade legada. Eles não são mecanismo de ownership e não ficam no caminho crítico da auditoria distribuída. A CI normal não exige regenerar STATUS.md/CHECKLIST.md a cada resultado; a coerência dessas projeções é exigida novamente pelo gate final de merge.
 
 ## Claims por fase + leases
 
