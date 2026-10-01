@@ -2,8 +2,8 @@
   "index": 167,
   "file": "tests/unit/background/single-image-context-menu.test.js",
   "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
   "started_at_utc": "2026-09-30T13:25:00Z",
   "completed_at_utc": null,
@@ -116,6 +116,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
       "reason": "167-PRI2/ADV2: corrigir 67 descrições semânticas, lifecycle e fronteira receptor mock↔consumer real."
+    },
+    {
+      "at_utc": "2026-10-01T19:56:04.212Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
+      "bible_sha": "baaa4bac11eeb178b8b23269586428cfb87f456b",
+      "reason": "167-PRI2/ADV2 corrigidos; 67 descrições realinhadas. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
