@@ -2,8 +2,8 @@
   "index": 105,
   "file": "tests/helpers/track-background-delay-timers.js",
   "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
   "started_at_utc": "2026-09-30T06:20:00Z",
   "completed_at_utc": null,
@@ -44,11 +44,12 @@
     "bible_lines": 179,
     "direct_specific_proof": "4_000 ms capture/cancel/count",
     "external_audit_requests_open": 0,
-    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados.",
+    "repair_note": "Lifecycle duplicado 105-001 corrigido: Bíblia agora reflete ACCEPTED e retorna para reauditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:47:07Z",
+  "updated_at_utc": "2026-10-01T05:47:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:41:00Z",
@@ -67,6 +68,15 @@
       "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
       "agent": "AGENTE 23",
       "reason": "Align Bible request lifecycle 105-001 with canonical state ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T05:47:30Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "agent": "AGENTE 23",
+      "reason": "Reparo documental #105: request 105-001 alinhada ao state canônico ACCEPTED."
     }
   ],
   "evidence": [
@@ -77,6 +87,13 @@
       "auditor": "AGENTE 1",
       "at_utc": "2026-10-01T05:41:00Z",
       "note": "Passagens 0–15: SHA/fonte/cobertura/semântica/consumers/evidence classification passam; lifecycle duplicado OPEN na Bíblia diverge do state ACCEPTED."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:47:30Z",
+      "note": "Somente Bíblia/state corrigidos; source permaneceu inalterado e item foi devolvido para reauditoria independente."
     }
   ]
 }
