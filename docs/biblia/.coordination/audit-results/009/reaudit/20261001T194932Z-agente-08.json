@@ -1,0 +1,93 @@
+{
+  "schema_version": 2,
+  "index": 9,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/deliver-result.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md",
+  "source_sha": "3653bd10c2a0e65c14eb139f906feeafb30411a5",
+  "bible_sha": "6edd7126b05915e7f7e09e7ebfafa5812b9dd616",
+  "verdict": "CHANGES_REQUIRED",
+  "resolves_divergence": {
+    "primary": {
+      "type": "LEGACY",
+      "verdict": "APPROVED",
+      "auditor": null
+    },
+    "adversarial": {
+      "auditor": "AGENTE 9",
+      "verdict": "CHANGES_REQUIRED"
+    },
+    "conclusion": "A hipótese ADVERSARIAL resiste à revalidação independente; a aprovação legada não."
+  },
+  "findings": [
+    {
+      "id": "A8-009-R-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INTERNAL_CONTRADICTION_PERSISTENCE_CONTRACT",
+      "summary": "A Bíblia reconhece que `{ok:true}` sem `persisted` é aceito pela action, mas depois afirma que staging é fail-closed e que sem ACK/persistência o consumer não entra em commit.",
+      "evidence": [
+        "Bíblia §7 `Resposta parcial do helper`: `{ok:true}` sem `persisted` é explicitamente reconhecido como aceito pela action.",
+        "Bíblia §8 item 5: afirma `Falha de staging é fail-closed: sem ACK/persistência, o consumer recebe erro e não entra em commit`.",
+        "Source linha 67 rejeita somente `!staged?.ok || staged.persisted === false`; portanto `{ok:true}` com `persisted` ausente passa.",
+        "Source linhas 77–84 então registra `RESULT_STAGED_DURABLY` e retorna `{staged:true,persisted:true}`.",
+        "`job-runner.js::stageAndCommitResult` também rejeita somente `!staged?.ok || staged.staged !== true || staged.persisted === false`; ausência de `persisted` não é, por si, falha."
+      ],
+      "adversarial_mutation": "Uma dependência poderia retornar `{ok:true}` sem comprovação explícita de persistência e a action ainda produzir `staged:true,persisted:true`; os testes focais atuais não cobrem esse contrato parcial.",
+      "required_change": "Qualificar/remover `fail-closed` e descrever precisamente que ausência do campo `persisted` não é rejeitada. Manter a lacuna 009-002 explícita na conclusão/invariantes."
+    },
+    {
+      "id": "A8-009-R-02",
+      "severity": "BLOCKING_EVIDENCE_CLASSIFICATION",
+      "type": "SYNTHESIZED_PERSISTENCE_OVERCLAIM",
+      "summary": "A Bíblia trata `persisted` do helper como confirmação explícita/durável sem registrar que `jobs-dom-ack.js` sintetiza `persisted:true` para qualquer sucesso que não contenha `persisted:false`.",
+      "evidence": [
+        "`jobs-dom-ack.js` resolve `persisted: ok && response?.persisted !== false`.",
+        "No callback de `chrome.tabs.sendMessage`, qualquer resposta sem runtime.lastError e sem `response.ok === false` chama `settle(true,'ack',response)`, inclusive resposta parcial.",
+        "`jobs-dom-ack-staging.test.js` só prova o caso positivo com ACK explícito `{ok:true,persisted:true,...}`; não há caso positivo parcial sem `persisted`.",
+        "Bíblia §8 item 6 diz `O helper real fornece persisted explicitamente` e U07 usa `o helper real sempre retorna persisted` sem explicar que o boolean pode ser sintetizado.",
+        "O listener atual de `content_manga.js` normalmente responde `{ok:true,persisted:true}` somente após `persistTranslatedPage` resolver, o que mitiga o fluxo corrente, mas não altera o contrato permissivo do helper nem a falta de teste do ACK parcial."
+      ],
+      "required_change": "Separar `campo sempre presente no retorno do helper` de `confirmação explícita recebida do leitor`; documentar a síntese por `!== false`, citar o contrato real de `content_manga.js` e não elevar o teste positivo explícito a prova do caso parcial."
+    },
+    {
+      "id": "A8-009-R-03",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "ARCHITECTURAL_WIRING_OMISSION",
+      "summary": "A Bíblia afirma o alias `GEMINI_IMAGE_EXTRACTED` e descreve o consumer `job-runner.js`, mas omite o wiring de produção que resolve o alias, carrega a action e injeta suas dependências de contexto.",
+      "evidence": [
+        "`extension/background/router.js` contém `GEMINI_IMAGE_EXTRACTED: 'deliver-result'`; o source da action apenas registra o nome canônico `deliver-result`.",
+        "`extension/background.js` carrega `background/actions/deliver-result.js` tanto por `importScripts` quanto no harness Node.",
+        "`background.js` cria o registered action router com `contextFactory` que fornece `assertJobOwnership`, `ensureInitialized`, `deliverResultToManga`, `log` e demais dependências usadas pela action.",
+        "A Bíblia não contém referências a `router.js` nem `background.js`, embora a rastreabilidade da posição 006 atribua a `name:'deliver-result'` o papel de `nome canônico do alias GEMINI_IMAGE_EXTRACTED`."
+      ],
+      "required_change": "Adicionar o wiring router/bootstrap/contextFactory como dependência arquitetural e classificar sua evidência separadamente do source local da action."
+    }
+  ],
+  "passed_points": [
+    "SOURCE_SHA, state e source real coincidem.",
+    "Fonte integral embutida corresponde exatamente às 87 linhas textuais; newline final é posição 88.",
+    "Cobertura enumera 1–88 sem gaps, duplicatas ou posições extras.",
+    "Os três mismatches de batch/index/mangaTabId são executados pela action real no teste focal e impedem staging.",
+    "Ownership negativo, validação mínima, currentBatchId independente e falhas `ok:false`/`persisted:false`/null têm assertions reais.",
+    "RUN-13/RUN-14 provam o comportamento do consumer sob respostas mockadas e a Bíblia corretamente distingue esse nível de prova.",
+    "Audit requests 009-001/002/003 continuam ACCEPTED; as lacunas correspondentes existem e não devem ser ocultadas."
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:49:32.916Z"
+}
