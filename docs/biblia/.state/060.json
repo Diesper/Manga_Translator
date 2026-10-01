@@ -2,8 +2,8 @@
   "index": 60,
   "file": "extension/shared/storage-manager.js",
   "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
   "completed_at_utc": null,
   "audit_requests": [
@@ -31,7 +31,7 @@
       "audited_at_utc": "2026-09-30T20:52:00Z",
       "audit_finding": "ACCEPTED. `smoke-04-storage-manager.js` cobre round-trip, overwrite, deleteChapter e migração, mas não fault injection de IndexedDB, rejeição persistente/reabertura da DB promise, concorrência save/delete, Data URL malformada nem stats exatos.",
       "auditor_recommended_action": "Adicionar fault-injection e concorrência controlada com fake-indexeddb, incluindo transação abortada, open error, Data URL inválida e contagens de stats.",
-      "repair_progress": "PENDING_TEST_UNIT_126"
+      "repair_progress": "CI_REPRODUCED_OPEN_DB_REJECTION_CACHE_BUG; SOURCE_REPAIR_IN_PROGRESS"
     },
     {
       "id": "060-003",
@@ -57,8 +57,8 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:34:30Z",
-  "started_at_utc": null,
+  "updated_at_utc": "2026-10-01T22:49:00Z",
+  "started_at_utc": "2026-10-01T22:49:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T22:22:30Z",
@@ -79,7 +79,29 @@
       "current_bible_sha": "a739fa3cfdac9a6cdcbf0fb2bfd91b5ea48aae46",
       "agent": "AGENTE 30",
       "reason": "Corrigidos findings do REAUDIT e bugs diretamente relacionados; fonte integral e 517/517 posições revalidadas. Requests de teste permanecem abertas até regressões focais."
+    },
+    {
+      "at_utc": "2026-10-01T22:49:00Z",
+      "type": "EDITOR_REOPEN_AFTER_CI_REGRESSION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
+      "bible_sha": "a739fa3cfdac9a6cdcbf0fb2bfd91b5ea48aae46",
+      "agent": "AGENTE 30",
+      "reason": "New smoke regression proved _smDbPromise reset inside Promise executor is overwritten by outer assignment."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "CI_REGRESSION",
+      "at_utc": "2026-10-01T22:43:58Z",
+      "workflow": "MangaTranslator CI",
+      "run_id": 36936712283,
+      "job_id": 110618800485,
+      "source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
+      "test_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
+      "result": "FAIL",
+      "failure": "openStorageDb retry returns cached rejected Promise after transient IndexedDB absence"
+    }
+  ]
 }
