@@ -2,8 +2,8 @@
   "index": 188,
   "file": "tests/unit/content-gemini/safe-background-delete.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
   "started_at_utc": "2026-09-30T14:59:30Z",
   "completed_at_utc": null,
@@ -83,7 +83,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T19:33:35.509Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T19:33:35.509Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
+      "reason": "188 PRIMARY+ADVERSARIAL: reconstruir mapa 1–285 + posição 286 e sincronizar lifecycle."
+    }
+  ],
   "evidence": []
 }
