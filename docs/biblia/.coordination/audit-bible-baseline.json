@@ -1,0 +1,938 @@
+{
+  "schema_version": 1,
+  "captured_head": "06e5ecd159748cd897b2c5ad3d3c257bac8afd87",
+  "bibles": {
+    "100": {
+      "bible": "docs/biblia/tests/helpers/load-background-module.js/Bíblia.md",
+      "bible_sha": "08fb210fd0dd2d74186070b997970e337e359186"
+    },
+    "101": {
+      "bible": "docs/biblia/tests/helpers/load-content-gemini-module.js/Bíblia.md",
+      "bible_sha": "f420b5b3e90468040b87681d0e102dac8e6cfe54"
+    },
+    "102": {
+      "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
+      "bible_sha": "66109542946905c46e7b702140181966ae05fbec"
+    },
+    "103": {
+      "bible": "docs/biblia/tests/helpers/load-extension-page.js/Bíblia.md",
+      "bible_sha": "4eb965dab8d3545d7aaabb07b792a73affa28ea1"
+    },
+    "104": {
+      "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
+      "bible_sha": "ab7bf0794a3f299a7bc8b12367c82cd482ff8f4d"
+    },
+    "105": {
+      "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
+      "bible_sha": "7b354e0ef0a88b2cf975b058f9f5a87d44e5ce89"
+    },
+    "106": {
+      "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
+      "bible_sha": "b6c7e474dd8dcd54b4c9ca156fadbd7abae88a01"
+    },
+    "107": {
+      "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
+      "bible_sha": "6966d6dfd94617e5b303e97aef41152e1d84c269"
+    },
+    "108": {
+      "bible": "docs/biblia/tests/integration/gtc-end-to-end.test.js/Bíblia.md",
+      "bible_sha": "902d5c32b6d71f4444408fcb46da36a9e3c177db"
+    },
+    "109": {
+      "bible": "docs/biblia/tests/integration/ipc/gemini-cors-fallback.test.js/Bíblia.md",
+      "bible_sha": "f62653c5ca892184126647ad8e3041c5c271f173"
+    },
+    "110": {
+      "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
+      "bible_sha": "fc4573a008f01428feddbf891ba45c606a71736c"
+    },
+    "111": {
+      "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
+      "bible_sha": "acb3c503e7d2413925e10d833e6aa5e8687ce972"
+    },
+    "112": {
+      "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
+      "bible_sha": "23beceb2560542d578fd665ad0ac10c8264054f7"
+    },
+    "113": {
+      "bible": "docs/biblia/tests/integration/options.ui.test.js/Bíblia.md",
+      "bible_sha": "3c2e4f31372dd93cc35b3a11f9a593b8e56ee37f"
+    },
+    "114": {
+      "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
+      "bible_sha": "436884987d20c69e694cd6469e9a10b597a2532b"
+    },
+    "115": {
+      "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
+      "bible_sha": "fa7dec1b031dfe9e90a0c7dc6ce99f4f10df8d5d"
+    },
+    "116": {
+      "bible": "docs/biblia/tests/integration/popup.advanced.ui.test.js/Bíblia.md",
+      "bible_sha": "a0b98ad040e5adfa87a59ea41751e9267665e6da"
+    },
+    "117": {
+      "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
+      "bible_sha": "e34d8654790a2b5e67995b654664d57616df5bd2"
+    },
+    "118": {
+      "bible": "docs/biblia/tests/integration/reader.ui.test.js/Bíblia.md",
+      "bible_sha": "c6185125be5e9296a95f27523bfeeb6826729f07"
+    },
+    "119": {
+      "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
+      "bible_sha": "f9626bf8d8f0095129006a259a9303d8f1955992"
+    },
+    "120": {
+      "bible": "docs/biblia/tests/mocks/dom-environment.js/Bíblia.md",
+      "bible_sha": "dbbc1a3b7635e745cca129d239ae94c1cbc6c772"
+    },
+    "121": {
+      "bible": "docs/biblia/tests/setup/create-test-images.js/Bíblia.md",
+      "bible_sha": "d46c718e6c55416a742f3e57f411dd3fafa605a2"
+    },
+    "122": {
+      "bible": "docs/biblia/tests/smoke/run-smoke.js/Bíblia.md",
+      "bible_sha": "914ba9cb78133c8e461438cc81093b7689475f6d"
+    },
+    "123": {
+      "bible": "docs/biblia/tests/smoke/smoke-01-batch-lifecycle.js/Bíblia.md",
+      "bible_sha": "1d140caf676b7628f1ec78c186492a108631ce07"
+    },
+    "124": {
+      "bible": "docs/biblia/tests/smoke/smoke-02-uuid-and-reconcile.js/Bíblia.md",
+      "bible_sha": "0437a8c522d0dfbb69c70a58518f44854a3d362f"
+    },
+    "125": {
+      "bible": "docs/biblia/tests/smoke/smoke-03-chapter-persistence.js/Bíblia.md",
+      "bible_sha": "dc921253895b425a2aee15036fe35d1a89e768cb"
+    },
+    "126": {
+      "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
+      "bible_sha": "03d33f33a127aa289c317315f21894956d75a1f1"
+    },
+    "127": {
+      "bible": "docs/biblia/tests/smoke/smoke-05-perceptual-queries.js/Bíblia.md",
+      "bible_sha": "664b21d623dd7cb0b0340e85d6fe6ef0469aa53f"
+    },
+    "128": {
+      "bible": "docs/biblia/tests/smoke/smoke-06-sm-message-routing.js/Bíblia.md",
+      "bible_sha": "02e396d5d75a943d759baef332db90c625befaf8"
+    },
+    "129": {
+      "bible": "docs/biblia/tests/unit/background/actions-low-risk.test.js/Bíblia.md",
+      "bible_sha": "e58a58189e84d76ee5f387238f0bf8f417513bad"
+    },
+    "130": {
+      "bible": "docs/biblia/tests/unit/background/background-strict-load.test.js/Bíblia.md",
+      "bible_sha": "016130ac2b04bc4d78f86b25b8110b141bdfdebb"
+    },
+    "131": {
+      "bible": "docs/biblia/tests/unit/background/batch-actions.test.js/Bíblia.md",
+      "bible_sha": "922901751763d5d13113e5af7cd66d6eccbd041a"
+    },
+    "132": {
+      "bible": "docs/biblia/tests/unit/background/batch-lifecycle-real.test.js/Bíblia.md",
+      "bible_sha": "96bc18c638deb37c964ca9ecc612fe91d6fdb018"
+    },
+    "133": {
+      "bible": "docs/biblia/tests/unit/background/calculate-visual-fingerprint-action.test.js/Bíblia.md",
+      "bible_sha": "1217e73e7808fa0b0acf1b8412910eee3bac6804"
+    },
+    "134": {
+      "bible": "docs/biblia/tests/unit/background/chrome-runtime-mock-lifecycle.test.js/Bíblia.md",
+      "bible_sha": "c68569292917e22ba44095909b3c1acdeb1f5991"
+    },
+    "135": {
+      "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
+      "bible_sha": "2225cf92eee07af8c866977368ab15a298acc420"
+    },
+    "136": {
+      "bible": "docs/biblia/tests/unit/background/commit-result-action.test.js/Bíblia.md",
+      "bible_sha": "7e8554f85cca69cad21931e570a23781edb9e049"
+    },
+    "137": {
+      "bible": "docs/biblia/tests/unit/background/deliver-result-action.test.js/Bíblia.md",
+      "bible_sha": "4cf21aa13210a90b5d5bc3651e73c862675228b1"
+    },
+    "138": {
+      "bible": "docs/biblia/tests/unit/background/deliver-result-from-tab-action.test.js/Bíblia.md",
+      "bible_sha": "343af4a3747cb34ee9dc58bb3dc2359696e0bff4"
+    },
+    "139": {
+      "bible": "docs/biblia/tests/unit/background/deliver-result-url-action.test.js/Bíblia.md",
+      "bible_sha": "ac288dd2d6e6f8a552a4c2334bbc8f84612de9d4"
+    },
+    "140": {
+      "bible": "docs/biblia/tests/unit/background/download-chapter-action.test.js/Bíblia.md",
+      "bible_sha": "721b0600de9078e436d43a38e4b8683d332a63fe"
+    },
+    "141": {
+      "bible": "docs/biblia/tests/unit/background/download-image-action.test.js/Bíblia.md",
+      "bible_sha": "eca5b07aba2da8922d42207569256495eccb9f41"
+    },
+    "142": {
+      "bible": "docs/biblia/tests/unit/background/download-wait.test.js/Bíblia.md",
+      "bible_sha": "2fa6dbf0b11eeb29eb3aca85e0fd361dea1c4403"
+    },
+    "143": {
+      "bible": "docs/biblia/tests/unit/background/export-all-action.test.js/Bíblia.md",
+      "bible_sha": "4942374b32aae4e7148935bcd609c51ef456e0c8"
+    },
+    "144": {
+      "bible": "docs/biblia/tests/unit/background/export-guard.test.js/Bíblia.md",
+      "bible_sha": "588ee10ee59641c19933817b243d34ef393999c8"
+    },
+    "145": {
+      "bible": "docs/biblia/tests/unit/background/fetch-image-base64-action.test.js/Bíblia.md",
+      "bible_sha": "0f7cf9d7a98f1fb9e3ab2167f8c3c24bc43854b0"
+    },
+    "146": {
+      "bible": "docs/biblia/tests/unit/background/force-send-activation-action.test.js/Bíblia.md",
+      "bible_sha": "d664d6e3e676857d515c34831a025bccea5281ed"
+    },
+    "147": {
+      "bible": "docs/biblia/tests/unit/background/gtc-runtime-bridge.test.js/Bíblia.md",
+      "bible_sha": "ce0bb4c57192be158b482971e3df9dc7f0913e63"
+    },
+    "148": {
+      "bible": "docs/biblia/tests/unit/background/handlers-extra-real.test.js/Bíblia.md",
+      "bible_sha": "0b710681a252d26c7a5aa01411ed79349df98efc"
+    },
+    "149": {
+      "bible": "docs/biblia/tests/unit/background/helpers-real.test.js/Bíblia.md",
+      "bible_sha": "2f1824427daa75e3f895f6d7a40f0cf5cfacfc86"
+    },
+    "150": {
+      "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
+      "bible_sha": "90e2cff6554e8fd74e8aec6d2bbf17e97a7dc116"
+    },
+    "151": {
+      "bible": "docs/biblia/tests/unit/background/jobs-lifecycle-batch-status.test.js/Bíblia.md",
+      "bible_sha": "59d9f299b63e908b986ff8c6bb0770580ad9ef39"
+    },
+    "152": {
+      "bible": "docs/biblia/tests/unit/background/jobs-reconciliation-batch-queue.test.js/Bíblia.md",
+      "bible_sha": "77d73b6706110cb4cf917899cb707f79066b0080"
+    },
+    "153": {
+      "bible": "docs/biblia/tests/unit/background/jobs-watchdog-ordering.test.js/Bíblia.md",
+      "bible_sha": "5a20b32c9fafd53fa8ec3854ce6315ca7e998c00"
+    },
+    "154": {
+      "bible": "docs/biblia/tests/unit/background/lifecycle-alarms-real.test.js/Bíblia.md",
+      "bible_sha": "d96cae673ee6b111cd91f6ccaabd61b0b241e9b7"
+    },
+    "155": {
+      "bible": "docs/biblia/tests/unit/background/marker-anchor-real.test.js/Bíblia.md",
+      "bible_sha": "0e5c531e812786af000ef4f79cc44a87447c6d57"
+    },
+    "156": {
+      "bible": "docs/biblia/tests/unit/background/message-handlers-real.test.js/Bíblia.md",
+      "bible_sha": "ad25f076a92aca717b9471a482f3dac169efe908"
+    },
+    "157": {
+      "bible": "docs/biblia/tests/unit/background/open-existing-folder-action.test.js/Bíblia.md",
+      "bible_sha": "80dd677543154baffcec49c061c6ab14a6614f30"
+    },
+    "158": {
+      "bible": "docs/biblia/tests/unit/background/open-manga-root-action.test.js/Bíblia.md",
+      "bible_sha": "6735133431eb6243c2110bcc6f8419dd97312628"
+    },
+    "159": {
+      "bible": "docs/biblia/tests/unit/background/plan-missing-handlers-real.test.js/Bíblia.md",
+      "bible_sha": "61fb01f7689b81ab1169980cec72cf4023a8c887"
+    },
+    "160": {
+      "bible": "docs/biblia/tests/unit/background/process-finalize-real.test.js/Bíblia.md",
+      "bible_sha": "a1897b5f2ef7ff28775c025cfd5131b5c964b58f"
+    },
+    "161": {
+      "bible": "docs/biblia/tests/unit/background/refresh-job-watchdog-action.test.js/Bíblia.md",
+      "bible_sha": "0685d24dc92395ec0c4092395b7d27492a938f35"
+    },
+    "162": {
+      "bible": "docs/biblia/tests/unit/background/regex-escape.test.js/Bíblia.md",
+      "bible_sha": "93a87d76d1a14d3417c582e4a2d646e3c0a0b575"
+    },
+    "163": {
+      "bible": "docs/biblia/tests/unit/background/report-error-action.test.js/Bíblia.md",
+      "bible_sha": "b8daac17e8b7edf8295bc8de05bc6adb9f3dd487"
+    },
+    "164": {
+      "bible": "docs/biblia/tests/unit/background/request-image-data-action.test.js/Bíblia.md",
+      "bible_sha": "1f9c862f41578ce8911e0cb7dad45e68d16a970e"
+    },
+    "165": {
+      "bible": "docs/biblia/tests/unit/background/routed-actions-legacy.test.js/Bíblia.md",
+      "bible_sha": "7c4aedc6433380e00c4ac25e2b8baa259c8199a0"
+    },
+    "166": {
+      "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
+      "bible_sha": "46b6f634901886074b91be68aea316ae6d7824c8"
+    },
+    "167": {
+      "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
+      "bible_sha": "297099a59be45a2f208f44318d3cf4283d820ab8"
+    },
+    "168": {
+      "bible": "docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md",
+      "bible_sha": "dd1f67862152d8ec4ed7d344c6d144f2708b42a6"
+    },
+    "169": {
+      "bible": "docs/biblia/tests/unit/background/state-api.test.js/Bíblia.md",
+      "bible_sha": "36a96a7f7697438ecb57af0a0a905f2db8d74ba3"
+    },
+    "170": {
+      "bible": "docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md",
+      "bible_sha": "97dd228e12918d4a99be8018eaa81ae52c7bcafb"
+    },
+    "171": {
+      "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
+      "bible_sha": "b07360c215c26974408813e9b1c41d4c77ae05bf"
+    },
+    "172": {
+      "bible": "docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md",
+      "bible_sha": "bccfa8824d5c17e6a559fae9c1c7604f923396be"
+    },
+    "173": {
+      "bible": "docs/biblia/tests/unit/background/version-sync.test.js/Bíblia.md",
+      "bible_sha": "8818b475b8dc8c5094931103cdc682b4536670c5"
+    },
+    "174": {
+      "bible": "docs/biblia/tests/unit/content-gemini/attachment.test.js/Bíblia.md",
+      "bible_sha": "8a29b8f09531f07d4591d4798ce4386e8a216ae4"
+    },
+    "175": {
+      "bible": "docs/biblia/tests/unit/content-gemini/claim-bootstrap-keepalive.test.js/Bíblia.md",
+      "bible_sha": "87717da4bd69b7f3ce8f9cee607aebedd4e1d04c"
+    },
+    "176": {
+      "bible": "docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md",
+      "bible_sha": "7110fcd4d6fc0497b33fbe997ff2a267267f0f91"
+    },
+    "177": {
+      "bible": "docs/biblia/tests/unit/content-gemini/dom-modules.test.js/Bíblia.md",
+      "bible_sha": "665acb3c4878689255511888d8f70b98c03c997c"
+    },
+    "178": {
+      "bible": "docs/biblia/tests/unit/content-gemini/editor-submit.test.js/Bíblia.md",
+      "bible_sha": "4bea8496eaef3fd24b92d972740754cd96dd8c92"
+    },
+    "179": {
+      "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+      "bible_sha": "63ec308151c365d8673653ae0145274908d77409"
+    },
+    "180": {
+      "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
+      "bible_sha": "ec1f513271011f8b9a8b6aab91174d9d93afde3c"
+    },
+    "181": {
+      "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+      "bible_sha": "4fe74c5b46a97e760d94eb2763f2ce8f21104838"
+    },
+    "182": {
+      "bible": "docs/biblia/tests/unit/content-gemini/manual-assist-hud.test.js/Bíblia.md",
+      "bible_sha": "252e1f99307d36764c3a02b276d4f54de9ebe502"
+    },
+    "183": {
+      "bible": "docs/biblia/tests/unit/content-gemini/observer.test.js/Bíblia.md",
+      "bible_sha": "8c949720e93030691729df5f4cdb67cea53626f0"
+    },
+    "184": {
+      "bible": "docs/biblia/tests/unit/content-gemini/plan-rpa-edge-cases.test.js/Bíblia.md",
+      "bible_sha": "bccc651ee6f6877672de2bd3bd97eb90f8f7bfa7"
+    },
+    "185": {
+      "bible": "docs/biblia/tests/unit/content-gemini/resolution-elevation.test.js/Bíblia.md",
+      "bible_sha": "e03499db0b6499351b44d08a13550c52d55cc212"
+    },
+    "186": {
+      "bible": "docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md",
+      "bible_sha": "4aab63da8f730f02827f4d1e7e53df9c2b60d30a"
+    },
+    "187": {
+      "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
+      "bible_sha": "05302a4cc4aa11c64a1013570476f94a4246f895"
+    },
+    "188": {
+      "bible": "docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md",
+      "bible_sha": "fc3a27fc96534dac5f31819fced48c5f25b2824a"
+    },
+    "189": {
+      "bible": "docs/biblia/tests/unit/content-gemini/temp-chat-activator.test.js/Bíblia.md",
+      "bible_sha": "832b7458d98f9eef45d899f22ab60a9d4ce931db"
+    },
+    "190": {
+      "bible": "docs/biblia/tests/unit/content-gemini/temporary-chat-v2.test.js/Bíblia.md",
+      "bible_sha": "e20b042ae4ffb6a71f78d997c73bb4d542299343"
+    },
+    "191": {
+      "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+      "bible_sha": "6de02f5ae1e020be70e7fec0e74046b9d2c766dd"
+    },
+    "192": {
+      "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis.test.js/Bíblia.md",
+      "bible_sha": "86b01f5a75a38ef2776d4da37870cb4ecc1cb392"
+    },
+    "193": {
+      "bible": "docs/biblia/tests/unit/content-manga/auto-restore-system.test.js/Bíblia.md",
+      "bible_sha": "b375c3433e4c157f0fe9b7c6c2cddd9713a27b18"
+    },
+    "194": {
+      "bible": "docs/biblia/tests/unit/content-manga/auto-restorer-real.test.js/Bíblia.md",
+      "bible_sha": "4f5ea87af0f52521929799298d6de979c3f86c5b"
+    },
+    "195": {
+      "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
+      "bible_sha": "7734dc456c39a2d5ff854bc73f46f22c1eeaa215"
+    },
+    "196": {
+      "bible": "docs/biblia/tests/unit/content-manga/canonical-title-full.test.js/Bíblia.md",
+      "bible_sha": "25837269178d0e516fe28f1ba6c3c6823ffe1e12"
+    },
+    "197": {
+      "bible": "docs/biblia/tests/unit/content-manga/canonical-title.test.js/Bíblia.md",
+      "bible_sha": "0289b74f4354faefec95aaea4d92e4b14e76b48c"
+    },
+    "198": {
+      "bible": "docs/biblia/tests/unit/content-manga/chapter-id-cache.test.js/Bíblia.md",
+      "bible_sha": "efef53eb2fd5924cfe37ad3da5c07925a6f95e78"
+    },
+    "199": {
+      "bible": "docs/biblia/tests/unit/content-manga/chapter-id-rejection.test.js/Bíblia.md",
+      "bible_sha": "931e9dc9e8eecf824f205c431a8b8d469b84a57a"
+    },
+    "200": {
+      "bible": "docs/biblia/tests/unit/content-manga/close-interval.test.js/Bíblia.md",
+      "bible_sha": "490a083a0ae60203521c295f187f7e0dc1b0dee5"
+    },
+    "201": {
+      "bible": "docs/biblia/tests/unit/content-manga/drawer-real.test.js/Bíblia.md",
+      "bible_sha": "13c4f3c626f3678a4c3c90de6275864732d1239f"
+    },
+    "202": {
+      "bible": "docs/biblia/tests/unit/content-manga/extract-flow-real.test.js/Bíblia.md",
+      "bible_sha": "c0e31546fc1237e6f7bdbb6ae5ff9a2fbb170e50"
+    },
+    "203": {
+      "bible": "docs/biblia/tests/unit/content-manga/extraction-and-handlers-real.test.js/Bíblia.md",
+      "bible_sha": "e4e795f0e1da9ffe3265170f4f02dffb8b665528"
+    },
+    "204": {
+      "bible": "docs/biblia/tests/unit/content-manga/floating-button-guard-and-single-click.test.js/Bíblia.md",
+      "bible_sha": "c782003f417361baaaa7255c6cf4b38ba21bc3e3"
+    },
+    "205": {
+      "bible": "docs/biblia/tests/unit/content-manga/get-clean-url.test.js/Bíblia.md",
+      "bible_sha": "d974ab38ab394831906ed49b976bafbd244b75a1"
+    },
+    "206": {
+      "bible": "docs/biblia/tests/unit/content-manga/get-page-images-filter.test.js/Bíblia.md",
+      "bible_sha": "9383b847557553a1c3baef348cf66418374ea9cc"
+    },
+    "207": {
+      "bible": "docs/biblia/tests/unit/content-manga/image-filtering.test.js/Bíblia.md",
+      "bible_sha": "cbbee4878fb7d1002a9be45c84d8af94b8180b33"
+    },
+    "208": {
+      "bible": "docs/biblia/tests/unit/content-manga/image-fingerprint.test.js/Bíblia.md",
+      "bible_sha": "fd445726aeb152754361011883ffe6987279c6b2"
+    },
+    "209": {
+      "bible": "docs/biblia/tests/unit/content-manga/replacement-and-completion-real.test.js/Bíblia.md",
+      "bible_sha": "549423b470594d558ed2d6fdbf2997ee5079f222"
+    },
+    "210": {
+      "bible": "docs/biblia/tests/unit/content-manga/twin-backdrop-sync.test.js/Bíblia.md",
+      "bible_sha": "4888036d11fdbaf0ae00eca30203cf329736b988"
+    },
+    "211": {
+      "bible": "docs/biblia/tests/unit/gtc/fingerprint.test.js/Bíblia.md",
+      "bible_sha": "aaee05a4b15fd66a8ffa7ef63c991e041f1e1881"
+    },
+    "212": {
+      "bible": "docs/biblia/tests/unit/gtc/indexeddb.test.js/Bíblia.md",
+      "bible_sha": "fcd384ad27a2b48e5a18d48635906d7db2a3f5e3"
+    },
+    "213": {
+      "bible": "docs/biblia/tests/unit/inject/inject-anti-hibernation.test.js/Bíblia.md",
+      "bible_sha": "e0db19be76201eb7b212012cd0f7e29252574801"
+    },
+    "214": {
+      "bible": "docs/biblia/tests/unit/inject/raf-replacement.test.js/Bíblia.md",
+      "bible_sha": "c9262dc7a80f4cf1212c8e4680d8dee0a1b94246"
+    },
+    "215": {
+      "bible": "docs/biblia/tests/unit/inject/visibility-spoof.test.js/Bíblia.md",
+      "bible_sha": "1f08264a73edb45bf2971e651c6e7fd35f55aff9"
+    },
+    "216": {
+      "bible": "docs/biblia/tests/unit/manifest/surface-reduction.test.js/Bíblia.md",
+      "bible_sha": "8f95e621a2a2c39a5fa4b8c95f6a73d93ded78a4"
+    },
+    "217": {
+      "bible": "docs/biblia/tests/unit/popup/dynamic-button.test.js/Bíblia.md",
+      "bible_sha": "8be8a67ad21744fe495df39f827ab58358cc2929"
+    },
+    "218": {
+      "bible": "docs/biblia/tests/unit/popup/log-exporter.test.js/Bíblia.md",
+      "bible_sha": "f86a096123a8f9b518c0404ae663f41ab00c05d7"
+    },
+    "219": {
+      "bible": "docs/biblia/tests/unit/popup/progress-panel.test.js/Bíblia.md",
+      "bible_sha": "a7a99194792d6018909e2bce5cc2a30f1b3fe063"
+    },
+    "220": {
+      "bible": "docs/biblia/tests/unit/popup/resize-and-tabs.test.js/Bíblia.md",
+      "bible_sha": "66caf2bf7472fdf522b68b4f77c97124bb32615f"
+    },
+    "221": {
+      "bible": "docs/biblia/tests/unit/popup/version-ui.test.js/Bíblia.md",
+      "bible_sha": "40f3f7760c47e6c4a24e8dfb0e56c40160c1eeaa"
+    },
+    "222": {
+      "bible": "docs/biblia/tests/unit/reader/keyboard-nav.test.js/Bíblia.md",
+      "bible_sha": "41ed95ecb2b6c8fb985f2ed9e881f25406b6c647"
+    },
+    "223": {
+      "bible": "docs/biblia/tests/unit/reader/page-counter.test.js/Bíblia.md",
+      "bible_sha": "0c45a2a22aac808e78904b0cde54138e46b01583"
+    },
+    "224": {
+      "bible": "docs/biblia/tests/unit/shared-ui/redo-confirmation.test.js/Bíblia.md",
+      "bible_sha": "4b3a8764459959b0fe485d374bf54204d4f5e669"
+    },
+    "225": {
+      "bible": "docs/biblia/tests/visual/background-fingerprint.visual.js/Bíblia.md",
+      "bible_sha": "9fbc74672aa73b9931cf81ef5f3d3354cabfb8ee"
+    },
+    "226": {
+      "bible": "docs/biblia/tests/visual/content-manga-pipeline.visual.js/Bíblia.md",
+      "bible_sha": "ed36570b19ba66e203b75fc3edd043438a2df5ed"
+    },
+    "227": {
+      "bible": "docs/biblia/tests/visual/crop.visual.js/Bíblia.md",
+      "bible_sha": "38b9014fec64de3b9ed0f4f25083e15abde06053"
+    },
+    "228": {
+      "bible": "docs/biblia/tests/visual/gtc-fingerprint.visual.js/Bíblia.md",
+      "bible_sha": "9ac3e720e9dfa537b6f49700ee6ab7cb0027a045"
+    },
+    "229": {
+      "bible": "docs/biblia/tests/visual/gtc-indexeddb.visual.js/Bíblia.md",
+      "bible_sha": "350173f88c774a60bcfa958dd365a9833636277b"
+    },
+    "230": {
+      "bible": "docs/biblia/tests/visual/helpers.js/Bíblia.md",
+      "bible_sha": "0e593d9c42336271acf6be3f0f7a3cc344746e44"
+    },
+    "231": {
+      "bible": "docs/biblia/tests/visual/integration.visual.js/Bíblia.md",
+      "bible_sha": "c3d59e4ee1c9b8584f2d9c6c73c63671401c985b"
+    },
+    "232": {
+      "bible": "docs/biblia/tests/visual/run-all.js/Bíblia.md",
+      "bible_sha": "200a9f255e69a9a2db502959e7fe37c6f7576b7e"
+    },
+    "233": {
+      "bible": "docs/biblia/tests/visual/runner.js/Bíblia.md",
+      "bible_sha": "fdcf192c42e70c31ad584ef2dab8728601c89e04"
+    },
+    "001": {
+      "bible": "docs/biblia/extension/manifest.json/Bíblia.md",
+      "bible_sha": "6857d63b073ce14a2080e2550ecb50d17f44b6a4"
+    },
+    "002": {
+      "bible": "docs/biblia/extension/background.js/Bíblia.md",
+      "bible_sha": "1d951403fad76602881dd8e044d920701414cadb"
+    },
+    "003": {
+      "bible": "docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md",
+      "bible_sha": "4e9e7e7879e546454ee9486c80a271ca751aa4ca"
+    },
+    "004": {
+      "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
+      "bible_sha": "e1e74ae3ef3fd72f86885d5e3bd148eb3f2fb85f"
+    },
+    "005": {
+      "bible": "docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md",
+      "bible_sha": "b7d9ac0fe1cdd6b1c24d4e0e4ec1d8a9089c0f0a"
+    },
+    "006": {
+      "bible": "docs/biblia/extension/background/actions/commit-result.js/Bíblia.md",
+      "bible_sha": "44935aaf3249df0b042a7ed55164f722b56d1ce7"
+    },
+    "007": {
+      "bible": "docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md",
+      "bible_sha": "3a9912a9386109ea3cf92fbf04f0536554bc9cee"
+    },
+    "008": {
+      "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
+      "bible_sha": "d9bc3073da381c26994c9f4675bdee95e9b5fa7b"
+    },
+    "009": {
+      "bible": "docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md",
+      "bible_sha": "6edd7126b05915e7f7e09e7ebfafa5812b9dd616"
+    },
+    "010": {
+      "bible": "docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md",
+      "bible_sha": "3164f33b00015528f4ec812a50d7284907d206d1"
+    },
+    "011": {
+      "bible": "docs/biblia/extension/background/actions/download-image.js/Bíblia.md",
+      "bible_sha": "a2694dc486cf0cdf20c05a84d3481ad05ec2c9cb"
+    },
+    "012": {
+      "bible": "docs/biblia/extension/background/actions/export-all.js/Bíblia.md",
+      "bible_sha": "ddb8160af56191c17b28e81ac802fdd365d388a2"
+    },
+    "013": {
+      "bible": "docs/biblia/extension/background/actions/fetch-image-base64.js/Bíblia.md",
+      "bible_sha": "2fd76101f8ad59512462ae89b1e3624719b1cc98"
+    },
+    "014": {
+      "bible": "docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md",
+      "bible_sha": "4f971911148562bb6aaf2c600aaafe7b3e67bb2e"
+    },
+    "015": {
+      "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
+      "bible_sha": "ccd8c1421401e9d1b69e411d59636bf9f0b57394"
+    },
+    "016": {
+      "bible": "docs/biblia/extension/background/actions/log-entry.js/Bíblia.md",
+      "bible_sha": "5ac402ca9f85d44de8f41b39c857d1d234696a98"
+    },
+    "017": {
+      "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
+      "bible_sha": "ddbc17b21bc150c76ba0b1f74223e905b677e6a2"
+    },
+    "018": {
+      "bible": "docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md",
+      "bible_sha": "cc5baa2d27ce612031ebafa2ad82961ccbf26d0d"
+    },
+    "019": {
+      "bible": "docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md",
+      "bible_sha": "bd8c42b9a33ff9c78371738af09d79f44680d02c"
+    },
+    "020": {
+      "bible": "docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md",
+      "bible_sha": "02c70fe62fd5cbdc688f07258ace488c9c6d765d"
+    },
+    "021": {
+      "bible": "docs/biblia/extension/background/actions/report-error.js/Bíblia.md",
+      "bible_sha": "53d02f80c33b72a71fae45a73e7c1da1d8d4f1d5"
+    },
+    "022": {
+      "bible": "docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md",
+      "bible_sha": "58174e7d4b83b90d3f4f421ddc1e78baca83dd87"
+    },
+    "023": {
+      "bible": "docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md",
+      "bible_sha": "9a68b358b605ce8d7b582da5fefefb8f3c698602"
+    },
+    "024": {
+      "bible": "docs/biblia/extension/background/actions/start-batch.js/Bíblia.md",
+      "bible_sha": "972b78ccfb4e71e22292c30a55f3ba85f024b393"
+    },
+    "025": {
+      "bible": "docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md",
+      "bible_sha": "4b0e3472a12d42314c332c69fd3535616d680e4c"
+    },
+    "026": {
+      "bible": "docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md",
+      "bible_sha": "e28013b70cafe7d6e326236fe1be3681b0ab21fd"
+    },
+    "027": {
+      "bible": "docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md",
+      "bible_sha": "f861e5dc4f2534f26c4744791f77dbf21316b92f"
+    },
+    "028": {
+      "bible": "docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md",
+      "bible_sha": "ced4202bf4a23da41abe4cb0cf223624a8466c88"
+    },
+    "029": {
+      "bible": "docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md",
+      "bible_sha": "5071b229f8e82dbdc96cb8e45583c3ade333865d"
+    },
+    "030": {
+      "bible": "docs/biblia/extension/background/log.js/Bíblia.md",
+      "bible_sha": "7e34b422e66e2b8b04e0480112daef0c7b8217fb"
+    },
+    "031": {
+      "bible": "docs/biblia/extension/background/router.js/Bíblia.md",
+      "bible_sha": "2e34df45e74ff8d575891f98451d1c8af9cfdbaf"
+    },
+    "032": {
+      "bible": "docs/biblia/extension/background/state.js/Bíblia.md",
+      "bible_sha": "cda63042ce49c6fd77810b57c5f169572bafc4ab"
+    },
+    "033": {
+      "bible": "docs/biblia/extension/background/tab-identity.js/Bíblia.md",
+      "bible_sha": "2652732d25662526cae5c65ac09a79e67a89d81e"
+    },
+    "034": {
+      "bible": "docs/biblia/extension/content/cm-auto-restore.js/Bíblia.md",
+      "bible_sha": "34bbed9a879beebd34c508eeb96b21d0791c3ebb"
+    },
+    "035": {
+      "bible": "docs/biblia/extension/content/cm-chapter.js/Bíblia.md",
+      "bible_sha": "cd7c4c9cced252913d61857df5a25cd3a3b8c68f"
+    },
+    "036": {
+      "bible": "docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md",
+      "bible_sha": "1c67b1da5bf2be08fe093a1a12a0663af736e2d2"
+    },
+    "037": {
+      "bible": "docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md",
+      "bible_sha": "bb802dc775815f7ab34d8349a9587de5806842ab"
+    },
+    "038": {
+      "bible": "docs/biblia/extension/content/content_gemini.js/Bíblia.md",
+      "bible_sha": "4df0caacf54a19540052caa19a936255059804d1"
+    },
+    "039": {
+      "bible": "docs/biblia/extension/content/content_manga.js/Bíblia.md",
+      "bible_sha": "81e066bb9a3fc6cb12da8d32f462eec753c1a8bf"
+    },
+    "040": {
+      "bible": "docs/biblia/extension/content/gemini/attachment.js/Bíblia.md",
+      "bible_sha": "b638104cd66947b10c2de8315fef38be26f774f8"
+    },
+    "041": {
+      "bible": "docs/biblia/extension/content/gemini/deletion.js/Bíblia.md",
+      "bible_sha": "e8bc1d8b42081bfa6948ee41b27981d8fdbb9e96"
+    },
+    "042": {
+      "bible": "docs/biblia/extension/content/gemini/dom.js/Bíblia.md",
+      "bible_sha": "e15d3cc1128c8b9b58f435b9ef597ddd1d45d326"
+    },
+    "043": {
+      "bible": "docs/biblia/extension/content/gemini/editor.js/Bíblia.md",
+      "bible_sha": "406a763ca4f917d88f5566334d2379e6ae4926a0"
+    },
+    "044": {
+      "bible": "docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md",
+      "bible_sha": "4316fc408da7a75f54bb26efc02f2294dd8f4f94"
+    },
+    "045": {
+      "bible": "docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md",
+      "bible_sha": "02fef821345ee2fafdb33a721bdbbbd7a16eaffa"
+    },
+    "046": {
+      "bible": "docs/biblia/extension/content/gemini/observer.js/Bíblia.md",
+      "bible_sha": "35d0663bd90e98a5c193584745e88ad6d675ff95"
+    },
+    "047": {
+      "bible": "docs/biblia/extension/content/gemini/result-extractor.js/Bíblia.md",
+      "bible_sha": "af2d204d64d66d02c36942c2919288d3280c062e"
+    },
+    "048": {
+      "bible": "docs/biblia/extension/content/gemini/selectors.js/Bíblia.md",
+      "bible_sha": "89a630d869706786cd5edb14910e7895ae1e3fb2"
+    },
+    "049": {
+      "bible": "docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md",
+      "bible_sha": "baba250e6345fd2cd6013bbeec9bb646537fa7e5"
+    },
+    "050": {
+      "bible": "docs/biblia/extension/content/inject.js/Bíblia.md",
+      "bible_sha": "ec907e77ddcee9521d4ae87878c2cdd006026975"
+    },
+    "051": {
+      "bible": "docs/biblia/extension/options/options.html/Bíblia.md",
+      "bible_sha": "d9727f827e7cc3b5d454f1826192cc0512cbc8cc"
+    },
+    "052": {
+      "bible": "docs/biblia/extension/options/options.js/Bíblia.md",
+      "bible_sha": "39723799fe64e582912a9cae20ae0a114ce63898"
+    },
+    "053": {
+      "bible": "docs/biblia/extension/popup/popup.html/Bíblia.md",
+      "bible_sha": "72c461afdbe5057b59dca312d804fb7737bd2c5e"
+    },
+    "054": {
+      "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
+      "bible_sha": "ced05fe2206751ef80b43976c78516b9eaf3ecc2"
+    },
+    "055": {
+      "bible": "docs/biblia/extension/reader/reader.html/Bíblia.md",
+      "bible_sha": "c782cc27a88a8ce4c91ec1f873906f5c25e2e7b9"
+    },
+    "056": {
+      "bible": "docs/biblia/extension/reader/reader.js/Bíblia.md",
+      "bible_sha": "ddc7253c3f8aad3e14e03d6a06fcf46342b92d5e"
+    },
+    "057": {
+      "bible": "docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md",
+      "bible_sha": "38cb0ec391c9863a7635dfb946c78911d5120f9f"
+    },
+    "058": {
+      "bible": "docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md",
+      "bible_sha": "66172ff82912ee19958fb825cedd9ab2b22c3af3"
+    },
+    "059": {
+      "bible": "docs/biblia/extension/shared/shared-ui.js/Bíblia.md",
+      "bible_sha": "224ef5633b43cc79d6972ff8cda23fe5fe2c7d24"
+    },
+    "060": {
+      "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
+      "bible_sha": "09da9b0cd46cf272c0691415574fa5b16af41004"
+    },
+    "061": {
+      "bible": "docs/biblia/.gitignore/Bíblia.md",
+      "bible_sha": "2db183f664af8a13feb626b6f05e03073751cc05"
+    },
+    "062": {
+      "bible": "docs/biblia/jest.config.js/Bíblia.md",
+      "bible_sha": "498be146178c867bc0992dd404d721a4c41da9c7"
+    },
+    "063": {
+      "bible": "docs/biblia/package.json/Bíblia.md",
+      "bible_sha": "b5bb161d7564d11760ca1323a29e2b6c50c8f65f"
+    },
+    "064": {
+      "bible": "docs/biblia/playwright.config.js/Bíblia.md",
+      "bible_sha": "16c63d42e98af01ed3c9027cfa3c1bb856ba9730"
+    },
+    "065": {
+      "bible": "docs/biblia/.github/workflows/ci.yml/Bíblia.md",
+      "bible_sha": "bc9634c8e60c95d0cd3c0c187603ded21cd3876f"
+    },
+    "066": {
+      "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
+      "bible_sha": "2c37e604bcef3128fd1106a7a427782b37a39f4f"
+    },
+    "067": {
+      "bible": "docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md",
+      "bible_sha": "3521d2ed78775d868bedbad2b7035bbee8381295"
+    },
+    "068": {
+      "bible": "docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md",
+      "bible_sha": "656751b7ea25289e056c805fa82df83336dc074d"
+    },
+    "069": {
+      "bible": "docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md",
+      "bible_sha": "634fcd4a3664833f453afa53b67baead1d9bb33b"
+    },
+    "070": {
+      "bible": "docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md",
+      "bible_sha": "d9a808635669012b393d8fa7bf50226014adaed6"
+    },
+    "071": {
+      "bible": "docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md",
+      "bible_sha": "cfff54168d461c090be04c57f2cbd2da9e1b5dc6"
+    },
+    "072": {
+      "bible": "docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md",
+      "bible_sha": "610ce171116d2f802faab5fac32d199c4e5fc29f"
+    },
+    "073": {
+      "bible": "docs/biblia/scripts/ci/playwright-merge.config.js/Bíblia.md",
+      "bible_sha": "067bbe48208dbc56f7ba2e15d789ce839662f5b0"
+    },
+    "074": {
+      "bible": "docs/biblia/scripts/ci/run-e2e-group.js/Bíblia.md",
+      "bible_sha": "3ee949bbc16c67cefc53784bcf9edc49296cfde4"
+    },
+    "075": {
+      "bible": "docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md",
+      "bible_sha": "d16375d9531f5ce8813aa7d37df585496b70933c"
+    },
+    "076": {
+      "bible": "docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md",
+      "bible_sha": "ed723a76ed9b4da82c3ba1659349bab4367417cc"
+    },
+    "077": {
+      "bible": "docs/biblia/scripts/maintenance/diagnose-jest-workers.js/Bíblia.md",
+      "bible_sha": "36e7fbfa415d15e329fbf38221a9c2cc5f468a8a"
+    },
+    "078": {
+      "bible": "docs/biblia/scripts/release/sync-version.js/Bíblia.md",
+      "bible_sha": "9cd9e07a0964445b5977249b8b408d9df608c575"
+    },
+    "079": {
+      "bible": "docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md",
+      "bible_sha": "19adfe88036648952e08bb9eff587a56ee976379"
+    },
+    "080": {
+      "bible": "docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md",
+      "bible_sha": "5e8505ef6f93b5fb72ed74236237b7450f291b0c"
+    },
+    "081": {
+      "bible": "docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md",
+      "bible_sha": "9c641a8e62711d1f9dc3023796b7311587b298e5"
+    },
+    "082": {
+      "bible": "docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md",
+      "bible_sha": "6895f423fd6cf242588e56ce444ebcbca23a7ce2"
+    },
+    "083": {
+      "bible": "docs/biblia/scripts/validation/verify-ci-contract.js/Bíblia.md",
+      "bible_sha": "2b1e931ceb8731de9d86191c8598d64c075361d0"
+    },
+    "084": {
+      "bible": "docs/biblia/scripts/validation/verify-coverage-selftest.js/Bíblia.md",
+      "bible_sha": "8abbe084e688e2e2b3bf300b9f6ee0b771a8eada"
+    },
+    "085": {
+      "bible": "docs/biblia/scripts/validation/verify-coverage.js/Bíblia.md",
+      "bible_sha": "171f14f6c4cd8fb73773b2c39cc51b7a375a0545"
+    },
+    "086": {
+      "bible": "docs/biblia/scripts/validation/verify-e2e-shard-plan.js/Bíblia.md",
+      "bible_sha": "17e4dd5e8b23c32e53474cb6d50107b33141135e"
+    },
+    "087": {
+      "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
+      "bible_sha": "a5dc152515f9fbde678930c8eafbfc220b9f3b0f"
+    },
+    "088": {
+      "bible": "docs/biblia/scripts/validation/verify-publish-contract.js/Bíblia.md",
+      "bible_sha": "f4c3d052553034f5270042a19f6fd05c43a90700"
+    },
+    "089": {
+      "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
+      "bible_sha": "6a3f99ebbd8952f736872efeae6017e20122ed34"
+    },
+    "090": {
+      "bible": "docs/biblia/scripts/validation/verify-test-policy-selftest.js/Bíblia.md",
+      "bible_sha": "2b53f1a2232e30b5eb1ef0f0ee2f3365433f0ed1"
+    },
+    "091": {
+      "bible": "docs/biblia/scripts/validation/verify-test-policy.js/Bíblia.md",
+      "bible_sha": "b0ad908a90b9795245f52cbac20a6d5fdf25fd42"
+    },
+    "092": {
+      "bible": "docs/biblia/tests/e2e/cache-and-storage.spec.js/Bíblia.md",
+      "bible_sha": "31358671634e32cf09d2d416fce6dbeb0092cf62"
+    },
+    "093": {
+      "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
+      "bible_sha": "0b8ccf4cf18dcf19c42d52ccc04bf0a623145d43"
+    },
+    "094": {
+      "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
+      "bible_sha": "9db5495fc597c752012b0cfa0d68ddde0d921dbc"
+    },
+    "095": {
+      "bible": "docs/biblia/tests/fixtures/gemini-mock-server.js/Bíblia.md",
+      "bible_sha": "d26f2be73c62079bee2139cd62cb1b0934276409"
+    },
+    "096": {
+      "bible": "docs/biblia/tests/fixtures/manga-images.js/Bíblia.md",
+      "bible_sha": "308b958db04992331b24adc551cd7e3610e1d40e"
+    },
+    "097": {
+      "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
+      "bible_sha": "ad94183e6fb9c7e190701a3bd280c0fd870838d4"
+    },
+    "098": {
+      "bible": "docs/biblia/tests/helpers/background-test-utils.js/Bíblia.md",
+      "bible_sha": "a2fdd1e1c579b79318ade9a0ba40220aae85e4d9"
+    },
+    "099": {
+      "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
+      "bible_sha": "71be5ac59a3bcdd69f4d972ab1e33739cfe91b74"
+    }
+  }
+}
