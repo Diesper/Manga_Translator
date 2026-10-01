@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "index": 11,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 11",
+  "file": "extension/background/actions/download-image.js",
+  "bible": "docs/biblia/extension/background/actions/download-image.js/Bíblia.md",
+  "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "011-ADV-001",
+      "severity": "NORMAL",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "A rastreabilidade 32/32 é numericamente completa, mas classifica incorretamente como 'falha imediata' dois caminhos pós-download/terminais, contradizendo a análise U04 da própria Bíblia.",
+      "evidence": [
+        "Bíblia.md linha 135 / posição 23 descreve `else resolve({ error: 'Arquivo não encontrado' })` como 'Transforma falha imediata', porém essa linha só é alcançada no callback de `chrome.downloads.search` disparado após o callback de conclusão de `waitForDownload`.",
+        "Bíblia.md linha 137 / posição 25 descreve `err => resolve({ error: err.message })` como 'Transforma falha imediata', porém esse callback é o onError de `waitForDownload`; no helper real de extension/background.js ele é chamado em estado `interrupted` ou no timeout de 600000 ms.",
+        "A própria Bíblia, em U04, descreve corretamente esse bloco como 'erro terminal' e afirma que interrupção/timeout retorna err.message, criando contradição interna com as posições 23 e 25."
+      ]
+    },
+    {
+      "id": "011-ADV-002",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A matriz atribui ao teste isolado download-image-action.test.js prova direta de `search` além do que suas assertions focais demonstram.",
+      "evidence": [
+        "Bíblia.md linha 28 classifica download-image-action.test.js como 'PROVADO DIRETAMENTE' para '... wiring de waitForDownload, search e resposta filePath/downloadId'.",
+        "No teste, `chrome.downloads.search` é apenas um jest.fn cujo parâmetro `_query` é ignorado; as assertions verificam downloads.download, waitForDownload e a resposta final, mas não verificam chamada, quantidade nem payload de search.",
+        "Uma regressão plausível no payload de `downloads.search` (por exemplo id incorreto) permanece invisível a esse teste isolado; a evidência mais forte para o wiring real vem do teste integrado message-handlers-real.test.js, não da assertion focal desta suíte."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:05:00Z"
+}
