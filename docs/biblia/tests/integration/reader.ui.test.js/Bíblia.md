@@ -70,7 +70,7 @@ A lista `RD-01/.../RD-19` no nome do `describe` não foi usada como prova por si
 
 ## 7. Solicitações ao auditor
 
-### 118-001 — TEST_REQUIRED — OPEN
+### 118-001 — TEST_REQUIRED — ACCEPTED
 - **Encontrado:** O teste de fallback de largura cobre apenas um valor acima do máximo (`5000`). A implementação real aceita somente 400..1200 e também cai para 800 quando o valor é menor que 400, ausente/não numérico ou resulta em NaN; esses ramos equivalentes não têm assertion focal localizada em outra suíte.
 - **Arquivo relacionado:** `tests/integration/reader.ui.test.js`
 - **Evidência atual:** Este arquivo prova largura válida 950, persistência de 1100 e fallback de 5000 para 800. Busca por `readerWidth` localizou apenas este teste e `extension/reader/reader.js`.
@@ -307,5 +307,5 @@ Posição do newline terminal; não contém código.
 - Linhas textuais: **149**; newline terminal: **sim**; posições documentadas: **150/150**.
 - Faixas documentais: **19**, contíguas e sem overlap.
 - Cinco testes concretos auditados; assertions distinguem comportamento local desta suíte de cobertura oferecida por outras suítes.
-- `audit_request` 118-001 registra a lacuna de fronteiras de largura.
+- `audit_request` 118-001 permanece ACCEPTED no state canônico como lacuna de fronteiras de largura; não é apresentada como prova já implementada.
 - Nenhum código, teste, fixture, workflow ou configuração foi modificado.
