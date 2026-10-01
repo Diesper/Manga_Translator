@@ -3,7 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const root = path.resolve(__dirname, '../..');
+const root = process.env.MANGA_TRANSLATOR_REPO_ROOT
+  ? path.resolve(process.env.MANGA_TRANSLATOR_REPO_ROOT)
+  : path.resolve(__dirname, '../..');
 const problems = [];
 
 function exists(rel) {
@@ -24,13 +26,47 @@ function rel(file) {
   return path.relative(root, file).replace(/\\/g, '/');
 }
 
-function requirePresent(relPath) {
-  if (!exists(relPath)) problems.push('arquivo/diretório obrigatório ausente: ' + relPath);
+function requirePresent(relPath, expectedType) {
+  const full = path.join(root, relPath);
+  if (!fs.existsSync(full)) {
+    problems.push('arquivo/diretório obrigatório ausente: ' + relPath);
+    return;
+  }
+
+  if (!expectedType) return;
+  let stat;
+  try {
+    stat = fs.statSync(full);
+  } catch (error) {
+    problems.push('não foi possível inspecionar tipo de ' + relPath + ': ' + error.message);
+    return;
+  }
+
+  const validType = expectedType === 'directory' ? stat.isDirectory() : stat.isFile();
+  if (!validType) {
+    problems.push(
+      'tipo inválido para ' + relPath + ': esperado '
+      + (expectedType === 'directory' ? 'diretório' : 'arquivo')
+    );
+  }
 }
 
 function requireAbsent(relPath) {
   if (exists(relPath)) problems.push('legado proibido ainda existe: ' + relPath);
 }
+
+const requiredDirectories = new Set([
+  'extension/background',
+  'tests/unit',
+  'tests/integration',
+  'tests/smoke',
+  'tests/visual',
+  'tests/e2e',
+  'tests/fixtures',
+  'tests/helpers',
+  'tests/mocks',
+  'tests/setup',
+]);
 
 for (const required of [
   'package.json',
@@ -72,7 +108,7 @@ for (const required of [
   'docs/biblia/STATUS.md',
   'docs/biblia/CHECKLIST.md',
   'docs/biblia/AUDITORIA.md',
-]) requirePresent(required);
+]) requirePresent(required, requiredDirectories.has(required) ? 'directory' : 'file');
 
 const docsRootEntries = fs.readdirSync(path.join(root, 'docs'), { withFileTypes: true })
   .map(entry => entry.name)
