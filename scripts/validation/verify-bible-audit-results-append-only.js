@@ -4,6 +4,7 @@ const childProcess = require('child_process');
 const path = require('path');
 
 const DEFAULT_RESULTS_ROOT = 'docs/biblia/.coordination/audit-results';
+const ZERO_SHA = '0'.repeat(40);
 
 function git(root, args) {
   return childProcess.execFileSync('git', args, {
@@ -24,30 +25,77 @@ function parseNameStatus(output) {
     });
 }
 
+function parseRawHistory(output) {
+  return String(output || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith(':'))
+    .map((line) => {
+      const match = /^:(\d{6})\s+(\d{6})\s+([0-9a-f]{40})\s+([0-9a-f]{40})\s+([A-Z])\t(.+)$/i.exec(line);
+      if (!match) return { status: '?', file: line, oldSha: null, newSha: null };
+      return {
+        oldMode: match[1],
+        newMode: match[2],
+        oldSha: match[3].toLowerCase(),
+        newSha: match[4].toLowerCase(),
+        status: match[5].toUpperCase(),
+        file: match[6],
+      };
+    });
+}
+
 function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT) {
   const problems = [];
   const target = relativeRoot.replace(/\\/g, '/');
 
-  // Resultado publicado é evento imutável. Com --no-renames, rename/copy
-  // degrada para delete+add, logo o delete também é capturado.
+  // Regra histórica: um resultado publicado pode aparecer em vários commits
+  // (por exemplo, recuperação de árvore), mas o conteúdo versionado daquele
+  // path deve ser sempre o MESMO blob. Qualquer segundo blob é mutação.
   const history = git(root, [
     'log',
     '--format=',
-    '--name-status',
+    '--raw',
+    '--no-abbrev',
+    '--full-index',
     '--no-renames',
-    '--diff-filter=MDT',
     '--',
     target,
   ]);
 
-  for (const change of parseNameStatus(history)) {
-    problems.push(
-      'audit-result não é append-only: status=' + change.status + ' file=' + change.file
-    );
+  const blobsByPath = new Map();
+  for (const change of parseRawHistory(history)) {
+    if (!change.file || change.status === '?') {
+      problems.push('histórico de audit-result não pôde ser interpretado: ' + change.file);
+      continue;
+    }
+    const set = blobsByPath.get(change.file) || new Set();
+    for (const sha of [change.oldSha, change.newSha]) {
+      if (sha && sha !== ZERO_SHA) set.add(sha);
+    }
+    blobsByPath.set(change.file, set);
+  }
+
+  const currentPaths = new Set(
+    git(root, ['ls-tree', '-r', '--name-only', 'HEAD', '--', target])
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+  );
+
+  for (const [file, blobs] of blobsByPath) {
+    if (blobs.size > 1) {
+      problems.push(
+        'audit-result conteúdo foi alterado: file=' + file
+        + ' blobs=' + [...blobs].sort().join(',')
+      );
+    }
+    if (!currentPaths.has(file)) {
+      problems.push('audit-result publicado está ausente no HEAD: file=' + file);
+    }
   }
 
   // Também rejeita mutações locais ainda não commitadas quando o verificador
-  // é usado por um operador antes do push.
+  // é usado por um operador antes do push. Adições novas são permitidas.
   for (const args of [
     ['diff', '--name-status', '--no-renames', '--', target],
     ['diff', '--cached', '--name-status', '--no-renames', '--', target],
@@ -87,6 +135,8 @@ if (require.main === module) {
 
 module.exports = {
   DEFAULT_RESULTS_ROOT,
+  ZERO_SHA,
   parseNameStatus,
+  parseRawHistory,
   verifyAppendOnly,
 };
