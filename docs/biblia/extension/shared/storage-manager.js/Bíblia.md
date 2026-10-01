@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/shared/storage-manager.js`
 
 > **Estado:** 🟡 CORRIGIDO — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `f9b5c5b330eaab35477582344e8b0f088825aca1`  
+> **SHA auditado:** `f4e1e231fa62d22dd50fb20cf0cffbb09da98bee`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — persistência IndexedDB do Manga Translator  
 > **Runtime principal:** Chromium MV3 Service Worker / páginas internas da extensão  
@@ -56,17 +56,17 @@ A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapt
 | overwrite e coleta do asset antigo | smoke-04 salva a mesma página duas vezes e verifica asset antigo = null | ✅ PROVADO DIRETAMENTE |
 | 10 saves concorrentes mesmo capítulo | smoke-03 usa Promise.all e comprova 10/10 páginas + restores | ✅ PROVADO DIRETAMENTE |
 | persistência real no Chromium MV3 | cache-and-storage.spec lê duas páginas e restoreIndex no background worker | ✅ PROVADO EM E2E |
-| deleteByCleanUrl sequencial | smoke-04 prova restore removido | ✅ PROVADO PARCIALMENTE |
+| deleteByCleanUrl sequencial/multi-capítulo | smoke #126 agora verifica restore, página e asset removidos e caso da mesma cleanUrl em dois capítulos | 🟨 TESTE AMPLIADO; PASS DO SHA ATUAL PENDENTE |
 | deleteChapter sequencial | smoke-04 prova `deleted > 0` e `pageCount === 0`; não consulta restoreEntries/assets após a deleção | 🟨 PROVADO PARCIALMENTE — páginas sim; cleanup focal de restore/assets não é provado |
-| migração legada bem-sucedida/idempotente | smoke-04 prova migrated, flag, limpeza e segunda chamada skipped | ✅ PROVADO DIRETAMENTE |
+| migração legada completa/idempotente + retry de falha parcial | smoke #126 exige contagem exata, restore/asset, ausência de flag em falha parcial, retry e lastError de get/remove/set | 🟨 TESTE AMPLIADO; PASS DO SHA ATUAL PENDENTE |
 | roteamento SM_* | smoke-06 usa módulo real, mas copia o handler de background.js | 🟨 SIMULAÇÃO FIEL/CONTRATO, NÃO PROVA DO HANDLER REAL |
 | rollback por abort/error de transaction | nenhum fault-injection específico encontrado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| migração parcialmente falha | nenhum teste; catches permitem continuar e flag é gravada no final | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| troca de cleanUrl na mesma página | nenhum teste; restore antigo pode sobreviver com asset removido | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| migração parcialmente falha | smoke #126 injeta payload inválido no meio do lote, exige `{ failed: true }`, ausência de flag/cleanup e retry completo | 🟨 TESTE IMPLEMENTADO; PASS DO SHA ATUAL PENDENTE |
+| troca de cleanUrl na mesma página | smoke #126 salva URL A→B e exige restore A ausente, restore B apontando para o novo asset e asset antigo coletado | 🟨 TESTE IMPLEMENTADO; PASS DO SHA ATUAL PENDENTE |
 | deleteByCleanUrl concorrente com save | nenhum teste e função não usa `_chapterWriters` | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | getChaptersStats conteúdo exato | rota existe, mas não há assertion funcional específica encontrada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | Data URL não-base64/malformada | nenhuma assertion específica encontrada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| openStorageDb sem IDB e recuperação posterior | nenhum teste; Promise rejeitada pode ficar cacheada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| openStorageDb sem IDB e recuperação posterior | smoke #126 injeta ausência transitória e exige retry; CI anterior revelou o bug e o source foi corrigido novamente | 🟨 TESTE IMPLEMENTADO; PASS DO SHA ATUAL PENDENTE |
 | orphan restore migrado com índice negativo | nenhum teste específico encontrado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 
 ## 5. Lacunas de teste e riscos
@@ -74,7 +74,7 @@ A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapt
 1. **🟨 Migração parcial agora aborta antes da flag/cleanup, mas falta regressão focal.** Cada falha de `savePageResult` retorna `{ failed: true }` imediatamente; por isso as chaves legadas permanecem disponíveis para retry e a flag não é consolidada. Ainda é necessário um teste que force falha em uma de N páginas e confirme ausência de flag/cleanup.
 2. **🟨 Troca de `cleanUrl` remove o restore anterior na mesma transaction, mas falta regressão focal.** Ao sobrescrever a mesma `[chapterId,pageIndex]`, a linha 193 deleta `[chapterId, previousPage.cleanUrl]` quando a URL mudou. Teste necessário: save URL A → mesma página URL B → garantir ausência de A no restoreIndex e asset antigo inexistente.
 3. **⚠️ `deleteByCleanUrl()` não usa a fila por capítulo.** Um refazer pode correr com `savePageResult()` e intercalar read/write em transactions distintas. Teste necessário: Promise concorrente de save/delete na mesma cleanUrl e invariantes finais.
-4. **🟨 `openStorageDb()` agora limpa `_smDbPromise` antes de rejeitar quando IDB está ausente.** Isso permite uma tentativa posterior no mesmo processo; ainda falta regressão focal: primeira chamada sem indexedDB, instalar fake IDB, segunda chamada deve conseguir abrir.
+4. **🟨 `openStorageDb()` agora evita cache para IDB ausente e limpa qualquer rejeição cacheada da abertura.** O smoke #126 já contém regressão para ausência transitória de IndexedDB; a nova implementação também limpa rejeições síncronas/assíncronas por identidade. A confirmação executável do SHA atual ainda depende do CI pós-correção.
 5. **🟨 `_chapterWriters` agora remove a cauda concluída condicionalmente.** O `finally` só deleta a chave se o valor ainda for a mesma Promise-tail, preservando uma operação mais nova já enfileirada. Falta teste/telemetria de cardinalidade para muitos chapterIds.
 6. **⚠️ Restores órfãos da migração viram páginas com índices negativos.** `getChapterPageIndex`, `getChapterPageCount` e `getChaptersStats` não filtram negativos, então metadados/popup podem contar restores sem página como páginas reais.
 7. **⚠️ `pageIndex` aceita negativos e fracionários.** `savePageResult` usa `Number.isFinite`, não `>=0 && integer`. Isso é deliberadamente usado pela migração para órfãos, mas mistura duas categorias no mesmo store.
@@ -82,7 +82,7 @@ A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapt
 9. **🟨 `chrome.storage.local` agora propaga `chrome.runtime.lastError`, mas falta fault-injection focal.** `get`, `set` e `remove` rejeitam a Promise quando o callback observa `lastError`; é necessário teste que simule cada falha para impedir regressão.
 10. **⚠️ Data URLs não-base64 e malformadas não são testadas.** `decodeURIComponent` pode lançar; payloads gigantes criam múltiplas cópias em memória durante atob/Uint8Array/Blob.
 11. **⚠️ `blobToDataUrl` evita estouro de apply com chunks, mas ainda monta a imagem inteira em string binária antes de `btoa`.** Em páginas grandes isso pode duplicar significativamente o pico de memória.
-12. **⚠️ Não há `onversionchange`/`onblocked` na conexão.** Uma futura elevação de `SM_DB_VERSION` pode ser bloqueada por conexão antiga viva no mesmo processo.
+12. **🟨 `onversionchange` agora fecha a conexão e zera o cache; `onblocked` continua sem tratamento focal.** O callback de sucesso instala `db.onversionchange = () => { db.close(); _smDbPromise = null; }`. Ainda falta teste específico de upgrade bloqueado/versionchange.
 13. **⚠️ `getChaptersStats` e `stats.bytes` não têm assertions de conteúdo exato.** Roteamento existe, mas contagens/índices/bytes precisam de testes dedicados.
 14. **⚠️ Handler SM de `smoke-06` é uma cópia fiel, não o `handleStorageManagerMessage` real de `background.js`.** O módulo é real; o roteamento do background continua evidência complementar nessa suíte.
 
@@ -186,12 +186,12 @@ function getIndexedDb() {
 
 function openStorageDb() {
     if (_smDbPromise) return _smDbPromise;
-    _smDbPromise = new Promise((resolve, reject) => {
-        const idb = getIndexedDb();
-        if (!idb || typeof idb.open !== 'function') {
-            _smDbPromise = null; reject(new Error('IndexedDB indisponível neste contexto'));
-            return;
-        }
+    const idb = getIndexedDb();
+    if (!idb || typeof idb.open !== 'function') {
+        return Promise.reject(new Error('IndexedDB indisponível neste contexto'));
+    }
+    const opening = new Promise((resolve, reject) => {
+
         const req = idb.open(SM_DB_NAME, SM_DB_VERSION);
         req.onupgradeneeded = (event) => {
             const db = event.target.result;
@@ -212,10 +212,10 @@ function openStorageDb() {
                 db.createObjectStore(SM_STORE_ASSETS, { keyPath: 'assetId' });
             }
         };
-        req.onsuccess = () => resolve(req.result);
+        req.onsuccess = () => { const db = req.result; db.onversionchange = () => { db.close(); _smDbPromise = null; }; resolve(db); };
         req.onerror = () => { _smDbPromise = null; reject(req.error || new Error('Falha ao abrir IndexedDB')); };
     });
-    return _smDbPromise;
+    const cached = opening.catch(error => { if (_smDbPromise === cached) _smDbPromise = null; throw error; }); _smDbPromise = cached; return cached;
 }
 
 // ── Helpers IDB ──────────────────────────────────────────────────────────────
@@ -1027,7 +1027,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Declara a função `getIndexedDb` em **abertura e upgrade do banco**.  
 **Como faz:** Abre o escopo da operação de storage descrita nas linhas seguintes.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0042
@@ -1036,7 +1036,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (rootScope && rootScope.indexedDB) return rootScope.indexedDB;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0043
@@ -1045,7 +1045,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Retorna `return (typeof indexedDB !== 'undefined') ? indexedDB : null;`.  
 **Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0044
@@ -1054,7 +1054,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0045
@@ -1072,7 +1072,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Declara a função `openStorageDb` em **abertura e upgrade do banco**.  
 **Como faz:** Abre o escopo da operação de storage descrita nas linhas seguintes.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0047
@@ -1081,62 +1081,62 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (_smDbPromise) return _smDbPromise;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0048
 
-**Fonte:** `_smDbPromise = new Promise((resolve, reject) => {`  
-**O que faz:** Cria uma Promise para adaptar API callback/event-driven.  
-**Como faz:** Resolve/rejeita a operação quando o request/transaction correspondente dispara seus eventos.  
+**Fonte:** `const idb = getIndexedDb();`  
+**O que faz:** Lê a implementação IndexedDB disponível **antes** de criar/cachear a Promise de abertura.  
+**Como faz:** Chama `getIndexedDb()` sincronicamente e mantém `_smDbPromise` nula até confirmar que `idb.open` existe.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** Evita cachear uma rejeição criada apenas porque IndexedDB estava temporariamente ausente.  
+**Evidência:** 🟨 REGRESSÃO IMPLEMENTADA NO SMOKE #126; CI verde do SHA atual ainda pendente.  
 
 ### Linha 0049
 
-**Fonte:** `const idb = getIndexedDb();`  
-**O que faz:** Inicializa `idb` com `getIndexedDb();`.  
-**Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
+**Fonte:** `if (!idb || typeof idb.open !== 'function') {`  
+**O que faz:** Detecta ausência/incompatibilidade de IndexedDB antes de iniciar a abertura.  
+**Como faz:** Testa o objeto e o método `open` sem alterar `_smDbPromise`.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** Sem esse pré-check, uma Promise rejeitada poderia tornar a indisponibilidade transitória permanente no processo.  
+**Evidência:** 🟨 NEGATIVO COBERTO PELO SMOKE #126; confirmação do reparo aguardando CI do novo SHA.  
 
 ### Linha 0050
 
-**Fonte:** `if (!idb \|\| typeof idb.open !== 'function') {`  
-**O que faz:** Aplica a guarda `if (!idb \|\| typeof idb.open !== 'function') {`.  
-**Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
+**Fonte:** `return Promise.reject(new Error('IndexedDB indisponível neste contexto'));`  
+**O que faz:** Retorna rejeição explícita sem preencher o cache de conexão.  
+**Como faz:** Cria uma Promise rejeitada local, deixando `_smDbPromise === null` para retry posterior.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** O caller recebe falha imediata; retry só deve ocorrer após o ambiente disponibilizar IndexedDB.  
+**Evidência:** 🟨 O smoke #126 exige primeira falha e segunda abertura bem-sucedida.  
 
 ### Linha 0051
 
-**Fonte:** `_smDbPromise = null; reject(new Error('IndexedDB indisponível neste contexto'));`  
-**O que faz:** Limpa a Promise de abertura cacheada e rejeita explicitamente quando IndexedDB não existe nesse contexto.  
-**Como faz:** Define `_smDbPromise = null` antes de entregar `Error('IndexedDB indisponível neste contexto')`; a linha seguinte retorna sem chamar `idb.open`.  
+**Fonte:** `}`  
+**O que faz:** Fecha a guarda de indisponibilidade transitória.  
+**Como faz:** Se o fluxo prossegue, `idb.open` está disponível e nenhuma Promise rejeitada foi cacheada.  
 **Por que assim:** Falhar cedo evita que operações posteriores tentem usar uma API inexistente.  
-**Risco/alternativa:** A rejeição já não fica cacheada; porém a recuperação na mesma sessão ainda não possui teste focal.  
-**Evidência:** 🟨 SOURCE CORRIGIDO; REGRESSÃO DE RECUPERAÇÃO AINDA NÃO ISOLADA — smoke/E2E cobrem abertura feliz, não a sequência sem-IDB → retry.
+**Risco/alternativa:** Sem risco funcional isolado além de delimitar a guarda.  
+**Evidência:** 🟨 ESTRUTURAL; ligada à regressão de retry do smoke #126.  
 
 ### Linha 0052
 
-**Fonte:** `return;`  
-**O que faz:** Retorna `return;`.  
-**Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
+**Fonte:** `const opening = new Promise((resolve, reject) => {`  
+**O que faz:** Cria a Promise bruta de abertura sem publicá-la diretamente no cache.  
+**Como faz:** O executor instala os handlers do request; a Promise só será envolvida/publicada na linha 77.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** Separar `opening` de `cached` permite limpar o cache em qualquer rejeição, inclusive exceção síncrona do executor.  
+**Evidência:** 🟨 CAMINHO FELIZ EXECUTADO; branch de exceção síncrona será reforçado no smoke #126.  
 
 ### Linha 0053
 
-**Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
-**Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
+**Fonte:** ␠ [posição vazia/newline]  
+**O que faz:** Preserva separação visual dentro do executor de abertura.  
+**Como faz:** Não executa lógica.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** Nenhum risco funcional isolado.  
+**Evidência:** 🟨 ESTRUTURAL.  
 
 ### Linha 0054
 
@@ -1144,7 +1144,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `req` com `idb.open(SM_DB_NAME, SM_DB_VERSION);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0055
@@ -1153,7 +1153,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define callback/arrow `req.onupgradeneeded = (event) => {`.  
 **Como faz:** Encapsula transformação, handler IndexedDB ou operação serializada ligada ao bloco atual.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0056
@@ -1162,7 +1162,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `db` com `event.target.result;`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0057
@@ -1180,7 +1180,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!db.objectStoreNames.contains(SM_STORE_CHAPTERS)) {`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0059
@@ -1189,7 +1189,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Cria store com `db.createObjectStore(SM_STORE_CHAPTERS, { keyPath: 'chapterId' });`.  
 **Como faz:** Executa apenas durante upgrade quando o store ainda não existe.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0060
@@ -1198,7 +1198,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0061
@@ -1207,7 +1207,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!db.objectStoreNames.contains(SM_STORE_CHAPTER_PAGES)) {`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0062
@@ -1216,7 +1216,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `pages` com `db.createObjectStore(SM_STORE_CHAPTER_PAGES, { keyPath: ['chapterId', 'pageIndex'] });`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0063
@@ -1225,7 +1225,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Cria índice com `pages.createIndex('by_chapter', 'chapterId', { unique: false });`.  
 **Como faz:** Define lookup secundário por capítulo ou cleanUrl durante upgrade.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0064
@@ -1234,7 +1234,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0065
@@ -1243,7 +1243,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!db.objectStoreNames.contains(SM_STORE_RESTORE)) {`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0066
@@ -1252,7 +1252,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `restore` com `db.createObjectStore(SM_STORE_RESTORE, { keyPath: ['chapterId', 'cleanUrl'] });`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0067
@@ -1261,7 +1261,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Cria índice com `restore.createIndex('by_chapter', 'chapterId', { unique: false });`.  
 **Como faz:** Define lookup secundário por capítulo ou cleanUrl durante upgrade.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0068
@@ -1270,7 +1270,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Cria índice com `restore.createIndex('by_cleanUrl', 'cleanUrl', { unique: false });`.  
 **Como faz:** Define lookup secundário por capítulo ou cleanUrl durante upgrade.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0069
@@ -1279,7 +1279,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0070
@@ -1288,7 +1288,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!db.objectStoreNames.contains(SM_STORE_ASSETS)) {`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0071
@@ -1297,7 +1297,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Cria store com `db.createObjectStore(SM_STORE_ASSETS, { keyPath: 'assetId' });`.  
 **Como faz:** Executa apenas durante upgrade quando o store ainda não existe.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0072
@@ -1306,7 +1306,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0073
@@ -1315,44 +1315,44 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `};`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0074
 
-**Fonte:** `req.onsuccess = () => resolve(req.result);`  
-**O que faz:** Define callback/arrow `req.onsuccess = () => resolve(req.result);`.  
-**Como faz:** Encapsula transformação, handler IndexedDB ou operação serializada ligada ao bloco atual.  
+**Fonte:** `req.onsuccess = () => { const db = req.result; db.onversionchange = () => { db.close(); _smDbPromise = null; }; resolve(db); };`  
+**O que faz:** No sucesso, instala cleanup para `versionchange` antes de resolver a conexão.  
+**Como faz:** Captura `req.result`, define `db.onversionchange` para fechar o banco e zerar `_smDbPromise`, então resolve com `db`.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** `onblocked` da abertura ainda não tem handler focal; versionchange deixa de manter conexão/cache stale.  
+**Evidência:** 🟨 SOURCE CORRIGIDO; teste focal de upgrade/versionchange ainda pendente.  
 
 ### Linha 0075
 
-**Fonte:** `req.onerror = () => { _smDbPromise = null; reject(req.error \|\| new Error('Falha ao abrir IndexedDB')); };`  
-**O que faz:** Define callback/arrow `req.onerror = () => { _smDbPromise = null; reject(req.error \|\| new Error('Falha ao abrir IndexedDB')); };`.  
-**Como faz:** Encapsula transformação, handler IndexedDB ou operação serializada ligada ao bloco atual.  
+**Fonte:** `req.onerror = () => { _smDbPromise = null; reject(req.error || new Error('Falha ao abrir IndexedDB')); };`  
+**O que faz:** Rejeita o request de abertura e limpa o cache legado.  
+**Como faz:** Zera `_smDbPromise` no `onerror` e rejeita com `req.error` ou fallback.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** A limpeza genérica da linha 77 também cobre rejeições que não passam por `req.onerror`.  
+**Evidência:** 🟨 ERRO ASSÍNCRONO COBERTO E DUPLAMENTE PROTEGIDO; fault-injection específico de `idb.open` ainda pendente.  
 
 ### Linha 0076
 
 **Fonte:** `});`  
-**O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `});`.  
-**Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
+**O que faz:** Fecha a Promise bruta `opening`.  
+**Como faz:** Encerra o executor depois de instalar handlers de upgrade/sucesso/erro.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** Uma exceção síncrona dentro do executor rejeita `opening`; a linha 77 deve limpar o cache.  
+**Evidência:** 🟨 BRANCH ADVERSARIAL IDENTIFICADO E TRATADO NA LINHA 77.  
 
 ### Linha 0077
 
-**Fonte:** `return _smDbPromise;`  
-**O que faz:** Retorna `return _smDbPromise;`.  
-**Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
+**Fonte:** `const cached = opening.catch(error => { if (_smDbPromise === cached) _smDbPromise = null; throw error; }); _smDbPromise = cached; return cached;`  
+**O que faz:** Cria/publica a Promise cacheada com cleanup por identidade em **qualquer rejeição**.  
+**Como faz:** `cached` repropaga o erro depois de zerar `_smDbPromise` somente se o cache ainda aponta para ela; depois a função publica e retorna `cached`.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** A comparação por identidade impede uma rejeição tardia de apagar uma conexão mais nova.  
+**Evidência:** 🟨 CORREÇÃO ADVERSARIAL; retry sem IDB já tem smoke, exceção síncrona de `open()` será adicionada antes do fechamento de #126.  
 
 ### Linha 0078
 
@@ -1360,7 +1360,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **abertura e upgrade do banco** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** cria stores/índices idempotentemente e compartilha conexão.  
-**Risco/alternativa:** sem onversionchange/onblocked, upgrades futuros podem ficar bloqueados.  
+**Risco/alternativa:** `onversionchange` fecha a conexão e libera o cache; `onblocked` continua sem handler/fault-injection focal.  
 **Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
 
 ### Linha 0079
