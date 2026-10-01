@@ -2,7 +2,7 @@
   "index": 118,
   "file": "tests/integration/reader.ui.test.js",
   "bible": "docs/biblia/tests/integration/reader.ui.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "810a207f1264d78836b6e72c6f701bfc0cbce447",
   "started_at_utc": "2026-09-30T06:24:00Z",
@@ -40,12 +40,31 @@
     "source_has_final_newline": true,
     "bible_lines": 312,
     "direct_scenarios": 5,
-    "external_audit_requests_open": 1,
+    "external_audit_requests_open": 0,
     "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T13:43:09.070Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T13:43:09.070Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "810a207f1264d78836b6e72c6f701bfc0cbce447",
+      "auditor": "AGENTE 6",
+      "reason": "Falha documental material: request 118-001 permanece rotulada OPEN na Bíblia, enquanto o state canônico a registra como ACCEPTED."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "810a207f1264d78836b6e72c6f701bfc0cbce447",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T13:43:09.070Z",
+      "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/wiring/semântica/assertions/execução passam; lifecycle documental da request falha. 118-001 permanece ACCEPTED como dívida externa."
+    }
+  ]
 }
