@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "index": 107,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 27",
+  "file": "tests/integration/chapter-dedup.test.js",
+  "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
+  "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
+  "bible_sha": "6966d6dfd94617e5b303e97aef41152e1d84c269",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "107-A27-001",
+      "severity": "HIGH",
+      "category": "INTERNAL_CONTRADICTION",
+      "problem": "O lifecycle das audit_requests é contraditório dentro da própria Bíblia: as seções 107-001..003 e o state canônico registram ACCEPTED, mas a conclusão final ainda as chama de OPEN.",
+      "evidence": [
+        "Bíblia linhas 171, 183 e 193: 107-001, 107-002 e 107-003 estão explicitamente ACCEPTED.",
+        "Bíblia linha 770 afirma que o reparo alinhou 107-001..003 ao state canônico ACCEPTED.",
+        "Bíblia linha 772 conclui: 'As solicitações OPEN não impedem a conclusão documental.'",
+        "docs/biblia/.state/107.json registra as três requests como ACCEPTED."
+      ],
+      "requested_action": "Corrigir a conclusão para usar o lifecycle canônico ACCEPTED e revalidar que não restou linguagem stale OPEN em nenhum trecho."
+    },
+    {
+      "id": "107-A27-002",
+      "severity": "NORMAL",
+      "category": "STALE_DEPENDENCY_EVIDENCE",
+      "problem": "Os SHAs usados como âncora do wiring de package.json e .github/workflows/ci.yml ficaram stale no HEAD atual, apesar de a Bíblia/reparo afirmar que foram atualizados para o blob corrente.",
+      "evidence": [
+        "Bíblia linhas 50/218 ancora package.json em 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48; blob atual é 5b5c328f6139eeff920dc65a78014a6c5b6db3a6.",
+        "Bíblia linhas 60/220 ancora .github/workflows/ci.yml em ebee75820db9bfab618bf3c3016065c5bc857ed7; blob atual é 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a.",
+        "Bíblia linha 770 afirma que o SHA de package.json foi atualizado para o blob atual.",
+        "As alegações de wiring continuam semanticamente verdadeiras no HEAD atual: test:integration/test:ci permanecem no package e o job Unit + Integration ainda executa test:ci em Node 20.x/22.x; o finding é de identidade/reprodutibilidade da evidência, não de wiring funcional."
+      ],
+      "requested_action": "Atualizar as âncoras SHA para o HEAD corrente e reconfirmar os trechos citados; se esses arquivos continuarem mudando durante a auditoria, evitar linguagem que os apresente como blob atual sem novo binding."
+    }
+  ],
+  "checks": {
+    "passes": "0-15 executadas",
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONTRADITO_POR_SHA_STALE",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO_NA_CONCLUSAO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "completed_at_utc": "2026-10-01T20:02:53.348Z"
+}
