@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "index": 57,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 57",
+  "file": "extension/shared/gtc-fingerprint.js",
+  "bible": "docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md",
+  "source_sha": "fa014028d5e2ec9d9ca5d05c1199e1f6c45a2198",
+  "bible_sha": "38cb0ec391c9863a7635dfb946c78911d5120f9f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "Semântica matemática incorreta no pHash: a Bíblia descreve repetidamente o limiar como a “mediana dos 255 coeficientes AC” (seção de contratos e cobertura das linhas 404/413), mas o source calcula `const median = (sortedAC[126] + sortedAC[127]) * 0.5`. Para 255 valores ordenados, a mediana é o elemento de índice 127; a média dos índices 126 e 127 é outro estimador. A Bíblia expõe a fórmula literal na linha 410, porém não registra a discrepância e continua interpretando-a como mediana. Isso é material porque o próprio documento declara que estabilidade matemática/packing afeta compatibilidade de fingerprints e cache.",
+    "Classificação de evidência acima do que as assertions provam no bloco DCT/pHash: posições 404-410 e outras internas são marcadas `PROVADO DIRETAMENTE — unit/visual provam DCT, brilho, formato e matching`, mas `tests/unit/gtc/fingerprint.test.js` e `tests/visual/gtc-fingerprint.visual.js` verificam formato, determinismo, rejeição de buffer, robustez a brilho e matching; não existe oráculo independente para a DCT nem assertion para a escolha exata `(sortedAC[126] + sortedAC[127]) * 0.5`. Uma alteração plausível desse order statistic pode permanecer verde, portanto a prova deve ser reclassificada/conservadoramente descrita ou fortalecida."
+  ],
+  "completed_at_utc": "2026-10-01T20:19:06Z"
+}
