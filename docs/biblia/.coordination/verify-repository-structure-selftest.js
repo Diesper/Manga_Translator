@@ -13,14 +13,24 @@ function run(root) {
     cwd: root,
     env: { ...process.env, MANGA_TRANSLATOR_REPO_ROOT: root },
     encoding: 'utf8',
+    timeout: 30000,
   });
 }
 
 function output(result) {
-  return String(result.stdout || '') + '\n' + String(result.stderr || '');
+  const processOutput = String(result.stdout || '') + '\n' + String(result.stderr || '');
+  return result.error ? processOutput + '\nPROCESS_ERROR: ' + result.error.message : processOutput;
+}
+
+function assertCompleted(name, result) {
+  if (result.error) {
+    throw new Error(name + ': verifier não concluiu normalmente\n' + output(result));
+  }
 }
 
 function assertIntroduces(name, baselineResult, mutatedResult, marker) {
+  assertCompleted(name + ' baseline', baselineResult);
+  assertCompleted(name + ' mutação', mutatedResult);
   const baseline = output(baselineResult);
   const mutated = output(mutatedResult);
   if (baseline.includes(marker)) {
@@ -35,6 +45,8 @@ function assertIntroduces(name, baselineResult, mutatedResult, marker) {
 }
 
 function assertRestored(name, baselineResult, restoredResult) {
+  assertCompleted(name + ' baseline', baselineResult);
+  assertCompleted(name + ' restaurado', restoredResult);
   if (baselineResult.status !== restoredResult.status || output(baselineResult) !== output(restoredResult)) {
     throw new Error(
       name + ': fixture não retornou ao baseline\nBASELINE:\n'
@@ -134,6 +146,8 @@ function main() {
   try {
     copyRepository(fixture);
     const fixtureBaseline = run(fixture);
+    assertCompleted('checkout atual', checkoutBaseline);
+    assertCompleted('fixture baseline', fixtureBaseline);
 
     removeFile(
       fixture,
