@@ -2,8 +2,8 @@
   "index": 85,
   "file": "scripts/validation/verify-coverage.js",
   "bible": "docs/biblia/scripts/validation/verify-coverage.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
   "started_at_utc": "2026-09-30T06:11:30Z",
   "completed_at_utc": null,
@@ -130,6 +130,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
       "reason": "085-REAUDIT-001/002: lifecycle + força causal das evidências LCOV vazio/coverage zero."
+    },
+    {
+      "at_utc": "2026-10-01T21:42:26.028Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
+      "bible_sha": "3c260cc8496d20c8f470d2694676957285ebe26f",
+      "reason": "085-REAUDIT-001/002 corrigidos; reclassificadas 17 ocorrências de evidência não causal. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
@@ -148,7 +157,7 @@
     "embedded_source_exact": true,
     "documented_positions": "224/224",
     "source_text_lines": 223,
-    "external_audit_requests_open": 4,
+    "external_audit_requests_open": 0,
     "evidence_note": "A Bíblia reproduz a fonte atual byte a byte e classifica corretamente força/limites do coverage gate; 085-001 está SUPERSEDED por 084-002 e 085-002..005 permanecem ACCEPTED."
   }
 }
