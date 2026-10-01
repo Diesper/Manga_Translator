@@ -2,8 +2,8 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
@@ -54,7 +54,7 @@
     },
     {
       "id": "089-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -73,7 +73,9 @@
       "auditor_recommended_action": "Criar self-test de infraestrutura com árvore temporária usando o verifier real para presença/ausência, Bíblias, trackers, reservas, manifest, paths/configs/test discipline.",
       "reaudited_by": "AGENTE 3",
       "reaudited_at_utc": "2026-10-01T04:56:00Z",
-      "reaudit_finding": "Permanece ACCEPTED no source atual."
+      "reaudit_finding": "Permanece ACCEPTED no source atual.",
+      "resolved_at_utc": "2026-10-01T22:48:00Z",
+      "resolution": "Adicionado self-test focal persistente em docs/biblia/.coordination/verify-repository-structure-selftest.js, executando o verifier real contra sandbox e validando deltas negativos isolados. Workflow Repository Structure Selftest run 36936938761 concluiu success com 'verify-repository-structure selftest: OK'."
     },
     {
       "id": "089-004",
@@ -99,7 +101,7 @@
     },
     {
       "id": "089-005",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "FILESYSTEM_TYPE_REVIEW",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -118,12 +120,14 @@
       "auditor_recommended_action": "Definir quais paths exigem file/dir e usar stat/lstat; adicionar fixture substituindo diretório requerido por arquivo.",
       "reaudited_by": "AGENTE 3",
       "reaudited_at_utc": "2026-10-01T04:56:00Z",
-      "reaudit_finding": "Permanece ACCEPTED no source atual."
+      "reaudit_finding": "Permanece ACCEPTED no source atual.",
+      "resolved_at_utc": "2026-10-01T22:48:00Z",
+      "resolution": "requirePresent agora valida existência e tipo esperado via fs.statSync; requiredDirectories distingue diretórios obrigatórios dos arquivos. O self-test substitui arquivo por diretório e diretório por arquivo e a run 36936938761 passou."
     }
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:39:00Z",
+  "updated_at_utc": "2026-10-01T22:48:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -235,6 +239,16 @@
       "previous_source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
       "current_source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
       "reason": "089-005 corrigido no source: paths obrigatórios agora validam também o tipo arquivo/diretório; override de raiz foi adicionado exclusivamente para self-test focal em sandbox."
+    },
+    {
+      "at_utc": "2026-10-01T22:48:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
+      "bible_sha": "b9fc31ead41728d6fc16e3ad17089fdbfe7aaac4",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Falha arquitetural documental corrigida; gaps 089-003/005 implementados; self-test focal verde. Revisão nova deve receber PRIMARY + ADVERSARIAL independentes."
     }
   ],
   "evidence": [
@@ -251,14 +265,22 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T06:00:17Z",
       "note": "Fonte 380/380 permaneceu inalterada e integralmente embutida. Findings do AGENTE 2 corrigidos; reauditoria independente necessária."
+    },
+    {
+      "type": "HYBRID_CORRECTIVE_REAUDIT",
+      "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
+      "bible_sha": "b9fc31ead41728d6fc16e3ad17089fdbfe7aaac4",
+      "editor": "AGENTE HÍBRIDO",
+      "at_utc": "2026-10-01T22:48:00Z",
+      "note": "Fonte embutida byte-a-byte exata, cobertura 416/416 contígua, overclaim removido, validação de tipo adicionada e self-test adversarial focal aprovado na GitHub Actions run 36936938761."
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "380/380",
-    "source_text_lines": 379,
-    "repair_note": "Corrigidas duas rodadas de findings: fail-fast/consumer/ranges do AGENTE 3 e escopo extension/posição 143/invariant documental do AGENTE 2. 089-003/005 permanecem ACCEPTED."
+    "documented_positions": "416/416",
+    "source_text_lines": 415,
+    "repair_note": "Overclaim arquitetural corrigido; fronteira bible-coordination.js × audit-protocol.js explicitada. 089-003 e 089-005 RESOLVED. Self-test focal do verifier real passou na run 36936938761."
   }
 }
