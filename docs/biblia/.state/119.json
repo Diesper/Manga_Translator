@@ -2,8 +2,8 @@
   "index": 119,
   "file": "tests/mocks/chrome-api.mock.js",
   "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
   "started_at_utc": "2026-09-30T06:32:00Z",
   "completed_at_utc": null,
@@ -101,6 +101,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
       "reason": "119-REAUDIT-001: sincronizar lifecycle documental 119-001..003 para ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T21:33:03.444Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+      "bible_sha": "1c4983bc01b7eb6ac1908d2700c9909ab992c597",
+      "reason": "119-REAUDIT-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
