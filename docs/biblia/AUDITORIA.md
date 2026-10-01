@@ -1536,3 +1536,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### Auditoria independente — #118 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #118 — `tests/integration/reader.ui.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `810a207f1264d78836b6e72c6f701bfc0cbce447`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; a seção `Fonte integral exata` é byte-a-byte idêntica ao source.
+- **Cobertura:** 19 faixas contíguas cobrem exatamente 1–150, sem gaps, duplicidades ou extras.
+- **Execução:** o mesmo blob aparece no run `36577447500` e `reader.ui.test.js` passa no job Unit + Integration observado.
+- **Semântica/assertions:** o teste executa `reader.js` real via `loadExtensionPage`; a Bíblia descreve corretamente preferência 950, persistência 1100, fallback 5000→800 e a ausência de cobertura focal das bordas 399/400/1200/1201 e NaN.
+- **Implementação real:** `reader.js` usa `parseInt(localStorage.getItem('readerWidth'))`, aceita somente 400..1200 e aplica 800 fora desse intervalo, confirmando a validade técnica de 118-001.
+- **Request externa:** 118-001 permanece materialmente válida como dívida de teste separada e não bloqueia, por si só, a fidelidade documental.
+- **Falha documental bloqueante — lifecycle stale:** 118-001 permanece rotulada `OPEN` na Bíblia, enquanto o state canônico a registra como `ACCEPTED`; `document_quality.external_audit_requests_open` também está stale em 1.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; wiring/semântica=CONFIRMADO_3X; assertions=CONFIRMADO_3X; execução=CONFIRMADO_2X; lifecycle da request=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto o lifecycle documental permanecer divergente.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
