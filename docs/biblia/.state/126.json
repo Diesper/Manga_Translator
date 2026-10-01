@@ -2,11 +2,11 @@
   "index": 126,
   "file": "tests/smoke/smoke-04-storage-manager.js",
   "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 7",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "0ba92d74356cb092a7706dca7d280168cd5c512e",
   "started_at_utc": "2026-09-30T06:29:00Z",
-  "completed_at_utc": "2026-09-30T06:33:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "126-001",
@@ -84,5 +84,10 @@
     "bible_lines": 305,
     "external_audit_requests_open": 3,
     "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

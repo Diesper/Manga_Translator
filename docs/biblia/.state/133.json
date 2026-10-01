@@ -2,11 +2,11 @@
   "index": 133,
   "file": "tests/unit/background/calculate-visual-fingerprint-action.test.js",
   "bible": "docs/biblia/tests/unit/background/calculate-visual-fingerprint-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 24",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "f51a0b629ac17be3eda349333192b9480494a07e",
   "started_at_utc": "2026-09-30T06:33:49.841Z",
-  "completed_at_utc": "2026-09-30T06:39:20.119Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "133-001",
@@ -47,5 +47,10 @@
       109437162789
     ],
     "note": "Bíblia concluída usando router/action reais; fronteiras de plataforma foram mockadas e lacunas de branches foram registradas sem alterar o teste."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

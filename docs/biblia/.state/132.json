@@ -2,11 +2,11 @@
   "index": 132,
   "file": "tests/unit/background/batch-lifecycle-real.test.js",
   "bible": "docs/biblia/tests/unit/background/batch-lifecycle-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 15",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1368df4b1fdb85d8ad1f593f78decd16a3175c98",
   "started_at_utc": "2026-09-30T06:35:00Z",
-  "completed_at_utc": "2026-09-30T06:36:19Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "132-001",
@@ -44,5 +44,10 @@
       109437162754
     ],
     "evidence_summary": "Mesmo blob executado; PASS explícito do arquivo no job Node 20.x e matriz Node 20/22 com 109/109 suites e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

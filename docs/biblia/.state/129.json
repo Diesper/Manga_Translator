@@ -2,11 +2,11 @@
   "index": 129,
   "file": "tests/unit/background/actions-low-risk.test.js",
   "bible": "docs/biblia/tests/unit/background/actions-low-risk.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 12",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e5d4d54674b5a4a3b00dc15112afb40c874d81c3",
   "started_at_utc": "2026-09-30T06:44:00Z",
-  "completed_at_utc": "2026-09-30T06:49:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "129-001",
@@ -29,5 +29,10 @@
       "audit_finding": "SUPERSEDED por 016-001. A ausência de casos negativos de `LOG_ENTRY` nesta suíte é a mesma lacuna já auditada e aceita no módulo canônico `log-entry.js`.",
       "auditor_recommended_action": "Centralizar a matriz de validação negativa em 016-001; esta suíte pode apenas consumir o contrato sem duplicar todos os casos."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

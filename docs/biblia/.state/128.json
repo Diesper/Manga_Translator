@@ -2,11 +2,11 @@
   "index": 128,
   "file": "tests/smoke/smoke-06-sm-message-routing.js",
   "bible": "docs/biblia/tests/smoke/smoke-06-sm-message-routing.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 9",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "dd32621bee49bfe64bb4a667ecbf68fb516e03dd",
   "started_at_utc": "2026-09-30T06:31:00Z",
-  "completed_at_utc": "2026-09-30T06:36:10.098Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "128-001",
@@ -108,5 +108,10 @@
       "audit_finding": "ACCEPTED. O smoke copia manualmente `handleStorageManagerMessage`; a cópia coincide amplamente hoje com `background.js`, mas já existe superfície de drift porque alterações do handler real não são automaticamente herdadas pelo teste.",
       "auditor_recommended_action": "Extrair o handler canônico para módulo testável ou executar o handler real do background no smoke, eliminando a duplicação manual."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

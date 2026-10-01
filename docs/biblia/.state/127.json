@@ -2,11 +2,11 @@
   "index": 127,
   "file": "tests/smoke/smoke-05-perceptual-queries.js",
   "bible": "docs/biblia/tests/smoke/smoke-05-perceptual-queries.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 11",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "bf8409c3df43062e5e6af496393412eee0c6a694",
   "started_at_utc": "2026-09-30T06:45:00Z",
-  "completed_at_utc": "2026-09-30T06:52:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "127-001",
@@ -58,5 +58,10 @@
     "documented_positions": "89/89",
     "bible_lines": 254,
     "external_audit_requests_open": 2
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
