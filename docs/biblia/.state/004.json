@@ -2,8 +2,8 @@
   "index": 4,
   "file": "extension/background/actions/check-extraction-tab.js",
   "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
   "started_at_utc": "2026-09-30T12:54:00Z",
   "completed_at_utc": null,
@@ -86,6 +86,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
       "reason": "004-REA-001: remover overclaim de invocação de ensureInitialized e separar evidência P0 integrada."
+    },
+    {
+      "at_utc": "2026-10-01T16:47:08.900Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+      "bible_sha": "15e9739bb511e315b7607cd31e49978f8e9bc49c",
+      "reason": "004-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [],
