@@ -1156,3 +1156,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas; releitura final preservou o mesmo source SHA e os três findings materiais sobreviveram à tentativa formal de refutação e à segunda auditoria da própria conclusão.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `manga-page.html` — auditoria independente SHA-bound pelo AGENTE 1 em 2026-10-01
+
+- **Índice:** #097 — `tests/fixtures/manga-page.html`.
+- **SHA auditado:** `71d78eea7eddb51bc93c74bbb3bf652119551ce4`.
+- **Integridade:** **100 linhas textuais + newline final = 101/101 posições**; state, source, audit claim e SHA declarado na Bíblia coincidem. A fonte integral embutida é byte a byte idêntica ao arquivo real.
+- **Cobertura:** 16 faixas cobrem posições 1–101 de forma contígua, sem gaps, overlap ou posição fora do source.
+- **Wiring/consumers:** `gemini-mock-server.js` serve o arquivo em `/` e `/manga-page.html`; `manga-images.js` fornece `page_001/page_002` 800×1200, avatar 48×48 e banner 960×120; `translation-flow.spec.js` e `cache-and-storage.spec.js` são consumers E2E diretos; `reader-offline.spec.js` reutiliza a URL como metadado.
+- **Assertions reais:** o cenário E2E principal exige dimensões naturais válidas, visibilidade simultânea, exatamente duas traduções, `data-translated=true` e Data URLs nas duas páginas, além de avatar/banner não traduzidos; a suíte de persistência exige `restoreIndex` para `page_001/page_002` nos índices 0/1.
+- **Evidência runtime:** na run `36815953158`, os shards `medium-a` e `medium-b` que exercitam estes contratos concluíram com sucesso, e o gate E2E agregado terminou **21 passed, skipped=0, flaky=0, failed=0**. O run global teve falhas não focais em CI Contract/Windows Portability, portanto isso não é apresentado como CI global verde.
+- **Classificação:** provas comportamentais centrais são diretas; serving/Map estático e cosmética permanecem classificados conservadoramente, sem transformar ocorrência textual ou CSS não assertado em prova forte.
+- **Audit requests:** nenhuma request é necessária para corrigir a Bíblia atual; limitações cosméticas/auxiliares já estão honestamente registradas e não contradizem o contrato documentado.
+- **Conclusão:** não foi encontrada falha documental bloqueante após tentativa formal de reprovação, releitura do source e segunda verificação independente dos pontos críticos.
+
+**Veredito documental independente:** ✅ **APROVADO — #097 / SHA `71d78eea7eddb51bc93c74bbb3bf652119551ce4`**.
