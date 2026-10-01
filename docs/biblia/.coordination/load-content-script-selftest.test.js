@@ -156,6 +156,27 @@ describe('load-content-script helper selftest', () => {
 
     window.removeEventListener('mt-selftest-external', external);
   });
+  test('listener externo assíncrono durante bootstrap não vira ownership do bundle', async () => {
+    let externalCount = 0;
+    const external = () => { externalCount += 1; };
+    const originalGet = storageMock.get.bind(storageMock);
+    const getSpy = jest.spyOn(storageMock, 'get').mockImplementation((keys, callback) => {
+      const result = originalGet(keys, callback);
+      if (Array.isArray(keys) && keys.includes('enabledDomains')) {
+        setTimeout(() => window.addEventListener('mt-selftest-late-external', external), 0);
+      }
+      return result;
+    });
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: true });
+    getSpy.mockRestore();
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+    window.dispatchEvent(new Event('mt-selftest-late-external'));
+    expect(externalCount).toBe(1);
+
+    window.removeEventListener('mt-selftest-late-external', external);
+  });
   test('reinjeção remove listeners globais adicionados pelo bundle', async () => {
     await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
 
