@@ -66,7 +66,7 @@
 - [x] 062 — `jest.config.js` — COMPLETED
 - [x] 063 — `package.json` — COMPLETED
 - [x] 064 — `playwright.config.js` — COMPLETED
-- [ ] 065 — `.github/workflows/ci.yml` — CHANGES_REQUIRED
+- [ ] 065 — `.github/workflows/ci.yml` — READY_FOR_AUDIT
 - [x] 066 — `.github/workflows/publish.yml` — COMPLETED
 - [x] 067 — `.github/workflows/recover-cancelled-ci.yml` — COMPLETED
 - [x] 068 — `scripts/ci/data/e2e-shard-plan.json` — COMPLETED
@@ -137,7 +137,7 @@
 - [ ] 133 — `tests/unit/background/calculate-visual-fingerprint-action.test.js` — READY_FOR_AUDIT
 - [ ] 134 — `tests/unit/background/chrome-runtime-mock-lifecycle.test.js` — READY_FOR_AUDIT
 - [ ] 135 — `tests/unit/background/claim-gemini-job-action.test.js` — READY_FOR_AUDIT
-- [ ] 136 — `tests/unit/background/commit-result-action.test.js` — CHANGES_REQUIRED
+- [ ] 136 — `tests/unit/background/commit-result-action.test.js` — READY_FOR_AUDIT
 - [ ] 137 — `tests/unit/background/deliver-result-action.test.js` — READY_FOR_AUDIT
 - [ ] 138 — `tests/unit/background/deliver-result-from-tab-action.test.js` — READY_FOR_AUDIT
 - [ ] 139 — `tests/unit/background/deliver-result-url-action.test.js` — READY_FOR_AUDIT
