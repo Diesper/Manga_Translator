@@ -149,6 +149,22 @@ expectPass('coverage em tabela legada passa',(root)=>{
   const bible=v2Bible(s.file,s.source_sha,source,'## Mapa integral\n\n| Linhas | Papel |\n|---:|---|\n| 1–2 | fixture |');
   write(root,s.bible,bible);
 });
+expectPass('coverage Linha/posição e Pos. passa',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### Linha/posição 1\nok\n\n### Pos. 2\nok'));
+});
+expectPass('coverage tabela com newline literal passa',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  write(root,s.bible,v2Bible(s.file,s.source_sha,source,'## Mapa integral\n\n| Linhas/posição | Papel |\\n|---:|---|\\n| 1–2 | fixture |'));
+});
+expectPass('SHA de CRLF usa bytes brutos',(root)=>{
+  const s=readJson(root,statePath(1));
+  const raw='const n = 1;\r\n';
+  write(root,s.file,raw);
+  s.source_sha=gitBlobSha(raw);
+  writeJson(root,statePath(1),s);
+  write(root,s.bible,v2Bible(s.file,s.source_sha,raw,'### Posições 1–2'));
+});
 expectPass('coverage com heading numerado passa',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
   write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### 1. Linhas 1–2 — fixture'));
