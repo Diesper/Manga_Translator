@@ -105,6 +105,17 @@ function cleanupPreviousListeners() {
  * @param {number}   options.readyTimeoutMs    - Timeout do bootstrap do botão (default: 250 ms)
  * @returns {Promise<Object>} Helpers { sendMessage, getButton, getMainContent }
  */
+function disposePreviousContentInstance() {
+    if (
+        typeof window !== 'undefined'
+        && window.__manga_translator_content_injected
+        && typeof window.dispatchEvent === 'function'
+        && typeof window.Event === 'function'
+    ) {
+        window.dispatchEvent(new window.Event('pagehide'));
+    }
+}
+
 async function loadContentScript({
     hostname = 'testmanga.com',
     enabledDomains = null,
@@ -116,6 +127,7 @@ async function loadContentScript({
     domImages = [],
     readyTimeoutMs = 250,
 } = {}) {
+    disposePreviousContentInstance();
     cleanupPreviousListeners();
     const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
     const runtimeListenersBeforeLoad = new Set(runtimeListenersSnapshot());
