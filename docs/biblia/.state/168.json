@@ -2,11 +2,11 @@
   "index": 168,
   "file": "tests/unit/background/startup-recovery.test.js",
   "bible": "docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "649829ac36bb9428c9458c615365970349b741a1",
   "started_at_utc": "2026-09-30T13:45:00Z",
-  "completed_at_utc": "2026-09-30T13:50:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "168-001",
@@ -94,5 +94,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob verde em Node 20/22 com quatro casos, porém os casos são locais/mirror. Cobertura real correlata identificada em lifecycle-alarms-real, batch-lifecycle-real e process-finalize-real."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

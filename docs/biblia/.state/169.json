@@ -2,11 +2,11 @@
   "index": 169,
   "file": "tests/unit/background/state-api.test.js",
   "bible": "docs/biblia/tests/unit/background/state-api.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d9c080339202848719ac448d7684d793684aced2",
   "started_at_utc": "2026-09-30T13:49:00Z",
-  "completed_at_utc": "2026-09-30T13:56:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "169-001",
@@ -81,5 +81,10 @@
     "source_text_lines": 110,
     "external_audit_requests_open": 3,
     "note": "Suíte autêntica contra state.js real; lacunas concentram-se em imutabilidade global, setters diretos e concorrência da persistence chain."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

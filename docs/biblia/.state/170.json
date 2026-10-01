@@ -2,11 +2,11 @@
   "index": 170,
   "file": "tests/unit/background/tab-identity.test.js",
   "bible": "docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
   "started_at_utc": "2026-09-30T14:00:00Z",
-  "completed_at_utc": "2026-09-30T14:15:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "170-001",
@@ -90,5 +90,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; nove casos deste arquivo passaram individualmente; global 109/109 suítes e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

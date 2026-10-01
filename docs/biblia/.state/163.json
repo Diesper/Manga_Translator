@@ -2,11 +2,11 @@
   "index": 163,
   "file": "tests/unit/background/report-error-action.test.js",
   "bible": "docs/biblia/tests/unit/background/report-error-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "507406dfbbc285a981b725408eb1e507e18268c8",
   "started_at_utc": "2026-09-30T12:10:00Z",
-  "completed_at_utc": "2026-09-30T12:25:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "163-001",
@@ -88,5 +88,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: três testes individuais e três entradas do test.each passaram; global 109/109 suítes e 851/851 testes. BG-77 de process-finalize-real fornece prova integrada complementar para manga tab ausente."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 165,
   "file": "tests/unit/background/routed-actions-legacy.test.js",
   "bible": "docs/biblia/tests/unit/background/routed-actions-legacy.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "62d534355ac80b9b1f4e23dac3ce0ec1515ae4c5",
   "started_at_utc": "2026-09-30T12:45:00Z",
-  "completed_at_utc": "2026-09-30T13:00:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "165-001",
@@ -74,5 +74,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: os seis casos passaram individualmente; global 109/109 suítes e 851/851 testes. Coberturas complementares cruzadas para REQUEST_IMAGE_DATA, FETCH_IMAGE_AS_BASE64 e CHECK_IF_EXTRACTION_TAB."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 166,
   "file": "tests/unit/background/router.test.js",
   "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
   "started_at_utc": "2026-09-30T13:05:00Z",
-  "completed_at_utc": "2026-09-30T13:20:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "166-001",
@@ -88,5 +88,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; seis casos passaram individualmente; global 109/109 suítes e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
