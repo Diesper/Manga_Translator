@@ -83,24 +83,45 @@ function runtimeListenersSnapshot() {
 
 function removeStorageListeners(listeners) {
     const removeListener = global.chrome?.storage?.onChanged?.removeListener;
-    if (typeof removeListener === 'function') {
-        listeners.forEach(listener => removeListener(listener));
-    }
+    if (typeof removeListener !== 'function') return null;
+
+    let firstError = null;
+    listeners.forEach(listener => {
+        try {
+            removeListener(listener);
+        } catch (error) {
+            if (!firstError) firstError = error;
+        }
+    });
+    return firstError;
 }
 
 function removeRuntimeListeners(listeners) {
     const removeListener = global.chrome?.runtime?.onMessage?.removeListener;
-    if (typeof removeListener === 'function') {
-        listeners.forEach(listener => removeListener(listener));
-    }
+    if (typeof removeListener !== 'function') return null;
+
+    let firstError = null;
+    listeners.forEach(listener => {
+        try {
+            removeListener(listener);
+        } catch (error) {
+            if (!firstError) firstError = error;
+        }
+    });
+    return firstError;
 }
 
 function removeGlobalEventListeners(listeners) {
+    let firstError = null;
     listeners.forEach(({ target, type, listener, options }) => {
-        if (target && typeof target.removeEventListener === 'function') {
+        if (!target || typeof target.removeEventListener !== 'function') return;
+        try {
             target.removeEventListener(type, listener, options);
+        } catch (error) {
+            if (!firstError) firstError = error;
         }
     });
+    return firstError;
 }
 
 function isExtensionListenerRegistration() {
@@ -168,20 +189,24 @@ function cleanupContentInstanceListeners({
     runtimeListeners = getTrackedRuntimeListeners(),
     globalEventListeners = getTrackedGlobalEventListeners(),
 } = {}) {
-    let disposeError = null;
+    let firstError = null;
     try {
         disposePreviousContentInstance(globalEventListeners);
     } catch (error) {
-        disposeError = error;
-    } finally {
-        removeStorageListeners(storageListeners);
-        removeRuntimeListeners(runtimeListeners);
-        removeGlobalEventListeners(globalEventListeners);
-        setTrackedStorageListeners([]);
-        setTrackedRuntimeListeners([]);
-        setTrackedGlobalEventListeners([]);
+        firstError = error;
     }
-    return disposeError;
+
+    const cleanupErrors = [
+        removeStorageListeners(storageListeners),
+        removeRuntimeListeners(runtimeListeners),
+        removeGlobalEventListeners(globalEventListeners),
+    ];
+    if (!firstError) firstError = cleanupErrors.find(Boolean) || null;
+
+    setTrackedStorageListeners([]);
+    setTrackedRuntimeListeners([]);
+    setTrackedGlobalEventListeners([]);
+    return firstError;
 }
 
 function attachCleanupError(primaryError, cleanupError) {
@@ -235,8 +260,8 @@ async function loadContentScript({
         if (previousCleanupError) throw previousCleanupError;
 
         const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
-    const runtimeListenersBeforeLoad = new Set(runtimeListenersSnapshot());
-    // Invalida explicitamente qualquer instância anterior ANTES de tocar no
+        const runtimeListenersBeforeLoad = new Set(runtimeListenersSnapshot());
+        // Invalida explicitamente qualquer instância anterior ANTES de tocar no
     // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
     // listener antigo ainda pode reagir ao clear/set do teste seguinte e
     // recriar um botão órfão antes da nova instância assumir.
