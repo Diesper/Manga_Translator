@@ -2,11 +2,11 @@
   "index": 188,
   "file": "tests/unit/content-gemini/safe-background-delete.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
   "started_at_utc": "2026-09-30T14:59:30Z",
-  "completed_at_utc": "2026-09-30T15:06:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "188-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 285,
     "external_audit_requests_open": 3,
     "note": "Suíte autêntica da cadeia de extração/background_delete; deleção real completa é coberta separadamente."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

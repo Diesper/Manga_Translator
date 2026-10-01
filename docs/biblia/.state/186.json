@@ -2,11 +2,11 @@
   "index": 186,
   "file": "tests/unit/content-gemini/result-extractor.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
   "started_at_utc": "2026-09-30T17:20:00Z",
-  "completed_at_utc": "2026-09-30T17:35:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "186-001",
@@ -90,5 +90,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; 15 execuções efetivas (EXT-10 x3) passaram; global 109/109 suítes e 851/851 testes. safe-background-delete fornece prova externa de requestId, timeout MAIN, imagem não pronta e retries/logs."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

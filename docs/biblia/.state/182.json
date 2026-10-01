@@ -2,11 +2,11 @@
   "index": 182,
   "file": "tests/unit/content-gemini/manual-assist-hud.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/manual-assist-hud.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
   "started_at_utc": "2026-09-30T14:30:00Z",
-  "completed_at_utc": "2026-09-30T14:36:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "182-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 102,
     "external_audit_requests_open": 3,
     "note": "Bíblia criada pelo AGENTE 17; cleanup global e semântica de 'última' separados como lacunas."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

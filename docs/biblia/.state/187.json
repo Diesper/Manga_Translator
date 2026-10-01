@@ -2,11 +2,11 @@
   "index": 187,
   "file": "tests/unit/content-gemini/rpa-flow.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
   "started_at_utc": "2026-09-30T17:40:00Z",
-  "completed_at_utc": "2026-09-30T15:57:23Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "187-001",
@@ -94,5 +94,10 @@
     },
     "note": "A Bíblia incorpora o fonte integral do mesmo blob auditado e separa assertions diretas de execução indireta."
   },
-  "timing_note": "started_at_utc já existia no state com horário posterior ao timestamp GitHub do commit documental; foi preservado sem reescrever histórico."
+  "timing_note": "started_at_utc já existia no state com horário posterior ao timestamp GitHub do commit documental; foi preservado sem reescrever histórico.",
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
