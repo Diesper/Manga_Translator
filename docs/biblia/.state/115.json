@@ -2,8 +2,8 @@
   "index": 115,
   "file": "tests/integration/popup-translated-thumbnails.test.js",
   "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
   "started_at_utc": "2026-09-30T06:35:00Z",
   "completed_at_utc": null,
@@ -58,11 +58,12 @@
     "documented_positions": "339/339",
     "bible_lines": 3880,
     "external_audit_requests_open": 0,
-    "note": "Suíte documentada como prova direta da lógica do popup real sob mocks de browser/storage/runtime; não promovida a prova do background/IndexedDB."
+    "note": "Suíte documentada como prova direta da lógica do popup real sob mocks de browser/storage/runtime; não promovida a prova do background/IndexedDB.",
+    "repair_note": "Lifecycle documental 115-001..002 alinhado ao state canônico: ACCEPTED; nenhuma alteração no source/testes."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T13:36:31Z",
+  "updated_at_utc": "2026-10-01T13:37:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:33:41.887Z",
@@ -81,6 +82,15 @@
       "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
       "agent": "AGENTE 23",
       "reason": "Alinhar lifecycle documental 115-001..002 com o state canônico ACCEPTED sem alterar source/testes."
+    },
+    {
+      "at_utc": "2026-10-01T13:37:00Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #115 corrigida conforme auditoria independente: 115-001..002 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
     }
   ],
   "evidence": [
@@ -91,6 +101,13 @@
       "auditor": "AGENTE 6",
       "at_utc": "2026-10-01T13:33:41.887Z",
       "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/wiring/semântica/assertions/CI passam; lifecycle documental das requests falha. Requests 115-001/115-002 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T13:37:00Z",
+      "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
     }
   ]
 }
