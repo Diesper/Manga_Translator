@@ -2,11 +2,11 @@
   "index": 200,
   "file": "tests/unit/content-manga/close-interval.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/close-interval.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 21",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
   "started_at_utc": "2026-09-30T06:27:00Z",
-  "completed_at_utc": "2026-09-30T06:32:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "200-001",
@@ -43,5 +43,10 @@
     "bible_lines": 497,
     "external_audit_requests_open": 1,
     "evidence_note": "Assertions locais provam o helper espelho; evidência de produção foi separada e confrontada com drawer-real.test.js/content_manga.js."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

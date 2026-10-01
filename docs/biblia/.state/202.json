@@ -2,11 +2,11 @@
   "index": 202,
   "file": "tests/unit/content-manga/extract-flow-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/extract-flow-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 21",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1bbc481d426bf7471eb655cf514e20d2b323902b",
   "started_at_utc": "2026-09-30T06:44:00Z",
-  "completed_at_utc": "2026-09-30T06:52:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "202-001",
@@ -91,5 +91,10 @@
     "bible_lines": 1080,
     "external_audit_requests_open": 3,
     "evidence_note": "11 casos executam content_manga.js real; contrato sem crypto foi distinguido do fallback privado e lacunas híbrida/regional/stop-error foram registradas."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

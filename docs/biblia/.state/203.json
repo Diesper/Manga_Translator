@@ -2,11 +2,11 @@
   "index": 203,
   "file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/extraction-and-handlers-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 21",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "038961e8228c7b5f1a87023a739ad5f33288423b",
   "started_at_utc": "2026-09-30T06:55:00Z",
-  "completed_at_utc": "2026-09-30T07:02:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "203-001",
@@ -115,5 +115,10 @@
     "bible_lines": 1402,
     "external_audit_requests_open": 4,
     "evidence_note": "25 testes e 58 expectations da implementação real foram mapeados; guards stale, exaustão e persist-failure foram mantidos como lacunas."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
