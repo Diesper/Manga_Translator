@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/plan-rpa-edge-cases.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 81e21c6e245ec8f75c68db163170266c40561a6c  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest de bordas RPA integradas do content Gemini  
@@ -23,7 +23,7 @@ O título de CG-11 ainda fala em '30 tentativas', mas o código atual de claim �
 
 ## 3. Input, composer e attachment
 
-CG-17 rejeita srcData que não começa com data:image/. REG-12/CG-19/CG-40 usa editor aria-disabled e exige GEMINI_ERROR + clearInterval. CG-21 deixa paste/drop sem preview e prova que o handshake de attachment expira, registra STARTED/REJECTED/SUBMIT_BLOCKED e não injeta prompt.
+CG-17 rejeita srcData que não começa com data:image/. REG-12/CG-19/CG-40 usa editor aria-disabled e exige GEMINI_ERROR + ao menos uma chamada a `clearInterval`; a suíte não identifica qual timer foi limpo nem prova ausência de ticks posteriores. CG-21 deixa paste/drop sem preview e prova que o handshake de attachment expira, registra STARTED/REJECTED/SUBMIT_BLOCKED e não injeta prompt.
 
 ## 4. Send button e resultado automático
 
@@ -58,7 +58,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 | job legacy persistido tardiamente é encontrado | CG-10 | ✅ PROVADO DIRETAMENTE |
 | sem job encerra com JOB_NOT_FOUND | CG-11 | ✅ PROVADO DIRETAMENTE |
 | payload não-imagem gera erro | CG-17 | ✅ PROVADO DIRETAMENTE |
-| editor disabled aborta e limpa interval | REG-12/CG-19/40 | ✅ PROVADO DIRETAMENTE |
+| editor disabled aborta e chama `clearInterval` | REG-12/CG-19/40 | 🟨 PROVA PARCIAL — prova chamada a `clearInterval`, mas não o id específico de `scrollInterval` nem ausência de ticks posteriores |
 | attachment não confirmado bloqueia prompt | CG-21 | ✅ PROVADO DIRETAMENTE |
 | Send hidden/disabled ignorados | CG-28/29 | ✅ PROVADO DIRETAMENTE |
 | stale/avatar/tiny ignorados antes de resultado válido | CG-32/33/34 | ✅ PROVADO DIRETAMENTE |
@@ -71,7 +71,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 
 ## 10. Solicitações ao auditor
 
-### 184-001 — TEST_MAINTENANCE — OPEN — NORMAL
+### 184-001 — TEST_MAINTENANCE — ACCEPTED — NORMAL
 
 Encontrado: CG-11 e o título da suíte ainda referenciam '30 tentativas'/'plano v3.1', mas claimGeminiJob atual usa timeout e fallback GET_TAB_ID/storage, não contador fixo de 30.
 
@@ -79,7 +79,7 @@ Ação pedida: renomear cenários/comentários para refletir claim atual (protoc
 
 Risco: leitores podem tratar número histórico como requisito vigente e implementar regressão para satisfazer o título.
 
-### 184-002 — TEST_PERFORMANCE_REVIEW — OPEN — NORMAL
+### 184-002 — TEST_PERFORMANCE_REVIEW — ACCEPTED — NORMAL
 
 Encontrado: a suíte leva ~37,8 s por execução Node, duas vezes no matrix CI, usando vários delays reais de 650/1300ms e polling amplo; CG-11 possui timeout do teste de 20s.
 
@@ -89,7 +89,7 @@ Evidência esperada: mesmos contratos com tempo significativamente menor e sem f
 
 Risco: custo de CI elevado e maior sensibilidade a scheduling lento.
 
-### 184-003 — TEST_STRENGTH_REVIEW — OPEN — LOW
+### 184-003 — TEST_STRENGTH_REVIEW — ACCEPTED — LOW
 
 Encontrado: REG-12/CG-19/40 apenas exige que global.clearInterval tenha sido chamado; não prova que o interval específico de scroll assist foi o removido nem que nenhum tick posterior ocorreu.
 
@@ -5184,4 +5184,6 @@ describe('content_gemini.js - bordas RPA do plano v3.1', () => {
 
 ## 13. Conclusão documental
 
-Foram documentadas 634 linhas textuais e a posição 635 do newline final. Os dez cenários de integração estão verdes no mesmo blob em Node 20/22; as três solicitações OPEN tratam manutenção semântica, custo de CI e força do teardown sem duplicar lacunas já pertencentes às suítes #175/#177/#181/#182.
+Foram documentadas 634 linhas textuais e a posição 635 do newline final. Os dez cenários de integração estão verdes no mesmo blob em Node 20/22; 184-001/002/003 estão ACCEPTED e continuam registrando manutenção semântica, custo de CI e força parcial do teardown sem permanecer OPEN.
+
+> **Escopo pós-adversarial:** REG-12/CG-19/40 prova abort + chamada a `clearInterval`, não teardown causal do `scrollInterval` específico. 184-001/002/003 estão ACCEPTED no state canônico.
