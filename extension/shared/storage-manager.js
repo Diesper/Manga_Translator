@@ -48,7 +48,7 @@ function openStorageDb() {
     _smDbPromise = new Promise((resolve, reject) => {
         const idb = getIndexedDb();
         if (!idb || typeof idb.open !== 'function') {
-            reject(new Error('IndexedDB indisponível neste contexto'));
+            _smDbPromise = null; reject(new Error('IndexedDB indisponível neste contexto'));
             return;
         }
         const req = idb.open(SM_DB_NAME, SM_DB_VERSION);
@@ -156,10 +156,10 @@ const _chapterWriters = new Map();
 function enqueueChapterOp(chapterId, operation) {
     const previous = _chapterWriters.get(chapterId) || Promise.resolve();
     const next = previous.then(() => operation(), () => operation());
-    _chapterWriters.set(chapterId, next.catch(() => {}));
-    return next;
+    const tail = next.catch(() => {});
+    _chapterWriters.set(chapterId, tail);
+    tail.finally(() => { if (_chapterWriters.get(chapterId) === tail) _chapterWriters.delete(chapterId); }); return next;
 }
-
 // ── API ──────────────────────────────────────────────────────────────────────
 
 /**
@@ -190,11 +190,11 @@ async function savePageResult(chapterId, pageIndex, imageData, originalUrl, clea
         const obsolete = new Set();
         const previousPage = await _idbGet(pageStore, [chapterId, index]);
         if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);
+        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) restoreStore.delete([chapterId, previousPage.cleanUrl]);
         if (cleanUrl) {
             const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);
             if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);
         }
-
         assetStore.put({
             assetId,
             blob,
@@ -448,7 +448,7 @@ async function migrateChapterFromLegacy(chapterId) {
                 sourceUrl: meta.sourceUrl || '',
             });
             migrated++;
-        } catch (_e) { /* segue para a próxima página */ }
+        } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
     // Restores sem página correspondente
@@ -467,7 +467,7 @@ async function migrateChapterFromLegacy(chapterId) {
                 sourceUrl: meta.sourceUrl || '',
             });
             migrated++;
-        } catch (_e) {}
+        } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
     await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));
