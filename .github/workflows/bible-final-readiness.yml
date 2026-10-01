@@ -1,6 +1,7 @@
 name: Bible Final Readiness
 
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - labeled
@@ -10,7 +11,7 @@ on:
 jobs:
   final-readiness:
     name: Bible Final Readiness
-    if: contains(github.event.pull_request.labels.*.name, 'bible-final')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'bible-final')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact PR SHA
