@@ -290,21 +290,21 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
 | 082 | U06 |         return { ok: false, reason: 'result_not_persisted' }; | Retorna falha prematura sem update/finalize. |
 | 083 | U06 |       } | Fecha a estrutura sintática da unidade U06. |
 | 084 | U06 | ␠ [linha vazia] | Separador visual de U06 (Gate de persistência); não altera estado ou fluxo. |
-| 085 | U06 |       const geminiTabId = ownership.tabId ?? senderTabId ?? job.geminiTabId; | Escolhe tabId na ordem ownership → sender → job. |
-| 086 | U06 |       await context.updateJobState(geminiTabId, { | Persiste a transição de commit antes do cleanup. |
+| 085 | U07 |       const geminiTabId = ownership.tabId ?? senderTabId ?? job.geminiTabId; | Escolhe tabId na ordem ownership → sender → job. |
+| 086 | U07 |       await context.updateJobState(geminiTabId, { | Persiste a transição de commit antes do cleanup. |
 | 087 | U07 |         state: 'result_committed', | Define o estado durável `result_committed`. |
 | 088 | U07 |         resultCommittedAt: Date.now(), | Anexa timestamp da aceitação do commit. |
 | 089 | U07 |       }); | Fecha a estrutura sintática da unidade U07. |
 | 090 | U07 | ␠ [linha vazia] | Separador visual de U07 (Transição para result_committed); não altera estado ou fluxo. |
-| 091 | U07 |       context.log('success', 'bg', 'RESULT_COMMIT_ACCEPTED', | Registra sucesso depois da transição persistida. |
-| 092 | U07 |         'Resultado persistido confirmado; job liberado para finalização segura.', { | Completa a expressão de U07 com `'Resultado persistido confirmado; job liberado para finalização segura.', {`, fornecendo parte concreta da condição/objeto/chamada adjacente. |
+| 091 | U08 |       context.log('success', 'bg', 'RESULT_COMMIT_ACCEPTED', | Registra sucesso depois da transição persistida. |
+| 092 | U08 |         'Resultado persistido confirmado; job liberado para finalização segura.', { | Completa a expressão de U07 com `'Resultado persistido confirmado; job liberado para finalização segura.', {`, fornecendo parte concreta da condição/objeto/chamada adjacente. |
 | 093 | U08 |           jobId: String(jobId \|\| '').slice(0, 8), | Loga apenas os oito primeiros caracteres do jobId. |
 | 094 | U08 |           batchId: String(job.batchId \|\| '').slice(0, 8), | Loga apenas os oito primeiros caracteres do batchId. |
 | 095 | U08 |         }); | Fecha a estrutura sintática da unidade U08. |
 | 096 | U08 | ␠ [linha vazia] | Separador visual de U08 (Observabilidade do commit aceito); não altera estado ou fluxo. |
-| 097 | U08 |       await context.finalizeJob( | Aguarda a finalização segura antes de responder. |
-| 098 | U08 |         geminiTabId, | Completa a expressão de U08 com `geminiTabId,`, fornecendo parte concreta da condição/objeto/chamada adjacente. |
-| 099 | U08 |         job.mangaTabId ?? request.mangaTabId, | Prefere mangaTabId persistido; request é fallback nullish. |
+| 097 | U09 |       await context.finalizeJob( | Aguarda a finalização segura antes de responder. |
+| 098 | U09 |         geminiTabId, | Completa a expressão de U08 com `geminiTabId,`, fornecendo parte concreta da condição/objeto/chamada adjacente. |
+| 099 | U09 |         job.mangaTabId ?? request.mangaTabId, | Prefere mangaTabId persistido; request é fallback nullish. |
 | 100 | U09 |         false | Passa `fromError=false`, contabilizando a finalização como sucesso. |
 | 101 | U09 |       ); | Fecha a estrutura sintática da unidade U09. |
 | 102 | U09 | ␠ [linha vazia] | Separador visual de U09 (Finalização e resposta); não altera estado ou fluxo. |
@@ -376,7 +376,7 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — suíte cobre remetente sem ownership e batch forjado. ⚠️ BatchId omitido não tem caso focal.
 
-### U06 — linhas/posição 76–86: Gate de persistência
+### U06 — linhas/posição 76–84: Gate de persistência
 
 **O que faz:** Recusa commit apenas quando a flag `resultPersisted` não é `true` E o state não é `dom_applied`.
 
@@ -388,7 +388,7 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — dois estados prematuros não chamam update/finalize. ⚠️ Não há casos assimétricos: flag true + state antigo, ou flag false/undefined + state `dom_applied`; ambos são aceitos pelo código atual.
 
-### U07 — linhas/posição 87–92: Transição para result_committed
+### U07 — linhas/posição 85–90: Transição para result_committed
 
 **O que faz:** Resolve o geminiTabId efetivo e persiste `result_committed` com timestamp antes do cleanup.
 
@@ -400,7 +400,7 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — sucesso exige `updateJobState(321,{state:'result_committed',...})`. ⚠️ Fallbacks de tabId e timestamp exato não têm testes focais.
 
-### U08 — linhas/posição 93–99: Observabilidade do commit aceito
+### U08 — linhas/posição 91–96: Observabilidade do commit aceito
 
 **O que faz:** Registra `RESULT_COMMIT_ACCEPTED` com prefixos de job/batch depois da transição persistida.
 
@@ -412,7 +412,7 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
 
 **Evidência:** 🟨 EXECUTADO NO CAMINHO DE SUCESSO, mas ⚠️ não existe assertion focal do log/metadata.
 
-### U09 — linhas/posição 100–105: Finalização e resposta
+### U09 — linhas/posição 97–105: Finalização e resposta
 
 **O que faz:** Finaliza o job como sucesso e só depois retorna `committed:true`.
 
@@ -448,3 +448,5 @@ O journal cobre o caso em que `finalizeJob` terminou, removeu o job vivo e a res
 - [x] nenhum código funcional alterado.
 
 **Veredito documental:** aprovada para `32270d1c4ade42b7e6decd5ef124d71745c2a5b0`.
+
+> **Correção pós-REAUDIT:** U06=76–84 (gate), U07=85–90 (transição), U08=91–96 (observabilidade) e U09=97–105 (finalização/resposta). A coluna Unidade da tabela 107/107 foi realinhada nas posições 85–86, 91–92 e 97–99.
