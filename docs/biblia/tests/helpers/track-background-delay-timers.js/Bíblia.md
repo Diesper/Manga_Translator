@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/helpers/track-background-delay-timers.js
 
-> **Estado documental:** ✅ CONCLUÍDA PELO AGENTE 7 — consolidação global fora do escopo deste agente  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `b7860da7879c9bac7714f3ba7d33a7024b586c0d`  
 > **Agente responsável:** AGENTE 7  
 > **Tipo:** helper Jest de ownership/cleanup de timers reais de background  
@@ -41,8 +41,8 @@ O helper não acelera esses timers. Em vez disso, mantém ownership explícito d
 | Cancelamento do 4 s retorna o delay e zera pending | mesmo teste exige `cancelledDelays` contendo `4_000` e `getPendingCount() === 0` | ✅ PROVADO DIRETAMENTE |
 | Uso em teardowns de background | `marker-anchor-real`, `process-finalize-real`, `lifecycle-alarms-real`, `message-handlers-real` e `regex-escape` instalam o tracker e chamam o cancelador | 🟨 EXECUTADO INDIRETAMENTE |
 | Delay de 4 s protegido na matriz de regressão | `regression-matrix.json` exige markers `getPendingDelays` e `4_000` no teste de anchor | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| Produção possui timer de 600 ms | `extension/background/jobs-lifecycle.js` agenda remoção de aba em 600 ms dentro de `finalizeJob` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| Produção possui timer de 18 s | `extension/background/jobs-lifecycle.js` agenda cleanup/close após 18_000 ms | 🟦 GATE ESTÁTICO ESPECÍFICO |
+| Produção possui timer de 600 ms | literal/fluxo em `extension/background/jobs-lifecycle.js`; `process-finalize-real.test.js` atravessa `finalizeJob` real | 🟨 FATO DO SOURCE + EXECUÇÃO FUNCIONAL; não existe marker estático específico para 600 ms |
+| Produção possui timer de 18 s | literal/fluxo em `extension/background/jobs-lifecycle.js`; suítes de lifecycle carregam o background real | 🟨 FATO DO SOURCE + EXECUÇÃO FUNCIONAL; não existe marker estático específico para 18_000 ms |
 | Captura/cancelamento específico de 600 e 18_000 | consumidores usam o helper, mas não foi localizada assertion focal sobre esses dois valores | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | Delegação de delays fora da allowlist | implementação chama o `setTimeout` real, mas não foi localizado teste focal que prove transparência | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | Remoção automática após firing natural | wrapper executa `pending.delete(timer)` antes do callback; nenhuma assertion focal localizada | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -176,3 +176,5 @@ Posição correspondente ao newline terminal do arquivo; não contém instruçã
 - Prova direta focal localizada para o timer de 4 s; 600 ms e 18 s mantidos explicitamente como lacuna de prova específica.
 - `audit_request` 105-001 permanece **ACCEPTED** no state canônico para teste dedicado do helper; a request é dívida de teste não bloqueante para fidelidade documental.
 - Nenhum código, teste, fixture, workflow ou config externo foi alterado.
+
+> **Correção pós-adversarial:** somente o delay de 4_000 ms possui gate estático específico na regression matrix; 600 ms e 18_000 ms são fatos do source/fluxos funcionais, enquanto a captura focal desses delays pelo helper continua lacuna explícita.
