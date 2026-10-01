@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: extension/background/actions/open-existing-folder.js
-BÍBLIA: docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 59ef82cbf960e360eb404fbd969067f017021607
-CLAIMED_AT_UTC: 2026-10-01T18:00:41.405Z
-UPDATED_AT_UTC: 2026-10-01T18:00:41.405Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
