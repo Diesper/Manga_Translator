@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "024a2a8f4ace4579f622a232dfb1d2a46505d807",
+  "source_sha": "d7bd13fc00c8ca807c8b8f91232ff11d27dc7c27",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:34:00Z",
+  "updated_at_utc": "2026-10-01T23:38:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -240,6 +240,13 @@
       "previous_source_sha": "1f3358ada8c15861fe632c6a6ef72d4fafe957b2",
       "current_source_sha": "024a2a8f4ace4579f622a232dfb1d2a46505d807",
       "reason": "Helper passou a rastrear e remover listeners globais de window/document adicionados durante o bundle, preservando listeners preexistentes e executando pagehide cooperativo antes da remoção."
+    },
+    {
+      "at_utc": "2026-10-01T23:38:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "024a2a8f4ace4579f622a232dfb1d2a46505d807",
+      "current_source_sha": "d7bd13fc00c8ca807c8b8f91232ff11d27dc7c27",
+      "reason": "Captura de listeners globais agora permanece ativa até o bootstrap, cobre registros assíncronos do botão e restaura addEventListener sem alterar listeners preexistentes."
     }
   ],
   "evidence": [
