@@ -1,0 +1,9 @@
+AGENTE: AGENTE 23
+ARQUIVO: tests/visual/runner.js
+BIBLIA: docs/biblia/tests/visual/runner.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: fe34764874cac8961bf6c614f5f6d5f85a599763
+RESERVADO_EM_UTC: 2026-10-01T14:45:44Z
+ATUALIZADO_EM_UTC: 2026-10-01T14:45:44Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
