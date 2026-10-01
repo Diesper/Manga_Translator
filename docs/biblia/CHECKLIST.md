@@ -107,7 +107,7 @@
 - [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
 - [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
 - [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
-- [ ] 106 — `tests/integration/banned-images-flow.test.js` — READY_FOR_AUDIT
+- [ ] 106 — `tests/integration/banned-images-flow.test.js` — CHANGES_REQUIRED
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT
 - [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
 - [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
