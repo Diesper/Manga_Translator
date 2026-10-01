@@ -1553,3 +1553,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### `package.json` — reauditoria independente SHA-bound pelo AGENTE 6 em 2026-10-01
+
+- **Índice:** #63 — `package.json`.
+- **Auditor:** AGENTE 6.
+- **Handoff:** claim herdado de AGENTE 2 por autorização explícita do usuário; nenhuma reserva editorial coexistia.
+- **SHA auditado:** `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`.
+- **Integridade:** state, claim, source e Bíblia apontam para o mesmo SHA; a seção `Fonte integral exata` é byte-a-byte idêntica ao `package.json` atual.
+- **Cobertura:** 58 linhas textuais + LF final = 59 posições; as faixas 1–5, 6–47, 48–53, 54–56, 57–58 e 59 cobrem exatamente 59/59, sem gap ou overlap.
+- **Wiring/consumers:** `jest.config.js` contém os projetos referenciados pelos aliases; `playwright.config.js` é o alvo do E2E; `generate-bible-projections.js` usa check por padrão e `--write` para escrita; `verify-repository-structure.js` exige um único package.json raiz e rejeita `tests/package.json`; `sync-version.js --check` cruza package/manifest/lock e os artefatos canônicos do fluxo de release.
+- **Contratos npm:** `test`, `test:all`, `validate`, `validate:bible-projections`, `write:bible-projections` e `engines.node >=18.0.0` correspondem ao source atual.
+- **CI/compatibilidade:** o workflow atual usa Node 20.x e a matriz funcional 20.x/22.x; não existe job Node 18 que feche a promessa mínima, exatamente como registrado em 063-002.
+- **Requests:** 063-001, 063-002 e 063-003 estão `ACCEPTED` no state canônico e permanecem dívida externa não bloqueante; a Bíblia não as promove a prova inexistente.
+- **Metadata state:** `document_quality.documented_positions=56/56`, `source_text_lines=55` e `external_audit_requests_open=3` eram derivados stale. A Bíblia e o histórico já registravam 59/59; esses campos são normalizados na finalização e não configuram defeito do objeto auditado.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; requests/lifecycle canônico=CONFIRMADO_3X; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=SIM; Honestidade=SIM.
+
+**Veredito:** ✅ APROVADO
+
