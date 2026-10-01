@@ -2,8 +2,8 @@
   "index": 187,
   "file": "tests/unit/content-gemini/rpa-flow.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
   "started_at_utc": "2026-09-30T17:40:00Z",
   "completed_at_utc": null,
@@ -97,7 +97,16 @@
   "timing_note": "started_at_utc já existia no state com horário posterior ao timestamp GitHub do commit documental; foi preservado sem reescrever histórico.",
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T19:32:17.673Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T19:32:17.673Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
+      "reason": "187 PRIMARY+ADVERSARIAL: lifecycle stale e escopo temporal de CG-12/13."
+    }
+  ],
   "evidence": []
 }
