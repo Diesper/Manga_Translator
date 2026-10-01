@@ -2,8 +2,8 @@
   "index": 101,
   "file": "tests/helpers/load-content-gemini-module.js",
   "bible": "docs/biblia/tests/helpers/load-content-gemini-module.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
   "started_at_utc": "2026-09-30T06:20:00Z",
   "completed_at_utc": null,
@@ -123,7 +123,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:25:59Z",
+  "updated_at_utc": "2026-10-01T05:28:20Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:11:00Z",
@@ -142,6 +142,15 @@
       "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
       "agent": "AGENTE 23",
       "reason": "Corrigir findings documentais da auditoria independente #101: nove globals diretos, side effects de reload e lifecycle das requests."
+    },
+    {
+      "at_utc": "2026-10-01T05:28:20Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #101 corrigida conforme auditoria independente; source permaneceu inalterado e cinco requests seguem ACCEPTED."
     }
   ],
   "evidence": [
@@ -152,6 +161,22 @@
       "auditor": "AGENTE 7",
       "at_utc": "2026-10-01T05:11:00Z",
       "note": "Passagens 0–15: integridade/cobertura passam; semântica/evidence honesty falham nos findings registrados em AUDITORIA.md."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:28:20Z",
+      "note": "35/35 posições e fonte integral reconfirmadas; dependências diretas/indiretas e side effects de reload documentados. Reauditoria independente necessária."
     }
-  ]
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "35/35",
+    "source_text_lines": 34,
+    "external_audit_requests_open": 5,
+    "repair_note": "Corrigidos findings da auditoria: 9 globals diretos + selectors indireto; reload do bootstrap registra storage.get/onChanged listener; statuses 101-001..005 alinhados ao state como ACCEPTED."
+  }
 }
