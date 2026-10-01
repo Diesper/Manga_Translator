@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "index": 144,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 64",
+  "file": "tests/unit/background/export-guard.test.js",
+  "bible": "docs/biblia/tests/unit/background/export-guard.test.js/Bíblia.md",
+  "source_sha": "4a34bd498d62aecdefca112b02d7601346891820",
+  "bible_sha": "588ee10ee59641c19933817b243d34ef393999c8",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "144-PRI-064-001",
+      "severity": "NORMAL",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "location": "Bíblia.md — cobertura da Linha 37",
+      "problem": "A cobertura atribui comportamento executável a uma linha que é somente comentário. A linha 37 do source é `// - Lista com itens → chrome.downloads.download() para cada um, sendResponse ao finalizar`, mas a Bíblia diz que essa linha `Chama a API mock de downloads...` e ainda a classifica como `EXECUTADO INDIRETAMENTE`. A chamada real está na linha 59. Isso viola a fidelidade semântica linha-a-linha e superestima evidência para uma posição não executável.",
+      "evidence": [
+        "Source linha 37: comentário `// - Lista com itens → chrome.downloads.download() para cada um, sendResponse ao finalizar`.",
+        "Bíblia linha 37: `Função: Chama a API mock de downloads com o objeto recebido...`.",
+        "Source linha 59 contém a chamada executável real `chrome.downloads.download(dl, () => checkFinalize());`."
+      ],
+      "required_change": "Corrigir a semântica/evidência da linha 37 para tratá-la como comentário documental não executável e manter a chamada real associada à linha 59. Revisar outras linhas de comentário classificadas genericamente como `EXECUTADO INDIRETAMENTE` para evitar atribuir execução onde não existe."
+    },
+    {
+      "id": "144-PRI-064-002",
+      "severity": "NORMAL",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "location": "Bíblia.md — seção 7 `Lacunas e solicitação ao auditor`",
+      "problem": "A Bíblia registra `144-001 — TEST_QUALITY_REVIEW — OPEN`, mas o state canônico atual registra a mesma request como `ACCEPTED`, com finding e recomendação já preenchidos pelo AGENTE 23. O documento apresenta estado de request superado e ainda pede ao auditor que tome uma decisão que já foi materializada no state.",
+      "evidence": [
+        "Bíblia: `144-001 — TEST_QUALITY_REVIEW — OPEN`.",
+        "`.state/144.json`: `id: 144-001`, `status: ACCEPTED`, `audited_by: AGENTE 23`, com `audit_finding` e `auditor_recommended_action` preenchidos."
+      ],
+      "required_change": "Sincronizar a seção 7 com o estado atual da request: marcar 144-001 como ACCEPTED e descrever que a lacuna é não bloqueante para fidelidade documental quando representada honestamente, sem pedir nova decisão já resolvida no state."
+    },
+    {
+      "id": "144-PRI-064-003",
+      "severity": "NORMAL",
+      "category": "EVIDENCE_OVERCLAIM",
+      "location": "Bíblia.md — seção 3 `Evidência externa relevante`",
+      "problem": "A frase `O segundo prova prefixo de filenames, espera de downloads e abertura do último id` é forte demais para as assertions citadas. `export-all-action.test.js` injeta `waitForDownload`, mas não possui `expect(waitForDownload)...`; as assertions verificam os dois filenames, `downloads.show(12)` e a resposta final. Uma regressão que removesse a espera explícita, mas ainda mostrasse o id final e respondesse sucesso, poderia satisfazer essas assertions. Portanto o teste não prova isoladamente o contrato específico de que `waitForDownload` foi usado/esperado.",
+      "evidence": [
+        "`tests/unit/background/export-all-action.test.js` declara `const waitForDownload = jest.fn((id, done) => done(id));` e o injeta via `contextFactory`.",
+        "Não existe assertion `expect(waitForDownload)` no arquivo.",
+        "As assertions do segundo teste são sobre duas chamadas de `chrome.downloads.download`, `chrome.downloads.show(12)` e a resposta `{ ok: true }`."
+      ],
+      "required_change": "Estreitar a frase para o que as assertions realmente provam, ou acrescentar referência a uma assertion específica que verifique chamadas/ordem de `waitForDownload`. Não transformar a mera injeção do mock em prova direta da semântica de espera."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:20:19Z"
+}
