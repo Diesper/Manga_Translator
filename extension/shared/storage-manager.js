@@ -49,7 +49,7 @@ function openStorageDb() {
     if (!idb || typeof idb.open !== 'function') {
         return Promise.reject(new Error('IndexedDB indisponível neste contexto'));
     }
-    _smDbPromise = new Promise((resolve, reject) => {
+    const opening = new Promise((resolve, reject) => {
 
         const req = idb.open(SM_DB_NAME, SM_DB_VERSION);
         req.onupgradeneeded = (event) => {
@@ -74,7 +74,7 @@ function openStorageDb() {
         req.onsuccess = () => { const db = req.result; db.onversionchange = () => { db.close(); _smDbPromise = null; }; resolve(db); };
         req.onerror = () => { _smDbPromise = null; reject(req.error || new Error('Falha ao abrir IndexedDB')); };
     });
-    return _smDbPromise;
+    const cached = opening.catch(error => { if (_smDbPromise === cached) _smDbPromise = null; throw error; }); _smDbPromise = cached; return cached;
 }
 
 // ── Helpers IDB ──────────────────────────────────────────────────────────────
