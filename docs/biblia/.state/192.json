@@ -2,11 +2,11 @@
   "index": 192,
   "file": "tests/unit/content-manga/audio-synthesis.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "f47b6cf91846bfcea634ce1177d7d857ad9cdb46",
   "started_at_utc": "2026-09-30T06:39:00Z",
-  "completed_at_utc": "2026-09-30T06:42:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "192-001",
@@ -63,5 +63,10 @@
     "direct_tests": 2,
     "external_audit_requests_open": 2,
     "note": "As duas assertions foram classificadas como prova do helper extraído, não da função aninhada real de content_manga.js."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

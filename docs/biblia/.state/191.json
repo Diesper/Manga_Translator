@@ -2,11 +2,11 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e53e43da4f20d727355666e444f0adf0428fc6dc",
   "started_at_utc": "2026-09-30T14:42:39Z",
-  "completed_at_utc": "2026-09-30T14:47:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "191-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 225,
     "external_audit_requests_open": 3,
     "note": "Suíte de mirrors/forma de onda; runtime real de sucesso possui cobertura separada e mais moderna."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

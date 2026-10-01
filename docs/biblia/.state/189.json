@@ -2,11 +2,11 @@
   "index": 189,
   "file": "tests/unit/content-gemini/temp-chat-activator.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/temp-chat-activator.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "f9418a4301c97d91e06d47196729218aaedbdd37",
   "started_at_utc": "2026-09-30T14:50:38Z",
-  "completed_at_utc": "2026-09-30T14:56:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "189-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 250,
     "external_audit_requests_open": 3,
     "note": "Suíte autêntica do módulo real; forte em semântica PT/EN e caminho feliz, com lacunas defensivas/Shadow DOM."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

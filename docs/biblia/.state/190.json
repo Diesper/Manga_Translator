@@ -2,11 +2,11 @@
   "index": 190,
   "file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/temporary-chat-v2.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "bdf7146fac7fa9575b2fa1ab8f16e2d6b4480446",
   "started_at_utc": "2026-09-30T13:58:00Z",
-  "completed_at_utc": "2026-09-30T14:03:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "190-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 143,
     "external_audit_requests_open": 3,
     "note": "Suíte autêntica do módulo real; estados principais e click único diretamente provados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
