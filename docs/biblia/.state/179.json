@@ -2,8 +2,8 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
@@ -87,14 +87,15 @@
     "documented_positions": "684/684",
     "source_text_lines": 683,
     "bible_lines": 5573,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
       109255348406,
       109256050280
     ],
-    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 15 casos passaram; global 109/109 suítes e 851/851 testes. Cobertura externa de File API indisponível já existe em job-runner.test.js."
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 15 casos passaram; global 109/109 suítes e 851/851 testes. Cobertura externa de File API indisponível já existe em job-runner.test.js.",
+    "note": "Revisão pós-adversarial: 683 blocos line-a-line revalidados; 683 contextos e 359 funções realinhados ao source atual."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -107,6 +108,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
       "reason": "A8-179-01..03: realinhar 684 posições, lifecycle e IDs CG-01..04."
+    },
+    {
+      "at_utc": "2026-10-01T18:52:55.822Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "bible_sha": "585464f495a94f96422c8b8c086232e1ba4f7276",
+      "reason": "A8-179-01..03 corrigidos; 683 contextos e 359 funções realinhados. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
