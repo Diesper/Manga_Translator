@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/request-image-data.js`
 
-> **Estado:** ✅ CRIADO E AUDITADO  
+> **Estado:** 🟡 CORRIGIDO APÓS REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `2491262323966a256d61d741e9c23420acccee2f`  
 > **Linhas textuais:** **32**  
 > **Posições documentais:** **33** contando newline final  
@@ -133,7 +133,7 @@ Se `chrome.runtime.lastError` existe no callback de `tabs.sendMessage`, a action
 | 020 | U04 |           { action: 'REQUEST_IMAGE_DATA', index: request.index }, | Envia a mesma action interna ao content_manga com o índice. |
 | 021 | U04 |           response => { | Recebe a resposta do content script. |
 | 022 | U04 |             if (chrome.runtime.lastError) { | Detecta falha de transporte Chrome no callback. |
-| 023 | U04 |               resolve({ error: chrome.runtime.lastError.message }); | Detecta falha de transporte Chrome no callback. |
+| 023 | U04 |               resolve({ error: chrome.runtime.lastError.message }); | Converte a falha já detectada na posição 022 em resposta resolvida `{error: lastError.message}` para o caller. |
 | 024 | U04 |               return; | Impede resolver novamente após erro. |
 | 025 | U04 |             } | Fecha estrutura sintática da unidade U04. |
 | 026 | U04 |             resolve(response); | Preserva exatamente a resposta recebida do content_manga. |
@@ -174,4 +174,6 @@ Posição editorial para equivalência física.
 - [x] ausência de validação/ownership explicitada;
 - [x] nenhum código funcional alterado.
 
-**Veredito:** ✅ APROVADO para `2491262323966a256d61d741e9c23420acccee2f`.
+**Veredito documental da revisão atual:** 🟡 corrigida após REAUDIT; requer nova PRIMARY + ADVERSARIAL vinculadas ao novo `BIBLE_SHA`.
+
+> **Correção pós-REAUDIT:** posição 022 permanece responsável por detectar `chrome.runtime.lastError`; posição 023 agora documenta corretamente a transformação em `{error: message}`.
