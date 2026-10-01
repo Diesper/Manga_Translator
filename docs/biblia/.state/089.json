@@ -2,8 +2,8 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
@@ -127,7 +127,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:48:00Z",
+  "updated_at_utc": "2026-10-01T22:56:20Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -249,6 +249,15 @@
       "bible_sha": "b9fc31ead41728d6fc16e3ad17089fdbfe7aaac4",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Falha arquitetural documental corrigida; gaps 089-003/005 implementados; self-test focal verde. Revisão nova deve receber PRIMARY + ADVERSARIAL independentes."
+    },
+    {
+      "at_utc": "2026-10-01T22:56:20Z",
+      "type": "HYBRID_ADVERSARIAL_HARDENING_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Passagem PRIMARY encontrou hook MANGA_TRANSLATOR_REPO_ROOT desnecessariamente redirecionável por ambiente; correção moverá a testabilidade para execução da cópia do verifier no sandbox."
     }
   ],
   "evidence": [
