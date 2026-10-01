@@ -2,8 +2,8 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
@@ -75,7 +75,7 @@
       "reaudited_at_utc": "2026-10-01T04:56:00Z",
       "reaudit_finding": "Permanece ACCEPTED no source atual.",
       "resolved_at_utc": "2026-10-01T22:48:00Z",
-      "resolution": "Adicionado self-test focal persistente em docs/biblia/.coordination/verify-repository-structure-selftest.js, executando o verifier real contra sandbox e validando deltas negativos isolados. Workflow Repository Structure Selftest run 36936938761 concluiu success com 'verify-repository-structure selftest: OK'."
+      "resolution": "Self-test focal persistente executa o verifier real copiado no sandbox, valida deltas negativos e exige exit code diferente de zero para cada mutação; run 36937874961 concluiu success."
     },
     {
       "id": "089-004",
@@ -122,12 +122,12 @@
       "reaudited_at_utc": "2026-10-01T04:56:00Z",
       "reaudit_finding": "Permanece ACCEPTED no source atual.",
       "resolved_at_utc": "2026-10-01T22:48:00Z",
-      "resolution": "requirePresent agora valida existência e tipo esperado via fs.statSync; requiredDirectories distingue diretórios obrigatórios dos arquivos. O self-test substitui arquivo por diretório e diretório por arquivo e a run 36936938761 passou."
+      "resolution": "requirePresent valida existência e tipo via fs.statSync; self-test cobre arquivo↔diretório incorreto e a run 36937874961 passou na revisão atual."
     }
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:59:00Z",
+  "updated_at_utc": "2026-10-01T23:03:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -265,6 +265,16 @@
       "previous_source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
       "current_source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
       "reason": "Removido MANGA_TRANSLATOR_REPO_ROOT do gate de produção; self-test passou a executar a cópia do verifier no sandbox."
+    },
+    {
+      "at_utc": "2026-10-01T23:03:00Z",
+      "type": "HYBRID_ADVERSARIAL_HARDENING_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
+      "bible_sha": "f1ce3aacb4a59e95aed4fc967ef7fcf6b603126a",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Root do gate não é mais redirecionável por ambiente; self-test executa a cópia do verifier em sandbox. GitHub Actions Repository Structure Selftest run 36937874961 concluiu success."
     }
   ],
   "evidence": [
@@ -289,6 +299,14 @@
       "editor": "AGENTE HÍBRIDO",
       "at_utc": "2026-10-01T22:48:00Z",
       "note": "Fonte embutida byte-a-byte exata, cobertura 416/416 contígua, overclaim removido, validação de tipo adicionada e self-test adversarial focal aprovado na GitHub Actions run 36936938761."
+    },
+    {
+      "type": "HYBRID_ADVERSARIAL_HARDENING",
+      "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
+      "bible_sha": "f1ce3aacb4a59e95aed4fc967ef7fcf6b603126a",
+      "editor": "AGENTE HÍBRIDO",
+      "at_utc": "2026-10-01T23:03:00Z",
+      "note": "Fonte embutida exata 414/414; self-test atual executa verifier copiado no sandbox, exige mutações com exit code != 0 e passou na run 36937874961."
     }
   ],
   "document_quality": {
@@ -297,6 +315,6 @@
     "embedded_source_exact": true,
     "documented_positions": "414/414",
     "source_text_lines": 413,
-    "repair_note": "Overclaim arquitetural corrigido; 089-003/005 resolvidos; root do verifier voltou a ser fixo por __dirname e o self-test executa a cópia do verifier no sandbox, sem hook de ambiente."
+    "repair_note": "Overclaim arquitetural corrigido; 089-003/005 resolvidos; root fixo por __dirname; self-test executa a cópia sandboxada do verifier e passou na run 36937874961."
   }
 }
