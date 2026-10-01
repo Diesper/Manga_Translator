@@ -185,6 +185,8 @@ expectPass('gaps somente de linhas vazias são estruturais',(root)=>{
   const source='const a = 1;\n\nconst b = 2;\n';
   write(root,s.file,source);
   s.source_sha=gitBlobSha(source);
+  s.status='READY_FOR_AUDIT';
+  s.completed_at_utc=null;
   writeJson(root,statePath(1),s);
   const coverage='## Mapa integral por faixas\n\n| Linhas | Papel |\n|---:|---|\n| 1 | a |\n| 3 | b |\n| posição 4 | newline |';
   write(root,s.bible,v2Bible(s.file,s.source_sha,source,coverage));
