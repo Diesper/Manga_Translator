@@ -104,8 +104,8 @@
 - [ ] 100 — `tests/helpers/load-background-module.js` — READY_FOR_AUDIT
 - [ ] 101 — `tests/helpers/load-content-gemini-module.js` — READY_FOR_AUDIT
 - [ ] 102 — `tests/helpers/load-content-script.js` — READY_FOR_AUDIT
-- [ ] 103 — `tests/helpers/load-extension-page.js` — CHANGES_REQUIRED
-- [ ] 104 — `tests/helpers/repo-root.js` — CHANGES_REQUIRED
+- [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
+- [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
 - [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
 - [ ] 106 — `tests/integration/banned-images-flow.test.js` — READY_FOR_AUDIT
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT

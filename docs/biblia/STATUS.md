@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **132**
-- CHANGES_REQUIRED: **2**
+- READY_FOR_AUDIT: **134**
+- CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **1**
@@ -125,8 +125,8 @@
 | 100 | tests/helpers/load-background-module.js | READY_FOR_AUDIT | NOT_AUDITED | - | b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113 | 4 |
 | 101 | tests/helpers/load-content-gemini-module.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee | 5 |
 | 102 | tests/helpers/load-content-script.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0 | 4 |
-| 103 | tests/helpers/load-extension-page.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | c2325598f10b3ef9dd656a4e87db8569748e66b0 | 2 |
-| 104 | tests/helpers/repo-root.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | b2520d65820e7b9072602018b0f46609ac967c58 | 1 |
+| 103 | tests/helpers/load-extension-page.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | c2325598f10b3ef9dd656a4e87db8569748e66b0 | 2 |
+| 104 | tests/helpers/repo-root.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b2520d65820e7b9072602018b0f46609ac967c58 | 1 |
 | 105 | tests/helpers/track-background-delay-timers.js | READY_FOR_AUDIT | NOT_AUDITED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
 | 106 | tests/integration/banned-images-flow.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
 | 107 | tests/integration/chapter-dedup.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | e62187cd957a2fe241e4e704aaa9f8285e89162e | 3 |
