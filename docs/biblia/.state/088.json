@@ -2,8 +2,8 @@
   "index": 88,
   "file": "scripts/validation/verify-publish-contract.js",
   "bible": "docs/biblia/scripts/validation/verify-publish-contract.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
   "started_at_utc": "2026-09-30T06:13:00Z",
   "completed_at_utc": null,
@@ -57,7 +57,7 @@
     "embedded_source_exact": true,
     "documented_positions": "72/72",
     "source_text_lines": 71,
-    "external_audit_requests_open": 2,
+    "external_audit_requests_open": 0,
     "evidence_note": "Fonte integral exata; wiring em package/CI/CI Contract confirmado; 088-001..002 permanecem ACCEPTED."
   },
   "schema_version": 2,
@@ -80,6 +80,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
       "reason": "088-REA2-001/002: lifecycle e reclassificação de wiring estático."
+    },
+    {
+      "at_utc": "2026-10-01T19:52:15.811Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+      "bible_sha": "ef40e242e7c38c1828892bfe932509c31d80aed2",
+      "reason": "088-REA2-001/002 corrigidos; 60 evidências reclassificadas. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
