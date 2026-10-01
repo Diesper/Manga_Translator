@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/fixtures/manga-page.html
 
-> **Estado documental:** ✅ CONCLUÍDA PELO AGENTE 7 — consolidação global fora do escopo deste agente  
+> **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `71d78eea7eddb51bc93c74bbb3bf652119551ce4`  
 > **Agente responsável:** AGENTE 7  
 > **Tipo:** fixture HTML determinístico para testes E2E  
@@ -41,8 +41,8 @@ Ele não contém JavaScript próprio. O servidor de fixtures o entrega em `http:
 | Banner 960×120 não é traduzido | E2E usa `banner-image`, confirma src original e ausência de `data-translated` | ✅ PROVADO DIRETAMENTE |
 | As duas páginas cabem simultaneamente no viewport do cenário principal | helper `areBothOriginalPagesVisible` mede rects e o teste exige `true` antes de iniciar o lote | ✅ PROVADO DIRETAMENTE |
 | URLs das páginas alimentam persistência/restore | `cache-and-storage.spec.js` carrega o fixture e exige restoreIndex com URLs absolutas de page_001/page_002 nos índices 0/1 | ✅ PROVADO DIRETAMENTE |
-| Servidor entrega este arquivo em `/` e `/manga-page.html` | `gemini-mock-server.js` lê `tests/fixtures/manga-page.html` e responde text/html nesses caminhos | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| Buffers PNG correspondentes vêm da fonte única | mock server e preparo importam `PNG_IMAGES` de `manga-images.js`; nomes page_001/page_002/avatar/banner existem no Map | 🟦 GATE ESTÁTICO ESPECÍFICO |
+| Servidor entrega este arquivo em `/` e `/manga-page.html` | `gemini-mock-server.js` lê `tests/fixtures/manga-page.html`; os E2E carregam a rota servida | 🟨 PROVA DE CONSUMIDOR / EXECUÇÃO INDIRETA — wiring verdadeiro, sem gate estático específico |
+| Buffers PNG correspondentes vêm da fonte única | mock server e preparo importam `PNG_IMAGES` de `manga-images.js`; execução E2E consome os assets | 🟨 PROVA DE CONSUMIDOR / EXECUÇÃO INDIRETA — sem validator estático dedicado |
 | Estética CSS específica (cores/sombra/blur/tipografia) | não há assertion focal sobre valores cosméticos individuais | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 
 Os checks centrais deste fixture são fortes porque o E2E carrega a página servida de verdade, espera dimensões naturais, executa o fluxo da extensão e compara o estado final de cada classe de imagem. Os estilos cosméticos são deliberadamente classificados à parte.
@@ -235,3 +235,5 @@ Representa o newline terminal presente no arquivo; não contém markup adicional
 - Faixas documentais: **16**, contíguas e sem overlap.
 - Provas diretas centrais: elegibilidade das duas páginas, exatamente duas traduções, exclusão de avatar/banner, visibilidade simultânea e persistência/restore dos URLs.
 - Nenhum código, teste, fixture externo, workflow ou config foi alterado.
+
+> **Escopo pós-REAUDIT:** serving do fixture e origem `PNG_IMAGES` são relações de wiring confirmadas por consumers/execução; não existe `verify-*` específico que justifique classificá-las como gate estático dedicado.
