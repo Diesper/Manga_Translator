@@ -1,6 +1,6 @@
 # Bíblia técnica — scripts/validation/verify-jest-worker-warning-selftest.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA DOCUMENTAL APROVADA  
+> **Estado documental:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `4c8ce078abcf58f66ded7918650b2f54d9fa40cf`  
 > **Agente responsável:** AGENTE 10  
 > **Tipo:** self-test Node.js executável para o gate de worker Jest encerrado à força  
@@ -271,7 +271,7 @@ A principal fronteira de confiança está fora deste arquivo: o texto que o help
 
 ## 11. Solicitações ao auditor
 
-### 087-001 — TEST_REQUIRED — OPEN
+### 087-001 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** o caso positivo constrói a amostra usando a própria constante **FORCED_WORKER_EXIT** importada do módulo auditado indiretamente.
 
@@ -444,4 +444,6 @@ Não há comportamento funcional associado.
 - Nenhum código, teste, fixture, workflow, configuração ou documento global foi modificado.
 - A Bíblia corresponde exclusivamente ao SHA declarado.
 
-**Conclusão documental:** a Bíblia está completa para o estado real observado do arquivo e pode ser marcada como **COMPLETED**, mantendo **087-001 OPEN** para auditoria externa.
+**Conclusão documental:** a limitação técnica de fidelidade independente do literal permanece reconhecida, mas **087-001 está ACCEPTED** no state canônico; não é request OPEN.
+
+> **Lifecycle pós-REAUDIT:** 087-001 está ACCEPTED; a lacuna permanece documentada sem induzir triagem duplicada.
