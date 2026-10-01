@@ -85,13 +85,13 @@ A revisão atual amplia o smoke de happy paths para invariantes de consistência
 
 O gap de rollback atômico por falha/abort continua real, mas não é mais uma request independente desta unidade. O state canônico marca 126-001 como `SUPERSEDED` e aponta `superseded_by: 060-002`. Esta Bíblia não o conta como OPEN nem como resolvido artificialmente.
 
-### 126-002 — TEST_REQUIRED — CORRIGIDO NESTA REVISÃO
+### 126-002 — TEST_REQUIRED — ACCEPTED; IMPLEMENTAÇÃO ADICIONADA, AGUARDANDO EXECUÇÃO
 
-A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` adiciona prova focal de `deleteByCleanUrl` sobre restore, página, índice e asset, além do caso da mesma cleanUrl em dois capítulos. A request pode ser marcada `RESOLVED` no state com essa evidência, sujeita à nova auditoria independente da revisão.
+O state canônico permanece `ACCEPTED`. A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` adiciona prova focal de `deleteByCleanUrl` sobre restore, página, índice e asset, além do caso da mesma cleanUrl em dois capítulos. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
 
-### 126-003 — TEST_REQUIRED — CORRIGIDO NESTA REVISÃO
+### 126-003 — TEST_REQUIRED — ACCEPTED; IMPLEMENTAÇÃO ADICIONADA, AGUARDANDO EXECUÇÃO
 
-A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` troca `migrated >= 1` por `migrated === 2`, valida índices/restores/assets e adiciona falha parcial seguida de retry. A request pode ser marcada `RESOLVED` no state com essa evidência, sujeita à nova auditoria independente da revisão.
+O state canônico permanece `ACCEPTED`. A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` troca `migrated >= 1` por `migrated === 2`, valida índices/restores/assets e adiciona falha parcial seguida de retry. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
 
 ## 8. Fonte integral exata
 
@@ -400,7 +400,7 @@ Posição do newline terminal.
 - Posições: **257/257**, cobertas por 11 faixas contíguas.
 - `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME: **nenhum encontrado**.
 - 126-001: **SUPERSEDED por 060-002**, não OPEN.
-- 126-002: **corrigido por regressões focais nesta revisão**.
-- 126-003: **corrigido por regressões focais nesta revisão**.
+- 126-002: **ACCEPTED; regressão implementada e aguardando execução**.
+- 126-003: **ACCEPTED; regressão implementada e aguardando execução**.
 - Gap de rollback IDB sob abort: **explicitamente não reivindicado como provado**.
 - A revisão precisa de nova auditoria PRIMARY + ADVERSARIAL porque source e Bíblia mudaram.
