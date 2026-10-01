@@ -109,7 +109,7 @@
 - [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
 - [ ] 106 — `tests/integration/banned-images-flow.test.js` — CHANGES_REQUIRED
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT
-- [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — CHANGES_REQUIRED
+- [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
 - [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
 - [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — READY_FOR_AUDIT
 - [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — READY_FOR_AUDIT
