@@ -64,6 +64,7 @@ ESTADO: ACTIVE
 
 ```text
 READ LATEST
+→ confirmar que o auditor não possui outro audit claim ativo
 → escolher READY_FOR_AUDIT sem claim
 → CREATE ONLY audit-claims/NNN.lock.md
 → reler claim/state/source/Bíblia
@@ -81,6 +82,24 @@ READ LATEST
 ```
 
 Se outro auditor ganhar o claim primeiro, escolher outro `READY_FOR_AUDIT`.
+
+## Gate final de merge readiness
+
+Quando as auditorias terminarem, o fechamento documental deve ser verificado por:
+
+`node scripts/validation/verify-bible-merge-readiness.js`
+
+Esse gate é deliberadamente separado do `npm run validate` durante a execução do projeto: enquanto houver Bíblias em `READY_FOR_AUDIT`, claims ativos ou reservas, ele deve falhar. O gate exige:
+
+- 233/233 states em `COMPLETED`;
+- `coordination_status: OK` em todos os states;
+- zero reservas de edição;
+- zero audit claims;
+- ausência de `PROGRESS.lock.md` e `BOOTSTRAP.lock.md`;
+- invariantes canônicas e projeções `STATUS.md`/`CHECKLIST.md` coerentes;
+- auditoria `APPROVED` válida para o SHA atual de cada item, verificada pelo validador canônico.
+
+A CI verde do SHA final continua sendo uma condição externa adicional; este comando não inventa nem substitui o resultado do GitHub Actions.
 
 ## Separação de responsabilidades
 
