@@ -187,6 +187,15 @@ function resolveAuditPipeline(state, records = [], legacyAudits = new Map()) {
   };
 }
 
+function nextAuditPhase(pipeline) {
+  if (!pipeline?.primary) return 'PRIMARY';
+  // ADVERSARIAL é obrigatória para toda Bíblia/SHA, inclusive quando PRIMARY
+  // já encontrou CHANGES_REQUIRED. Não existe fast-path que pule esta camada.
+  if (!pipeline.adversarial) return 'ADVERSARIAL';
+  if (pipeline.divergent && !pipeline.reaudit) return 'REAUDIT';
+  return null;
+}
+
 function evaluateAuditPipelines(states, records = [], legacyAudits = new Map()) {
   const byIndex = new Map();
   const problems = [];
@@ -261,6 +270,7 @@ module.exports = {
   AUDIT_VERDICTS,
   loadAuditResults,
   resolveAuditPipeline,
+  nextAuditPhase,
   evaluateAuditPipelines,
   pipelineMergeBlockers,
   displayAuditStatus,
