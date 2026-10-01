@@ -40,6 +40,15 @@ Quando a chave direta falta, o fallback exige jobId e `state.jobIndex`; a action
 
 `ensureInitialized` é chamado no contexto real para reidratar/reconciliar estado. Replacement de aba é resolvido por `resolveCanonicalTabId`. Se o índice ainda aponta para o tab antigo, `migrateTabIdentity` move a identidade durável e a action faz **read-after-write** da chave canônica antes de responder.
 
+### Wiring runtime que materializa esse contrato
+
+- `extension/background.js` carrega `background/actions/claim-gemini-job.js` no bootstrap e encaminha mensagens registradas pelo router.
+- No caminho real de `routeRegisteredAction`, o `contextFactory` injeta `state`, `log`, `ensureInitialized` e `tabIdentity` proveniente de `initializeTabIdentity()`; por isso essas dependências não nascem dentro da action.
+- `extension/background/jobs-lifecycle.js` cria/persiste o job Gemini, compõe a URL gerenciada com `jobId`, grava `gemini_job_<canonicalTabId>` e mantém o índice usado pelo fallback de claim.
+- `extension/content/content_gemini.js` lê o `jobId` da URL, faz trim do valor gerenciado e envia `CLAIM_GEMINI_JOB`; depois abre keep-alive somente após claim válido.
+
+Essas relações são **wiring de produção** e devem ser separadas da prova focal dos testes: `claim-gemini-job-action.test.js` prova a action em harness controlado; `claim-bootstrap-keepalive.test.js` prova o consumer com responder mockado.
+
 Isso evita devolver um job “virtualmente migrado” enquanto storage/índice ainda estão inconsistentes.
 
 ## 4. Consumidor
@@ -264,7 +273,7 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 | 034 | U05 | ␠ [linha vazia] | Separador visual de U05 (jobId esperado e canonicalização do sender); sem alteração de estado/controle. |
 | 035 | U05 |       const expectedJobId = typeof request.jobId === 'string' && request.jobId | Normaliza request.jobId somente quando é string truthy. |
 | 036 | U05 |         ? request.jobId | Seleciona o jobId recebido como restrição adicional do claim. |
-| 037 | U05 |         : null; | Usa null quando sender/tab não existe, levando à rejeição inteira logo abaixo. |
+| 037 | U05 |         : null; | Usa `null` quando `request.jobId` não é uma string truthy; esta condição é independente da existência de `sender.tab`, já validada nas posições 30–33. |
 | 038 | U05 |       const tabIdentity = context.tabIdentity; | Obtém serviço de canonicalização/migração injetado pelo background. |
 | 039 | U05 |       const canonicalSenderTabId = tabIdentity | Começa resolução da identidade canônica do sender. |
 | 040 | U05 |         ? await tabIdentity.resolveCanonicalTabId(senderTabId) | Resolve alias/replacement do sender para o tabId canônico. |
@@ -286,51 +295,51 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 | 056 | U07 |         }); | Fecha a estrutura sintática da unidade U07. |
 | 057 | U07 |         return { job: safeJob(directJob, canonicalSenderTabId) }; | Sanitiza o registro direto antes de atravessar IPC. |
 | 058 | U07 |       } | Fecha a estrutura sintática da unidade U07. |
-| 059 | U07 | ␠ [linha vazia] | Separador visual de U07 (Sucesso direto e observabilidade); sem alteração de estado/controle. |
-| 060 | U07 |       if (!expectedJobId \|\| !context.state \|\| !Array.isArray(context.state.jobIndex)) { | Bloqueia fallback por índice sem jobId esperado ou sem índice de estado válido. |
-| 061 | U07 |         context.log('info', 'bg', 'TAB_CLAIM_REJECTED', 'Nenhum job elegível para claim', { | Registra rejeição de claim sem expor conteúdo completo do job. |
-| 062 | U07 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
-| 063 | U07 |         }); | Fecha a estrutura sintática da unidade U07. |
-| 064 | U07 |         return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 059 | U08 | ␠ [linha vazia] | Separador visual de U07 (Sucesso direto e observabilidade); sem alteração de estado/controle. |
+| 060 | U08 |       if (!expectedJobId \|\| !context.state \|\| !Array.isArray(context.state.jobIndex)) { | Bloqueia fallback por índice sem jobId esperado ou sem índice de estado válido. |
+| 061 | U08 |         context.log('info', 'bg', 'TAB_CLAIM_REJECTED', 'Nenhum job elegível para claim', { | Registra rejeição de claim sem expor conteúdo completo do job. |
+| 062 | U08 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 063 | U08 |         }); | Fecha a estrutura sintática da unidade U07. |
+| 064 | U08 |         return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
 | 065 | U08 |       } | Fecha a estrutura sintática da unidade U08. |
-| 066 | U08 | ␠ [linha vazia] | Separador visual de U08 (Pré-condições do fallback por índice); sem alteração de estado/controle. |
-| 067 | U08 |       const indexed = context.state.jobIndex.find(entry => | Procura no jobIndex o entry cujo jobId coincide estritamente com expectedJobId. |
-| 068 | U08 |         entry && entry.jobId === expectedJobId | Filtra entries nulos e exige igualdade estrita de jobId. |
-| 069 | U08 |       ); | Fecha a estrutura sintática da unidade U08. |
-| 070 | U08 |       if (!indexed) return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
-| 071 | U08 | ␠ [linha vazia] | Separador visual de U08 (Pré-condições do fallback por índice); sem alteração de estado/controle. |
-| 072 | U08 |       const canonicalIndexedTabId = tabIdentity | Começa canonicalização do tabId armazenado no índice. |
+| 066 | U09 | ␠ [linha vazia] | Separador visual de U08 (Pré-condições do fallback por índice); sem alteração de estado/controle. |
+| 067 | U09 |       const indexed = context.state.jobIndex.find(entry => | Procura no jobIndex o entry cujo jobId coincide estritamente com expectedJobId. |
+| 068 | U09 |         entry && entry.jobId === expectedJobId | Filtra entries nulos e exige igualdade estrita de jobId. |
+| 069 | U09 |       ); | Fecha a estrutura sintática da unidade U08. |
+| 070 | U09 |       if (!indexed) return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 071 | U09 | ␠ [linha vazia] | Separador visual de U08 (Pré-condições do fallback por índice); sem alteração de estado/controle. |
+| 072 | U09 |       const canonicalIndexedTabId = tabIdentity | Começa canonicalização do tabId armazenado no índice. |
 | 073 | U09 |         ? await tabIdentity.resolveCanonicalTabId(indexed.geminiTabId) | Resolve aliases do tabId indexado antes de comparar ownership. |
 | 074 | U09 |         : indexed.geminiTabId; | Sem serviço de identidade, usa o tabId original do índice. |
 | 075 | U09 | ␠ [linha vazia] | Separador visual de U09 (Busca indexada e canonicalização do job); sem alteração de estado/controle. |
-| 076 | U09 |       if (canonicalIndexedTabId !== canonicalSenderTabId) { | Exige igualdade entre identidade canônica do job e do sender. |
-| 077 | U09 |         context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por ownership de aba', { | Registra rejeição de claim sem expor conteúdo completo do job. |
-| 078 | U09 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
-| 079 | U09 |           indexedTabId: canonicalIndexedTabId, | Registra no warning o tabId canônico esperado pelo índice para diagnóstico. |
-| 080 | U09 |         }); | Fecha a estrutura sintática da unidade U09. |
+| 076 | U10 |       if (canonicalIndexedTabId !== canonicalSenderTabId) { | Exige igualdade entre identidade canônica do job e do sender. |
+| 077 | U10 |         context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por ownership de aba', { | Registra rejeição de claim sem expor conteúdo completo do job. |
+| 078 | U10 |           tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 079 | U10 |           indexedTabId: canonicalIndexedTabId, | Registra no warning o tabId canônico esperado pelo índice para diagnóstico. |
+| 080 | U10 |         }); | Fecha a estrutura sintática da unidade U09. |
 | 081 | U10 |         return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
 | 082 | U10 |       } | Fecha a estrutura sintática da unidade U10. |
-| 083 | U10 | ␠ [linha vazia] | Separador visual de U10 (Verificação de ownership canônico); sem alteração de estado/controle. |
-| 084 | U10 |       if (tabIdentity && indexed.geminiTabId !== canonicalSenderTabId) { | Detecta que o índice ainda usa id antigo embora ambos resolvam para o sender canônico. |
-| 085 | U10 |         await tabIdentity.migrateTabIdentity(indexed.geminiTabId, canonicalSenderTabId, { | Executa migração durável do id antigo para o id canônico novo antes de responder. |
-| 086 | U10 |           jobId: expectedJobId, | Expõe jobId necessário para correlacionar mensagens/retries do job. |
-| 087 | U10 |         }); | Fecha a estrutura sintática da unidade U10. |
-| 088 | U10 |       } | Fecha a estrutura sintática da unidade U10. |
-| 089 | U11 | ␠ [linha vazia] | Separador visual de U11 (Migração após alias); sem alteração de estado/controle. |
-| 090 | U11 |       const migratedKey = `gemini_job_${canonicalSenderTabId}`; | Reconstrói a chave durável esperada após a migração. |
-| 091 | U11 |       const migratedData = await context.storage.get([migratedKey]); | Relê storage no tabId canônico para validar o efeito persistido. |
-| 092 | U11 |       const migratedJob = migratedData && migratedData[migratedKey]; | Extrai o job pós-migração para revalidação. |
-| 093 | U11 |       if (!migratedJob \|\| migratedJob.jobId !== expectedJobId) return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
-| 094 | U11 | ␠ [linha vazia] | Separador visual de U11 (Migração após alias); sem alteração de estado/controle. |
-| 095 | U12 |       context.log('info', 'bg', 'TAB_CLAIM_ALIAS', 'Job reivindicado após resolver alias', { | Registra sucesso obtido após resolução/migração de alias. |
-| 096 | U12 |         tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
-| 097 | U12 |         jobIdPrefix: expectedJobId.slice(0, 8), | Loga somente prefixo de oito caracteres do jobId para correlação minimizada. |
-| 098 | U12 |       }); | Fecha a estrutura sintática da unidade U12. |
-| 099 | U12 |       return { job: safeJob(migratedJob, canonicalSenderTabId) }; | Sanitiza o registro migrado antes de devolvê-lo. |
-| 100 | U12 |     }, | Fecha a estrutura sintática da unidade U12. |
-| 101 | U12 |   }); | Fecha a estrutura sintática da unidade U12. |
-| 102 | U12 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha IIFE escolhendo self no worker e globalThis no fallback de testes. |
-| 103 | U13 | ⏎ [newline final] | Preserva o newline terminal do blob; sem efeito runtime. |
+| 083 | U11 | ␠ [linha vazia] | Separador visual de U10 (Verificação de ownership canônico); sem alteração de estado/controle. |
+| 084 | U11 |       if (tabIdentity && indexed.geminiTabId !== canonicalSenderTabId) { | Detecta que o índice ainda usa id antigo embora ambos resolvam para o sender canônico. |
+| 085 | U11 |         await tabIdentity.migrateTabIdentity(indexed.geminiTabId, canonicalSenderTabId, { | Executa migração durável do id antigo para o id canônico novo antes de responder. |
+| 086 | U11 |           jobId: expectedJobId, | Expõe jobId necessário para correlacionar mensagens/retries do job. |
+| 087 | U11 |         }); | Fecha a estrutura sintática da unidade U10. |
+| 088 | U11 |       } | Fecha a estrutura sintática da unidade U10. |
+| 089 | U12 | ␠ [linha vazia] | Separador visual de U11 (Migração após alias); sem alteração de estado/controle. |
+| 090 | U12 |       const migratedKey = `gemini_job_${canonicalSenderTabId}`; | Reconstrói a chave durável esperada após a migração. |
+| 091 | U12 |       const migratedData = await context.storage.get([migratedKey]); | Relê storage no tabId canônico para validar o efeito persistido. |
+| 092 | U12 |       const migratedJob = migratedData && migratedData[migratedKey]; | Extrai o job pós-migração para revalidação. |
+| 093 | U12 |       if (!migratedJob \|\| migratedJob.jobId !== expectedJobId) return { job: null }; | Retorna claim nulo; o router envolverá o resultado em ok:true quando execute conclui normalmente. |
+| 094 | U12 | ␠ [linha vazia] | Separador visual de U11 (Migração após alias); sem alteração de estado/controle. |
+| 095 | U13 |       context.log('info', 'bg', 'TAB_CLAIM_ALIAS', 'Job reivindicado após resolver alias', { | Registra sucesso obtido após resolução/migração de alias. |
+| 096 | U13 |         tabId: canonicalSenderTabId, | Associa o log ao tabId canônico que tentou o claim. |
+| 097 | U13 |         jobIdPrefix: expectedJobId.slice(0, 8), | Loga somente prefixo de oito caracteres do jobId para correlação minimizada. |
+| 098 | U13 |       }); | Fecha a estrutura sintática da unidade U12. |
+| 099 | U13 |       return { job: safeJob(migratedJob, canonicalSenderTabId) }; | Sanitiza o registro migrado antes de devolvê-lo. |
+| 100 | U13 |     }, | Fecha a estrutura sintática da unidade U12. |
+| 101 | U13 |   }); | Fecha a estrutura sintática da unidade U12. |
+| 102 | U13 | })(typeof self !== 'undefined' ? self : globalThis); | Fecha IIFE escolhendo self no worker e globalThis no fallback de testes. |
+| 103 | U14 | ⏎ [newline final] | Preserva o newline terminal do blob; sem efeito runtime. |
 
 ## 11. Análise por unidade
 
@@ -406,11 +415,11 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — claim direto retorna job sanitizado; TAB-10 rejeita jobId divergente na mesma aba. ⚠️ storage.get rejeitando/retornando shape inválido não tem teste.
 
-### U07 — linhas/posição 56–64: Sucesso direto e observabilidade
+### U07 — linhas/posição 56–58: Fechamento do sucesso direto
 
-**O que faz:** Loga TAB_CLAIM_DIRECT e retorna safeJob com geminiTabId canônico.
+**O que faz:** Fecha o log `TAB_CLAIM_DIRECT`, retorna `safeJob(directJob, canonicalSenderTabId)` e encerra o ramo do claim direto.
 
-**Como faz:** Log usa tabId e prefixo de 8 chars do jobId; retorno passa pelo sanitizador.
+**Como faz:** A telemetria foi aberta nas posições 53–55; esta unidade contém o fechamento do log, o retorno sanitizado e o fechamento do `if (directJob)`.
 
 **Por que desta forma:** Telemetria distingue caminho direto do caminho alias e minimiza ID nos logs.
 
@@ -418,9 +427,9 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ✅ PROVADO DIRETAMENTE para o objeto retornado/sanitização. ⚠️ Log TAB_CLAIM_DIRECT e truncamento não têm assertion focal.
 
-### U08 — linhas/posição 65–72: Pré-condições do fallback por índice
+### U08 — linhas/posição 59–65: Pré-condições do fallback por índice
 
-**O que faz:** Só tenta recuperar por índice quando há expectedJobId e state.jobIndex válido; caso contrário rejeita de forma inerte.
+**O que faz:** Após o miss do caminho direto, só permite o fallback por índice quando há `expectedJobId`, `context.state` e `state.jobIndex` array; caso contrário loga rejeição e retorna `job:null`.
 
 **Como faz:** Guarda combinada loga TAB_CLAIM_REJECTED e retorna job:null.
 
@@ -430,9 +439,9 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — TAB-11, aba Gemini manual sem job, recebe job:null. ⚠️ state ausente/jobIndex não-array com expectedJobId não tem caso focal.
 
-### U09 — linhas/posição 73–80: Busca indexada e canonicalização do job
+### U09 — linhas/posição 66–75: Busca indexada e canonicalização do job
 
-**O que faz:** Encontra no índice o entry com expectedJobId e resolve o geminiTabId indexado para identidade canônica.
+**O que faz:** Busca o entry estritamente pelo `expectedJobId`, rejeita miss e resolve o `geminiTabId` encontrado para a identidade canônica antes da checagem de ownership.
 
 **Como faz:** Array.find é estrito em jobId; miss retorna null; resolveCanonicalTabId é aplicado ao tabId do entry.
 
@@ -442,7 +451,7 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ✅ PROVADO DIRETAMENTE pelo cenário TAB-06, que parte de jobIndex no tabId antigo. ⚠️ expectedJobId não encontrado no índice não tem cenário focal separado.
 
-### U10 — linhas/posição 81–88: Verificação de ownership canônico
+### U10 — linhas/posição 76–82: Verificação de ownership canônico
 
 **O que faz:** Recusa o claim se o tabId canônico do job indexado não coincide com o tabId canônico do sender.
 
@@ -454,9 +463,9 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para este ramo de mismatch canônico. O teste de jobId mismatch é no caminho direto e não substitui esta propriedade.
 
-### U11 — linhas/posição 89–94: Migração após alias
+### U11 — linhas/posição 83–88: Migração após alias
 
-**O que faz:** Quando o índice ainda aponta para tabId antigo mas o sender canônico é o novo, migra identidade duravelmente.
+**O que faz:** Quando TabIdentity existe e o índice ainda aponta para um `geminiTabId` diferente do sender canônico, executa a migração durável `migrateTabIdentity(old,new,{jobId})`.
 
 **Como faz:** migrateTabIdentity(old,new,{jobId}) é awaited antes de reler storage.
 
@@ -466,11 +475,11 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — TAB-06 exige índice migrado para 200, chave antiga removida e `gemini_job_200` criada. tab-identity.test aprofunda journal/chain/recovery.
 
-### U12 — linhas/posição 95–102: Verificação pós-migração e retorno alias
+### U12 — linhas/posição 89–94: Read-after-write pós-migração
 
-**O que faz:** Relê a chave canônica depois da migração, exige jobId correspondente, loga TAB_CLAIM_ALIAS e devolve safeJob.
+**O que faz:** Relê a chave canônica após a eventual migração e exige que o job persistido exista e tenha o mesmo `expectedJobId`.
 
-**Como faz:** storage.get da migratedKey confirma o efeito durável em vez de confiar apenas no retorno da migração.
+**Como faz:** constrói `gemini_job_<canonicalSenderTabId>`, faz `storage.get`, extrai o registro e retorna `job:null` quando o read-after-write não confirma a identidade esperada.
 
 **Por que desta forma:** Read-after-write valida que o claim final está ancorado no estado persistido canônico.
 
@@ -478,7 +487,17 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 
 **Evidência:** ✅ PROVADO DIRETAMENTE — TAB-06 exige job retornado com geminiTabId novo e storage migrado. ⚠️ migrated key ausente/jobId divergente e falha de migration/storage não têm casos focais.
 
-### U13 — linhas/posição 103–103: Newline final
+### U13 — linhas/posição 95–102: Observabilidade e retorno após alias
+
+**O que faz:** Registra `TAB_CLAIM_ALIAS`, minimiza o jobId no log, devolve o `safeJob` migrado/canônico e fecha a action/IIFE.
+
+**Como faz:** o log usa `canonicalSenderTabId` e prefixo de oito caracteres de `expectedJobId`; o retorno passa pelo sanitizador `safeJob`. As posições finais fecham `execute`, `registerAction` e a IIFE.
+
+**Por que desta forma:** mantém telemetria distinta do caminho direto e só responde depois que o read-after-write confirmou o estado persistido.
+
+**Evidência:** ✅ TAB-06 prova o job retornado com `geminiTabId` novo e o storage migrado. ⚠️ O conteúdo exato do log/truncamento não possui assertion focal.
+
+### U14 — linhas/posição 103–103: Newline final
 
 **O que faz:** Documenta o newline terminal do blob.
 
@@ -504,3 +523,5 @@ Isso evita devolver um job “virtualmente migrado” enquanto storage/índice a
 - [x] nenhum código funcional alterado.
 
 **Veredito documental:** aprovada para `f5c4643d291931f133a791a2deaa6eb94ef4500d`.
+
+> **Correção pós-REAUDIT:** a posição 037 agora descreve `request.jobId`; U07–U14 seguem as fronteiras reais do source, e o wiring de produção entre background/router/contextFactory/jobs-lifecycle/content_gemini foi explicitado sem promovê-lo indevidamente a prova de teste focal.
