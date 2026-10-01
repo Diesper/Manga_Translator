@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "065-STATE-001",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "type": "STATE_RECOVERY_REVIEW",
       "target_file": "docs/biblia/.state/065.json",
       "found_while_auditing": ".github/workflows/ci.yml",
@@ -23,7 +23,14 @@
       "expected_auditor_action": "Revisar a recuperação do state e resolver esta solicitação quando a integridade histórica estiver confirmada.",
       "possible_regression": "Riscos/lacunas documentados na Bíblia podem não aparecer no fluxo agregado se o state anterior continha solicitações perdidas.",
       "impact": "Integridade de coordenação/auditoria; workflow e Bíblia permanecem inalterados.",
-      "severity": "NORMAL"
+      "severity": "NORMAL",
+      "resolved_at_utc": "2026-10-01T12:35:14Z",
+      "resolution": "Revisão histórica concluída: a base main não contém docs/biblia/.state/065.json e o histórico Git acessível mostra como primeiro registro o commit 59b1def957e07d6419da69be6898a184d2e01db2 ('docs(biblia): recupera state #065'). Não existe versão rastreável anterior do state da qual audit_requests adicionais possam ser recuperados sem invenção.",
+      "resolution_evidence": [
+        "base_sha 650f9864d7ebb17f81a2a32cb4b50f604e07d98e: .state/065.json ausente",
+        "primeiro commit rastreável do path: 59b1def957e07d6419da69be6898a184d2e01db2",
+        "Bíblia #065 e AUDITORIA.md não expõem IDs/status de audit_requests históricos perdidos"
+      ]
     }
   ],
   "recovery": {
@@ -48,7 +55,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T01:39:00Z",
+  "updated_at_utc": "2026-10-01T12:35:14Z",
   "history": [
     {
       "at_utc": "2026-10-01T01:39:00Z",
@@ -57,7 +64,23 @@
       "to_status": "COMPLETED",
       "reason": "Recuperação administrativa havia reaberto uma Bíblia já aprovada. Fonte, SHA atual, Bíblia e aprovação independente foram revalidados; lifecycle documental restaurado sem reauditoria desnecessária.",
       "previous_owner": "AGENTE 15"
+    },
+    {
+      "at_utc": "2026-10-01T12:35:14Z",
+      "type": "COORDINATION_REQUEST_RESOLVED",
+      "request_id": "065-STATE-001",
+      "status": "COMPLETED",
+      "reason": "Integridade histórica reconciliada sem inventar estado inexistente: não há state #065 rastreável antes do commit de recuperação."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "STATE_HISTORY_REVIEW",
+      "at_utc": "2026-10-01T12:35:14Z",
+      "request_id": "065-STATE-001",
+      "reviewer": "AGENTE 23",
+      "verdict": "RESOLVED",
+      "note": "Base main sem state #065; histórico do path começa no commit de recuperação 59b1def9...; nenhuma fonte rastreável anterior contém audit_requests recuperáveis."
+    }
+  ]
 }
