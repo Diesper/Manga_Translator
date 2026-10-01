@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/e2e/translation-flow.spec.js
-BÍBLIA: docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: db1da42c48ff795c41c7103cd5778e5a5d98e878
-CLAIMED_AT_UTC: 2026-10-01T21:47:05.074Z
-UPDATED_AT_UTC: 2026-10-01T21:47:05.074Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
