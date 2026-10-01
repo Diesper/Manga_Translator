@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const childProcess = require('child_process');
 
 const ROOT = path.resolve(__dirname, '../../..');
 const {
@@ -15,19 +16,19 @@ const {
 
 function loadCanonicalJestConfig({ coverageMode } = {}) {
   const configPath = path.join(ROOT, 'jest.config.js');
-  const previousCoverage = process.env.COVERAGE_MODE;
-  let loaded = null;
-  try {
-    if (coverageMode === undefined) delete process.env.COVERAGE_MODE;
-    else process.env.COVERAGE_MODE = coverageMode;
-    jest.isolateModules(() => {
-      loaded = require(configPath);
-    });
-    return loaded;
-  } finally {
-    if (previousCoverage === undefined) delete process.env.COVERAGE_MODE;
-    else process.env.COVERAGE_MODE = previousCoverage;
-  }
+  const env = { ...process.env };
+  if (coverageMode === undefined) delete env.COVERAGE_MODE;
+  else env.COVERAGE_MODE = coverageMode;
+
+  const script = [
+    'const config = require(' + JSON.stringify(configPath) + ');',
+    'process.stdout.write(JSON.stringify(config));',
+  ].join('');
+  return JSON.parse(childProcess.execFileSync(process.execPath, ['-e', script], {
+    cwd: ROOT,
+    env,
+    encoding: 'utf8',
+  }));
 }
 describe('load-content-script helper selftest', () => {
   let runtimeMock;
