@@ -2,11 +2,11 @@
   "index": 15,
   "file": "extension/background/actions/get-tab-id.js",
   "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
   "started_at_utc": "2026-09-30T11:25:00Z",
-  "completed_at_utc": "2026-09-30T11:31:00Z",
+  "completed_at_utc": null,
   "audit_requests": [],
   "document_quality": {
     "self_audit": "APPROVED",
@@ -20,7 +20,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T20:00:42.538Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:00:42.538Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
+      "reason": "015-REA-001/002: reconhecer sender.tab:null e popup integrados; manter context/sender ausentes e external como gaps."
+    }
+  ],
   "evidence": []
 }
