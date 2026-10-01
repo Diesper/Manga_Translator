@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **133**
-- CHANGES_REQUIRED: **1**
+- READY_FOR_AUDIT: **132**
+- CHANGES_REQUIRED: **2**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **1**
@@ -128,7 +128,7 @@
 | 103 | tests/helpers/load-extension-page.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | c2325598f10b3ef9dd656a4e87db8569748e66b0 | 2 |
 | 104 | tests/helpers/repo-root.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b2520d65820e7b9072602018b0f46609ac967c58 | 1 |
 | 105 | tests/helpers/track-background-delay-timers.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
-| 106 | tests/integration/banned-images-flow.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
+| 106 | tests/integration/banned-images-flow.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
 | 107 | tests/integration/chapter-dedup.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | e62187cd957a2fe241e4e704aaa9f8285e89162e | 3 |
 | 108 | tests/integration/gtc-end-to-end.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
 | 109 | tests/integration/ipc/gemini-cors-fallback.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1f5a1236139d85640cb5fa24590f434859155c62 | 2 |
