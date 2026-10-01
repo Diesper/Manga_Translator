@@ -261,7 +261,7 @@ function pipelineMergeBlockers(states, evaluation) {
 
 function displayAuditStatus(pipeline, legacyEntry = null) {
   if (pipeline?.hasDistributed) return pipeline.decision;
-  if (legacyEntry?.result) return legacyEntry.result;
+  if (pipeline?.primary?.legacy) return pipeline.primary.verdict;
   return 'NOT_AUDITED';
 }
 
