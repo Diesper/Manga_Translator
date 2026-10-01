@@ -321,8 +321,9 @@ describe('load-content-script helper selftest', () => {
     let throwOnce = true;
     const removeSpy = jest.spyOn(global.chrome.storage.onChanged, 'removeListener')
       .mockImplementation((listener) => {
+        const belongsToCurrentLoad = storageMock._listeners.includes(listener);
         originalStorageRemove(listener);
-        if (throwOnce) {
+        if (belongsToCurrentLoad && throwOnce) {
           throwOnce = false;
           throw new Error('cleanup-secondary');
         }
