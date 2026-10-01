@@ -145,15 +145,22 @@ function cleanupPreviousListeners() {
     setTrackedGlobalEventListeners([]);
 }
 
-function disposePreviousContentInstance() {
+function disposePreviousContentInstance(listeners = getTrackedGlobalEventListeners()) {
     if (
-        typeof window !== 'undefined'
-        && window.__manga_translator_content_injected
-        && typeof window.dispatchEvent === 'function'
-        && typeof window.Event === 'function'
+        typeof window === 'undefined'
+        || !window.__manga_translator_content_injected
+        || typeof window.Event !== 'function'
     ) {
-        window.dispatchEvent(new window.Event('pagehide'));
+        return;
     }
+
+    const event = new window.Event('pagehide');
+    listeners
+        .filter(({ target, type }) => target === window && type === 'pagehide')
+        .forEach(({ listener }) => {
+            if (typeof listener === 'function') listener.call(window, event);
+            else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(event);
+        });
 }
 
 /**
@@ -280,7 +287,7 @@ async function loadContentScript({
         const addedRuntimeListeners = runtimeListenersSnapshot()
             .filter(listener => !runtimeListenersBeforeLoad.has(listener));
 
-        disposePreviousContentInstance();
+        disposePreviousContentInstance(addedGlobalEventListeners);
         removeStorageListeners(addedStorageListeners);
         removeRuntimeListeners(addedRuntimeListeners);
         removeGlobalEventListeners(addedGlobalEventListeners);
@@ -314,7 +321,7 @@ async function loadContentScript({
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
-            disposePreviousContentInstance();
+            disposePreviousContentInstance(addedGlobalEventListeners);
             removeStorageListeners(addedStorageListeners);
             removeRuntimeListeners(addedRuntimeListeners);
             removeGlobalEventListeners(addedGlobalEventListeners);
