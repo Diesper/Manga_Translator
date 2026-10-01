@@ -1342,3 +1342,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 concluídas. As três falhas acima sobreviveram à releitura do source, à tentativa formal de refutação e à segunda auditoria independente da própria conclusão.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `gtc-cache-flow.test.js` — auditoria independente pelo AGENTE 14 em 2026-10-01
+
+- **Índice:** #110 — `tests/integration/ipc/gtc-cache-flow.test.js`.
+- **Auditor:** AGENTE 14.
+- **SHA auditado:** `e6eb5c744499fcaa0309a187a173841c185bbaea`.
+- **Integridade criptográfica:** state, source atual, claim e SHA declarado na Bíblia apontam para o mesmo blob. O source possui 250 linhas textuais e newline final.
+- **Fonte integral:** a seção `Fonte integral exata` da Bíblia foi comparada estruturalmente com o source e coincide integralmente; nenhum conteúdo foi adicionado, omitido ou reordenado.
+- **Cobertura:** existem exatamente 250 entradas `Linha 001`–`Linha 250`, sem gaps, duplicatas ou posições fora do arquivo, mais `Posição 251 — newline final`.
+- **Semântica/evidência:** a Bíblia acerta ao classificar esta suíte como simulação/contrato legado sobre `ChromeStorageMock`. `simulateExtractWithGTC` é local; não há import de `content_manga.js`/GTC client, nem dispatch real de `UPDATE_IMAGE`, `GTC_QUERY_MANY` ou `GTC_SAVE`. As 12 tests/22 assertions provam apenas o comportamento simulado/mock correspondente, e a Bíblia não promove isso a prova do pipeline real.
+- **Dependências/consumers:** `jest.config.js` descobre `tests/integration/**/*.test.js`; `package.json#test:integration` seleciona o projeto integration; `run-jest-ci.js` inclui unit + integration no inventário. `chrome-api.mock.js` confirma reset do singleton em `beforeEach`. Provas reais separadas existem para content_manga, bridge/background e IndexedDB, coerentemente tratadas como evidência externa/complementar.
+- **Audit requests:** 110-001, 110-002, 110-003, 110-004 e 110-005 foram revalidadas e permanecem materialmente válidas como lacunas/limitações de teste ou manutenção. No state canônico, todas estão **ACCEPTED** com `audited_by`, `audited_at_utc` e `audit_finding` persistidos; elas não bloqueiam automaticamente a Bíblia por serem problemas de software/cobertura honestamente descritos.
+- **Falha documental bloqueante:** a seção `6. Achados e solicitações ao auditor` da Bíblia apresenta as cinco requests como **OPEN**. Isso contradiz o state canônico atual, que registra todas como **ACCEPTED**, e não existe seção posterior no #110 que marque aqueles rótulos OPEN como histórico/superado. O conteúdo das lacunas está correto; o lifecycle documental está stale.
+- **Teste adversarial mental:** regressões no wiring real do GTC podem passar nesta suíte simulada, mas a própria Bíblia declara esse limite. Portanto, essa fragilidade não é um blocker documental adicional; o blocker sustentado é o status stale das requests.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica principal=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; audit requests=CONTRADITO quanto ao lifecycle; histórico/state=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO enquanto a Bíblia mantiver OPEN stale; Honestidade da classificação de evidência=SIM.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
