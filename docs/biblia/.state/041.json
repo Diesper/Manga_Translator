@@ -3,7 +3,7 @@
   "file": "extension/content/gemini/deletion.js",
   "bible": "docs/biblia/extension/content/gemini/deletion.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "agent": null,
   "source_sha": "2cec17f19e5293245b5e2f37493f0ef485b7281f",
   "completed_at_utc": "2026-09-30T05:59:27Z",
   "audit_requests": [
@@ -38,5 +38,11 @@
     "embedded_source_exact": true,
     "documented_positions": "483/483",
     "bible_lines": 3806
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
 }

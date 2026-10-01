@@ -3,7 +3,7 @@
   "file": "extension/content/gemini/image-quarantine.js",
   "bible": "docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "ddca93d17ca2934a9e95dba96a87283be4e9b9a3",
   "started_at_utc": "2026-09-30T13:31:00Z",
   "completed_at_utc": "2026-09-30T13:37:00Z",
@@ -80,5 +80,10 @@
     "source_text_lines": 215,
     "external_audit_requests_open": 3,
     "note": "Módulo real possui suíte direta; caminho WebCrypto de produção e contrato perceptual permanecem para auditoria."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -3,7 +3,7 @@
   "file": "extension/content/cm-dom-replace.js",
   "bible": "docs/biblia/extension/content/cm-dom-replace.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "d3fc72032dbddc81eae8fadc5e4da89b13a3bb79",
   "started_at_utc": "2026-09-30T14:10:00Z",
   "completed_at_utc": "2026-09-30T14:17:00Z",
@@ -80,5 +80,10 @@
     "source_text_lines": 189,
     "external_audit_requests_open": 3,
     "note": "Cobertura real forte; riscos de cleanUrl e twin responsivo persistidos."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

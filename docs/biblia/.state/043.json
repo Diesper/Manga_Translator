@@ -3,7 +3,7 @@
   "file": "extension/content/gemini/editor.js",
   "bible": "docs/biblia/extension/content/gemini/editor.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "agent": null,
   "source_sha": "0adbd4374758095acd84eda56522a2eb2c64fb1b",
   "completed_at_utc": "2026-09-30T06:00:49.841Z",
   "audit_requests": [
@@ -38,5 +38,11 @@
     "embedded_source_exact": true,
     "documented_positions": "174/174",
     "bible_lines": 698
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
 }

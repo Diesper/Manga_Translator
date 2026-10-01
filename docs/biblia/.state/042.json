@@ -3,7 +3,7 @@
   "file": "extension/content/gemini/dom.js",
   "bible": "docs/biblia/extension/content/gemini/dom.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "d3694ea70cdd97b64e483884895a458993791714",
   "started_at_utc": "2026-09-30T13:39:00Z",
   "completed_at_utc": "2026-09-30T13:46:00Z",
@@ -80,5 +80,10 @@
     "source_text_lines": 370,
     "external_audit_requests_open": 3,
     "note": "Suíte direta e consumidores reais exercitam o módulo; riscos materiais concentram-se em heurísticas de Send e blacklist de imagem."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

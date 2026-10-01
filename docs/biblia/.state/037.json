@@ -3,7 +3,7 @@
   "file": "extension/content/cm-gtc-client.js",
   "bible": "docs/biblia/extension/content/cm-gtc-client.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "95d062f41b9f1bd789a576c3a5c5d903b705fa55",
   "started_at_utc": "2026-09-30T13:50:00Z",
   "completed_at_utc": "2026-09-30T13:56:00Z",
@@ -80,5 +80,10 @@
     "source_text_lines": 161,
     "external_audit_requests_open": 3,
     "note": "Pipeline real usa o módulo; riscos de IPC sem timeout, regional fail-open e duplicação histórica persistidos."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
