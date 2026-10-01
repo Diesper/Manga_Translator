@@ -2,8 +2,8 @@
   "index": 187,
   "file": "tests/unit/content-gemini/rpa-flow.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
   "started_at_utc": "2026-09-30T17:40:00Z",
   "completed_at_utc": null,
@@ -82,7 +82,7 @@
     "bible_lines": 6128,
     "test_count": 10,
     "expect_occurrences": 38,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "ci_evidence": {
       "commit": "e720890cf34dc9437ee91f3b8172953497d69870",
       "run_id": 36521561968,
@@ -106,6 +106,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
       "reason": "187 PRIMARY+ADVERSARIAL: lifecycle stale e escopo temporal de CG-12/13."
+    },
+    {
+      "at_utc": "2026-10-01T19:32:17.673Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
+      "bible_sha": "50d2ca74afb78e229f88352efc6ecfeac3b238ce",
+      "reason": "187-PRI/A8 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
