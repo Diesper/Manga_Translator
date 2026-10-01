@@ -2,9 +2,9 @@
   "index": 60,
   "file": "extension/shared/storage-manager.js",
   "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -18,7 +18,7 @@
       "audited_at_utc": "2026-09-30T18:42:00Z",
       "audit_finding": "ACCEPTED — dois bugs de consistência confirmados. Na migração legacy, falhas por página são engolidas, mas ao final `_sm_migrated_<chapter>` é gravado `true`; se ao menos uma migrou, todo legado é removido, podendo perder páginas que falharam. Além disso, `savePageResult` ao substituir uma página com `cleanUrl` diferente marca o asset da página anterior como obsoleto, mas não remove a antiga restoreEntry por `previousPage.cleanUrl`; essa restore pode ficar apontando para asset apagado.",
       "auditor_recommended_action": "Só marcar/remover legado após migração integral comprovada (ou registrar progresso por item). Ao trocar cleanUrl da mesma página, remover/atualizar restore antigo na mesma transação. Adicionar regressões para falha parcial e troca de cleanUrl.",
-      "repair_progress": "IMPLEMENTED_AWAITING_TARGETED_REGRESSION"
+      "repair_progress": "SOURCE_FIXED; TARGETED_REGRESSION_IMPLEMENTED_IN_126; CI_PASS_PENDING"
     },
     {
       "id": "060-002",
@@ -31,7 +31,7 @@
       "audited_at_utc": "2026-09-30T20:52:00Z",
       "audit_finding": "ACCEPTED. `smoke-04-storage-manager.js` cobre round-trip, overwrite, deleteChapter e migração, mas não fault injection de IndexedDB, rejeição persistente/reabertura da DB promise, concorrência save/delete, Data URL malformada nem stats exatos.",
       "auditor_recommended_action": "Adicionar fault-injection e concorrência controlada com fake-indexeddb, incluindo transação abortada, open error, Data URL inválida e contagens de stats.",
-      "repair_progress": "CI_REPRODUCED_OPEN_DB_REJECTION_CACHE_BUG; SOURCE_REPAIR_IN_PROGRESS"
+      "repair_progress": "SMOKE_126_EXPANDED; OPEN_RETRY_BUG_FIXED; SYNC_OPEN_THROW_AND_TRANSACTION_ABORT_COVERAGE_STILL_PENDING"
     },
     {
       "id": "060-003",
@@ -44,7 +44,7 @@
       "audited_at_utc": "2026-09-30T20:52:00Z",
       "audit_finding": "ACCEPTED. `_chapterWriters` guarda uma Promise por chapterId e não remove explicitamente a entrada após conclusão; capítulos distintos acumulam chaves ao longo da vida do worker. Conversões DataURL→Blob e Blob→DataURL também podem coexistir com buffers equivalentes em memória para páginas grandes.",
       "auditor_recommended_action": "Medir/limitar memória e limpar `_chapterWriters` quando a cauda correspondente concluir; adicionar teste de muitos chapterIds e benchmark/política para páginas grandes.",
-      "repair_progress": "WRITER_MAP_CLEANUP_IMPLEMENTED; BLOB_MEMORY_REVIEW_AND_TARGETED_TEST_PENDING"
+      "repair_progress": "WRITER_MAP_CLEANUP_IMPLEMENTED; DIRECT_CARDINALITY_TEST_AND_BLOB_MEMORY_REVIEW_PENDING"
     }
   ],
   "document_quality": {
@@ -53,12 +53,12 @@
     "embedded_source_exact": true,
     "documented_positions": "517/517",
     "bible_lines": 5328,
-    "note": "REAUDIT #060 corrigido; source endurecido contra restore stale, migração parcial, cache de open rejeitado, leak de _chapterWriters e lastError de chrome.storage.local. Regressões focais ainda serão adicionadas em tests/smoke/smoke-04-storage-manager.js antes de resolver requests 060-001/002/003."
+    "note": "Source/Bíblia sincronizados após CI revelar cache de Promise rejeitada. openStorageDb agora evita cache em ausência de IDB, fecha conexão em versionchange e limpa qualquer rejeição cacheada por identidade. Smoke #126 ampliado existe; confirmação executável do SHA atual ainda pendente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:49:00Z",
-  "started_at_utc": "2026-10-01T22:49:00Z",
+  "updated_at_utc": "2026-10-01T23:20:30Z",
+  "started_at_utc": null,
   "history": [
     {
       "at_utc": "2026-10-01T22:22:30Z",
@@ -89,6 +89,17 @@
       "bible_sha": "a739fa3cfdac9a6cdcbf0fb2bfd91b5ea48aae46",
       "agent": "AGENTE 30",
       "reason": "New smoke regression proved _smDbPromise reset inside Promise executor is overwritten by outer assignment."
+    },
+    {
+      "at_utc": "2026-10-01T23:20:30Z",
+      "type": "CI_REGRESSION_REPAIRED_AND_REVALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
+      "current_source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
+      "current_bible_sha": "e425b19f67745d957e8835fd518a82e31b915ec4",
+      "agent": "AGENTE 30",
+      "reason": "Moved transient-IDB check before cache creation; added rejection cleanup by identity and versionchange cleanup; Bible source/header/517 positions revalidated. Test requests remain open until executable validation."
     }
   ],
   "evidence": [
@@ -102,6 +113,19 @@
       "test_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
       "result": "FAIL",
       "failure": "openStorageDb retry returns cached rejected Promise after transient IndexedDB absence"
+    },
+    {
+      "type": "STATIC_REVALIDATION",
+      "at_utc": "2026-10-01T23:20:30Z",
+      "source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
+      "bible_sha": "e425b19f67745d957e8835fd518a82e31b915ec4",
+      "result": "PASS",
+      "checks": [
+        "JavaScript parse",
+        "embedded source exact",
+        "517/517 sequential headings",
+        "stale cache/onversionchange claims absent"
+      ]
     }
   ]
 }
