@@ -4,7 +4,7 @@
   "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "f960710fe6b0ba43a6386f7dd903568284588423",
+  "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
   "started_at_utc": "2026-10-01T23:50:10Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -62,7 +62,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:52:00Z",
+  "updated_at_utc": "2026-10-01T23:54:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:28:00Z",
@@ -111,6 +111,13 @@
       "previous_source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
       "current_source_sha": "f960710fe6b0ba43a6386f7dd903568284588423",
       "reason": "Hit agora preserva isExtractionTab=true após spread; state/extractionTabs e mapping malformados recebem fallback defensivo."
+    },
+    {
+      "at_utc": "2026-10-01T23:54:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "f960710fe6b0ba43a6386f7dd903568284588423",
+      "current_source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+      "reason": "extractionTabs exige objeto não-array e mapping próprio; propriedades herdadas e arrays não podem produzir hit."
     }
   ],
   "evidence": [],
