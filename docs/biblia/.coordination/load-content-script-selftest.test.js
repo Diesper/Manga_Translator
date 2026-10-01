@@ -75,6 +75,17 @@ describe('load-content-script helper selftest', () => {
     expect(globalThis.__fixtureInjected).toBeUndefined();
   });
 
+  test('reinjeção aciona o teardown da instância anterior', async () => {
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    let count = 0;
+    const onPageHide = () => { count += 1; };
+    window.addEventListener('pagehide', onPageHide, { once: true });
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    expect(count).toBe(1);
+  });
   test('reinjeção remove listeners de storage da carga anterior', async () => {
     await loadContentScript({
       hostname: 'reader.test',
