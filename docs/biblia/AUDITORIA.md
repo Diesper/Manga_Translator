@@ -1293,3 +1293,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### `track-background-delay-timers.js` — auditoria independente SHA-bound pelo AGENTE 1 em 2026-10-01
+
+- **Índice:** #105 — `tests/helpers/track-background-delay-timers.js`.
+- **Auditor:** AGENTE 1.
+- **SHA auditado:** `b7860da7879c9bac7714f3ba7d33a7024b586c0d`.
+- **Integridade:** state, source, claim e SHA declarado na Bíblia coincidem. A fonte integral embutida é byte a byte idêntica ao blob atual: **41 linhas textuais + newline terminal = 42/42 posições**.
+- **Cobertura:** as 10 faixas cobrem exatamente as posições 1–42, sem gaps, overlaps ou posições fora da fonte; a verificação foi repetida após a análise semântica.
+- **Semântica:** o helper captura `setTimeout`/`clearTimeout`, rastreia somente delays numericamente iguais a 600/4_000/18_000, delega os demais ao timer original, remove o handle do `Map` antes do callback, cancela handles pendentes e expõe snapshots de delays/contagem. A Bíblia descreve corretamente esses contratos.
+- **Consumers/wiring:** foram reconfirmados os cinco consumers diretos documentados — `marker-anchor-real`, `process-finalize-real`, `lifecycle-alarms-real`, `message-handlers-real` e `regex-escape` — e todos restauram mocks no teardown. O timer de 600/18_000 existe em `jobs-lifecycle.js`; o timer de 4 s existe em `background.js::handleMarkerAndShow`.
+- **Assertions/evidência:** `marker-anchor-real.test.js` executa o fluxo real e faz assertions focais de `getPendingDelays()`, retorno do cancelador e `getPendingCount() === 0` para 4_000. Não existe prova focal equivalente para 600/18_000, delays fora da allowlist, firing natural, callback args ou cancelamento repetido; a Bíblia classifica essas lacunas conservadoramente.
+- **Request 105-001:** permanece **ACCEPTED** e tecnicamente válida; é dívida de teste não bloqueante quando documentada honestamente.
+- **Falha bloqueante — lifecycle stale duplicado na Bíblia:** a seção 7 rotula `105-001 — TEST_REQUIRED — OPEN`, enquanto `.state/105.json` registra `status: ACCEPTED`. O commit `853608d32ff9567adf4ad25a191245a175e71c94` mostra explicitamente a transição `OPEN → ACCEPTED`. O state é canônico; a Bíblia precisa refletir o lifecycle atual ou deixar de duplicar status mutável.
+- **Tentativa formal de reprovação:** SHA, fonte integral, cobertura, semântica, consumers e força das provas resistiram. A objeção material sustentada após três verificações é exclusivamente o estado OPEN stale da request.
+- **Matriz crítica:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; audit requests=CONTRADITO quanto ao status duplicado; lifecycle/state=CONTRADITO; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas; checks finais: Integridade=SIM, Veracidade=NÃO (status OPEN stale), Honestidade da classificação de evidência=SIM.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
