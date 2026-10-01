@@ -1,7 +1,0 @@
-OWNER: AGENTE 23
-PURPOSE: Reconciliar request 065-STATE-001 e projeções após reparos
-INDEX: GLOBAL
-PR: #66
-BRANCH: docs/project-bible
-ACQUIRED_AT_UTC: 2026-10-01T12:34:18Z
-ESTADO: ACTIVE
