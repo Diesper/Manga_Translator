@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/helpers/track-background-delay-timers.js
+BÍBLIA: docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: b7860da7879c9bac7714f3ba7d33a7024b586c0d
+CLAIMED_AT_UTC: 2026-10-01T20:04:40.191Z
+UPDATED_AT_UTC: 2026-10-01T20:04:40.191Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
