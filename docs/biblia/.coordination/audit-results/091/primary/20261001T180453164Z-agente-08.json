@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "index": 91,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 8",
+  "file": "scripts/validation/verify-test-policy.js",
+  "bible": "docs/biblia/scripts/validation/verify-test-policy.js/Bíblia.md",
+  "source_sha": "4a821403353445023452a0b5055e3a0893beaad2",
+  "bible_sha": "9d132ef2aadf0e23bea92ad01f8fa32a89968852",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-091-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_OVERSTATEMENT",
+      "summary": "A Bíblia afirma que cada ocorrência de um padrão Jest proibido adiciona uma mensagem independente em `problems`, mas a implementação adiciona no máximo uma mensagem por padrão/arquivo.",
+      "evidence": [
+        "Bíblia §4: `Cada ocorrência adiciona uma mensagem independente em problems.`",
+        "Source linhas 25-29: regexes de `.skip`, `.only` e `test.todo` não possuem flag global.",
+        "Source linhas 31-38: para cada arquivo e cada padrão há apenas um `item.regex.test(source)` seguido de um único `problems.push(...)`.",
+        "Portanto, duas ou mais ocorrências de `test.skip` no mesmo arquivo continuam gerando apenas uma entrada `.skip` para esse arquivo.",
+        "O self-test focal injeta um único `test.skip` e não testa cardinalidade de múltiplas ocorrências do mesmo padrão."
+      ],
+      "secondary_contradiction": "O invariante 4 (`Cada padrão proibido encontrado deve produzir uma entrada`) é compatível se interpretado por tipo de padrão, mas não salva a afirmação explícita por ocorrência da seção 4.",
+      "requested_documentation_fix": "Trocar `cada ocorrência` por `cada padrão/label detectado por arquivo` (ou formulação equivalente) e deixar claro que múltiplas ocorrências do mesmo regex no mesmo arquivo colapsam em uma única mensagem."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "86/86",
+    "corrected_prior_findings": [
+      "091-REA-001 lifecycle atualizado",
+      "091-REA-002 cleanup em finally qualificado"
+    ],
+    "nonblocking_requests": [
+      "091-001 SUPERSEDED by 090-001",
+      "091-002 ACCEPTED",
+      "091-003 ACCEPTED"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:04:53.164Z"
+}
