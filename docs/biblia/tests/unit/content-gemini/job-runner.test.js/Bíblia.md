@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/job-runner.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** feae92421dd98e682caf3f970ba7ff86b8b6aa4a  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest do pipeline central Gemini JobRunner  
@@ -82,7 +82,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 
 ## 12. Solicitações ao auditor
 
-### 181-001 — TEST_REQUIRED — OPEN — HIGH
+### 181-001 — TEST_REQUIRED — SUPERSEDED → 045-001 — HIGH
 
 Encontrado: waitForStableComposer exige editor/composer estáveis por 750 ms e pelo menos 1500 ms; ao expirar 12 s lança GEMINI_COMPOSER_NOT_READY. Nenhum caso focal mantém o composer ausente/trocando até o timeout.
 
@@ -90,7 +90,7 @@ Evidência ausente: relógio controlado com selectLiveComposer sempre null ou al
 
 Risco: re-render contínuo do Gemini pode avançar com nó stale ou travar sem diagnóstico correto.
 
-### 181-002 — TEST_REQUIRED — OPEN — NORMAL
+### 181-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: RUN-08 prova somente REFRESH_JOB_WATCHDOG com {ok:true,refreshed:true}. A implementação trata ACK negativo, runtime.lastError e throw como GEMINI_WATCHDOG_REFRESH_FAILED, mantendo o fluxo.
 
@@ -98,7 +98,7 @@ Evidência ausente: ao menos um ACK negativo e um throw/lastError; exigir uma ú
 
 Risco: falha de refresh pode cancelar indevidamente a geração ou deixar de ser observável.
 
-### 181-003 — TEST_REQUIRED — OPEN — HIGH
+### 181-003 — TEST_REQUIRED — SUPERSEDED → 045-005 — HIGH
 
 Encontrado: RUN-14 faz duas falhas e sucesso na terceira tentativa de GEMINI_RESULT_COMMIT. Não cobre o branch após a terceira falha, que lança RESULT_COMMIT_FAILED.
 
@@ -106,7 +106,7 @@ Evidência ausente: três ACKs negativos/no_ack; exigir um único GEMINI_IMAGE_E
 
 Risco: resultado já persistido pode ficar com job não finalizado e sem diagnóstico consistente.
 
-### 181-004 — INTEGRATION_TEST_REQUIRED — OPEN — HIGH
+### 181-004 — INTEGRATION_TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: onAuxiliaryFallback registra GEMINI_RESULT_URL e exige {ok:true,extractionRegistered:true}; o retorno final é delivered_auxiliary. Nenhum caso focal do runner atravessa esse ramo.
 
@@ -6185,4 +6185,6 @@ describe('gemini/job-runner.js', () => {
 
 ## 15. Conclusão documental
 
-Foram documentadas 757 linhas textuais e a posição 758 do newline final. Os 21 casos principais estão diretamente provados no mesmo blob verde em Node 20/22; as quatro solicitações OPEN cobrem branches terminais/excepcionais do runner sem duplicar as Bíblias dos módulos auxiliares.
+Foram documentadas 757 linhas textuais e a posição 758 do newline final. Os 21 casos principais estão diretamente provados no mesmo blob verde em Node 20/22. No lifecycle canônico, 181-001 está SUPERSEDED por `045-001`, 181-002 está ACCEPTED, 181-003 está SUPERSEDED por `045-005` e 181-004 está ACCEPTED.
+
+> **Lifecycle pós-adversarial:** requests superseded continuam rastreadas nos IDs canônicos 045-001/045-005; requests ACCEPTED permanecem lacunas reconhecidas, não trabalho OPEN.
