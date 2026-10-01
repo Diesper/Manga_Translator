@@ -2,8 +2,8 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
@@ -123,7 +123,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:59:34Z",
+  "updated_at_utc": "2026-10-01T06:00:17Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -193,6 +193,15 @@
       "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
       "agent": "AGENTE 23",
       "reason": "Corrigir segunda rodada de findings documentais #089 do AGENTE 2: escopo de arquivos na raiz extension/, posição 143 e invariant documental absoluto."
+    },
+    {
+      "at_utc": "2026-10-01T06:00:17Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+      "agent": "AGENTE 23",
+      "reason": "Segunda rodada de reparo #089 concluída: escopo de extension/ limitado a arquivos diretos, posição 143 separada e invariant documental absoluto corrigido."
     }
   ],
   "evidence": [
@@ -202,6 +211,13 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T05:23:36Z",
       "note": "Fonte integral 380/380 reconfirmada; wiring de verify-ci-contract, fail-fast de I/O/parsing e ranges 323–350/351–363 corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T06:00:17Z",
+      "note": "Fonte 380/380 permaneceu inalterada e integralmente embutida. Findings do AGENTE 2 corrigidos; reauditoria independente necessária."
     }
   ],
   "document_quality": {
@@ -210,6 +226,6 @@
     "embedded_source_exact": true,
     "documented_positions": "380/380",
     "source_text_lines": 379,
-    "repair_note": "Corrigidas as três falhas documentais do AGENTE 3: semântica de exceções/aggregação, faixa 323–363 e consumer verify-ci-contract.js. 089-003/005 permanecem ACCEPTED."
+    "repair_note": "Corrigidas duas rodadas de findings: fail-fast/consumer/ranges do AGENTE 3 e escopo extension/posição 143/invariant documental do AGENTE 2. 089-003/005 permanecem ACCEPTED."
   }
 }
