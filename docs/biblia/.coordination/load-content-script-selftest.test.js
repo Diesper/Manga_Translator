@@ -164,7 +164,9 @@ describe('load-content-script helper selftest', () => {
     }
   });
 
-  test('falha parcial de bundle remove listeners registrados antes do erro', async () => {
+  test('falha parcial de bundle faz teardown e remove listeners registrados antes do erro', async () => {
+    let pagehideCount = 0;
+    window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
     const manifestPath = path.join(ROOT, 'extension/manifest.json');
     const realReadFileSync = fs.readFileSync.bind(fs);
     jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...args) => {
@@ -184,6 +186,7 @@ describe('load-content-script helper selftest', () => {
       floatingButtonEnabled: false,
     })).rejects.toThrow('__missing_selftest__');
 
+    expect(pagehideCount).toBe(1);
     expect(storageMock._listeners).toHaveLength(0);
     expect(runtimeMock._messageListeners).toHaveLength(0);
   });
@@ -338,7 +341,9 @@ describe('load-content-script helper selftest', () => {
     expect(jest.getTimerCount()).toBe(0);
   });
 
-  test('bootstrap incompleto rejeita com timeout causal', async () => {
+  test('bootstrap incompleto faz teardown e rejeita com timeout causal', async () => {
+    let pagehideCount = 0;
+    window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
     const originalGet = storageMock.get.bind(storageMock);
     jest.spyOn(storageMock, 'get').mockImplementation((keys, callback) => {
       if (Array.isArray(keys) && keys.includes('enabledDomains')) {
@@ -353,6 +358,7 @@ describe('load-content-script helper selftest', () => {
       readyTimeoutMs: 20,
     })).rejects.toThrow('Timeout aguardando botão do content_manga ficar pronto após 20 ms');
 
+    expect(pagehideCount).toBe(1);
     expect(storageMock._listeners).toHaveLength(0);
     expect(runtimeMock._messageListeners).toHaveLength(0);
     expect(document.getElementById('manga-translator-trigger')).toBeNull();
