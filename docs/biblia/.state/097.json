@@ -1,0 +1,58 @@
+{
+  "index": 97,
+  "file": "tests/fixtures/manga-page.html",
+  "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+  "started_at_utc": "2026-09-30T06:15:00Z",
+  "completed_at_utc": "2026-10-01T04:58:55Z",
+  "audit_requests": [],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "101/101",
+    "range_blocks": 16,
+    "ranges_contiguous": true,
+    "source_has_final_newline": true,
+    "bible_lines": 238,
+    "direct_e2e_evidence": [
+      "2 páginas elegíveis",
+      "exatamente 2 traduções",
+      "avatar excluído",
+      "banner excluído",
+      "visibilidade simultânea",
+      "restoreIndex page_001/page_002"
+    ],
+    "external_audit_requests_open": 0,
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados.",
+    "source_text_lines": 100,
+    "evidence_run": 36815953158,
+    "evidence_summary": "Os shards medium-a/medium-b e o gate E2E focal executaram com sucesso os contratos centrais do fixture; o run global não foi tratado como verde por conter falhas não focais."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T04:58:55Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:58:55Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "auditor": "AGENTE 1",
+      "reason": "Auditoria independente SHA-bound confirmou 101/101 posições, fonte integral exata, wiring/consumers e assertions E2E focais executadas com sucesso."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 1",
+      "at_utc": "2026-10-01T04:58:55Z",
+      "note": "Run 36815953158: medium-a/medium-b e gate E2E focal verdes; nenhum audit_request bloqueante."
+    }
+  ]
+}

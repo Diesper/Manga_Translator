@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "index": 10,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 10",
+  "file": "extension/background/actions/download-chapter.js",
+  "bible": "docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md",
+  "source_sha": "8636a03c8a2038ebbb26103db7f63b578699733e",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "010-ADV-001",
+      "severity": "BLOCKING",
+      "type": "INTERNAL_SEMANTIC_CONTRADICTION",
+      "finding": "U05 é declarada como posições 31–34, mas atribui a esse intervalo o ramo sem anchorId que está nas posições 28–30; a própria tabela classifica 28–30 como U04 e 31–34 como U05.",
+      "evidence": [
+        "source 28–30: else/fallbackDownload/} do `if (request.anchorId)`",
+        "tabela: 28–30=U04 e 31–34=U05",
+        "seção U05 31–34: `Sem anchorId, executa diretamente o fallback`"
+      ],
+      "required_change": "Alinhar a fronteira/unidade documental ou reescrever U05 para não atribuir comportamento fora da faixa."
+    },
+    {
+      "id": "010-ADV-002",
+      "severity": "BLOCKING",
+      "type": "POSITIONAL_SEMANTIC_ERROR",
+      "finding": "A posição 25 diz que fallback ocorre quando o anchor não existe ou não foi fornecido, mas essa linha só é alcançável dentro de `if (request.anchorId)`; ausência de anchorId é tratada na posição 29.",
+      "evidence": [
+        "posição 19: if(request.anchorId)",
+        "posições 24–25: fallback após search não reutilizável",
+        "posições 28–29: else/fallback para ausência de anchorId"
+      ],
+      "required_change": "Restringir a descrição da posição 25 a anchorId fornecido porém não reutilizável; reservar ausência para a posição 29."
+    }
+  ],
+  "confidence": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15",
+  "completed_at_utc": "2026-10-01T16:03:04.093Z"
+}

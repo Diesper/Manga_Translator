@@ -1,0 +1,87 @@
+{
+  "index": 11,
+  "file": "extension/background/actions/download-image.js",
+  "bible": "docs/biblia/extension/background/actions/download-image.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
+  "started_at_utc": "2026-09-30T13:05:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "011-001",
+      "status": "SUPERSEDED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/download-image-action.test.js",
+      "found_while_auditing": "extension/background/actions/download-image.js",
+      "finding": "A suíte direta cobre somente o caminho feliz; não há assertions focais para runtime.lastError/id undefined, erro do waitForDownload, search vazio ou arquivo não encontrado.",
+      "current_evidence": "Prefixo MangaTranslator/, waitForDownload e resposta final com filePath/downloadId são provados.",
+      "missing_evidence": "Todos os ramos de erro retornados pela própria action.",
+      "why_needed": "A action possui múltiplos retornos {error:...} que podem regredir sem afetar o teste atual.",
+      "requested_action": "Adicionar casos focais contra a action real para cada branch de erro, incluindo interrupção/timeout via helper.",
+      "expected_evidence": "Resposta {error} correta e ausência de hangs em cada falha.",
+      "expected_auditor_action": "Fortalecer cobertura em alteração separada.",
+      "possible_regression": "Downloads podem falhar ou ficar pendentes sem gate específico.",
+      "impact": "Download automático/manual de páginas traduzidas.",
+      "severity": "NORMAL",
+      "superseded_by": "141-001",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "SUPERSEDED por 141-001. A ausência de testes negativos da action download-image já foi auditada e aceita na própria suíte.",
+      "auditor_recommended_action": "Centralizar cobertura negativa em 141-001."
+    },
+    {
+      "id": "011-002",
+      "status": "ACCEPTED",
+      "type": "INPUT_VALIDATION_REVIEW",
+      "target_file": "extension/background/actions/download-image.js",
+      "found_while_auditing": "extension/background/actions/download-image.js",
+      "finding": "Não há validate(); request.filename.startsWith lança para filename ausente/não-string e não existe contrato explícito para URL/filename vazio ou path traversal lógico.",
+      "current_evidence": "Consumidores normais enviam strings válidas.",
+      "missing_evidence": "Política explícita e testes para entradas inválidas/hostis.",
+      "why_needed": "A action aceita qualquer source da extensão e constrói caminho de download diretamente do payload.",
+      "requested_action": "Auditar contrato de filename/url e, se necessário, adicionar validate/sanitização em mudança funcional separada com testes.",
+      "expected_evidence": "Payload inválido falha de forma controlada antes de chrome.downloads.download.",
+      "expected_auditor_action": "Revisar superfície de entrada e paths.",
+      "possible_regression": "TypeError genérico ou caminho inesperado pode chegar à API de downloads.",
+      "impact": "Robustez e segurança do download.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "ACCEPTED — validação ausente confirmada. `request.filename.startsWith(...)` roda antes de qualquer Promise/guard; filename ausente ou não-string lança síncronamente. URL/filename vazio e path lógico também não têm contrato explícito.",
+      "auditor_recommended_action": "Adicionar validate para filename/url antes de efeitos e casos negativos; decidir política de caminhos permitidos."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "32/32",
+    "source_text_lines": 31,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia concorrente revalidada; fonte integral normalizada para equivalência física exata."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T16:48:41.929Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T16:48:41.929Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
+      "reason": "011-REA-001/002: corrigir semântica dos erros terminais e força de evidência de downloads.search."
+    },
+    {
+      "at_utc": "2026-10-01T16:48:41.929Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
+      "bible_sha": "9a6bf2fda71eb2cd45396174f082ceae44dbdc93",
+      "reason": "011-REA-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": []
+}

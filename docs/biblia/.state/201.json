@@ -1,0 +1,99 @@
+{
+  "index": 201,
+  "file": "tests/unit/content-manga/drawer-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/drawer-real.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "eeebbd56fe1a1c788a81b43e222be06309b90f32",
+  "started_at_utc": "2026-09-30T06:34:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "201-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/drawer-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/drawer-real.test.js",
+      "finding": "applyDebugDrawer(true) limpa _closeInterval, mas o caso DEBUG_MODE_CHANGED true começa sem countdown ativo.",
+      "current_evidence": "Há prova direta de cancelamento ao reabrir a drawer e prova direta de debug on/off isolado. content_manga.js linha 1490 implementa clearInterval ao ligar debug.",
+      "missing_evidence": "Transição composta countdown ativo -> DEBUG_MODE_CHANGED true -> passagem de tempo além do timeout original.",
+      "why_needed": "Os fluxos isolados podem continuar verdes mesmo se o clearInterval específico do modo debug regredir.",
+      "requested_action": "Adicionar teste com implementação real: criar erro, recolher, confirmar 30S, ligar debug, avançar mais de 30s e confirmar drawer visível/expandida em estado debug.",
+      "expected_evidence": "Assertions diretas de texto debug, display/collapsed e ausência do fechamento tardio.",
+      "expected_auditor_action": "Confirmar a lacuna e tratar a cobertura em alteração de teste separada.",
+      "possible_regression": "Ativar debug durante countdown pode deixar timer antigo apagar a drawer mais tarde.",
+      "impact": "Consistência do modo debug durante transições temporizadas.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. O caso DEBUG_MODE_CHANGED true começa sem countdown ativo; portanto não prova que `applyDebugDrawer(true)` realmente limpa `_closeInterval` pendente.",
+      "auditor_recommended_action": "Iniciar countdown real, ativar debug e avançar timers; exigir que o fechamento antigo não ocorra."
+    },
+    {
+      "id": "201-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/drawer-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/drawer-real.test.js",
+      "finding": "SHOW_ERROR_INTEGRATED possui guard contra batchId antigo antes de marcar batchHasErrors e abrir a drawer, mas não foi localizada prova content-side desse guard.",
+      "current_evidence": "Os casos do #201 enviam SHOW_ERROR sem batchId. Testes upstream provam emissão da mensagem, não o descarte pelo consumer.",
+      "missing_evidence": "Cenário com _currentBatchId ativo e SHOW_ERROR_INTEGRATED de batch diferente, verificando que a UI/erro pendente permanecem inalterados.",
+      "why_needed": "O guard isola erros atrasados de lote anterior do lote corrente.",
+      "requested_action": "Adicionar teste focal usando a API real para estabelecer lote corrente e enviar erro stale, sem copiar a condição.",
+      "expected_evidence": "Erro stale não abre/altera drawer, não marca hasError e não contamina o lote atual.",
+      "expected_auditor_action": "Confirmar a lacuna e criar cobertura separada se o isolamento for contrato obrigatório.",
+      "possible_regression": "Mensagem atrasada de lote anterior pode exibir erro incorreto e marcar o lote atual como falho.",
+      "impact": "Isolamento entre lotes concorrentes ou sequenciais.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `content_manga.js` possui guard explícito em `SHOW_ERROR_INTEGRATED`: se request.batchId diverge de `_currentBatchId`, retorna antes de marcar `batchHasErrors` ou abrir a drawer. Os testes da drawer enviam SHOW_ERROR sem batchId e não exercitam o isolamento stale.",
+      "auditor_recommended_action": "Adicionar caso usando o content script real para estabelecer lote corrente e enviar erro de lote anterior; exigir drawer/estado do lote atual inalterados."
+    },
+    {
+      "id": "201-003",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-manga/drawer-real.test.js",
+      "related_files": [
+        "extension/content/content_manga.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/drawer-real.test.js",
+      "finding": "showIntegratedError retorna cedo quando floatingButtonEnabled=false e registra o erro sem recriar a UI; não foi localizada assertion focal de SHOW_ERROR_INTEGRATED nesse estado.",
+      "current_evidence": "Há testes de configuração floatingButtonEnabled em outras superfícies, mas não do branch showIntegratedError com botão oculto.",
+      "missing_evidence": "Prova de que erro recebido não recria/exibe o botão e de que o log BATCH_ERROR preserva floatingButtonHiddenByUser=true.",
+      "why_needed": "A preferência explícita de ocultar o botão deve prevalecer mesmo durante erro.",
+      "requested_action": "Adicionar teste real com floatingButtonEnabled=false, despachar SHOW_ERROR_INTEGRATED e verificar ausência da UI mais logging observável.",
+      "expected_evidence": "Botão continua ausente e erro permanece observável por log sem violar a configuração.",
+      "expected_auditor_action": "Confirmar a lacuna e tratar cobertura em mudança separada.",
+      "possible_regression": "Um erro pode fazer o botão reaparecer ou perder observabilidade quando a UI está desabilitada.",
+      "impact": "Respeito à configuração do usuário e diagnóstico de erros.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:48:00Z",
+      "audit_finding": "ACCEPTED. Não há caso focal de `SHOW_ERROR_INTEGRATED` quando `floatingButtonEnabled=false`, branch em que o erro é registrado sem recriar/mostrar a UI.",
+      "auditor_recommended_action": "Adicionar cenário com botão desabilitado persistido e afirmar ausência de UI, preservação do estado de erro/log e retorno esperado."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "246/246",
+    "source_text_lines": 245,
+    "bible_lines": 1024,
+    "external_audit_requests_open": 3,
+    "evidence_note": "Seis casos executam content_manga.js real via load-content-script; lacunas combinatórias e guards não exercitados foram mantidos separados."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

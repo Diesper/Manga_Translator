@@ -1,0 +1,632 @@
+/**
+ * gemini-mock-server.js
+ * Servidor HTTP local para os testes E2E do Playwright.
+ *
+ * ARQUITETURA DE IMAGENS — POR QUE GERACAO EM MEMORIA:
+ *
+ * Historico de falhas:
+ * 1. v1 (original): Escrevia string base64 falsa no arquivo .png.
+ *    Chrome detectava arquivo corrompido → naturalWidth = 0 → 0 imagens detectadas.
+ *
+ * 2. v2 (Gemini SVG): Tentou SVGs com MIME image/svg+xml.
+ *    Chrome reporta naturalWidth = 0 para SVGs carregados via <img> em modo headless
+ *    quando o SVG nao tem dimensoes absolutas intrinsecas em pixels — o que e o caso
+ *    de qualquer SVG que usa apenas viewBox sem width/height fixos em px.
+ *    Resultado identico: naturalWidth = 0 → teste falhou.
+ *
+ * 3. v3 (este arquivo): PNGs binarios reais gerados EM MEMORIA ao iniciar o servidor.
+ *    O formato PNG tem um campo IHDR que encapsula largura/altura em 4 bytes big-endian.
+ *    O Chrome le o IHDR antes de decodificar os pixels e reporta naturalWidth/naturalHeight
+ *    a partir desses valores IMEDIATAMENTE apos receber o header HTTP — mesmo antes
+ *    de decodificar todos os IDAT. Resultado: naturalWidth = 800 garantido.
+ *
+ * FONTE UNICA DAS IMAGENS:
+ * Os buffers vivem em ./manga-images.js. O servidor e o script de preparo usam
+ * exatamente o mesmo Map, evitando imagens versionadas ou geradores divergentes.
+ */
+
+const http = require('http');
+const path = require('path');
+const fs   = require('fs');
+const { PNG_IMAGES, writeImagesToDisk } = require('./manga-images');
+
+const PORT     = 3999;
+const FIXTURES = __dirname;
+
+// Barreiras temporizadas por estado para testes FIFO. Cada ID é único por teste.
+// O primeiro attachment fica bloqueado até o teste liberar explicitamente;
+// attachments posteriores com o mesmo ID passam imediatamente.
+const ATTACHMENT_BARRIERS = new Map();
+
+function getAttachmentBarrier(id) {
+    if (!ATTACHMENT_BARRIERS.has(id)) {
+        ATTACHMENT_BARRIERS.set(id, {
+            arrivals: 0,
+            released: false,
+            waiters: new Set(),
+        });
+    }
+    return ATTACHMENT_BARRIERS.get(id);
+}
+
+function sendJson(res, payload, statusCode = 200) {
+    if (res.writableEnded) return;
+    res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify(payload));
+}
+
+function buildGeminiMockHtml() {
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gemini Mock</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101418;
+      color: #f5f7fa;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 32px 24px 48px;
+    }
+
+    .shell {
+      background: #1c232b;
+      border: 1px solid #2d3742;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .toolbar h1 {
+      font-size: 16px;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .attachment-container {
+      min-height: 64px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px dashed #4d6377;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preview-image {
+      max-width: 130px;
+      max-height: 180px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .prompt-box {
+      min-height: 120px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #0f1419;
+      border: 1px solid #344150;
+      outline: none;
+      white-space: pre-wrap;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: #3aa675;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #result-zone {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #2d3742;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #result-zone img {
+      max-width: 100%;
+      border-radius: 12px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <nav id="mock-side-nav" aria-label="Conversas" style="padding:8px 16px;background:#0b1015;border-bottom:1px solid #27323d;">
+    <div id="mock-chat-list">
+      <div class="mock-chat-row" data-chat-id="mock-chat">
+        <a href="/app/mock-chat">Conversa do Manga Translator</a>
+        <button type="button" data-test-id="chat-options" aria-haspopup="menu">Opções</button>
+      </div>
+      <div class="mock-chat-row" data-chat-id="other-chat">
+        <a href="/app/other-chat">Outra conversa</a>
+        <button type="button" aria-haspopup="menu">Opções</button>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <div class="shell">
+      <div class="toolbar">
+        <h1>Gemini Mock para Playwright</h1>
+        <span id="mock-status">Aguardando entrada</span>
+        <button data-test-id="temp-chat-button" aria-label="Desativar conversa temporária" style="display:none">Desativar conversa temporária</button>
+        <div data-test-id="temp-chat-indicator" class="temp-chat-indicator" style="display:none">conversa temporária</div>
+      </div>
+
+      <div class="attachment-container">
+        <img class="preview-image" alt="preview" />
+        <span id="attachment-label">Nenhuma imagem anexada</span>
+      </div>
+
+      <div class="prompt-box" contenteditable="true" aria-label="Prompt" role="textbox"></div>
+
+      <div class="actions">
+        <button id="send-button" type="button" aria-label="Send message" title="Send message">Send</button>
+      </div>
+
+      <div id="result-zone"></div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const editor = document.querySelector('[contenteditable="true"]');
+      const preview = document.querySelector('.preview-image');
+      const label = document.getElementById('attachment-label');
+      const status = document.getElementById('mock-status');
+      const resultZone = document.getElementById('result-zone');
+      const sendButton = document.getElementById('send-button');
+      const currentUrl = new URL(window.location.href);
+      const jobIndex = currentUrl.searchParams.get('jobIndex') || '0';
+      const attachmentBarrierId = currentUrl.searchParams.get('attachmentBarrierId') || '';
+      const generationDelayParam = currentUrl.searchParams.get('generationDelayMs');
+      const generationDelayMs = generationDelayParam === null
+        ? 1200
+        : Math.max(0, Number(generationDelayParam) || 0);
+      const resultImageDelayParam = currentUrl.searchParams.get('resultImageDelayMs');
+      const resultImageDelayMs = resultImageDelayParam === null
+        ? 2000
+        : Math.max(0, Number(resultImageDelayParam) || 0);
+      const fastResult = currentUrl.searchParams.get('fastResult') === '1';
+      const ignoreSubmit = currentUrl.searchParams.get('ignoreSubmit') === '1';
+      const attachmentFails = currentUrl.searchParams.get('attachmentFails') === '1';
+      const attachmentFailAttempts = Math.max(
+        0,
+        Number(currentUrl.searchParams.get('attachmentFailAttempts') || 0)
+      );
+      const attachmentDelayMs = Math.max(
+        0,
+        Number(currentUrl.searchParams.get('attachmentDelayMs') || 0)
+      );
+      const cloneInputIntoUserTurn =
+        currentUrl.searchParams.get('cloneInputIntoUserTurn') === '1';
+      const orphanImageBeforeResult =
+        currentUrl.searchParams.get('orphanImageBeforeResult') === '1';
+      const shadowResult =
+        currentUrl.searchParams.get('shadowResult') === '1';
+      const relaxedResultContainer =
+        currentUrl.searchParams.get('relaxedResultContainer') === '1';
+      const chatOptionsButton = document.querySelector('[data-chat-id="mock-chat"] [data-test-id="chat-options"]');
+
+      let attachmentSeen = false;
+      let attachmentAttempts = 0;
+      let running = false;
+
+      function commitPreview(event) {
+        if (attachmentSeen) return;
+        attachmentSeen = true;
+        label.textContent = 'Imagem anexada pelo content script';
+        preview.style.display = 'block';
+
+        const firstFile =
+          event.clipboardData &&
+          event.clipboardData.files &&
+          event.clipboardData.files.length > 0
+            ? event.clipboardData.files[0]
+            : null;
+
+        if (firstFile) {
+          preview.src = URL.createObjectURL(firstFile);
+        } else {
+          preview.src =
+            'data:image/svg+xml;utf8,' +
+            encodeURIComponent(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="220"><rect width="100%" height="100%" fill="#486581"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="Arial" font-size="18">preview</text></svg>'
+            );
+        }
+      }
+
+      function showPreviewFromEvent(event) {
+        if (attachmentSeen) return;
+        attachmentAttempts += 1;
+
+        if (attachmentFails || attachmentAttempts <= attachmentFailAttempts) {
+          status.textContent = 'Attachment ignorado pelo mock';
+          return;
+        }
+
+        const commitAfterOptionalDelay = () => {
+          if (attachmentDelayMs > 0) {
+            status.textContent = 'Attachment atrasado pelo mock';
+            setTimeout(() => commitPreview(event), attachmentDelayMs);
+            return;
+          }
+          commitPreview(event);
+        };
+
+        if (attachmentBarrierId) {
+          status.textContent = 'Attachment aguardando barreira do teste';
+          fetch(
+            '/__test/attachment-barrier/' +
+              encodeURIComponent(attachmentBarrierId) +
+              '/arrive',
+            { method: 'POST' }
+          )
+            .then(response => {
+              if (!response.ok) throw new Error('barrier_arrive_failed');
+              return response.json();
+            })
+            .then(() => commitAfterOptionalDelay())
+            .catch(() => {
+              status.textContent = 'Barreira indisponível; seguindo sem atraso';
+              commitAfterOptionalDelay();
+            });
+          return;
+        }
+
+        commitAfterOptionalDelay();
+      }
+
+      function appendInputClone() {
+        const userTurn = document.createElement('div');
+        userTurn.setAttribute('data-message-author', 'user');
+        userTurn.setAttribute('data-turn-role', 'user');
+
+        const img = document.createElement('img');
+        img.alt = 'Clone da imagem enviada pelo usuário';
+        img.src =
+          '/manga-images/page_001.png?userClone=' +
+          encodeURIComponent(jobIndex) +
+          '&t=' +
+          Date.now();
+
+        userTurn.appendChild(img);
+        resultZone.appendChild(userTurn);
+      }
+
+      function appendOrphanImage() {
+        const img = document.createElement('img');
+        img.alt = 'Imagem grande fora de model turn';
+        img.src =
+          '/manga-images/page_002.png?orphan=' +
+          encodeURIComponent(jobIndex) +
+          '&t=' +
+          Date.now();
+        resultZone.appendChild(img);
+      }
+
+      function appendResultImage() {
+        const response = relaxedResultContainer
+          ? document.createElement('section')
+          : document.createElement('model-response');
+
+        if (relaxedResultContainer) {
+          response.className = 'assistant-response-new-ui';
+          response.setAttribute('data-message-author', 'assistant');
+        } else {
+          response.setAttribute('data-message-author', 'model');
+        }
+
+        const responseText = document.createElement('div');
+        responseText.className = 'model-response-text';
+
+        const img = document.createElement('img');
+        img.alt = 'Imagem traduzida do mock';
+        img.src =
+          '/gemini-result-image?jobIndex=' +
+          encodeURIComponent(jobIndex) +
+          '&delayMs=' +
+          encodeURIComponent(resultImageDelayMs) +
+          '&t=' +
+          Date.now();
+
+        if (shadowResult) {
+          const shadowHost = document.createElement('div');
+          shadowHost.className = 'mock-generated-image-shadow-host';
+          const shadow = shadowHost.attachShadow({ mode: 'open' });
+          shadow.appendChild(img);
+          responseText.appendChild(shadowHost);
+        } else {
+          responseText.appendChild(img);
+        }
+
+        response.appendChild(responseText);
+        resultZone.appendChild(response);
+        status.textContent = 'Imagem traduzida pronta';
+      }
+
+      async function runTranslation() {
+        if (ignoreSubmit) {
+          status.textContent = 'Submit ignorado pelo mock';
+          return;
+        }
+        if (running) return;
+
+        running = true;
+        // O Gemini real associa a primeira mensagem a uma conversa e passa a
+        // expor /app/<chatId>. O fluxo minimized_window precisa desse ID para
+        // validar a exclusão segura antes da entrega; sem isso o mock forçava
+        // artificialmente o caminho de recovery/reload.
+        if (window.location.pathname === '/gemini/' || window.location.pathname === '/gemini') {
+          history.replaceState({}, '', '/app/mock-chat');
+        }
+        status.textContent = 'Processando mock...';
+        sendButton.disabled = true;
+        if (editor) {
+          editor.textContent = '';
+          editor.innerText = '';
+        }
+
+        if (cloneInputIntoUserTurn) appendInputClone();
+        if (orphanImageBeforeResult) appendOrphanImage();
+
+        if (fastResult) {
+          // A resposta aparece no mesmo task lógico do submit. O Observer V3
+          // precisa ter sido instalado antes do click para capturá-la.
+          appendResultImage();
+          setTimeout(() => {
+            sendButton.disabled = false;
+          }, 0);
+          return;
+        }
+
+        const stopBtn = document.createElement('button');
+        stopBtn.setAttribute('data-test-id', 'stop-generating-button');
+        stopBtn.setAttribute('aria-label', 'Stop generating');
+        stopBtn.textContent = 'Stop';
+        sendButton.parentNode.appendChild(stopBtn);
+
+        if (generationDelayMs > 0) {
+          await new Promise(resolve => setTimeout(resolve, generationDelayMs));
+        } else {
+          // Mantém uma virada de task para que MutationObserver veja o estado
+          // "gerando" sem impor latência artificial de parede ao teste.
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+
+        stopBtn.remove();
+        sendButton.disabled = false;
+        appendResultImage();
+      }
+
+      if (chatOptionsButton) {
+        chatOptionsButton.addEventListener('click', () => {
+          document.getElementById('mock-delete-menu')?.remove();
+          const menu = document.createElement('div');
+          menu.id = 'mock-delete-menu';
+          menu.setAttribute('role', 'menu');
+
+          const deleteItem = document.createElement('div');
+          deleteItem.setAttribute('role', 'menuitem');
+          deleteItem.textContent = 'Excluir';
+          deleteItem.tabIndex = 0;
+          deleteItem.addEventListener('click', () => {
+            menu.remove();
+            document.getElementById('mock-delete-dialog')?.remove();
+
+            const dialog = document.createElement('div');
+            dialog.id = 'mock-delete-dialog';
+            dialog.setAttribute('role', 'dialog');
+
+            const confirm = document.createElement('button');
+            confirm.type = 'button';
+            confirm.textContent = 'Excluir';
+            confirm.addEventListener('click', () => {
+              dialog.dataset.confirmed = 'true';
+              document.querySelector('[data-chat-id="mock-chat"]')?.remove();
+              history.replaceState({}, '', '/app');
+              status.textContent = 'Conversa excluída pelo mock';
+              dialog.remove();
+            });
+
+            const cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.textContent = 'Cancelar';
+
+            dialog.append(confirm, cancel);
+            document.body.appendChild(dialog);
+          });
+
+          menu.appendChild(deleteItem);
+          document.body.appendChild(menu);
+        });
+      }
+
+      editor.addEventListener('drop', event => {
+        event.preventDefault();
+        showPreviewFromEvent(event);
+      });
+
+      editor.addEventListener('paste', event => {
+        showPreviewFromEvent(event);
+      });
+
+      editor.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          runTranslation();
+        }
+      });
+
+      sendButton.addEventListener('click', () => {
+        runTranslation();
+      });
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+// Materializa as mesmas fixtures usadas em memória para consumidores que precisam de arquivo.
+writeImagesToDisk(path.join(FIXTURES, 'manga-images'));
+console.log('PNG images prepared from the shared fixture source.');
+
+// ── Servidor HTTP ─────────────────────────────────────────────────────────────
+const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
+    if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
+
+    const requestUrl = new URL(req.url, `http://${req.headers.host}`);
+    const url = requestUrl.pathname;
+
+    const barrierMatch = url.match(/^\/__test\/attachment-barrier\/([^/]+)\/(arrive|status|release)$/);
+    if (barrierMatch) {
+        const barrierId = decodeURIComponent(barrierMatch[1]);
+        const action = barrierMatch[2];
+        const barrier = getAttachmentBarrier(barrierId);
+
+        if (action === 'status' && req.method === 'GET') {
+            sendJson(res, {
+                ok: true,
+                arrivals: barrier.arrivals,
+                waiting: barrier.waiters.size,
+                released: barrier.released,
+            });
+            return;
+        }
+
+        if (action === 'release' && req.method === 'POST') {
+            barrier.released = true;
+            for (const waiter of barrier.waiters) {
+                sendJson(waiter, { ok: true, released: true });
+            }
+            barrier.waiters.clear();
+            sendJson(res, {
+                ok: true,
+                arrivals: barrier.arrivals,
+                waiting: 0,
+                released: true,
+            });
+            return;
+        }
+
+        if (action === 'arrive' && req.method === 'POST') {
+            barrier.arrivals += 1;
+            if (barrier.arrivals === 1 && !barrier.released) {
+                barrier.waiters.add(res);
+                req.on('close', () => {
+                    if (!res.writableEnded) barrier.waiters.delete(res);
+                });
+                return;
+            }
+            sendJson(res, {
+                ok: true,
+                arrivals: barrier.arrivals,
+                waiting: barrier.waiters.size,
+                released: barrier.released,
+            });
+            return;
+        }
+
+        sendJson(res, { ok: false, error: 'invalid_barrier_request' }, 405);
+        return;
+    }
+
+    // Health check — usado pelo playwright.config.js para aguardar o servidor
+    if (url === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', mock: true }));
+        return;
+    }
+
+    // Gemini mock result image — simula resposta do Gemini apos traducao
+    if (url === '/gemini-result-image') {
+        const jobIndex = requestUrl.searchParams.get('jobIndex');
+        const translatedKey = jobIndex === '0' || jobIndex === '1'
+            ? `translated_result_${jobIndex}.png`
+            : 'translated_result_default.png';
+        const buf = PNG_IMAGES.get(translatedKey) || PNG_IMAGES.get('translated_result_default.png');
+        const delayParam = requestUrl.searchParams.get('delayMs');
+        const delayMs = delayParam === null ? 2000 : Math.max(0, Number(delayParam) || 0);
+        const sendImage = () => {
+            res.writeHead(200, { 'Content-Type': 'image/png' });
+            res.end(buf);
+        };
+        if (delayMs > 0) setTimeout(sendImage, delayMs);
+        else sendImage();
+        return;
+    }
+
+    if (
+        url === '/gemini' ||
+        url === '/gemini/' ||
+        url === '/app/mock-chat'
+    ) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(buildGeminiMockHtml());
+        return;
+    }
+
+    // manga-page.html — pagina HTML com as 4 imagens de teste
+    if (url === '/' || url === '/manga-page.html') {
+        const htmlPath = path.join(FIXTURES, 'manga-page.html');
+        const html = fs.existsSync(htmlPath)
+            ? fs.readFileSync(htmlPath)
+            : Buffer.from('<html><body>manga-page.html not found</body></html>');
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(html);
+        return;
+    }
+
+    // Imagens de manga: /manga-images/page_001.png etc.
+    // Servidas da memoria — NUNCA do disco — para garantir validade.
+    if (url.startsWith('/manga-images/')) {
+        const file = path.basename(url);
+        const buf  = PNG_IMAGES.get(file);
+        if (buf) {
+            res.writeHead(200, {
+                'Content-Type':  'image/png',
+                'Cache-Control': 'no-store', // evita cache stale no browser
+            });
+            res.end(buf);
+            return;
+        }
+    }
+
+    res.writeHead(404); res.end('Not found: ' + url);
+});
+
+server.listen(PORT, () => {
+    console.log('Gemini Mock Server rodando na porta ' + PORT);
+});

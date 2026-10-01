@@ -1,0 +1,114 @@
+{
+  "index": 106,
+  "file": "tests/integration/banned-images-flow.test.js",
+  "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+  "started_at_utc": "2026-09-30T06:22:33Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "106-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/banned-images-flow.test.js",
+      "found_while_auditing": "tests/integration/banned-images-flow.test.js",
+      "finding": "A suíte se apresenta como integração completa popup → storage → GET_PAGE_IMAGES/botão flutuante, porém nunca carrega popup.js, content_manga.js ou cm-dom-replace.js; reimplementa esses caminhos em simulateGetPageImages, simulateBanImages e simulateUnbanImages.",
+      "current_evidence": "O arquivo prova diretamente a semântica de suas simulações sobre ChromeStorageMock. Em suítes externas, popup.advanced.ui.test.js prova o clique real de ban; extraction-and-handlers-real.test.js prova GET_PAGE_IMAGES real; extract-flow-real.test.js prova a auto-seleção real do botão excluindo banidas.",
+      "missing_evidence": "Uma prova única em que o popup real grava bannedImages_<host> e, no mesmo storage/contexto controlado, o content script real consome esse estado por GET_PAGE_IMAGES e/ou pelo clique do botão flutuante, sem duplicar a lógica.",
+      "why_needed": "Uma divergência entre nome/formato da chave, momento da leitura ou regra de elegibilidade pode quebrar a integração real enquanto as funções simulate* continuam verdes.",
+      "requested_action": "Em alteração de teste separada, substituir ou complementar a suíte usando as implementações reais via loadExtensionPage e loadContentScript com o mesmo mock de storage; alternativamente reclassificar explicitamente este arquivo como teste de modelo e manter a integração real em uma suíte focal.",
+      "expected_evidence": "Após clicar btn-ban-selected no popup real, a chave correta contém a URL; o content script real no mesmo hostname a omite de GET_PAGE_IMAGES e não a inclui em START_BATCH disparado pela auto-seleção do botão.",
+      "expected_auditor_action": "Confirmar a lacuna, decidir a localização da prova ponta a ponta e exigir execução das implementações reais sem usar cópia local da regra como substituto.",
+      "possible_regression": "Popup e content script podem divergir no contrato de storage e esta suíte continuar passando.",
+      "impact": "A regressão histórica BUG #9 + INCONS #2 pode retornar sem ser detectada por esta suíte específica.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — classificação de integração incorreta confirmada. A suíte define `simulateGetPageImages/simulateBanImages/simulateUnbanImages` locais e não carrega popup.js, content_manga.js ou cm-dom-replace.js. Ela prova apenas o modelo simulado do contrato.",
+      "auditor_recommended_action": "Criar integração que carregue produtores/consumidores reais (ou reclassificar como teste de modelo) e manter assertions de storage/filtragem sobre implementação real."
+    },
+    {
+      "id": "106-002",
+      "status": "ACCEPTED",
+      "type": "TEST_QUALITY",
+      "target_file": "tests/integration/banned-images-flow.test.js",
+      "found_while_auditing": "tests/integration/banned-images-flow.test.js",
+      "finding": "O caso 'todas as imagens válidas são retornadas' reconhece que BANNER (960×480) é válido mas não o verifica; além disso simulateGetPageImages renumera índices depois do filtro, enquanto a implementação real preserva o índice original do DOM e aplica regras adicionais de traduzida, deduplicação, backdrop e limites configuráveis.",
+      "current_evidence": "Há assertions de presença das duas páginas, exclusão por URL, cardinalidade, isolamento por host e não duplicação do array simulado.",
+      "missing_evidence": "Assertion da lista completa no caso nominal, preservação do índice original após remover uma imagem anterior e prova de fidelidade da simulação à implementação atual.",
+      "why_needed": "O modelo local pode se afastar silenciosamente do produto; índices recompactados podem mascarar seleção/roteamento da imagem errada.",
+      "requested_action": "Preferir a implementação real. Se a simulação for mantida, restringir explicitamente seu contrato, assertar o conjunto completo esperado e adicionar caso que detecte renumeração indevida de índice.",
+      "expected_evidence": "Lista exata contendo as três imagens no caso nominal; após banir a imagem de índice 0, a imagem seguinte conserva o índice DOM original na prova que representa o produto real.",
+      "expected_auditor_action": "Revisar a utilidade da simulação diante das suítes reais existentes e exigir alinhamento de índice/filtro se ela permanecer.",
+      "possible_regression": "Seleção ou roteamento por índice pode se deslocar sem quebrar assertions baseadas apenas em src.",
+      "impact": "Reduz a confiabilidade da suíte, embora não invalide provas reais existentes em outras suítes.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:50:00Z",
+      "audit_finding": "ACCEPTED. `simulateGetPageImages` renumera índices após filtrar e o caso nominal não verifica o conjunto completo (incluindo banner válido). Isso diverge do produto real, que preserva índice DOM e aplica filtros adicionais.",
+      "auditor_recommended_action": "Preferir o content script real; se a simulação permanecer, restringir seu contrato e adicionar caso que preserve índice original após remover item anterior."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "212/212",
+    "source_text_lines": 211,
+    "bible_lines": 1582,
+    "external_audit_requests_open": 2,
+    "evidence_note": "O #106 testa um modelo sintético; provas do código real foram atribuídas apenas a suítes externas que carregam as implementações reais. A integração popup→storage→botão real em uma única prova continua ausente.",
+    "repair_note": "Corrigidos findings do AGENTE 3: requests 106-001/002 alinhadas a ACCEPTED e SHA de package.json atualizado para o blob atual do branch. Source inalterado; reauditoria independente necessária."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T12:16:01Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T12:08:47Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "auditor": "AGENTE 3",
+      "reason": "Falhas documentais materiais: Bíblia mantém 106-001/106-002 como OPEN apesar do state canônico ACCEPTED; seção de wiring referencia SHA stale de package.json (base/main) em vez do blob atual do branch."
+    },
+    {
+      "at_utc": "2026-10-01T12:15:34Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir findings documentais #106: lifecycle das requests e SHA atual de package.json."
+    },
+    {
+      "at_utc": "2026-10-01T12:16:01Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "agent": "AGENTE 23",
+      "reason": "Reparo #106 concluído sem alterar o source; lifecycle das requests e rastreabilidade de package.json corrigidos."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 3",
+      "at_utc": "2026-10-01T12:08:47Z",
+      "note": "Passagens 0–15: integridade/fonte/cobertura/semântica principal/assertions passam; lifecycle de audit_requests e rastreabilidade de package.json estão stale na Bíblia."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T12:16:01Z",
+      "note": "Bíblia corrigida: package.json 33e0b91d1a6f1790124b700d2ce331f80d2b7095 → 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48; 106-001/002 = ACCEPTED. Reauditoria independente necessária."
+    }
+  ]
+}

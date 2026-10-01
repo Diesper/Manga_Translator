@@ -1,0 +1,148 @@
+{
+  "index": 111,
+  "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+  "started_at_utc": "2026-09-30T06:23:49.485Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "111-001",
+      "status": "ACCEPTED",
+      "type": "PERFORMANCE_ASSERTION_GAP",
+      "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+      "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+      "behavior_affected": "Meta temporal declarada para restauração de 50 imagens.",
+      "finding": "O cabeçalho e o nome do teste afirmam menos de 200ms, mas a única assertion temporal aceita elapsedMs < 1000.",
+      "current_evidence": "Linha 304 usa expect(elapsedMs).toBeLessThan(1000); o mesmo blob participou de CI verde.",
+      "missing_evidence": "Assertion executável que falhe quando elapsedMs for >=200ms.",
+      "why_needed": "Sem ela, regressões entre 200 e 999ms permanecem verdes enquanto o contrato textual promete 200ms.",
+      "requested_action": "Decidir a meta real; se 200ms for requisito, alinhar assertion/ambiente em alteração separada; se 1000ms for correto, alinhar nome e comentário.",
+      "expected_evidence": "Teste/benchmark cuja assertion corresponda exatamente à meta documentada.",
+      "expected_auditor_action": "Confirmar o contrato de performance antes de qualquer alteração no teste.",
+      "possible_regression": "Degradação de 5x em relação ao texto declarado pode não falhar a suíte.",
+      "impact": "Confiabilidade da garantia de performance.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — assertion contradiz o contrato nominal. O cabeçalho e o nome do teste afirmam restauração de 50 imagens em menos de 200 ms, mas a única assertion temporal é `expect(elapsedMs).toBeLessThan(1000)`. Uma regressão 5× acima do objetivo declarado permanece verde.",
+      "auditor_recommended_action": "Alinhar contrato e assertion: se 200 ms é piso real, exigir <200 com metodologia estável; se 1000 ms é o limite suportado, renomear/documentar para não alegar 200 ms."
+    },
+    {
+      "id": "111-002",
+      "status": "ACCEPTED",
+      "type": "PERFORMANCE_BENCHMARK_REVIEW",
+      "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+      "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+      "behavior_affected": "Representatividade do benchmark de restauração de 50 imagens.",
+      "finding": "O cenário chamado de imagens pesadas usa data URLs pequenas, JSDOM, fake-indexeddb e MutationObserver no-op.",
+      "current_evidence": "O harness prova 50 hits e mede o tempo desse ambiente sintético; não há decodificação de imagens 800x1200 reais.",
+      "missing_evidence": "Benchmark de Chromium/IndexedDB nativo com payloads representativos e custo de DOM/imagem real.",
+      "why_needed": "O tempo medido pode não representar a experiência real e pode variar com carga do runner.",
+      "requested_action": "Definir se este caso é regressão relativa do harness ou SLA de produto; se SLA, criar benchmark separado apropriado.",
+      "expected_evidence": "Execução estável em ambiente representativo com limite documentado e payload realista.",
+      "expected_auditor_action": "Classificar a força probatória da meta de performance e solicitar benchmark separado se necessário.",
+      "possible_regression": "Produto real pode degradar sem que este harness sintético detecte.",
+      "impact": "Validade da evidência de performance.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:25:00Z",
+      "audit_finding": "ACCEPTED. O benchmark de 50 imagens usa data URLs pequenas, JSDOM, fake-indexeddb e MutationObserver no-op. Ele é útil como regressão relativa do harness/pipeline, mas não prova custo de decodificação/DOM/IndexedDB nativo em Chromium.",
+      "auditor_recommended_action": "Classificar explicitamente o limite como benchmark sintético de regressão. Se houver SLO de produto, adicionar benchmark/E2E separado em Chromium com payloads representativos."
+    },
+    {
+      "id": "111-003",
+      "status": "ACCEPTED",
+      "type": "RESOURCE_CLEANUP",
+      "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+      "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+      "behavior_affected": "Higiene de recursos da suíte de integração.",
+      "finding": "Cada beforeEach cria banco com nome único e o afterEach não limpa/apaga o database; fs também é importado sem uso.",
+      "current_evidence": "Nomes únicos evitam colisão entre casos, mas os bancos permanecem vivos até o fim do processo; fs não é referenciado após o import.",
+      "missing_evidence": "Cleanup explícito do banco/fixture e justificativa para o import fs.",
+      "why_needed": "Execuções longas/repetidas podem acumular estado em memória e o import morto adiciona ruído.",
+      "requested_action": "Avaliar cleanup explícito e remover import morto em alteração separada se apropriado.",
+      "expected_evidence": "Teste/teardown demonstrando lifecycle escolhido e suíte verde após limpeza.",
+      "expected_auditor_action": "Classificar o impacto do lifecycle no fake-indexeddb antes de alterar o teste.",
+      "possible_regression": "Crescimento de estado no processo de teste e dívida de manutenção.",
+      "impact": "Baixo no conjunto atual; potencial em sessões longas.",
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. Cada `beforeEach` cria um IndexedDB com nome único, mas `afterEach` não fecha/apaga explicitamente o database; no fake-indexeddb isso evita colisão porém mantém estado até o fim do processo. O import `fs` também está sem uso.",
+      "auditor_recommended_action": "Avaliar cleanup explícito do DB/repository para sessões longas e remover o import morto se não houver justificativa."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "312/312",
+    "source_text_lines": 311,
+    "bible_lines": 532,
+    "range_blocks": 18,
+    "ranges_contiguous": true,
+    "source_has_final_newline": true,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [
+      109437162616,
+      109437162754,
+      109437162502,
+      109437162789
+    ],
+    "evidence_note": "Mesmo blob do arquivo presente no CI verde; assertions diretas diferenciadas de execução indireta e limitações do harness.",
+    "repair_note": "Findings do AGENTE 6 corrigidos: lifecycle 111-001..003 alinhado a ACCEPTED e cm-gtc-client.js documentado como módulo carregado pelo harness e owner operacional das chamadas GTC rebindadas em content_manga.js. Source inalterado; reauditoria independente necessária."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T12:43:27Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T12:38:35.147Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "auditor": "AGENTE 6",
+      "reason": "Falhas documentais materiais: requests 111-001..003 continuam rotuladas OPEN e a verificação final fala em 3 abertas apesar de o state canônico registrá-las ACCEPTED; a Bíblia omite cm-gtc-client.js, embora load-content-script o carregue e content_manga faça rebind das funções GTC para MangaTranslatorGtcClient."
+    },
+    {
+      "at_utc": "2026-10-01T12:41:46Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir findings documentais #111: lifecycle 111-001..003 e dependência/ownership de cm-gtc-client.js."
+    },
+    {
+      "at_utc": "2026-10-01T12:43:27Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "agent": "AGENTE 23",
+      "reason": "Reparo #111 concluído conforme auditoria independente; source permaneceu inalterado."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T12:38:35.147Z",
+      "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/CI/assertions/semântica funcional passam; lifecycle documental e dependência/ownership de cm-gtc-client falham. Requests 111-001..003 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T12:43:27Z",
+      "note": "Fonte integral exata reconfirmada; lifecycle das requests e ownership/dependência de cm-gtc-client corrigidos. Reauditoria independente necessária."
+    }
+  ]
+}

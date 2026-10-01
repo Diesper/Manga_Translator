@@ -1,0 +1,74 @@
+name: Bible Protocol Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - docs/project-bible
+    paths:
+      - 'docs/biblia/.coordination/audit-core.js'
+      - 'docs/biblia/.coordination/audit-core-git-selftest.js'
+      - 'docs/biblia/.coordination/audit-protocol.js'
+      - 'docs/biblia/.coordination/audit-protocol-selftest.js'
+      - 'docs/biblia/.coordination/reconcile-audit-results.js'
+      - 'docs/biblia/.coordination/reconcile-audit-results-selftest.js'
+      - 'docs/biblia/.coordination/audit-lease-gc.js'
+      - 'docs/biblia/.coordination/audit-summary.js'
+      - 'docs/biblia/.coordination/bible-correction-work-plan.js'
+      - 'docs/biblia/.coordination/bible-correction-work-plan-selftest.js'
+      - 'scripts/validation/verify-bible-audit-results-append-only.js'
+      - 'scripts/validation/verify-bible-audit-results-append-only-selftest.js'
+      - 'scripts/validation/bible-audit-pipeline.js'
+      - 'scripts/validation/bible-audit-work-plan.js'
+      - 'scripts/validation/verify-bible-audit-pipeline-selftest.js'
+      - 'scripts/validation/verify-bible-audit-shards-selftest.js'
+      - 'scripts/validation/bible-coordination.js'
+      - 'scripts/validation/verify-bible-coordination-selftest.js'
+      - 'scripts/validation/verify-bible-merge-readiness.js'
+      - 'package.json'
+      - '.github/workflows/bible-protocol-infra.yml'
+
+jobs:
+  protocol-infra:
+    name: Distributed Bible Protocol Infra (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Syntax check coordination modules
+        run: |
+          node --check docs/biblia/.coordination/audit-core.js
+          node --check docs/biblia/.coordination/audit-core-git-selftest.js
+          node --check docs/biblia/.coordination/audit-protocol.js
+          node --check docs/biblia/.coordination/reconcile-audit-results.js
+          node --check docs/biblia/.coordination/audit-lease-gc.js
+          node --check docs/biblia/.coordination/audit-summary.js
+          node --check docs/biblia/.coordination/bible-correction-work-plan.js
+          node --check scripts/validation/verify-bible-audit-results-append-only.js
+          node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js
+          node --check scripts/validation/bible-audit-pipeline.js
+          node --check scripts/validation/bible-audit-work-plan.js
+          node --check scripts/validation/bible-coordination.js
+          node --check scripts/validation/verify-bible-merge-readiness.js
+
+      - name: Canonical protocol self-tests
+        run: npm run test:bible-protocol:infra
+
+      - name: Validate live distributed model
+        run: node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt
+
+      - name: Classify claim and lease garbage safely
+        run: node docs/biblia/.coordination/audit-lease-gc.js
+
+      - name: Summarize live distributed model
+        run: node docs/biblia/.coordination/audit-summary.js

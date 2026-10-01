@@ -1,0 +1,120 @@
+{
+  "index": 176,
+  "file": "tests/unit/content-gemini/deletion.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
+  "started_at_utc": "2026-09-30T15:00:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "176-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/deletion.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "DEL-08 usa debugMode=true, portanto recoverPending chama deleteCurrentConversation mas sai por DEBUG_MODE_SKIP; não prova exclusão DOM real nem lockScroll.",
+      "current_evidence": "DEL-04 prova exclusão nominal fora do recovery; DEL-08 prova marker reconhecido, clearRecovery e sendDelivery uma vez em modo debug.",
+      "missing_evidence": "recoverPending com debugMode=false e DOM nominal, lockScroll:true, confirmação real, marker removido, sendDelivery uma vez e cleanup dos listeners/scroll lock.",
+      "why_needed": "O caminho pós-reload pode quebrar independentemente do delete nominal isolado.",
+      "requested_action": "Adicionar caso focal de recovery com exclusão real.",
+      "expected_evidence": "deleted=true por remoção real da conversa e scroll lock liberado no finally.",
+      "expected_auditor_action": "Priorizar por validade do teste de recovery.",
+      "possible_regression": "Recovery pós-reload falha no DOM/scroll lock sem afetar DEL-08.",
+      "impact": "Confiabilidade da recuperação de exclusão.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "ACCEPTED. DEL-08 chama `recoverPending`, mas configura `debugMode:true`; assim `deleteCurrentConversation({lockScroll:true})` sai pelo branch DEBUG_MODE_SKIP e não prova DOM real, confirmação, scroll lock nem cleanup do caminho de recovery.",
+      "auditor_recommended_action": "Adicionar recovery com debug=false e DOM nominal, verificando exclusão real, lockScroll, clear marker, delivery única e finally."
+    },
+    {
+      "id": "176-002",
+      "status": "SUPERSEDED",
+      "type": "DURABILITY_REVIEW",
+      "target_file": "extension/content/gemini/deletion.js",
+      "related_files": [
+        "tests/unit/content-gemini/deletion.test.js",
+        "extension/content/gemini/job-runner.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "recoverPending chama clearRecovery(tabId) antes de await sendDelivery(recovery.delivery). Se sendDelivery falhar, o marker já foi apagado; no job-runner a entrega usa runtime.sendMessage sem ACK explícito.",
+      "current_evidence": "DEL-08 usa sendDelivery bem-sucedido e só prova entrega única nesse caminho.",
+      "missing_evidence": "Falha/rejeição de sendDelivery e definição do contrato desejado de at-most-once vs retry durável.",
+      "why_needed": "A ordem atual pode perder permanentemente um resultado/erro recuperado.",
+      "requested_action": "Revisar a ordem clear→delivery; se a intenção for retry durável, manter marker até entrega confirmada ou persistir estado de ACK; adicionar teste focal.",
+      "expected_evidence": "Sem perda silenciosa quando delivery falha.",
+      "expected_auditor_action": "Revisar semântica de durabilidade em alteração separada.",
+      "possible_regression": "Resultado/erro recuperado pode ser perdido após reload.",
+      "impact": "Integridade de entrega pós-recovery.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:20:00Z",
+      "audit_finding": "SUPERSEDED por 041-001. Esse request repete a mesma fragilidade de durabilidade: `recoverPending` limpa o marker antes de `sendDelivery`, podendo perder retry/ownership se a entrega falhar.",
+      "auditor_recommended_action": "Acompanhar resolução em 041-001.",
+      "superseded_by": "041-001"
+    },
+    {
+      "id": "176-003",
+      "status": "SUPERSEDED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/deletion.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "storageSet/storageRemove tratam chrome.runtime.lastError, Promise rejection e throw; a suíte usa storage saudável e não prova esses branches.",
+      "current_evidence": "DEL-07/09 provam persistência/remoção nominal.",
+      "missing_evidence": "saveRecovery falhando deve impedir reload; clearRecovery falhando em recoverPending precisa comportamento explícito. Cobrir callback lastError e Promise rejection.",
+      "why_needed": "Persistência é pré-condição para recovery seguro.",
+      "requested_action": "Adicionar testes de falha de storage.",
+      "expected_evidence": "Nenhum reload sem marker durável e erros de remove/set não são mascarados.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Reload sem recovery persistido ou estado parcialmente limpo.",
+      "impact": "Durabilidade do fluxo de exclusão.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "SUPERSEDED por 041-002. Falhas de storage (lastError/rejection/throw) no fluxo de deletion já estão centralizadas no request canônico de robustez do módulo.",
+      "auditor_recommended_action": "Acompanhar 041-002 e evitar matriz duplicada nesta suíte.",
+      "superseded_by": "041-002"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "350/350",
+    "source_text_lines": 349,
+    "bible_lines": 2906,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; dez casos DEL passaram individualmente; global 109/109 suítes e 851/851 testes."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T18:43:45.955Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:43:45.955Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
+      "reason": "176-ADV-001..005: ordering, line semantics, lifecycle, DEL-03 scope e cadeia Jest/CI."
+    },
+    {
+      "at_utc": "2026-10-01T18:43:45.955Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
+      "bible_sha": "0dd1748366ebb5b73c1e16c850b5e88cc01226bf",
+      "reason": "176-ADV-001..005 corrigidos; 36 descrições de assertions realinhadas. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": []
+}

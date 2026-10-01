@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "index": 165,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 5",
+  "file": "tests/unit/background/routed-actions-legacy.test.js",
+  "bible": "docs/biblia/tests/unit/background/routed-actions-legacy.test.js/Bíblia.md",
+  "source_sha": "62d534355ac80b9b1f4e23dac3ce0ec1515ae4c5",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "165-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATE_STALE",
+      "summary": "A Bíblia apresenta estados de audit_requests incompatíveis com o .state canônico atual.",
+      "evidence": [
+        "A seção 12 da Bíblia rotula 165-001 e 165-002 como OPEN.",
+        ".state/165.json atual marca 165-001 e 165-002 como ACCEPTED, ambos com audit_finding e auditor_recommended_action registrados.",
+        "As lacunas técnicas descritas continuam reais e não bloqueiam por si mesmas; o finding documental é especificamente a representação stale do lifecycle das requests."
+      ]
+    },
+    {
+      "id": "165-PRI-002",
+      "severity": "NORMAL",
+      "type": "SEMANTIC_TEST_COUNT_ERROR",
+      "summary": "A justificativa documental de 165-002 afirma incorretamente que os seis casos despacham uma action roteada.",
+      "evidence": [
+        "A Bíblia afirma: 'Os seis casos reinicializam módulos e cada um envia apenas uma action roteada'.",
+        "O primeiro dos seis testes, 'carrega as ações de mídia, resultado e ativação no worker', somente executa oito assertions routerApi.getAction(...).toBeDefined() e não chama dispatchToBackground.",
+        "Somente os cinco casos seguintes despacham uma mensagem roteada. A conclusão de que não existe prova de reutilização do registeredActionRouter entre múltiplas mensagens permanece correta, mas a explicação quantitativa atual é factual e documentalmente incorreta."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:05:53Z"
+}

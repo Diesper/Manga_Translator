@@ -1,0 +1,87 @@
+{
+  "index": 88,
+  "file": "scripts/validation/verify-publish-contract.js",
+  "bible": "docs/biblia/scripts/validation/verify-publish-contract.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+  "started_at_utc": "2026-09-30T06:13:00Z",
+  "completed_at_utc": "2026-10-01T04:19:39Z",
+  "audit_requests": [
+    {
+      "id": "088-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-publish-contract-selftest.js",
+      "found_while_auditing": "scripts/validation/verify-publish-contract.js",
+      "finding": "Não foi localizado self-test focal do verificador de publicação; a CI executa o CLI real e verify-ci-contract.js protege o wiring e alguns marcadores, mas não exercita seus branches negativos em sandbox.",
+      "current_evidence": "package.json#validate:publish aponta para o CLI; .github/workflows/ci.yml o executa no job ci-contract; verify-ci-contract.js exige a invocação e três marcadores correlatos dentro deste verificador.",
+      "missing_evidence": "Cenários controlados para arquivo obrigatório ausente, marcador positivo removido, path legado reintroduzido, trigger v* quebrado, marcador de sync-version removido, agregação de problemas, mensagem e exit status.",
+      "why_needed": "Sem self-test focal, uma regressão na lógica de detecção pode permanecer invisível enquanto o caminho verde atual continua passando.",
+      "requested_action": "Adicionar self-test separado em sandbox/subprocesso usando a implementação real de verify-publish-contract.js, sem copiar sua lógica.",
+      "expected_evidence": "Assertions diretas sobre status não-zero e mensagem esperada para cada mutação negativa, além de um caso verde.",
+      "expected_auditor_action": "Confirmar a lacuna e, se a cobertura for exigida, criar o self-test em alteração externa separada.",
+      "possible_regression": "Um branch de proteção pode parar de rejeitar drift de release sem que os gates atuais detectem especificamente essa quebra.",
+      "impact": "Proteção de integridade do workflow de publicação e do layout canônico de versionamento.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. Não existe self-test focal de `verify-publish-contract.js`; CI e CI Contract executam/protegem o caminho verde e alguns markers, mas não mutam cada branch negativo do verificador.",
+      "auditor_recommended_action": "Adicionar sandbox self-test usando o verifier real para arquivo ausente, marker removido, path legado, trigger v* quebrado, sync marker ausente, agregação e exit status."
+    },
+    {
+      "id": "088-002",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/validation/verify-publish-contract.js",
+      "found_while_auditing": "scripts/validation/verify-publish-contract.js",
+      "finding": "O gate valida publish.yml e sync-version.js por presença textual via includes/regex, sem parsing semântico de YAML ou JavaScript.",
+      "current_evidence": "Linhas 23-61 leem os arquivos como texto e procuram marcadores literais; a regex de tags também depende da forma textual canônica.",
+      "missing_evidence": "Decisão explícita/teste que demonstre se marcadores em comentários/strings inativas são aceitáveis e se formas semanticamente equivalentes de YAML devem ser aceitas ou rejeitadas.",
+      "why_needed": "O desenho pode produzir falso verde semântico ou falso vermelho após refatoração equivalente.",
+      "requested_action": "Classificar o gate textual como contrato intencional ou, se a garantia precisar ser semântica, fortalecer a implementação em mudança funcional separada e adicionar regressões.",
+      "expected_evidence": "Testes de mutações semanticamente enganosas e de formas equivalentes, coerentes com a política escolhida.",
+      "expected_auditor_action": "Registrar o trade-off como aceito ou solicitar endurecimento separado.",
+      "possible_regression": "Comentário contendo marcador pode satisfazer o gate; alteração de quoting/estrutura YAML equivalente pode quebrá-lo sem quebrar a publicação.",
+      "impact": "Precisão do gate de publicação.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. O publish contract valida YAML/JS por `includes`/regex. Marcadores em comentários/strings inativas podem satisfazer o gate e formas semanticamente equivalentes podem falhar por texto.",
+      "auditor_recommended_action": "Classificar o gate textual como contrato intencional ou migrar checks relevantes para validação estrutural/semântica com regressões apropriadas."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "72/72",
+    "source_text_lines": 71,
+    "external_audit_requests_open": 2,
+    "evidence_note": "Fonte integral exata; wiring em package/CI/CI Contract confirmado; 088-001..002 permanecem ACCEPTED."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T04:19:39Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:19:39Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 72/72 posições, fonte integral exata e classificação correta do gate textual e da ausência de self-test focal."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:19:39Z",
+      "note": "088-001 e 088-002 permanecem ACCEPTED; não foram convertidos em prova inexistente."
+    }
+  ]
+}

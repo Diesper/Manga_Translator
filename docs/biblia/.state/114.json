@@ -1,0 +1,136 @@
+{
+  "index": 114,
+  "file": "tests/integration/performance.test.js",
+  "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+  "started_at_utc": "2026-09-30T06:25:33.185Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "114-001",
+      "status": "ACCEPTED",
+      "type": "TEST_VALIDITY",
+      "target_file": "tests/integration/performance.test.js",
+      "found_while_auditing": "tests/integration/performance.test.js",
+      "finding": "PERF-09 reimplementa a política de quota/fallback no helper local saveImagesWithIndexedDbFallback e usa createInMemoryRepository; não atravessa o fluxo de persistência de página de produção.",
+      "current_evidence": "O mesmo blob passou no CI run 36577447500/job 109437162616 e prova a simulação local: 10 falhas de quota, 5 itens pequenos em storage e 10 entradas no repository de memória.",
+      "missing_evidence": "Execução da implementação real responsável pela persistência/fallback sob uma condição de quota equivalente.",
+      "why_needed": "Uma cópia da decisão no próprio teste pode continuar verde enquanto o produto quebra ou muda de política.",
+      "requested_action": "Determinar o contrato atual de quota/persistência. Se quota→fallback for requisito, criar cobertura usando a implementação real; se o fluxo SM_SAVE_PAGE tornou o cenário obsoleto, reformular/renomear o teste.",
+      "expected_evidence": "Assertions sobre storage/repository de produção depois de executar o caminho real, sem duplicar o algoritmo no teste.",
+      "expected_auditor_action": "Confirmar a validade do contrato e decidir a correção de teste apropriada em mudança separada.",
+      "possible_regression": "CI verde apesar de política real de quota/persistência incorreta.",
+      "impact": "Confiabilidade do gate de storage.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:58:00Z",
+      "audit_finding": "ACCEPTED — validade do PERF-09 insuficiente. O cenário usa helper local `saveImagesWithIndexedDbFallback` e `createInMemoryRepository`; não atravessa `cm-chapter.js`, `storage-manager.js` nem o fluxo real de persistência/quota. O teste pode passar mesmo se o fallback de produção quebrar.",
+      "auditor_recommended_action": "Criar teste de performance/integração sobre o caminho canônico de persistência real com quota/falha controlada, ou reclassificar PERF-09 como benchmark do modelo auxiliar."
+    },
+    {
+      "id": "114-002",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "tests/integration/performance.test.js",
+      "found_while_auditing": "tests/integration/performance.test.js",
+      "finding": "PERF-08 injeta fake-indexeddb.IDBFactory; o limite de 2s mede backend sintético em Node, não IndexedDB real do Chromium.",
+      "current_evidence": "A implementação real createIndexedDbRepository grava/lê 15 payloads em fake-indexeddb e passou no run observado.",
+      "missing_evidence": "Timing equivalente em Chromium ou contrato explícito restringindo o limite de 2s a uma regressão algorítmica sintética.",
+      "why_needed": "O nome do teste pode ser interpretado como garantia de performance de storage real.",
+      "requested_action": "Decidir se o objetivo é apenas gate sintético (e tornar isso explícito) ou SLO de browser (e adicionar E2E separado).",
+      "expected_evidence": "Nome/contrato e teste alinhados ao ambiente efetivamente medido.",
+      "expected_auditor_action": "Classificar o limite como sintético ou solicitar benchmark/E2E apropriado.",
+      "possible_regression": "Degradação específica de browser/disco pode não ser detectada.",
+      "impact": "Precisão da garantia de performance.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:25:00Z",
+      "audit_finding": "ACCEPTED. PERF-08 injeta `fake-indexeddb.IDBFactory`; o limite de 2s mede backend sintético em Node, não IndexedDB real do Chromium/disco. O teste continua útil como gate algorítmico, mas não como garantia de storage real.",
+      "auditor_recommended_action": "Renomear/documentar o limite como sintético ou criar benchmark/E2E em Chromium se o objetivo for um SLO de browser."
+    },
+    {
+      "id": "114-003",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "tests/integration/performance.test.js",
+      "found_while_auditing": "tests/integration/performance.test.js",
+      "finding": "PERF-05 inicia o cronômetro após loadExtensionPage; o <=1s mede o render pós-clique da aba traduzida em JSDOM, não o cold start completo do popup.",
+      "current_evidence": "O popup real em JSDOM produziu 200 itens após o clique dentro do limite interno e o caso passou no run observado.",
+      "missing_evidence": "Contrato explícito sobre o ponto de início do orçamento ou benchmark separado de cold start.",
+      "why_needed": "O título pode sugerir um escopo de performance mais amplo que o intervalo efetivamente medido.",
+      "requested_action": "Confirmar o escopo desejado; manter/renomear se for pós-clique ou adicionar medição separada se cold start também for requisito.",
+      "expected_evidence": "Nome e assertions coerentes com o intervalo cronometrado.",
+      "expected_auditor_action": "Revisar o contrato de performance antes de qualquer alteração.",
+      "possible_regression": "Bootstrap inicial pode degradar sem afetar este gate.",
+      "impact": "Interpretação do orçamento de performance.",
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:22:00Z",
+      "audit_finding": "ACCEPTED. PERF-05 chama `loadExtensionPage()` antes de iniciar o cronômetro; o orçamento <=1s mede a renderização após clicar a aba traduzida, não cold start do popup. O teste é válido para esse intervalo, mas o contrato precisa ser nomeado com precisão.",
+      "auditor_recommended_action": "Renomear/documentar como orçamento pós-clique ou adicionar benchmark separado para cold start se ele também for requisito."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "434/434",
+    "bible_lines": 1373,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36577447500,
+    "evidence_job": 109437162616,
+    "evidence_summary": "Unit + Integration (20.x): performance.test.js PASS; PERF-01 a PERF-09 aparecem nominalmente e todos passaram.",
+    "repair_note": "Lifecycle documental 114-001..003 alinhado ao state canônico: ACCEPTED; conclusão corrigida sem alterar source/testes."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T13:35:34Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T13:30:28.877Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "auditor": "AGENTE 6",
+      "reason": "Falha documental material: requests 114-001, 114-002 e 114-003 permanecem rotuladas OPEN e a conclusão fala em solicitações externas abertas, enquanto o state canônico registra as três como ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T13:35:00Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "agent": "AGENTE 23",
+      "reason": "Alinhar lifecycle documental 114-001..003 com o state canônico ACCEPTED e corrigir conclusão sem alterar o source."
+    },
+    {
+      "at_utc": "2026-10-01T13:35:34Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #114 corrigida conforme auditoria independente: 114-001..003 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T13:30:28.877Z",
+      "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/CI/semântica/assertions/evidence classification passam; lifecycle documental das requests falha. Requests 114-001..003 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T13:35:34Z",
+      "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "index": 12,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/export-all.js",
+  "bible": "docs/biblia/extension/background/actions/export-all.js/Bíblia.md",
+  "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
+  "bible_sha": "325023c03655f2b7c87d9d71c3f04ef0dfbdb848",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "41/41",
+    "direct_test_blob": "9ab092d95ac1cef8b2111e76a23422f7159a4fcf",
+    "integrated_test_blob": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
+    "helper_test_blob": "1bb13ac03ab0bcaff68921211679355f9971678c",
+    "mirror_test_blob": "4a34bd498d62aecdefca112b02d7601346891820",
+    "corrected_prior_findings": [
+      "012-REA-001 wait/show ordering rebaixado",
+      "012-REA-002 ChromeDownloadsMock qualificado"
+    ],
+    "nonblocking_requests": [
+      "012-001 ACCEPTED",
+      "012-002 ACCEPTED"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:06:39.852Z"
+}

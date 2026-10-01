@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "index": 85,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 5",
+  "file": "scripts/validation/verify-coverage.js",
+  "bible": "docs/biblia/scripts/validation/verify-coverage.js/Bíblia.md",
+  "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "085-ADV-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATE_STALE",
+      "summary": "A seção que afirma reproduzir as audit_requests de .state/085.json está stale e registra estados falsos.",
+      "evidence": [
+        "A Bíblia, linhas documentais 94–98, marca 085-001, 085-002, 085-003, 085-004 e 085-005 como OPEN.",
+        ".state/085.json atual marca 085-001 como SUPERSEDED por 084-002 e 085-002..005 como ACCEPTED.",
+        ".state/084.json confirma que 084-002 existe, está ACCEPTED e cobre a matriz de branches que motivou a supersessão de 085-001."
+      ]
+    },
+    {
+      "id": "085-ADV-002",
+      "severity": "HIGH",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia classifica como prova direta assertions agregadas que não isolam os branches específicos de rejeição de coverage zero e de LCOV vazio.",
+      "evidence": [
+        "verify-coverage-selftest.js usa expectCase e verifica apenas result.ok; não verifica problems nem o branch/diagnóstico causal.",
+        "No caso 'coverage 0%', createFixture mantém threshold global padrão=10. Mesmo removendo a guarda explícita `pct <= 0`, as métricas 0 continuam abaixo de 10 e o caso permanece ok:false.",
+        "Apesar disso, a matriz da Bíblia classifica 'coverage 0% reprova' como ✅ PROVADO DIRETAMENTE e as linhas 133–143, inclusive a guarda `pct <= 0`, repetem ✅ PROVADO DIRETAMENTE para esse cenário.",
+        "No caso 'lcov vazio', remover a reprovação precoce por tamanho zero ainda permite que parseLcovFiles retorne [] e o check posterior 'lcov.info não contém nenhuma entrada SF:' mantenha result.ok=false; o self-test não exige o diagnóstico precoce. Ainda assim, as linhas da pré-condição do artefato são marcadas como ✅ PROVADO DIRETAMENTE pelo caso.",
+        "A própria Bíblia reconhece causalidade não isolada para o caso de arquivo crítico ausente, mas não aplica o mesmo critério conservador a esses dois cenários."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T15:59:22Z"
+}

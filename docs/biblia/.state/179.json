@@ -1,0 +1,123 @@
+{
+  "index": 179,
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "started_at_utc": "2026-09-30T15:40:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "179-001",
+      "status": "SUPERSEDED",
+      "type": "INTEGRATION_TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "related_files": [
+        "extension/content/inject.js",
+        "extension/content/gemini/job-runner.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "finding": "CG-23 observa MANGA_TRANSLATOR_SET_PROMPT com listener criado pelo próprio teste; loadContentGeminiModule não carrega inject.js, que contém a ponte MAIN-world real.",
+      "current_evidence": "O job-runner real emite o CustomEvent e o fallback setPromptInEditor altera o editor.",
+      "missing_evidence": "Carregar inject.js em contexto apropriado, disparar MANGA_TRANSLATOR_SET_PROMPT e provar Quill ou fallback paste + beforeinput/input/change no target real.",
+      "why_needed": "A emissão do evento não prova que a ponte MAIN-world de produção o processa.",
+      "requested_action": "Adicionar teste focal/integrado de inject.js.",
+      "expected_evidence": "Listener real recebe detail.prompt e atualiza rich-textarea/editor com eventos esperados.",
+      "expected_auditor_action": "Priorizar por integração entre isolated world e MAIN world.",
+      "possible_regression": "A ponte MAIN-world pode quebrar enquanto CG-23 permanece verde.",
+      "impact": "Injeção de prompt no Gemini.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:27:00Z",
+      "audit_finding": "SUPERSEDED por 050-001, já ACCEPTED. CG-23 instala seu próprio listener `MANGA_TRANSLATOR_SET_PROMPT` e `loadContentGeminiModule` não executa `inject.js`; o remédio é justamente o harness MAIN-world real exigido em 050-001.",
+      "auditor_recommended_action": "Cobrir CG-23 dentro do harness real de inject.js requerido em 050-001.",
+      "superseded_by": "050-001"
+    },
+    {
+      "id": "179-002",
+      "status": "ACCEPTED",
+      "type": "TEST_MAINTENANCE",
+      "target_file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "related_files": [
+        "extension/content/gemini/job-runner.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "finding": "Títulos/comentários REG-03/CG-22 e CG-24 ainda descrevem paste/execCommand, mas o job-runner atual não contém document.execCommand; o fluxo atual é CustomEvent + setPromptInEditor DOM/Quill.",
+      "current_evidence": "Leitura do job-runner atual e dos títulos/assertions da suíte.",
+      "missing_evidence": "Não é lacuna funcional; é alinhamento de nomenclatura e intenção do teste à arquitetura vigente.",
+      "why_needed": "Evita que terminologia histórica seja tratada como requisito atual.",
+      "requested_action": "Atualizar nomes/comentários/assertions para descrever CustomEvent + fallback DOM/Quill; remover referência implícita a execCommand se intencionalmente removido.",
+      "expected_evidence": "Teste/documentação alinhados ao código atual.",
+      "expected_auditor_action": "Corrigir nomenclatura em alteração separada.",
+      "possible_regression": "Manutenção futura pode reintroduzir técnica obsoleta por interpretar o título como contrato.",
+      "impact": "Clareza e validade documental.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED como manutenção. Títulos/comentários REG-03/CG-22 e CG-24 ainda descrevem paste/`execCommand`; o harness inclusive cria/spia `document.execCommand`, embora o job-runner atual não use esse caminho de produção. A nomenclatura está histórica/stale.",
+      "auditor_recommended_action": "Atualizar títulos/comentários e remover mocks de execCommand que não participem mais do comportamento produtivo, preservando apenas regressões realmente relevantes."
+    },
+    {
+      "id": "179-003",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "found_while_auditing": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "finding": "waitForElement consulta profundamente o DOM em cada mutation e pode alcançar Shadow DOM aberto, mas o cenário tardio atual insere elemento somente no DOM comum.",
+      "current_evidence": "Resolve imediato, inserção tardia comum e timeout são provados.",
+      "missing_evidence": "Criar host + shadowRoot + alvo após waitForElement iniciar, exigir resolução antes do timeout e cleanup do observer/timer.",
+      "why_needed": "Gemini usa componentes com Shadow DOM e pode criá-los dinamicamente.",
+      "requested_action": "Adicionar cenário focal de Shadow DOM tardio.",
+      "expected_evidence": "Elemento profundo inserido após início é encontrado e a Promise resolve corretamente.",
+      "expected_auditor_action": "Adicionar cobertura em alteração separada.",
+      "possible_regression": "Elemento dinâmico em Shadow DOM pode deixar de ser detectado.",
+      "impact": "Robustez dos helpers DOM.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:40:00Z",
+      "audit_finding": "ACCEPTED. `waitForElement` faz busca profunda e pode encontrar elementos em Shadow DOM aberto, mas o caso de inserção tardia atual adiciona o nó apenas ao DOM comum. O branch de descoberta tardia dentro de shadow root não tem prova.",
+      "auditor_recommended_action": "Adicionar host/shadowRoot aberto e inserir o alvo após o wait ter iniciado, exigindo resolução pela busca profunda."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "684/684",
+    "source_text_lines": 683,
+    "bible_lines": 5573,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36521561968,
+    "evidence_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 15 casos passaram; global 109/109 suítes e 851/851 testes. Cobertura externa de File API indisponível já existe em job-runner.test.js.",
+    "note": "Revisão pós-adversarial: 683 blocos line-a-line revalidados; 683 contextos e 359 funções realinhados ao source atual."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T18:52:55.822Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:52:55.822Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "reason": "A8-179-01..03: realinhar 684 posições, lifecycle e IDs CG-01..04."
+    },
+    {
+      "at_utc": "2026-10-01T18:52:55.822Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "bible_sha": "585464f495a94f96422c8b8c086232e1ba4f7276",
+      "reason": "A8-179-01..03 corrigidos; 683 contextos e 359 funções realinhados. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": []
+}

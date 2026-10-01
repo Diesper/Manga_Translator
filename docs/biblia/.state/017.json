@@ -1,0 +1,65 @@
+{
+  "index": 17,
+  "file": "extension/background/actions/open-existing-folder.js",
+  "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+  "started_at_utc": "2026-09-30T12:12:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "017-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/open-existing-folder-action.test.js",
+      "found_while_auditing": "extension/background/actions/open-existing-folder.js",
+      "finding": "A action não possui validate() e fallbackSearch chama folderPath.replace diretamente; não há teste focal para folderPath ausente/não-string nem safeTitle/anchorId malformados.",
+      "current_evidence": "Há prova direta de anchorId válido, fallback para handleMarkerAndShow, escape de regex e fallback que encontra download existente.",
+      "missing_evidence": "Casos de payload inválido e comportamento esperado antes de efeitos colaterais.",
+      "why_needed": "folderPath inválido pode gerar TypeError e depender do catch genérico do router, sem contrato explícito.",
+      "requested_action": "Adicionar testes parametrizados contra a action real e decidir se payload inválido deve receber INVALID_PAYLOAD em vez de INTERNAL_ERROR.",
+      "expected_evidence": "Comportamento definido/assertado para folderPath, safeTitle e anchorId inválidos.",
+      "expected_auditor_action": "Revisar contrato de payload em alteração separada.",
+      "possible_regression": "Erros de payload podem virar falhas genéricas ou acionar fallback incorreto.",
+      "impact": "Abertura de pasta/histórico de downloads.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:48:00Z",
+      "audit_finding": "ACCEPTED. `open-existing-folder.js` não possui `validate()` e usa `folderPath.replace(...)` diretamente no fallback. A suíte cobre anchor válido/fallback nominal/escape regex, mas não payload ausente ou não-string, nem safeTitle/anchorId malformados.",
+      "auditor_recommended_action": "Adicionar matriz de payload inválido e decidir contrato explícito entre INVALID_PAYLOAD e INTERNAL_ERROR antes de qualquer efeito colateral."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "39/39",
+    "source_text_lines": 38,
+    "external_audit_requests_open": 1,
+    "note": "Bíblia concorrente validada; fonte integral normalizada para equivalência física exata."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T18:00:41.405Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:00:41.405Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+      "reason": "017-REA-001/002: corrigir semântica da posição 025 e documentar cadeia manifest/background/router/popup."
+    },
+    {
+      "at_utc": "2026-10-01T18:00:41.405Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+      "bible_sha": "096f77d1ca0b3f9f7f9fd325632a988109c81e0c",
+      "reason": "017-REA-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": []
+}

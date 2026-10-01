@@ -1,0 +1,634 @@
+const { getRuntimeMock, getStorageMock } = require('../../mocks/chrome-api.mock.js');
+const { loadContentGeminiModule } = require('../../helpers/load-content-gemini-module.js');
+
+function setWindowLocation(pathname = '/app/chat-1') {
+    Object.defineProperty(window, 'location', {
+        value: {
+            pathname,
+            href: `https://gemini.test${pathname}`,
+            origin: 'https://gemini.test',
+        },
+        configurable: true,
+        writable: true,
+    });
+}
+
+function installDomApis() {
+    if (typeof window.HTMLElement !== 'undefined' && typeof window.HTMLElement.prototype.scrollIntoView !== 'function') {
+        Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+            value: jest.fn(),
+            configurable: true,
+            writable: true,
+        });
+    }
+
+    if (typeof window.PointerEvent !== 'function') window.PointerEvent = window.MouseEvent;
+    if (typeof global.PointerEvent !== 'function') global.PointerEvent = window.PointerEvent;
+    if (typeof global.File !== 'function') global.File = window.File;
+    if (typeof global.Blob !== 'function') global.Blob = window.Blob;
+    if (typeof global.FileReader !== 'function') global.FileReader = window.FileReader;
+
+    if (typeof window.DataTransfer !== 'function') {
+        class MockDataTransfer {
+            constructor() {
+                const items = [];
+                items.add = (item) => items.push(item);
+                this.items = items;
+                this._data = new Map();
+            }
+
+            setData(type, value) {
+                this._data.set(type, value);
+            }
+
+            getData(type) {
+                return this._data.get(type) || '';
+            }
+        }
+        window.DataTransfer = MockDataTransfer;
+    }
+    if (typeof global.DataTransfer !== 'function') global.DataTransfer = window.DataTransfer;
+
+    if (typeof window.ClipboardEvent !== 'function') {
+        class MockClipboardEvent extends window.Event {
+            constructor(type, init = {}) {
+                super(type, init);
+                this.clipboardData = init.clipboardData || null;
+            }
+        }
+        window.ClipboardEvent = MockClipboardEvent;
+    }
+    if (typeof global.ClipboardEvent !== 'function') global.ClipboardEvent = window.ClipboardEvent;
+
+    if (typeof window.InputEvent !== 'function') window.InputEvent = window.Event;
+    if (typeof global.InputEvent !== 'function') global.InputEvent = window.InputEvent;
+    if (typeof global.atob !== 'function') {
+        global.atob = (value) => Buffer.from(value, 'base64').toString('binary');
+    }
+}
+
+function delay(ms = 0) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitFor(predicate, { timeout = 9000, step = 25 } = {}) {
+    let elapsed = 0;
+    while (elapsed <= timeout) {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await predicate();
+        if (result) return result;
+        // eslint-disable-next-line no-await-in-loop
+        await delay(step);
+        elapsed += step;
+    }
+    throw new Error('Timeout aguardando condicao');
+}
+
+function defineImageMetrics(img, { width = 1024, height = 1536, complete = true } = {}) {
+    img.scrollIntoView = jest.fn();
+    Object.defineProperty(img, 'naturalWidth', { value: width, configurable: true });
+    Object.defineProperty(img, 'naturalHeight', { value: height, configurable: true });
+    Object.defineProperty(img, 'complete', { value: complete, configurable: true });
+}
+
+function appendImage(src, metrics = {}) {
+    const img = document.createElement('img');
+    img.src = src;
+    defineImageMetrics(img, metrics);
+    if (metrics.owner === false) {
+        document.body.appendChild(img);
+    } else {
+        const response = document.createElement('model-response');
+        response.setAttribute('data-message-author', 'model');
+        response.appendChild(img);
+        document.body.appendChild(response);
+    }
+    return img;
+}
+
+function mountEditor({
+    disabled = false,
+    attachThumbnail = true,
+    onSubmit = () => {},
+} = {}) {
+    if (!document.querySelector('.momentary-indicator')) {
+        const indicator = document.createElement('div');
+        indicator.className = 'momentary-indicator';
+        indicator.textContent = 'conversa momentânea';
+        document.body.appendChild(indicator);
+    }
+
+    const editor = document.createElement('div');
+    editor.className = 'ql-editor';
+    editor.setAttribute('contenteditable', 'true');
+    if (disabled) editor.setAttribute('aria-disabled', 'true');
+    editor.innerHTML = '<p></p>';
+    editor.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 640, bottom: 120,
+        width: 640, height: 120, toJSON() { return this; },
+    });
+    editor.focus = jest.fn();
+    editor.scrollIntoView = jest.fn();
+
+    editor.addEventListener('paste', (event) => {
+        const dt = event.clipboardData;
+        const text = dt && typeof dt.getData === 'function' ? dt.getData('text/plain') : '';
+
+        if (text) {
+            editor.querySelector('p').textContent = text;
+            return;
+        }
+
+        if (attachThumbnail && dt?.items?.length) {
+            let preview = document.querySelector('file-preview');
+            if (!preview) {
+                preview = document.createElement('file-preview');
+                const thumbImg = document.createElement('img');
+                thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+                Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+                Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+                preview.getBoundingClientRect = () => ({
+                    x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+                    width: 120, height: 90, toJSON() { return this; },
+                });
+                preview.appendChild(thumbImg);
+                document.body.appendChild(preview);
+            }
+        }
+    });
+    editor.addEventListener('drop', (event) => {
+        const transfer = event.dataTransfer;
+        if (!attachThumbnail || !transfer?.items?.length || document.querySelector('file-preview')) return;
+        const preview = document.createElement('file-preview');
+        const thumbImg = document.createElement('img');
+        thumbImg.src = 'blob:https://gemini.test/mock-attachment';
+        Object.defineProperty(thumbImg, 'complete', { value: true, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalWidth', { value: 80, configurable: true });
+        Object.defineProperty(thumbImg, 'naturalHeight', { value: 80, configurable: true });
+        preview.getBoundingClientRect = () => ({
+            x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 90,
+            width: 120, height: 90, toJSON() { return this; },
+        });
+        preview.appendChild(thumbImg);
+        document.body.appendChild(preview);
+    });
+
+    document.body.appendChild(editor);
+    return editor;
+}
+
+function appendSendButton({
+    label = 'send message',
+    disabled = false,
+    hidden = false,
+    onSubmit = () => {},
+} = {}) {
+    const button = document.createElement('button');
+    button.setAttribute('aria-label', label);
+    button.disabled = disabled;
+    if (hidden) button.style.display = 'none';
+    button.getBoundingClientRect = () => ({
+        x: 0, y: 0, top: 0, left: 0, right: 40, bottom: 40,
+        width: 40, height: 40, toJSON() { return this; },
+    });
+    button.click = jest.fn(() => {
+        const editor = document.querySelector('.ql-editor, [contenteditable="true"]');
+        if (editor) editor.textContent = '';
+        onSubmit();
+    });
+    document.body.appendChild(button);
+    return button;
+}
+
+describe('content_gemini.js - bordas RPA do plano v3.1', () => {
+    let runtimeMock;
+    let storageMock;
+    let originalSendMessage;
+    let sentMessages;
+    let processPromises;
+
+    beforeEach(async () => {
+        jest.resetModules();
+        installDomApis();
+        jest.spyOn(window.HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+            x: 0, y: 0, top: 0, left: 0, right: 160, bottom: 48,
+            width: 160, height: 48, toJSON() { return this; },
+        }));
+        setWindowLocation('/app/chat-1');
+
+        runtimeMock = getRuntimeMock();
+        storageMock = getStorageMock();
+        originalSendMessage = runtimeMock.sendMessage;
+        sentMessages = [];
+        processPromises = [];
+
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        runtimeMock.lastError = null;
+
+        document.documentElement.innerHTML = '<head></head><body></body>';
+        await storageMock.clear();
+    });
+
+    afterEach(async () => {
+        // Os testes observam mensagens intermediárias do runner; isso não garante
+        // que processGeminiJob() já tenha alcançado seu finally. Pare observers
+        // antes de desmontar o DOM e aguarde todos os runners iniciados pelo caso.
+        const activeObserver = window.__mangaTranslatorActiveGeminiObserver;
+        if (activeObserver && typeof activeObserver.stop === 'function') {
+            try { activeObserver.stop(); } catch (_error) {}
+        }
+        delete window.__mangaTranslatorActiveGeminiObserver;
+
+        const observerRegistry = window.__mtGeminiObservers;
+        if (observerRegistry && typeof observerRegistry === 'object') {
+            for (const observer of Object.values(observerRegistry)) {
+                if (observer && typeof observer.stop === 'function') {
+                    try { observer.stop(); } catch (_error) {}
+                }
+            }
+        }
+        delete window.__mtGeminiObservers;
+
+        if (processPromises.length) {
+            await Promise.allSettled(processPromises);
+        }
+
+        runtimeMock.sendMessage = originalSendMessage;
+        jest.useRealTimers();
+        jest.restoreAllMocks();
+        document.documentElement.innerHTML = '<head></head><body></body>';
+        await storageMock.clear();
+    });
+
+    function installResponder(responders = {}) {
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            sentMessages.push(message);
+            const responder = responders[message.action];
+            if (typeof callback === 'function') {
+                setTimeout(() => callback(responder ? responder(message) : undefined), 0);
+            }
+        });
+    }
+
+    async function seedJob(job = {}) {
+        await storageMock.set({
+            gemini_job_321: {
+                jobId: 'job-321',
+                batchId: 'batch-test',
+                mangaTabId: 77,
+                index: 5,
+                prompt: 'Traduzir borda do plano',
+                ...job,
+            },
+        });
+    }
+
+    test('CG-10: job registrado tardiamente ainda e encontrado pelo loop de tentativas', async () => {
+        mountEditor();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            // Encerra o fluxo logo após provar que o job tardio foi encontrado.
+            // O comportamento de retry para resposta ausente é coberto separadamente.
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'payload-invalido' }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        setTimeout(() => {
+            storageMock.set({
+                gemini_job_321: {
+                    jobId: 'job-321-late',
+                    batchId: 'batch-test',
+                    mangaTabId: 77,
+                    index: 10,
+                    prompt: 'Job tardio',
+                },
+            });
+        }, 650);
+
+        await waitFor(() => sentMessages.find(message =>
+            message.action === 'REQUEST_IMAGE_DATA' && message.index === 10
+        ), { timeout: 2500 });
+        await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_ERROR' && message.index === 10
+        ), { timeout: 2500 });
+    });
+
+    test('CG-11: sem job apos 30 tentativas registra JOB_NOT_FOUND e encerra sem crash', async () => {
+        setWindowLocation('/new-chat');
+        mountEditor();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const notFoundLog = await waitFor(() => sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'JOB_NOT_FOUND'
+        ), { timeout: 17000, step: 100 });
+
+        expect(notFoundLog).toEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'JOB_NOT_FOUND',
+            level: 'warn',
+        }));
+        expect(sentMessages.some(message => message.action === 'REQUEST_IMAGE_DATA')).toBe(false);
+        expect(sentMessages.some(message => message.action === 'GEMINI_ERROR')).toBe(false);
+    }, 20000);
+
+    test('CG-17: REQUEST_IMAGE_DATA com payload que nao e imagem gera GEMINI_ERROR', async () => {
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'texto puro' }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const error = await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_ERROR'));
+        expect(error).toEqual(expect.objectContaining({
+            mangaTabId: 77,
+            index: 5,
+            error: expect.stringContaining('Os dados não são imagem válida'),
+        }));
+    });
+
+    test('REG-12/CG-19/CG-40: editor desabilitado aborta o RPA e limpa o scrollInterval', async () => {
+        mountEditor({ disabled: true });
+        const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const error = await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_ERROR'));
+        expect(error.error).toContain('Editor do Gemini está desabilitado');
+        expect(clearIntervalSpy).toHaveBeenCalled();
+    });
+
+    test('CG-21: ausencia de thumbnail bloqueia prompt e submit', async () => {
+        mountEditor({ attachThumbnail: false });
+        await seedJob();
+        jest.useFakeTimers();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        for (let i = 0; i < 60; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await jest.advanceTimersByTimeAsync(500);
+        }
+
+        const gateLog = sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_ATTACHMENT_NOT_CONFIRMED'
+        );
+        expect(gateLog).toEqual(expect.objectContaining({
+            level: 'error',
+            action_name: 'GEMINI_ATTACHMENT_NOT_CONFIRMED',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_STARTED',
+            level: 'info',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_REJECTED',
+            level: 'error',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'SUBMIT_BLOCKED_ATTACHMENT',
+            level: 'error',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'ATTACHMENT_CONFIRMED'
+        )).toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GEMINI_ERROR',
+            error: expect.stringContaining('Anexo não confirmado'),
+        }));
+        expect(document.querySelector('.ql-editor').textContent.trim()).toBe('');
+    });
+
+    test('CG-28/CG-29: botoes desabilitados ou ocultos sao ignorados ate achar botao valido', async () => {
+        let submitted = false;
+        mountEditor();
+        const disabledButton = appendSendButton({ disabled: true });
+        const hiddenButton = appendSendButton({ label: 'enviar agora', hidden: true });
+        const validButton = appendSendButton({
+            label: 'send message',
+            onSubmit: () => {
+                submitted = true;
+                setTimeout(() => appendImage('https://cdn.gemini.test/result-valid-button.png'), 1300);
+            },
+        });
+
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,UkVTVUxU' }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        await waitFor(() => sentMessages.find(message => message.action === 'GEMINI_IMAGE_EXTRACTED'));
+
+        expect(submitted).toBe(true);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_STARTED',
+            level: 'info',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'ATTACHMENT_CONFIRMED',
+            level: 'success',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' &&
+            ['ATTACHMENT_REJECTED', 'SUBMIT_BLOCKED_ATTACHMENT'].includes(message.action_name)
+        )).toBe(false);
+        expect(disabledButton.click).not.toHaveBeenCalled();
+        expect(hiddenButton.click).not.toHaveBeenCalled();
+        expect(validButton.click).toHaveBeenCalled();
+    }, 12000);
+
+    test('CG-32/CG-33/CG-34: ignora imagem preexistente, avatar e imagem pequena antes de aceitar resultado valido', async () => {
+        appendImage('https://cdn.gemini.test/pre-existing.png');
+        mountEditor();
+        appendSendButton({
+            onSubmit: () => {
+                setTimeout(() => {
+                    appendImage('https://cdn.gemini.test/avatar-user.png');
+                    appendImage('https://cdn.gemini.test/tiny-result.png', { width: 50, height: 50 });
+                    appendImage('https://cdn.gemini.test/final-result.png', { width: 900, height: 1200 });
+                }, 1300);
+            },
+        });
+
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FETCH_IMAGE_AS_BASE64: (message) => ({ dataUrl: `data:image/png;base64,${Buffer.from(message.url).toString('base64')}` }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const fetch = await waitFor(() => sentMessages.find(message =>
+            message.action === 'FETCH_IMAGE_AS_BASE64'
+        ));
+        const extracted = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_IMAGE_EXTRACTED'
+        ));
+
+        expect(fetch.url).toBe('https://cdn.gemini.test/final-result.png');
+        expect(extracted.src).toBe(`data:image/png;base64,${Buffer.from('https://cdn.gemini.test/final-result.png').toString('base64')}`);
+    }, 12000);
+
+    test('aceita imagem gerada em proporcao extrema como 60x1024', async () => {
+        mountEditor();
+        appendSendButton({
+            onSubmit: () => {
+                setTimeout(() => appendImage('https://cdn.gemini.test/tall-thin-result.png', { width: 60, height: 1024 }), 1300);
+            },
+        });
+
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FETCH_IMAGE_AS_BASE64: (message) => ({ dataUrl: `data:image/png;base64,${Buffer.from(message.url).toString('base64')}` }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const fetch = await waitFor(() => sentMessages.find(message =>
+            message.action === 'FETCH_IMAGE_AS_BASE64'
+        ));
+        const extracted = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_IMAGE_EXTRACTED'
+        ));
+
+        expect(fetch.url).toBe('https://cdn.gemini.test/tall-thin-result.png');
+        expect(extracted.src).toBe(`data:image/png;base64,${Buffer.from('https://cdn.gemini.test/tall-thin-result.png').toString('base64')}`);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'GEMINI_IMG_FOUND',
+        }));
+    }, 12000);
+
+    test('painel manual do Gemini permite marcar imagem gerada que a heuristica automatica rejeitaria', async () => {
+        let manualImage = null;
+        mountEditor();
+        appendSendButton({
+            onSubmit: () => {
+                setTimeout(() => {
+                    manualImage = appendImage('https://cdn.gemini.test/manual-result.png', { width: 30, height: 1024, owner: false });
+                }, 1300);
+            },
+        });
+
+        await seedJob();
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FETCH_IMAGE_AS_BASE64: (message) => ({ dataUrl: `data:image/png;base64,${Buffer.from(message.url).toString('base64')}` }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const panel = await waitFor(() => document.getElementById('mt-gemini-assist'));
+        await waitFor(() => manualImage);
+        panel.querySelector('#mt-gemini-pick').click();
+        manualImage.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+        const fetch = await waitFor(() => sentMessages.find(message =>
+            message.action === 'FETCH_IMAGE_AS_BASE64'
+        ), { timeout: 4000 });
+        const manualLog = await waitFor(() => sentMessages.find(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'GEMINI_MANUAL_RESULT'
+        ), { timeout: 1000 });
+
+        expect(fetch.url).toBe('https://cdn.gemini.test/manual-result.png');
+        expect(manualLog.extra).toEqual(expect.objectContaining({ source: 'image-click' }));
+    }, 12000);
+
+    test('CG-41: sucesso persiste e commita antes de qualquer exclusão da conversa', async () => {
+        mountEditor();
+        appendSendButton({
+            onSubmit: () => {
+                setTimeout(() => appendImage('https://cdn.gemini.test/result-stage-before-delete.png'), 1300);
+            },
+        });
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="conversation-row">
+                <a href="/app/chat-1">Conversa atual</a>
+                <button id="options-btn" aria-haspopup="menu" aria-label="opções">...</button>
+            </div>
+            <div id="delete-item" role="menuitem">Excluir</div>
+            <button id="confirm-delete">Excluir</button>
+        `);
+        const optionsButton = document.getElementById('options-btn');
+        const deleteItem = document.getElementById('delete-item');
+        const confirmDelete = document.getElementById('confirm-delete');
+        optionsButton.scrollIntoView = jest.fn();
+        optionsButton.click = jest.fn();
+        deleteItem.click = jest.fn();
+        confirmDelete.click = jest.fn();
+
+        await seedJob();
+        await storageMock.set({ debugMode: false, geminiExecutionMode: 'minimized_window' });
+        installResponder({
+            GET_TAB_ID: () => ({ tabId: 321 }),
+            REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
+            FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,UkVTVUxU' }),
+            GEMINI_IMAGE_EXTRACTED: () => ({ ok: true, staged: true, persisted: true }),
+            GEMINI_RESULT_COMMIT: () => ({ ok: true, committed: true }),
+        });
+
+        const mod = loadContentGeminiModule();
+        processPromises.push(mod.processGeminiJob());
+
+        const staged = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_IMAGE_EXTRACTED'
+        ), { timeout: 12000 });
+        const committed = await waitFor(() => sentMessages.find(message =>
+            message.action === 'GEMINI_RESULT_COMMIT'
+        ), { timeout: 4000 });
+
+        expect(staged).toEqual(expect.objectContaining({
+            jobId: 'job-321',
+            batchId: 'batch-test',
+        }));
+        expect(committed).toEqual(expect.objectContaining({
+            jobId: 'job-321',
+            batchId: 'batch-test',
+        }));
+        expect(sentMessages.some(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'DELETE_OK'
+        )).toBe(false);
+        expect(optionsButton.click).not.toHaveBeenCalled();
+        expect(deleteItem.click).not.toHaveBeenCalled();
+        expect(confirmDelete.click).not.toHaveBeenCalled();
+    }, 20000);
+});

@@ -1,0 +1,119 @@
+{
+  "index": 103,
+  "file": "tests/helpers/load-extension-page.js",
+  "bible": "docs/biblia/tests/helpers/load-extension-page.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+  "started_at_utc": "2026-09-30T06:27:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "103-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/helpers/load-extension-page.test.js",
+      "found_while_auditing": "tests/helpers/load-extension-page.js",
+      "finding": "Não foi localizado teste focal do helper; suas funções internas e branches são exercitados sobretudo de forma indireta por suítes de popup/options/reader.",
+      "current_evidence": "Múltiplas suítes usam loadExtensionPage/flushAsyncTasks com HTML real e fazem assertions funcionais; buscas por stripExternalScripts/getScriptDependencies só retornaram o próprio helper.",
+      "missing_evidence": "Assertions diretas para remoção de scripts externos, ordem/resolução de dependências, alvo ausente, URL/query/hash, restauração de addEventListener, ambos os caminhos fireDOMContentLoaded e drenagem assíncrona.",
+      "why_needed": "Uma regressão no harness pode contaminar muitas suítes ou produzir falso verde sem que exista um teste que localize a falha no helper.",
+      "requested_action": "Adicionar teste focal em ambiente jsdom usando a implementação real e fixtures mínimas/temporárias, sem duplicar a lógica interna.",
+      "expected_evidence": "Assertions sobre DOM final, ordem de requires/efeitos, location, callbacks DOMContentLoaded, restauração do método e avanço de timers.",
+      "expected_auditor_action": "Confirmar a lacuna e criar cobertura separada se a prova focal for exigida.",
+      "possible_regression": "Falha no harness pode aparecer como falha difusa de UI ou, pior, ocultar diferenças do browser real.",
+      "impact": "Confiabilidade de diversas suítes unitárias e de integração.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. `load-extension-page.js` não possui suíte focal para scripts removidos, ordem de dependências, location/query/hash, restore de addEventListener, caminhos DOMContentLoaded e flush assíncrono.",
+      "auditor_recommended_action": "Criar teste próprio com fixture mínima/jsdom e assertions da implementação real.",
+      "reaudited_by": "AGENTE 9",
+      "reaudited_at_utc": "2026-10-01T05:20:55Z",
+      "reaudit_finding": "Permanece ACCEPTED. A busca independente confirmou ausência de suíte focal para o helper; consumers exercitam o harness indiretamente. Uma prova futura de restauração deve distinguir equivalência funcional de identidade, pois o source reassocia um wrapper produzido por bind(document)."
+    },
+    {
+      "id": "103-002",
+      "status": "ACCEPTED",
+      "type": "HARNESS_SEMANTICS_REVIEW",
+      "target_file": "tests/helpers/load-extension-page.js",
+      "found_while_auditing": "tests/helpers/load-extension-page.js",
+      "finding": "O caminho sintético de DOMContentLoaded chama cada listener diretamente com await, em vez de usar dispatchEvent real.",
+      "current_evidence": "Linhas 50-69 interceptam document.addEventListener, armazenam listeners e executam `await listener(new Event(...))`.",
+      "missing_evidence": "Contrato/testes sobre this do listener, listener-objects com handleEvent, opções once/signal e diferença entre aguardar ou não promises retornadas pelo callback.",
+      "why_needed": "A semântica sintética pode divergir do EventTarget do navegador e fazer um teste se comportar de forma diferente da extensão real.",
+      "requested_action": "Definir a fidelidade necessária; se essas semânticas importarem, ajustar o harness e adicionar regressões em mudança separada; se não, documentar a simplificação como intencional.",
+      "expected_evidence": "Testes comparando o comportamento escolhido com EventTarget/jsdom para os casos suportados.",
+      "expected_auditor_action": "Classificar o risco e registrar decisão de contrato.",
+      "possible_regression": "Novo código de página que dependa de `this`, handleEvent, once/signal ou timing de Promise pode ser testado de forma não representativa.",
+      "impact": "Fidelidade do ambiente de teste de UI.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. No caminho sintético de DOMContentLoaded, listeners são chamados diretamente com `await listener(event)` em vez de EventTarget real; `this`, handleEvent, once/signal e timing de Promises podem divergir do browser.",
+      "auditor_recommended_action": "Definir fidelidade suportada; usar dispatchEvent real ou documentar/testar explicitamente as simplificações.",
+      "reaudited_by": "AGENTE 9",
+      "reaudited_at_utc": "2026-10-01T05:20:55Z",
+      "reaudit_finding": "Permanece ACCEPTED. O source captura listeners DOMContentLoaded e os invoca diretamente com await listener(event), sem dispatchEvent real; this/handleEvent/once/signal/timing de promises seguem sem contrato focal."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "86/86",
+    "bible_lines": 1086,
+    "external_audit_requests_open": 2,
+    "note": "Conclusão documental particionada; agregadores globais permaneceram somente leitura para AGENTE 11.",
+    "repair_note": "Corrigidos findings do AGENTE 9: wrapper bound não é descrito como mesma referência original; ramo fireDOMContentLoaded=false usa evidência real de reader.ui.test.js; requests 103-001/002 alinhadas como ACCEPTED."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T05:37:37Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T05:20:55Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "auditor": "AGENTE 9",
+      "reason": "Falhas documentais materiais: restauração de addEventListener descrita como original apesar de usar wrapper bound; evidência da posição 70 cita o branch true para o ramo else; lifecycle OPEN na Bíblia diverge de requests ACCEPTED no state."
+    },
+    {
+      "at_utc": "2026-10-01T05:36:37Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir findings documentais #103 sobre identidade de addEventListener, evidência do ramo fireDOMContentLoaded=false e lifecycle das audit_requests."
+    },
+    {
+      "at_utc": "2026-10-01T05:37:37Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "agent": "AGENTE 23",
+      "reason": "Reparo documental #103: semântica de addEventListener bound, evidência do branch fireDOMContentLoaded=false e lifecycle das audit_requests."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 9",
+      "at_utc": "2026-10-01T05:20:55Z",
+      "note": "Passagens 0–15: SHA/fonte/cobertura/consumers passam; semântica e honestidade da evidência falham nos findings registrados em AUDITORIA.md."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:37:37Z",
+      "note": "Bíblia corrigida sem alterar source/runtime; pronta para reauditoria independente."
+    }
+  ]
+}

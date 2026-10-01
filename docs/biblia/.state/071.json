@@ -1,0 +1,44 @@
+{
+  "index": 71,
+  "file": "scripts/ci/jest-worker-warning.js",
+  "bible": "docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "b1379b6811e5513b955ebbbef4450ca4ca1e77da",
+  "started_at_utc": "2026-09-30T07:00:00Z",
+  "completed_at_utc": "2026-09-30T05:06:47Z",
+  "audit_requests": [
+    {
+      "id": "071-COORD-001",
+      "status": "RESOLVED",
+      "type": "COORDINATION_CONFLICT",
+      "target_file": "docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md",
+      "found_while_auditing": "scripts/ci/jest-worker-warning.js",
+      "finding": "Durante a reserva ativa do AGENTE 17, a Bíblia do mesmo arquivo apareceu no branch identificando AGENTE 8 como responsável, enquanto .state/071.json continuava pertencendo ao AGENTE 17.",
+      "current_evidence": "Reserva atual registra AGENTE 17; Bíblia existente registra AGENTE 8; source_sha é o mesmo b1379b6811e5513b955ebbbef4450ca4ca1e77da.",
+      "missing_evidence": "Reconciliação de qual operação concorrente ocorreu primeiro e qual agente deve possuir o state final.",
+      "why_needed": "Atualizar a Bíblia ou atribuir COMPLETED ao AGENTE 17 sobrescreveria/falsearia trabalho de outro agente.",
+      "requested_action": "Auditor de coordenação deve reconciliar a autoria/estado sem apagar histórico; a Bíblia do AGENTE 8 foi preservada intacta.",
+      "expected_evidence": "Um único state final coerente com a Bíblia preservada e sem duas autorias concorrentes.",
+      "expected_auditor_action": "Resolver a inconsistência de coordenação usando histórico de commits.",
+      "possible_regression": "Agregação pode reportar ownership/status incorreto se o conflito não for reconciliado.",
+      "impact": "Coordenação documental do índice 071; código-fonte não afetado.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:07:00Z",
+      "audit_finding": "RESOLVED por histórico de commits. AGENTE 8 reservou #071 em adc7477b (03:29:34Z), documentou em 6319e1d (03:35:50Z), aprovou em 4644218 (05:06:47Z) e liberou em 993738a (05:08:31Z). AGENTE 17 só reservou depois, em 4042e9e (06:49:27Z), quando a Bíblia já estava concluída; o conflito foi sinalizado e a segunda reserva liberada em 96a4710.",
+      "resolution": "Estado canônico restaurado para COMPLETED / AGENTE 8, mantendo a Bíblia aprovada intacta e preservando este registro de conflito."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "BLOCKED_BY_CONCURRENT_BIBLE",
+    "source_sha_reconfirmed": true,
+    "external_bible_author": "AGENTE 8",
+    "note": "AGENTE 17 não alterou a Bíblia existente para preservar trabalho alheio."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "index": 199,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/chapter-id-rejection.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/chapter-id-rejection.test.js/Bíblia.md",
+  "source_sha": "783c8abd86029345a97ce44f4eaf5415274bf4b3",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "199-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O Mapa integral por faixas omite posição e atravessa fronteiras entre happy path, erros e paralelismo.",
+      "evidence": [
+        "A linha 18 da fonte é omitida: o mapa salta de 1–17 para 19–28.",
+        "A faixa `82–134 happy path` termina na linha 134, que já declara o teste `rejeita a Promise quando storage.get falha` do bloco de erro.",
+        "A faixa `135–191 falhas get/set, limpeza e retry` começa depois da própria declaração do primeiro teste de erro e invade o bloco de paralelismo, cujo describe começa na linha 188 e primeiro teste na 189.",
+        "A faixa `192–226 paralelismo/deduplicação` começa no meio do objeto de setup do teste que já iniciou na linha 189.",
+        "A fonte integral é byte-equivalente e SHA/state/Bíblia coincidem; o defeito é do mapa posição↔responsabilidade."
+      ]
+    },
+    {
+      "id": "199-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 199-001/002/003 como OPEN, embora os três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 142, 158 e 172 usam headings OPEN.",
+        "docs/biblia/.state/199.json registra 199-001=ACCEPTED, 199-002=ACCEPTED e 199-003=ACCEPTED.",
+        "199-001 é factual: a suíte testa createGetOrCreateChapterId local e não createChapterManager real.",
+        "199-002 é factual: o comentário de espelho exato v3.1 não corresponde ao runtime atual com URL-scoped cache, canonicalização/fallback e generateId.",
+        "199-003 é factual: a invalidação por window.location.href do runtime real não existe no mirror."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:12:00Z"
+}

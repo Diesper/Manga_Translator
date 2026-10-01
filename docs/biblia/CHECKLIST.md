@@ -1,0 +1,237 @@
+# Checklist — Bíblias técnicas
+
+> Gerado deterministicamente. [x] exige COMPLETED + auditoria APPROVED válida para o SHA atual + Bíblia existente.
+
+- [x] 001 — `extension/manifest.json` — COMPLETED
+- [x] 002 — `extension/background.js` — COMPLETED
+- [x] 003 — `extension/background/actions/calculate-visual-fingerprint.js` — COMPLETED
+- [x] 004 — `extension/background/actions/check-extraction-tab.js` — COMPLETED
+- [x] 005 — `extension/background/actions/claim-gemini-job.js` — COMPLETED
+- [x] 006 — `extension/background/actions/commit-result.js` — COMPLETED
+- [x] 007 — `extension/background/actions/deliver-result-from-tab.js` — COMPLETED
+- [x] 008 — `extension/background/actions/deliver-result-url.js` — COMPLETED
+- [x] 009 — `extension/background/actions/deliver-result.js` — COMPLETED
+- [x] 010 — `extension/background/actions/download-chapter.js` — COMPLETED
+- [x] 011 — `extension/background/actions/download-image.js` — COMPLETED
+- [x] 012 — `extension/background/actions/export-all.js` — COMPLETED
+- [x] 013 — `extension/background/actions/fetch-image-base64.js` — COMPLETED
+- [x] 014 — `extension/background/actions/force-send-activation.js` — COMPLETED
+- [x] 015 — `extension/background/actions/get-tab-id.js` — COMPLETED
+- [x] 016 — `extension/background/actions/log-entry.js` — COMPLETED
+- [x] 017 — `extension/background/actions/open-existing-folder.js` — COMPLETED
+- [x] 018 — `extension/background/actions/open-manga-root.js` — COMPLETED
+- [x] 019 — `extension/background/actions/refresh-job-watchdog.js` — COMPLETED
+- [x] 020 — `extension/background/actions/relay-progress.js` — COMPLETED
+- [x] 021 — `extension/background/actions/report-error.js` — COMPLETED
+- [x] 022 — `extension/background/actions/request-image-data.js` — COMPLETED
+- [x] 023 — `extension/background/actions/set-debug-mode.js` — COMPLETED
+- [x] 024 — `extension/background/actions/start-batch.js` — COMPLETED
+- [x] 025 — `extension/background/actions/stop-batch.js` — COMPLETED
+- [x] 026 — `extension/background/jobs-dom-ack.js` — COMPLETED
+- [x] 027 — `extension/background/jobs-lifecycle.js` — COMPLETED
+- [x] 028 — `extension/background/jobs-reconciliation.js` — COMPLETED
+- [x] 029 — `extension/background/jobs-watchdog.js` — COMPLETED
+- [x] 030 — `extension/background/log.js` — COMPLETED
+- [x] 031 — `extension/background/router.js` — COMPLETED
+- [x] 032 — `extension/background/state.js` — COMPLETED
+- [x] 033 — `extension/background/tab-identity.js` — COMPLETED
+- [x] 034 — `extension/content/cm-auto-restore.js` — COMPLETED
+- [x] 035 — `extension/content/cm-chapter.js` — COMPLETED
+- [x] 036 — `extension/content/cm-dom-replace.js` — COMPLETED
+- [x] 037 — `extension/content/cm-gtc-client.js` — COMPLETED
+- [x] 038 — `extension/content/content_gemini.js` — COMPLETED
+- [x] 039 — `extension/content/content_manga.js` — COMPLETED
+- [x] 040 — `extension/content/gemini/attachment.js` — COMPLETED
+- [x] 041 — `extension/content/gemini/deletion.js` — COMPLETED
+- [x] 042 — `extension/content/gemini/dom.js` — COMPLETED
+- [x] 043 — `extension/content/gemini/editor.js` — COMPLETED
+- [x] 044 — `extension/content/gemini/image-quarantine.js` — COMPLETED
+- [x] 045 — `extension/content/gemini/job-runner.js` — COMPLETED
+- [x] 046 — `extension/content/gemini/observer.js` — COMPLETED
+- [x] 047 — `extension/content/gemini/result-extractor.js` — COMPLETED
+- [x] 048 — `extension/content/gemini/selectors.js` — COMPLETED
+- [x] 049 — `extension/content/gemini/temporary-chat.js` — COMPLETED
+- [x] 050 — `extension/content/inject.js` — COMPLETED
+- [x] 051 — `extension/options/options.html` — COMPLETED
+- [x] 052 — `extension/options/options.js` — COMPLETED
+- [x] 053 — `extension/popup/popup.html` — COMPLETED
+- [x] 054 — `extension/popup/popup.js` — COMPLETED
+- [x] 055 — `extension/reader/reader.html` — COMPLETED
+- [x] 056 — `extension/reader/reader.js` — COMPLETED
+- [x] 057 — `extension/shared/gtc-fingerprint.js` — COMPLETED
+- [x] 058 — `extension/shared/gtc-indexeddb.js` — COMPLETED
+- [x] 059 — `extension/shared/shared-ui.js` — COMPLETED
+- [x] 060 — `extension/shared/storage-manager.js` — COMPLETED
+- [x] 061 — `.gitignore` — COMPLETED
+- [x] 062 — `jest.config.js` — COMPLETED
+- [ ] 063 — `package.json` — READY_FOR_AUDIT
+- [x] 064 — `playwright.config.js` — COMPLETED
+- [ ] 065 — `.github/workflows/ci.yml` — READY_FOR_AUDIT
+- [x] 066 — `.github/workflows/publish.yml` — COMPLETED
+- [x] 067 — `.github/workflows/recover-cancelled-ci.yml` — COMPLETED
+- [x] 068 — `scripts/ci/data/e2e-shard-plan.json` — COMPLETED
+- [x] 069 — `scripts/ci/data/regression-matrix.json` — COMPLETED
+- [x] 070 — `scripts/ci/data/test-baseline.json` — COMPLETED
+- [x] 071 — `scripts/ci/jest-worker-warning.js` — COMPLETED
+- [x] 072 — `scripts/ci/playwright-gate-reporter.js` — COMPLETED
+- [x] 073 — `scripts/ci/playwright-merge.config.js` — COMPLETED
+- [x] 074 — `scripts/ci/run-e2e-group.js` — COMPLETED
+- [x] 075 — `scripts/ci/run-jest-ci.js` — COMPLETED
+- [x] 076 — `scripts/maintenance/diagnose-background-leak.js` — COMPLETED
+- [x] 077 — `scripts/maintenance/diagnose-jest-workers.js` — COMPLETED
+- [x] 078 — `scripts/release/sync-version.js` — COMPLETED
+- [x] 079 — `scripts/validation/check-js-syntax.js` — COMPLETED
+- [x] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` — COMPLETED
+- [x] 081 — `scripts/validation/validate-manifest.js` — COMPLETED
+- [x] 082 — `scripts/validation/verify-ci-contract-selftest.js` — COMPLETED
+- [x] 083 — `scripts/validation/verify-ci-contract.js` — COMPLETED
+- [x] 084 — `scripts/validation/verify-coverage-selftest.js` — COMPLETED
+- [x] 085 — `scripts/validation/verify-coverage.js` — COMPLETED
+- [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
+- [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED
+- [x] 088 — `scripts/validation/verify-publish-contract.js` — COMPLETED
+- [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
+- [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED
+- [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED
+- [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED
+- [x] 093 — `tests/e2e/reader-offline.spec.js` — COMPLETED
+- [x] 094 — `tests/e2e/translation-flow.spec.js` — COMPLETED
+- [x] 095 — `tests/fixtures/gemini-mock-server.js` — COMPLETED
+- [x] 096 — `tests/fixtures/manga-images.js` — COMPLETED
+- [x] 097 — `tests/fixtures/manga-page.html` — COMPLETED
+- [x] 098 — `tests/helpers/background-test-utils.js` — COMPLETED
+- [x] 099 — `tests/helpers/extracted-functions.js` — COMPLETED
+- [x] 100 — `tests/helpers/load-background-module.js` — COMPLETED
+- [ ] 101 — `tests/helpers/load-content-gemini-module.js` — READY_FOR_AUDIT
+- [ ] 102 — `tests/helpers/load-content-script.js` — READY_FOR_AUDIT
+- [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
+- [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
+- [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
+- [ ] 106 — `tests/integration/banned-images-flow.test.js` — READY_FOR_AUDIT
+- [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT
+- [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
+- [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
+- [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — READY_FOR_AUDIT
+- [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — READY_FOR_AUDIT
+- [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — READY_FOR_AUDIT
+- [ ] 113 — `tests/integration/options.ui.test.js` — READY_FOR_AUDIT
+- [ ] 114 — `tests/integration/performance.test.js` — READY_FOR_AUDIT
+- [ ] 115 — `tests/integration/popup-translated-thumbnails.test.js` — READY_FOR_AUDIT
+- [ ] 116 — `tests/integration/popup.advanced.ui.test.js` — READY_FOR_AUDIT
+- [ ] 117 — `tests/integration/popup.ui.test.js` — READY_FOR_AUDIT
+- [ ] 118 — `tests/integration/reader.ui.test.js` — READY_FOR_AUDIT
+- [x] 119 — `tests/mocks/chrome-api.mock.js` — COMPLETED
+- [ ] 120 — `tests/mocks/dom-environment.js` — READY_FOR_AUDIT
+- [ ] 121 — `tests/setup/create-test-images.js` — READY_FOR_AUDIT
+- [ ] 122 — `tests/smoke/run-smoke.js` — READY_FOR_AUDIT
+- [ ] 123 — `tests/smoke/smoke-01-batch-lifecycle.js` — READY_FOR_AUDIT
+- [ ] 124 — `tests/smoke/smoke-02-uuid-and-reconcile.js` — READY_FOR_AUDIT
+- [ ] 125 — `tests/smoke/smoke-03-chapter-persistence.js` — READY_FOR_AUDIT
+- [ ] 126 — `tests/smoke/smoke-04-storage-manager.js` — READY_FOR_AUDIT
+- [ ] 127 — `tests/smoke/smoke-05-perceptual-queries.js` — READY_FOR_AUDIT
+- [ ] 128 — `tests/smoke/smoke-06-sm-message-routing.js` — READY_FOR_AUDIT
+- [ ] 129 — `tests/unit/background/actions-low-risk.test.js` — READY_FOR_AUDIT
+- [ ] 130 — `tests/unit/background/background-strict-load.test.js` — READY_FOR_AUDIT
+- [ ] 131 — `tests/unit/background/batch-actions.test.js` — READY_FOR_AUDIT
+- [ ] 132 — `tests/unit/background/batch-lifecycle-real.test.js` — READY_FOR_AUDIT
+- [ ] 133 — `tests/unit/background/calculate-visual-fingerprint-action.test.js` — READY_FOR_AUDIT
+- [ ] 134 — `tests/unit/background/chrome-runtime-mock-lifecycle.test.js` — READY_FOR_AUDIT
+- [ ] 135 — `tests/unit/background/claim-gemini-job-action.test.js` — READY_FOR_AUDIT
+- [ ] 136 — `tests/unit/background/commit-result-action.test.js` — READY_FOR_AUDIT
+- [ ] 137 — `tests/unit/background/deliver-result-action.test.js` — READY_FOR_AUDIT
+- [ ] 138 — `tests/unit/background/deliver-result-from-tab-action.test.js` — READY_FOR_AUDIT
+- [ ] 139 — `tests/unit/background/deliver-result-url-action.test.js` — READY_FOR_AUDIT
+- [ ] 140 — `tests/unit/background/download-chapter-action.test.js` — READY_FOR_AUDIT
+- [ ] 141 — `tests/unit/background/download-image-action.test.js` — READY_FOR_AUDIT
+- [ ] 142 — `tests/unit/background/download-wait.test.js` — READY_FOR_AUDIT
+- [ ] 143 — `tests/unit/background/export-all-action.test.js` — READY_FOR_AUDIT
+- [ ] 144 — `tests/unit/background/export-guard.test.js` — READY_FOR_AUDIT
+- [ ] 145 — `tests/unit/background/fetch-image-base64-action.test.js` — READY_FOR_AUDIT
+- [ ] 146 — `tests/unit/background/force-send-activation-action.test.js` — READY_FOR_AUDIT
+- [ ] 147 — `tests/unit/background/gtc-runtime-bridge.test.js` — READY_FOR_AUDIT
+- [ ] 148 — `tests/unit/background/handlers-extra-real.test.js` — READY_FOR_AUDIT
+- [ ] 149 — `tests/unit/background/helpers-real.test.js` — READY_FOR_AUDIT
+- [ ] 150 — `tests/unit/background/jobs-dom-ack-staging.test.js` — READY_FOR_AUDIT
+- [ ] 151 — `tests/unit/background/jobs-lifecycle-batch-status.test.js` — READY_FOR_AUDIT
+- [ ] 152 — `tests/unit/background/jobs-reconciliation-batch-queue.test.js` — READY_FOR_AUDIT
+- [x] 153 — `tests/unit/background/jobs-watchdog-ordering.test.js` — COMPLETED
+- [ ] 154 — `tests/unit/background/lifecycle-alarms-real.test.js` — READY_FOR_AUDIT
+- [ ] 155 — `tests/unit/background/marker-anchor-real.test.js` — READY_FOR_AUDIT
+- [ ] 156 — `tests/unit/background/message-handlers-real.test.js` — READY_FOR_AUDIT
+- [ ] 157 — `tests/unit/background/open-existing-folder-action.test.js` — READY_FOR_AUDIT
+- [ ] 158 — `tests/unit/background/open-manga-root-action.test.js` — READY_FOR_AUDIT
+- [ ] 159 — `tests/unit/background/plan-missing-handlers-real.test.js` — READY_FOR_AUDIT
+- [ ] 160 — `tests/unit/background/process-finalize-real.test.js` — READY_FOR_AUDIT
+- [ ] 161 — `tests/unit/background/refresh-job-watchdog-action.test.js` — READY_FOR_AUDIT
+- [ ] 162 — `tests/unit/background/regex-escape.test.js` — READY_FOR_AUDIT
+- [ ] 163 — `tests/unit/background/report-error-action.test.js` — READY_FOR_AUDIT
+- [ ] 164 — `tests/unit/background/request-image-data-action.test.js` — READY_FOR_AUDIT
+- [ ] 165 — `tests/unit/background/routed-actions-legacy.test.js` — READY_FOR_AUDIT
+- [ ] 166 — `tests/unit/background/router.test.js` — READY_FOR_AUDIT
+- [ ] 167 — `tests/unit/background/single-image-context-menu.test.js` — READY_FOR_AUDIT
+- [ ] 168 — `tests/unit/background/startup-recovery.test.js` — READY_FOR_AUDIT
+- [ ] 169 — `tests/unit/background/state-api.test.js` — READY_FOR_AUDIT
+- [ ] 170 — `tests/unit/background/tab-identity.test.js` — READY_FOR_AUDIT
+- [ ] 171 — `tests/unit/background/tab-replacement-observability.test.js` — READY_FOR_AUDIT
+- [ ] 172 — `tests/unit/background/test_bg59.test.js` — READY_FOR_AUDIT
+- [ ] 173 — `tests/unit/background/version-sync.test.js` — READY_FOR_AUDIT
+- [ ] 174 — `tests/unit/content-gemini/attachment.test.js` — READY_FOR_AUDIT
+- [ ] 175 — `tests/unit/content-gemini/claim-bootstrap-keepalive.test.js` — READY_FOR_AUDIT
+- [ ] 176 — `tests/unit/content-gemini/deletion.test.js` — READY_FOR_AUDIT
+- [ ] 177 — `tests/unit/content-gemini/dom-modules.test.js` — READY_FOR_AUDIT
+- [ ] 178 — `tests/unit/content-gemini/editor-submit.test.js` — READY_FOR_AUDIT
+- [ ] 179 — `tests/unit/content-gemini/helpers-and-regressions-real.test.js` — READY_FOR_AUDIT
+- [ ] 180 — `tests/unit/content-gemini/image-quarantine.test.js` — READY_FOR_AUDIT
+- [ ] 181 — `tests/unit/content-gemini/job-runner.test.js` — READY_FOR_AUDIT
+- [ ] 182 — `tests/unit/content-gemini/manual-assist-hud.test.js` — READY_FOR_AUDIT
+- [ ] 183 — `tests/unit/content-gemini/observer.test.js` — READY_FOR_AUDIT
+- [ ] 184 — `tests/unit/content-gemini/plan-rpa-edge-cases.test.js` — READY_FOR_AUDIT
+- [ ] 185 — `tests/unit/content-gemini/resolution-elevation.test.js` — READY_FOR_AUDIT
+- [ ] 186 — `tests/unit/content-gemini/result-extractor.test.js` — READY_FOR_AUDIT
+- [ ] 187 — `tests/unit/content-gemini/rpa-flow.test.js` — READY_FOR_AUDIT
+- [ ] 188 — `tests/unit/content-gemini/safe-background-delete.test.js` — READY_FOR_AUDIT
+- [ ] 189 — `tests/unit/content-gemini/temp-chat-activator.test.js` — READY_FOR_AUDIT
+- [ ] 190 — `tests/unit/content-gemini/temporary-chat-v2.test.js` — READY_FOR_AUDIT
+- [ ] 191 — `tests/unit/content-manga/audio-synthesis-full.test.js` — READY_FOR_AUDIT
+- [ ] 192 — `tests/unit/content-manga/audio-synthesis.test.js` — READY_FOR_AUDIT
+- [ ] 193 — `tests/unit/content-manga/auto-restore-system.test.js` — READY_FOR_AUDIT
+- [ ] 194 — `tests/unit/content-manga/auto-restorer-real.test.js` — READY_FOR_AUDIT
+- [ ] 195 — `tests/unit/content-manga/button-ui-real.test.js` — READY_FOR_AUDIT
+- [ ] 196 — `tests/unit/content-manga/canonical-title-full.test.js` — READY_FOR_AUDIT
+- [ ] 197 — `tests/unit/content-manga/canonical-title.test.js` — READY_FOR_AUDIT
+- [ ] 198 — `tests/unit/content-manga/chapter-id-cache.test.js` — READY_FOR_AUDIT
+- [ ] 199 — `tests/unit/content-manga/chapter-id-rejection.test.js` — READY_FOR_AUDIT
+- [ ] 200 — `tests/unit/content-manga/close-interval.test.js` — READY_FOR_AUDIT
+- [ ] 201 — `tests/unit/content-manga/drawer-real.test.js` — READY_FOR_AUDIT
+- [ ] 202 — `tests/unit/content-manga/extract-flow-real.test.js` — READY_FOR_AUDIT
+- [ ] 203 — `tests/unit/content-manga/extraction-and-handlers-real.test.js` — READY_FOR_AUDIT
+- [ ] 204 — `tests/unit/content-manga/floating-button-guard-and-single-click.test.js` — READY_FOR_AUDIT
+- [ ] 205 — `tests/unit/content-manga/get-clean-url.test.js` — READY_FOR_AUDIT
+- [ ] 206 — `tests/unit/content-manga/get-page-images-filter.test.js` — READY_FOR_AUDIT
+- [ ] 207 — `tests/unit/content-manga/image-filtering.test.js` — READY_FOR_AUDIT
+- [ ] 208 — `tests/unit/content-manga/image-fingerprint.test.js` — READY_FOR_AUDIT
+- [ ] 209 — `tests/unit/content-manga/replacement-and-completion-real.test.js` — READY_FOR_AUDIT
+- [ ] 210 — `tests/unit/content-manga/twin-backdrop-sync.test.js` — READY_FOR_AUDIT
+- [ ] 211 — `tests/unit/gtc/fingerprint.test.js` — READY_FOR_AUDIT
+- [ ] 212 — `tests/unit/gtc/indexeddb.test.js` — READY_FOR_AUDIT
+- [ ] 213 — `tests/unit/inject/inject-anti-hibernation.test.js` — READY_FOR_AUDIT
+- [ ] 214 — `tests/unit/inject/raf-replacement.test.js` — READY_FOR_AUDIT
+- [ ] 215 — `tests/unit/inject/visibility-spoof.test.js` — READY_FOR_AUDIT
+- [ ] 216 — `tests/unit/manifest/surface-reduction.test.js` — READY_FOR_AUDIT
+- [ ] 217 — `tests/unit/popup/dynamic-button.test.js` — READY_FOR_AUDIT
+- [ ] 218 — `tests/unit/popup/log-exporter.test.js` — READY_FOR_AUDIT
+- [ ] 219 — `tests/unit/popup/progress-panel.test.js` — READY_FOR_AUDIT
+- [ ] 220 — `tests/unit/popup/resize-and-tabs.test.js` — READY_FOR_AUDIT
+- [ ] 221 — `tests/unit/popup/version-ui.test.js` — READY_FOR_AUDIT
+- [ ] 222 — `tests/unit/reader/keyboard-nav.test.js` — READY_FOR_AUDIT
+- [ ] 223 — `tests/unit/reader/page-counter.test.js` — READY_FOR_AUDIT
+- [x] 224 — `tests/unit/shared-ui/redo-confirmation.test.js` — COMPLETED
+- [ ] 225 — `tests/visual/background-fingerprint.visual.js` — READY_FOR_AUDIT
+- [ ] 226 — `tests/visual/content-manga-pipeline.visual.js` — READY_FOR_AUDIT
+- [ ] 227 — `tests/visual/crop.visual.js` — READY_FOR_AUDIT
+- [ ] 228 — `tests/visual/gtc-fingerprint.visual.js` — READY_FOR_AUDIT
+- [ ] 229 — `tests/visual/gtc-indexeddb.visual.js` — READY_FOR_AUDIT
+- [ ] 230 — `tests/visual/helpers.js` — READY_FOR_AUDIT
+- [ ] 231 — `tests/visual/integration.visual.js` — READY_FOR_AUDIT
+- [ ] 232 — `tests/visual/run-all.js` — READY_FOR_AUDIT
+- [ ] 233 — `tests/visual/runner.js` — READY_FOR_AUDIT

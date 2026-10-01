@@ -1,0 +1,60 @@
+{
+  "index": 60,
+  "file": "extension/shared/storage-manager.js",
+  "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "d1cd5a2c83ed5fe5a36e67966ea835806b863395",
+  "completed_at_utc": "2026-09-30T06:05:33.044Z",
+  "audit_requests": [
+    {
+      "id": "060-001",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_BUG_REVIEW",
+      "target_file": "extension/shared/storage-manager.js",
+      "finding": "Migração parcial pode gravar flag/limpar legado após falha de página e overwrite de cleanUrl pode deixar restore órfão.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:42:00Z",
+      "audit_finding": "ACCEPTED — dois bugs de consistência confirmados. Na migração legacy, falhas por página são engolidas, mas ao final `_sm_migrated_<chapter>` é gravado `true`; se ao menos uma migrou, todo legado é removido, podendo perder páginas que falharam. Além disso, `savePageResult` ao substituir uma página com `cleanUrl` diferente marca o asset da página anterior como obsoleto, mas não remove a antiga restoreEntry por `previousPage.cleanUrl`; essa restore pode ficar apontando para asset apagado.",
+      "auditor_recommended_action": "Só marcar/remover legado após migração integral comprovada (ou registrar progresso por item). Ao trocar cleanUrl da mesma página, remover/atualizar restore antigo na mesma transação. Adicionar regressões para falha parcial e troca de cleanUrl."
+    },
+    {
+      "id": "060-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/smoke/smoke-04-storage-manager.js",
+      "finding": "Faltam fault injection de IndexedDB, concorrência save/delete, DB promise rejeitada, Data URL malformada e stats exatos.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. `smoke-04-storage-manager.js` cobre round-trip, overwrite, deleteChapter e migração, mas não fault injection de IndexedDB, rejeição persistente/reabertura da DB promise, concorrência save/delete, Data URL malformada nem stats exatos.",
+      "auditor_recommended_action": "Adicionar fault-injection e concorrência controlada com fake-indexeddb, incluindo transação abortada, open error, Data URL inválida e contagens de stats."
+    },
+    {
+      "id": "060-003",
+      "status": "ACCEPTED",
+      "type": "PERFORMANCE_REVIEW",
+      "target_file": "extension/shared/storage-manager.js",
+      "finding": "_chapterWriters cresce por chapterId e Blob/DataURL pode duplicar picos de memória em páginas grandes.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. `_chapterWriters` guarda uma Promise por chapterId e não remove explicitamente a entrada após conclusão; capítulos distintos acumulam chaves ao longo da vida do worker. Conversões DataURL→Blob e Blob→DataURL também podem coexistir com buffers equivalentes em memória para páginas grandes.",
+      "auditor_recommended_action": "Medir/limitar memória e limpar `_chapterWriters` quando a cauda correspondente concluir; adicionar teste de muitos chapterIds e benchmark/política para páginas grandes."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "517/517",
+    "bible_lines": 5326
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
+}

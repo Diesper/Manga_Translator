@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "index": 202,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/extract-flow-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/extract-flow-real.test.js/Bíblia.md",
+  "source_sha": "1bbc481d426bf7471eb655cf514e20d2b323902b",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "202-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 202-001/002/003 como OPEN, embora o state canônico registre ACCEPTED/ACCEPTED/SUPERSEDED.",
+      "evidence": [
+        "Bíblia.md linhas 309, 333 e 357 usam headings OPEN.",
+        "docs/biblia/.state/202.json registra 202-001=ACCEPTED, 202-002=ACCEPTED e 202-003=SUPERSEDED por 039-002.",
+        "202-001 continua factual: a suíte cobre extremos de cache (0% e 100%), mas não lote híbrido com hits e misses simultâneos apesar de GTC_PARTIAL_HIT/START_BATCH para payloadToGemini existirem na produção.",
+        "202-002 continua factual: o teste relaxed prova confirmação regional positiva; o branch `!relaxedOk` envia o índice ao Gemini e não possui caso focal de rejeição regional.",
+        "202-003 foi corretamente superseded: state 039 contém 039-002=ACCEPTED para os mesmos ramos `no_local_batch`/`background_stop_failed` do STOP_TRANSLATION_FROM_POPUP.",
+        "A fonte integral é byte-equivalente e a cobertura posição-a-posição 551/551 foi reconfirmada; não foi sustentado outro finding documental."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:32:00Z"
+}

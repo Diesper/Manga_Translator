@@ -1,0 +1,86 @@
+{
+  "index": 12,
+  "file": "extension/background/actions/export-all.js",
+  "bible": "docs/biblia/extension/background/actions/export-all.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
+  "started_at_utc": "2026-09-30T12:33:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "012-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/export-all-action.test.js",
+      "found_while_auditing": "extension/background/actions/export-all.js",
+      "finding": "A suíte direta não cobre allDownloads truthy não-array, itens sem filename/string válida, runtime.lastError/id undefined, erro do waitForDownload, todos os itens falhando ou conclusão fora da ordem de criação.",
+      "current_evidence": "Lista vazia, prefixo de filename e lote feliz com dois downloads são provados diretamente.",
+      "missing_evidence": "Branches de payload inválido e falhas parciais/totais.",
+      "why_needed": "A action conta falhas como itens concluídos e responde ok:true mesmo quando downloads individuais falham.",
+      "requested_action": "Adicionar casos parametrizados contra a action real, inclusive falha parcial e total.",
+      "expected_evidence": "Contagem, ausência/presença de downloads.show e resposta final assertadas para cada cenário.",
+      "expected_auditor_action": "Fortalecer cobertura sem alterar o objeto auditado nesta etapa.",
+      "possible_regression": "Exportação pode reportar sucesso apesar de falhas invisíveis no lote.",
+      "impact": "Confiabilidade da exportação em massa.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED. A suíte precisa cobrir shapes inválidos/itens incompletos e falhas de download/wait, pois a implementação usa `filename.startsWith` sem validação de item e possui múltiplos branches de erro.",
+      "auditor_recommended_action": "Adicionar casos focais para payload não-array/itens inválidos, lastError, id ausente, wait failure e ordenação."
+    },
+    {
+      "id": "012-002",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/background/actions/export-all.js",
+      "found_while_auditing": "extension/background/actions/export-all.js",
+      "finding": "Falhas de download e waitForDownload são absorvidas por finishOne(); a resposta final permanece {ok:true} e não informa sucesso parcial, total de falhas ou erro agregado.",
+      "current_evidence": "Código real e fluxo dos callbacks mostram política best-effort silenciosa.",
+      "missing_evidence": "Decisão explícita se o popup deve receber sucesso mesmo com falhas parciais/totais.",
+      "why_needed": "O popup usa resp.ok para exibir 'Exportação concluída', podendo apresentar sucesso quando nenhum arquivo foi exportado.",
+      "requested_action": "Auditar UX/contrato e decidir se a resposta precisa carregar failedCount/errors ou ok:false quando todos falham.",
+      "expected_evidence": "Contrato de resposta definido e testes do popup/background alinhados.",
+      "expected_auditor_action": "Revisar comportamento funcional em processo separado.",
+      "possible_regression": "Mensagem de sucesso enganosa após falha real de exportação.",
+      "impact": "Experiência do usuário e diagnóstico de download.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:24:00Z",
+      "audit_finding": "ACCEPTED — contrato de sucesso parcial confirmado. Falhas em `downloads.download` e `waitForDownload` chamam `finishOne()` e são contabilizadas como conclusão; ao final sempre resolve `{ok:true}` e pode mostrar apenas o último download bem-sucedido, sem contagem de falhas.",
+      "auditor_recommended_action": "Definir resposta agregada (success/fail counts ou erro) e testar cenário parcial/todos falham."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "41/41",
+    "source_text_lines": 40,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia concorrente validada; fonte integral normalizada para equivalência física exata."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T16:49:19.133Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T16:49:19.133Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
+      "reason": "012-REA-001/002: limitar prova de wait/show ordering e qualificar ChromeDownloadsMock."
+    },
+    {
+      "at_utc": "2026-10-01T16:49:19.133Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
+      "bible_sha": "325023c03655f2b7c87d9d71c3f04ef0dfbdb848",
+      "reason": "012-REA-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": []
+}

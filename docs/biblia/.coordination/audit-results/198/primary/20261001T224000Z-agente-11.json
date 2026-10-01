@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "index": 198,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/chapter-id-cache.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/chapter-id-cache.test.js/Bíblia.md",
+  "source_sha": "7bc23a456be69aaac252e7acea2b498d61a07520",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "198-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O mapa 85/85 é numericamente completo, mas desloca as fronteiras semânticas entre mirror e testes.",
+      "evidence": [
+        "A faixa `37–60 mirror createSystem` inclui na linha 60 a declaração do teste `cria novo capítulo na primeira chamada`.",
+        "A faixa `61–66 criação inicial` termina na linha 66, que já é a declaração do teste `reutiliza Promise cacheada`.",
+        "A faixa `67–73 reutilização por resultado` termina na linha 73, que já declara `chamadas paralelas não criam capítulos duplicados`.",
+        "A fonte integral é byte-equivalente, SHA/state/Bíblia coincidem e a linha 84 fecha o describe com posição 85 como newline final; portanto o defeito é de posição↔responsabilidade."
+      ]
+    },
+    {
+      "id": "198-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 198-001/002/003 como OPEN, embora os três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 145, 161 e 177 usam headings OPEN.",
+        "docs/biblia/.state/198.json registra 198-001=ACCEPTED, 198-002=ACCEPTED e 198-003=ACCEPTED.",
+        "198-001 é factual: a suíte testa `createSystem()` local e não `createChapterManager()` real.",
+        "198-002 é factual: o mirror não modela invalidação por URL nem reset de chapterIdPromise em rejection, presentes em cm-chapter.js.",
+        "198-003 é factual: o teste nominal de Promise cacheada compara IDs após await, não identidade de Promise antes da resolução."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T22:40:00Z"
+}

@@ -1,0 +1,142 @@
+{
+  "index": 63,
+  "file": "package.json",
+  "bible": "docs/biblia/package.json/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
+  "started_at_utc": "2026-09-30T14:10:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "063-001",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "package.json",
+      "found_while_auditing": "package.json",
+      "finding": "O script test:all executa testes/E2E/coverage, mas não executa validate. O nome pode ser interpretado como gate total embora contratos estruturais/publish/policy estejam fora.",
+      "current_evidence": "A composição exata está no package; validate existe como cadeia separada.",
+      "missing_evidence": "Contrato explícito sobre qual comando representa aceitação completa do repositório.",
+      "why_needed": "Desenvolvedor pode executar apenas test:all e acreditar que todos os gates foram aplicados.",
+      "requested_action": "Definir/documentar o fluxo canônico de aceitação e, se desejado, criar um alias agregador explícito sem alterar silenciosamente a semântica existente.",
+      "expected_evidence": "Documentação/gate que deixe inequívoco que test:all e validate são complementares, ou comando único formal.",
+      "expected_auditor_action": "Revisar naming/contrato em mudança separada.",
+      "possible_regression": "Mudanças podem passar suites funcionais mas falhar contratos de estrutura/publicação só posteriormente.",
+      "impact": "Confiabilidade do fluxo local/CI.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:03:00Z",
+      "audit_finding": "ACCEPTED. `test:all` executa suítes/E2E/coverage, enquanto `validate` é uma cadeia separada de contratos estruturais/publish/policy. O nome `test:all` pode ser interpretado como aceitação completa, mas o package não formaliza um comando único que inclua ambos.",
+      "auditor_recommended_action": "Documentar claramente o gate canônico de aceitação ou criar alias agregador explícito sem alterar silenciosamente a semântica histórica."
+    },
+    {
+      "id": "063-002",
+      "status": "ACCEPTED",
+      "type": "COMPATIBILITY_TEST_REQUIRED",
+      "target_file": ".github/workflows/ci.yml",
+      "found_while_auditing": "package.json",
+      "finding": "engines declara Node >=18.0.0, mas a matriz CI documentada pela Bíblia começa em Node 20/22; o piso declarado não é exercitado.",
+      "current_evidence": "Versões mais novas funcionam na CI; isso não prova compatibilidade com 18.0.0.",
+      "missing_evidence": "Job de CI ou política que teste o menor Node suportado.",
+      "why_needed": "O pacote promete suporte a Node 18; dependência/script pode começar a usar API introduzida em Node 20 sem CI detectar.",
+      "requested_action": "Adicionar job/compatibility check no menor Node suportado ou elevar engines de forma deliberada se Node 18 não for mais requisito.",
+      "expected_evidence": "Fluxo crítico validate/test:ci passa no piso declarado.",
+      "expected_auditor_action": "Alinhar engines e matriz CI.",
+      "possible_regression": "Usuário em Node 18 encontra falha apesar do manifesto declarar suporte.",
+      "impact": "Compatibilidade de ambiente de desenvolvimento/CI.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:03:00Z",
+      "audit_finding": "ACCEPTED. `engines` declara Node >=18.0.0, porém a CI funcional usa 20.x/22.x e demais jobs majoritariamente 20.x. O menor runtime prometido não é exercitado.",
+      "auditor_recommended_action": "Adicionar job mínimo em Node 18 para validate/test:ci crítico ou elevar engines deliberadamente se Node 18 não fizer mais parte do contrato."
+    },
+    {
+      "id": "063-003",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-ci-contract.js",
+      "found_while_auditing": "package.json",
+      "finding": "Aliases especializados test:unit:gtc/background/content/popup/reader/inject, test:watch e diagnósticos não possuem gate focal de presença/comando exato.",
+      "current_evidence": "Os projetos/targets existem e os aliases principais unit/integration são protegidos.",
+      "missing_evidence": "Self-test/gate para atalhos especializados considerados parte da interface de desenvolvedor.",
+      "why_needed": "Refactor de nomes/projetos pode quebrar esses comandos locais sem afetar CI principal.",
+      "requested_action": "Decidir quais aliases são contrato suportado e proteger somente esses, evitando sobre-gating utilitários internos.",
+      "expected_evidence": "Aliases suportados falham no self-test quando divergem do projeto/caminho correspondente.",
+      "expected_auditor_action": "Revisar superfície CLI npm.",
+      "possible_regression": "Comandos documentados/localmente usados deixam de funcionar silenciosamente.",
+      "impact": "Produtividade e diagnóstico local.",
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:05:00Z",
+      "audit_finding": "ACCEPTED. Os aliases especializados (`test:unit:*`, `test:watch`, diagnósticos) existem hoje, mas `verify-ci-contract.js` protege apenas alguns scripts principais. Se esses atalhos forem interface suportada, podem quebrar em refactor sem o gate central detectar.",
+      "auditor_recommended_action": "Classificar quais aliases fazem parte da interface CLI suportada e proteger somente esses com self-test/comando exato; deixar utilitários internos fora do contrato."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "61/61",
+    "source_text_lines": 60,
+    "external_audit_requests_open": 0,
+    "note": "package.json e Bíblia atualizados para o wiring distribuído de auditoria; 61/61 posições documentadas. O SHA novo exige PRIMARY + ADVERSARIAL antes de voltar a COMPLETED."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T15:20:38Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T02:36:00Z",
+      "type": "SOURCE_SHA_INVALIDATION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "33e0b91d1a6f1790124b700d2ce331f80d2b7095",
+      "current_source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "reason": "Fonte mudou durante a infraestrutura documental necessária do recovery; aprovação/Bíblia anterior não pode permanecer vinculada ao SHA antigo."
+    },
+    {
+      "at_utc": "2026-10-01T02:43:00Z",
+      "type": "BIBLE_UPDATED_FOR_CURRENT_SOURCE",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "reason": "Bíblia #063 reconstruída em schema V2 para o package.json atual, com fonte integral exata e cobertura 59/59."
+    },
+    {
+      "at_utc": "2026-10-01T14:26:12.326Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "auditor": "AGENTE 6",
+      "reason": "Reauditoria independente herdada confirmou SHA, fonte integral, cobertura 59/59, wiring, consumers e contratos do package.json atual. Metadata derivado stale do document_quality foi normalizado; requests 063-001..003 permanecem ACCEPTED como dívida externa não bloqueante."
+    },
+    {
+      "at_utc": "2026-10-01T15:20:38Z",
+      "type": "SOURCE_SHA_INVALIDATION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "current_source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
+      "reason": "package.json passou a executar os self-tests distribuídos de pipeline/shards; a aprovação do SHA anterior não pode ser reutilizada."
+    },
+    {
+      "at_utc": "2026-10-01T15:20:38Z",
+      "type": "BIBLE_UPDATED_FOR_CURRENT_SOURCE",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
+      "reason": "Bíblia #063 sincronizada com o package.json atual e recolocada na fila PRIMARY → ADVERSARIAL."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T14:26:12.326Z",
+      "note": "Passagens 0–15 concluídas. Integridade, veracidade e honestidade confirmadas 3x para a Bíblia #63 no SHA atual."
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "index": 117,
+  "file": "tests/integration/popup.ui.test.js",
+  "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+  "started_at_utc": "2026-09-30T06:22:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "117-001",
+      "status": "ACCEPTED",
+      "type": "TRACEABILITY_REVIEW",
+      "target_file": "tests/integration/popup.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.ui.test.js",
+      "finding": "O describe enumera REG-06/REG-07 e PU-01..PU-81/variantes, mas o arquivo contém 11 test() e não mapeia IDs para assertions.",
+      "current_evidence": "Há 11 cenários com assertions reais e sem skip/only.",
+      "missing_evidence": "Matriz requisito-ID -> caso/assertion ou indicação explícita de que o rótulo é agregado com outras suítes.",
+      "why_needed": "O cabeçalho pode ser interpretado como prova individual de todos os IDs listados.",
+      "requested_action": "Auditar a origem dos IDs e mapear cada requisito às assertions ou alinhar a nomenclatura ao escopo real, em alteração separada.",
+      "expected_evidence": "Tabela/mapeamento verificável ou rótulo reduzido e coerente.",
+      "expected_auditor_action": "Revisar rastreabilidade sem alterar esta Bíblia.",
+      "possible_regression": "Um requisito pode parecer coberto mesmo sem assertion correspondente.",
+      "impact": "Qualidade/auditabilidade da suíte.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. O describe lista REG-06/REG-07 e dezenas de IDs PU, mas o arquivo possui apenas um conjunto muito menor de test() e não mapeia IDs para assertions. O cabeçalho pode ser interpretado como cobertura individual inexistente.",
+      "auditor_recommended_action": "Criar matriz requisito-ID→caso/assertion ou reduzir a nomenclatura do describe ao escopo efetivamente provado."
+    },
+    {
+      "id": "117-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/popup.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.ui.test.js",
+      "finding": "O teste de remoção de site semeia chapterList/restoreMap/restoreMeta, mas após remover o domínio só verifica enabledDomains, siteMeta e UI.",
+      "current_evidence": "A existência de histórico é apenas precondição; nenhuma assertion pós-ação confirma sua preservação.",
+      "missing_evidence": "Leitura pós-remoção e comparação de chapterList, chap_popup_remove_restoreMap e chap_popup_remove_restoreMeta.",
+      "why_needed": "A implementação poderia apagar histórico salvo e o teste permanecer verde, apesar do título 'mesmo quando existem imagens salvas no historico'.",
+      "requested_action": "Confirmar o contrato; se histórico deve ser preservado, adicionar assertions diretas em mudança de teste separada. Se não, alinhar o nome do teste.",
+      "expected_evidence": "Assertions específicas de preservação ou contrato explícito de deleção.",
+      "expected_auditor_action": "Validar intenção funcional antes de alterar teste/código.",
+      "possible_regression": "Remoção de domínio pode destruir traduções persistidas sem falha da suíte.",
+      "impact": "Dados locais de capítulos/traduções.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. O caso de remover site semeia chapterList/restoreMap/restoreMeta, mas após a ação só verifica enabledDomains/siteMeta/UI; a preservação do histórico é precondição, não assertion.",
+      "auditor_recommended_action": "Se preservar histórico é contrato, ler e comparar chapterList/restoreMap/restoreMeta após a remoção; caso contrário, alinhar o título."
+    },
+    {
+      "id": "117-003",
+      "status": "ACCEPTED",
+      "type": "TEST_STRENGTH_REVIEW",
+      "target_file": "tests/integration/popup.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.ui.test.js",
+      "finding": "O teste Refazer prova preservação de restoreMap[keepUrl] e images[1], mas não verifica restoreMeta[keepUrl] nem paths[1].",
+      "current_evidence": "A deleção focal e o cache GTC possuem assertions fortes, e parte da entrada keep é preservada explicitamente.",
+      "missing_evidence": "Assertions das estruturas paralelas restoreMeta/path da imagem não-alvo.",
+      "why_needed": "Uma regressão pode remover metadados/path da imagem keep sem quebrar as assertions atuais.",
+      "requested_action": "Confirmar se preservação integral da entrada não-alvo é contrato; se sim, adicionar assertions em alteração separada.",
+      "expected_evidence": "restoreMeta[keepUrl] e paths[1] preservados após Refazer.",
+      "expected_auditor_action": "Classificar a necessidade e ajustar somente com ownership próprio.",
+      "possible_regression": "Dano parcial em metadados de outra imagem do capítulo.",
+      "impact": "Consistência do histórico local.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:52:00Z",
+      "audit_finding": "ACCEPTED. O teste Refazer prova remoção do alvo e preservação parcial do keep (restoreMap/images), mas não verifica `restoreMeta[keepUrl]` nem `paths[1]`.",
+      "auditor_recommended_action": "Adicionar assertions das estruturas paralelas não-alvo se preservação integral da entrada keep for requisito."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "632/632",
+    "bible_lines": 1122,
+    "external_audit_requests_open": 0,
+    "note": "Bíblia #117 concluída pelo AGENTE 17 sem alterar implementação, helpers, mocks ou testes externos.",
+    "repair_note": "Lifecycle documental 117-001..003 alinhado ao state canônico: ACCEPTED; nenhuma alteração no source/testes."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T13:43:49Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T13:39:48.407Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "auditor": "AGENTE 6",
+      "reason": "Falha documental material: requests 117-001, 117-002 e 117-003 permanecem OPEN/pendentes na Bíblia, enquanto o state canônico registra as três como ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T13:43:18Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "agent": "AGENTE 23",
+      "reason": "Alinhar lifecycle documental 117-001..003 com o state canônico ACCEPTED sem alterar source/testes."
+    },
+    {
+      "at_utc": "2026-10-01T13:43:49Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #117 corrigida conforme auditoria independente: 117-001..003 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T13:39:48.407Z",
+      "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/wiring/semântica/assertions passam; lifecycle documental das requests falha. Requests 117-001..003 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T13:43:49Z",
+      "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
+    }
+  ]
+}

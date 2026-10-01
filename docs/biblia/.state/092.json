@@ -1,0 +1,132 @@
+{
+  "index": 92,
+  "file": "tests/e2e/cache-and-storage.spec.js",
+  "bible": "docs/biblia/tests/e2e/cache-and-storage.spec.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+  "started_at_utc": "2026-09-30T06:16:30Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "092-001",
+      "status": "ACCEPTED",
+      "type": "TEST_RELIABILITY",
+      "target_file": "tests/e2e/cache-and-storage.spec.js",
+      "found_while_auditing": "tests/e2e/cache-and-storage.spec.js",
+      "finding": "resetExtensionState converte falhas de limpeza dos IndexedDB em continuidade: req.onerror e tx.onerror resolvem a Promise e os blocos externos usam catch vazio.",
+      "current_evidence": "Linhas 56-97 implementam cleanup best-effort; o describe reutiliza persistent context. O mesmo blob passou no run 36577447500, mas não há assertion pós-cleanup de bancos vazios.",
+      "missing_evidence": "Teste que injete falha de open/transaction/clear e assertion de que translations, chapters, chapterPages, restoreEntries e assets estejam vazios antes de cada cenário.",
+      "why_needed": "Uma falha silenciosa pode preservar GTC/restore de caso anterior e permitir falso verde por cache já existente.",
+      "requested_action": "Auditar se o reset deve ser fail-closed; se sim, alterar o teste em mudança separada para rejeitar erros de limpeza e/ou verificar bancos vazios antes do cenário.",
+      "expected_evidence": "Falha explícita quando a limpeza é injetada com erro e prova direta de stores vazios no caminho normal.",
+      "expected_auditor_action": "Classificar o risco de contaminação e abrir correção de confiabilidade separada se o cleanup best-effort não for aceitável.",
+      "possible_regression": "Regressão na geração/persistência pode ficar invisível porque um teste seguinte reaproveita estado antigo.",
+      "impact": "Confiabilidade dos resultados E2E e independência entre testes no persistent context.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — falso isolamento possível. `resetExtensionState` resolve em `req.onerror/tx.onerror` e possui catches vazios ao limpar IndexedDB; a suíte continua mesmo se o banco da execução anterior não for limpo.",
+      "auditor_recommended_action": "Fazer cleanup falhar o teste ou verificar pós-condição de banco vazio; cobrir erro de open/transaction."
+    },
+    {
+      "id": "092-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/e2e/cache-and-storage.spec.js",
+      "found_while_auditing": "tests/e2e/cache-and-storage.spec.js",
+      "finding": "O branch visível de getBrowserModeConfig aceita show/visible/headed/ui, usa slowMo=350 e não injeta --headless=new, porém a CI força MANGA_E2E_BROWSER_MODE=stealth.",
+      "current_evidence": "Run 36577447500 executou o mesmo blob nos shards medium-a/medium-b em stealth e os quatro testes passaram.",
+      "missing_evidence": "Execução automatizada de ao menos um alias visível e assertions sobre mode, showBrowser, slowMo e presença/ausência de --headless=new.",
+      "why_needed": "O modo visível é uma superfície de diagnóstico local não coberta pelo caminho CI atual.",
+      "requested_action": "Adicionar, se exigido pelo contrato, teste focal da configuração de browser ou job manual controlado que exercite o branch visível.",
+      "expected_evidence": "Assertions diretas do objeto de configuração e dos argumentos de launch para stealth e visible.",
+      "expected_auditor_action": "Decidir se o modo visível é contrato suportado; se for, solicitar cobertura separada.",
+      "possible_regression": "Modo visual de depuração pode quebrar sem afetar os shards stealth.",
+      "impact": "Diagnóstico manual/local dos E2E.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. `getBrowserModeConfig` suporta aliases visíveis e altera slowMo/args, mas os shards CI fixam modo stealth e não existe prova automatizada do branch visible/headed/ui.",
+      "auditor_recommended_action": "Se modo visível é contrato suportado, adicionar teste focal do config/launch args ou job manual controlado."
+    },
+    {
+      "id": "092-003",
+      "status": "ACCEPTED",
+      "type": "RESOURCE_CLEANUP",
+      "target_file": "tests/e2e/cache-and-storage.spec.js",
+      "found_while_auditing": "tests/e2e/cache-and-storage.spec.js",
+      "finding": "beforeAll cria userDataDir em os.tmpdir() e afterAll fecha browserContext, mas não remove explicitamente o diretório. O módulo fs é importado e não é usado.",
+      "current_evidence": "Linhas 2, 193-208 e 213-215; não existe fs.rm/rmSync nem outra remoção do caminho no blob.",
+      "missing_evidence": "Prova de que Playwright/Chromium remova automaticamente um userDataDir fornecido pelo chamador ou cleanup explícito validado.",
+      "why_needed": "Execuções repetidas em ambiente persistente podem acumular perfis temporários.",
+      "requested_action": "Confirmar o lifecycle oficial do userDataDir externo; se não houver remoção automática garantida, implementar cleanup robusto em alteração separada.",
+      "expected_evidence": "Teste que confirme ausência do diretório após teardown ou documentação oficial inequívoca do runtime adotado.",
+      "expected_auditor_action": "Classificar se há leak de diretório e solicitar cleanup apenas se o runtime não o fizer automaticamente.",
+      "possible_regression": "Consumo progressivo de disco por perfis E2E temporários.",
+      "impact": "Higiene de recursos em execuções repetidas.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:32:00Z",
+      "audit_finding": "ACCEPTED. A suíte cria `userDataDir` externo em `os.tmpdir()` e fecha apenas o browserContext; `fs` está importado mas não há `rm/rmSync`. Não há prova de remoção automática garantida para diretório fornecido pelo chamador.",
+      "auditor_recommended_action": "Confirmar lifecycle do Playwright; se o diretório persistir, remover explicitamente em teardown/finally e adicionar prova de ausência residual."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "368/368",
+    "source_text_lines": 367,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [
+      109437162358,
+      109437162771,
+      109437798789
+    ],
+    "evidence_summary": "Mesmo blob b181989... executado na run 36577447500: medium-a e medium-b exibem nominalmente os quatro testes; gate agregado 21 passed, skipped=0, flaky=0, failed=0.",
+    "evidence_note": " Revisão pós-REAUDIT sincronizou o lifecycle documental com .state."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T16:44:40.718Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:23:25Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 368/368 posições, fonte integral exata e evidência runtime do mesmo blob para os quatro testes E2E."
+    },
+    {
+      "at_utc": "2026-10-01T16:44:40.718Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "reason": "REAUDIT 092-REA-001 confirmou lifecycle documental stale: 092-001/002/003 são ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T16:44:40.718Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "bible_sha": "169c84b08d9c0d3b4c0c20e1e10a6713928c020d",
+      "reason": "REAUDIT 092-REA-001 confirmou lifecycle documental stale: 092-001/002/003 são ACCEPTED. Source inalterado; nova revisão documental exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:23:25Z",
+      "note": "Run 36577447500 usou commit b6ad13f... cujo blob deste arquivo é exatamente b181989...; medium-a/b e gate agregado passaram. 092-001..003 permanecem ACCEPTED."
+    }
+  ]
+}

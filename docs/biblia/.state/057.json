@@ -1,0 +1,39 @@
+{
+  "index": 57,
+  "file": "extension/shared/gtc-fingerprint.js",
+  "bible": "docs/biblia/extension/shared/gtc-fingerprint.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "fa014028d5e2ec9d9ca5d05c1199e1f6c45a2198",
+  "started_at_utc": null,
+  "completed_at_utc": null,
+  "audit_requests": [],
+  "takeover_history": [
+    {
+      "from_agent": "AGENTE 31",
+      "to_agent": "AGENTE 15",
+      "authorized_by": "user",
+      "authorized_at_utc": "2026-09-30T22:00:00Z",
+      "reason": "Usuário informou que os demais agentes não estão mais ativos e autorizou o AGENTE 15 a herdar todas as autorizações dos arquivos ainda em progresso."
+    }
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T01:39:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T01:39:00Z",
+      "type": "COORDINATION_REPAIR",
+      "from_status": "IN_PROGRESS",
+      "to_status": "COMPLETED",
+      "reason": "Recuperação administrativa havia reaberto uma Bíblia já aprovada. Fonte, SHA atual, Bíblia e aprovação independente foram revalidados; lifecycle documental restaurado sem reauditoria desnecessária.",
+      "previous_owner": "AGENTE 15"
+    }
+  ],
+  "recovery": {
+    "coordination_repair": "Restored approved document to COMPLETED after verifying current source SHA and independent audit.",
+    "original_completed_at_utc": "unknown / not_recovered",
+    "administrative_reopen_started_at_utc": "2026-09-30T16:16:00Z"
+  },
+  "evidence": []
+}

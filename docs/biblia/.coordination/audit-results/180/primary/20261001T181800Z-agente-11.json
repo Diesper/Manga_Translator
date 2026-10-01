@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "index": 180,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/image-quarantine.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
+  "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "180-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O mapa integral cobre 140/140 posições sem gaps, mas várias faixas de responsabilidade atravessam cenários diferentes e não correspondem às linhas reais.",
+      "evidence": [
+        "A Bíblia declara QUA-05 nas linhas 93–107, porém QUA-05 começa na linha 94 e a linha 107 já declara `QUA-06`.",
+        "A Bíblia declara QUA-06 nas linhas 108–122, mas a declaração de QUA-06 na linha 107 fica fora da faixa e a linha 120 já declara `QUA-07`; a linha 122 já pertence ao markup de QUA-07.",
+        "A Bíblia declara QUA-07 nas linhas 123–134, embora QUA-07 tenha começado na linha 120 e a linha 133 já declare `QUA-08`; linha 134 já é setup de QUA-08.",
+        "A Bíblia declara QUA-08 nas linhas 135–139, omitindo sua própria declaração/setup nas linhas 133–134.",
+        "A união matemática continua sendo 1–140, logo a falha é semântica posição↔responsabilidade, não de contagem."
+      ]
+    },
+    {
+      "id": "180-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 180-001/002/003 como OPEN, mas todos já foram SUPERSEDED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 114, 122 e 130 usam headings OPEN.",
+        "docs/biblia/.state/180.json registra 180-001=SUPERSEDED por 044-001, 180-002=SUPERSEDED por 044-001 e 180-003=SUPERSEDED por 044-003.",
+        "docs/biblia/.state/044.json confirma 044-001 e 044-003 como ACCEPTED para os mesmos riscos: WebCrypto/vetores SHA-256 e branches residuais de robustez.",
+        "O módulo real mantém os caminhos citados; a suíte força `cryptoImpl:null`, portanto a supersessão é válida e não elimina o risco técnico."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T18:18:00Z"
+}

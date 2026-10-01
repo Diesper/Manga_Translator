@@ -1,0 +1,48 @@
+{
+  "index": 46,
+  "file": "extension/content/gemini/observer.js",
+  "bible": "docs/biblia/extension/content/gemini/observer.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "59c5335e1b4fd6b2877988cde9816f1c0b290b35",
+  "completed_at_utc": "2026-09-30T06:02:00.845Z",
+  "audit_requests": [
+    {
+      "id": "046-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/observer.test.js",
+      "finding": "Faltam provas focais para dependências ausentes, múltiplos waiters, erros iguais ao baseline, registry anômalo, queueMicrotask/timer failures e stop rejection.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED com sobreposição parcial. Waiters/stop/registry já têm requests canônicos em 183-001/183-002, mas ainda faltam aqui dependências ausentes, erro igual ao baseline e falhas de queueMicrotask/timer/registry anômalo. A suíte atual não cobre essas degradações.",
+      "auditor_recommended_action": "Reaproveitar 183-* para lifecycle/registry e adicionar apenas os cenários residuais de dependência/agendamento/baseline no observer real."
+    },
+    {
+      "id": "046-002",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/content/gemini/observer.js",
+      "finding": "getState expõe referência mutável e cleanup físico depende de stop() do consumidor; validar contrato de ownership/lifecycle.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:44:00Z",
+      "audit_finding": "ACCEPTED. `getState()` retorna diretamente o objeto interno `state`; consumidores/testes podem mutar a máquina de estados fora das transições do observer. Cleanup físico/registry também depende de `stop()` explícito.",
+      "auditor_recommended_action": "Definir ownership da API: retornar snapshot/read-only ou documentar mutabilidade intencional; adicionar teste de lifecycle/encapsulamento."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "588/588",
+    "bible_lines": 5943
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
+}

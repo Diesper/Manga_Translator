@@ -1,0 +1,47 @@
+{
+  "index": 22,
+  "file": "extension/background/actions/request-image-data.js",
+  "bible": "docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+  "started_at_utc": "2026-09-30T12:05:00Z",
+  "completed_at_utc": "2026-09-30T12:10:00Z",
+  "audit_requests": [
+    {
+      "id": "022-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/request-image-data-action.test.js",
+      "found_while_auditing": "extension/background/actions/request-image-data.js",
+      "finding": "A action não possui validate() para mangaTabId/index e não há assertions focais para tipos/valores inválidos nesses campos.",
+      "current_evidence": "Teste direto prova forwarding correto, preservação da resposta e conversão de chrome.runtime.lastError em {error}.",
+      "missing_evidence": "Casos com mangaTabId ausente/não-numérico e index ausente/não-numérico.",
+      "why_needed": "Payload inválido é encaminhado diretamente para chrome.tabs.sendMessage/content script sem gate local.",
+      "requested_action": "Adicionar testes parametrizados contra a action real e decidir se validação explícita deve ser contrato.",
+      "expected_evidence": "Comportamento definido e assertado para payload inválido sem depender de falha incidental da Chrome API.",
+      "expected_auditor_action": "Revisar contrato de payload e fortalecer testes em alteração separada.",
+      "possible_regression": "Mensagens podem ser enviadas à aba/índice incorretos ou falhar de forma não determinística.",
+      "impact": "Aquisição da imagem de origem pelo fluxo Gemini.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. `request-image-data.js` não possui `validate()` e encaminha `request.mangaTabId`/`request.index` diretamente a `chrome.tabs.sendMessage`. A suíte cobre forwarding nominal e `runtime.lastError`, mas nenhum payload inválido.",
+      "auditor_recommended_action": "Adicionar matriz de mangaTabId/index ausentes, não-numéricos e valores anômalos; decidir se o contrato exige INVALID_PAYLOAD antes da Chrome API."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "33/33",
+    "source_text_lines": 32,
+    "external_audit_requests_open": 1,
+    "note": "Bíblia concorrente validada; bloco fonte normalizado para equivalência física exata."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

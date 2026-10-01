@@ -1,0 +1,60 @@
+{
+  "index": 52,
+  "file": "extension/options/options.js",
+  "bible": "docs/biblia/extension/options/options.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
+  "completed_at_utc": "2026-09-30T06:14:31.653Z",
+  "audit_requests": [
+    {
+      "id": "052-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/options.ui.test.js",
+      "finding": "Faltam provas focais para restore do prompt, autoRestoreEnabled global, minimized_window e refresh/clear de bloqueios.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `options.ui.test.js` cobre salvar prompt, sites, bloqueio por imagem, Refazer, background_delete e controles de interação, mas não clica Restaurar Padrão, não alterna `autoRestoreEnabled`, não seleciona `minimized_window` e não cobre refresh/clear global dos bloqueios.",
+      "auditor_recommended_action": "Adicionar cenários de UI real para esses quatro fluxos, verificando storage e feedback visual."
+    },
+    {
+      "id": "052-002",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/options/options.js",
+      "finding": "Callbacks de storage não verificam lastError; renderizações concorrentes não possuem token de geração; getSiteMeta não tem consumer localizado.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. Os callbacks de `chrome.storage.local` usados por Options não inspecionam `chrome.runtime.lastError`; renderizações assíncronas de sites/imagens não usam generation token contra respostas tardias; `getSiteMeta()` está declarado mas não possui chamada no source atual.",
+      "auditor_recommended_action": "Definir política de erro de storage, proteger renders concorrentes contra stale completion e remover/deprecar `getSiteMeta` se realmente órfão; adicionar testes de lastError/race."
+    },
+    {
+      "id": "052-003",
+      "status": "ACCEPTED",
+      "type": "INPUT_CONTRACT_REVIEW",
+      "target_file": "extension/options/options.js",
+      "finding": "entry.index é interpolado no template; validar/normalizar o formato esperado do índice legado.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `createAutoImageItem` interpola `entry.index` diretamente em `innerHTML`, enquanto chapterTitle/cleanUrl usam `escapeHTML`. Se dados legados/corrompidos trouxerem índice não-numérico/string markup, o contrato de renderização fica inconsistente.",
+      "auditor_recommended_action": "Normalizar `entry.index` para inteiro/valor seguro antes do template (ou escapar explicitamente) e adicionar fixture de storage legado malformado."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "421/421",
+    "bible_lines": 5531
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
+}

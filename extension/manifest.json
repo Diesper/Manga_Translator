@@ -1,0 +1,75 @@
+{
+  "manifest_version": 3,
+  "name": "Manga Translator",
+  "version": "6.5",
+  "description": "Tradução de mangá usando Gemini com cache perceptual visual, armazenamento transacional em IndexedDB e controles de substituição automática.",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage",
+    "unlimitedStorage",
+    "downloads",
+    "windows",
+    "alarms",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "shared/gtc-fingerprint.js",
+        "content/cm-gtc-client.js",
+        "content/cm-dom-replace.js",
+        "content/cm-chapter.js",
+        "content/cm-auto-restore.js",
+        "content/content_manga.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://gemini.google.com/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "content/inject.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://gemini.google.com/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "content/gemini/selectors.js",
+        "content/gemini/dom.js",
+        "content/gemini/image-quarantine.js",
+        "content/gemini/observer.js",
+        "content/gemini/editor.js",
+        "content/gemini/attachment.js",
+        "content/gemini/temporary-chat.js",
+        "content/gemini/result-extractor.js",
+        "content/gemini/deletion.js",
+        "content/gemini/job-runner.js",
+        "content/content_gemini.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

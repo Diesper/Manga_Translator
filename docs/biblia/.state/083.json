@@ -1,0 +1,91 @@
+{
+  "index": 83,
+  "file": "scripts/validation/verify-ci-contract.js",
+  "bible": "docs/biblia/scripts/validation/verify-ci-contract.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "636e4bfbaa0646cd8259e1f27f09004a92541294",
+  "started_at_utc": "2026-09-30T06:08:00Z",
+  "completed_at_utc": "2026-10-01T04:07:00Z",
+  "audit_requests": [
+    {
+      "id": "083-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-ci-contract-selftest.js",
+      "found_while_auditing": "scripts/validation/verify-ci-contract.js",
+      "finding": "O self-test executa a implementação real, porém cobre diretamente somente três falhas negativas: job visual removido, forbidOnly enfraquecido e marcador da matriz removido.",
+      "current_evidence": "O sandbox copia o verifier real e seus artefatos, muta uma condição por cenário, executa o verifier em child_process e exige exit não-zero + mensagem específica.",
+      "missing_evidence": "Não há prova focal encontrada para os demais branches, incluindo parser jobBlock, diagnósticos/continue-on-error, concurrency/triggers, Windows, topology E2E, coverage, aliases Jest/coverage, shape do baseline e reporter.",
+      "why_needed": "O arquivo possui dezenas de regras independentes; alterações acidentais em mensagens/condições não cobertas podem enfraquecer um gate sem quebrar os três cenários atuais.",
+      "requested_action": "Ampliar o self-test em mudança separada com cenários negativos representativos por família de contrato, executando sempre o verifier real em sandbox.",
+      "expected_evidence": "Cada mutação relevante deve causar exit não-zero e mensagem específica correspondente ao contrato removido/enfraquecido.",
+      "expected_auditor_action": "Confirmar a lacuna e priorizar cobertura das famílias de maior risco sem alterar esta Bíblia como forma de produzir prova retroativa.",
+      "possible_regression": "Uma regra não exercitada pode parar de detectar drift e a infraestrutura permanecer verde enquanto o self-test atual ainda passa.",
+      "impact": "Reduz confiança de regressão negativa sobre o meta-gate; não invalida as três provas diretas existentes.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. O self-test real cobre só três falhas representativas, enquanto `verify-ci-contract.js` contém dezenas de regras independentes sobre jobs, triggers, concurrency, Windows, topology E2E, coverage, aliases e baseline.",
+      "auditor_recommended_action": "Ampliar o sandbox self-test por famílias de contrato de maior risco, uma mutação causal por regra."
+    },
+    {
+      "id": "083-002",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "scripts/validation/verify-ci-contract.js",
+      "found_while_auditing": "scripts/validation/verify-ci-contract.js",
+      "finding": "Grande parte do contrato é validada por String.includes e regex sobre YAML/JavaScript, e jobBlock depende de formatação textual exata de jobs com dois espaços.",
+      "current_evidence": "Linhas 26-65, 110-195, 237-383, 414-478 e 494-500 usam presença literal/regex; jobBlock localiza chaves por igualdade exata e regex de linha.",
+      "missing_evidence": "Não foi encontrada prova de resistência a comentários/dead text que contenham o marcador nem a variações YAML semanticamente equivalentes, como formatação/chaves válidas diferentes.",
+      "why_needed": "Checks textuais podem produzir falso positivo por marcador presente fora do caminho executável ou falso negativo após refactor de formatação sem mudança semântica.",
+      "requested_action": "Avaliar se o contrato textual estrito é intencional. Se não for, considerar parser YAML/inspeção estrutural ou verificações mais contextuais, acompanhadas de regressões negativas e positivas.",
+      "expected_evidence": "Testes demonstrando rejeição de marcador apenas em comentário/dead text e aceitação/rejeição consciente de formatações YAML equivalentes conforme o contrato decidido.",
+      "expected_auditor_action": "Classificar quais checks devem continuar textuais e quais exigem validação estrutural antes de qualquer mudança funcional.",
+      "possible_regression": "A CI pode aceitar uma proteção apenas comentada ou rejeitar refactor seguro de formatação.",
+      "impact": "Robustez do meta-gate e manutenção futura; o estado atual continua verificável pelo contrato textual existente.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:20:00Z",
+      "audit_finding": "ACCEPTED. Grande parte do CI Contract usa `includes`/regex e `jobBlock` depende da formatação textual de YAML. Marker em comentário/dead text pode satisfazer alguns checks; refactor semanticamente equivalente pode falhar por formatação.",
+      "auditor_recommended_action": "Classificar quais checks devem ser textuais; para garantias semânticas, usar parsing/inspeção estrutural e regressões de comentário/dead text e YAML equivalente."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "508/508",
+    "range_blocks": 34,
+    "ranges_contiguous": true,
+    "source_has_final_newline": false,
+    "bible_lines": 738,
+    "direct_negative_proofs": 3,
+    "external_audit_requests_open": 2,
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T04:07:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:07:00Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "636e4bfbaa0646cd8259e1f27f09004a92541294",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 508/508 posições, wiring real do meta-gate e classificação correta das limitações 083-001..002."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "636e4bfbaa0646cd8259e1f27f09004a92541294",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:07:00Z",
+      "note": "Requests 083-001..002 permanecem ACCEPTED; aprovação documental não as converte em prova funcional."
+    }
+  ]
+}

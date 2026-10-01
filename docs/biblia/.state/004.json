@@ -1,0 +1,102 @@
+{
+  "index": 4,
+  "file": "extension/background/actions/check-extraction-tab.js",
+  "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+  "started_at_utc": "2026-09-30T12:54:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "004-001",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/background/actions/check-extraction-tab.js",
+      "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
+      "finding": "O retorno usa { isExtractionTab: true, ...mapping }; um mapping persistido malformado contendo isExtractionTab:false sobrescreveria o discriminador true.",
+      "current_evidence": "Hit/miss e reidratação com mappings normais têm prova direta.",
+      "missing_evidence": "Caso de mapping malformado com campo isExtractionTab e decisão explícita de precedência.",
+      "why_needed": "O discriminador da resposta pode ser controlado pelo conteúdo persistido, apesar de a existência do mapping já ter sido confirmada.",
+      "requested_action": "Auditar a origem dos mappings; se o discriminador deve ser invariável, considerar ordem { ...mapping, isExtractionTab:true } em mudança separada e adicionar teste.",
+      "expected_evidence": "Mapping malformado não consegue converter um hit real em isExtractionTab:false.",
+      "expected_auditor_action": "Confirmar invariantes do estado persistido antes de qualquer alteração.",
+      "possible_regression": "Aba de extração pode não ser reconhecida após estado corrompido/migrado.",
+      "impact": "Detecção de abas auxiliares e entrega de resultado.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:40:00Z",
+      "audit_finding": "ACCEPTED — bug de robustez confirmado. O retorno é `{ isExtractionTab: true, ...mapping }`; portanto um mapping persistido malformado com `isExtractionTab:false` sobrescreve o discriminador e retorna falso mesmo existindo mapping válido pela chave.",
+      "auditor_recommended_action": "Colocar o discriminador depois do spread (`{ ...mapping, isExtractionTab: true }`) ou sanitizar mapping; adicionar regressão com campo conflitante."
+    },
+    {
+      "id": "004-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/actions-low-risk.test.js",
+      "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
+      "finding": "Não há casos focais para sender sem tab, extractionTabs ausente/null, ensureInitialized rejeitando ou guard de bootstrap com router incompatível.",
+      "current_evidence": "Hit, miss e reidratação após worker novo são provados.",
+      "missing_evidence": "Branches defensivos de inicialização/estado/sender.",
+      "why_needed": "Esses caminhos definem o comportamento de recuperação quando o service worker renasce ou recebe contexto incompleto.",
+      "requested_action": "Adicionar testes focais sem modificar a implementação durante a produção documental.",
+      "expected_evidence": "Miss seguro para estado/sender ausentes e resposta INTERNAL_ERROR quando inicialização falha, conforme contrato escolhido.",
+      "expected_auditor_action": "Completar cobertura de robustez.",
+      "possible_regression": "Worker pode responder de forma inconsistente em contexto incompleto sem gate.",
+      "impact": "Recuperação de extração após restart.",
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:22:00Z",
+      "audit_finding": "ACCEPTED. A suíte `actions-low-risk.test.js` cobre apenas o mapping persistido nominal. O branch sem sender.tab (tabId=-1), `state.extractionTabs` ausente/null, rejeição de `ensureInitialized` e bootstrap do módulo com `MangaTranslatorRouter` indisponível não possuem casos focais.",
+      "auditor_recommended_action": "Adicionar casos separados usando a action real para sender sem tab, estado vazio, ensureInitialized rejeitando e import sem router, fixando resposta/erro e ausência de falso mapping."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "26/26",
+    "source_text_lines": 25,
+    "external_audit_requests_open": 2,
+    "note": "Bíblia existente de auditoria anterior revalidada contra o mesmo SHA; bloco ```javascript reproduz a fonte integral exatamente."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T16:47:08.900Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T02:28:00Z",
+      "type": "AUDIT_PROTOCOL_RECLASSIFICATION",
+      "from_status": "COMPLETED",
+      "to_status": "READY_FOR_AUDIT",
+      "reason": "Aprovação histórica recuperada não registra SHA explícito vinculável ao source atual; requer auditoria independente sob o registro V2."
+    },
+    {
+      "at_utc": "2026-10-01T03:21:00Z",
+      "type": "AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+      "reason": "Auditoria independente confirmou fidelidade documental, fonte/coverage e evidências no SHA atual; lacunas externas ACCEPTED permanecem abertas."
+    },
+    {
+      "at_utc": "2026-10-01T16:47:08.900Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+      "reason": "004-REA-001: remover overclaim de invocação de ensureInitialized e separar evidência P0 integrada."
+    },
+    {
+      "at_utc": "2026-10-01T16:47:08.900Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+      "bible_sha": "15e9739bb511e315b7607cd31e49978f8e9bc49c",
+      "reason": "004-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    }
+  ],
+  "evidence": [],
+  "progress_note": "Reauditoria independente SHA-bound aprovada; requests 004-001, 004-002 permanecem ACCEPTED e não são mascaradas como resolvidas."
+}

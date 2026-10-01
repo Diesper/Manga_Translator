@@ -1,0 +1,108 @@
+{
+  "index": 86,
+  "file": "scripts/validation/verify-e2e-shard-plan.js",
+  "bible": "docs/biblia/scripts/validation/verify-e2e-shard-plan.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
+  "started_at_utc": "2026-09-30T06:11:43.307Z",
+  "completed_at_utc": "2026-10-01T04:10:39Z",
+  "audit_requests": [
+    {
+      "id": "086-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-e2e-shard-plan-selftest.js",
+      "found_while_auditing": "scripts/validation/verify-e2e-shard-plan.js",
+      "finding": "Não foi localizada suíte focal que execute esta implementação em sandbox e force os branches negativos do plano, do relatório Playwright e da construção da partição.",
+      "current_evidence": "package.json e .github/workflows/ci.yml executam o gate no caminho real; verify-ci-contract.js protege wiring, plano atual e três marcadores por inspeção estática; verify-ci-contract-selftest.js não força os branches internos deste arquivo.",
+      "missing_evidence": "Assertions diretas para grupos insuficientes, expectedTests/workers inválidos, IDs/tags duplicados, ausência de fast, status Playwright não zero, JSON inválido, inventário duplicado/abaixo do baseline, mismatch por grupo, teste fora do inventário, sobreposição, omissão e cardinalidade final.",
+      "why_needed": "Sem self-test negativo, mudanças que enfraqueçam um branch podem permanecer invisíveis se o plano corrente continuar no caminho verde.",
+      "requested_action": "Criar self-test separado que execute a implementação real em sandbox com plano/baseline/CLI controlados, sem copiar sua lógica.",
+      "expected_evidence": "Cada cenário deve produzir exit code não zero e diagnóstico específico; um cenário válido deve produzir sucesso e mensagem de cobertura exata.",
+      "expected_auditor_action": "Confirmar a lacuna e implementar a suíte apenas em alteração autorizada separada da Bíblia.",
+      "possible_regression": "O gate pode deixar de detectar duplicação, omissão ou drift de contagem sem que a CI corrente revele o enfraquecimento.",
+      "impact": "Integridade da partição E2E e confiança no gate de 5 shards.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:49:00Z",
+      "audit_finding": "ACCEPTED — falta de prova focal confirmada. O verificador executa Playwright real e possui muitos `fail(...)`, mas não existe `verify-e2e-shard-plan-selftest.js` no tree que mutacione plano/relatório para comprovar grupos duplicados, omissões, overlaps, contagens e schema negativos.",
+      "auditor_recommended_action": "Criar self-test em sandbox/mocks controlados ou extrair funções puras para mutation tests dos branches negativos sem duplicar a lógica."
+    },
+    {
+      "id": "086-002",
+      "status": "ACCEPTED",
+      "type": "CI_POLICY_REVIEW",
+      "target_file": "scripts/validation/verify-e2e-shard-plan.js",
+      "found_while_auditing": "scripts/validation/verify-e2e-shard-plan.js",
+      "finding": "runList usa spawnSync com maxBuffer de 20 MiB, mas sem timeout e sem tratamento específico de result.error.",
+      "current_evidence": "Falha por status diferente de zero é tratada; stdout/stderr são reemitidos. Não há timeout no objeto de opções e nenhuma branch dedicada a result.error.",
+      "missing_evidence": "Teste de hang/timeout, erro de spawn, estouro de maxBuffer e decisão explícita de política de duração máxima.",
+      "why_needed": "Uma listagem travada pode depender apenas do limite externo do runner, e erros de processo podem gerar diagnóstico genérico com status nulo.",
+      "requested_action": "Definir política de timeout/erro para a descoberta e criar regressões controladas caso a política exija mudança.",
+      "expected_evidence": "Self-test com processo controlado provando timeout/erro e mensagem/exit code esperados.",
+      "expected_auditor_action": "Classificar se a política externa atual é suficiente; se não, solicitar mudança funcional separada.",
+      "possible_regression": "CI pode ficar presa ou produzir diagnóstico insuficiente em falha anômala do Playwright/Node.",
+      "impact": "Tempo de CI e capacidade de diagnóstico de falhas de infraestrutura.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED. `runList` usa `spawnSync` com maxBuffer, mas sem timeout e sem branch específico para `result.error`. Hang, erro de spawn ou estouro de buffer dependem do limite externo e podem produzir diagnóstico genérico.",
+      "auditor_recommended_action": "Definir política de timeout/erro para descoberta Playwright e adicionar self-test com processo controlado para hang/spawn error/maxBuffer."
+    },
+    {
+      "id": "086-003",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/ci/data/e2e-shard-plan.json",
+      "found_while_auditing": "scripts/validation/verify-e2e-shard-plan.js",
+      "finding": "O gate valida somente parte do schema do plano: plan.version não é lido; estimatedSeconds é apenas exibido; kind só é usado para exigir algum fast; a guarda local aceita >=5 grupos, enquanto verify-ci-contract.js congela exatamente 5 nesta fase.",
+      "current_evidence": "e2e-shard-plan.json atual é válido e verify-ci-contract.js protege os cinco IDs, expectedTests/workers e total igual ao baseline.",
+      "missing_evidence": "Contrato explícito/testes para version, tipo de tag, domínio de kind, validade de estimatedSeconds e decisão documentada sobre a diferença >=5 versus exatamente 5.",
+      "why_needed": "Campos malformados ou uma mudança de topologia podem ser aceitos por este gate isolado e depender de outro gate para serem rejeitados.",
+      "requested_action": "Definir quais campos fazem parte do schema operacional e, se necessário, adicionar validação/testes em alteração separada.",
+      "expected_evidence": "Casos de schema inválido rejeitados pelo gate responsável e documentação clara da divisão de responsabilidades entre este arquivo e verify-ci-contract.js.",
+      "expected_auditor_action": "Confirmar se o layering atual é intencional ou solicitar consolidação/validação adicional.",
+      "possible_regression": "Execução isolada de test:e2e:plan pode aceitar configuração fora da política global atual.",
+      "impact": "Consistência entre plano E2E, runner de grupos e contrato global da CI.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:24:00Z",
+      "audit_finding": "ACCEPTED com escopo refinado. 068-001 já cobre version/kind não validados; aqui resta a divisão de responsabilidade: `estimatedSeconds` não é validado e este gate aceita >=5 grupos enquanto `verify-ci-contract.js` congela exatamente 5.",
+      "auditor_recommended_action": "Documentar o layering entre plano local e contrato global; validar `estimatedSeconds` e topologia aqui se forem parte do schema operacional."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "156/156",
+    "source_text_lines": 155,
+    "external_audit_requests_open": 3,
+    "evidence_note": "A Bíblia reproduz a fonte atual byte a byte e descreve corretamente o gate dinâmico de partição E2E; 086-001..003 permanecem ACCEPTED."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T04:10:39Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:10:39Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 156/156 posições, fonte integral exata, wiring do gate E2E e classificação fiel das limitações 086-001..003."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:10:39Z",
+      "note": "Requests 086-001..003 permanecem ACCEPTED; falta de self-test focal, timeout/spawn policy e schema parcial continuam pendências reais."
+    }
+  ]
+}

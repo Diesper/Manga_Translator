@@ -1,0 +1,50 @@
+{
+  "index": 156,
+  "file": "tests/unit/background/message-handlers-real.test.js",
+  "bible": "docs/biblia/tests/unit/background/message-handlers-real.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
+  "started_at_utc": "2026-09-30T06:45:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "156-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/message-handlers-real.test.js",
+      "found_while_auditing": "tests/unit/background/message-handlers-real.test.js",
+      "finding": "O teste intitulado \"CALCULATE_VISUAL_FINGERPRINT rejeita data/blob URL sem tentar fetch\" envia somente uma URL data:, portanto o nome afirma cobertura específica de blob: que não é exercitada.",
+      "current_evidence": "Este arquivo prova data: -> URL inválida e fetch não chamado. tests/unit/background/calculate-visual-fingerprint-action.test.js prova data: e chrome-extension:, mas não foi localizada assertion com blob: literal.",
+      "missing_evidence": "Dispatch da implementação real com url blob:, resposta de URL inválida e assertion de que fetch não foi chamado, ou correção do título para não alegar blob.",
+      "why_needed": "Título de teste pode ser interpretado como prova de protocolo específico; sem caso blob literal, a evidência atual é apenas da regra genérica inferida do código.",
+      "requested_action": "Adicionar caso focal blob: usando a implementação real ou renomear o teste para refletir apenas o protocolo efetivamente exercitado, conforme o contrato desejado.",
+      "expected_evidence": "Assertion sobre resposta {ok:false,error:'URL inválida para fingerprint visual'} e fetch não chamado para uma URL blob: literal.",
+      "expected_auditor_action": "Confirmar se blob: deve permanecer explicitamente bloqueado e então fortalecer a suíte ou ajustar o nome sem alterar silenciosamente a documentação.",
+      "possible_regression": "Uma regressão futura específica para blob: poderia passar enquanto o teste continuasse verde, apesar do nome sugerir cobertura.",
+      "impact": "Precisão da evidência de segurança/protocolo do fingerprint visual.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T22:23:00Z",
+      "audit_finding": "ACCEPTED. O nome do teste afirma `data/blob URL`, mas o estímulo enviado é apenas `data:image...`; não há chamada com `blob:`. A cobertura declarada é maior que a executada.",
+      "auditor_recommended_action": "Adicionar caso blob separado ou corrigir o título/comentário para mencionar somente data URL."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "487/487",
+    "source_text_lines": 486,
+    "bible_lines": 6521,
+    "bible_blob_sha": "ad25f076a92aca717b9471a482f3dac169efe908",
+    "evidence_quality": "Strong integrated evidence through the real background.js listener/router for covered handlers; focal action suites were cross-checked and the blob-specific naming gap remains explicit.",
+    "external_audit_requests_open": 1,
+    "note": "Nenhum código, teste, fixture, workflow ou configuração externo foi alterado para fabricar evidência."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}
