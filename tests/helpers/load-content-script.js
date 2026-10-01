@@ -19,12 +19,39 @@ const { findRepoRoot } = require('./repo-root');
 const ROOT = findRepoRoot(__dirname);
 
 
-const GTC_FINGERPRINT_PATH = path.join(ROOT, 'extension/shared/gtc-fingerprint.js');
-const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/content/cm-gtc-client.js');
-const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/content/cm-dom-replace.js');
-const CM_CHAPTER_PATH = path.join(ROOT, 'extension/content/cm-chapter.js');
-const CM_AUTO_RESTORE_PATH = path.join(ROOT, 'extension/content/cm-auto-restore.js');
-const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js');
+const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
+
+let previousStorageListeners = [];
+
+function getMangaContentScriptRelativePaths() {
+    const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+    const entry = (manifest.content_scripts || []).find(candidate =>
+        Array.isArray(candidate.js) && candidate.js.includes('content/content_manga.js')
+    );
+    if (!entry) {
+        throw new Error('Manifest não contém o bundle Manga com content/content_manga.js');
+    }
+    return [...entry.js];
+}
+
+function getMangaContentScriptPaths() {
+    return getMangaContentScriptRelativePaths().map(relativePath =>
+        path.join(ROOT, 'extension', relativePath)
+    );
+}
+
+function storageListenersSnapshot() {
+    const listeners = global.chrome?.storage?.local?._listeners;
+    return Array.isArray(listeners) ? [...listeners] : [];
+}
+
+function cleanupPreviousStorageListeners() {
+    const removeListener = global.chrome?.storage?.onChanged?.removeListener;
+    if (typeof removeListener === 'function') {
+        previousStorageListeners.forEach(listener => removeListener(listener));
+    }
+    previousStorageListeners = [];
+}
 
 /**
  * Carrega o content script em ambiente JSDOM com estado controlado.
@@ -36,7 +63,8 @@ const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js')
  * @param {number}   options.imageMinWidth    - Largura mínima configurada para varredura
  * @param {number}   options.imageMinHeight   - Altura mínima configurada para varredura
  * @param {Array}    options.domImages        - Array de { src, width, height, className, attributes } para criar no DOM
- * @returns {Promise<Object>}  { listeners, getState }
+ * @param {number}   options.readyTimeoutMs    - Timeout do bootstrap do botão (default: 1000 ms)
+ * @returns {Promise<Object>} Helpers { sendMessage, getButton, getMainContent }
  */
 async function loadContentScript({
     hostname = 'testmanga.com',
@@ -47,7 +75,10 @@ async function loadContentScript({
     floatingButtonEnabled,
     clickToTranslateEnabled,
     domImages = [],
+    readyTimeoutMs = 1000,
 } = {}) {
+    cleanupPreviousStorageListeners();
+    const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
     // Invalida explicitamente qualquer instância anterior ANTES de tocar no
     // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
     // listener antigo ainda pode reagir ao clear/set do teste seguinte e
@@ -120,24 +151,35 @@ async function loadContentScript({
     // 7. Limpa flag de idempotência para permitir re-injeção
     delete window.__manga_translator_content_injected;
 
-    // 8. Carrega os módulos injetados pela extensão na ordem real do manifest
-    jest.isolateModules(() => {
-        require(GTC_FINGERPRINT_PATH);
-        require(CM_GTC_CLIENT_PATH);
-        require(CM_DOM_REPLACE_PATH);
-        require(CM_CHAPTER_PATH);
-        require(CM_AUTO_RESTORE_PATH);
-        require(CONTENT_MANGA_PATH);
-    });
+    // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
+    try {
+        jest.isolateModules(() => {
+            getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
+        });
+    } finally {
+        previousStorageListeners = storageListenersSnapshot()
+            .filter(listener => !storageListenersBeforeLoad.has(listener));
+    }
 
     // 9. Aguarda a inicialização assíncrona do content script de forma determinística
     const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
+    const normalizedReadyTimeoutMs = Number.isFinite(Number(readyTimeoutMs)) && Number(readyTimeoutMs) >= 0
+        ? Number(readyTimeoutMs)
+        : 1000;
     const startedAt = Date.now();
-    while (Date.now() - startedAt < 250) {
+    while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
         const button = document.getElementById('manga-translator-trigger');
         if (!shouldCreateButton) break;
         if (button && button.dataset.positionReady === 'true') break;
         await new Promise(r => setTimeout(r, 10));
+    }
+    if (shouldCreateButton) {
+        const button = document.getElementById('manga-translator-trigger');
+        if (!button || button.dataset.positionReady !== 'true') {
+            throw new Error(
+                `Timeout aguardando botão do content_manga ficar pronto após ${normalizedReadyTimeoutMs} ms`
+            );
+        }
     }
 
     // 10. Retorna helpers para os testes
@@ -147,12 +189,34 @@ async function loadContentScript({
          * Simula chrome.tabs.sendMessage do background ou popup.
          */
         sendMessage(action, extra = {}) {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const listeners = global.chrome.runtime._messageListeners ?? [];
                 const payload = { action, ...extra };
-                listeners.forEach(fn => fn(payload, { tab: { id: 1 } }, resolve));
-                // Se nenhum listener chamou resolve, resolve em null
-                setTimeout(() => resolve(null), 50);
+                let settled = false;
+                let fallbackTimer = null;
+
+                const settle = (value) => {
+                    if (settled) return;
+                    settled = true;
+                    if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+                    resolve(value);
+                };
+                const fail = (error) => {
+                    if (settled) return;
+                    settled = true;
+                    if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+                    reject(error);
+                };
+
+                fallbackTimer = setTimeout(() => settle(null), 50);
+                for (const listener of listeners) {
+                    try {
+                        listener(payload, { tab: { id: 1 } }, settle);
+                    } catch (error) {
+                        fail(error);
+                        if (settled) break;
+                    }
+                }
             });
         },
 
@@ -168,4 +232,7 @@ async function loadContentScript({
     };
 }
 
-module.exports = { loadContentScript };
+module.exports = {
+    loadContentScript,
+    getMangaContentScriptRelativePaths,
+};
