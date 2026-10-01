@@ -1,8 +1,8 @@
 # Bíblia técnica — tests/helpers/load-content-script.js
 
-> **Estado documental:** reparo corretivo materializado; validação executável final em andamento  
+> **Estado documental:** reparo corretivo local concluído; decisão distribuída final pendente  
 > **SHA auditado:** `0b52224bd7063db9b6bb683d827217d8f2fda69c`  
-> **Tipo:** helper de harness Jest/JSDOM para executar o bundle Manga real sob estado controlado  
+> **Tipo:** helper Jest/JSDOM que carrega o bundle Manga real sob estado controlado  
 > **Linhas textuais:** **495**  
 > **Posições documentais:** **496**, contando o LF final  
 > **Tamanho textual observado:** **19242 caracteres**  
@@ -11,129 +11,100 @@
 
 ## 1. Papel arquitetural
 
-`loadContentScript()` prepara um JSDOM controlado e executa os módulos reais do bundle Manga. Ele não replica a lógica de `content_manga.js`; configura localização, storage, fixtures e globals, carrega a sequência declarada no Manifest e devolve utilitários que dirigem os listeners reais.
-
-A revisão atual também assume ownership explícito dos recursos criados pela carga: listeners Chrome, listeners globais de `window/document`, teardown seletivo da instância anterior e um guard contra duas cargas concorrentes no mesmo ambiente JSDOM.
+`tests/helpers/load-content-script.js` prepara um JSDOM controlado e executa o bundle Manga real declarado no Manifest. O helper não mantém uma cópia da lógica de `content_manga.js`; sua responsabilidade é preparar o ambiente, controlar recursos entre reinjeções, aguardar readiness e expor utilitários de teste.
 
 ## 2. Contrato público
 
-Entradas: `hostname`, `enabledDomains`, `bannedImages`, `imageMinWidth`, `imageMinHeight`, `floatingButtonEnabled`, `clickToTranslateEnabled`, `domImages` e `readyTimeoutMs`.
+`loadContentScript(options)` aceita hostname/whitelist, imagens banidas, dimensões mínimas, preferências de botão/clique, fixtures de imagens e `readyTimeoutMs`.
 
-`enabledDomains ?? [hostname]` preserva array vazio. Flags booleanas só são persistidas quando diferentes de `undefined`, preservando `false`. O timeout default de readiness permanece 250 ms.
+`enabledDomains ?? [hostname]` preserva `[]` explícito. Preferências booleanas só são gravadas quando diferentes de `undefined`, preservando `false`. `readyTimeoutMs` usa 250 ms por padrão e valor inválido/negativo retorna ao default.
 
-O JSDoc está ligado diretamente a `loadContentScript` e descreve o retorno real: `sendMessage(action, extra)`, `getButton()` e `getMainContent()`.
+O JSDoc atual está anexado à função pública e descreve o retorno real: `sendMessage`, `getButton` e `getMainContent`.
 
-## 3. Manifest como fonte canônica
+## 3. Bundle e Manifest
 
-`getMangaContentScriptRelativePaths()` lê `extension/manifest.json`, encontra o entry que contém `content/content_manga.js` e retorna a lista `js` na ordem declarada. O helper deixou de duplicar manualmente os seis paths do bundle.
+`getMangaContentScriptRelativePaths()` lê `extension/manifest.json`, localiza o `content_scripts` contendo `content/content_manga.js` e devolve sua lista `js`. O helper carrega essa lista diretamente em `jest.isolateModules()`, removendo a duplicação manual que originou 102-003.
 
-O self-test compara o retorno com o Manifest atual, de modo que inclusão, remoção ou reordenação do bundle passa a ser detectável.
+## 4. Reentrada e registries de ownership
 
-## 4. Ownership e reinjeção
+`LOAD_IN_PROGRESS_REGISTRY_KEY` impede duas cargas simultâneas no mesmo JSDOM. O outer `finally` sempre libera o guard.
 
-Registries persistidos em `globalThis` mantêm ownership mesmo após `jest.resetModules()` para:
+Registries persistidos em `globalThis` rastreiam listeners pertencentes à carga anterior de `chrome.storage.onChanged`, `chrome.runtime.onMessage` e eventos de `window`/`document`, inclusive através de `jest.resetModules()`.
 
-- listeners de `chrome.storage.onChanged`;
-- listeners de `chrome.runtime.onMessage`;
-- listeners globais de `window/document` capturados como originados do diretório `extension/`;
-- flag de carga em andamento.
+## 5. Ownership de listeners globais
 
-Antes de nova carga, o helper executa teardown seletivo dos listeners `pagehide` pertencentes ao bundle anterior, remove os listeners rastreados e só então troca o token `window.__manga_translator_active_instance`.
+A captura temporária de `addEventListener` fica ativa até o bootstrap terminar. `isExtensionListenerRegistration()` normaliza barras da stack e só classifica como ownership do bundle registros cuja stack contém o diretório `extension/`. Assim, listeners externos registrados antes ou durante o bootstrap não entram no registry do Manga.
 
-O teardown seletivo não dispara `pagehide` globalmente; portanto listeners externos da página/teste não recebem um evento artificial.
+`stop()` restaura o descriptor original quando `addEventListener` era propriedade própria; quando era herdado, remove a propriedade temporária.
 
-## 5. Captura de listeners globais
+## 6. Teardown e cleanup best-effort
 
-`startGlobalEventListenerCapture()` instrumenta temporariamente `window.addEventListener` e `document.addEventListener`, preservando se o método era own property e seu descriptor original. `stop()` restaura a forma exata anterior.
+`disposePreviousContentInstance()` invoca apenas handlers `pagehide` rastreados como pertencentes ao bundle, em vez de emitir `pagehide` globalmente.
 
-A captura usa o stack normalizado para registrar somente chamadas originadas de `extension/`. Isso evita tomar ownership de listeners externos adicionados no mesmo intervalo assíncrono.
+`cleanupContentInstanceListeners()` tenta o teardown cooperativo e depois remove todos os listeners rastreados. Cada remoção é best-effort por listener: uma exceção em storage não impede cleanup de runtime/global, e os registries são zerados mesmo quando existe erro.
 
-A instrumentação permanece ativa até o bootstrap terminar, cobrindo handlers adicionados por callbacks assíncronos de storage e pela criação do botão.
+`attachCleanupError()` preserva o erro causal principal. O erro secundário de cleanup só é anexado quando o erro principal é extensível e a propriedade `cleanupError` é gravável; não existe `catch` silencioso para mascarar metadata.
 
-## 6. Cleanup e erros
+## 7. Seed, DOM e globals
 
-`cleanupContentInstanceListeners()` tenta o teardown da instância e, independentemente de erro, percorre cleanup de storage, runtime e listeners globais. Cada remover é best-effort por item: um erro não impede os outros recursos de serem liberados.
+O storage é semeado antes da carga do bundle. Fixtures de imagem são construídas com DOM API (`createElement`, `setAttribute`, `appendChild`), evitando interpretar valores de atributo como markup. `naturalWidth`, `naturalHeight` e `complete` são definidos como propriedades configuráveis.
 
-Se existe um erro causal de bundle/bootstrap/timeout, um erro secundário de cleanup pode ser anexado como `cleanupError` somente quando o objeto de erro permite escrita; o erro causal continua sendo propagado.
+`crypto` e `TextEncoder` só são espelhados para `window` quando existem no `global` e ainda não existem na janela.
 
-O guard `LOAD_IN_PROGRESS` é liberado em `finally`, inclusive em timeout, exceção de bootstrap, falha parcial e teardown que lança.
+## 8. Carga e caminhos negativos
 
-## 7. Fixture DOM
+Se um módulo falha durante o `require`, a captura global é finalizada, os listeners adicionados são identificados, o teardown/cleanup é executado e o erro original é relançado com metadata de cleanup apenas quando seguro.
 
-As imagens são construídas por `document.createElement` e `setAttribute`, não por interpolação de `innerHTML`. Isso mantém valores controlados pelo teste como dados e evita que aspas/markup alterem a estrutura do fixture.
+Durante o bootstrap, a captura global continua ativa para registrar listeners criados por callbacks assíncronos. Um `finally` sempre restaura a instrumentação e coleta recursos mesmo se o polling lançar.
 
-`naturalWidth`, `naturalHeight` e `complete` são definidos explicitamente e configuráveis para suprir o que JSDOM não renderiza.
-
-## 8. Bootstrap e readiness
-
-Quando o host está habilitado e `floatingButtonEnabled !== false`, o helper aguarda o botão `#manga-translator-trigger` marcar `dataset.positionReady === 'true'`.
-
-Timeout não é silencioso: o caminho negativo limpa a carga parcial, remove o botão e rejeita com mensagem causal contendo o limite efetivo.
-
-Exceções ocorridas durante a conversão/espera do timeout também param a captura global em `finally` e executam cleanup.
+Timeout de readiness não é silencioso: executa cleanup, invalida o token da instância, remove o botão parcial e lança erro causal.
 
 ## 9. sendMessage
 
-`sendMessage` entrega o payload aos listeners reais armazenados no mock de runtime.
+`sendMessage` dirige diretamente os listeners de runtime do mock.
 
-- payload: `{ ...extra, action }`, portanto `extra.action` não substitui o argumento explícito;
-- primeira resolução/rejeição efetiva vence;
-- resposta síncrona não deixa fallback pendente;
-- listener que retorna `true` abre janela assíncrona do harness de 500 ms;
-- sem canal assíncrono, o fallback é 50 ms;
-- fallback é cancelado após settlement;
-- throw antes do settlement rejeita; throw posterior não reverte resultado anterior.
+- O payload é `{ ...extra, action }`: `extra.action` não substitui a ação explícita.
+- A primeira resolução/rejeição efetiva vence.
+- O fallback é cancelado no settlement.
+- Sem canal assíncrono, silêncio resolve `null` em 50 ms.
+- Se algum listener retorna `true`, o fallback bounded é 500 ms.
+- Throw antes do settlement rejeita; throw posterior não reverte Promise já resolvida.
 
-Os 500 ms são política bounded do harness, não uma afirmação de equivalência temporal ilimitada com Chromium.
+## 10. Audit requests históricas
 
-## 10. Concorrência
+### 102-001 — corrigida
+JSDoc alinhado à API real, com regressão de attachment.
 
-Duas chamadas simultâneas no mesmo JSDOM são rejeitadas explicitamente. Sem esse guard, duas instrumentações de `addEventListener` e dois conjuntos de registries poderiam disputar ownership e restaurar métodos/listeners fora de ordem.
+### 102-002 — corrigida
+Fallback cancelável, sem timer residual após resposta, cobertura de resposta imediata/assíncrona/silêncio/throw e `--detectOpenHandles`.
 
-O self-test inicia duas cargas concorrentes, exige rejeição da segunda e prova que uma terceira carga funciona após a primeira finalizar.
+### 102-003 — corrigida
+Bundle derivado do Manifest, com comparação focal.
 
-## 11. Requests históricas
+### 102-004 — corrigida
+Bootstrap incompleto rejeita com erro causal e cleanup.
 
-### 102-001 — IMPLEMENTED; validação final pendente
+### 102-005 — corrigida
+Ownership e cleanup de listeners storage/runtime/globais cobertos em reinjeção, reload de módulo, registros assíncronos e caminhos de falha.
 
-JSDoc corrigido e teste estático garante que ele continua imediatamente associado à função pública.
+## 11. Evidência focal
 
-### 102-002 — IMPLEMENTED; validação final pendente
+Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — SHA `95b2584cb61a180265d5b8c9712c6f846e37b960`.
 
-Fallback cancelável, resposta síncrona/assíncrona, ausência de resposta, throws e `--detectOpenHandles` possuem regressões focais.
+O self-test cobre, entre outros: reentrada, JSDoc, Manifest, DOM fixture, listeners externos síncronos/assíncronos, restore de `addEventListener`, storage/runtime/global ownership, `jest.resetModules`, teardown normal e com erro, cleanup best-effort quando `removeListener` lança, falha parcial, bootstrap exception/timeout e semântica de `sendMessage`.
 
-### 102-003 — IMPLEMENTED; validação final pendente
+Workflow dedicado: `.github/workflows/load-content-script-selftest.yml` — SHA `9eb534298b30c7dd619ecbb2d51e044f972f50d6`.
 
-Bundle derivado diretamente do Manifest e comparação focal com `content_scripts[].js`.
+O workflow executa o self-test com `--detectOpenHandles` e depois a suíte relacionada `content-scripts` em `--runInBand`.
 
-### 102-004 — IMPLEMENTED; validação final pendente
+## 12. Limites honestos
 
-Bootstrap incompleto rejeita com diagnóstico causal e cleanup; exceção intermediária também restaura instrumentação.
+- O helper depende de internals do mock (`_listeners`, `_messageListeners`).
+- `window.location` é modelado parcialmente.
+- A janela assíncrona de 500 ms é política bounded do harness, não lifetime ilimitado do Chromium.
+- O ownership de eventos globais depende de stack Node/Jest; self-test e CI validam esse contrato no ambiente suportado.
 
-### 102-005 — IMPLEMENTED; validação final pendente
-
-Listeners stale de storage/runtime/global são rastreados e removidos; existem testes para reinjeção, `jest.resetModules`, falha parcial, handlers criados pelo botão, preservação de listeners externos e erros durante cleanup.
-
-## 12. Evidência de teste
-
-- Self-test focal: `docs/biblia/.coordination/load-content-script-selftest.test.js` (SHA `95b2584cb61a180265d5b8c9712c6f846e37b960`).
-- Casos focais atuais: 26.
-- Workflow: `.github/workflows/load-content-script-selftest.yml` (SHA `9eb534298b30c7dd619ecbb2d51e044f972f50d6`).
-- O workflow executa primeiro o self-test com `--runInBand --detectOpenHandles` e depois o projeto Jest `content-scripts` completo.
-- A decisão final desta Bíblia depende da execução verde vinculada a este `SOURCE_SHA`; runs de revisões anteriores não contam como prova final.
-
-## 13. Regressão contra BASE
-
-`main` possuía o helper original sem cleanup de listeners, sem fonte única do Manifest, sem timeout causal, sem guard concorrente e com fallback residual. Os consumers continuam recebendo a mesma API pública (`sendMessage`, `getButton`, `getMainContent`) e os mesmos defaults funcionais relevantes; as mudanças endurecem lifecycle/diagnóstico e eliminam ambiguidades, sem trocar a interface pública.
-
-## 14. Limites explícitos
-
-- O helper depende de internals dos mocks (`_listeners`, `_messageListeners`); refatorar os mocks exige revalidar esta unidade.
-- O shape de `window.location` é propositalmente parcial (`hostname`, `href`, `pathname`) e suficiente ao bundle atual auditado.
-- A captura global depende de stack traces Node/Jest contendo o path dos módulos sob `extension/`; o self-test exercita handlers síncronos e assíncronos do bundle atual.
-- Recursos internos que o próprio content script não expõe e que não criam handles observáveis continuam responsabilidade do lifecycle do código de produção, não do harness.
-
-## 15. Fonte integral exata
+## 13. Fonte integral exata
 
 ```js
 /**
@@ -633,46 +604,44 @@ module.exports = {
 };
 ```
 
-## 16. Cobertura integral por posições
+## 14. Cobertura integral por posições
 
-Faixas contíguas da revisão auditada:
-
-- **1–13:** cabeçalho e propósito.
-- **14–24:** imports, root, Manifest e root de stack da extensão.
-- **25–56:** registries persistentes e seus getters/setters.
+- **1–13:** comentário de propósito.
+- **14–24:** imports, raiz, Manifest e raiz de stack normalizada.
+- **25–56:** keys/registries persistentes.
 - **57–73:** derivação do bundle pelo Manifest.
-- **74–83:** snapshots de listeners Chrome.
-- **84–126:** remoção best-effort de storage/runtime/global listeners.
-- **127–131:** filtro de origem por stack da extensão.
-- **132–168:** instrumentação/restauração de `addEventListener`.
-- **169–186:** teardown seletivo `pagehide` do bundle.
-- **187–211:** cleanup unificado e preservação do primeiro erro.
-- **212–227:** associação segura de `cleanupError` ao erro causal.
-- **228–241:** JSDoc público.
-- **242–272:** assinatura/defaults, guard concorrente, cleanup anterior, snapshots e invalidação de ownership.
-- **273–286:** `window.location` e premissa `window.top`.
+- **74–113:** snapshots e remoção best-effort de listeners Chrome.
+- **114–126:** remoção best-effort de eventos globais.
+- **127–131:** classificação de origem de listener pela stack.
+- **132–168:** captura/restauração de `addEventListener`.
+- **169–186:** teardown seletivo de handlers `pagehide` do bundle.
+- **187–211:** cleanup unificado e best-effort.
+- **212–241:** anexo seguro de `cleanupError` e JSDoc público.
+- **242–272:** assinatura, guard de concorrência, cleanup anterior, snapshots e invalidação stale.
+- **273–286:** `window.location`.
 - **287–299:** seed de storage.
 - **300–314:** construção DOM segura.
-- **315–322:** dimensões naturais/`complete`.
-- **323–336:** espelhamento de `crypto`/`TextEncoder`.
+- **315–322:** dimensões naturais.
+- **323–336:** globals `crypto`/`TextEncoder`.
 - **337–339:** liberação do guard de injeção.
-- **340–365:** carga do bundle, captura e cleanup de falha parcial.
-- **366–398:** bootstrap bounded e parada garantida da instrumentação.
-- **399–410:** tratamento de erro de bootstrap.
-- **411–425:** timeout causal e cleanup do caminho negativo.
-- **426–429:** persistência do ownership da carga bem-sucedida.
-- **430–435:** início do objeto de helpers.
-- **436–477:** contrato de `sendMessage`.
-- **478–491:** `getButton`, `getMainContent` e fechamento da função/`finally` de concorrência.
+- **340–365:** carga do bundle e cleanup de falha parcial.
+- **366–398:** polling e `finally` de captura/coleta.
+- **399–407:** cleanup de exceção de bootstrap.
+- **408–425:** timeout causal e cleanup.
+- **426–429:** persistência dos registries da carga válida.
+- **430–477:** retorno e `sendMessage`.
+- **478–486:** lookups DOM e fechamento do retorno.
+- **487–491:** outer `finally` do guard e fechamento da função.
 - **492–495:** export CommonJS.
-- **496:** posição vazia correspondente ao LF final.
+- **496:** newline final.
 
-**Cobertura:** 496/496 posições, sem gap ou overlap.
+**Cobertura: 496/496 posições, sem gap ou overlap.**
 
-## 17. Autoauditoria documental
+## 15. Autoauditoria
 
-- Source SHA reconfirmado na materialização: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
-- Fonte integral inserida diretamente do blob, sem o LF final dentro do fence.
-- Cinco requests históricas foram preservadas individualmente; nenhuma contagem stale de quatro requests.
-- Nenhum status `COMPLETED`/100 foi inferido a partir de execução antiga.
-- Próximo passo canônico: confirmar a run final da revisão atual, atualizar evidência/state, reler diff e devolver para auditoria independente.
+- Source SHA: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- Fonte integral embutida a partir do blob corrente.
+- Lifecycle documental não é apresentado como `COMPLETED` distribuído.
+- Cinco requests históricas tratadas individualmente; não há contagem stale.
+- Metadata estrutural deve ser sincronizada no state após esta materialização.
+- Promoção para `READY_FOR_AUDIT` depende da execução verde da mesma revisão e da releitura final do diff.
