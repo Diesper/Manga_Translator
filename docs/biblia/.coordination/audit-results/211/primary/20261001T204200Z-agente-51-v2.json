@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "index": 211,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 51",
+  "file": "tests/unit/gtc/fingerprint.test.js",
+  "bible": "docs/biblia/tests/unit/gtc/fingerprint.test.js/Bíblia.md",
+  "source_sha": "5255083ff2881ad8ed4ad6c6940253031e789658",
+  "bible_sha": "aaee05a4b15fd66a8ffa7ef63c991e041f1e1881",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "211-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia rotula 211-001/002/003/004 como OPEN e encerra dizendo haver quatro solicitações abertas, mas o state canônico atual registra as quatro como ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 94, 104, 114 e 124 usam headings terminados em `OPEN`.",
+        "Bíblia.md linha 637: `APROVADO documentalmente, com quatro solicitações externas abertas.`",
+        "docs/biblia/.state/211.json no HEAD revalidado registra 211-001=ACCEPTED, 211-002=ACCEPTED, 211-003=ACCEPTED e 211-004=ACCEPTED.",
+        "A substância das quatro requests foi revalidada contra source/assertions: caracteres não-hex seguem sem validação; boundaries strict continuam sem casos focais; wHash/pHash seguem sem known-answer independente e randomUUID sem teste; FP-19/FP-20 continuam duplicados."
+      ],
+      "required_change": "Sincronizar os estados das quatro audit_requests com o state atual, preservando as lacunas técnicas aceitas."
+    },
+    {
+      "id": "211-PRI-002",
+      "severity": "NORMAL",
+      "type": "CONSUMER_AND_EXECUTION_WIRING_OMISSION",
+      "summary": "A Bíblia afirma que o módulo é produção compartilhada por content/background e descreve a suíte como prova direta, mas não mapeia os consumers runtime nem a cadeia real de descoberta/execução/gates do teste.",
+      "evidence": [
+        "extension/manifest.json inclui `shared/gtc-fingerprint.js` em content_scripts.",
+        "extension/background.js executa `importScripts('shared/gtc-fingerprint.js')` e consome `self.MangaTranslatorGtcFingerprint`.",
+        "jest.config.js registra o projeto `gtc` com `tests/unit/gtc/**/*.test.js`; package.json expõe test:unit/test:unit:gtc e test:ci; scripts/ci/run-jest-ci.js inclui `gtc` em unitProjects; ci.yml executa npm run test:ci.",
+        "scripts/validation/verify-test-policy.js percorre diretamente todos os arquivos JS/CJS/MJS sob tests/ e aplica os gates de skip/only/todo.",
+        "A Bíblia seção `Dependências reais` cita apenas crypto/TextEncoder e o módulo gtc-fingerprint; não identifica esses consumers/gates nem delimita o que cada um prova."
+      ],
+      "required_change": "Adicionar o mapa dos consumers runtime e da cadeia de descoberta/CI/policy, classificando cada evidência sem transformar wiring em prova de comportamento."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:42:00Z"
+}
