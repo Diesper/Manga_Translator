@@ -1519,3 +1519,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### Auditoria independente — #117 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #117 — `tests/integration/popup.ui.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `57158c9b6e6f88955bf82a292e75624dc2ad8d0c`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; a seção `Fonte integral auditada` é byte-a-byte idêntica ao source.
+- **Cobertura:** 631 linhas textuais + posição 632 do newline final = 632/632 posições, sem gaps ou duplicidades.
+- **Execução:** o mesmo blob aparece no run `36577447500` e `popup.ui.test.js` passa no job Unit + Integration observado.
+- **Semântica/assertions:** a Bíblia descreve corretamente as 11 suítes concretas e não promove o rótulo REG/PU a rastreabilidade individual; também identifica corretamente que o caso de remoção de site não verifica preservação do histórico e que Refazer não verifica `restoreMeta[keepUrl]`/`paths[1]`.
+- **Implementação real:** `popup.js` remove o domínio/siteMeta sem apagar o histórico semeado; `shared-ui.js` remove seletivamente restoreMap/restoreMeta/images/paths da entrada alvo. As lacunas 117-001/002/003 correspondem ao que as assertions atuais não provam.
+- **Requests externas:** 117-001, 117-002 e 117-003 permanecem materialmente válidas como dívida de rastreabilidade/teste separada e não bloqueiam, por si só, a fidelidade documental.
+- **Falha documental bloqueante — lifecycle stale:** 117-001/117-002/117-003 permanecem `OPEN`/pendentes na Bíblia, enquanto o state canônico registra as três como `ACCEPTED`; `document_quality.external_audit_requests_open` também está stale em 3.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; wiring/semântica=CONFIRMADO_3X; assertions=CONFIRMADO_3X; lifecycle de requests=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto o lifecycle documental permanecer divergente.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
