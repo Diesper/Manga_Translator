@@ -105,6 +105,21 @@ async function main() {
     assert.deepStrictEqual(normalize(result), { isExtractionTab: false });
   }
 
+  const arrayState = [];
+  arrayState[61] = { jobId: 'array-entry' };
+  assert.deepStrictEqual(normalize(await action.execute({}, {
+    ensureInitialized: async () => {},
+    sender: { tab: { id: 61 } },
+    state: { extractionTabs: arrayState },
+  })), { isExtractionTab: false });
+
+  const inherited = Object.create({ 61: { jobId: 'inherited-entry' } });
+  assert.deepStrictEqual(normalize(await action.execute({}, {
+    ensureInitialized: async () => {},
+    sender: { tab: { id: 61 } },
+    state: { extractionTabs: inherited },
+  })), { isExtractionTab: false });
+
   const missingSender = await action.execute({}, {
     ensureInitialized: async () => {},
     sender: {},
