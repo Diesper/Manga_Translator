@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "index": 40,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 40",
+  "file": "extension/content/gemini/attachment.js",
+  "bible": "docs/biblia/extension/content/gemini/attachment.js/Bíblia.md",
+  "source_sha": "50092e4d7d71994f91236d271d3418507f10eade",
+  "bible_sha": "b638104cd66947b10c2de8315fef38be26f774f8",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV-040-01",
+      "type": "DOCUMENTATION_SEMANTICS",
+      "severity": "HIGH",
+      "location": "Bíblia.md linhas 14, 43, 168-170; source attachment.js linhas 495-505 e 517-522",
+      "problem": "A Bíblia afirma de forma absoluta que preview/evidência preexistente não confirma o attachment atual, mas o source captura baseline e arma a confirmação antes de focusForAttachment. Um handler síncrono de focus/focusin pode materializar uma preview stale que não estava no baseline; a inspeção da linha 519 a classifica como nova, pode resolver confirmed:true e hasSignal() interrompe o loop antes de qualquer dispatch do arquivo atual.",
+      "evidence": [
+        "attachment.js:495 captura captureAttachmentBaseline(root); 496-503 cria createAttachmentConfirmation; 505 executa focusForAttachment antes de construir/tentar os métodos.",
+        "attachment.js:519 chama confirmation.inspect(); 522 interrompe se hasSignal(); createAttachmentConfirmation considera novo qualquer elemento ausente do baseline (isEvidenceNewOrChanged linhas 172-175) e finaliza confirmed:true quando evidenceReady.",
+        "state #040 request 040-001 está ACCEPTED/HIGH exatamente para a corrida baseline→observer→focus→dispatch, mas a Bíblia não registra essa exceção/risk e mantém invariantes absolutos.",
+        "attachment.test.js possui ATT-03 apenas para preview já presente no baseline; não há cenário em que focus/focusin materializa preview stale antes do primeiro dispatch."
+      ],
+      "required_change": "Registrar explicitamente a janela baseline→focus e remover/qualificar as garantias absolutas de preview preexistente; ligar a lacuna à request 040-001. Se o software for corrigido depois, atualizar a Bíblia somente após nova evidência para o novo source SHA."
+    },
+    {
+      "id": "ADV-040-02",
+      "type": "TRUST_BOUNDARY_OVERSTATEMENT",
+      "severity": "HIGH",
+      "location": "Bíblia.md linhas 14 e 91-99, especialmente linha 97; source attachment.js linhas 28-31 e 52-94",
+      "problem": "A Bíblia diz que evidência de imagem fora do composer é rejeitada e descreve a confirmação como evidência pertencente ao composer. O código aceita também qualquer elemento ligado a um seletor ATTACHMENT, mesmo sem ancestral COMPOSER, desde que não esteja em USER_OR_MODEL. Um file-preview/attachment-card standalone fora do composer pode portanto entrar em listAttachmentEvidence e confirmar se for novo e ready.",
+      "evidence": [
+        "isAttachmentContext retorna Boolean(closestComposed(element, COMPOSER) || closestComposed(element, ATTACHMENT)); para um file-preview o segundo termo pode ser o próprio elemento.",
+        "listAttachmentEvidence inclui containers que passam isAttachmentContext e dimensão >20x20; não exige ancestral COMPOSER.",
+        "ATT-11 prova somente o caso específico model-response, que é rejeitado por USER_OR_MODEL; não prova a afirmação geral 'fora do composer é rejeitado'.",
+        "A própria cobertura da Bíblia para a linha 30 diz 'ligado ao composer ou a um container reconhecido de anexo', contradizendo a frase geral da seção de trust boundaries."
+      ],
+      "required_change": "Qualificar o boundary de contexto: user/model é excluído, mas containers ATTACHMENT podem ser aceitos fora de ancestral COMPOSER. Registrar o risco heurístico/falso positivo correspondente e não usar ATT-11 como prova de uma regra mais ampla do que a assertion cobre."
+    },
+    {
+      "id": "ADV-040-03",
+      "type": "CONSUMER_OMISSION",
+      "severity": "NORMAL",
+      "location": "Bíblia.md seção 2 — Dependências e consumidores",
+      "problem": "A enumeração de consumers/evidências omite consumidores de teste/estrutura que carregam ou verificam explicitamente attachment.js.",
+      "evidence": [
+        "tests/unit/content-gemini/rpa-flow.test.js define GEMINI_ATTACHMENT_PATH e require(GEMINI_ATTACHMENT_PATH) dentro de jest.isolateModules, exercitando o fluxo real com DataTransfer/ClipboardEvent e preview.",
+        "tests/unit/content-gemini/resolution-elevation.test.js também require(GEMINI_ATTACHMENT_PATH) no fluxo isolado e monta handlers de paste/drop para attachment.",
+        "tests/helpers/load-content-gemini-module.js require(GEMINI_ATTACHMENT_PATH) antes de carregar content_gemini.js.",
+        "scripts/validation/verify-repository-structure.js inclui content/gemini/attachment.js no conjunto estrutural esperado."
+      ],
+      "required_change": "Adicionar esses consumers/gates à seção de dependências/consumidores e classificar corretamente a força de evidência de cada um (integração real do módulo, helper de carregamento ou gate estrutural)."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:08:00Z"
+}
