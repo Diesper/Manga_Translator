@@ -2,11 +2,11 @@
   "index": 33,
   "file": "extension/background/tab-identity.js",
   "bible": "docs/biblia/extension/background/tab-identity.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "008c9a054ae417e0f31224617346e24fc9dbc1b4",
   "started_at_utc": "2026-09-30T15:49:00Z",
-  "completed_at_utc": "2026-09-30T16:08:45Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "033-001",
@@ -128,5 +128,10 @@
       "audit_finding": "Confirmado no código atual: migrationKey usa somente jobId quando fornecido. Após um rekey concluído, o journal completed permanece no storage. Um segundo rekey com o mesmo jobId reutiliza esse journal e writeJournal preserva oldTabId/newTabId antigos; se houver crash na segunda migração, recoverPendingMigrations pode reaplicar os IDs do primeiro rekey.",
       "auditor_recommended_action": "Tratar como bug funcional além de lacuna de teste: tornar a identidade do journal única por migração (ou substituir explicitamente old/new ao iniciar novo rekey) e adicionar regressão 100→200→300 com mesmo jobId e crash/recovery."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

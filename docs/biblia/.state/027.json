@@ -3,7 +3,7 @@
   "file": "extension/background/jobs-lifecycle.js",
   "bible": "docs/biblia/extension/background/jobs-lifecycle.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "e4ab9f6c54725a5a8e3f5f3c0e1cbd7a0e1c87e5",
   "started_at_utc": "2026-09-30T13:52:00Z",
   "completed_at_utc": "2026-09-30T14:05:00Z",
@@ -122,5 +122,10 @@
     "source_text_lines": 746,
     "external_audit_requests_open": 5,
     "note": "Lifecycle real possui ampla cobertura; riscos de configuração, atomicidade, cleanup de janela e timers MV3 foram persistidos."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

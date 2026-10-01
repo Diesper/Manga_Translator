@@ -3,7 +3,7 @@
   "file": "extension/background/jobs-reconciliation.js",
   "bible": "docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "f0f2370ba6b7523caebf028c9188cebd7189d650",
   "started_at_utc": "2026-09-30T13:20:00Z",
   "completed_at_utc": "2026-09-30T13:25:00Z",
@@ -80,5 +80,10 @@
     "source_text_lines": 111,
     "external_audit_requests_open": 3,
     "note": "Bíblia revalidada; fonte integral normalizada; inconsistência do branch vazio e lacunas de recovery/cleanup persistidas."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

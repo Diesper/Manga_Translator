@@ -3,7 +3,7 @@
   "file": "extension/background/log.js",
   "bible": "docs/biblia/extension/background/log.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "86d5f2f1229b2c9ae7f980fad1495628a05222ca",
   "started_at_utc": "2026-09-30T13:10:00Z",
   "completed_at_utc": "2026-09-30T13:16:00Z",
@@ -80,5 +80,10 @@
     "source_text_lines": 30,
     "external_audit_requests_open": 3,
     "note": "Módulo não carregado pelo runtime atual; testes existentes exercitam a implementação inline duplicada em background.js."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

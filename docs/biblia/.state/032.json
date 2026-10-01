@@ -3,7 +3,7 @@
   "file": "extension/background/state.js",
   "bible": "docs/biblia/extension/background/state.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "7570b545d5e92496201a7741dee8605cd66fb015",
   "started_at_utc": "2026-09-30T14:20:00Z",
   "completed_at_utc": "2026-09-30T14:27:00Z",
@@ -101,5 +101,10 @@
     "source_text_lines": 267,
     "external_audit_requests_open": 4,
     "note": "State facade real auditada; atomicidade/referências compartilhadas e APIs residuais persistidas."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
