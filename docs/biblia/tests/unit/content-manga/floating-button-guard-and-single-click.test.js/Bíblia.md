@@ -707,55 +707,55 @@ Imports, root, globals e harness. fs não é usado. **Evidência:** 🟨 bootstr
 ### Linhas 17–29
 delay/waitFor com Date.now. **Evidência:** ✅ usado em observers/callbacks.
 
-### Linhas 30–36
+### Linhas 30–37
 logMessages filtra telemetria runtime. **Evidência:** ✅ usado em assertions de saúde/single image.
 
-### Linhas 38–42
+### Linhas 38–43
 Abrem suíte e mocks. **Evidência:** 🟨 estrutura.
 
-### Linhas 44–57
+### Linhas 44–58
 beforeEach limpa módulos/listeners/storage/DOM e fixa viewport. **Evidência:** 🟨 EXECUTADO INDIRETAMENTE.
 
-### Linhas 59–66
+### Linhas 59–67
 afterEach fecha UI auxiliar, pagehide e limpa ambiente. **Evidência:** 🟨.
 
-### Linhas 68–76
+### Linhas 68–77
 Floating disabled no bootstrap: botão ausente. **Evidência:** ✅.
 
-### Linhas 78–99
+### Linhas 78–100
 Toggle storage off/on, ausência sem falso MISSING e logs explícitos. **Evidência:** ✅.
 
-### Linhas 101–116
+### Linhas 101–117
 Remove nó manualmente e espera novo botão + MISSING/RECOVERED. **Evidência:** ✅.
 
-### Linhas 118–138
+### Linhas 118–139
 Torna nó invisível, envia PROGRESS e prova restauração visual/log. **Evidência:** ✅.
 
-### Linhas 140–161
+### Linhas 140–162
 Posição inválida é clampada e persistida. **Evidência:** ✅.
 
-### Linhas 163–187
+### Linhas 163–188
 Status antes/depois de SET visibility false. **Evidência:** ✅ para enabled/expected/present.
 
-### Linhas 189–204
+### Linhas 189–205
 Clique esquerdo permanece do site; nenhum batch nem ação auxiliar. **Evidência:** ✅.
 
-### Linhas 206–237
+### Linhas 206–238
 Contextmenu nativo + comando traduz apenas p2/index1, com log cleanUrl. **Evidência:** ✅.
 
-### Linhas 239–259
+### Linhas 239–260
 Três classes inelegíveis recusadas; nenhum START_BATCH. **Evidência:** ✅.
 
-### Linhas 261–297
+### Linhas 261–298
 Insere imagem antes do alvo e prova recálculo para índice2. **Evidência:** ✅.
 
-### Linhas 299–311
+### Linhas 299–312
 DISABLE_PAGE remove botão e não gera MISSING. **Evidência:** ✅.
 
-### Linhas 313–344
+### Linhas 313–345
 Durante lote, remove botão, força recovery por PROGRESS e prova estado STOP + logs de gravidade/recovery. **Evidência:** ✅.
 
-### Linhas 346–363
+### Linhas 346–364
 Imagem removida após contexto é revalidada/abortada. **Evidência:** ✅.
 
 ### Linhas 365–387
