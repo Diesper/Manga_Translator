@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "index": 187,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 24",
+  "file": "tests/unit/content-gemini/rpa-flow.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
+  "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
+  "bible_sha": "50d2ca74afb78e229f88352efc6ecfeac3b238ce",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "PRIMARY-187-A24-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_INTERNAL_CONTRADICTION",
+      "summary": "A conclusão da Bíblia afirma que 187-001/002/003 permanecem OPEN no state, mas o próprio state canônico e a seção 10 da Bíblia registram as três requests como ACCEPTED.",
+      "evidence": [
+        "docs/biblia/.state/187.json: 187-001, 187-002 e 187-003 possuem `status: ACCEPTED`.",
+        "Bíblia §10: os três headings são `... — ACCEPTED — NORMAL`.",
+        "Bíblia §13: `As três lacunas externas permanecem OPEN em .state/187.json`, contradizendo state e §10.",
+        "A própria nota final da Bíblia volta a dizer `187-001/002/003 estão ACCEPTED`, criando contradição interna no mesmo documento."
+      ],
+      "requested_documentation_fix": "Trocar a frase stale da conclusão para refletir ACCEPTED, mantendo claro que as lacunas técnicas continuam abertas para trabalho separado sem serem requests OPEN."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "line_to_source_mapping": "CONFIRMADO_3X",
+    "semantics_main": "CONFIRMADO_3X_EXCETO_CONTRADICAO_DE_LIFECYCLE",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers_wiring": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO_NA_CONCLUSAO",
+    "prior_temporal_finding_cg12_13": "CORRIGIDO_E_REVALIDADO",
+    "ci_evidence": "CONFIRMADO_RUN_36521561968_SUCCESS",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 739,
+    "documented_positions": "740/740",
+    "embedded_source_exact": true,
+    "line_code_mapping_exact": "739/739",
+    "current_request_statuses": [
+      "187-001 ACCEPTED",
+      "187-002 ACCEPTED",
+      "187-003 ACCEPTED"
+    ],
+    "repaired_temporal_scope": "CG-12/13 agora é corretamente limitado ao snapshot de 800 ms e explicita que o claim pode continuar até ~5 s.",
+    "historical_results_ignored": "PRIMARY/ADVERSARIAL anteriores pertencem à revisão baseline 05302a4cc4aa11c64a1013570476f94a4246f895; esta PRIMARY audita a revisão 50d2ca74afb78e229f88352efc6ecfeac3b238ce."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:06:30Z"
+}
