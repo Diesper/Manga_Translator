@@ -1471,3 +1471,19 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### Auditoria independente — #114 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #114 — `tests/integration/performance.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; a seção `Fonte integral auditada` é byte-a-byte idêntica ao source.
+- **Cobertura:** 434/434 posições documentadas, sem gaps, duplicidades ou posições extras.
+- **CI:** run `36577447500`, commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f`, contém o mesmo blob. O job Unit + Integration (20.x) registra `performance.test.js` PASS e os nove casos `PERF-01..09` nominalmente verdes.
+- **Semântica/assertions:** a Bíblia separa corretamente background/popup/repository reais de JSDOM, mocks, fake-indexeddb e helpers locais. PERF-05 é corretamente limitado ao intervalo pós-bootstrap/pós-clique; PERF-08 é corretamente tratado como gate sintético sobre fake-indexeddb; PERF-09 é corretamente tratado como simulação local e não como prova de fallback de produção.
+- **Requests externas:** 114-001/002/003 permanecem materialmente válidas como dívida funcional/contratual separada e não bloqueiam, por si só, a fidelidade documental.
+- **Falha documental bloqueante — lifecycle stale:** headings 114-001/114-002/114-003 permanecem `OPEN` e a conclusão fala em “solicitações externas abertas”, enquanto o state canônico registra as três requests como `ACCEPTED`. `document_quality.external_audit_requests_open` também está stale em 3.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; CI=CONFIRMADO_3X; semântica principal=CONFIRMADO_3X; assertions=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; lifecycle de requests=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto o lifecycle documental permanecer divergente.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
