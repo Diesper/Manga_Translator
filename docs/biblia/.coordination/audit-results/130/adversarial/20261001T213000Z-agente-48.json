@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 130,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 48",
+  "file": "tests/unit/background/background-strict-load.test.js",
+  "bible": "docs/biblia/tests/unit/background/background-strict-load.test.js/Bíblia.md",
+  "source_sha": "25a663f527f7d3303c51751b4bf3440ea3424b9f",
+  "bible_sha": "016130ac2b04bc4d78f86b25b8110b141bdfdebb",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A48-130-A01",
+      "severity": "BLOCKING",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 130-001, 130-002 e 130-003 como OPEN e afirma que permanecem OPEN, enquanto o state canônico registra as três como ACCEPTED.",
+      "evidence": [
+        "Bíblia §7: headings `130-001 — TEST_REQUIRED — OPEN`, `130-002 — TEST_REQUIRED — OPEN` e `130-003 — CI_POLICY_REVIEW — OPEN`.",
+        "Bíblia §11: `Solicitações 130-001..003 permanecem OPEN`.",
+        "docs/biblia/.state/130.json: 130-001=ACCEPTED (HIGH), 130-002=ACCEPTED (NORMAL), 130-003=ACCEPTED (NORMAL).",
+        "As três lacunas foram revalidadas no source e continuam reais: importScripts é no-op; a assertion final é apenas `.not.toThrow()`; execFileSync não define timeout. O erro é o lifecycle documental, não a substância das dívidas."
+      ],
+      "required_change": "Atualizar §7 e a autoauditoria para refletir ACCEPTED, preservando a descrição conservadora das três limitações."
+    },
+    {
+      "id": "A48-130-A02",
+      "severity": "BLOCKING",
+      "category": "STALE_DEPENDENCY_SHA_REFERENCE",
+      "summary": "A Bíblia fixa um SHA de package.json que não corresponde ao package.json atual do branch.",
+      "evidence": [
+        "Bíblia §2 cita `package.json` no SHA `33e0b91d1a6f1790124b700d2ce331f80d2b7095`.",
+        "O `package.json` atual do branch tem SHA `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.",
+        "A comparação do blob antigo citado com o atual mostra que `test:unit`, `test:unit:background` e `test:ci` permanecem semanticamente iguais; portanto o wiring descrito continua válido, mas a identidade SHA apresentada como referência atual está stale.",
+        "`jest.config.js` e `extension/background.js` ainda coincidem com os SHAs citados pela Bíblia, isolando a divergência ao package.json."
+      ],
+      "required_change": "Atualizar o SHA de package.json para o blob atual ou qualificar explicitamente a referência antiga como histórica, mantendo a verificação do wiring atual."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:30:00Z"
+}
