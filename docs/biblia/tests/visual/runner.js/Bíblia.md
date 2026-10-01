@@ -178,34 +178,34 @@ beforeEach/afterEach fora de describe entram na posição zero das pilhas, mas _
 
 ## 9. Solicitações ao auditor
 
-### 233-001 — TEST_REQUIRED — OPEN
+### 233-001 — TEST_REQUIRED — ACCEPTED
 Não foi localizada suíte focal do próprio runner. As seis suítes são consumidoras, não testes da infraestrutura. É necessário um self-test que exercite implementação real: describe, it, ita, fila, skip, failure accounting, printSummary, matchers positivos/negados e hooks.
 
-### 233-002 — FALSE_GREEN_RISK — OPEN
+### 233-002 — FALSE_GREEN_RISK — SUPERSEDED
 As exceções/rejeições de beforeEach/afterEach são descartadas. O auditor deve decidir a semântica correta; se hooks quebrados devam reprovar, corrigir em mudança separada e provar com testes de regressão.
 
-### 233-003 — ASYNC_CONTRACT_REVIEW — OPEN
+### 233-003 — ASYNC_CONTRACT_REVIEW — ACCEPTED
 it não aguarda Promise e não detecta callback async. O corpus atual não usa async it, mas falta gate. O auditor deve escolher entre suportar await, falhar explicitamente ao receber thenable/async, ou adicionar validação estática que obrigue ita.
 
-### 233-004 — NEGATED_MATCHER_REVIEW — OPEN
+### 233-004 — NEGATED_MATCHER_REVIEW — ACCEPTED
 expect(...).not trata TypeError de matcher inexistente como sucesso da negação. Deve existir regressão que prove que typo de matcher falha de forma explícita.
 
-### 233-005 — BASELINE_SCHEMA_REVIEW — OPEN
+### 233-005 — BASELINE_SCHEMA_REVIEW — ACCEPTED
 visual.maxSkipped alimenta um gate crítico, mas não foi localizada validação de schema/faixa em verify-ci-contract.js. Deve-se provar comportamento com campo ausente, string, NaN-equivalente via JSON possível, negativo e valor válido.
 
-## 10. Invariantes
+## 10. Contratos observados e limites atuais
 
-1. Toda falha do corpo de teste deve terminar refletida em results.fail.
-2. Nenhuma falha de infraestrutura/hook pode ser silenciosamente convertida em pass sem contrato explícito.
-3. O processo oficial deve aguardar toda a fila ita antes do resumo.
-4. O valor de retorno de printSummary deve refletir failures e gateErrors.
-5. Skips acima do baseline nunca podem produzir exit 0.
-6. O total abaixo do baseline nunca pode produzir exit 0.
-7. Matchers inexistentes devem falhar de forma diagnóstica; nunca passar por negação acidental.
-8. Callbacks assíncronos não podem ser marcados pass antes da resolução.
-9. Se a ordem mista it/ita permanecer diferente da ordem declarativa, isso deve ser contrato explícito e testado.
-10. Hooks aninhados devem ter semântica determinística e testada.
-11. Mudança em baseline.visual deve continuar protegida por schema/gates.
+1. Exceções síncronas do corpo de `it` e exceções/rejeições do corpo de `ita` são contabilizadas em `results.fail`.
+2. Falhas de `beforeEach`/`afterEach` são atualmente engolidas pelo runner; isso é risco conhecido e está centralizado no request 228-004, não uma garantia de fail-closed.
+3. O fluxo oficial `run-all.js` aguarda `getAsyncQueue()` antes de chamar o resumo final.
+4. `printSummary()` retorna sucesso somente quando `results.fail === 0` e não há `gateErrors`.
+5. Com `baseline.visual.maxSkipped` numérico válido, skips acima do limite produzem gate error; o schema desse campo ainda não possui proteção focal externa.
+6. Com `baseline.visual.minTests` numérico válido, total abaixo do mínimo produz gate error.
+7. `.not` funciona apenas quando o matcher existe; matcher inexistente negado pode passar incorretamente e permanece risco aceito em 233-004.
+8. `it` é de fato síncrono: retorno Promise/thenable não é aguardado e pode ser contado como pass antes da resolução; testes assíncronos devem usar `ita` enquanto 233-003 estiver aberto.
+9. A ordem global mista não é a ordem textual: `it` executa durante o `require`; `ita` entra na fila serial e é aguardado depois.
+10. Hooks aninhados são coletados por pilhas de escopo e snapshots no registro de `ita`, mas erros dos hooks continuam silenciosos.
+11. `visual.minTests` possui gate estrutural; `visual.maxSkipped` é consumido pelo runtime, porém sua presença/tipo/faixa ainda não são validados focalmente, conforme 233-005.
 12. Esta Bíblia vale somente para o blob SHA fe34764874cac8961bf6c614f5f6d5f85a599763.
 
 ## 11. Casos-limite relevantes
