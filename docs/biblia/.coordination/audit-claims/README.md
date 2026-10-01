@@ -1,44 +1,48 @@
-# Audit claims — auditoria paralela
+# Audit claims — fases independentes com leases
 
-Este diretório contém claims temporários de auditoria independente.
+Este diretório impede trabalho duplicado **por índice**, sem lock global.
 
-Cada claim usa:
+## Layout novo
 
-`<ÍNDICE>.lock.md`
+~~~text
+audit-claims/
+  primary/NNN.lock.md
+  adversarial/NNN.lock.md
+  reaudit/NNN.lock.md
+~~~
 
-Exemplo:
-
-`087.lock.md`
-
-O claim é criado com semântica **CREATE ONLY** e existe somente enquanto um auditor está revisando um item `READY_FOR_AUDIT`.
-
-Ele impede dois auditores de gastarem trabalho no mesmo índice, mas **não concede ownership de edição da Bíblia**.
+Claims planos NNN.lock.md são compatibilidade temporária e equivalem a PRIMARY legado.
 
 ## Regras
 
-- somente `READY_FOR_AUDIT` pode receber claim;
-- índice → no máximo 1 claim;
-- auditor → no máximo 1 claim;
-- claim e `.reservas/` do mesmo arquivo não podem coexistir;
-- `SOURCE_SHA` precisa coincidir com `.state/<ÍNDICE>.json`;
-- o auditor trabalha em modo read-only durante a análise;
-- mudanças globais de conclusão exigem `../PROGRESS.lock.md`;
-- após persistir e verificar o veredito, o claim deve ser removido;
-- claim alheio não expira automaticamente e não pode ser roubado.
+- PRIMARY normalmente opera em READY_FOR_AUDIT;
+- ADVERSARIAL é obrigatória para 100% e pode revisar READY_FOR_AUDIT ou COMPLETED legado ainda sem adversarial;
+- REAUDIT existe somente para divergência PRIMARY × ADVERSARIAL;
+- índice → no máximo um claim ativo;
+- auditor → no máximo um claim ativo no modo estrito;
+- claim e reserva editorial do mesmo arquivo não coexistem;
+- SOURCE_SHA, ARQUIVO, BIBLIA e INDEX precisam coincidir com o state;
+- claim novo deve declarar PHASE e LEASE_EXPIRES_AT_UTC;
+- criação inicial é CREATE ONLY;
+- lease expirado só pode ser recuperado depois de reler a versão exata e aplicar operação condicional; nunca por overwrite cego;
+- claim não concede permissão para editar a Bíblia ou o source;
+- nenhum claim exige PROGRESS.lock.md.
 
 ## Campos mínimos
 
-```text
-AUDITOR: AUDITOR-07
+~~~text
+AUDITOR: AGENTE 12
+PHASE: ADVERSARIAL
 INDEX: 087
 ARQUIVO: <source>
 BIBLIA: <Bible path>
 SOURCE_SHA: <40-hex>
 CLAIMED_AT_UTC: <timestamp>
 UPDATED_AT_UTC: <timestamp>
+LEASE_EXPIRES_AT_UTC: <timestamp futuro>
 PR: #66
 BRANCH: docs/project-bible
 ESTADO: ACTIVE
-```
+~~~
 
-Leia também `docs/biblia/.coordination/README.md`.
+Ao terminar a análise, o auditor publica um resultado append-only em audit-results/ e remove o claim. A decisão da Bíblia é calculada deterministicamente a partir dos resultados.
