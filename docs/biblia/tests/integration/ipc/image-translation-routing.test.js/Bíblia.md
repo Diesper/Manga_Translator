@@ -85,7 +85,7 @@ O helper `loadContentScript` define `customPrompt: 'Teste prompt'`, injeta dimen
 
 ## 8. Lacunas e solicitação ao auditor
 
-- **112-001 — TEST_REQUIRED — OPEN:** adicionar cenário integrado de **cache parcial real**: pelo menos duas imagens, uma retornada em `entriesByHash` e outra ausente; verificar que a hit é substituída, que `START_BATCH.images` contém somente o índice miss e que o lote não reenvia a hit.
+- **112-001 — TEST_REQUIRED — ACCEPTED:** adicionar cenário integrado de **cache parcial real**: pelo menos duas imagens, uma retornada em `entriesByHash` e outra ausente; verificar que a hit é substituída, que `START_BATCH.images` contém somente o índice miss e que o lote não reenvia a hit. O state canônico mantém esta lacuna como dívida de teste aceita e não bloqueante para fidelidade documental.
 
 A lacuna não impede concluir a documentação porque os três comportamentos atualmente afirmados pela suíte possuem assertions diretas.
 
@@ -373,7 +373,7 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
 
 **Fonte:** `function delay(ms = 0) {`
 
-**Função:** Inicia o helper síncrono `delay` com parâmetros `ms = 0`.
+**Função:** Declara o helper assíncrono `delay`: ele retorna uma `Promise` resolvida por `setTimeout(resolve, ms)` e é aguardado por `waitFor` entre tentativas de polling.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
 
@@ -1173,9 +1173,9 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
 
 **Fonte:** `        expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(false);`
 
-**Função:** Detecta o pedido real do content script para iniciar lote no background e permite ao teste observar o payload enviado.
+**Função:** Afirma diretamente a **ausência** de qualquer mensagem `START_BATCH` no cenário de cache hit completo. A expressão procura por esse action em `sentMessages` e exige `false`; portanto prova que a tradução foi resolvida localmente sem iniciar lote no background.
 
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest de ausência de `START_BATCH` ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
 
 ### Linha 119
 
@@ -1336,3 +1336,10 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
 **Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por ``; não altera o comportamento do teste.
 
 **Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
+## 10. Reparo pós-auditoria independente
+
+- a linha 18 foi corrigida para descrever `delay` como helper assíncrono baseado em `Promise`/`setTimeout`;
+- a linha 118 agora descreve corretamente que a assertion prova **ausência** de `START_BATCH` no cenário de hit completo;
+- 112-001 foi alinhada ao lifecycle canônico `ACCEPTED` sem resolver artificialmente a lacuna de cache parcial real;
+- o source auditado não foi alterado; o item retorna a `READY_FOR_AUDIT` e exige nova auditoria independente antes de `COMPLETED`.
+
