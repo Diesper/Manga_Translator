@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/e2e/translation-flow.spec.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA TÉCNICA APROVADA  
+> **Estado documental:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** db1da42c48ff795c41c7103cd5778e5a5d98e878  
 > **Agente responsável:** AGENTE 2  
 > **Tipo:** Playwright E2E / extensão Chromium Manifest V3 / regressões de tradução  
@@ -192,7 +192,7 @@ Sequência probatória:
 10. valida logs de queue positions 1–6;
 11. valida ordem de `BATCH_PROMOTED` B–G;
 12. valida `BATCH_DONE` A–G;
-13. prova ausência de mismatch/stale/foreign accounting.
+13. prova ausência dos diagnósticos observados de mismatch/stale/foreign accounting; isso **não prova identidade causal do resultado por lote**, pois A–G usam entrada/índice equivalentes.
 
 O estado final mantém `currentBatchId` igual ao último batch concluído, enquanto `completedJobs/totalJobs` são 1/1 porque o snapshot exposto é do batch corrente/final, não acumulador dos sete batches. A Bíblia não interpreta esses contadores como “sete jobs globais”.
 
@@ -269,7 +269,11 @@ A prova de ausência é bounded no E2E (1,5 s). O projeto também possui testes 
 
 `fifo, attachment, medium-a, medium-b, fast`
 
-Cada grupo chama `npm run test:e2e:group -- <grupo>`, que delega a `scripts/ci/run-e2e-group.js`. O runner usa `--grep <tag>`, define `MANGA_E2E_SHARD=1` e aplica workers específicos do plano.
+Cada grupo chama `npm run test:e2e:group -- <grupo>`. A cadeia executável completa é:
+
+`package.json` → `test:e2e:group` → `scripts/ci/run-e2e-group.js` → Playwright com `--config playwright.config.js` → `playwright.config.js` (`testDir='./tests/e2e'` + `webServer.command` para `tests/fixtures/gemini-mock-server.js` na porta 3999) → descoberta de `translation-flow.spec.js` e inicialização da fixture HTTP.
+
+O runner usa `--grep <tag>`, define `MANGA_E2E_SHARD=1` e aplica workers específicos do plano.
 
 Depois, o job agregado baixa exatamente cinco blob reports, exige contagem exata de cinco zips e executa `playwright merge-reports` com o reporter global de gate.
 
@@ -279,7 +283,7 @@ Depois, o job agregado baixa exatamente cinco blob reports, exige contagem exata
 
 A regression-matrix atual aponta diretamente para este spec em cinco contratos:
 
-1. `REG-E2E-FIFO-MULTIBATCH` — A→G não pode misturar state/result stale nem quebrar FIFO.
+1. `REG-E2E-FIFO-MULTIBATCH` — A→G protege FIFO, queue/accounting e os diagnósticos observados; a identidade causal do conteúdo entregue a cada lote não é isolada pelo cenário atual.
 2. `REG-E2E-MODES-NO-GHOST` — minimized/background-delete não dependem de ghost mousemove/foco.
 3. `REG-E2E-ATTACHMENT-GATE` — prompt não pode ser enviado sem attachment confirmado.
 4. `REG-E2E-RESULT-OWNERSHIP` — clone de input/IMG órfã não podem ser confundidos com output do modelo.
@@ -297,7 +301,7 @@ A regression-matrix atual aponta diretamente para este spec em cinco contratos:
 | lote principal drenado | poll de `mt_state` exato | ✅ PROVADO DIRETAMENTE |
 | attachment bloqueia prompt/submit | logs positivos/negativos + zero tradução nos 3 modos | ✅ PROVADO DIRETAMENTE |
 | FIFO A→G | state + barrier + 7 resultados + logs ordenados | ✅ PROVADO DIRETAMENTE |
-| ausência de stale/cross-batch | lista negativa de actions | ✅ PROVADO DIRETAMENTE |
+| ausência dos diagnósticos observados de stale/cross-batch | lista negativa de actions | ✅ PROVADO DIRETAMENTE para os diagnósticos; ⚠️ não prova ausência geral de entrega cruzada silenciosa porque outputs A–G não são distinguíveis causalmente |
 | minimized/background-delete sem ghost | tradução + state + DELETE_OK | ✅ PROVADO DIRETAMENTE |
 | resposta instantânea não perdida | fastResult + tradução + state final | ✅ PROVADO DIRETAMENTE |
 | shadow DOM/assistant wrapper | tradução + reason new_model_turn + sem manual intervention | ✅ PROVADO DIRETAMENTE |
@@ -336,7 +340,7 @@ O fluxo principal verifica Base64, mudança em relação aos originais e distin�
 
 ## 20. Solicitações ao auditor
 
-### 094-001 — CLEANUP_REVIEW — OPEN
+### 094-001 — CLEANUP_REVIEW — ACCEPTED
 
 **Arquivo alvo:** `tests/e2e/translation-flow.spec.js`
 
@@ -354,7 +358,7 @@ O fluxo principal verifica Base64, mudança em relação aos originais e distin�
 
 **Severidade:** NORMAL.
 
-### 094-002 — HARNESS_ROBUSTNESS — OPEN
+### 094-002 — HARNESS_ROBUSTNESS — ACCEPTED
 
 **Arquivo alvo:** `tests/e2e/translation-flow.spec.js`
 
@@ -15807,8 +15811,10 @@ O blob auditado contém newline final. A posição documental **905** representa
 - regression-matrix inspecionada: **sim**.
 - assertions diretas separadas de setup/execução indireta/gates estáticos: **sim**.
 - achados externos registrados sem modificar código/testes/workflow/fixture: **sim**.
-- solicitações ao auditor: **2 OPEN**.
+- solicitações ao auditor: **2 ACCEPTED**, 0 OPEN.
 
 ### Conclusão
 
-A documentação cobre o arquivo integralmente e descreve o que os E2E realmente provam, sem transformar mera execução ou marker textual em prova semântica. Os dois riscos de harness identificados permanecem como solicitações OPEN e não foram “corrigidos” durante a auditoria.
+A documentação cobre o arquivo integralmente e descreve o que os E2E realmente provam, sem transformar mera execução ou marker textual em prova semântica. Os dois riscos de harness identificados permanecem ACCEPTED no state canônico e não são requests OPEN.
+
+> **Escopo FIFO pós-REAUDIT:** o cenário prova queue positions, promoções B→G, conclusões A→G, uma tradução por aba e ausência dos diagnósticos explicitamente observados. Como A–G usam conteúdo/índice equivalentes, não há oráculo suficiente para afirmar ausência geral de entrega cruzada silenciosa entre batches.
