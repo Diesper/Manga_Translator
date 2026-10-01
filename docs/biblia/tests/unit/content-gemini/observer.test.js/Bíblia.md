@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/observer.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 0eff259f673c32e44c6d5ccf6f627c0c6d5505cc  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest do observer orientado a eventos por job Gemini  
@@ -27,7 +27,7 @@ OBS-18/19 fecham casos de wrappers ambíguos: autoria explícita model/assistant
 
 ## 4. Erros, cleanup e coalescing
 
-OBS-07 ignora erro oculto. OBS-08 converte erro visível novo em GEMINI_UI_ERROR e encerra logicamente. OBS-09 prova stop idempotente, observers/timers zerados e registry removido. OBS-10 prova que mutations posteriores ao cleanup não geram resultado. O caso coalescing mostra várias mutations do mesmo turno produzindo uma única inspeção agendada.
+OBS-07 ignora erro oculto. OBS-08 converte erro visível novo em GEMINI_UI_ERROR e encerra logicamente. OBS-09 prova stop idempotente, observers/timers zerados e registry removido. OBS-10 prova que mutations posteriores ao cleanup não geram resultado. O caso de coalescing mostra que várias mutations do mesmo turno têm inspeções limitadas/coalescidas; a assertion aceita no máximo duas inspeções adicionais e, portanto, **não prova exatamente uma única inspeção**.
 
 ## 5. Shadow DOM, quarentena e mídia tardia
 
@@ -60,7 +60,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 | cleanup idempotente e mutation pós-stop | OBS-09/10 | ✅ PROVADO DIRETAMENTE |
 | resposta imediata pós-submit | OBS-11 | ✅ PROVADO DIRETAMENTE |
 | send busy exige transição | OBS-13 | ✅ PROVADO DIRETAMENTE |
-| coalescing de mutation | caso coalescing | ✅ PROVADO DIRETAMENTE |
+| coalescing/limitação de inspeções após múltiplas mutations | caso coalescing | ✅ PROVADO DIRETAMENTE para `inspectCount <= before + 2`; cardinalidade exata de uma inspeção não é provada |
 | Shadow DOM/ownership/quarentena | OBS-14..20 | ✅ PROVADO DIRETAMENTE |
 | acceptResult manual resolve result waiter | PR6 | ✅ PROVADO DIRETAMENTE |
 | timeout de submit/result | branches públicos de waiters | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -70,7 +70,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 
 ## 10. Solicitações ao auditor
 
-### 183-001 — TEST_REQUIRED — OPEN — HIGH
+### 183-001 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: waitForSubmission e waitForResult expõem timeouts estruturados e stop rejeita waiters pendentes com OBSERVER_STOPPED; nenhum caso focal congela esses três contratos.
 
@@ -78,7 +78,7 @@ Evidência ausente: fake timers para GEMINI_SUBMISSION_NOT_CONFIRMED e GEMINI_RE
 
 Risco: promises podem ficar abertas, rejeitar com código errado ou deixar timers após teardown.
 
-### 183-002 — TEST_REQUIRED — OPEN — HIGH
+### 183-002 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: createGeminiObserver substitui observer existente no registry para o mesmo jobId chamando existing.stop(), mas cada teste usa jobId único.
 
@@ -86,7 +86,7 @@ Evidência ausente: iniciar observer A, abrir waiter, criar observer B com mesmo
 
 Risco: duas instâncias podem disputar ownership/resultados do mesmo job após rebootstrap.
 
-### 183-003 — TEST_REQUIRED — OPEN — NORMAL
+### 183-003 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: inspectControls emite generation_finished quando geração já foi observada, responseContainer continua conectado e Stop deixa de estar visível. Não há assertion desse evento/flag.
 
@@ -2612,7 +2612,7 @@ describe('gemini/observer.js — Observer V2', () => {
 ### Linha 290
 
 - **Código:** `    const before = observer.getState().inspectCount;`
-- **Função:** Mede coalescing de múltiplas mutations em uma única inspeção adicional.
+- **Função:** Mede que múltiplas mutations não fazem o contador crescer além de `before + 2`; não fixa cardinalidade exata de uma inspeção.
 - **Contexto:** coalescing de mutations.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3989,4 +3989,6 @@ describe('gemini/observer.js — Observer V2', () => {
 
 ## 13. Conclusão documental
 
-Foram documentadas 485 linhas textuais e a posição 486 do newline final. A suíte tem cobertura direta forte de ownership, DOM dinâmico, quarentena e cleanup; as três solicitações OPEN delimitam lifecycle de waiters/registry e o evento terminal de geração ainda sem caso focal.
+Foram documentadas 485 linhas textuais e a posição 486 do newline final. A suíte tem cobertura direta forte de ownership, DOM dinâmico, quarentena e cleanup; as três solicitações ACCEPTED delimitam lifecycle de waiters/registry e o evento terminal de geração ainda sem caso focal.
+
+> **Lifecycle pós-correção:** 183-001, 183-002 e 183-003 estão ACCEPTED. O contrato de coalescing foi limitado ao que a assertion `<= before + 2` realmente demonstra.
