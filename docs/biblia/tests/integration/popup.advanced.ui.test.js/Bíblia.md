@@ -247,7 +247,7 @@ Isso comprova execução real do mesmo conteúdo auditado em duas versões de No
 
 ## 9. Solicitações ao auditor
 
-### 116-001 — TEST_REQUIRED — OPEN — NORMAL
+### 116-001 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** o caso “tab Traduzidas abre o reader e envia anchorId ao abrir pasta existente” semeia caminhos reais e a implementação de `popup.js` deriva `folderPath`, porém a expectation do teste usa `objectContaining` somente para `action`, `anchorId` e `safeTitle`.
 
@@ -269,7 +269,7 @@ Isso comprova execução real do mesmo conteúdo auditado em duas versões de No
 
 **Severidade:** NORMAL.
 
-### 116-002 — TEST_REQUIRED — OPEN — NORMAL
+### 116-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** a UI do popup possui três modos Gemini e `popup.js` trata explicitamente `minimized_window`, mas este arquivo testa somente restauração de `background_delete` e mudanças `temp_chat -> background_delete`.
 
@@ -2478,4 +2478,4 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
 
 O blob `dd15edcefd5963fea83a72801b1d3c00b7e37453` foi coberto integralmente: **310 linhas textuais + posição 311 do newline final**. A execução do mesmo blob foi comprovada em Node 20 e Node 22 no run 36521561968, com os cinco testes passando em ambos.
 
-As duas lacunas externas relevantes foram preservadas como solicitações ao auditor sem alterar o objeto auditado: falta de assertion de `folderPath` e falta de prova específica do radio `minimized_window` no popup. Elas não impedem a conclusão documental desta Bíblia.
+As duas lacunas externas relevantes permanecem ACCEPTED no state canônico sem alterar o objeto auditado: falta de assertion de `folderPath` e falta de prova específica do radio `minimized_window` no popup. Elas não são apresentadas como prova já implementada e não impedem a conclusão documental desta Bíblia.
