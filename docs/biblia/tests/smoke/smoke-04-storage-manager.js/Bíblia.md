@@ -1,6 +1,6 @@
 # Bíblia técnica — `tests/smoke/smoke-04-storage-manager.js`
 
-> **Estado documental:** 🟡 REGRESSÕES AMPLIADAS — AGUARDANDO CI DO SHA ATUAL  
+> **Estado documental:** ✅ REGRESSÕES EXECUTADAS — CI ISOLADO VERDE  
 > **SHA auditado:** `500853da2950c31fd5fb4e2a91765a9331c28153`  
 > **Agente da correção:** AGENTE 30  
 > **Tipo:** smoke Node.js do storage-manager real com fake IndexedDB e falhas controladas de chrome.storage  
@@ -45,22 +45,22 @@ A revisão atual amplia o smoke de happy paths para invariantes de consistência
 
 | Contrato | Evidência no smoke atual | Classificação |
 |---|---|---|
-| DataURL↔Blob preserva conteúdo/MIME | igualdade exata do PNG e Blob válido | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| Data URL inválida é rejeitada | `assert.throws` para não-data URL e base64 inválido | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; nova abertura deve funcionar | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| rejeição síncrona de `indexedDB.open()` não fica cacheada | fake IDB lança sincronicamente; retry posterior com fake-indexeddb real deve abrir | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| conexão instala cleanup de `versionchange` | `typeof reopenedDb.onversionchange === 'function'` | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| overwrite troca asset e coleta anterior | IDs distintos + `getAssetBlob(old) === null` | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| rollback atômico sob abort real | abort em `chapterPages.put`; página/restore/asset/stats devem permanecer idênticos ao snapshot anterior | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| troca A→B de `cleanUrl` remove restore/asset de A | restore A ausente, restore B aponta ao novo asset, asset anterior null | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| `deleteByCleanUrl` remove restore/página/asset | assertions focais sobre todos os três e índice de página | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| mesma cleanUrl em dois capítulos | `deleted === 2` + ausência de restores/pages/assets em ambos | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| corrida save/delete mantém consistência | página e restore sobrevivem/somem juntos; asset sobrevivente deve existir | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| `deleteChapter` limpa página/restore/asset | pageCount 0, restoreIndex vazio, asset null | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| migração feliz é completa | `migrated === 2`, índices [0,1], restore/asset presentes, legado removido | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| migração parcial não consolida perda | `failed=true`, sem flag, legado preservado; retry migra 2 | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| `runtime.lastError` de get/remove/set é propagado | três `assert.rejects`; remove mantém legado/sem flag; retries concluem | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
-| `stats()` é coerente | pages/assets +1, bytes + tamanho exato; após delete volta ao baseline | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| DataURL↔Blob preserva conteúdo/MIME | igualdade exata do PNG e Blob válido | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| Data URL inválida é rejeitada | `assert.throws` para não-data URL e base64 inválido | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; nova abertura deve funcionar | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| rejeição síncrona de `indexedDB.open()` não fica cacheada | fake IDB lança sincronicamente; retry posterior com fake-indexeddb real deve abrir | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| conexão instala cleanup de `versionchange` | `typeof reopenedDb.onversionchange === 'function'` | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| overwrite troca asset e coleta anterior | IDs distintos + `getAssetBlob(old) === null` | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| rollback atômico sob abort real | abort em `chapterPages.put`; página/restore/asset/stats devem permanecer idênticos ao snapshot anterior | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| troca A→B de `cleanUrl` remove restore/asset de A | restore A ausente, restore B aponta ao novo asset, asset anterior null | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| `deleteByCleanUrl` remove restore/página/asset | assertions focais sobre todos os três e índice de página | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| mesma cleanUrl em dois capítulos | `deleted === 2` + ausência de restores/pages/assets em ambos | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| corrida save/delete mantém consistência | página e restore sobrevivem/somem juntos; asset sobrevivente deve existir | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| `deleteChapter` limpa página/restore/asset | pageCount 0, restoreIndex vazio, asset null | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| migração feliz é completa | `migrated === 2`, índices [0,1], restore/asset presentes, legado removido | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| migração parcial não consolida perda | `failed=true`, sem flag, legado preservado; retry migra 2 | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| `runtime.lastError` de get/remove/set é propagado | três `assert.rejects`; remove mantém legado/sem flag; retries concluem | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
+| `stats()` é coerente | pages/assets +1, bytes + tamanho exato; após delete volta ao baseline | ✅ PROVADO DIRETAMENTE — run 36941818303 / job 110634842323 |
 | picos de memória Blob↔DataURL em imagens grandes | smoke usa PNGs mínimos | ⚠️ NÃO PROVADO / requer benchmark ou política separada |
 
 ## 5. Invariantes e casos adversariais
@@ -89,15 +89,15 @@ A revisão atual amplia o smoke de happy paths para invariantes de consistência
 
 ### 126-001 — TEST_REQUIRED — SUPERSEDED por 060-002
 
-A request permanece historicamente `SUPERSEDED` por 060-002 no state canônico. Nesta revisão, o gap técnico associado passou a ter fault injection explícito de transaction abortada; isso não altera retroativamente o lifecycle de 126-001. A prova só será considerada válida após CI verde do SHA atual.
+A request permanece historicamente `SUPERSEDED` por 060-002 no state canônico. O gap técnico associado agora possui fault injection explícito de transaction abortada e foi executado com sucesso no run 36941818303 / job 110634842323; isso não altera retroativamente o lifecycle de 126-001.
 
-### 126-002 — TEST_REQUIRED — ACCEPTED; IMPLEMENTAÇÃO ADICIONADA, AGUARDANDO EXECUÇÃO
+### 126-002 — TEST_REQUIRED — RESOLVED
 
-O state canônico permanece `ACCEPTED`. A revisão `500853da2950c31fd5fb4e2a91765a9331c28153` mantém a prova focal de `deleteByCleanUrl` sobre restore, página, índice e asset, além do caso da mesma cleanUrl em dois capítulos. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
+A revisão `500853da2950c31fd5fb4e2a91765a9331c28153` prova focalmente `deleteByCleanUrl` sobre restore, página, índice e asset, incluindo a mesma cleanUrl em dois capítulos. O run 36941818303 / job 110634842323 executou esse blob e terminou `success`; o log contém `deleteByCleanUrl remove restore/página/asset inclusive multi-capítulo OK`.
 
-### 126-003 — TEST_REQUIRED — ACCEPTED; IMPLEMENTAÇÃO ADICIONADA, AGUARDANDO EXECUÇÃO
+### 126-003 — TEST_REQUIRED — RESOLVED
 
-O state canônico permanece `ACCEPTED`. A revisão `500853da2950c31fd5fb4e2a91765a9331c28153` exige `migrated === 2`, valida índices/restores/assets, adiciona falha parcial seguida de retry e mantém fault injection de `runtime.lastError`. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
+A revisão `500853da2950c31fd5fb4e2a91765a9331c28153` exige `migrated === 2`, valida índices/restores/assets, falha parcial seguida de retry e fault injection de `runtime.lastError`. O run 36941818303 / job 110634842323 terminou `success`; o log confirma `Migração completa e idempotente OK` e `Falha parcial e lastError permanecem retryable OK`.
 
 ## 8. Fonte integral exata
 
@@ -439,11 +439,11 @@ Posição do newline terminal.
 - Fonte integral incorporada: **sim**.
 - Posições: **291/291**, cobertas por 11 faixas contíguas.
 - `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME: **nenhum encontrado**.
-- 126-001: **SUPERSEDED por 060-002**; fault injection de abort foi adicionado nesta revisão, sem reescrever o lifecycle histórico.
-- 126-002: **ACCEPTED; regressão implementada e aguardando execução**.
-- 126-003: **ACCEPTED; regressão implementada e aguardando execução**.
-- Retry após ausência transitória de IDB e após `indexedDB.open()` síncrono falhar: **implementado; CI do SHA atual pendente**.
-- Rollback de transaction abortada via fake-indexeddb: **implementado; CI do SHA atual pendente**.
-- Run 36936712283 permanece evidência negativa do SHA anterior: revelou o bug de cache em #060 e **não** valida esta revisão.
-- Nenhuma request é marcada como resolvida antes de execução verde do SHA atual.
-- Após CI verde, revalidar o blob final e devolver #126 a nova auditoria PRIMARY + ADVERSARIAL.
+- Branch de validação isolada contém exatamente `storage-manager=f4e1e231fa62d22dd50fb20cf0cffbb09da98bee` e `smoke-04=500853da2950c31fd5fb4e2a91765a9331c28153`.
+- PR draft de validação #67, `MangaTranslator CI` run **36941818303**, job **110634842323 (Smoke Tests)**: **SUCCESS**.
+- Log do job confirma retry após IDB ausente/open síncrono, rollback por transaction abortada, troca de cleanUrl, cleanup multi-capítulo, migração completa, falha parcial/lastError e stats exatos.
+- 126-001: **SUPERSEDED por 060-002**; o gap técnico de rollback agora também possui regressão verde, sem alterar o lifecycle histórico.
+- 126-002: **RESOLVED** por regressão focal verde.
+- 126-003: **RESOLVED** por migração/falha parcial verde.
+- Run 36936712283 permanece evidência negativa histórica do SHA anterior e não é usado como aprovação.
+- Esta revisão está pronta para nova auditoria independente PRIMARY + ADVERSARIAL; aprovação final continua proibida até essas fases.
