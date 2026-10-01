@@ -1,5 +1,3 @@
-name: Bible Protocol Infrastructure
-
 on:
   workflow_dispatch:
   push:
@@ -12,21 +10,18 @@ on:
       - 'docs/biblia/.coordination/reconcile-audit-results.js'
       - 'docs/biblia/.coordination/reconcile-audit-results-selftest.js'
       - 'docs/biblia/.coordination/audit-lease-gc.js'
-      - 'docs/biblia/.coordination/audit-bible-baseline.json'
-      - 'scripts/validation/bible-audit-pipeline.js'
-      - 'scripts/validation/bible-audit-work-plan.js'
-      - 'scripts/validation/bible-coordination.js'
-      - 'scripts/validation/verify-bible-audit-pipeline-selftest.js'
-      - 'scripts/validation/verify-bible-audit-shards-selftest.js'
-      - 'scripts/validation/verify-bible-merge-readiness.js'
       - 'docs/biblia/.coordination/audit-summary.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan-selftest.js'
+      - 'scripts/validation/bible-audit-pipeline.js'
+      - 'scripts/validation/bible-audit-work-plan.js'
+      - 'scripts/validation/verify-bible-audit-pipeline-selftest.js'
+      - 'scripts/validation/verify-bible-audit-shards-selftest.js'
+      - 'scripts/validation/bible-coordination.js'
+      - 'scripts/validation/verify-bible-coordination-selftest.js'
+      - 'scripts/validation/verify-bible-merge-readiness.js'
       - '.github/workflows/bible-protocol-infra.yml'
 
-concurrency:
-  group: bible-protocol-infra-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 jobs:
   protocol-infra:
     name: Distributed Bible Protocol Infra (${{ matrix.os }})
