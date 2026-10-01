@@ -3,6 +3,7 @@
 const {
   shardForIndex,
   shardOrderForAuditor,
+  isExpiredClaimSource,
   planAuditWork,
 } = require('./bible-audit-work-plan');
 
@@ -26,6 +27,18 @@ assert('shard 80', shardForIndex(80, 80) === 80);
 assert('shard wrap 81 -> 1', shardForIndex(81, 80) === 1);
 assert('auditor 16 prefere shard 16', shardOrderForAuditor(16, 80)[0] === 16);
 assert('work stealing é circular', shardOrderForAuditor(80, 80)[1] === 1);
+assert(
+  'lease expirado é recuperável',
+  isExpiredClaimSource('LEASE_EXPIRES_AT_UTC: 2026-10-01T10:00:00Z', Date.parse('2026-10-01T11:00:00Z')) === true
+);
+assert(
+  'lease vigente continua bloqueando',
+  isExpiredClaimSource('LEASE_EXPIRES_AT_UTC: 2026-10-01T12:00:00Z', Date.parse('2026-10-01T11:00:00Z')) === false
+);
+assert(
+  'claim legado sem TTL continua bloqueando',
+  isExpiredClaimSource('AUDITOR: AGENTE 1', Date.parse('2026-10-01T11:00:00Z')) === false
+);
 
 const pipelines = new Map([
   [1, { primary: null, adversarial: null, reaudit: null, divergent: false }],
