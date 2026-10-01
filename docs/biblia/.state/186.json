@@ -2,8 +2,8 @@
   "index": 186,
   "file": "tests/unit/content-gemini/result-extractor.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
   "started_at_utc": "2026-09-30T17:20:00Z",
   "completed_at_utc": null,
@@ -82,7 +82,7 @@
     "documented_positions": "491/491",
     "source_text_lines": 490,
     "bible_lines": 4031,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -102,6 +102,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
       "reason": "186 PRIMARY+ADVERSARIAL: lifecycle stale e escopo de ordering EXT-07."
+    },
+    {
+      "at_utc": "2026-10-01T19:31:32.507Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
+      "bible_sha": "b919b7b33e96e19060afadc607675acb481b9fcb",
+      "reason": "186-PRI/A8 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
