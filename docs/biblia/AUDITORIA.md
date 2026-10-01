@@ -1589,3 +1589,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** ✅ APROVADO
 
+### `ci.yml` — reauditoria independente SHA-bound pelo AGENTE 6 em 2026-10-01
+
+- **Índice:** #65 — `.github/workflows/ci.yml`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`.
+- **Integridade:** state, claim, workflow e Bíblia apontam para o mesmo SHA; a seção `Fonte integral auditada` é byte-a-byte idêntica ao workflow atual.
+- **Cobertura:** 558 posições documentadas, headings `Linha 1` → `Linha 558` completos e sequenciais; o workflow não possui newline terminal.
+- **Mudança funcional auditada:** commit `f6ecb10ba85b8982ec24b0a586ccc9865cbda20f` altera somente o job agregador `e2e` de `if: ${{ always() }}` para `if: ${{ always() && !cancelled() }}`, evitando que workflow cancelado por concorrência gere failure artificial por inventário parcial de blobs.
+- **Gate atual:** `verify-ci-contract.js` protege explicitamente `ci-gate` contra `always()` puro e exige `always() && !cancelled()`, mas não contém assertion focal equivalente para o literal do job agregador `e2e`.
+- **Falha documental bloqueante 1 — lacuna stale:** a seção “Lacunas de teste” ainda diz `A condição e2e if: always() não recebe assertion focal própria`; o literal atual é `always() && !cancelled()`.
+- **Falha documental bloqueante 2 — semântica da linha 243:** a própria entrada da linha 243 copia corretamente `if: ${{ always() && !cancelled() }}`, mas imediatamente descreve “Aplica ... ${{ always() }}”. Isso elimina semanticamente o `!cancelled()`, justamente a correção que motivou o novo SHA.
+- **Classificação de evidência:** a nota da linha 243 de que não há assertion focal específica desse literal no `verify-ci-contract.js` é suportada; portanto qualquer texto genérico próximo que sugira gate focal para essa condição precisa permanecer limitado ao bloco funcional, não ao literal.
+- **Request 065-STATE-001:** permanece `RESOLVED` no state canônico e não bloqueia esta reauditoria.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; correção funcional=CONFIRMADO_3X; dependências/gates=CONFIRMADO_3X; semântica documental=CONTRADITO; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto os textos stale acima permanecerem.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
