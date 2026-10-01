@@ -2,8 +2,8 @@
   "index": 112,
   "file": "tests/integration/ipc/image-translation-routing.test.js",
   "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
   "started_at_utc": "2026-09-30T06:32:00Z",
   "completed_at_utc": null,
@@ -31,7 +31,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:50:13Z",
+  "updated_at_utc": "2026-10-01T05:54:13Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:47:06.186Z",
@@ -50,6 +50,15 @@
       "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
       "agent": "AGENTE 23",
       "reason": "Corrigir findings documentais #112: delay assíncrono, semântica da assertion de ausência de START_BATCH e lifecycle da request."
+    },
+    {
+      "at_utc": "2026-10-01T05:54:13Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #112 corrigida conforme auditoria independente: delay assíncrono, ausência de START_BATCH na linha 118 e lifecycle 112-001 alinhado a ACCEPTED."
     }
   ],
   "evidence": [
@@ -60,6 +69,22 @@
       "auditor": "AGENTE 5",
       "at_utc": "2026-10-01T05:47:06.186Z",
       "note": "Passagens 0–15 executadas. SHA, fonte integral e cobertura posicional passam; semântica/honestidade documental falham nos findings registrados em AUDITORIA.md. Request 112-001 permanece ACCEPTED e não bloqueante como lacuna real de cache parcial."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:54:13Z",
+      "note": "Fonte permaneceu inalterada; três findings documentais do AGENTE 5 foram corrigidos. Reauditoria independente necessária."
     }
-  ]
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "138/138",
+    "source_text_lines": 137,
+    "external_audit_requests_open": 1,
+    "repair_note": "Corrigidos findings do AGENTE 5: delay assíncrono, assertion de ausência de START_BATCH e status 112-001 ACCEPTED."
+  }
 }
