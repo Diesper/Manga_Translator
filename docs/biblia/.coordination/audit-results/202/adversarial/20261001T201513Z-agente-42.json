@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "index": 202,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 42",
+  "file": "tests/unit/content-manga/extract-flow-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/extract-flow-real.test.js/Bíblia.md",
+  "source_sha": "1bbc481d426bf7471eb655cf514e20d2b323902b",
+  "bible_sha": "c0e31546fc1237e6f7bdbb6ae5ff9a2fbb170e50",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "202-ADV-001",
+      "severity": "BLOCKING",
+      "category": "STALE_AUDIT_REQUEST_STATUS",
+      "finding": "A Bíblia mantém 202-001, 202-002 e 202-003 como OPEN e conclui que todos permanecem OPEN, enquanto o state atual registra ACCEPTED, ACCEPTED e SUPERSEDED.",
+      "evidence": "Seção 18 usa headings OPEN para os três requests e a conclusão documental repete que permanecem OPEN. O state #202 registra 202-001=ACCEPTED, 202-002=ACCEPTED e 202-003=SUPERSEDED por 039-002; state #039 confirma 039-002=ACCEPTED para o mesmo branch negativo de STOP_TRANSLATION_FROM_POPUP.",
+      "requested_action": "Atualizar a Bíblia para refletir os estados canônicos atuais e a supersessão de 202-003, preservando as lacunas técnicas ainda válidas."
+    },
+    {
+      "id": "202-ADV-002",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "finding": "A Bíblia promove a ordem/prioridade strict → crop e strict → crop → relaxed a PROVADO DIRETAMENTE, mas as assertions do arquivo apenas verificam presença/ausência dos modos com arrayContaining e não a ordem temporal das chamadas.",
+      "evidence": "Nos testes das linhas 421–549, sentMessages é comparado com expect.arrayContaining para strict/crop(/relaxed). Não há comparação de índices/ordem das mensagens. Uma regressão que reordene strict e crop, mantendo ambos consultados e o mesmo hit final, pode satisfazer essas assertions. A Bíblia afirma 'Isso prova a prioridade strict → crop' e, para relaxed, 'strict→crop→relaxed'.",
+      "requested_action": "Rebaixar a alegação de ordem para presença/short-circuit realmente provados, ou citar uma assertion focal existente que verifique a sequência; não alterar testes durante esta auditoria."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:15:13Z"
+}
