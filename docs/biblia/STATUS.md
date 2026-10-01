@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **131**
-- CHANGES_REQUIRED: **3**
+- READY_FOR_AUDIT: **130**
+- CHANGES_REQUIRED: **4**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **1**
