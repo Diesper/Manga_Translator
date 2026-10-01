@@ -2,8 +2,8 @@
   "index": 108,
   "file": "tests/integration/gtc-end-to-end.test.js",
   "bible": "docs/biblia/tests/integration/gtc-end-to-end.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
   "started_at_utc": "2026-09-30T06:22:44.572Z",
   "completed_at_utc": null,
@@ -87,11 +87,12 @@
       109437162502,
       109437162789
     ],
-    "note": "Bíblia concluída sem alterar o objeto auditado nem trackers globais; evidência de produção foi distinguida das implementações espelho locais."
+    "note": "Bíblia concluída sem alterar o objeto auditado nem trackers globais; evidência de produção foi distinguida das implementações espelho locais.",
+    "repair_note": "Corrigidos findings do AGENTE 6: quatro mirrors documentados; força probatória de _images limitada às assertions reais; 108-001..003 alinhadas a ACCEPTED. Source inalterado; reauditoria independente necessária."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:17:41Z",
+  "updated_at_utc": "2026-10-01T12:18:14Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:12:29.877Z",
@@ -110,6 +111,15 @@
       "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
       "agent": "AGENTE 23",
       "reason": "Corrigir findings documentais #108: contagem de mirrors, força das assertions de consistência e lifecycle 108-001..003."
+    },
+    {
+      "at_utc": "2026-10-01T12:18:14Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
+      "agent": "AGENTE 23",
+      "reason": "Reparo #108 concluído sem alterar o source; contagem de mirrors, força das assertions e lifecycle das requests corrigidos."
     }
   ],
   "evidence": [
@@ -120,6 +130,13 @@
       "auditor": "AGENTE 6",
       "at_utc": "2026-10-01T12:12:29.877Z",
       "note": "Passagens 0–15 executadas. SHA/fonte/cobertura/dependências/consumers e limitações principais passaram; semântica/evidence honesty/lifecycle falharam nos três findings registrados."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T12:18:14Z",
+      "note": "Bíblia #108 corrigida conforme findings do AGENTE 6; reauditoria independente necessária."
     }
   ]
 }
