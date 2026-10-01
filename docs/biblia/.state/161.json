@@ -2,11 +2,11 @@
   "index": 161,
   "file": "tests/unit/background/refresh-job-watchdog-action.test.js",
   "bible": "docs/biblia/tests/unit/background/refresh-job-watchdog-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d2acd697b78872400a16bfdac3a4866446d2239f",
   "started_at_utc": "2026-09-30T11:50:00Z",
-  "completed_at_utc": "2026-09-30T12:05:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "161-001",
@@ -92,5 +92,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: WATCHDOG-REFRESH-01 e WATCHDOG-REFRESH-02 passaram individualmente; global 109/109 suítes e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

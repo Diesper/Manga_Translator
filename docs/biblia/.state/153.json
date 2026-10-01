@@ -78,5 +78,6 @@
       "to_status": "READY_FOR_AUDIT",
       "reason": "Rastreabilidade das posições 060–087 corrigida conforme auditoria independente; 153-001 permanece ACCEPTED como melhoria funcional/testável externa e não bloqueia automaticamente a documentação."
     }
-  ]
+  ],
+  "evidence": []
 }

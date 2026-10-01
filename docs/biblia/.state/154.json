@@ -2,11 +2,11 @@
   "index": 154,
   "file": "tests/unit/background/lifecycle-alarms-real.test.js",
   "bible": "docs/biblia/tests/unit/background/lifecycle-alarms-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 19",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1d4c22ba9a78ef994906c4dd16617ddb6079942b",
   "started_at_utc": "2026-09-30T06:49:00Z",
-  "completed_at_utc": "2026-09-30T06:58:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "154-001",
@@ -92,5 +92,10 @@
     "background_sha": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
     "watchdog_sha": "c17b766d7fbc34ea925fb82b19149d3d977de413",
     "chrome_mock_sha": "c1d9a056b7777183bfd3f540c49811335f410425"
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
