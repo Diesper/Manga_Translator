@@ -2,8 +2,8 @@
   "index": 110,
   "file": "tests/integration/ipc/gtc-cache-flow.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
   "started_at_utc": "2026-09-30T06:27:00Z",
   "completed_at_utc": null,
@@ -111,7 +111,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:59:10Z",
+  "updated_at_utc": "2026-10-01T06:07:26Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:59:10Z",
@@ -121,6 +121,15 @@
       "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
       "auditor": "AGENTE 14",
       "reason": "Falha documental material: a Bíblia registra 110-001..110-005 como OPEN, mas o state canônico registra as cinco como ACCEPTED com auditoria persistida; o conteúdo das lacunas permanece válido, porém o lifecycle precisa ser alinhado ou explicitamente marcado como histórico."
+    },
+    {
+      "at_utc": "2026-10-01T06:07:26Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir apenas o lifecycle stale das audit requests 110-001..005 na Bíblia, preservando source e requests canônicas."
     }
   ],
   "evidence": [
