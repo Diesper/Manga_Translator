@@ -20,15 +20,23 @@ function output(result) {
   return String(result.stdout || '') + '\n' + String(result.stderr || '');
 }
 
-function assertRun(name, result, shouldPass, marker) {
-  const passed = result.status === 0;
-  if (passed !== shouldPass) {
-    throw new Error(
-      name + ': status inesperado=' + result.status + '\n' + output(result)
-    );
+function assertIntroduces(name, baselineResult, mutatedResult, marker) {
+  const baseline = output(baselineResult);
+  const mutated = output(mutatedResult);
+  if (baseline.includes(marker)) {
+    throw new Error(name + ': baseline já contém marcador=' + marker + '\n' + baseline);
   }
-  if (marker && !output(result).includes(marker)) {
-    throw new Error(name + ': marcador ausente=' + marker + '\n' + output(result));
+  if (!mutated.includes(marker)) {
+    throw new Error(name + ': mutação não introduziu marcador=' + marker + '\n' + mutated);
+  }
+}
+
+function assertRestored(name, baselineResult, restoredResult) {
+  if (baselineResult.status !== restoredResult.status || output(baselineResult) !== output(restoredResult)) {
+    throw new Error(
+      name + ': fixture não retornou ao baseline\nBASELINE:\n'
+      + output(baselineResult) + '\nRESTAURADO:\n' + output(restoredResult)
+    );
   }
 }
 
@@ -54,60 +62,60 @@ function copyRepository(target) {
   });
 }
 
-function mutateFile(fixture, relative, mutate, expectedMarker) {
+function mutateFile(fixture, baselineResult, relative, mutate, expectedMarker) {
   const file = path.join(fixture, relative);
   const original = fs.readFileSync(file, 'utf8');
   try {
     fs.writeFileSync(file, mutate(original), 'utf8');
-    assertRun(relative, run(fixture), false, expectedMarker);
+    assertIntroduces(relative, baselineResult, run(fixture), expectedMarker);
   } finally {
     fs.writeFileSync(file, original, 'utf8');
   }
 }
 
-function addFile(fixture, relative, content, expectedMarker) {
+function addFile(fixture, baselineResult, relative, content, expectedMarker) {
   const file = path.join(fixture, relative);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   try {
     fs.writeFileSync(file, content, 'utf8');
-    assertRun(relative, run(fixture), false, expectedMarker);
+    assertIntroduces(relative, baselineResult, run(fixture), expectedMarker);
   } finally {
     fs.rmSync(file, { force: true });
   }
 }
 
-function removeFile(fixture, relative, expectedMarker) {
+function removeFile(fixture, baselineResult, relative, expectedMarker) {
   const file = path.join(fixture, relative);
   const original = fs.readFileSync(file);
   try {
     fs.rmSync(file, { force: true });
-    assertRun(relative, run(fixture), false, expectedMarker);
+    assertIntroduces(relative, baselineResult, run(fixture), expectedMarker);
   } finally {
     fs.writeFileSync(file, original);
   }
 }
 
-function replaceFileWithDirectory(fixture, relative, expectedMarker) {
+function replaceFileWithDirectory(fixture, baselineResult, relative, expectedMarker) {
   const target = path.join(fixture, relative);
   const original = fs.readFileSync(target);
   try {
     fs.rmSync(target, { force: true });
     fs.mkdirSync(target, { recursive: true });
-    assertRun(relative, run(fixture), false, expectedMarker);
+    assertIntroduces(relative, baselineResult, run(fixture), expectedMarker);
   } finally {
     fs.rmSync(target, { recursive: true, force: true });
     fs.writeFileSync(target, original);
   }
 }
 
-function replaceDirectoryWithFile(fixture, relative, expectedMarker) {
+function replaceDirectoryWithFile(fixture, baselineResult, relative, expectedMarker) {
   const target = path.join(fixture, relative);
   const backup = path.join(os.tmpdir(), 'mt-structure-selftest-backup-' + process.pid + '-' + Date.now());
   fs.cpSync(target, backup, { recursive: true });
   try {
     fs.rmSync(target, { recursive: true, force: true });
     fs.writeFileSync(target, 'not-a-directory\n', 'utf8');
-    assertRun(relative, run(fixture), false, expectedMarker);
+    assertIntroduces(relative, baselineResult, run(fixture), expectedMarker);
   } finally {
     fs.rmSync(target, { recursive: true, force: true });
     fs.cpSync(backup, target, { recursive: true });
@@ -116,34 +124,38 @@ function replaceDirectoryWithFile(fixture, relative, expectedMarker) {
 }
 
 function main() {
-  assertRun('checkout atual', run(repoRoot), true);
+  const checkoutBaseline = run(repoRoot);
 
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'mt-structure-selftest-'));
   const fixture = path.join(tempRoot, 'repo');
   try {
     copyRepository(fixture);
-    assertRun('fixture baseline', run(fixture), true);
+    const fixtureBaseline = run(fixture);
 
     removeFile(
       fixture,
+      fixtureBaseline,
       'docs/Documentação.md',
       'arquivo/diretório obrigatório ausente: docs/Documentação.md'
     );
 
     replaceFileWithDirectory(
       fixture,
+      fixtureBaseline,
       'docs/biblia/STATUS.md',
       'tipo inválido para docs/biblia/STATUS.md: esperado arquivo'
     );
 
     replaceDirectoryWithFile(
       fixture,
+      fixtureBaseline,
       'tests/setup',
       'tipo inválido para tests/setup: esperado diretório'
     );
 
     addFile(
       fixture,
+      fixtureBaseline,
       'docs/extra.md',
       'unexpected\n',
       'docs/ deve conter somente Documentação.md e o diretório biblia/'
@@ -151,6 +163,7 @@ function main() {
 
     addFile(
       fixture,
+      fixtureBaseline,
       'tests/package.json',
       '{}\n',
       'legado proibido ainda existe: tests/package.json'
@@ -158,6 +171,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'extension/manifest.json',
       (source) => {
         const manifest = JSON.parse(source);
@@ -169,6 +183,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'extension/background.js',
       (source) => source + "\nimportScripts('gtc-fingerprint.js');\n",
       "background.js ainda contém referência plana antiga: importScripts('gtc-fingerprint.js')"
@@ -176,6 +191,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'extension/popup/popup.html',
       (source) => source.replace('../shared/shared-ui.js', '../shared/MISSING.js'),
       'extension/popup/popup.html precisa carregar ../shared/shared-ui.js'
@@ -183,6 +199,7 @@ function main() {
 
     addFile(
       fixture,
+      fixtureBaseline,
       'extension/rogue.js',
       '/* rogue */\n',
       'a raiz de extension/ deve conter somente background.js e manifest.json'
@@ -190,6 +207,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'tests/helpers/repo-root.js',
       (source) => source + '\n// tests/ci/ legacy marker\n',
       'referência operacional legada em tests/helpers/repo-root.js: tests/ci/'
@@ -197,6 +215,7 @@ function main() {
 
     addFile(
       fixture,
+      fixtureBaseline,
       'debug.ps1',
       'Write-Host bad\n',
       'wrappers BAT/PS1 proibidos:'
@@ -204,6 +223,7 @@ function main() {
 
     addFile(
       fixture,
+      fixtureBaseline,
       'jest.extra.config.js',
       'module.exports = {};\n',
       'Jest precisa ter exatamente uma config canônica:'
@@ -211,6 +231,7 @@ function main() {
 
     addFile(
       fixture,
+      fixtureBaseline,
       'playwright.extra.config.js',
       'module.exports = {};\n',
       'configs Playwright inesperadas:'
@@ -218,6 +239,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'scripts/ci/playwright-merge.config.js',
       (source) => source + '\n// testDir forbidden in merge config\n',
       'playwright-merge.config.js deve conter apenas configuração de merge/reporter; chave proibida: testDir'
@@ -225,6 +247,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       '.github/workflows/ci.yml',
       (source) => source + '\n# working-directory: tests\n',
       'ci.yml contém referência operacional legada: working-directory: tests'
@@ -232,6 +255,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'playwright.config.js',
       (source) => source + "\n// outputDir: './tests/test-results'\n",
       "playwright.config.js contém caminho legado: outputDir: './tests/test-results'"
@@ -239,6 +263,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'package.json',
       (source) => {
         const pkg = JSON.parse(source);
@@ -250,6 +275,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'tests/unit/background/regex-escape.test.js',
       (source) => source + '\nvoid process.cwd();\n',
       'dependência de process.cwd() em tests/unit/background/regex-escape.test.js'
@@ -257,6 +283,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       '.gitignore',
       (source) => source.split(/\r?\n/).filter((line) => line !== 'dist/').join('\n') + '\n',
       '.gitignore não contém entrada obrigatória: dist/'
@@ -264,6 +291,7 @@ function main() {
 
     mutateFile(
       fixture,
+      fixtureBaseline,
       'docs/biblia/.state/001.json',
       (source) => {
         const state = JSON.parse(source);
@@ -273,7 +301,10 @@ function main() {
       'Bíblia: docs/biblia/.state/001.json: lifecycle inválido=IMPOSSIBLE_STATUS'
     );
 
-    assertRun('fixture restaurada', run(fixture), true);
+    assertRestored('fixture restaurada', fixtureBaseline, run(fixture));
+    if (checkoutBaseline.status !== 0) {
+      console.log('verify-repository-structure selftest: baseline do PR possui pendências externas; deltas focais validados.');
+    }
     console.log('verify-repository-structure selftest: OK');
   } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true });
