@@ -97,16 +97,21 @@ describe('load-content-script helper selftest', () => {
     expect(window.addEventListener).toBe(windowMethod);
     expect(document.addEventListener).toBe(documentMethod);
   });
-  test('reinjeção aciona o teardown da instância anterior', async () => {
+  test('reinjeção executa teardown do bundle sem disparar pagehide externo', async () => {
     await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
 
-    let count = 0;
-    const onPageHide = () => { count += 1; };
-    window.addEventListener('pagehide', onPageHide, { once: true });
+    let externalPagehideCount = 0;
+    const externalPagehide = () => { externalPagehideCount += 1; };
+    window.addEventListener('pagehide', externalPagehide);
+    const documentRemoveSpy = jest.spyOn(document, 'removeEventListener');
 
     await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
 
-    expect(count).toBe(1);
+    expect(externalPagehideCount).toBe(0);
+    expect(
+      documentRemoveSpy.mock.calls.filter(([type]) => type === 'contextmenu').length
+    ).toBeGreaterThanOrEqual(2);
+    window.removeEventListener('pagehide', externalPagehide);
   });
   test('captura global preserva listeners preexistentes e restaura addEventListener', async () => {
     const originalWindowAdd = window.addEventListener;
@@ -239,7 +244,7 @@ describe('load-content-script helper selftest', () => {
       floatingButtonEnabled: false,
     })).rejects.toThrow('__missing_selftest__');
 
-    expect(pagehideCount).toBe(1);
+    expect(pagehideCount).toBe(0);
     expect(
       documentRemoveSpy.mock.calls.filter(([type]) => type === 'contextmenu').length
     ).toBeGreaterThanOrEqual(2);
@@ -415,7 +420,7 @@ describe('load-content-script helper selftest', () => {
       readyTimeoutMs: 20,
     })).rejects.toThrow('Timeout aguardando botão do content_manga ficar pronto após 20 ms');
 
-    expect(pagehideCount).toBe(1);
+    expect(pagehideCount).toBe(0);
     expect(
       documentRemoveSpy.mock.calls.filter(([type]) => type === 'contextmenu').length
     ).toBeGreaterThanOrEqual(2);
