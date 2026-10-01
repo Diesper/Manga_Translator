@@ -2,8 +2,8 @@
   "index": 172,
   "file": "tests/unit/background/test_bg59.test.js",
   "bible": "docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
   "started_at_utc": "2026-09-30T06:30:47.120Z",
   "completed_at_utc": null,
@@ -38,7 +38,7 @@
     "documented_positions": "163/163",
     "source_text_lines": 162,
     "bible_lines": 2979,
-    "external_audit_requests_open": 1,
+    "external_audit_requests_open": 0,
     "note": "Teste documentado como prova de wiring do background real; algoritmo de hash permanece explicitamente classificado como mockado neste arquivo."
   },
   "schema_version": 2,
@@ -52,6 +52,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
       "reason": "172-ADV-001/002/003: lifecycle, força de evidência do crop e consumers de produção."
+    },
+    {
+      "at_utc": "2026-10-01T18:26:39.015Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
+      "bible_sha": "917509356c509e647fb4b9148b64a71d44eaf13c",
+      "reason": "172-ADV-001/002/003 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
