@@ -328,10 +328,10 @@ describe('Popup 2D Resizing e Agrupamento de Banidas — popup.js', () => {
 |---:|---|
 | 1–6 | cabeçalho |
 | 8–9 | imports |
-| 11–34 | describe + setup de layout |
-| 36–40 | cleanup |
-| 42–65 | restauração de tamanho salvo |
-| 67–105 | resize diagonal e persistência |
+| 11–35 | describe + setup de layout |
+| 36–41 | cleanup |
+| 42–66 | restauração de tamanho salvo |
+| 67–106 | resize diagonal e persistência |
 | 107–135 | agrupamento/XSS das banidas |
 | 136 | fecha describe |
 | posição 137 | newline final |

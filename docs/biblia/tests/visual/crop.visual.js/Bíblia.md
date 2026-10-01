@@ -313,15 +313,15 @@ describe('visual-v4 — Center-Crop Hashes e Perceptual Crop Lookup', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–9 | cabeçalho visual-v4 |
+| 1–10 | cabeçalho visual-v4 |
 | 11–12 | carrega módulos reais |
 | 14–18 | runner/helpers |
 | 20–25 | APIs e repo factory |
-| 27–33 | describe + beforeEach |
-| 35–39 | wHash crop |
-| 41–45 | pHash crop |
-| 47–67 | persistência crop |
-| 69–87 | lookup crop positivo |
+| 27–34 | describe + beforeEach |
+| 35–40 | wHash crop |
+| 41–46 | pHash crop |
+| 47–68 | persistência crop |
+| 69–88 | lookup crop positivo |
 | 89–100 | ignora entrada sem crop |
 | 102–105 | caso strict de 10 bits rotulado relaxed |
 | 106 | fecha describe |

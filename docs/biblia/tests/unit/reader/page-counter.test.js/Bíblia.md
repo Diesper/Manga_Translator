@@ -361,11 +361,11 @@ describe('RD-20/RD-21/RD-22: reader.js - Contador de Página e Progresso Real', 
 |---:|---|
 | 1–5 | cabeçalho |
 | 7–8 | imports |
-| 10–29 | describe/setup do IntersectionObserver |
-| 31–33 | cleanup |
-| 35–82 | inicialização + mudanças 1/5 → 3/5 → 5/5 |
-| 84–111 | empate |
-| 113–147 | persistência global entre callbacks |
+| 10–30 | describe/setup do IntersectionObserver |
+| 31–34 | cleanup |
+| 35–83 | inicialização + mudanças 1/5 → 3/5 → 5/5 |
+| 84–112 | empate |
+| 113–148 | persistência global entre callbacks |
 | 149–168 | capítulo vazio |
 | 169 | fecha describe |
 | posição 170 | newline final |

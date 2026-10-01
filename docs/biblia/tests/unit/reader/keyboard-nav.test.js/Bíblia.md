@@ -300,10 +300,10 @@ describe('RD-14/RD-15/RD-16/RD-17/RD-18: reader.js - Navegação por Teclado Rea
 | 10–15 | describe e spies |
 | 17–55 | beforeEach + reader real |
 | 57–61 | cleanup |
-| 63–81 | ArrowRight/ArrowDown |
-| 83–101 | ArrowLeft/ArrowUp |
-| 103–115 | fullscreen |
-| 117–124 | Home/End |
+| 63–82 | ArrowRight/ArrowDown |
+| 83–102 | ArrowLeft/ArrowUp |
+| 103–116 | fullscreen |
+| 117–125 | Home/End |
 | 126–135 | tecla não mapeada |
 | 136 | fecha describe |
 | posição 137 | newline final |
