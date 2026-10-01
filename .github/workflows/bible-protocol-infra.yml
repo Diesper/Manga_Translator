@@ -16,6 +16,8 @@ on:
       - 'docs/biblia/.coordination/audit-summary.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan-selftest.js'
+      - 'scripts/validation/verify-bible-audit-results-append-only.js'
+      - 'scripts/validation/verify-bible-audit-results-append-only-selftest.js'
       - 'scripts/validation/bible-audit-pipeline.js'
       - 'scripts/validation/bible-audit-work-plan.js'
       - 'scripts/validation/verify-bible-audit-pipeline-selftest.js'
@@ -52,6 +54,8 @@ jobs:
           node --check docs/biblia/.coordination/audit-lease-gc.js
           node --check docs/biblia/.coordination/audit-summary.js
           node --check docs/biblia/.coordination/bible-correction-work-plan.js
+          node --check scripts/validation/verify-bible-audit-results-append-only.js
+          node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js
           node --check scripts/validation/bible-audit-pipeline.js
           node --check scripts/validation/bible-audit-work-plan.js
           node --check scripts/validation/bible-coordination.js
