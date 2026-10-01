@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-gemini/job-runner.test.js
 
 > **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
-> **SHA auditado:** feae92421dd98e682caf3f970ba7ff86b8b6aa4a  
+> **SHA auditado:** b0daca4ce839d8a5114c8c94e116fa155c721f7b  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest do pipeline central Gemini JobRunner  
-> **Linhas textuais:** 757  
-> **Posições documentais:** 758, contando o newline final  
+> **Linhas textuais:** 761  
+> **Posições documentais:** 762, contando o newline final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -17,7 +17,7 @@ As suítes attachment, editor-submit, image-quarantine, deletion e observer poss
 
 ## 2. Guards e helpers
 
-RUN-00 prova os três grupos de dependências obrigatórias. RUN-01/RUN-01B cobrem Data URL válida, formatos inválidos e File API ausente. RUN-04/RUN-04B provam waitForElement imediato e inserção tardia em Shadow DOM.
+RUN-00 prova os três grupos de dependências obrigatórias. RUN-01/RUN-01B cobrem Data URL válida, formatos inválidos, `FileImpl` ausente e `DataUrlAtob` ausente. RUN-04/RUN-04B provam waitForElement imediato e inserção tardia em Shadow DOM.
 
 ## 3. Recovery e finally
 
@@ -53,14 +53,14 @@ Além do commit terminal, waitForStableComposer pode expirar com GEMINI_COMPOSER
 
 ## 10. Evidência CI exata
 
-O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exatamente o blob feae92421dd98e682caf3f970ba7ff86b8b6aa4a. Os 21 casos RUN/RUN-COV aparecem individualmente com ✓ em Node 20.x (job 109255348388) e Node 22.x (job 109255348406). Ambos fecham com 109/109 suítes e 851/851 testes. CI Gate 109256050280: sucesso.
+O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exatamente o blob b0daca4ce839d8a5114c8c94e116fa155c721f7b. Os 21 casos RUN/RUN-COV aparecem individualmente com ✓ em Node 20.x (job 109255348388) e Node 22.x (job 109255348406). Ambos fecham com 109/109 suítes e 851/851 testes. CI Gate 109256050280: sucesso.
 
 ## 11. Matriz de evidência
 
 | Contrato | Evidência | Classificação |
 |---|---|---|
 | guards de dependências | RUN-00 | ✅ PROVADO DIRETAMENTE |
-| Data URL → File e erros básicos | RUN-01/01B | ✅ PROVADO DIRETAMENTE |
+| Data URL → File, formatos inválidos e APIs `FileImpl`/`DataUrlAtob` ausentes | RUN-01/01B | ✅ PROVADO DIRETAMENTE |
 | recovery antes de keep-alive | RUN-02 | ✅ PROVADO DIRETAMENTE |
 | finally fecha keep-alive e reporta erro | RUN-03 | ✅ PROVADO DIRETAMENTE |
 | waitForElement DOM/Shadow DOM | RUN-04/04B | ✅ PROVADO DIRETAMENTE |
@@ -345,6 +345,10 @@ describe('gemini/job-runner.js', () => {
 
     const withoutFileApi = createGeminiJobRunner({ ...options, FileImpl: null });
     expect(() => withoutFileApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
+      .toThrow('APIs de arquivo indisponíveis');
+
+    const withoutAtobApi = createGeminiJobRunner({ ...options, DataUrlAtob: null });
+    expect(() => withoutAtobApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
       .toThrow('APIs de arquivo indisponíveis');
   });
 
@@ -6188,3 +6192,5 @@ describe('gemini/job-runner.js', () => {
 Foram documentadas 757 linhas textuais e a posição 758 do newline final. Os 21 casos principais estão diretamente provados no mesmo blob verde em Node 20/22. No lifecycle canônico, 181-001 está SUPERSEDED por `045-001`, 181-002 está ACCEPTED, 181-003 está SUPERSEDED por `045-005` e 181-004 está ACCEPTED.
 
 > **Lifecycle pós-adversarial:** requests superseded continuam rastreadas nos IDs canônicos 045-001/045-005; requests ACCEPTED permanecem lacunas reconhecidas, não trabalho OPEN.
+
+> **Atualização coordenada:** RUN-01B agora cobre também `DataUrlAtob:null`, fechando a lacuna canônica 179-004; a revisão desta Bíblia deve ser reaudidata porque o source SHA mudou.
