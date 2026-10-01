@@ -2,10 +2,10 @@
   "index": 126,
   "file": "tests/smoke/smoke-04-storage-manager.js",
   "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-01T23:23:45Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -90,7 +90,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:47:30Z",
+  "updated_at_utc": "2026-10-01T23:23:45Z",
   "history": [
     {
       "at_utc": "2026-10-01T22:36:20Z",
@@ -119,6 +119,16 @@
       "bible_sha": "53989ce00a54c2ee8f113419614898b2631ce575",
       "agent": "AGENTE 30",
       "reason": "Smoke regression exposed ineffective _smDbPromise reset in #060; release #126 reservation before sequential dependency repair."
+    },
+    {
+      "at_utc": "2026-10-01T23:23:45Z",
+      "type": "EDITOR_REPAIR_RESUMED_AFTER_DEPENDENCY_FIX",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
+      "bible_sha": "53989ce00a54c2ee8f113419614898b2631ce575",
+      "agent": "AGENTE 30",
+      "reason": "Dependency #060 retry cache repaired; add synchronous idb.open rejection + transaction-abort rollback regressions and re-run CI."
     }
   ],
   "evidence": [
