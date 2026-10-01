@@ -2,8 +2,8 @@
   "index": 11,
   "file": "extension/background/actions/download-image.js",
   "bible": "docs/biblia/extension/background/actions/download-image.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
   "started_at_utc": "2026-09-30T13:05:00Z",
   "completed_at_utc": null,
@@ -72,6 +72,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
       "reason": "011-REA-001/002: corrigir semântica dos erros terminais e força de evidência de downloads.search."
+    },
+    {
+      "at_utc": "2026-10-01T16:48:41.929Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "408102f057ab6a584314e9108b9f4329440204bb",
+      "bible_sha": "9a6bf2fda71eb2cd45396174f082ceae44dbdc93",
+      "reason": "011-REA-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
