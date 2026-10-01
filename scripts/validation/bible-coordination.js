@@ -9,6 +9,24 @@ const LIFECYCLE = new Set(['PENDING','IN_PROGRESS','READY_FOR_AUDIT','CHANGES_RE
 const COORDINATION = new Set(['OK','REPAIR_REQUIRED']);
 const REQUEST_STATUSES = new Set(['OPEN','ACCEPTED','RESOLVED','REJECTED','SUPERSEDED']);
 
+function normalizeRequestStatus(status) {
+  return status === 'SATISFIED' ? 'RESOLVED' : status;
+}
+
+function declaredRequestStatuses(bibleSource, requestId) {
+  const id = String(requestId || '');
+  if (!/^\d{3}-\d{3}$/.test(id)) return [];
+  const found = new Set();
+  for (const rawLine of normalizeText(bibleSource || '').split('\n')) {
+    if (!rawLine.includes(id)) continue;
+    if (!/^\s*(?:#{2,6}\s+|[-*]\s+|\|)/.test(rawLine)) continue;
+    for (const match of rawLine.matchAll(/\b(OPEN|ACCEPTED|RESOLVED|REJECTED|SUPERSEDED|SATISFIED)\b/g)) {
+      found.add(normalizeRequestStatus(match[1]));
+    }
+  }
+  return [...found];
+}
+
 const slash = (p) => p.replace(/\\/g, '/');
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -403,9 +421,26 @@ function validateBibleCoordination(root, options = {}) {
       }
     }
 
-    for (const request of Array.isArray(state.audit_requests) ? state.audit_requests : []) {
+    const stateRequests = Array.isArray(state.audit_requests) ? state.audit_requests : [];
+    const requestBibleSource = fs.existsSync(bibleAbs) ? fs.readFileSync(bibleAbs, 'utf8') : null;
+    for (const request of stateRequests) {
       if (request.status === 'SATISFIED') problems.push(stateFile + '/' + (request.id || 'sem-id') + ': SATISFIED deve migrar para RESOLVED preservando resolution');
       else if (!REQUEST_STATUSES.has(request.status)) problems.push(stateFile + '/' + (request.id || 'sem-id') + ': audit_request status inválido=' + request.status);
+
+      if (requestBibleSource && request.id) {
+        const canonical = normalizeRequestStatus(request.status);
+        const declared = declaredRequestStatuses(requestBibleSource, request.id);
+        for (const bibleStatus of declared) {
+          if (bibleStatus !== canonical) {
+            problems.push(stateFile + '/' + request.id + ': audit_request lifecycle divergente na Bíblia; state=' + canonical + ' bible=' + bibleStatus);
+          }
+        }
+      }
+    }
+    const canonicalOpenRequests = stateRequests.filter((request) => normalizeRequestStatus(request.status) === 'OPEN').length;
+    const declaredOpenCount = state.document_quality?.external_audit_requests_open;
+    if (Number.isInteger(declaredOpenCount) && declaredOpenCount !== canonicalOpenRequests) {
+      problems.push(stateFile + ': document_quality.external_audit_requests_open divergente; state=' + canonicalOpenRequests + ' document_quality=' + declaredOpenCount);
     }
     if (state.status === 'IN_PROGRESS' && !state.agent) problems.push(stateFile + ': IN_PROGRESS sem agent');
     if (state.status !== 'IN_PROGRESS' && state.agent) problems.push(stateFile + ': agent deve ser null fora de IN_PROGRESS');
@@ -541,6 +576,49 @@ function validateBibleCoordination(root, options = {}) {
   return { problems, states, audits, reservations, auditClaims };
 }
 
+function evaluateMergeReadiness(validation, options = {}) {
+  const states = Array.isArray(validation?.states) ? validation.states : [];
+  const reservations = Array.isArray(validation?.reservations) ? validation.reservations : [];
+  const auditClaims = Array.isArray(validation?.auditClaims) ? validation.auditClaims : [];
+  const blockers = [];
+
+  for (const problem of validation?.problems || []) blockers.push('coordination: ' + problem);
+  if (states.length !== 233) blockers.push('corpus incompleto: states=' + states.length + '/233');
+
+  const nonCompleted = states.filter((state) => state.status !== 'COMPLETED');
+  if (nonCompleted.length) {
+    blockers.push('states não-COMPLETED=' + nonCompleted.length + ': '
+      + nonCompleted.map((state) => String(state.index).padStart(3, '0') + '/' + state.status).join(', '));
+  }
+
+  const openRequests = [];
+  const requestCounts = Object.fromEntries([...REQUEST_STATUSES].map((status) => [status, 0]));
+  for (const state of states) {
+    for (const request of Array.isArray(state.audit_requests) ? state.audit_requests : []) {
+      const status = normalizeRequestStatus(request.status);
+      if (Object.prototype.hasOwnProperty.call(requestCounts, status)) requestCounts[status] += 1;
+      if (status === 'OPEN') openRequests.push(String(state.index).padStart(3, '0') + '/' + (request.id || 'sem-id'));
+    }
+  }
+  if (openRequests.length) blockers.push('audit_requests OPEN=' + openRequests.length + ': ' + openRequests.join(', '));
+  if (reservations.length) blockers.push('reservas ativas=' + reservations.length + ': ' + reservations.join(', '));
+  if (auditClaims.length) blockers.push('audit claims ativos=' + auditClaims.length + ': ' + auditClaims.join(', '));
+  if (options.progressLockActive) blockers.push('PROGRESS.lock.md ainda está ativo');
+
+  return {
+    ready: blockers.length === 0,
+    blockers,
+    counts: {
+      states: states.length,
+      completed: states.filter((state) => state.status === 'COMPLETED').length,
+      nonCompleted: nonCompleted.length,
+      reservations: reservations.length,
+      auditClaims: auditClaims.length,
+      requests: requestCounts,
+    },
+  };
+}
+
 module.exports = {
   LIFECYCLE,
   REQUEST_STATUSES,
@@ -552,4 +630,5 @@ module.exports = {
   approvalMatches,
   buildDerived,
   validateBibleCoordination,
+  evaluateMergeReadiness,
 };
