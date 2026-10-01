@@ -2,8 +2,8 @@
   "index": 124,
   "file": "tests/smoke/smoke-02-uuid-and-reconcile.js",
   "bible": "docs/biblia/tests/smoke/smoke-02-uuid-and-reconcile.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d977f43a4b29653d01b0fd9c395cb04edb9c1a50",
   "started_at_utc": "2026-09-30T06:30:00Z",
   "completed_at_utc": null,
@@ -79,12 +79,12 @@
     "documented_positions": "177/177",
     "source_text_lines": 176,
     "bible_lines": 611,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Simulações locais foram classificadas como prova apenas do mirror; produção real foi comparada sem alteração externa."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:38:16.211Z",
+  "updated_at_utc": "2026-10-01T21:38:50.028Z",
   "history": [
     {
       "at_utc": "2026-10-01T21:38:16.211Z",
@@ -93,6 +93,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "d977f43a4b29653d01b0fd9c395cb04edb9c1a50",
       "reason": "124-REA39-001/002: reclassificar faixa mockChrome e sincronizar lifecycle."
+    },
+    {
+      "at_utc": "2026-10-01T21:38:50.028Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "d977f43a4b29653d01b0fd9c395cb04edb9c1a50",
+      "bible_sha": "a726d69479d10660f2426107a2dab7c0f5143790",
+      "reason": "124-REA39-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
