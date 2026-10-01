@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/helpers/load-content-script.js
 
 > **Estado documental:** reparo corretivo local concluído; decisão distribuída final pendente  
-> **SHA auditado:** `1eb37bc08852bab1bd6b060073690f9d756fc35a`  
+> **SHA auditado:** `0b52224bd7063db9b6bb683d827217d8f2fda69c`  
 > **Tipo:** helper Jest/JSDOM que carrega o bundle Manga real sob estado controlado  
 > **Linhas textuais:** **495**  
 > **Posições documentais:** **496**, contando o LF final  
-> **Tamanho textual observado:** **19175 caracteres**  
+> **Tamanho textual observado:** **19242 caracteres**  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -49,7 +49,7 @@ A captura não trata qualquer listener criado durante a janela como ownership do
 
 `disposePreviousContentInstance()` não dispara `pagehide` globalmente. Ele invoca apenas handlers `pagehide` rastreados como pertencentes ao bundle, evitando efeitos colaterais em listeners externos do teste.
 
-`cleanupContentInstanceListeners()` tenta primeiro o teardown cooperativo; mesmo se um handler de teardown lançar, o `finally` remove listeners storage/runtime/globais e zera os registries. O erro de teardown é preservado e pode ser anexado ao erro causal principal por `attachCleanupError()`.
+`cleanupContentInstanceListeners()` tenta primeiro o teardown cooperativo; mesmo se um handler de teardown ou um `removeListener` lançar, os removers percorrem os recursos restantes, o `finally` zera os registries e a primeira falha de cleanup é preservada. Ela pode ser anexada ao erro causal principal por `attachCleanupError()`.
 
 ## 7. Seed, DOM e globals
 
@@ -345,11 +345,11 @@ function attachCleanupError(primaryError, cleanupError) {
         cleanupError
         && primaryError
         && (typeof primaryError === 'object' || typeof primaryError === 'function')
+        && Object.isExtensible(primaryError)
     ) {
-        try {
+        const descriptor = Object.getOwnPropertyDescriptor(primaryError, 'cleanupError');
+        if (!descriptor || descriptor.writable === true) {
             primaryError.cleanupError = cleanupError;
-        } catch (_error) {
-            // O erro primário continua sendo a evidência causal do caminho original.
         }
     }
     return primaryError;
@@ -630,38 +630,37 @@ module.exports = {
 
 - **1–13:** comentário de propósito.
 - **14–24:** imports, raiz, Manifest e raiz normalizada de stack.
-- **25–56:** registries persistentes do harness.
+- **25–56:** registries persistentes e guard de carga.
 - **57–73:** derivação do bundle pelo Manifest.
-- **74–97:** snapshots e remoção de listeners Chrome.
-- **98–110:** remoção global e filtro de origem pela stack.
-- **111–147:** captura/restauração de `addEventListener`.
-- **148–165:** teardown seletivo dos handlers `pagehide` do bundle.
-- **166–186:** cleanup robusto mesmo quando o teardown lança.
-- **187–201:** preservação do erro causal + `cleanupError`.
-- **202–216:** JSDoc público.
-- **217–247:** assinatura, guard de concorrência, cleanup anterior, snapshots e invalidação da instância stale.
-- **248–261:** `window.location`.
-- **262–274:** seed de storage.
-- **275–289:** construção DOM segura.
-- **290–297:** dimensões naturais.
-- **298–311:** globals `crypto`/`TextEncoder`.
-- **312–314:** liberação do guard de injeção.
-- **315–340:** carga do bundle e cleanup de falha parcial.
-- **341–373:** polling, `finally` de captura e coleta de listeners.
-- **374–382:** cleanup de exceção no bootstrap.
-- **383–400:** timeout causal e cleanup.
-- **401–404:** persistência dos registries da carga bem-sucedida.
-- **405–452:** objeto de retorno e `sendMessage`.
-- **453–461:** lookups DOM e fechamento do retorno.
-- **462–466:** `finally` que libera o guard de carga e fechamento da função.
-- **467–470:** export CommonJS.
-- **471:** newline final.
+- **74–113:** snapshots e remoção exception-safe de listeners Chrome.
+- **114–131:** remoção global exception-safe e filtro de origem pela stack.
+- **132–168:** captura/restauração de `addEventListener`.
+- **169–186:** teardown seletivo dos handlers `pagehide` do bundle.
+- **187–211:** cleanup robusto de todos os recursos, preservando primeira falha de teardown/remoção.
+- **212–226:** preservação do erro causal + `cleanupError`.
+- **227–241:** JSDoc público.
+- **242–272:** assinatura, guard de concorrência, cleanup anterior, snapshots e invalidação da instância stale.
+- **273–286:** `window.location`.
+- **287–299:** seed de storage.
+- **300–314:** construção DOM segura.
+- **315–322:** dimensões naturais.
+- **323–336:** globals `crypto`/`TextEncoder`.
+- **337–339:** liberação do guard de injeção.
+- **340–365:** carga do bundle e cleanup de falha parcial.
+- **366–398:** polling, `finally` de captura e coleta de listeners.
+- **399–407:** cleanup de exceção no bootstrap.
+- **408–425:** timeout causal e cleanup.
+- **426–429:** persistência dos registries da carga bem-sucedida.
+- **430–477:** objeto de retorno e `sendMessage`.
+- **478–486:** lookups DOM e fechamento do retorno.
+- **487–491:** `finally` que libera o guard de carga e fechamento da função.
+- **492–495:** export CommonJS.
+- **496:** newline final.
 
-**Cobertura: 471/471 posições, sem gap ou overlap.**
-
+**Cobertura: 496/496 posições, sem gap ou overlap.**
 ## 16. Autoauditoria
 
-- Source SHA: `1eb37bc08852bab1bd6b060073690f9d756fc35a`.
+- Source SHA: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - Fonte integral embutida a partir do blob atual.
 - Lifecycle documental não é apresentado como `COMPLETED` distribuído.
 - Cinco requests históricas são tratadas individualmente, sem contagem stale.
