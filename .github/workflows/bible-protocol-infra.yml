@@ -20,6 +20,7 @@ on:
       - 'scripts/validation/bible-coordination.js'
       - 'scripts/validation/verify-bible-coordination-selftest.js'
       - 'scripts/validation/verify-bible-merge-readiness.js'
+      - 'package.json'
       - '.github/workflows/bible-protocol-infra.yml'
 
 jobs:
