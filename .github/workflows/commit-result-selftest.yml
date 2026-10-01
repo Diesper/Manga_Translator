@@ -1,0 +1,36 @@
+name: Commit Result Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'extension/background/actions/commit-result.js'
+      - 'extension/background/router.js'
+      - 'extension/background.js'
+      - 'tests/mocks/**'
+      - 'jest.config.js'
+      - 'docs/biblia/.coordination/commit-result-selftest.js'
+      - '.github/workflows/commit-result-selftest.yml'
+  workflow_dispatch:
+
+jobs:
+  focal-and-background:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run commit-result focal selftest
+        run: node docs/biblia/.coordination/commit-result-selftest.js
+
+      - name: Run background unit suite with open-handle detection
+        run: npx jest --config jest.config.js --selectProjects background --runInBand --detectOpenHandles
