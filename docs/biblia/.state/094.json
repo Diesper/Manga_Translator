@@ -2,11 +2,11 @@
   "index": 94,
   "file": "tests/e2e/translation-flow.spec.js",
   "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 2",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
   "started_at_utc": "2026-09-30T06:16:55.086Z",
-  "completed_at_utc": "2026-09-30T06:28:39.499Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "094-001",
@@ -56,5 +56,10 @@
     "bible_lines": 15815,
     "external_audit_requests_open": 2,
     "note": "Conclusão documental; fonte, testes, fixtures, workflows e configurações externos permaneceram read-only."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

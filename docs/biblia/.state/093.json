@@ -2,11 +2,11 @@
   "index": 93,
   "file": "tests/e2e/reader-offline.spec.js",
   "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 16",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
   "started_at_utc": "2026-09-30T06:14:00Z",
-  "completed_at_utc": "2026-09-30T06:23:54.966Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "093-001",
@@ -82,5 +82,10 @@
     "evidence_run": 36577447500,
     "evidence_job": 109437162728,
     "evidence_summary": "E2E Shard (fast): 9 passed; os três casos de reader-offline.spec.js aparecem nominalmente no log."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

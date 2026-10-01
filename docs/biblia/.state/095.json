@@ -2,11 +2,11 @@
   "index": 95,
   "file": "tests/fixtures/gemini-mock-server.js",
   "bible": "docs/biblia/tests/fixtures/gemini-mock-server.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4",
   "started_at_utc": "2026-09-30T06:17:10Z",
-  "completed_at_utc": "2026-09-30T06:20:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "095-001",
@@ -102,5 +102,10 @@
     "bible_lines": 1156,
     "external_audit_requests_open": 4,
     "note": "Bíblia concluída pelo AGENTE 17 sem modificar código, testes, fixtures externas, workflows ou configurações."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 97,
   "file": "tests/fixtures/manga-page.html",
   "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 7",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
   "started_at_utc": "2026-09-30T06:15:00Z",
-  "completed_at_utc": "2026-09-30T06:18:00Z",
+  "completed_at_utc": null,
   "audit_requests": [],
   "document_quality": {
     "self_audit": "APPROVED",
@@ -27,5 +27,10 @@
     ],
     "external_audit_requests_open": 0,
     "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
