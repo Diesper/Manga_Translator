@@ -82,7 +82,7 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 
 1. jobId inválido ou URL fora da allowlist falham antes de efeitos.
 2. Sender precisa possuir o jobId.
-3. Batch/index/mangaTabId divergentes do job persistido devem bloquear a criação.
+3. Divergências de identidade bloqueiam **quando a guarda correspondente está ativa**: `batchId` e `mangaTabId` são comparados quando ambos os lados são truthy; `index` é comparado somente quando ambos são inteiros. Campos ausentes/falsy podem desativar essas comparações e estão explicitamente fora da prova focal atual.
 4. `currentBatchId` global não deve invalidar job real por si só.
 5. HTTP(S) deve receber `#manga-translator-extraction`.
 6. A aba auxiliar deve abrir inativa.
@@ -90,7 +90,7 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 8. Valores persistidos do job prevalecem sobre request quando presentes.
 9. Mapping precisa conter mangaTabId, index, geminiTabId, jobId e batchId.
 10. Job deve passar a `awaiting_auxiliary_extraction` com auxiliaryTabId.
-11. `syncState` deve concluir antes da resposta positiva.
+11. `syncState` deve concluir antes da resposta positiva. **Este é um invariante do source atual; a suíte não o prova causalmente por ordering.**
 12. Esta action não deve chamar finalizeJob.
 13. Logs não devem incluir a URL completa se ela puder conter dados sensíveis; o código atual não inclui URL no log.
 
@@ -201,7 +201,7 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 | 003 | U01 | ␠ [linha vazia] | Separador visual de U01 (Cabeçalho e intenção); sem efeito runtime. |
 | 004 | U02 | (function(scope) { | Completa a expressão de U02 com `(function(scope) {`, fornecendo parte do objeto/condição/chamada contígua. |
 | 005 | U02 |   scope.MangaTranslatorRouter.registerAction({ | Registra a definição no MangaTranslatorRouter. |
-| 006 | U02 |     name: 'deliver-result-url', | Define o nome canônico do alias `GEMINI_RESULT_URL`. |
+| 006 | U02 |     name: 'deliver-result-url', | Define o **nome canônico da action** `deliver-result-url`; o alias `GEMINI_RESULT_URL` é configurado no wiring de `extension/background/router.js`, não nesta linha. |
 | 007 | U02 |     meta: { allowedSources: ['any'] }, | Permite qualquer source classificada; a autorização forte ocorre por ownership. |
 | 008 | U02 | ␠ [linha vazia] | Separador visual de U02 (Registro e validação do request); sem efeito runtime. |
 | 009 | U02 |     validate(request) { | Abre a validação pré-efeitos. |
@@ -399,7 +399,7 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 
 **Por que uma implementação ingênua seria pior:** Responder antes do sync pode levar a aba auxiliar a consultar um mapping ainda não durável.
 
-**Evidência:** ✅ PROVADO DIRETAMENTE para a resposta e efeitos anteriores. 🟨 O log é executado, mas ⚠️ não há assertion focal do evento/metadata.
+**Evidência:** ✅ PROVADO DIRETAMENTE para a resposta final e para os efeitos que o teste efetivamente afirma. A ordem `await syncState()` → resposta é **fato derivado da leitura do source**; o teste usa mock já resolvido e não possui assertion temporal que prove que remover o `await` o faria falhar. 🟨 O log é executado, mas ⚠️ não há assertion focal do evento/metadata.
 
 ### U10 — linhas/posição 91–93: Fechamento do registro/IIFE
 
