@@ -116,7 +116,7 @@
 - [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — READY_FOR_AUDIT
 - [ ] 113 — `tests/integration/options.ui.test.js` — READY_FOR_AUDIT
 - [ ] 114 — `tests/integration/performance.test.js` — CHANGES_REQUIRED
-- [ ] 115 — `tests/integration/popup-translated-thumbnails.test.js` — READY_FOR_AUDIT
+- [ ] 115 — `tests/integration/popup-translated-thumbnails.test.js` — CHANGES_REQUIRED
 - [ ] 116 — `tests/integration/popup.advanced.ui.test.js` — READY_FOR_AUDIT
 - [ ] 117 — `tests/integration/popup.ui.test.js` — READY_FOR_AUDIT
 - [ ] 118 — `tests/integration/reader.ui.test.js` — READY_FOR_AUDIT
