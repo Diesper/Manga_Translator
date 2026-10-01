@@ -339,7 +339,12 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
     const audit = audits.get(state.index);
     const pipeline = auditPipelines instanceof Map ? auditPipelines.get(state.index) : null;
     const pipelineApproved = Boolean(pipeline?.hasDistributed && pipeline.decision === 'APPROVED');
-    const checked = state.status === 'COMPLETED' && (pipelineApproved || approvalMatches(audit, state.source_sha || ''));
+    const legacyPipelineApproved = Boolean(pipeline?.primary?.legacy && pipeline.primary.verdict === 'APPROVED');
+    const checked = state.status === 'COMPLETED' && (
+      pipeline
+        ? (pipelineApproved || legacyPipelineApproved)
+        : approvalMatches(audit, state.source_sha || '')
+    );
     checklistLines.push('- [' + (checked ? 'x' : ' ') + '] ' + String(state.index).padStart(3,'0')
       + ' — ' + String.fromCharCode(96) + state.file + String.fromCharCode(96) + ' — ' + state.status);
   }
@@ -548,14 +553,18 @@ function validateBibleCoordination(root, options = {}) {
   const audits = fs.existsSync(auditPath) ? parseAuditRegistry(fs.readFileSync(auditPath, 'utf8')) : new Map();
   const distributed = loadAuditResults(root, states);
   for (const problem of distributed.problems) problems.push(problem);
-  const pipelineEvaluation = evaluateAuditPipelines(states, distributed.records, audits);
+  const pipelineEvaluation = evaluateAuditPipelines(states, distributed.records, audits, {
+    root,
+    baseline: distributed.baseline,
+  });
   for (const problem of pipelineEvaluation.problems) problems.push(problem);
 
   for (const state of states) {
-    const legacyApproved = approvalMatches(audits.get(state.index), state.source_sha || '');
-    const pipelineApproved = pipelineEvaluation.byIndex.get(state.index)?.decision === 'APPROVED';
+    const pipeline = pipelineEvaluation.byIndex.get(state.index);
+    const legacyApproved = Boolean(pipeline?.primary?.legacy && pipeline.primary.verdict === 'APPROVED');
+    const pipelineApproved = pipeline?.decision === 'APPROVED';
     if (state.status === 'COMPLETED' && !legacyApproved && !pipelineApproved) {
-      problems.push('COMPLETED sem auditoria APPROVED para SHA atual: #' + state.index + ' ' + state.file);
+      problems.push('COMPLETED sem auditoria APPROVED para source+bible atuais: #' + state.index + ' ' + state.file);
     }
   }
 
