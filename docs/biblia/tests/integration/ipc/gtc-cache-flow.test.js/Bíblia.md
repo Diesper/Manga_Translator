@@ -56,11 +56,13 @@ Isso não torna a suíte inútil: ela documenta/valida um contrato legado simple
 
 ## 6. Achados e solicitações ao auditor
 
-- **110-001 — TEST_CLASSIFICATION_REVIEW — OPEN — HIGH:** o nome/cabeçalho falam em integração e “FLUXO COMPLETO”, mas a suíte não carrega produção. Reclassificar/documentar de forma que simulação não seja citada como prova real.
-- **110-002 — TEST_REQUIRED — OPEN — HIGH:** se este arquivo deve permanecer responsável por fluxo GTC, criar/usar teste que execute `content_manga.js`/bridge/IndexedDB reais e verifique `GTC_QUERY_MANY`, miss→fila, cache hit→replacement e `UPDATE_IMAGE`→`GTC_SAVE`; hoje essas provas estão dispersas em outras suítes.
-- **110-003 — ARCHITECTURE_DRIFT — OPEN:** decidir se a cobertura de `gtc_<hash>` deve ser explicitamente rotulada como fallback legado, porque o caminho primário atual usa runtime/IndexedDB e metadados perceptuais.
-- **110-004 — TEST_ASSERTION_QUALITY — OPEN:** o teste intitulado “Batch get vs N gets individuais (eficiência)” não executa N gets, não conta chamadas nem mede desempenho; ajustar a alegação ou adicionar prova correspondente.
-- **110-005 — CLEANUP — OPEN — LOW:** `const fs = require('fs')` não possui consumidor no arquivo.
+> **Lifecycle canônico:** os status abaixo refletem `docs/biblia/.state/110.json`; todos os cinco findings estão `ACCEPTED` e continuam como lacunas não bloqueantes de software/cobertura.
+
+- **110-001 — TEST_CLASSIFICATION_REVIEW — ACCEPTED — HIGH:** o nome/cabeçalho falam em integração e “FLUXO COMPLETO”, mas a suíte não carrega produção. Reclassificar/documentar de forma que simulação não seja citada como prova real.
+- **110-002 — TEST_REQUIRED — ACCEPTED — HIGH:** se este arquivo deve permanecer responsável por fluxo GTC, criar/usar teste que execute `content_manga.js`/bridge/IndexedDB reais e verifique `GTC_QUERY_MANY`, miss→fila, cache hit→replacement e `UPDATE_IMAGE`→`GTC_SAVE`; hoje essas provas estão dispersas em outras suítes.
+- **110-003 — ARCHITECTURE_DRIFT — ACCEPTED:** decidir se a cobertura de `gtc_<hash>` deve ser explicitamente rotulada como fallback legado, porque o caminho primário atual usa runtime/IndexedDB e metadados perceptuais.
+- **110-004 — TEST_ASSERTION_QUALITY — ACCEPTED:** o teste intitulado “Batch get vs N gets individuais (eficiência)” não executa N gets, não conta chamadas nem mede desempenho; ajustar a alegação ou adicionar prova correspondente.
+- **110-005 — CLEANUP — ACCEPTED — LOW:** `const fs = require('fs')` não possui consumidor no arquivo.
 
 ## 7. Fonte integral exata
 
