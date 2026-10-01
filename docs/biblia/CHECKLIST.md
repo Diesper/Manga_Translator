@@ -107,7 +107,7 @@
 - [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
 - [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
 - [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
-- [ ] 106 — `tests/integration/banned-images-flow.test.js` — CHANGES_REQUIRED
+- [ ] 106 — `tests/integration/banned-images-flow.test.js` — READY_FOR_AUDIT
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — CHANGES_REQUIRED
 - [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
 - [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
@@ -136,7 +136,7 @@
 - [ ] 132 — `tests/unit/background/batch-lifecycle-real.test.js` — READY_FOR_AUDIT
 - [ ] 133 — `tests/unit/background/calculate-visual-fingerprint-action.test.js` — READY_FOR_AUDIT
 - [ ] 134 — `tests/unit/background/chrome-runtime-mock-lifecycle.test.js` — READY_FOR_AUDIT
-- [ ] 135 — `tests/unit/background/claim-gemini-job-action.test.js` — CHANGES_REQUIRED
+- [ ] 135 — `tests/unit/background/claim-gemini-job-action.test.js` — READY_FOR_AUDIT
 - [ ] 136 — `tests/unit/background/commit-result-action.test.js` — READY_FOR_AUDIT
 - [ ] 137 — `tests/unit/background/deliver-result-action.test.js` — READY_FOR_AUDIT
 - [ ] 138 — `tests/unit/background/deliver-result-from-tab-action.test.js` — READY_FOR_AUDIT
