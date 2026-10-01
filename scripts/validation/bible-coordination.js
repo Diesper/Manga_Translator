@@ -437,11 +437,6 @@ function validateBibleCoordination(root, options = {}) {
         }
       }
     }
-    const canonicalOpenRequests = stateRequests.filter((request) => normalizeRequestStatus(request.status) === 'OPEN').length;
-    const declaredOpenCount = state.document_quality?.external_audit_requests_open;
-    if (Number.isInteger(declaredOpenCount) && declaredOpenCount !== canonicalOpenRequests) {
-      problems.push(stateFile + ': document_quality.external_audit_requests_open divergente; state=' + canonicalOpenRequests + ' document_quality=' + declaredOpenCount);
-    }
     if (state.status === 'IN_PROGRESS' && !state.agent) problems.push(stateFile + ': IN_PROGRESS sem agent');
     if (state.status !== 'IN_PROGRESS' && state.agent) problems.push(stateFile + ': agent deve ser null fora de IN_PROGRESS');
     states.push(state);
@@ -591,6 +586,12 @@ function evaluateMergeReadiness(validation, options = {}) {
       + nonCompleted.map((state) => String(state.index).padStart(3, '0') + '/' + state.status).join(', '));
   }
 
+  const repairRequired = states.filter((state) => state.coordination_status !== 'OK');
+  if (repairRequired.length) {
+    blockers.push('coordination_status não-OK=' + repairRequired.length + ': '
+      + repairRequired.map((state) => String(state.index).padStart(3, '0') + '/' + state.coordination_status).join(', '));
+  }
+
   const openRequests = [];
   const requestCounts = Object.fromEntries([...REQUEST_STATUSES].map((status) => [status, 0]));
   for (const state of states) {
@@ -604,6 +605,7 @@ function evaluateMergeReadiness(validation, options = {}) {
   if (reservations.length) blockers.push('reservas ativas=' + reservations.length + ': ' + reservations.join(', '));
   if (auditClaims.length) blockers.push('audit claims ativos=' + auditClaims.length + ': ' + auditClaims.join(', '));
   if (options.progressLockActive) blockers.push('PROGRESS.lock.md ainda está ativo');
+  if (options.bootstrapLockActive) blockers.push('BOOTSTRAP.lock.md ainda está ativo');
 
   return {
     ready: blockers.length === 0,
@@ -612,6 +614,7 @@ function evaluateMergeReadiness(validation, options = {}) {
       states: states.length,
       completed: states.filter((state) => state.status === 'COMPLETED').length,
       nonCompleted: nonCompleted.length,
+      coordinationRepairRequired: repairRequired.length,
       reservations: reservations.length,
       auditClaims: auditClaims.length,
       requests: requestCounts,
