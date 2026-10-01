@@ -477,11 +477,11 @@ describe('Temporary Chat — módulo semântico', () => {
 | Linhas | Papel |
 |---:|---|
 | 1–4 | cabeçalho |
-| 6–16 | path + loader isolado |
-| 18–32 | describe/setup |
-| 34–67 | findTempChatButton |
-| 69–155 | isAlreadyActive |
-| 157–185 | triggerClick |
+| 6–17 | path + loader isolado |
+| 18–33 | describe/setup |
+| 34–68 | findTempChatButton |
+| 69–156 | isAlreadyActive |
+| 157–186 | triggerClick |
 | 187–248 | ensureActive + remoção de fallback legado |
 | 249–250 | fechamento |
 | posição 251 | newline final |

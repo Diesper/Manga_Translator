@@ -61,7 +61,7 @@ function isContiguousFromOne(intervals) {
 
 function coverageScope(bible) {
   const normalized = normalizeText(bible);
-  const matches = [...normalized.matchAll(/^##\s+.*(?:cobertura|rastreabilidade|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi)];
+  const matches = [...normalized.matchAll(/^##\s+.*(?:cobertura[^\n]*(?:documental|linhas?|posi[cç]|faixa)|rastreabilidade|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi)];
   if (!matches.length) return normalized;
   const start = matches[matches.length - 1].index;
   const rest = normalized.slice(start);

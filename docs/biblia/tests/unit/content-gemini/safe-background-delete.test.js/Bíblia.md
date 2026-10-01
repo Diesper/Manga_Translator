@@ -567,21 +567,21 @@ describe('content_gemini.js - modo background_delete', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–12 | imports, helper de métricas e describe |
+| 1–13 | imports, helper de métricas e describe |
 | 14–29 | setup/cleanup |
-| 31–39 | BGD-01 |
-| 41–58 | BGD-02 |
-| 60–65 | BGD-03 |
-| 67–82 | BGD-04 |
-| 84–99 | BGD-05 |
-| 101–116 | BGD-06 |
-| 118–127 | BGD-07 |
-| 129–149 | BGD-08 |
-| 151–156 | BGD-09 |
-| 158–184 | BGD-10 |
-| 186–201 | BGD-11 |
-| 203–235 | BGD-12 |
-| 237–268 | BGD-13 |
+| 31–40 | BGD-01 |
+| 41–59 | BGD-02 |
+| 60–66 | BGD-03 |
+| 67–83 | BGD-04 |
+| 84–100 | BGD-05 |
+| 101–117 | BGD-06 |
+| 118–128 | BGD-07 |
+| 129–150 | BGD-08 |
+| 151–157 | BGD-09 |
+| 158–185 | BGD-10 |
+| 186–202 | BGD-11 |
+| 203–236 | BGD-12 |
+| 237–269 | BGD-13 |
 | 270–284 | BGD-14 |
 | 285 | fecha describe |
 | posição 286 | newline final |

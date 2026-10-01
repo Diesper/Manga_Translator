@@ -317,9 +317,9 @@ describe('background/state.js - API de estado serializada', () => {
 | 7 | import do storage mock |
 | 9–20 | describe + beforeEach carregando state.js real |
 | 22–24 | afterEach |
-| 26–50 | patch/sync + espelhos legados |
-| 52–82 | restore de mt_state |
-| 84–94 | restore sem mt_state |
+| 26–51 | patch/sync + espelhos legados |
+| 52–83 | restore de mt_state |
+| 84–95 | restore sem mt_state |
 | 96–109 | proteção de pendingBatches contra mutação externa |
 | 110 | fecha describe |
 | posição 111 | newline final |
