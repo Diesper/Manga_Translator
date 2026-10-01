@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/router.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** d7c33bc525e1683acabff44389c5d51471cc7037  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest da infraestrutura central de roteamento  
@@ -27,7 +27,7 @@ Uma action content/async:false com validator válido devolve tabId do sender. O 
 
 ## 4. Gate de origem
 
-Quando a mesma action aceita somente content e o sender é popup, execute permanece sem chamada e a resposta é SOURCE_DENIED com keepAlive:false. A ordem origem → validate/execute é portanto diretamente provada para este cenário.
+Quando a mesma action aceita somente content e o sender é popup, `execute` permanece sem chamada e a resposta é `SOURCE_DENIED` com `keepAlive:false`. **Isso prova diretamente que origem negada bloqueia `execute`**. Este cenário não instala `validate` observável, portanto não prova sozinho a ordem causal completa origem → validate → execute.
 
 ## 5. Gate de validação
 
@@ -67,7 +67,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 
 ## 11. Solicitações ao auditor
 
-### 166-001 — TEST_REQUIRED — OPEN — NORMAL
+### 166-001 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: o caso de INVALID_PAYLOAD registra execute: jest.fn(), mas não exige execute.not.toHaveBeenCalled().
 
@@ -75,7 +75,7 @@ Evidência ausente: assertion explícita de que validator inválido encerra o fl
 
 Risco: uma regressão poderia executar efeitos após responder erro de validação e a resposta testada ainda parecer correta.
 
-### 166-002 — TEST_REQUIRED — OPEN — NORMAL
+### 166-002 — TEST_REQUIRED — SUPERSEDED → 031-003 — NORMAL
 
 Encontrado: os catches ACTION_ERROR para execute síncrono que lança e execute assíncrono que rejeita não possuem prova focal localizada.
 
@@ -83,7 +83,7 @@ Evidência ausente: um caso async:false lançando Error e outro async rejeitando
 
 Risco: exceções podem escapar do listener, perder resposta ou alterar keepAlive sem serem detectadas.
 
-### 166-003 — TEST_REQUIRED — OPEN — LOW
+### 166-003 — TEST_REQUIRED — ACCEPTED — LOW
 
 Encontrado: quando resolveActionName encontra mapping, mas actionRegistry não contém definição, o router loga ACTION_NOT_FOUND e retorna false sem responder. Esse ramo não é exercitado.
 
@@ -1394,4 +1394,4 @@ describe('background/router.js', () => {
 
 ## 14. Conclusão documental
 
-Foram documentadas 161 linhas textuais e a posição 162 do newline final. O mesmo blob está verde em Node 20/22; as três lacunas abertas são branches de proteção do router, não contradições dos seis contratos diretamente provados.
+Foram documentadas 161 linhas textuais e a posição 162 do newline final. O mesmo blob está verde em Node 20/22. No lifecycle canônico: 166-001 e 166-003 estão ACCEPTED; 166-002 está SUPERSEDED por `031-003`. Essas lacunas continuam documentadas sem serem tratadas como requests OPEN.
