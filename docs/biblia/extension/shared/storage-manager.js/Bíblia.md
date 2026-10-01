@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/shared/storage-manager.js`
 
 > **Estado:** 🟡 CORRIGIDO — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `d1cd5a2c83ed5fe5a36e67966ea835806b863395`  
+> **SHA auditado:** `5d8c1d7fa1083b8c869f1ca6078a164fb4ad89fc`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — persistência IndexedDB do Manga Translator  
 > **Runtime principal:** Chromium MV3 Service Worker / páginas internas da extensão  
@@ -32,7 +32,7 @@ O desenho separa **metadados** de **bytes da imagem**. Popup/reader podem listar
 
 ### 3.1 Save atômico
 
-`savePageResult()` valida capítulo/índice, entra na fila do capítulo, gera novo assetId, converte Data URL para Blob e abre uma única transaction readwrite sobre `assets`, `chapterPages`, `restoreEntries` e `chapters`. Antes de gravar, encontra os assets que serão substituídos; depois grava novo asset/página/restore, remove assets obsoletos e atualiza o capítulo. O retorno só ocorre após `_idbTxComplete(tx)`.
+`savePageResult()` valida capítulo/índice, entra na fila do capítulo, gera novo assetId, converte Data URL para Blob e abre uma única transaction readwrite sobre `assets`, `chapterPages`, `restoreEntries` e `chapters`. Antes de gravar, encontra os assets que serão substituídos e, se a mesma página mudou de `cleanUrl`, agenda a remoção do restore da URL anterior; depois grava novo asset/página/restore, remove assets obsoletos e atualiza o capítulo. O retorno só ocorre após `_idbTxComplete(tx)`.
 
 ### 3.2 Leitura lazy
 
@@ -44,7 +44,7 @@ O desenho separa **metadados** de **bytes da imagem**. Popup/reader podem listar
 
 ### 3.4 Migração legada
 
-A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapter>_restoreMap` e `<chapter>_restoreMeta`. Páginas são migradas primeiro; restores sem página recebem índices negativos temporários. Ao final grava a flag e, se pelo menos um item migrou, remove as três chaves legadas.
+A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapter>_restoreMap` e `<chapter>_restoreMeta`. Páginas são migradas primeiro; restores sem página recebem índices negativos temporários. Se qualquer `savePageResult` falhar, retorna imediatamente `{ failed: true }` antes da flag e do cleanup; somente um percurso sem falha chega à gravação da flag e, se houve migração, à remoção das três chaves legadas.
 
 ## 4. Evidências automatizadas auditadas
 
@@ -71,11 +71,11 @@ A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapt
 
 ## 5. Lacunas de teste e riscos
 
-1. **⚠️ Migração parcial pode consolidar perda.** Cada `savePageResult` da migração é envolvido por `try/catch` e a função continua. Mesmo com falhas, a flag `_sm_migrated_<chapterId>` é escrita no final. Se ao menos uma página migrou, todas as chaves legadas são removidas, inclusive dados de páginas que falharam. Teste necessário: forçar falha em uma de N páginas e verificar que flag/cleanup não apagam o restante.
-2. **⚠️ Troca de `cleanUrl` pode deixar restore órfão.** Ao sobrescrever a mesma `[chapterId,pageIndex]` com nova cleanUrl, o código marca o asset da página antiga como obsoleto, mas não remove a entrada restore da cleanUrl antiga. Essa entrada pode continuar apontando para o asset já deletado. Teste necessário: save URL A → mesma página URL B → garantir ausência de A no restoreIndex.
+1. **🟨 Migração parcial agora aborta antes da flag/cleanup, mas falta regressão focal.** Cada falha de `savePageResult` retorna `{ failed: true }` imediatamente; por isso as chaves legadas permanecem disponíveis para retry e a flag não é consolidada. Ainda é necessário um teste que force falha em uma de N páginas e confirme ausência de flag/cleanup.
+2. **🟨 Troca de `cleanUrl` remove o restore anterior na mesma transaction, mas falta regressão focal.** Ao sobrescrever a mesma `[chapterId,pageIndex]`, a linha 193 deleta `[chapterId, previousPage.cleanUrl]` quando a URL mudou. Teste necessário: save URL A → mesma página URL B → garantir ausência de A no restoreIndex e asset antigo inexistente.
 3. **⚠️ `deleteByCleanUrl()` não usa a fila por capítulo.** Um refazer pode correr com `savePageResult()` e intercalar read/write em transactions distintas. Teste necessário: Promise concorrente de save/delete na mesma cleanUrl e invariantes finais.
-4. **⚠️ `openStorageDb()` pode cachear rejeição permanente se IDB estiver ausente na primeira chamada.** No ramo `!idb`, a Promise é rejeitada sem zerar `_smDbPromise`. Teste necessário: primeira chamada sem indexedDB, instalar fake IDB, segunda chamada deve conseguir abrir.
-5. **⚠️ `_chapterWriters` nunca remove entradas concluídas.** O Map mantém uma Promise settled por chapterId até o worker morrer. Em MV3 a suspensão limita o impacto, mas uma sessão longa com muitos capítulos cresce monotonicamente. Teste/telemetria de cardinalidade não existe.
+4. **🟨 `openStorageDb()` agora limpa `_smDbPromise` antes de rejeitar quando IDB está ausente.** Isso permite uma tentativa posterior no mesmo processo; ainda falta regressão focal: primeira chamada sem indexedDB, instalar fake IDB, segunda chamada deve conseguir abrir.
+5. **🟨 `_chapterWriters` agora remove a cauda concluída condicionalmente.** O `finally` só deleta a chave se o valor ainda for a mesma Promise-tail, preservando uma operação mais nova já enfileirada. Falta teste/telemetria de cardinalidade para muitos chapterIds.
 6. **⚠️ Restores órfãos da migração viram páginas com índices negativos.** `getChapterPageIndex`, `getChapterPageCount` e `getChaptersStats` não filtram negativos, então metadados/popup podem contar restores sem página como páginas reais.
 7. **⚠️ `pageIndex` aceita negativos e fracionários.** `savePageResult` usa `Number.isFinite`, não `>=0 && integer`. Isso é deliberadamente usado pela migração para órfãos, mas mistura duas categorias no mesmo store.
 8. **⚠️ Falhas/abort de IndexedDB não têm fault-injection específico.** Smoke prova o caminho feliz e atomicidade observada, mas não prova rollback quando `put/delete`/transaction falham.
@@ -134,7 +134,7 @@ Asset IDs de fallback usam tempo + `Math.random`; não devem ser interpretados c
 
 A arquitetura corrige de forma convincente o problema original de Base64 duplicado e read-modify-write: os smoke tests reais demonstram overwrite sem asset órfão e dez saves concorrentes sobrevivendo. O desenho de metadados separados dos blobs também é adequado para popup/reader.
 
-O ponto mais delicado é a migração. O comentário promete que chaves antigas só são removidas depois que a gravação nova confirmou; porém a confirmação é avaliada **por item**, enquanto o cleanup ocorre **por capítulo**. Uma falha parcial pode portanto violar a intenção declarada. A segunda fragilidade é a fronteira entre fila serializada e operações que não entram nela (`deleteByCleanUrl`).
+O ponto mais delicado continua sendo a migração, mas a falha parcial deixou de consolidar perda: qualquer exceção de `savePageResult` retorna antes de flag/cleanup, preservando o legado para retry. A troca de `cleanUrl` também remove o restore anterior na transaction do save. Permanecem sem regressão focal esses dois reparos e a fronteira entre fila serializada e operações que não entram nela (`deleteByCleanUrl`).
 
 ## 10. Fonte integral auditada
 
@@ -189,7 +189,7 @@ function openStorageDb() {
     _smDbPromise = new Promise((resolve, reject) => {
         const idb = getIndexedDb();
         if (!idb || typeof idb.open !== 'function') {
-            reject(new Error('IndexedDB indisponível neste contexto'));
+            _smDbPromise = null; reject(new Error('IndexedDB indisponível neste contexto'));
             return;
         }
         const req = idb.open(SM_DB_NAME, SM_DB_VERSION);
@@ -297,10 +297,10 @@ const _chapterWriters = new Map();
 function enqueueChapterOp(chapterId, operation) {
     const previous = _chapterWriters.get(chapterId) || Promise.resolve();
     const next = previous.then(() => operation(), () => operation());
-    _chapterWriters.set(chapterId, next.catch(() => {}));
-    return next;
+    const tail = next.catch(() => {});
+    _chapterWriters.set(chapterId, tail);
+    tail.finally(() => { if (_chapterWriters.get(chapterId) === tail) _chapterWriters.delete(chapterId); }); return next;
 }
-
 // ── API ──────────────────────────────────────────────────────────────────────
 
 /**
@@ -331,11 +331,11 @@ async function savePageResult(chapterId, pageIndex, imageData, originalUrl, clea
         const obsolete = new Set();
         const previousPage = await _idbGet(pageStore, [chapterId, index]);
         if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);
+        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) restoreStore.delete([chapterId, previousPage.cleanUrl]);
         if (cleanUrl) {
             const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);
             if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);
         }
-
         assetStore.put({
             assetId,
             blob,
@@ -589,7 +589,7 @@ async function migrateChapterFromLegacy(chapterId) {
                 sourceUrl: meta.sourceUrl || '',
             });
             migrated++;
-        } catch (_e) { /* segue para a próxima página */ }
+        } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
     // Restores sem página correspondente
@@ -608,7 +608,7 @@ async function migrateChapterFromLegacy(chapterId) {
                 sourceUrl: meta.sourceUrl || '',
             });
             migrated++;
-        } catch (_e) {}
+        } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
     await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));
@@ -1113,12 +1113,12 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0051
 
-**Fonte:** `reject(new Error('IndexedDB indisponível neste contexto'));`  
-**O que faz:** Rejeita explicitamente a abertura quando IndexedDB não existe nesse contexto.  
-**Como faz:** Entrega `Error('IndexedDB indisponível neste contexto')` ao executor da Promise e retorna sem chamar `idb.open`.  
+**Fonte:** `_smDbPromise = null; reject(new Error('IndexedDB indisponível neste contexto'));`  
+**O que faz:** Limpa a Promise de abertura cacheada e rejeita explicitamente quando IndexedDB não existe nesse contexto.  
+**Como faz:** Define `_smDbPromise = null` antes de entregar `Error('IndexedDB indisponível neste contexto')`; a linha seguinte retorna sem chamar `idb.open`.  
 **Por que assim:** Falhar cedo evita que operações posteriores tentem usar uma API inexistente.  
-**Risco/alternativa:** Como `_smDbPromise` já referencia essa Promise rejeitada, esse ramo pode ficar cacheado até o worker reiniciar; não há teste de recuperação.  
-**Evidência:** ✅ PROVADO EM SMOKE/E2E PARA CAMINHO FELIZ — smoke-03/04 e E2E usam os quatro stores criados; fault de open/upgrade/versionchange não é injetado.
+**Risco/alternativa:** A rejeição já não fica cacheada; porém a recuperação na mesma sessão ainda não possui teste focal.  
+**Evidência:** 🟨 SOURCE CORRIGIDO; REGRESSÃO DE RECUPERAÇÃO AINDA NÃO ISOLADA — smoke/E2E cobrem abertura feliz, não a sequência sem-IDB → retry.
 
 ### Linha 0052
 
@@ -2085,38 +2085,38 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0159
 
-**Fonte:** `_chapterWriters.set(chapterId, next.catch(() => {}));`  
-**O que faz:** Captura a falha da tentativa anterior.  
-**Como faz:** Converte a exceção em fallback ou continua migração conforme o contrato local.  
+**Fonte:** `const tail = next.catch(() => {});`  
+**O que faz:** Cria uma Promise-tail resolvida mesmo quando `next` rejeita, usada apenas para encadear a próxima operação.  
+**Como faz:** `next.catch(() => {})` impede que uma falha anterior bloqueie a fila; o caller continua recebendo `next`, não `tail`.  
 **Por que assim:** evita corrida read-modify-write e ordena troca de assets por capítulo.  
-**Risco/alternativa:** Capturar sem registrar pode esconder falha parcial; isso é especialmente sensível na migração.  
+**Risco/alternativa:** A supressão ocorre só na cauda interna; o erro original continua observável pelo caller via `next`.  
 **Evidência:** ✅ PROVADO DIRETAMENTE PARA SAVES CONCORRENTES — smoke-03 dispara 10 savePageResult concorrentes no mesmo capítulo e comprova 10/10 páginas.
 
 ### Linha 0160
 
-**Fonte:** `return next;`  
-**O que faz:** Retorna `return next;`.  
-**Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
+**Fonte:** `_chapterWriters.set(chapterId, tail);`  
+**O que faz:** Publica a Promise-tail como cauda atual do capítulo.  
+**Como faz:** A próxima operação obtém essa cauda e só inicia depois que ela settle.  
 **Por que assim:** evita corrida read-modify-write e ordena troca de assets por capítulo.  
-**Risco/alternativa:** Map não remove Promises concluídas; operações fora da fila podem correr contra saves.  
+**Risco/alternativa:** A chave só pode ser removida pelo `finally` seguinte se nenhuma operação mais nova substituiu a cauda.  
 **Evidência:** ✅ PROVADO DIRETAMENTE PARA SAVES CONCORRENTES — smoke-03 dispara 10 savePageResult concorrentes no mesmo capítulo e comprova 10/10 páginas.
 
 ### Linha 0161
 
-**Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática de **fila serializada por capítulo** com `}`.  
-**Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
+**Fonte:** `tail.finally(() => { if (_chapterWriters.get(chapterId) === tail) _chapterWriters.delete(chapterId); }); return next;`  
+**O que faz:** Agenda cleanup condicional da cauda e devolve a Promise original da operação.  
+**Como faz:** No settle de `tail`, remove a chave apenas se ela ainda aponta para a mesma cauda; se outra operação foi enfileirada, preserva o valor novo. O retorno de `next` mantém sucesso/erro real para o caller.  
 **Por que assim:** evita corrida read-modify-write e ordena troca de assets por capítulo.  
-**Risco/alternativa:** Map não remove Promises concluídas; operações fora da fila podem correr contra saves.  
-**Evidência:** ✅ PROVADO DIRETAMENTE PARA SAVES CONCORRENTES — smoke-03 dispara 10 savePageResult concorrentes no mesmo capítulo e comprova 10/10 páginas.
+**Risco/alternativa:** Cleanup de cardinalidade não possui teste focal; operações que nunca entram na fila, como `deleteByCleanUrl`, continuam fora desta garantia.  
+**Evidência:** 🟨 SERIALIZAÇÃO PROVADA; CLEANUP NOVO NÃO ISOLADO — smoke-03 prova 10 saves, mas não inspeciona cardinalidade de `_chapterWriters`.
 
 ### Linha 0162
 
-**Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Mantém uma posição vazia em **fila serializada por capítulo**.  
-**Como faz:** Não executa lógica; separa blocos e preserva a posição física do fonte.  
-**Por que assim:** Facilita auditoria linha a linha sem alterar semântica.  
-**Risco/alternativa:** Remover só mudaria rastreabilidade/legibilidade.  
+**Fonte:** `}`  
+**O que faz:** Fecha a função `enqueueChapterOp`.  
+**Como faz:** Encerra o escopo aberto na linha 156 depois do retorno configurado na linha 161.  
+**Por que assim:** Mantém a fila encapsulada antes do início da API pública.  
+**Risco/alternativa:** Sem risco funcional isolado; mudanças neste fechamento afetam apenas sintaxe/escopo.  
 **Evidência:** ✅ PROVADO DIRETAMENTE PARA SAVES CONCORRENTES — smoke-03 dispara 10 savePageResult concorrentes no mesmo capítulo e comprova 10/10 páginas.
 
 ### Linha 0163
@@ -2391,47 +2391,47 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0193
 
-**Fonte:** `if (cleanUrl) {`  
-**O que faz:** Aplica a guarda `if (cleanUrl) {`.  
-**Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
+**Fonte:** `if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) restoreStore.delete([chapterId, previousPage.cleanUrl]);`  
+**O que faz:** Remove a entrada restore da URL anterior quando a mesma página muda de `cleanUrl`.  
+**Como faz:** Compara `previousPage.cleanUrl` com a nova `cleanUrl` e agenda `delete([chapterId, previousPage.cleanUrl])` na mesma transaction do overwrite.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
-**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
+**Risco/alternativa:** O bug de restore órfão foi corrigido no source, mas a troca A→B ainda não possui regressão focal; abort da transaction também não é injetado.  
+**Evidência:** 🟨 SOURCE CORRIGIDO; CLEANURL-CHANGE AINDA NÃO ISOLADO — smoke atual sobrescreve usando a mesma cleanUrl.
 
 ### Linha 0194
 
-**Fonte:** `const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);`  
-**O que faz:** Inicializa `previousRestore` com `await _idbGet(restoreStore, [chapterId, cleanUrl]);`.  
-**Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
+**Fonte:** `if (cleanUrl) {`  
+**O que faz:** Entra no branch que consulta/substitui restore somente quando existe nova `cleanUrl`.  
+**Como faz:** Evita criar/consultar restore para URL vazia, mantendo a página persistida sem auto-restore.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
 **Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0195
 
-**Fonte:** `if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);`  
-**O que faz:** Aplica a guarda `if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);`.  
-**Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
+**Fonte:** `const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);`  
+**O que faz:** Lê eventual restore já existente para a nova `cleanUrl`.  
+**Como faz:** Consulta a chave composta `[chapterId, cleanUrl]` dentro da mesma transaction.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
 **Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0196
 
-**Fonte:** `}`  
-**O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `}`.  
-**Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
+**Fonte:** `if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);`  
+**O que faz:** Marca o asset do restore anterior para remoção quando a nova cleanUrl já possuía registro.  
+**Como faz:** Adiciona `previousRestore.assetId` ao Set `obsolete`, deduplicando com o asset da página anterior.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
 **Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0197
 
-**Fonte:** ␠ [posição vazia/newline]  
-**O que faz:** Mantém uma posição vazia em **savePageResult transacional**.  
-**Como faz:** Não executa lógica; separa blocos e preserva a posição física do fonte.  
-**Por que assim:** Facilita auditoria linha a linha sem alterar semântica.  
-**Risco/alternativa:** Remover só mudaria rastreabilidade/legibilidade.  
+**Fonte:** `}`  
+**O que faz:** Fecha o branch `if (cleanUrl)` aberto na linha 194.  
+**Como faz:** Encerra a consulta/coleção de asset obsoleto antes do novo `assetStore.put`.  
+**Por que assim:** Separa a preparação de substituições da gravação do novo asset.  
+**Risco/alternativa:** Sem efeito funcional isolado além de delimitar o branch.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0198
@@ -4713,12 +4713,12 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0451
 
-**Fonte:** `} catch (_e) { /* segue para a próxima página */ }`  
-**O que faz:** Captura a falha da tentativa anterior.  
-**Como faz:** Converte a exceção em fallback ou continua migração conforme o contrato local.  
+**Fonte:** `} catch (_e) { return { migrated, skipped: false, failed: true }; }`  
+**O que faz:** Captura a falha do `savePageResult` deste item e encerra a migração como falha parcial.  
+**Como faz:** Retorna `{ migrated, skipped: false, failed: true }` imediatamente; com isso o fluxo não alcança a flag nem o cleanup legado nas linhas 473–476.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** Capturar sem registrar pode esconder falha parcial; isso é especialmente sensível na migração.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** A causa original ainda não é retornada/logada e não há regressão focal de fault injection; porém o legado deixa de ser apagado após falha.  
+**Evidência:** 🟨 CAMINHO FELIZ PROVADO; NOVO FAIL-SAFE AINDA NÃO ISOLADO — smoke-04 não força `savePageResult` a falhar durante migração.
 
 ### Linha 0452
 
@@ -4884,12 +4884,12 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0470
 
-**Fonte:** `} catch (_e) {}`  
-**O que faz:** Captura a falha da tentativa anterior.  
-**Como faz:** Converte a exceção em fallback ou continua migração conforme o contrato local.  
+**Fonte:** `} catch (_e) { return { migrated, skipped: false, failed: true }; }`  
+**O que faz:** Captura a falha do `savePageResult` deste item e encerra a migração como falha parcial.  
+**Como faz:** Retorna `{ migrated, skipped: false, failed: true }` imediatamente; com isso o fluxo não alcança a flag nem o cleanup legado nas linhas 473–476.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** Capturar sem registrar pode esconder falha parcial; isso é especialmente sensível na migração.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** A causa original ainda não é retornada/logada e não há regressão focal de fault injection; porém o legado deixa de ser apagado após falha.  
+**Evidência:** 🟨 CAMINHO FELIZ PROVADO; NOVO FAIL-SAFE AINDA NÃO ISOLADO — smoke-04 não força `savePageResult` a falhar durante migração.
 
 ### Linha 0471
 
