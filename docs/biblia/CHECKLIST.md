@@ -112,7 +112,7 @@
 - [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
 - [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
 - [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — READY_FOR_AUDIT
-- [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — READY_FOR_AUDIT
+- [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — CHANGES_REQUIRED
 - [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — READY_FOR_AUDIT
 - [ ] 113 — `tests/integration/options.ui.test.js` — READY_FOR_AUDIT
 - [ ] 114 — `tests/integration/performance.test.js` — READY_FOR_AUDIT
