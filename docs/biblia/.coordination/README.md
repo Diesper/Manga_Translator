@@ -270,3 +270,22 @@ O segundo preserva o contrato estrutural legado do PR:
 - nenhum lock global residual.
 
 Portanto a auditoria escala sem serialização global, enquanto a projeção final de compatibilidade pode ser feita em lote por qualquer agente/auditor antes do merge. A CI do SHA final também deve estar verde.
+
+## Revisão da própria Bíblia
+
+Desde a migração de revision binding, a unidade canônica de auditoria é:
+
+```text
+(index, SOURCE_SHA, BIBLE_SHA, PHASE)
+```
+
+`audit-bible-baseline.json` permite consumir resultados schema v1 já publicados sem perder trabalho. Qualquer edição posterior da Bíblia altera seu Git blob SHA e invalida automaticamente resultados antigos daquela revisão. Novas publicações devem usar schema v2 com `bible_sha`.
+
+A reconciliação em lote é feita por:
+
+```bash
+node docs/biblia/.coordination/reconcile-audit-results.js --check
+node docs/biblia/.coordination/reconcile-audit-results.js --write
+```
+
+O modo `--write` é idempotente e deve ser commitado usando o mesmo protocolo READ LATEST → VERIFY → CONDITIONAL WRITE do restante da coordenação.
