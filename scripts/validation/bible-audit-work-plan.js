@@ -67,6 +67,14 @@ function classifyAuditClaims(root, auditClaims = [], nowMs = Date.now()) {
   return { active, recoverable };
 }
 
+function nextPhaseForPipeline(pipeline) {
+  if (pipeline?.next_phase) return pipeline.next_phase;
+  if (!pipeline?.primary) return 'PRIMARY';
+  if (!pipeline.adversarial) return 'ADVERSARIAL';
+  if (pipeline.divergent && !pipeline.reaudit) return 'REAUDIT';
+  return null;
+}
+
 function allowedForPhase(state, phase) {
   if (phase === 'PRIMARY') return state.status === 'READY_FOR_AUDIT';
   if (phase === 'ADVERSARIAL' || phase === 'REAUDIT') {
@@ -96,7 +104,7 @@ function planAuditWork({
   for (const state of states || []) {
     if (claimed.has(state.index)) continue;
     const pipeline = pipelines instanceof Map ? pipelines.get(state.index) : null;
-    const nextPhase = pipeline?.next_phase || null;
+    const nextPhase = nextPhaseForPipeline(pipeline);
     if (!nextPhase) continue;
     if (normalizedPhase !== 'AUTO' && nextPhase !== normalizedPhase) continue;
     if (!allowedForPhase(state, nextPhase)) continue;
@@ -228,6 +236,7 @@ module.exports = {
   isExpiredClaimSource,
   classifyAuditClaims,
   listCoordinationClaimsAndLeases,
+  nextPhaseForPipeline,
   allowedForPhase,
   planAuditWork,
 };
