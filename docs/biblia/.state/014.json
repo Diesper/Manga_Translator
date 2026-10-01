@@ -2,11 +2,11 @@
   "index": 14,
   "file": "extension/background/actions/force-send-activation.js",
   "bible": "docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "cbeea5768301008e363a087a1daf636deabb9076",
   "started_at_utc": "2026-09-30T12:38:00Z",
-  "completed_at_utc": "2026-09-30T12:44:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "014-001",
@@ -62,7 +62,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T19:51:25.730Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T19:51:25.730Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "cbeea5768301008e363a087a1daf636deabb9076",
+      "reason": "014-REA-001/002: separar prova temporal e documentar loading/dispatch de produção."
+    }
+  ],
   "evidence": []
 }
