@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **131**
-- CHANGES_REQUIRED: **3**
+- READY_FOR_AUDIT: **132**
+- CHANGES_REQUIRED: **2**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **1**
@@ -130,7 +130,7 @@
 | 105 | tests/helpers/track-background-delay-timers.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
 | 106 | tests/integration/banned-images-flow.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
 | 107 | tests/integration/chapter-dedup.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | e62187cd957a2fe241e4e704aaa9f8285e89162e | 3 |
-| 108 | tests/integration/gtc-end-to-end.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
+| 108 | tests/integration/gtc-end-to-end.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
 | 109 | tests/integration/ipc/gemini-cors-fallback.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1f5a1236139d85640cb5fa24590f434859155c62 | 2 |
 | 110 | tests/integration/ipc/gtc-cache-flow.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | e6eb5c744499fcaa0309a187a173841c185bbaea | 5 |
 | 111 | tests/integration/ipc/gtc-indexeddb-deep.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 39d0542f9bad4ee59fe1939396e2fb3e41e2c38d | 3 |
