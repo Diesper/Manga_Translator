@@ -55,7 +55,7 @@ Os projects popup/reader/integration usam `testEnvironment: 'jsdom'` no Jest.
 5. reescreve o DOM removendo tags externas de script;
 6. opcionalmente intercepta listeners de `DOMContentLoaded`;
 7. dentro de `jest.isolateModules`, requer dependências na ordem HTML e depois o alvo;
-8. restaura `document.addEventListener`;
+8. substitui o interceptor por um wrapper bound de `document.addEventListener`, funcionalmente delegado ao EventTarget do documento, mas **não** pela mesma referência de função original;
 9. se solicitado, invoca sequencialmente os callbacks capturados;
 10. aguarda quatro rodadas de `setTimeout(0)`.
 
@@ -81,7 +81,7 @@ Os projects popup/reader/integration usam `testEnvironment: 'jsdom'` no Jest.
 4. módulos de cada carregamento precisam estar isolados pelo Jest;
 5. o histórico deve refletir pathname/query/hash solicitado antes do script rodar;
 6. listeners não-DOMContentLoaded continuam delegados ao EventTarget real;
-7. `document.addEventListener` original deve ser restaurado mesmo quando um `require` lança;
+7. após a carga, `document.addEventListener` deve deixar de apontar para o interceptor temporário mesmo quando um `require` lança; a implementação atual reassocia um wrapper criado por `document.addEventListener.bind(document)`, portanto preserva delegação funcional, não identidade de referência;
 8. callbacks capturados devem manter a ordem de registro;
 9. tarefas assíncronas recebem uma janela determinística curta para avançar;
 10. o helper não deve modificar fontes/fixtures em disco.
@@ -116,11 +116,11 @@ Quatro `setTimeout(0)` cobrem cadeias curtas, não constituem prova de quiescên
 
 ## 7. Solicitações ao auditor
 
-### 103-001 — TEST_REQUIRED — OPEN
+### 103-001 — TEST_REQUIRED — ACCEPTED
 
 Criar teste focal do helper em jsdom cobrindo `stripExternalScripts`, ordem de dependências, alvo ausente, URL/query/hash, restauração de `addEventListener`, caminhos com/sem `fireDOMContentLoaded` e comportamento de `flushAsyncTasks`. Hoje a prova é predominantemente indireta via consumidores.
 
-### 103-002 — HARNESS_SEMANTICS_REVIEW — OPEN
+### 103-002 — HARNESS_SEMANTICS_REVIEW — ACCEPTED
 
 Definir explicitamente quanta fidelidade ao EventTarget real é necessária no caminho sintético de `DOMContentLoaded`. Se callbacks objeto, `this=document`, opções `once/signal` ou não-await de promises forem parte do contrato, ajustar helper/testes em alteração separada; se não forem, documentar a simplificação como intencional.
 
@@ -850,11 +850,11 @@ module.exports = {
 
 **Fonte:** `            document.addEventListener = originalAddEventListener;`
 
-**Função:** Restaura `document.addEventListener` original.
+**Função:** Remove o interceptor temporário reassociando `document.addEventListener` ao wrapper bound capturado na posição 47. Esse wrapper delega ao método original com `document` já vinculado, mas não é a mesma referência de função existente antes do `bind`.
 
 **Racional técnico:** Mantém o harness determinístico: DOM real da extensão, execução manual dos scripts e controle explícito do momento assíncrono.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — opções/popup/reader usam `fireDOMContentLoaded: true` e validam efeitos produzidos pelos handlers reais.
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — consumers com `fireDOMContentLoaded: true` continuam operando após a carga, o que é compatível com a delegação funcional; ⚠️ não há assertion focal de identidade da função, e a implementação atual não preserva essa identidade.
 
 ### Linha/posição 65
 
@@ -914,7 +914,7 @@ module.exports = {
 
 **Racional técnico:** Mantém o harness determinístico: DOM real da extensão, execução manual dos scripts e controle explícito do momento assíncrono.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — opções/popup/reader usam `fireDOMContentLoaded: true` e validam efeitos produzidos pelos handlers reais.
+**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — `tests/integration/reader.ui.test.js` chama `loadExtensionPage(...)` sem fornecer `fireDOMContentLoaded`, portanto usa o default `false` e executa este ramo antes de fazer assertions reais no DOM do reader.
 
 ### Linha/posição 71
 
@@ -1084,3 +1084,4 @@ module.exports = {
 - Consumidores reais e páginas HTML foram cruzados no branch.
 - Evidência direta não foi inventada: usos de consumidores foram classificados como execução indireta.
 - Lacunas externas registradas no state; nenhum teste, fixture ou fonte foi alterado.
+- Reparo pós-auditoria: identidade de `addEventListener`, evidência do ramo `fireDOMContentLoaded=false` e lifecycle das requests foram corrigidos; o item deve ser reavaliado por auditor independente antes de `COMPLETED`.
