@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/safe-background-delete.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e`  
 > **Agente responsável:** AGENTE 17  
 > **Tipo:** suíte Jest autêntica via facade CommonJS do content_gemini  
@@ -231,7 +231,7 @@ O arquivo `job-runner.test.js` possui testes do pipeline com deletionController 
 
 ## 16. Solicitações ao auditor
 
-### 188-001 — TEST_SCOPE_REVIEW — OPEN
+### 188-001 — TEST_SCOPE_REVIEW — ACCEPTED
 
 **Encontrado:** o nome da suíte “safe-background-delete” sugere validação da exclusão segura, mas #188 não chama `deleteCurrentConversation()` nem `deleteOrScheduleRecovery()`.
 
@@ -245,7 +245,7 @@ O arquivo `job-runner.test.js` possui testes do pipeline com deletionController 
 
 **Severidade:** NORMAL.
 
-### 188-002 — TEST_STRENGTH_REVIEW — OPEN
+### 188-002 — TEST_STRENGTH_REVIEW — ACCEPTED
 
 **Encontrado:** BGD-09 afirma que o timeout remove listener, mas só verifica a rejeição.
 
@@ -259,7 +259,7 @@ O arquivo `job-runner.test.js` possui testes do pipeline com deletionController 
 
 **Severidade:** NORMAL.
 
-### 188-003 — STALE_TEST_CONTRACT — OPEN
+### 188-003 — STALE_TEST_CONTRACT — ACCEPTED
 
 **Encontrado:** BGD-14 declara repetir a cadeia antes de “permitir o último recurso”, mas chama apenas `extractResultImageWithRetry()`, que não executa fallback auxiliar.
 
@@ -567,23 +567,46 @@ describe('content_gemini.js - modo background_delete', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–13 | imports, helper de métricas e describe |
-| 14–29 | setup/cleanup |
-| 31–40 | BGD-01 |
-| 41–59 | BGD-02 |
-| 60–66 | BGD-03 |
-| 67–83 | BGD-04 |
-| 84–100 | BGD-05 |
-| 101–117 | BGD-06 |
-| 118–128 | BGD-07 |
-| 129–150 | BGD-08 |
-| 151–157 | BGD-09 |
-| 158–185 | BGD-10 |
-| 186–202 | BGD-11 |
-| 203–236 | BGD-12 |
-| 237–269 | BGD-13 |
-| 270–284 | BGD-14 |
-| 285 | fecha describe |
+| 1–2 | imports do loader/content e mock de storage |
+| 3 | transição estrutural |
+| 4–11 | helper `installImageMetrics` |
+| 12 | transição estrutural |
+| 13 | abertura do `describe` |
+| 14–15 | estado local da suíte |
+| 16 | transição estrutural |
+| 17–22 | `beforeEach` / setup |
+| 23 | transição estrutural |
+| 24–29 | `afterEach` / cleanup |
+| 30 | transição estrutural |
+| 31–37 | BGD-01 |
+| 38 | transição estrutural |
+| 39–57 | BGD-02 |
+| 58 | transição estrutural |
+| 59–64 | BGD-03 |
+| 65 | transição estrutural |
+| 66–80 | BGD-04 |
+| 81 | transição estrutural |
+| 82–96 | BGD-05 |
+| 97 | transição estrutural |
+| 98–112 | BGD-06 |
+| 113 | transição estrutural |
+| 114–122 | BGD-07 |
+| 123 | transição estrutural |
+| 124–141 | BGD-08 |
+| 142 | transição estrutural |
+| 143–148 | BGD-09 |
+| 149 | transição estrutural |
+| 150–174 | BGD-10 |
+| 175 | transição estrutural |
+| 176–189 | BGD-11 |
+| 190 | transição estrutural |
+| 191–222 | BGD-12 |
+| 223 | transição estrutural |
+| 224–256 | BGD-13 |
+| 257 | transição estrutural |
+| 258–283 | BGD-14 |
+| 284 | fechamento do `describe` |
+| 285 | linha estrutural vazia após o `describe` |
 | posição 286 | newline final |
 
 ## 19. Autoauditoria do AGENTE 17
@@ -596,7 +619,9 @@ describe('content_gemini.js - modo background_delete', () => {
 - [x] fonte integral incorporada;
 - [x] 285 linhas + newline = 286 posições;
 - [x] escopo real separado do nome amplo da suíte;
-- [x] três solicitações persistíveis identificadas;
+- [x] três solicitações persistíveis identificadas e sincronizadas como ACCEPTED;
 - [x] nenhum arquivo externo modificado.
 
 **Resultado:** #188 é uma suíte autêntica e forte da extração do modo background_delete e do predicado de debug; ela não é, por si só, o gate da exclusão segura completa.
+
+> **Correção pós-adversarial:** o mapa agora cobre exatamente as linhas 1–285 sem gaps/overlaps, separa setup/transições das 14 declarações BGD e mantém a posição 286 exclusivamente como newline terminal. 188-001/002/003 estão ACCEPTED.
