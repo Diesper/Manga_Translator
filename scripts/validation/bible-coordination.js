@@ -36,19 +36,34 @@ function extractIntegralSource(bible) {
 }
 
 function parseCoverageIntervals(bible) {
-  const intervals = [];
+  const rangeHeadings = [];
+  const singleHeadings = [];
 
   // V1/V2 headings. Aceita prefixo editorial opcional: "### 1. Linhas 1–8".
   for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linhas|Posi[cç][oõ]es)\s+0*(\d+)\s*[–—-]\s*0*(\d+)\b/gmi)) {
-    intervals.push({ start: Number(match[1]), end: Number(match[2]), raw: match[0] });
+    rangeHeadings.push({ start: Number(match[1]), end: Number(match[2]), raw: match[0] });
   }
   for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linha|Posi[cç][aã]o|Linhas)\s+0*(\d+)\b/gmi)) {
-    intervals.push({ start: Number(match[1]), end: Number(match[1]), raw: match[0] });
+    singleHeadings.push({ start: Number(match[1]), end: Number(match[1]), raw: match[0] });
+  }
+
+  // Se há faixas semânticas, elas são o mapa principal. Headings unitários
+  // duplicados dentro dessas faixas pertencem ao formato V1 detalhado e não
+  // devem gerar overlap. Singles fora das faixas continuam válidos para
+  // posições isoladas (ex.: newline terminal).
+  if (rangeHeadings.length) {
+    const intervals = [...rangeHeadings];
+    for (const single of singleHeadings) {
+      const covered = rangeHeadings.some((range) => single.start >= range.start && single.end <= range.end);
+      if (!covered) intervals.push(single);
+    }
+    return intervals.sort((a,b) => a.start - b.start || a.end - b.end);
   }
 
   // Formatos legados em tabela. Só interpreta tabelas cujo primeiro cabeçalho
   // identifica explicitamente Linha/Linhas/Posição/Posições, evitando confundir
   // tabelas de casos, índices ou evidências com cobertura documental.
+  const tableIntervals = [];
   const lines = bible.split(/\r?\n/);
   let coverageTable = false;
   for (const line of lines) {
@@ -65,14 +80,17 @@ function parseCoverageIntervals(bible) {
 
     let match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*[–—-]\s*0*(\d+)\s*\|/i.exec(line);
     if (match) {
-      intervals.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
+      tableIntervals.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
       continue;
     }
     match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*\|/i.exec(line);
-    if (match) intervals.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
+    if (match) tableIntervals.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
+  }
+  if (tableIntervals.length) {
+    return tableIntervals.sort((a,b) => a.start - b.start || a.end - b.end);
   }
 
-  return intervals.sort((a,b) => a.start - b.start || a.end - b.end);
+  return singleHeadings.sort((a,b) => a.start - b.start || a.end - b.end);
 }
 
 function validateCoverage(intervals, sourcePositions) {
