@@ -84,6 +84,19 @@ describe('load-content-script helper selftest', () => {
     expect(globalThis.__fixtureInjected).toBeUndefined();
   });
 
+  test('instrumentação restaura a forma original de addEventListener', async () => {
+    const windowHadOwn = Object.prototype.hasOwnProperty.call(window, 'addEventListener');
+    const documentHadOwn = Object.prototype.hasOwnProperty.call(document, 'addEventListener');
+    const windowMethod = window.addEventListener;
+    const documentMethod = document.addEventListener;
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    expect(Object.prototype.hasOwnProperty.call(window, 'addEventListener')).toBe(windowHadOwn);
+    expect(Object.prototype.hasOwnProperty.call(document, 'addEventListener')).toBe(documentHadOwn);
+    expect(window.addEventListener).toBe(windowMethod);
+    expect(document.addEventListener).toBe(documentMethod);
+  });
   test('reinjeção aciona o teardown da instância anterior', async () => {
     await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
 
@@ -179,6 +192,7 @@ describe('load-content-script helper selftest', () => {
   test('falha parcial de bundle faz teardown e remove listeners registrados antes do erro', async () => {
     let pagehideCount = 0;
     window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
+    const documentRemoveSpy = jest.spyOn(document, 'removeEventListener');
     const manifestPath = path.join(ROOT, 'extension/manifest.json');
     const realReadFileSync = fs.readFileSync.bind(fs);
     jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...args) => {
@@ -199,6 +213,9 @@ describe('load-content-script helper selftest', () => {
     })).rejects.toThrow('__missing_selftest__');
 
     expect(pagehideCount).toBe(1);
+    expect(
+      documentRemoveSpy.mock.calls.filter(([type]) => type === 'contextmenu').length
+    ).toBeGreaterThanOrEqual(2);
     expect(storageMock._listeners).toHaveLength(0);
     expect(runtimeMock._messageListeners).toHaveLength(0);
   });
@@ -356,6 +373,7 @@ describe('load-content-script helper selftest', () => {
   test('bootstrap incompleto faz teardown e rejeita com timeout causal', async () => {
     let pagehideCount = 0;
     window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
+    const documentRemoveSpy = jest.spyOn(document, 'removeEventListener');
     const originalGet = storageMock.get.bind(storageMock);
     jest.spyOn(storageMock, 'get').mockImplementation((keys, callback) => {
       if (Array.isArray(keys) && keys.includes('enabledDomains')) {
@@ -371,6 +389,9 @@ describe('load-content-script helper selftest', () => {
     })).rejects.toThrow('Timeout aguardando botão do content_manga ficar pronto após 20 ms');
 
     expect(pagehideCount).toBe(1);
+    expect(
+      documentRemoveSpy.mock.calls.filter(([type]) => type === 'contextmenu').length
+    ).toBeGreaterThanOrEqual(2);
     expect(storageMock._listeners).toHaveLength(0);
     expect(runtimeMock._messageListeners).toHaveLength(0);
     expect(document.getElementById('manga-translator-trigger')).toBeNull();
