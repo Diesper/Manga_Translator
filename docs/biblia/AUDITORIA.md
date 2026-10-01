@@ -1398,3 +1398,23 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `banned-images-flow.test.js` — auditoria independente SHA-bound pelo AGENTE 3 em 2026-10-01
+
+- **Índice:** #106 — `tests/integration/banned-images-flow.test.js`.
+- **Auditor:** AGENTE 3.
+- **SHA auditado:** `7624e120e7ffac4efd5abe5c68fc5706aea35017`.
+- **Integridade:** state, source, claim e SHA declarado na Bíblia coincidem no mesmo blob. A fonte integral embutida é byte a byte idêntica ao source atual: **211 linhas textuais + newline final = 212/212 posições**.
+- **Cobertura:** existem exatamente 212 headings posicionais `Linha 001`–`Linha 212`, sem gaps, duplicidades ou posições fora do arquivo; o campo `Conteúdo` de cada posição foi comparado novamente com a linha fonte correspondente sem divergências.
+- **Semântica principal:** a Bíblia descreve corretamente que esta suíte é um modelo sintético sobre `ChromeStorageMock`, não uma integração ponta a ponta real. Os helpers `simulateGetPageImages`, `simulateBanImages` e `simulateUnbanImages` são locais; a diferença de índices/filtros frente ao produto real e a tautologia do Cenário 4 estão explicitadas.
+- **Dependências/consumers:** `repo-root.js`, `chrome-api.mock.js`, `popup.js`, `content_manga.js`, `cm-dom-replace.js` e as suítes externas citadas foram relidos. `loadExtensionPage` e `loadContentScript` realmente carregam as implementações de produção, e as assertions externas citadas verificam resultados/payloads específicos.
+- **Audit requests:** 106-001 e 106-002 permanecem materialmente válidas e **ACCEPTED** no state. A busca independente não localizou prova única que conecte popup real → mesmo storage → content script/botão real no mesmo cenário automatizado.
+- **Falha bloqueante 1 — lifecycle stale duplicado na Bíblia:** a seção 11 rotula `106-001` e `106-002` como `OPEN`, enquanto `.state/106.json` registra ambas como `ACCEPTED`, com `audited_by` e `audit_finding`. O state é canônico; a Bíblia precisa refletir o lifecycle corrente ou remover status mutável duplicado.
+- **Falha bloqueante 2 — SHA de dependência stale:** a seção 3.2 registra `package.json` no SHA `33e0b91d1a6f1790124b700d2ce331f80d2b7095`, que corresponde ao blob da base `main`; o blob atual do branch `docs/project-bible` é `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`. Os scripts `test:integration` e `test:ci` citados continuam existindo, mas a âncora de evidência declarada não corresponde ao branch auditado e não é marcada como histórica.
+- **Assertions/adversarial:** uma regressão no fluxo real popup/content pode manter o #106 verde porque a suíte duplica a regra; a própria Bíblia reconhece corretamente essa limitação. As provas externas reais sustentam apenas os comportamentos específicos que suas assertions exercitam.
+- **Tentativa formal de reprovação:** sustentada por duas falhas documentais objetivas. A releitura independente posterior do source/Bíblia/state reproduziu os mesmos findings.
+- **Matriz crítica:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica principal=CONFIRMADO_3X; dependências=CONTRADITO quanto ao SHA de `package.json`; consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; audit requests=CONTRADITO quanto aos status duplicados; lifecycle/state=CONFIRMADO_3X; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas; checks finais: Integridade=SIM, Veracidade=NÃO, Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
