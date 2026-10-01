@@ -42,7 +42,8 @@ Invariantes:
 - claim é **CREATE ONLY**;
 - claim de outro auditor não expira automaticamente e nunca pode ser roubado;
 - se o source, state ou Bíblia mudar durante a revisão, o auditor deve reler e invalidar/recomeçar a análise; não pode aprovar evidência stale;
-- ao terminar, o claim deve ser removido somente depois de persistir e verificar o veredito.
+- durante a finalização, claim + `COMPLETED/CHANGES_REQUIRED` só é tolerado sob `PROGRESS.lock.md` do mesmo auditor/índice e com o veredito correspondente já persistido no history para o mesmo SHA;
+- ao terminar, o claim deve ser removido **antes** de liberar `PROGRESS.lock.md`, depois de persistir e verificar o veredito.
 
 Formato mínimo do claim:
 
@@ -72,9 +73,10 @@ READ LATEST
 → registrar veredito em AUDITORIA.md
 → atualizar somente .state/NNN.json
 → regenerar STATUS.md e CHECKLIST.md
-→ verificar invariantes
+→ verificar invariantes da janela transacional
+→ remover audit claim ainda sob PROGRESS.lock.md
+→ reler e verificar invariantes estritas sem claim
 → liberar PROGRESS.lock.md
-→ remover audit claim
 → reler e confirmar estado final
 ```
 

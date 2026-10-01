@@ -339,6 +339,7 @@ function validateBibleCoordination(root, options = {}) {
   const stateRoot = path.join(bibleRoot, '.state');
   const reserveRoot = path.join(bibleRoot, '.reservas');
   const auditClaimRoot = path.join(bibleRoot, '.coordination', 'audit-claims');
+  const progressLockPath = path.join(bibleRoot, '.coordination', 'PROGRESS.lock.md');
   const auditPath = path.join(bibleRoot, 'AUDITORIA.md');
 
   const all = walk(bibleRoot).map((file) => slash(path.relative(root, file))).sort();
@@ -443,8 +444,20 @@ function validateBibleCoordination(root, options = {}) {
     if (state.status === 'COMPLETED' && lock) problems.push('COMPLETED com lock proibido: ' + state.file);
   }
 
+  let progressLock = null;
+  if (fs.existsSync(progressLockPath)) {
+    const progressSource = fs.readFileSync(progressLockPath, 'utf8');
+    const owner = coordinationField(progressSource, 'OWNER') || coordinationField(progressSource, 'AGENTE');
+    const indexRaw = coordinationField(progressSource, 'INDEX');
+    const index = indexRaw && /^\d+$/.test(indexRaw) ? Number(indexRaw) : null;
+    progressLock = { owner, index };
+  }
+
   // Claims de auditoria são mutexes independentes dos locks de edição.
   // Eles evitam trabalho duplicado sem conceder ownership de escrita da Bíblia.
+  // Durante a finalização, o claim pode coexistir transitoriamente com o estado
+  // terminal somente sob o PROGRESS.lock do mesmo auditor/índice e veredito
+  // independente já persistido no history para o mesmo SHA.
   const auditClaims = walk(auditClaimRoot)
     .map((file) => slash(path.relative(root, file)))
     .filter((file) => file.endsWith('.lock.md'))
@@ -489,7 +502,20 @@ function validateBibleCoordination(root, options = {}) {
       problems.push('audit claim fora do corpus: ' + claimFile);
       continue;
     }
-    if (state.status !== 'READY_FOR_AUDIT') {
+    const latestAuditEvent = Array.isArray(state.history)
+      ? [...state.history].reverse().find((event) =>
+        event && (event.type === 'INDEPENDENT_AUDIT_APPROVED' || event.type === 'INDEPENDENT_AUDIT_CHANGES_REQUIRED'))
+      : null;
+    const terminalVerdictMatches = (
+      (state.status === 'COMPLETED' && latestAuditEvent?.type === 'INDEPENDENT_AUDIT_APPROVED')
+      || (state.status === 'CHANGES_REQUIRED' && latestAuditEvent?.type === 'INDEPENDENT_AUDIT_CHANGES_REQUIRED')
+    ) && latestAuditEvent?.auditor === auditor
+      && latestAuditEvent?.source_sha === state.source_sha;
+    const transactionalFinalize = state.status !== 'READY_FOR_AUDIT'
+      && progressLock?.owner === auditor
+      && progressLock?.index === index
+      && terminalVerdictMatches;
+    if (state.status !== 'READY_FOR_AUDIT' && !transactionalFinalize) {
       problems.push('audit claim exige READY_FOR_AUDIT: #' + index + '/' + state.status);
     }
     if (state.file !== sourcePath) problems.push('audit claim ARQUIVO diverge do state: #' + index);

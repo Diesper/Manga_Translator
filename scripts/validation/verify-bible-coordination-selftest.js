@@ -114,6 +114,20 @@ function auditClaimFor(root,state,auditor='AUDITOR-X',overrides={}){
   ].join('\n'));
   return rel;
 }
+function progressLockFor(root,state,auditor='AUDITOR-X'){
+  const rel='docs/biblia/.coordination/PROGRESS.lock.md';
+  write(root,rel,[
+    'OWNER: '+auditor,
+    'PURPOSE: Finalizar auditoria independente do índice '+state.index,
+    'INDEX: '+state.index,
+    'PR: #66',
+    'BRANCH: docs/project-bible',
+    'ACQUIRED_AT_UTC: 2026-10-01T04:21:00Z',
+    'ESTADO: ACTIVE',
+    ''
+  ].join('\n'));
+  return rel;
+}
 function validate(root,checkDerived=false){
   return validateBibleCoordination(root,{checkDerived,headLabel:'fixture'}).problems;
 }
@@ -160,6 +174,39 @@ expectPass('audit claim em READY_FOR_AUDIT passa',(root)=>{
 });
 expectFail('audit claim em COMPLETED falha','audit claim exige READY_FOR_AUDIT',(root)=>{
   const s=readJson(root,statePath(1));auditClaimFor(root,s);
+});
+expectPass('audit claim terminal passa durante finalização transacional',(root)=>{
+  const s=readJson(root,statePath(1));
+  s.history.push({
+    at_utc:'2026-10-01T04:21:00Z',
+    type:'INDEPENDENT_AUDIT_APPROVED',
+    from_status:'READY_FOR_AUDIT',
+    to_status:'COMPLETED',
+    source_sha:s.source_sha,
+    auditor:'AUDITOR-X'
+  });
+  writeJson(root,statePath(1),s);
+  auditClaimFor(root,s,'AUDITOR-X');
+  progressLockFor(root,s,'AUDITOR-X');
+});
+expectFail('audit claim terminal com PROGRESS de outro auditor falha','audit claim exige READY_FOR_AUDIT',(root)=>{
+  const s=readJson(root,statePath(1));
+  s.history.push({
+    at_utc:'2026-10-01T04:21:00Z',
+    type:'INDEPENDENT_AUDIT_APPROVED',
+    from_status:'READY_FOR_AUDIT',
+    to_status:'COMPLETED',
+    source_sha:s.source_sha,
+    auditor:'AUDITOR-X'
+  });
+  writeJson(root,statePath(1),s);
+  auditClaimFor(root,s,'AUDITOR-X');
+  progressLockFor(root,s,'AUDITOR-Y');
+});
+expectFail('audit claim terminal sem history de veredito falha','audit claim exige READY_FOR_AUDIT',(root)=>{
+  const s=readJson(root,statePath(1));
+  auditClaimFor(root,s,'AUDITOR-X');
+  progressLockFor(root,s,'AUDITOR-X');
 });
 expectFail('auditor com dois claims falha','auditor possui >1 audit claim ativo',(root)=>{
   for(const i of [1,2]){
