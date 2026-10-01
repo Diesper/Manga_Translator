@@ -2,8 +2,8 @@
   "index": 174,
   "file": "tests/unit/content-gemini/attachment.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/attachment.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
   "started_at_utc": "2026-09-30T14:20:00Z",
   "completed_at_utc": null,
@@ -79,7 +79,7 @@
     "documented_positions": "407/407",
     "source_text_lines": 406,
     "bible_lines": 3351,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -99,6 +99,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
       "reason": "174-ADV-001..004: semântica linha-a-linha, escopo ATT-07, lifecycle e cadeia Jest/CI."
+    },
+    {
+      "at_utc": "2026-10-01T18:42:45.263Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
+      "bible_sha": "b160a845271bd688fb0860b352ae4727b8d7fbd7",
+      "reason": "174-ADV-001..004 corrigidos; 146 descrições linha-a-linha realinhadas. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
