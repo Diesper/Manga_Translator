@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "index": 59,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 59",
+  "file": "extension/shared/shared-ui.js",
+  "bible": "docs/biblia/extension/shared/shared-ui.js/Bíblia.md",
+  "source_sha": "b284fb8eb0e8d30f34dc83642f07916d20012bf0",
+  "bible_sha": "224ef5633b43cc79d6972ff8cda23fe5fe2c7d24",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "059-ADV-001",
+      "type": "EVIDENCE_CLASSIFICATION_OVERCLAIM",
+      "severity": "BLOCKING",
+      "summary": "A Bíblia classifica verify-repository-structure.js como gate estático específico da ordem shared-ui.js -> script da página, mas o gate só verifica presença dos dois <script> e não compara suas posições.",
+      "bible_evidence": [
+        "Bíblia.md:97 classifica 'Ordem shared-ui.js → script da página' como 'GATE ESTÁTICO ESPECÍFICO'.",
+        "Bíblia.md:512/526/540/554/568 afirma que o gate estrutural 'exige shared-ui.js antes de popup.js, options.js e reader.js'.",
+        "Bíblia.md:5230-5398 repete 'GATE ESTÁTICO ESPECÍFICO para ordem de carregamento'."
+      ],
+      "primary_evidence": [
+        "scripts/validation/verify-repository-structure.js:207-220 define pageContracts e usa apenas html.includes() para sharedSrc e ownSrc.",
+        "Não existe comparação de posição relativa nesse bloco.",
+        "Contraexemplo revalidado: inverter as duas tags em popup.html preserva ambos html.includes(), portanto o gate não adicionaria erro embora shared-ui.js passasse a vir depois de popup.js."
+      ],
+      "impact": "A força da evidência está documentada acima do que o gate realmente prova; uma regressão de ordem pode passar pelo gate citado.",
+      "required_change": "Reclassificar o gate como prova de presença (não de ordem) e, se a ordem precisar ser declarada como gate estático, citar/adicionar evidência que compare posições. Manter separada a execução dinâmica das integrações."
+    },
+    {
+      "id": "059-ADV-002",
+      "type": "ASSERTION_STRENGTH_OVERCLAIM",
+      "severity": "BLOCKING",
+      "summary": "A linha de evidência para entrada inválida afirma prova direta de ausência de 'mensagem destrutiva', mas a assertion verifica somente ausência de SM_DELETE_CLEAN_URL.",
+      "bible_evidence": [
+        "Bíblia.md:93: null e {} retornam false 'sem modal/mensagem destrutiva' — PROVADO DIRETAMENTE."
+      ],
+      "primary_evidence": [
+        "tests/unit/shared-ui/redo-confirmation.test.js:236-240 verifica false, ausência do overlay e somente que não houve SM_DELETE_CLEAN_URL.",
+        "O mock também reconhece GTC_DELETE_BY_CLEAN_URL, porém o caso inválido não afirma sua ausência nem ausência de qualquer sendMessage."
+      ],
+      "adversarial_counterexample": "Uma regressão que retornasse false sem SM_DELETE_CLEAN_URL mas emitisse GTC_DELETE_BY_CLEAN_URL continuaria satisfazendo as assertions desse caso.",
+      "impact": "A Bíblia transforma uma assertion parcial em prova direta mais ampla do que o teste sustenta.",
+      "required_change": "Restringir a alegação à ausência de SM_DELETE_CLEAN_URL ou fortalecer a prova citada; não tratar a assertion atual como prova de ausência de toda mensagem destrutiva."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:20:17Z"
+}
