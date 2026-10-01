@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/startup-recovery.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA — com alerta de validade do teste  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 649829ac36bb9428c9458c615365970349b741a1  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest histórica de recovery; atualmente não executa a implementação de produção  
@@ -64,7 +64,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 
 ## 8. Solicitações ao auditor
 
-### 168-001 — TEST_REWRITE_REQUIRED — OPEN — HIGH
+### 168-001 — TEST_REWRITE_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: o teste principal de recovery não executa background.js e sua expectativa histórica de isProcessing=false com jobQueue não vazia diverge do onStartup atual, que recomputa isProcessing=true quando há trabalho a continuar.
 
@@ -74,7 +74,7 @@ Evidência esperada: assertions no mt_state persistido e no __getState após sta
 
 Risco: a suíte pode permanecer verde enquanto documentação e expectativas contam uma história oposta ao código de produção.
 
-### 168-002 — TEST_REWRITE_REQUIRED — OPEN — HIGH
+### 168-002 — TEST_REWRITE_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: o teste STOP_BATCH usa createStopBatchHandler local que apenas responde ok e não toca isProcessing/syncState, apesar do título dizer que prova o reset.
 
@@ -82,7 +82,7 @@ Ação solicitada: remover o mirror ou convertê-lo em dispatch ao background re
 
 Risco: falso senso de cobertura sobre uma transição crítica de lote.
 
-### 168-003 — TEST_MAINTENANCE — OPEN — LOW
+### 168-003 — TEST_MAINTENANCE — ACCEPTED — LOW
 
 Encontrado: fs e getRuntimeMock são importados mas não usados; o comentário histórico de 'CORRECAO' descreve algoritmo antigo e deve ser atualizado junto da reescrita.
 
@@ -360,63 +360,63 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** ` */`
 - **Função:** Comentário histórico que descreve a intenção original; nesta revisão parte dele não corresponde mais ao contrato atual de produção.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 023
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** imports.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 024
 
 - **Código:** `const path = require('path');`
-- **Função:** Importa fs, mas não há uso no arquivo auditado.
+- **Função:** Importa `path`, usado para compor o caminho de `chrome-api.mock.js`.
 - **Contexto:** imports.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 025
 
 - **Código:** `const fs   = require('fs');`
-- **Função:** Importa findRepoRoot para descobrir a raiz do repositório.
+- **Função:** Importa `fs`; este import está morto/não é usado no arquivo auditado.
 - **Contexto:** imports.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 026
 
 - **Código:** `const { findRepoRoot } = require('../../helpers/repo-root');`
-- **Função:** Calcula ROOT a partir de __dirname.
+- **Função:** Importa `findRepoRoot`, helper usado na linha 27 para localizar a raiz do repositório.
 - **Contexto:** imports.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 027
 
 - **Código:** `const ROOT = findRepoRoot(__dirname);`
-- **Função:** Compõe o cenário imports sem carregar a implementação real do background.
+- **Função:** Calcula `ROOT` a partir de `__dirname` usando `findRepoRoot`; isso serve ao harness e não carrega o background de produção.
 - **Contexto:** imports.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 028
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** imports.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 029
 
 - **Código:** `const { getStorageMock, getRuntimeMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));`
-- **Função:** Obtém storage simulado; isso testa persistência do mock, não o handler onStartup.
+- **Função:** Importa as factories `getStorageMock` e `getRuntimeMock`; nesta suíte `getStorageMock` é usada e `getRuntimeMock` permanece import morto.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 030
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** mirror local de STOP_BATCH.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 031
 
@@ -430,84 +430,84 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `    return function handleStopBatch(request, sender, sendResponse) {`
 - **Função:** Compõe o cenário mirror local de STOP_BATCH sem carregar a implementação real do background.
 - **Contexto:** mirror local de STOP_BATCH.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 033
 
 - **Código:** `        if (request.action !== 'STOP_BATCH') return false;`
 - **Função:** Filtra action no mirror local.
 - **Contexto:** mirror local de STOP_BATCH.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 034
 
 - **Código:** `        sendResponse({ ok: true });`
 - **Função:** Mirror responde ok sem alterar isProcessing/storage/syncState.
 - **Contexto:** mirror local de STOP_BATCH.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 035
 
 - **Código:** `        return true;`
 - **Função:** Compõe o cenário mirror local de STOP_BATCH sem carregar a implementação real do background.
 - **Contexto:** mirror local de STOP_BATCH.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 036
 
 - **Código:** `    };`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 037
 
 - **Código:** `}`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 038
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 039
 
 - **Código:** `describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {`
 - **Função:** Abre suíte chamada onStartup Recovery, embora não carregue background.js.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 040
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 041
 
 - **Código:** `    test('deve resetar isProcessing para false mesmo que storage tenha isProcessing=true', async () => {`
 - **Função:** Declara cenário: teste local de reset fabricado.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 042
 
 - **Código:** `        const storageMock = getStorageMock();`
 - **Função:** Obtém storage simulado; isso testa persistência do mock, não o handler onStartup.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 043
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 044
 
@@ -521,84 +521,84 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `            mt_state: {`
 - **Função:** Compõe o cenário teste local de reset fabricado sem carregar a implementação real do background.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 046
 
 - **Código:** `                jobQueue: [{ mangaTabId: 1, index: 0, prompt: 'test' }],`
 - **Função:** Fixture contém trabalho pendente, condição que no código atual faz isProcessing ser recomputado como true após startup.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 047
 
 - **Código:** `                isProcessing: true,`
 - **Função:** Configura flag antiga true no snapshot armazenado.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 048
 
 - **Código:** `                stopRequested: false,`
 - **Função:** Parte da fixture local armazenada.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 049
 
 - **Código:** `                activeMangaTabId: 1,`
 - **Função:** Compõe o cenário teste local de reset fabricado sem carregar a implementação real do background.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 050
 
 - **Código:** `                extractionTabs: {},`
 - **Função:** Compõe o cenário teste local de reset fabricado sem carregar a implementação real do background.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 051
 
 - **Código:** `                totalJobs: 1,`
 - **Função:** Compõe o cenário teste local de reset fabricado sem carregar a implementação real do background.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 052
 
 - **Código:** `                completedJobs: 0,`
 - **Função:** Compõe o cenário teste local de reset fabricado sem carregar a implementação real do background.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 053
 
 - **Código:** `                activeJobsCount: 2,`
 - **Função:** Configura contador antigo não zero, mas nenhum reconcile real é executado.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 054
 
 - **Código:** `            }`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 055
 
 - **Código:** `        });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 056
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 057
 
@@ -626,7 +626,7 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 061
 
@@ -640,35 +640,35 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `            ...state.mt_state,`
 - **Função:** Copia fixture do mock para o objeto local corrected.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 063
 
 - **Código:** `            isProcessing: false,`
 - **Função:** Força manualmente false no objeto local; hoje isso contradiz o startup real quando jobQueue permanece não vazia.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 064
 
 - **Código:** `            activeJobsCount: 0,`
 - **Função:** Força manualmente zero no objeto local, sem reconcile real.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 065
 
 - **Código:** `        };`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 066
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 067
 
@@ -696,28 +696,28 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** teste local de reset fabricado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 071
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 072
 
 - **Código:** `    test('isProcessing e activeJobsCount sao semanticamente independentes', () => {`
 - **Função:** Declara cenário: demonstração semântica local.
 - **Contexto:** demonstração semântica local.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 073
 
 - **Código:** `        const incompleteReset = { isProcessing: true, activeJobsCount: 0 };`
-- **Função:** Configura flag antiga true no snapshot armazenado.
+- **Função:** Cria um literal JavaScript local para demonstrar a combinação `isProcessing:true` + `activeJobsCount:0`; não lê nem grava storage.
 - **Contexto:** demonstração semântica local.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 074
 
@@ -731,14 +731,14 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** demonstração semântica local.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 076
 
 - **Código:** `        const completeReset = { isProcessing: false, activeJobsCount: 0 };`
-- **Função:** Força manualmente false no objeto local; hoje isso contradiz o startup real quando jobQueue permanece não vazia.
+- **Função:** Cria um segundo literal JavaScript local com ambos os campos resetados; o objeto não possui `jobQueue`, então esta linha isolada não demonstra contradição com fila não vazia.
 - **Contexto:** demonstração semântica local.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 077
 
@@ -759,35 +759,35 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** demonstração semântica local.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 080
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 081
 
 - **Código:** `    test('nao deve modificar isProcessing se jobQueue e activeJobsCount sao zero', async () => {`
 - **Função:** Declara cenário: storage vazio sem produção.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 082
 
 - **Código:** `        const storageMock = getStorageMock();`
 - **Função:** Obtém storage simulado; isso testa persistência do mock, não o handler onStartup.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 083
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 084
 
@@ -801,56 +801,56 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `            mt_state: {`
 - **Função:** Compõe o cenário storage vazio sem produção sem carregar a implementação real do background.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 086
 
 - **Código:** `                jobQueue: [],`
 - **Função:** Fixture de storage sem fila ativa.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 087
 
 - **Código:** `                isProcessing: false,`
-- **Função:** Força manualmente false no objeto local; hoje isso contradiz o startup real quando jobQueue permanece não vazia.
+- **Função:** Define `isProcessing:false` na fixture local deste cenário, cuja `jobQueue` é vazia; não é evidência do algoritmo de startup real.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 088
 
 - **Código:** `                activeJobsCount: 0,`
 - **Função:** Força manualmente zero no objeto local, sem reconcile real.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 089
 
 - **Código:** `                stopRequested: false,`
 - **Função:** Parte da fixture local armazenada.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 090
 
 - **Código:** `            }`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 091
 
 - **Código:** `        });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 092
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 093
 
@@ -878,42 +878,42 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** storage vazio sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 097
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 098
 
 - **Código:** `    test('STOP_BATCH tambem deve zerar isProcessing implicitamente via syncState', async () => {`
 - **Função:** Declara cenário: STOP_BATCH mirror sem produção.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 099
 
 - **Código:** `        const storageMock = getStorageMock();`
 - **Função:** Obtém storage simulado; isso testa persistência do mock, não o handler onStartup.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 100
 
 - **Código:** `        const sendResponse = jest.fn();`
 - **Função:** Cria spy para o mirror STOP_BATCH local.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 101
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 102
 
@@ -927,21 +927,21 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `            mt_state: { jobQueue: [], isProcessing: true, activeJobsCount: 0 }`
 - **Função:** Configura flag antiga true no snapshot armazenado.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 104
 
 - **Código:** `        });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 105
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 106
 
@@ -955,14 +955,14 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `        handler({ action: 'STOP_BATCH' }, { tab: { id: 1 } }, sendResponse);`
 - **Função:** Invoca mirror local diretamente.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 108
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 109
 
@@ -976,14 +976,14 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** STOP_BATCH mirror sem produção.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Linha 111
 
 - **Código:** `});`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** estrutura.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — linha verde no CI, porém sem execução do background real.
+- **Evidência:** 🟦 CI DA SUÍTE/BLOB — o run verde confirma que a suíte foi executada, mas não prova cobertura posicional desta linha nem execução do background real.
 
 ### Posição 112 — newline final
 
@@ -994,3 +994,6 @@ describe('onStartup Recovery — isProcessing Reset (MELHORIA #3)', () => {
 ## 11. Conclusão documental
 
 Foram documentadas 111 linhas textuais e a posição 112 do newline final. O arquivo passa no CI, mas sua força probatória sobre produção é explicitamente limitada: a cobertura canônica de startup/STOP_BATCH vive em suítes que carregam o background real. As solicitações 168-001/002 devem corrigir a discrepância para que o nome e as assertions deste arquivo voltem a refletir o sistema atual.
+
+> **Correção pós-adversarial:** os runs verdes continuam sendo evidência de que o blob/suíte executa com sucesso, não cobertura por linha/posição. Linhas vazias, comentários, fechamentos e branches sem assertion focal permanecem evidência estrutural ou de suíte, nunca prova semântica posicional.
+> **Lifecycle:** 168-001, 168-002 e 168-003 estão ACCEPTED em `.state/168.json`.
