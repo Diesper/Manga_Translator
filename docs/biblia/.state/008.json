@@ -2,8 +2,8 @@
   "index": 8,
   "file": "extension/background/actions/deliver-result-url.js",
   "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
   "started_at_utc": "2026-09-30T13:00:00Z",
   "completed_at_utc": null,
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T16:48:03.082Z",
+  "updated_at_utc": "2026-10-01T19:54:45.505Z",
   "history": [
     {
       "at_utc": "2026-10-01T16:48:03.082Z",
@@ -101,6 +101,14 @@
       "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
       "bible_sha": "6feb448c74445e061abb7deb47efd4d52003d921",
       "reason": "008 findings corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T19:54:45.505Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+      "reason": "008-ADV2-001..003: upstream wiring, stale audit label e timeout de assertJobOwnership."
     }
   ],
   "evidence": []
