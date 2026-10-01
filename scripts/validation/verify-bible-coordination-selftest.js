@@ -173,6 +173,44 @@ function expectFail(name,needle,setup,checkDerived=false,enforceSingleAuditClaim
 
 expectPass('.state/.reservas/.coordination permitidos');
 
+function expectDerivedAuditStatus(name, auditSourceSha, currentSourceSha, auditResult, expected) {
+  const state = {
+    index: 65,
+    file: '.github/workflows/ci.yml',
+    status: 'READY_FOR_AUDIT',
+    agent: null,
+    source_sha: currentSourceSha,
+    audit_requests: [],
+  };
+  const audits = new Map([[65, {
+    index: 65,
+    file: state.file,
+    sourceSha: auditSourceSha,
+    result: auditResult,
+  }]]);
+  const row = buildDerived([state], audits, 'fixture').status
+    .split('\n')
+    .find((line) => line.startsWith('| 065 |'));
+  if (!row || !row.includes('| ' + expected + ' |')) {
+    throw new Error(name + ' expected audit=' + expected + ', got ' + JSON.stringify(row));
+  }
+  process.stdout.write('PASS ' + name + ' -> ' + expected + '\n');
+}
+expectDerivedAuditStatus(
+  'STATUS não reutiliza aprovação de SHA antigo',
+  'b'.repeat(12),
+  'a'.repeat(40),
+  'APPROVED',
+  'NOT_AUDITED'
+);
+expectDerivedAuditStatus(
+  'STATUS preserva aprovação quando SHA auditado corresponde ao atual',
+  'a'.repeat(12),
+  'a'.repeat(40),
+  'APPROVED',
+  'APPROVED'
+);
+
 expectReadiness('merge readiness baseline passa', true);
 expectReadiness('request ACCEPTED não bloqueia merge readiness', true, (root)=>{
   const s=readJson(root,statePath(1));

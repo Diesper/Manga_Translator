@@ -286,6 +286,10 @@ function parseAuditRegistry(auditSource) {
 function approvalMatches(entry, sourceSha) {
   return Boolean(entry && entry.result === 'APPROVED' && entry.sourceSha && sourceSha.startsWith(entry.sourceSha));
 }
+function auditResultForSource(entry, sourceSha) {
+  if (!entry || !entry.sourceSha || !sourceSha || !sourceSha.startsWith(entry.sourceSha)) return 'NOT_AUDITED';
+  return entry.result || 'NOT_AUDITED';
+}
 
 function buildDerived(states, audits, headLabel) {
   const counters = Object.fromEntries([...LIFECYCLE].map((s) => [s, 0]));
@@ -314,7 +318,7 @@ function buildDerived(states, audits, headLabel) {
   for (const state of states) {
     const audit = audits.get(state.index);
     statusLines.push('| ' + String(state.index).padStart(3,'0') + ' | ' + state.file + ' | ' + state.status + ' | '
-      + (audit?.result || 'NOT_AUDITED') + ' | ' + (state.status === 'IN_PROGRESS' ? (state.agent || 'MISSING') : '-')
+      + auditResultForSource(audit, state.source_sha || '') + ' | ' + (state.status === 'IN_PROGRESS' ? (state.agent || 'MISSING') : '-')
       + ' | ' + (state.source_sha || '-') + ' | ' + (state.audit_requests || []).length + ' |');
   }
 
