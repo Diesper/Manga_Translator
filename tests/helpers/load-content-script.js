@@ -24,6 +24,7 @@ const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
 const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
 const RUNTIME_LISTENER_REGISTRY_KEY = '__manga_translator_harness_runtime_listeners';
 const GLOBAL_EVENT_LISTENER_REGISTRY_KEY = '__manga_translator_harness_global_event_listeners';
+const LOAD_IN_PROGRESS_REGISTRY_KEY = '__manga_translator_harness_load_in_progress';
 
 function getTrackedStorageListeners() {
     const tracked = globalThis[STORAGE_LISTENER_REGISTRY_KEY];
@@ -189,6 +190,12 @@ async function loadContentScript({
     domImages = [],
     readyTimeoutMs = 250,
 } = {}) {
+    if (globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY]) {
+        throw new Error('loadContentScript não suporta cargas concorrentes no mesmo ambiente JSDOM');
+    }
+    globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = true;
+
+    try {
     disposePreviousContentInstance();
     cleanupPreviousListeners();
     const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
@@ -421,6 +428,9 @@ async function loadContentScript({
             return document.getElementById('manga-main-content');
         },
     };
+    } finally {
+        globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = false;
+    }
 }
 
 module.exports = {
