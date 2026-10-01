@@ -2,8 +2,8 @@
   "index": 167,
   "file": "tests/unit/background/single-image-context-menu.test.js",
   "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
   "started_at_utc": "2026-09-30T13:25:00Z",
   "completed_at_utc": null,
@@ -79,7 +79,7 @@
     "documented_positions": "173/173",
     "source_text_lines": 172,
     "bible_lines": 1477,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -99,6 +99,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
       "reason": "167-ADV-001: sincronizar lifecycle documental 167-001/002/003 com .state."
+    },
+    {
+      "at_utc": "2026-10-01T18:30:05.998Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
+      "bible_sha": "1eebefd7fb13c74bbe94210e4d1b49317949116d",
+      "reason": "167-ADV-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
