@@ -2,11 +2,11 @@
   "index": 123,
   "file": "tests/smoke/smoke-01-batch-lifecycle.js",
   "bible": "docs/biblia/tests/smoke/smoke-01-batch-lifecycle.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 4",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c412ccaac3c01de93b0a6362747525c48d79a765",
   "started_at_utc": "2026-09-30T06:29:00Z",
-  "completed_at_utc": "2026-09-30T06:34:13Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "123-001",
@@ -83,5 +83,10 @@
     "ci_evidence": "run #2290 for the start-state commit was cancelled before jobs; no successful current-SHA smoke run claimed",
     "external_audit_requests_open": 3,
     "note": "Divergência de jobId confirmada contra produção; nenhuma alteração feita em código/testes/workflows/configs globais."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

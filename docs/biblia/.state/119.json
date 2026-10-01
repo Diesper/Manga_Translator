@@ -2,11 +2,11 @@
   "index": 119,
   "file": "tests/mocks/chrome-api.mock.js",
   "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 18",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": "2026-09-30T06:49:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "119-001",
@@ -79,5 +79,10 @@
     "source_has_final_newline": true,
     "bible_lines": 1032,
     "external_audit_requests_open": 3
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 117,
   "file": "tests/integration/popup.ui.test.js",
   "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
   "started_at_utc": "2026-09-30T06:22:00Z",
-  "completed_at_utc": "2026-09-30T06:24:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "117-001",
@@ -80,5 +80,10 @@
     "bible_lines": 1122,
     "external_audit_requests_open": 3,
     "note": "Bíblia #117 concluída pelo AGENTE 17 sem alterar implementação, helpers, mocks ou testes externos."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

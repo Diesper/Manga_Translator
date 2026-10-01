@@ -2,11 +2,11 @@
   "index": 122,
   "file": "tests/smoke/run-smoke.js",
   "bible": "docs/biblia/tests/smoke/run-smoke.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 1",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ea6fa903f7a68272a769804a29a97ae967bc1088",
   "started_at_utc": "2026-09-30T06:28:19.840Z",
-  "completed_at_utc": "2026-09-30T14:56:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "122-001",
@@ -68,5 +68,10 @@
     "bible_lines": 359,
     "external_audit_requests_open": 2,
     "note": "Bíblia concluída pelo AGENTE 1; evidência verde e lacunas dos branches vermelhos permanecem classificadas separadamente."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

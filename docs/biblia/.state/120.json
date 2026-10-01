@@ -2,11 +2,11 @@
   "index": 120,
   "file": "tests/mocks/dom-environment.js",
   "bible": "docs/biblia/tests/mocks/dom-environment.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 15",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9c3bc91608aa52a2d8324fc645c75fac5e4f7452",
   "started_at_utc": "2026-09-30T06:28:01Z",
-  "completed_at_utc": "2026-09-30T06:31:29Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "120-001",
@@ -44,5 +44,10 @@
       109437162754
     ],
     "evidence_summary": "Mesmo blob carregado pelos projetos JSDOM; Node 20.x e 22.x terminaram 109/109 suites e 851/851 testes. TEST_CANVAS possui assertions diretas em content_manga."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
