@@ -2,8 +2,8 @@
   "index": 130,
   "file": "tests/unit/background/background-strict-load.test.js",
   "bible": "docs/biblia/tests/unit/background/background-strict-load.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "25a663f527f7d3303c51751b4bf3440ea3424b9f",
   "started_at_utc": "2026-09-30T06:46:00Z",
   "completed_at_utc": null,
@@ -79,12 +79,12 @@
     "documented_positions": "56/56",
     "source_text_lines": 55,
     "bible_lines": 428,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Teste prova isolamento de processo e load do corpo principal, não execução dos módulos importScripts."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:33:48.600Z",
+  "updated_at_utc": "2026-10-01T21:34:27.298Z",
   "history": [
     {
       "at_utc": "2026-10-01T21:33:48.600Z",
@@ -93,6 +93,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "25a663f527f7d3303c51751b4bf3440ea3424b9f",
       "reason": "130-REAUDIT-001/002: lifecycle + SHA atual de package.json."
+    },
+    {
+      "at_utc": "2026-10-01T21:34:27.298Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "25a663f527f7d3303c51751b4bf3440ea3424b9f",
+      "bible_sha": "f28c2570f37116709751bb9aaa53c52091ad1461",
+      "reason": "130-REAUDIT-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
