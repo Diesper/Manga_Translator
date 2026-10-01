@@ -402,7 +402,7 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
             'bannedImages_reader.test': ['https://reader.test/becomes-banned.png'],
         });
 
-        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
+        sendSpy.mockClear(); const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
         expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
         expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
     });
