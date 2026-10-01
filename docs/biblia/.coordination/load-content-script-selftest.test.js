@@ -196,24 +196,31 @@ describe('load-content-script helper selftest', () => {
     expect(jest.getTimerCount()).toBe(0);
   });
 
-  test('sendMessage mantém limite de 50 ms mesmo se listener retornar true', async () => {
+  test('sendMessage usa fallback de 500 ms quando listener retorna true sem responder', async () => {
     const context = await loadContentScript({
       hostname: 'reader.test',
       floatingButtonEnabled: false,
     });
     runtimeMock._messageListeners = [
-      (_request, _sender, sendResponse) => {
-        setTimeout(() => sendResponse({ tooLate: true }), 60);
-        return true;
-      },
+      () => true,
     ];
 
     jest.useFakeTimers();
-    const promise = context.sendMessage('ASYNC_LATE');
-    jest.advanceTimersByTime(50);
-    await expect(promise).resolves.toBeNull();
+    const promise = context.sendMessage('ASYNC_NO_RESPONSE');
+    let settled = false;
+    promise.then(() => { settled = true; });
+
     expect(jest.getTimerCount()).toBe(1);
-    jest.advanceTimersByTime(10);
+    jest.advanceTimersByTime(50);
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    jest.advanceTimersByTime(449);
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    jest.advanceTimersByTime(1);
+    await expect(promise).resolves.toBeNull();
     expect(jest.getTimerCount()).toBe(0);
   });
 
