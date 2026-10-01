@@ -2,11 +2,11 @@
   "index": 107,
   "file": "tests/integration/chapter-dedup.test.js",
   "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 22",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": "2026-09-30T06:33:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "107-001",
@@ -71,5 +71,10 @@
       "audit_finding": "ACCEPTED. O bloco de persistência mescla `${chapterId}_images` manualmente no storage mock e não passa por `persistTranslatedPage`, `SM_SAVE_PAGE` ou Storage Manager atual.",
       "auditor_recommended_action": "Adicionar cenário com `cm-chapter.js` e persistência moderna reais, verificando duas sessões associadas ao mesmo chapterId."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

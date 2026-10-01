@@ -2,11 +2,11 @@
   "index": 105,
   "file": "tests/helpers/track-background-delay-timers.js",
   "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 7",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
   "started_at_utc": "2026-09-30T06:20:00Z",
-  "completed_at_utc": "2026-09-30T06:23:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "105-001",
@@ -42,5 +42,10 @@
     "direct_specific_proof": "4_000 ms capture/cancel/count",
     "external_audit_requests_open": 1,
     "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

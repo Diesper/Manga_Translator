@@ -2,11 +2,11 @@
   "index": 102,
   "file": "tests/helpers/load-content-script.js",
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 10",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
   "started_at_utc": "2026-09-30T06:21:00Z",
-  "completed_at_utc": "2026-09-30T06:29:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "102-001",
@@ -102,5 +102,10 @@
     "bible_lines": 862,
     "external_audit_requests_open": 4,
     "note": "Fonte integral verificada byte/texto contra o blob; cobertura por faixas contíguas 1-172; nenhum arquivo externo alterado."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

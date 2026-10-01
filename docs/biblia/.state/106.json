@@ -2,11 +2,11 @@
   "index": 106,
   "file": "tests/integration/banned-images-flow.test.js",
   "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
   "started_at_utc": "2026-09-30T06:22:33Z",
-  "completed_at_utc": "2026-09-30T06:32:28Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "106-001",
@@ -60,5 +60,10 @@
     "bible_lines": 1582,
     "external_audit_requests_open": 2,
     "evidence_note": "O #106 testa um modelo sintético; provas do código real foram atribuídas apenas a suítes externas que carregam as implementações reais. A integração popup→storage→botão real em uma única prova continua ausente."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

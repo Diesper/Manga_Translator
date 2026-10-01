@@ -2,11 +2,11 @@
   "index": 99,
   "file": "tests/helpers/extracted-functions.js",
   "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 3",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
   "started_at_utc": "2026-09-30T06:25:00Z",
-  "completed_at_utc": "2026-09-30T15:01:46.354Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "099-001",
@@ -105,5 +105,10 @@
       "tests/unit/background/download-wait.test.js",
       "tests/unit/background/regex-escape.test.js"
     ]
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

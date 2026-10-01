@@ -2,11 +2,11 @@
   "index": 101,
   "file": "tests/helpers/load-content-gemini-module.js",
   "bible": "docs/biblia/tests/helpers/load-content-gemini-module.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 9",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
   "started_at_utc": "2026-09-30T06:20:00Z",
-  "completed_at_utc": "2026-09-30T06:23:52.804Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "101-001",
@@ -88,5 +88,10 @@
       "audit_finding": "ACCEPTED. `rpa-flow.test.js` e `resolution-elevation.test.js` repetem manualmente a sequência de requires do content Gemini em vez de usar `load-content-gemini-module.js`. A duplicação hoje é funcional, mas pode derivar quando novos módulos obrigatórios entrarem.",
       "auditor_recommended_action": "Decidir se o controle fino desses loaders justifica a duplicação; caso contrário, centralizar a sequência ou ao menos protegê-la por gate anti-drift."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

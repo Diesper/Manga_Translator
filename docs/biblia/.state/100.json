@@ -2,11 +2,11 @@
   "index": 100,
   "file": "tests/helpers/load-background-module.js",
   "bible": "docs/biblia/tests/helpers/load-background-module.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 8",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113",
   "started_at_utc": "2026-09-30T06:21:00Z",
-  "completed_at_utc": "2026-09-30T06:28:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "100-001",
@@ -102,5 +102,10 @@
     "bible_lines": 826,
     "external_audit_requests_open": 4,
     "note": "Conclusão documental; nenhuma mudança funcional foi usada para fabricar evidência."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

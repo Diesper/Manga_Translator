@@ -2,11 +2,11 @@
   "index": 104,
   "file": "tests/helpers/repo-root.js",
   "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 19",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
   "started_at_utc": "2026-09-30T06:26:00Z",
-  "completed_at_utc": "2026-09-30T06:34:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "104-001",
@@ -46,5 +46,10 @@
       109437162754,
       109437162789
     ]
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
