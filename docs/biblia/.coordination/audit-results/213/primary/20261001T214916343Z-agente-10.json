@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "index": 213,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 10",
+  "file": "tests/unit/inject/inject-anti-hibernation.test.js",
+  "bible": "docs/biblia/tests/unit/inject/inject-anti-hibernation.test.js/Bíblia.md",
+  "source_sha": "22cc82c2ea7bc2b5fb5d588a29af5895648f4fc4",
+  "bible_sha": "e0db19be76201eb7b212012cd0f7e29252574801",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A10-213-P-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia rotula 213-001, 213-002, 213-003 e 213-004 como OPEN, enquanto o state canônico registra os quatro como ACCEPTED.",
+      "evidence": [
+        "Bíblia §10: `213-001 — TEST_CORRECTION — OPEN`.",
+        "Bíblia §10: `213-002 — TEST_CORRECTION — OPEN`.",
+        "Bíblia §10: `213-003 — TEST_REQUIRED — OPEN`.",
+        "Bíblia §10: `213-004 — TEST_MAINTENANCE — OPEN`.",
+        ".state/213.json registra status ACCEPTED para 213-001..004."
+      ],
+      "required_change": "Atualizar na Bíblia o lifecycle de 213-001..004 para ACCEPTED, preservando severidade, conteúdo, target e ações já auditadas; revisar resumos que os tratem como OPEN."
+    }
+  ],
+  "audit_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests_and_assertions": "CONFIRMADO_3X",
+    "evidence_strength": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_and_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passed_points": [
+    "Fonte integral da Bíblia coincide com o blob atual: 276 linhas textuais + newline final = 277 posições.",
+    "As 17 faixas documentais cobrem 277/277 posições sem gaps ou overlaps.",
+    "A Bíblia representa honestamente que inject.js real não é executado pela suíte e separa mirror/harness, gate estático e ausência de prova específica.",
+    "Manifest confirma content/inject.js em world MAIN/document_start para Gemini e localhost.",
+    "inject.js atual confirma Map/origCancelRaf/setTimeout progressivo, idle callbacks, eventos SET_MODE/PULSE, sessionStorage e áudio condicionado a isTrusted, coerentes com riscos/lacunas documentados.",
+    "Jest/package/CI incluem a suíte via project content-scripts; 17 testes e 31 assertions foram inspecionados no arquivo focal.",
+    "Os quatro audit_requests são materialmente pertinentes e já foram auditados como ACCEPTED; o defeito atual é apenas a representação stale do lifecycle na Bíblia."
+  ],
+  "adversarial_attempt": "Tentativa formal de reprovação atacou source-string gates, mirrors divergentes, claims de cobertura completa, MAIN world, rAF/idle/mode/audio, wiring Jest/CI, fonte integral, faixas e lifecycle. A Bíblia foi conservadora nos limites técnicos, mas falhou no lifecycle dos quatro requests.",
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:49:16.343Z"
+}
