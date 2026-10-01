@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/image-quarantine.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: b2c73b79c8824e5507e436a75ec9abc663919c6b
-CLAIMED_AT_UTC: 2026-10-01T18:51:02.979Z
-UPDATED_AT_UTC: 2026-10-01T18:51:02.979Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
