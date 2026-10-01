@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/test_bg59.test.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA TÉCNICA APROVADA  
+> **Estado documental:** 🟡 CORRIGIDO após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** ae96b142717418e4071fd160b6c521412da03090  
 > **Agente responsável:** AGENTE 2  
 > **Tipo:** Jest unit/integration-like de background real / fingerprint visual  
@@ -33,6 +33,15 @@ O cenário controla somente as fronteiras que não existem no Node: Chrome APIs,
 → callback runtime assíncrono.
 
 O alias é registrado em `extension/background/router.js` como `CALCULATE_VISUAL_FINGERPRINT → calculate-visual-fingerprint`.
+
+### Consumers de produção do contrato
+
+Além deste harness, há consumers runtime que enviam `CALCULATE_VISUAL_FINGERPRINT`:
+
+- `extension/content/cm-gtc-client.js`;
+- `extension/content/content_manga.js`.
+
+Ambos consomem o payload de fingerprint incluindo `pixelSample`, `dHash`, `wHash`, `pHash`, `wHashCrop`, `pHashCrop` e `regionalHashes`. Essa cadeia é evidência de consumo do **contrato de resposta**, distinta da prova deste teste e distinta da implementação matemática dos hashes.
 
 ## 3. Harness e dependências
 
@@ -88,7 +97,7 @@ A estratégia separa duas responsabilidades:
 | wHash chamado 2× | cardinalidade | ✅ PROVADO DIRETAMENTE |
 | pHash chamado 2× | cardinalidade | ✅ PROVADO DIRETAMENTE |
 | regional chamado 1× | cardinalidade | ✅ PROVADO DIRETAMENTE |
-| crop retrato 800×1200 → 800×800 em y=200 → 32×32 | argumentos drawImage | ✅ PROVADO DIRETAMENTE |
+| crop retrato 800×1200 → 800×800 em y=200 → 32×32 | source real + argumentos capturados por matcher sem ordem | 🟨 FATO DO SOURCE; a assertion usa `arrayContaining` e não prova a ordem posicional completa |
 | bitmap é fechado no sucesso | `closeBitmap` chamado | ✅ PROVADO DIRETAMENTE |
 
 ## 6. O que este arquivo não prova sozinho
@@ -146,7 +155,7 @@ O payload já contém campos de crop associados ao contrato mais novo. A inconsi
 
 ## 10. Solicitação ao auditor
 
-### 172-001 — CONTRACT_NAMING_REVIEW — OPEN
+### 172-001 — CONTRACT_NAMING_REVIEW — ACCEPTED
 
 **Arquivos relacionados:** `tests/unit/background/test_bg59.test.js`, `extension/background/actions/calculate-visual-fingerprint.js`
 
@@ -174,7 +183,7 @@ O payload já contém campos de crop associados ao contrato mais novo. A inconsi
 6. pixelSample de 8×8 RGBA deve continuar sendo hex de 512 caracteres.
 7. dHash deve usar o caminho dedicado de hash.
 8. wHash e pHash devem produzir full-frame e crop quando a imagem não é quadrada.
-9. Para 800×1200, center-crop deve continuar 0,200,800,800.
+9. Para 800×1200, center-crop deve continuar 0,200,800,800. Isso é verdadeiro no source atual; o matcher `arrayContaining` da suíte não fixa a ordem dos oito argumentos.
 10. Hashes regionais devem ser preservados no response.
 11. ImageBitmap deve ser fechado no caminho feliz e em falha após criação.
 12. O teste de wiring não deve ser confundido com prova do algoritmo de hash.
@@ -2971,7 +2980,7 @@ O blob auditado possui newline final. A posição documental **163** representa 
 - loader/dispatcher inspecionados: **sim**.
 - suíte focal complementar inspecionada: **sim**.
 - algoritmo real de fingerprint distinguido dos mocks deste teste: **sim**.
-- solicitação externa registrada sem alterar fonte/testes: **1 OPEN**.
+- solicitação externa registrada: **172-001 ACCEPTED**; não há request OPEN nesta revisão.
 
 ### Conclusão
 
