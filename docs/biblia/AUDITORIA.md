@@ -1625,3 +1625,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** ✅ APROVADO
 
+### `runner.js` — auditoria independente pelo AGENTE 12 em 2026-10-01
+
+- **Índice:** #233 — `tests/visual/runner.js`.
+- **Auditor:** AGENTE 12.
+- **SHA auditado:** `fe34764874cac8961bf6c614f5f6d5f85a599763`.
+- **Integridade:** state, source, claim e SHA declarado na Bíblia apontam para o mesmo blob; a fonte integral embutida é byte a byte idêntica ao source atual. O arquivo possui 160 linhas textuais + LF final = **161/161 posições**.
+- **Cobertura:** 18 faixas cobrem exatamente 1–161, sem gaps, overlaps ou posições fora do arquivo.
+- **Consumers/execução:** as seis suítes visuais somam exatamente **224 registros**, sendo **112 `it` + 112 `ita`**. Foram reconfirmados **7 `beforeEach`**, **0 `afterEach`** e nenhum `it(..., async ...)` atual. As contagens de matchers declaradas na Bíblia também batem com os consumers.
+- **Wiring:** `run-all.js`, `package.json`, `.github/workflows/ci.yml` e `test-baseline.json` confirmam o fluxo real, `visual.minTests = 224` e `visual.maxSkipped = 0`. `verify-ci-contract.js` valida `visual.minTests`, mas não possui validação equivalente de schema/faixa para `visual.maxSkipped`.
+- **Falha documental 1 — lifecycle das audit requests stale:** a Bíblia registra 233-001..233-005 como **OPEN**. O state canônico registra 233-001/003/004/005 como **ACCEPTED** e 233-002 como **SUPERSEDED por 228-004**. O próprio `document_quality.external_audit_requests_open = 5` e a nota “solicitações externas permanecem OPEN” também estão stale; o número real de requests OPEN é zero.
+- **Falha documental 2 — seção de invariantes contradiz o comportamento real já reconhecido:** a Bíblia afirma que falhas de hook não podem ser silenciosamente convertidas em pass, que matcher inexistente deve falhar e que callback assíncrono não pode ser marcado pass antes da resolução. Porém o source atual engole erros de hooks nas linhas 45/56/67/78, o Proxy de `.not` trata TypeError de matcher inexistente como sucesso da negação nas linhas 117–120, e `it()` chama `fn()` sem await e incrementa pass nas linhas 47–49. As seções 7.1, 7.2 e 7.4 da própria Bíblia descrevem corretamente esses defeitos; portanto a seção “Invariantes” precisa ser qualificada como contrato desejado/atualmente violado ou reescrita para não soar como descrição factual do estado atual.
+- **Audit requests:** 233-001, 233-003, 233-004 e 233-005 permanecem materialmente válidas e ACCEPTED; 233-002 está corretamente SUPERSEDED por 228-004, que foi revalidada como ACCEPTED. Essas dívidas técnicas não bloqueiam por si só a documentação; o blocker é a inconsistência documental/lifecycle.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; semântica=CONTRADITO na seção de invariantes; audit requests=CONTRADITO quanto ao lifecycle; histórico/state=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas, incluindo releitura do source, tentativa formal de reprovação, segunda auditoria da própria conclusão e revalidação final sob `PROGRESS.lock.md`.
+- **Checks finais:** Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto os rótulos OPEN e as invariantes não forem corrigidos/qualificados.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
