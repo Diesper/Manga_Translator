@@ -2,8 +2,8 @@
   "index": 104,
   "file": "tests/helpers/repo-root.js",
   "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
   "started_at_utc": "2026-09-30T06:26:00Z",
   "completed_at_utc": null,
@@ -52,7 +52,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:26:00Z",
+  "updated_at_utc": "2026-10-01T05:38:24Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:26:00Z",
@@ -62,6 +62,15 @@
       "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
       "auditor": "AGENTE 10",
       "reason": "A Bíblia rotula a request 104-001 como OPEN e diz que pode permanecer OPEN, mas o state canônico atual registra a request como ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T05:38:24Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir lifecycle stale 104-001 na Bíblia, alinhando OPEN duplicado ao state canônico ACCEPTED."
     }
   ],
   "evidence": [
