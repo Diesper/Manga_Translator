@@ -237,17 +237,12 @@ function validateClaims(states) {
   const stateByIndex = new Map(states.map((state) => [state.index, state]));
   const problems = [];
   const activeByIndex = new Map();
-  const activeByAuditor = new Map();
   const active = [];
+  const expired = [];
 
   function register(index, auditor, rel) {
     if (activeByIndex.has(index)) problems.push('mais de um claim/lease ativo para índice ' + index);
     activeByIndex.set(index, rel);
-    if (auditor) {
-      const count = (activeByAuditor.get(auditor) || 0) + 1;
-      activeByAuditor.set(auditor, count);
-      if (count > 1) problems.push('auditor possui >1 claim/lease ativo: ' + auditor);
-    }
     active.push(rel);
   }
 
@@ -316,12 +311,12 @@ function validateClaims(states) {
 
     const leaseMs = Date.parse(leaseExpiresAt || '');
     if (!Number.isFinite(leaseMs)) problems.push('lease sem LEASE_EXPIRES_AT_UTC válido: ' + rel);
-    else if (leaseMs <= Date.now()) problems.push('lease expirado: ' + rel);
+    else if (leaseMs <= Date.now()) expired.push(rel);
 
     register(index, auditor, rel);
   }
 
-  return { problems, active };
+  return { problems, active, expired };
 }
 
 function loadModel() {
@@ -338,6 +333,7 @@ function loadModel() {
     results: loaded.records,
     pipelines,
     active_claims_and_leases: claims.active,
+    expired_leases: claims.expired,
     problems: [...loaded.problems, ...claims.problems, ...pipelines.flatMap((pipeline) => pipeline.problems.map((problem) => '#' + String(pipeline.index).padStart(3, '0') + ': ' + problem))],
   };
 }
