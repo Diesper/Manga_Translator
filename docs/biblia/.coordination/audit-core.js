@@ -58,6 +58,10 @@ function recordMatchesCurrentBible(record, state, options = {}) {
     return String(record.bible_sha).toLowerCase() === current.toLowerCase();
   }
 
+  // Compatibilidade pré-migração/fixtures: sem baseline instalada ainda
+  // não existe uma revisão documental canônica contra a qual comparar.
+  if (!options.baseline) return true;
+
   // Compatibilidade de migração: schema v1 não conhecia bible_sha.
   // Ele só permanece válido enquanto a Bíblia continuar byte-a-byte igual
   // à baseline capturada no início da migração distribuída.
