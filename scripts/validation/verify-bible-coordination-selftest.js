@@ -144,6 +144,15 @@ expectFail('fonte realmente divergente falha','fonte integral realmente divergen
 });
 
 expectPass('coverage V2 por intervalos passa');
+expectPass('coverage em tabela legada passa',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  const bible=v2Bible(s.file,s.source_sha,source,'## Mapa integral\n\n| Linhas | Papel |\n|---:|---|\n| 1–2 | fixture |');
+  write(root,s.bible,bible);
+});
+expectPass('coverage com heading numerado passa',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### 1. Linhas 1–2 — fixture'));
+});
 expectPass('coverage V1 passa',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
   write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### Linha 1\nok\n\n### Linha 2\nok'));
