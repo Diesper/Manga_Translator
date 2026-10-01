@@ -5,12 +5,20 @@ const path = require('path');
 const {
   parseAuditRegistry,
   buildDerived,
+  validateBibleCoordination,
+  evaluateMergeReadiness,
 } = require('./bible-coordination');
 
 const root = path.resolve(__dirname, '../..');
 const bibleRoot = path.join(root, 'docs', 'biblia');
 const stateRoot = path.join(bibleRoot, '.state');
-const mode = process.argv.includes('--write') ? 'write' : 'check';
+const writeMode = process.argv.includes('--write');
+const mergeReadyMode = process.argv.includes('--merge-ready');
+if (writeMode && mergeReadyMode) {
+  console.error('Use --write ou --merge-ready, não ambos.');
+  process.exit(2);
+}
+const mode = writeMode ? 'write' : (mergeReadyMode ? 'merge-ready' : 'check');
 
 function readStates() {
   const names = fs.readdirSync(stateRoot)
@@ -58,3 +66,32 @@ if (stale.length) {
   process.exit(1);
 }
 process.stdout.write('Bible projections check: SUCCESS\n');
+
+if (mode === 'merge-ready') {
+  const validation = validateBibleCoordination(root, {
+    checkDerived: true,
+    headLabel: 'states-v2',
+  });
+  const progressLockActive = fs.existsSync(path.join(bibleRoot, '.coordination', 'PROGRESS.lock.md'));
+  const readiness = evaluateMergeReadiness(validation, { progressLockActive });
+
+  process.stdout.write(
+    'Merge readiness local: states=' + readiness.counts.states
+    + ', completed=' + readiness.counts.completed
+    + ', nonCompleted=' + readiness.counts.nonCompleted
+    + ', reservations=' + readiness.counts.reservations
+    + ', auditClaims=' + readiness.counts.auditClaims
+    + ', requests.OPEN=' + readiness.counts.requests.OPEN
+    + '\n'
+  );
+
+  if (!readiness.ready) {
+    console.error('Repository-local merge readiness: NOT_READY');
+    for (const blocker of readiness.blockers) console.error('- ' + blocker);
+    console.error('External requirement remains: GitHub Actions must pass for the exact final SHA.');
+    process.exit(1);
+  }
+
+  process.stdout.write('Repository-local merge readiness: READY\n');
+  process.stdout.write('External requirement: GitHub Actions must pass for the exact final SHA.\n');
+}
