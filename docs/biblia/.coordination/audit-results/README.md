@@ -68,3 +68,14 @@ node docs/biblia/.coordination/audit-protocol.js verify
 node scripts/validation/verify-bible-merge-readiness.js
 ~~~
 
+## Binding de revisão documental — schema v2
+
+Resultados novos DEVEM usar `schema_version: 2` e registrar também:
+
+```json
+"bible_sha": "<git-blob-sha de docs/biblia/<arquivo>/Bíblia.md>"
+```
+
+A unidade auditada é `SOURCE_SHA + BIBLE_SHA`. Alterar somente a Bíblia invalida PRIMARY/ADVERSARIAL/REAUDIT da revisão anterior.
+
+Resultados históricos schema v1 permanecem válidos apenas enquanto a Bíblia for byte-a-byte igual à baseline registrada em `../audit-bible-baseline.json`. Isso preserva o trabalho em voo durante a migração sem permitir reutilização depois de uma correção documental.
