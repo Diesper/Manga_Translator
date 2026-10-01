@@ -42,6 +42,6 @@ Os arquivos abaixo **não pertencem a nenhum agente** e **jamais devem receber r
 - `docs/biblia/AUDITORIA.md`;
 - corpo do PR #66.
 
-Eles são estado compartilhado. Para alterá-los, adquirir temporariamente `docs/biblia/.coordination/PROGRESS.lock.md`, reler o HEAD, aplicar o menor delta válido, verificar e liberar o mutex.
+Eles são estado compartilhado e não usam ownership editorial. O caminho normal não depende de `PROGRESS.lock.md`: releia o HEAD, verifique a versão observada, aplique o menor delta possível e publique por escrita condicional/CAS. Projeções globais podem ser reconciliadas em lote por `reconcile-audit-results.js`.
 
-Ter `PROGRESS.lock.md` não transforma o agente em proprietário dos arquivos globais.
+`PROGRESS.lock.md` é legado e não pode ser pré-requisito para editar, auditar, publicar resultados ou reconciliar uma Bíblia individual.
