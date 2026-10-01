@@ -4,11 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const childProcess = require('child_process');
-const {
-  loadAuditResults,
-  evaluateAuditPipelines,
-  displayAuditStatus,
-} = require('./bible-audit-pipeline');
 
 const LIFECYCLE = new Set(['PENDING','IN_PROGRESS','READY_FOR_AUDIT','CHANGES_REQUIRED','BLOCKED','COMPLETED']);
 const COORDINATION = new Set(['OK','REPAIR_REQUIRED']);
@@ -296,7 +291,7 @@ function auditResultForSource(entry, sourceSha) {
   return entry.result || 'NOT_AUDITED';
 }
 
-function buildDerived(states, audits, headLabel, auditPipelines = null) {
+function buildDerived(states, audits, headLabel) {
   const counters = Object.fromEntries([...LIFECYCLE].map((s) => [s, 0]));
   const requestCounters = Object.fromEntries([...REQUEST_STATUSES].map((s) => [s, 0]));
   for (const state of states) {
@@ -309,7 +304,7 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
   const statusLines = [
     '# Status — Bíblia técnica por arquivo',
     '',
-    '> Arquivo gerado deterministicamente a partir de .state/*.json, resultados distribuídos de auditoria, AUDITORIA.md legado e filesystem.',
+    '> Arquivo gerado deterministicamente a partir de .state/*.json, AUDITORIA.md e filesystem.',
     '',
     '## Snapshot',
     '',
@@ -322,10 +317,8 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
   statusLines.push('', '## Itens', '', '| # | arquivo | status | auditoria | owner | SHA | requests |', '|---:|---|---|---|---|---|---:|');
   for (const state of states) {
     const audit = audits.get(state.index);
-    const pipeline = auditPipelines instanceof Map ? auditPipelines.get(state.index) : null;
-    const auditStatus = pipeline ? displayAuditStatus(pipeline, audit) : auditResultForSource(audit, state.source_sha || '');
     statusLines.push('| ' + String(state.index).padStart(3,'0') + ' | ' + state.file + ' | ' + state.status + ' | '
-      + auditStatus + ' | ' + (state.status === 'IN_PROGRESS' ? (state.agent || 'MISSING') : '-')
+      + auditResultForSource(audit, state.source_sha || '') + ' | ' + (state.status === 'IN_PROGRESS' ? (state.agent || 'MISSING') : '-')
       + ' | ' + (state.source_sha || '-') + ' | ' + (state.audit_requests || []).length + ' |');
   }
 
@@ -336,10 +329,7 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
     '',
   ];
   for (const state of states) {
-    const audit = audits.get(state.index);
-    const pipeline = auditPipelines instanceof Map ? auditPipelines.get(state.index) : null;
-    const pipelineApproved = Boolean(pipeline?.hasDistributed && pipeline.decision === 'APPROVED');
-    const checked = state.status === 'COMPLETED' && (pipelineApproved || approvalMatches(audit, state.source_sha || ''));
+    const checked = state.status === 'COMPLETED' && approvalMatches(audits.get(state.index), state.source_sha || '');
     checklistLines.push('- [' + (checked ? 'x' : ' ') + '] ' + String(state.index).padStart(3,'0')
       + ' — ' + String.fromCharCode(96) + state.file + String.fromCharCode(96) + ' — ' + state.status);
   }
@@ -358,6 +348,7 @@ function validateBibleCoordination(root, options = {}) {
   const stateRoot = path.join(bibleRoot, '.state');
   const reserveRoot = path.join(bibleRoot, '.reservas');
   const auditClaimRoot = path.join(bibleRoot, '.coordination', 'audit-claims');
+  const progressLockPath = path.join(bibleRoot, '.coordination', 'PROGRESS.lock.md');
   const auditPath = path.join(bibleRoot, 'AUDITORIA.md');
 
   const all = walk(bibleRoot).map((file) => slash(path.relative(root, file))).sort();
@@ -466,9 +457,20 @@ function validateBibleCoordination(root, options = {}) {
     if (state.status === 'COMPLETED' && lock) problems.push('COMPLETED com lock proibido: ' + state.file);
   }
 
-  // Claims de auditoria são leases particionados por índice e fase.
-  // O caminho normal de auditoria não usa lock global. Claims legados planos
-  // continuam aceitos como PRIMARY durante a migração.
+  let progressLock = null;
+  if (fs.existsSync(progressLockPath)) {
+    const progressSource = fs.readFileSync(progressLockPath, 'utf8');
+    const owner = coordinationField(progressSource, 'OWNER') || coordinationField(progressSource, 'AGENTE');
+    const indexRaw = coordinationField(progressSource, 'INDEX');
+    const index = indexRaw && /^\d+$/.test(indexRaw) ? Number(indexRaw) : null;
+    progressLock = { owner, index };
+  }
+
+  // Claims de auditoria são mutexes independentes dos locks de edição.
+  // Eles evitam trabalho duplicado sem conceder ownership de escrita da Bíblia.
+  // Durante a finalização, o claim pode coexistir transitoriamente com o estado
+  // terminal somente sob o PROGRESS.lock do mesmo auditor/índice e veredito
+  // independente já persistido no history para o mesmo SHA.
   const auditClaims = walk(auditClaimRoot)
     .map((file) => slash(path.relative(root, file)))
     .filter((file) => file.endsWith('.lock.md'))
@@ -485,26 +487,8 @@ function validateBibleCoordination(root, options = {}) {
     const biblePath = coordinationField(source, 'BIBLIA');
     const sourceSha = coordinationField(source, 'SOURCE_SHA');
     const claimState = coordinationField(source, 'ESTADO');
-    const declaredPhase = coordinationField(source, 'PHASE');
-    const leaseExpiresAt = coordinationField(source, 'LEASE_EXPIRES_AT_UTC');
-    const relativeClaim = claimFile.split('docs/biblia/.coordination/audit-claims/')[1] || '';
-    const phaseDir = relativeClaim.includes('/') ? relativeClaim.split('/')[0].toLowerCase() : null;
-    const pathPhase = phaseDir === 'primary' ? 'PRIMARY'
-      : phaseDir === 'adversarial' ? 'ADVERSARIAL'
-      : phaseDir === 'reaudit' ? 'REAUDIT'
-      : null;
-    const phase = pathPhase || 'PRIMARY';
-    const stagedClaim = Boolean(pathPhase);
 
     if (!canonicalName) problems.push('audit claim com nome inválido: ' + claimFile);
-    if (stagedClaim && String(declaredPhase || '').toUpperCase() !== phase) {
-      problems.push('audit claim PHASE diverge do path: ' + claimFile);
-    }
-    if (stagedClaim) {
-      const leaseMs = Date.parse(leaseExpiresAt || '');
-      if (!Number.isFinite(leaseMs)) problems.push('audit claim LEASE_EXPIRES_AT_UTC inválido/ausente: ' + claimFile);
-      else if (leaseMs <= Date.now()) problems.push('audit claim lease expirado: ' + claimFile);
-    }
     if (!auditor || !indexRaw || !sourcePath || !biblePath || !sourceSha || !claimState) {
       problems.push('audit claim incompleto: ' + claimFile);
       continue;
@@ -533,11 +517,20 @@ function validateBibleCoordination(root, options = {}) {
       problems.push('audit claim fora do corpus: ' + claimFile);
       continue;
     }
-    const allowedStatus = phase === 'PRIMARY'
-      ? state.status === 'READY_FOR_AUDIT'
-      : ['READY_FOR_AUDIT', 'COMPLETED'].includes(state.status);
-    if (!allowedStatus) {
-      problems.push('audit claim ' + phase + ' incompatível com status: #' + index + '/' + state.status);
+    const latestAuditEvent = Array.isArray(state.history) && state.history.length
+      ? state.history[state.history.length - 1]
+      : null;
+    const terminalVerdictMatches = (
+      (state.status === 'COMPLETED' && latestAuditEvent?.type === 'INDEPENDENT_AUDIT_APPROVED')
+      || (state.status === 'CHANGES_REQUIRED' && latestAuditEvent?.type === 'INDEPENDENT_AUDIT_CHANGES_REQUIRED')
+    ) && latestAuditEvent?.auditor === auditor
+      && latestAuditEvent?.source_sha === state.source_sha;
+    const transactionalFinalize = state.status !== 'READY_FOR_AUDIT'
+      && progressLock?.owner === auditor
+      && progressLock?.index === index
+      && terminalVerdictMatches;
+    if (state.status !== 'READY_FOR_AUDIT' && !transactionalFinalize) {
+      problems.push('audit claim exige READY_FOR_AUDIT: #' + index + '/' + state.status);
     }
     if (state.file !== sourcePath) problems.push('audit claim ARQUIVO diverge do state: #' + index);
     if (state.bible !== biblePath) problems.push('audit claim BIBLIA diverge do state: #' + index);
@@ -546,28 +539,21 @@ function validateBibleCoordination(root, options = {}) {
   }
 
   const audits = fs.existsSync(auditPath) ? parseAuditRegistry(fs.readFileSync(auditPath, 'utf8')) : new Map();
-  const distributed = loadAuditResults(root, states);
-  for (const problem of distributed.problems) problems.push(problem);
-  const pipelineEvaluation = evaluateAuditPipelines(states, distributed.records, audits);
-  for (const problem of pipelineEvaluation.problems) problems.push(problem);
-
   for (const state of states) {
-    const legacyApproved = approvalMatches(audits.get(state.index), state.source_sha || '');
-    const pipelineApproved = pipelineEvaluation.byIndex.get(state.index)?.decision === 'APPROVED';
-    if (state.status === 'COMPLETED' && !legacyApproved && !pipelineApproved) {
+    if (state.status === 'COMPLETED' && !approvalMatches(audits.get(state.index), state.source_sha || '')) {
       problems.push('COMPLETED sem auditoria APPROVED para SHA atual: #' + state.index + ' ' + state.file);
     }
   }
 
   if (options.checkDerived && states.length === 233) {
-    const generated = buildDerived(states, audits, options.headLabel || 'working-tree', pipelineEvaluation.byIndex);
+    const generated = buildDerived(states, audits, options.headLabel || 'working-tree');
     const currentStatus = fs.readFileSync(path.join(bibleRoot, 'STATUS.md'), 'utf8');
     const currentChecklist = fs.readFileSync(path.join(bibleRoot, 'CHECKLIST.md'), 'utf8');
     if (normalizeText(currentStatus).trimEnd() !== normalizeText(generated.status).trimEnd()) problems.push('STATUS.md derivado divergente/stale');
     if (normalizeText(currentChecklist).trimEnd() !== normalizeText(generated.checklist).trimEnd()) problems.push('CHECKLIST.md derivado divergente/stale');
   }
 
-  return { problems, states, audits, reservations, auditClaims, auditResults: distributed.records, auditPipelines: pipelineEvaluation.byIndex };
+  return { problems, states, audits, reservations, auditClaims };
 }
 
 function evaluateMergeReadiness(validation, options = {}) {
