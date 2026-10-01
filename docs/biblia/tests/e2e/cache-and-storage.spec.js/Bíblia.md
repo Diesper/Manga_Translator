@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/e2e/cache-and-storage.spec.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** b181989a9b89151ca17cbcbeb7db9342b98c9add  
 > **Agente responsável:** AGENTE 15  
 > **Tipo:** suíte E2E Playwright da extensão Chromium MV3  
@@ -282,7 +282,7 @@ Portanto existe execução real e bem-sucedida do mesmo blob auditado, sem retry
 
 ## 11. Solicitações ao auditor
 
-### 092-001 — TEST_RELIABILITY — OPEN — HIGH
+### 092-001 — TEST_RELIABILITY — ACCEPTED — HIGH
 
 **Encontrado:** resetExtensionState trata falhas de limpeza dos bancos IndexedDB como sucesso. req.onerror e tx.onerror resolvem a Promise e os dois blocos externos possuem catch vazio.
 
@@ -302,7 +302,7 @@ Portanto existe execução real e bem-sucedida do mesmo blob auditado, sem retry
 
 **Severidade:** HIGH.
 
-### 092-002 — TEST_REQUIRED — OPEN — NORMAL
+### 092-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** o branch visível de getBrowserModeConfig aceita show, visible, headed e ui, define slowMo=350 e não injeta --headless=new, mas a CI força stealth.
 
@@ -322,7 +322,7 @@ Portanto existe execução real e bem-sucedida do mesmo blob auditado, sem retry
 
 **Severidade:** NORMAL.
 
-### 092-003 — RESOURCE_CLEANUP — OPEN — NORMAL
+### 092-003 — RESOURCE_CLEANUP — ACCEPTED — NORMAL
 
 **Encontrado:** beforeAll cria userDataDir em os.tmpdir() e afterAll fecha browserContext, mas não remove explicitamente esse diretório. O módulo fs é importado, porém não é usado.
 
@@ -867,4 +867,4 @@ O arquivo não prova:
 - [x] três necessidades externas foram registradas como audit_requests;
 - [x] nenhum código, teste, fixture, workflow ou configuração foi alterado para fabricar evidência.
 
-**Resultado:** Bíblia documentalmente concluída para o blob b181989a9b89151ca17cbcbeb7db9342b98c9add. As solicitações 092-001, 092-002 e 092-003 permanecem abertas para processo auditor separado.
+**Resultado:** a substância técnica permanece vinculada ao blob b181989a9b89151ca17cbcbeb7db9342b98c9add. As solicitações 092-001, 092-002 e 092-003 estão ACCEPTED no state canônico; permanecem como lacunas reconhecidas, não como requests OPEN.
