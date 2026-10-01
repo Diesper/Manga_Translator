@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "2c1dae23927f61c40744d5951e7b21b568a648a0",
+  "source_sha": "23419325671c1a40a9a3042a16787c810984ce32",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:18:00Z",
+  "updated_at_utc": "2026-10-01T23:20:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -205,6 +205,13 @@
       "previous_source_sha": "2dec3601ea0c836ec4a79b41eb046a5049338d79",
       "current_source_sha": "2c1dae23927f61c40744d5951e7b21b568a648a0",
       "reason": "Helper corrigido para derivar bundle do manifest, limpar listeners inclusive após reload/falha parcial, rejeitar bootstrap incompleto, cancelar fallback de sendMessage e preservar action explícita."
+    },
+    {
+      "at_utc": "2026-10-01T23:20:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "2c1dae23927f61c40744d5951e7b21b568a648a0",
+      "current_source_sha": "23419325671c1a40a9a3042a16787c810984ce32",
+      "reason": "Reauditoria fechou riscos adicionais: listeners runtime stale, semântica return true, precedência de action e fixture DOM sem interpolação HTML."
     }
   ],
   "evidence": [
