@@ -39,8 +39,8 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 ## 4. Invariantes
 
 - `STATUS.md` e `CHECKLIST.md` nunca determinam ownership/lifecycle neste script.
-- Toda inconsistência documental deve vir de `bible-coordination.js` ou do checker de projeções.
-- A raiz de `extension/` permanece somente com `background.js` e `manifest.json`.
+- Inconsistências do **subsistema canônico das 233 Bíblias** (state/lifecycle/locks/claims/SHA/fonte/cobertura e projeções derivadas) são delegadas a `bible-coordination.js`/checker de projeções. Este verifier ainda valida diretamente contratos documentais de nível de repositório, como presença de `docs/Documentação.md`, `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, forma da raiz `docs/` e ausência de paths documentais legados.
+- Os **arquivos diretamente na raiz** de `extension/` permanecem somente `background.js` e `manifest.json`; diretórios canônicos como `background/`, `content/`, `options/`, `popup/`, `reader/` e `shared/` são permitidos e exigidos por outros contratos.
 - `package.json` e `package-lock.json` são únicos e canônicos na raiz.
 - Config Jest canônica: somente `jest.config.js`.
 - Configs Playwright permitidas: `playwright.config.js` e `scripts/ci/playwright-merge.config.js`.
@@ -468,9 +468,13 @@ Confere package/configs/runtime/testes/scripts/documentação, limita a raiz de 
 
 Importa `validateBibleCoordination`, executa com `checkDerived: false` e adiciona seus problemas ao gate geral. Projeções são verificadas separadamente.
 
-### Posições 98–143 — caminhos legados proibidos
+### Posições 98–142 — caminhos legados proibidos
 
 Lista e rejeita layouts antigos de extension/tests/scripts/docs removidos na reestruturação.
+
+### Posição 143 — transição para contratos de runtime
+
+Comentário estrutural que introduz o contrato interno do bloco 0-G; a lógica de Manifest/runtime começa na posição 144.
 
 ### Posições 144–233 — contratos de runtime/layout da extensão
 
