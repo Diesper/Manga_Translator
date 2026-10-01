@@ -2,7 +2,7 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
   "started_at_utc": "2026-09-30T06:14:00Z",
@@ -10,7 +10,7 @@
   "audit_requests": [
     {
       "id": "089-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "STRUCTURE_GATE_BUG",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -26,11 +26,13 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:49:00Z",
       "audit_finding": "ACCEPTED — bug estrutural confirmado. Ao listar `docs/biblia`, o verificador isenta apenas `.reservas/` e `.coordination/`; `.state/` não é infraestrutura permitida. Portanto `.state/*.json` cai em `unexpectedBibleFiles` apesar de ser parte obrigatória do protocolo atual.",
-      "auditor_recommended_action": "Adicionar `.state/` à infraestrutura permitida e validar seu formato explicitamente; criar self-test com árvore atual."
+      "auditor_recommended_action": "Adicionar `.state/` à infraestrutura permitida e validar seu formato explicitamente; criar self-test com árvore atual.",
+      "resolved_at_utc": "2026-10-01T04:56:00Z",
+      "resolution": "O verifier atual delega a infraestrutura de Bíblias a bible-coordination.js, que permite explicitamente .state/.reservas/.coordination; o self-test possui caso positivo dedicado."
     },
     {
       "id": "089-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "COORDINATION_CONTRACT_REVIEW",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -46,7 +48,9 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:49:00Z",
       "audit_finding": "ACCEPTED — contrato de coordenação desatualizado. O verificador deriva estados de STATUS/CHECKLIST/AUDITORIA e locks, mas não lê `.state/<index>.json`, embora o protocolo atual declare esses arquivos como estado canônico independente. Pode aceitar agregados stale ou rejeitar estado válido.",
-      "auditor_recommended_action": "Tornar `.state` fonte primária para status/agent/source_sha/audit_requests e validar agregados como projeções derivadas; checar 1:1 índice↔corpus↔bible."
+      "auditor_recommended_action": "Tornar `.state` fonte primária para status/agent/source_sha/audit_requests e validar agregados como projeções derivadas; checar 1:1 índice↔corpus↔bible.",
+      "resolved_at_utc": "2026-10-01T04:56:00Z",
+      "resolution": "bible-coordination.js lê .state/*.json como fonte primária, valida índice/file/bible/lifecycle/source_sha/audit_requests/locks e deriva STATUS/CHECKLIST; self-tests cobrem states e projeções stale."
     },
     {
       "id": "089-003",
@@ -66,11 +70,14 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:24:00Z",
       "audit_finding": "ACCEPTED. `verify-repository-structure.js` roda contra o checkout atual, mas não possui self-test em sandbox que muta uma regra por vez. O snapshot verde não prova cada detector negativo.",
-      "auditor_recommended_action": "Criar self-test de infraestrutura com árvore temporária usando o verifier real para presença/ausência, Bíblias, trackers, reservas, manifest, paths/configs/test discipline."
+      "auditor_recommended_action": "Criar self-test de infraestrutura com árvore temporária usando o verifier real para presença/ausência, Bíblias, trackers, reservas, manifest, paths/configs/test discipline.",
+      "reaudited_by": "AGENTE 3",
+      "reaudited_at_utc": "2026-10-01T04:56:00Z",
+      "reaudit_finding": "Permanece ACCEPTED no source atual."
     },
     {
       "id": "089-004",
-      "status": "ACCEPTED",
+      "status": "SUPERSEDED",
       "type": "PARSER_ROBUSTNESS_REVIEW",
       "target_file": "scripts/validation/verify-repository-structure.js",
       "found_while_auditing": "scripts/validation/verify-repository-structure.js",
@@ -86,7 +93,9 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:51:00Z",
       "audit_finding": "ACCEPTED — incompatibilidade real com os locks atuais. `coordinationField(...,'ESTADO')` preserva todo o texto após `ESTADO:` e o gate exige `state === 'ATIVA'`. Reservas existentes no branch usam formas como `ATIVA — EM ANDAMENTO`/`ATIVA — EM ANÁLISE`, que seriam rejeitadas apesar de semanticamente ativas.",
-      "auditor_recommended_action": "Definir enum/formato canônico para ESTADO e parsear o token base ou validar prefixo/estrutura; adicionar self-test com os formatos realmente emitidos pelos agentes."
+      "auditor_recommended_action": "Definir enum/formato canônico para ESTADO e parsear o token base ou validar prefixo/estrutura; adicionar self-test com os formatos realmente emitidos pelos agentes.",
+      "superseded_at_utc": "2026-10-01T04:56:00Z",
+      "superseded_reason": "A arquitetura foi substituída: verify-repository-structure.js não contém mais o parser/checagem state === 'ATIVA' que originava o falso negativo. A coordenação de locks foi movida para bible-coordination.js."
     },
     {
       "id": "089-005",
@@ -106,12 +115,15 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:24:00Z",
       "audit_finding": "ACCEPTED. `requirePresent` usa apenas `fs.existsSync`; para entradas cujo tipo é parte do contrato, arquivo e diretório homônimos são indistinguíveis nessa etapa.",
-      "auditor_recommended_action": "Definir quais paths exigem file/dir e usar stat/lstat; adicionar fixture substituindo diretório requerido por arquivo."
+      "auditor_recommended_action": "Definir quais paths exigem file/dir e usar stat/lstat; adicionar fixture substituindo diretório requerido por arquivo.",
+      "reaudited_by": "AGENTE 3",
+      "reaudited_at_utc": "2026-10-01T04:56:00Z",
+      "reaudit_finding": "Permanece ACCEPTED no source atual."
     }
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T02:55:00Z",
+  "updated_at_utc": "2026-10-01T04:56:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -136,6 +148,15 @@
       "to_status": "READY_FOR_AUDIT",
       "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
       "reason": "Bíblia #089 reconstruída em schema V2 para o validador estrutural atual, após remoção do bloco inline obsoleto."
+    },
+    {
+      "at_utc": "2026-10-01T04:56:00Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+      "auditor": "AGENTE 3",
+      "reason": "Falhas documentais materiais: semântica de exceções/aggregação overstated; faixa 346–363 semanticamente incorreta; consumer verify-ci-contract.js omitido."
     }
   ],
   "evidence": []
