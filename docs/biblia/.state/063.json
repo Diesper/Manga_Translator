@@ -2,11 +2,11 @@
   "index": 63,
   "file": "package.json",
   "bible": "docs/biblia/package.json/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
-  "source_sha": "33e0b91d1a6f1790124b700d2ce331f80d2b7095",
+  "source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
   "started_at_utc": "2026-09-30T14:10:00Z",
-  "completed_at_utc": "2026-09-30T14:16:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "063-001",
@@ -83,7 +83,17 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T02:36:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T02:36:00Z",
+      "type": "SOURCE_SHA_INVALIDATION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "33e0b91d1a6f1790124b700d2ce331f80d2b7095",
+      "current_source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "reason": "Fonte mudou durante a infraestrutura documental necessária do recovery; aprovação/Bíblia anterior não pode permanecer vinculada ao SHA antigo."
+    }
+  ],
   "evidence": []
 }
