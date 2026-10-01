@@ -2,8 +2,8 @@
   "index": 185,
   "file": "tests/unit/content-gemini/resolution-elevation.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/resolution-elevation.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
   "started_at_utc": "2026-09-30T17:05:00Z",
   "completed_at_utc": null,
@@ -93,7 +93,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T19:30:32.424Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T19:30:32.424Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a8ef465959d231766ee41b9397183b7cb6b53e36",
+      "reason": "185 PRIMARY+ADVERSARIAL: sincronizar lifecycle 185-001/002/003."
+    }
+  ],
   "evidence": []
 }
