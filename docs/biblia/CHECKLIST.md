@@ -119,7 +119,7 @@
 - [ ] 115 — `tests/integration/popup-translated-thumbnails.test.js` — CHANGES_REQUIRED
 - [ ] 116 — `tests/integration/popup.advanced.ui.test.js` — CHANGES_REQUIRED
 - [ ] 117 — `tests/integration/popup.ui.test.js` — CHANGES_REQUIRED
-- [ ] 118 — `tests/integration/reader.ui.test.js` — READY_FOR_AUDIT
+- [ ] 118 — `tests/integration/reader.ui.test.js` — CHANGES_REQUIRED
 - [ ] 119 — `tests/mocks/chrome-api.mock.js` — READY_FOR_AUDIT
 - [ ] 120 — `tests/mocks/dom-environment.js` — READY_FOR_AUDIT
 - [ ] 121 — `tests/setup/create-test-images.js` — READY_FOR_AUDIT
