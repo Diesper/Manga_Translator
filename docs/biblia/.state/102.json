@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "23419325671c1a40a9a3042a16787c810984ce32",
+  "source_sha": "c026e750ce0afaf2d3d72d5ecb8c85e3bf5df7a7",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:20:00Z",
+  "updated_at_utc": "2026-10-01T23:24:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -212,6 +212,13 @@
       "previous_source_sha": "2c1dae23927f61c40744d5951e7b21b568a648a0",
       "current_source_sha": "23419325671c1a40a9a3042a16787c810984ce32",
       "reason": "Reauditoria fechou riscos adicionais: listeners runtime stale, semântica return true, precedência de action e fixture DOM sem interpolação HTML."
+    },
+    {
+      "at_utc": "2026-10-01T23:24:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "23419325671c1a40a9a3042a16787c810984ce32",
+      "current_source_sha": "c026e750ce0afaf2d3d72d5ecb8c85e3bf5df7a7",
+      "reason": "Reinjeção agora dispara pagehide da instância ativa antes de trocar ownership; cleanup Chrome continua removendo apenas listeners rastreados do bundle."
     }
   ],
   "evidence": [
