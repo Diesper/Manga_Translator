@@ -95,6 +95,20 @@ describe('load-content-script helper selftest', () => {
 
     expect(count).toBe(1);
   });
+  test('reinjeção remove listeners globais adicionados pelo bundle', async () => {
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    const windowRemoveSpy = jest.spyOn(window, 'removeEventListener');
+    const documentRemoveSpy = jest.spyOn(document, 'removeEventListener');
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    expect(windowRemoveSpy.mock.calls.some(([type]) => type === 'resize')).toBe(true);
+    expect(windowRemoveSpy.mock.calls.some(([type]) => type === 'pagehide')).toBe(true);
+    expect(documentRemoveSpy.mock.calls.some(([type]) => type === 'contextmenu')).toBe(true);
+    expect(documentRemoveSpy.mock.calls.some(([type]) => type === 'mousemove')).toBe(true);
+    expect(documentRemoveSpy.mock.calls.some(([type]) => type === 'mouseup')).toBe(true);
+  });
   test('reinjeção remove listeners de storage da carga anterior', async () => {
     await loadContentScript({
       hostname: 'reader.test',
