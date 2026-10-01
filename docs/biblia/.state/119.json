@@ -2,11 +2,11 @@
   "index": 119,
   "file": "tests/mocks/chrome-api.mock.js",
   "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T14:40:17.413Z",
   "audit_requests": [
     {
       "id": "119-001",
@@ -78,11 +78,31 @@
     "ranges_contiguous": true,
     "source_has_final_newline": true,
     "bible_lines": 1032,
-    "external_audit_requests_open": 3
+    "external_audit_requests_open": 0,
+    "note": "Auditoria independente confirmou fonte integral, cobertura 594/594, lifecycle/reset, fidelidade limitada e evidência focal; requests 119-001..003 permanecem ACCEPTED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T14:40:17.413Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T14:40:17.413Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+      "auditor": "AGENTE 6",
+      "reason": "Auditoria independente confirmou SHA, fonte integral, cobertura 594/594, lifecycle/reset, fidelidade limitada do mock, evidência focal e consumers reais. Requests 119-001..003 permanecem ACCEPTED como dívida externa não bloqueante."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T14:40:17.413Z",
+      "note": "Passagens 0–15 concluídas. Integridade, veracidade e honestidade confirmadas 3x para a Bíblia #119."
+    }
+  ]
 }
