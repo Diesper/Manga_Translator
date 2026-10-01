@@ -52,6 +52,31 @@ describe('load-content-script helper selftest', () => {
     expect(source.indexOf(jsdoc)).toBeLessThan(source.indexOf(signature));
     expect(source).toContain(signature);
   });
+  test('rejeita cargas concorrentes e libera o guard após a primeira terminar', async () => {
+    const first = loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).rejects.toThrow('loadContentScript não suporta cargas concorrentes no mesmo ambiente JSDOM');
+
+    await expect(first).resolves.toEqual(expect.objectContaining({
+      sendMessage: expect.any(Function),
+      getButton: expect.any(Function),
+      getMainContent: expect.any(Function),
+    }));
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).resolves.toEqual(expect.objectContaining({
+      sendMessage: expect.any(Function),
+    }));
+  });
+
   test('deriva o bundle Manga diretamente do manifest atual', () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'extension/manifest.json'), 'utf8')
