@@ -313,8 +313,9 @@ function validateBibleCoordination(root, options = {}) {
     if (!fs.existsSync(bibleAbs)) problems.push(stateFile + ': Bible ausente=' + expectedBible);
 
     if (fs.existsSync(sourceAbs)) {
-      const source = normalizeText(fs.readFileSync(sourceAbs, 'utf8'));
-      const currentSha = gitBlobSha(source);
+      const rawSource = fs.readFileSync(sourceAbs, 'utf8');
+      const currentSha = gitBlobSha(rawSource);
+      const source = normalizeText(rawSource);
       if (!/^[0-9a-f]{40}$/i.test(state.source_sha || '')) problems.push(stateFile + ': source_sha ausente/inválido');
       else if (state.source_sha !== currentSha) problems.push(stateFile + ': SHA stale declarado=' + state.source_sha + ' atual=' + currentSha);
 
