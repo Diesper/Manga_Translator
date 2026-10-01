@@ -32,22 +32,20 @@ jobs:
         shell: bash
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Validate protocol infrastructure before mutation
-        run: |
-          node docs/biblia/.coordination/audit-protocol-selftest.js
-          node scripts/validation/verify-bible-audit-pipeline-selftest.js
-          node scripts/validation/verify-bible-audit-shards-selftest.js
-          node docs/biblia/.coordination/reconcile-audit-results-selftest.js
-          node scripts/validation/verify-bible-coordination-selftest.js
+      - name: Validate canonical protocol infrastructure before mutation
+        run: npm run test:bible-protocol:infra
+
+      - name: Prove published audit results are immutable
+        run: npm run bible:audit:append-only
 
       - name: Reconcile append-only results into compatibility state
-        run: node docs/biblia/.coordination/reconcile-audit-results.js --write
+        run: npm run bible:reconcile:write
 
       - name: Remove only conclusively consumed claims and leases
-        run: node docs/biblia/.coordination/audit-lease-gc.js --write-safe
+        run: npm run bible:lease-gc:write
 
       - name: Prove reconciliation idempotence after cleanup
-        run: node docs/biblia/.coordination/reconcile-audit-results.js --check
+        run: npm run bible:reconcile:check
 
       - name: Commit checkpoint locally
         id: commit
