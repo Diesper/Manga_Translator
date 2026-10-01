@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/shared/storage-manager.js`
 
 > **Estado:** 🟡 CORRIGIDO — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `5d8c1d7fa1083b8c869f1ca6078a164fb4ad89fc`  
+> **SHA auditado:** `eff459953f6f2cf4c60a236b491f818a1ee1b88e`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — persistência IndexedDB do Manga Translator  
 > **Runtime principal:** Chromium MV3 Service Worker / páginas internas da extensão  
@@ -79,7 +79,7 @@ A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapt
 6. **⚠️ Restores órfãos da migração viram páginas com índices negativos.** `getChapterPageIndex`, `getChapterPageCount` e `getChaptersStats` não filtram negativos, então metadados/popup podem contar restores sem página como páginas reais.
 7. **⚠️ `pageIndex` aceita negativos e fracionários.** `savePageResult` usa `Number.isFinite`, não `>=0 && integer`. Isso é deliberadamente usado pela migração para órfãos, mas mistura duas categorias no mesmo store.
 8. **⚠️ Falhas/abort de IndexedDB não têm fault-injection específico.** Smoke prova o caminho feliz e atomicidade observada, mas não prova rollback quando `put/delete`/transaction falham.
-9. **⚠️ `chrome.storage.local` da migração ignora `chrome.runtime.lastError`.** Callbacks de get/set/remove são resolvidos como sucesso independentemente de erro da API.
+9. **🟨 `chrome.storage.local` agora propaga `chrome.runtime.lastError`, mas falta fault-injection focal.** `get`, `set` e `remove` rejeitam a Promise quando o callback observa `lastError`; é necessário teste que simule cada falha para impedir regressão.
 10. **⚠️ Data URLs não-base64 e malformadas não são testadas.** `decodeURIComponent` pode lançar; payloads gigantes criam múltiplas cópias em memória durante atob/Uint8Array/Blob.
 11. **⚠️ `blobToDataUrl` evita estouro de apply com chunks, mas ainda monta a imagem inteira em string binária antes de `btoa`.** Em páginas grandes isso pode duplicar significativamente o pico de memória.
 12. **⚠️ Não há `onversionchange`/`onblocked` na conexão.** Uma futura elevação de `SM_DB_VERSION` pode ser bloqueada por conexão antiga viva no mesmo processo.
@@ -331,7 +331,7 @@ async function savePageResult(chapterId, pageIndex, imageData, originalUrl, clea
         const obsolete = new Set();
         const previousPage = await _idbGet(pageStore, [chapterId, index]);
         if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);
-        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) restoreStore.delete([chapterId, previousPage.cleanUrl]);
+        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) { const staleRestore = await _idbGet(restoreStore, [chapterId, previousPage.cleanUrl]); if (staleRestore && staleRestore.assetId) obsolete.add(staleRestore.assetId); restoreStore.delete([chapterId, previousPage.cleanUrl]); }
         if (cleanUrl) {
             const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);
             if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);
@@ -558,7 +558,7 @@ async function migrateChapterFromLegacy(chapterId) {
 
     const flagKey = `_sm_migrated_${chapterId}`;
     const keys = [flagKey, `${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`];
-    const data = await new Promise(resolve => chrome.storage.local.get(keys, resolve));
+    const data = await new Promise((resolve, reject) => chrome.storage.local.get(keys, value => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.get falhou')); else resolve(value); }));
 
     if (data[flagKey]) return { migrated: 0, skipped: true };
 
@@ -611,10 +611,10 @@ async function migrateChapterFromLegacy(chapterId) {
         } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
-    await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));
+    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
     if (migrated > 0) {
-        await new Promise(resolve => chrome.storage.local.remove(
-            [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], resolve));
+        await new Promise((resolve, reject) => chrome.storage.local.remove(
+            [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));
     }
 
     return { migrated, skipped: false };
@@ -2391,9 +2391,9 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0193
 
-**Fonte:** `if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) restoreStore.delete([chapterId, previousPage.cleanUrl]);`  
+**Fonte:** `if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) { const staleRestore = await _idbGet(restoreStore, [chapterId, previousPage.cleanUrl]); if (staleRestore && staleRestore.assetId) obsolete.add(staleRestore.assetId); restoreStore.delete([chapterId, previousPage.cleanUrl]); }`  
 **O que faz:** Remove a entrada restore da URL anterior quando a mesma página muda de `cleanUrl`.  
-**Como faz:** Compara `previousPage.cleanUrl` com a nova `cleanUrl` e agenda `delete([chapterId, previousPage.cleanUrl])` na mesma transaction do overwrite.  
+**Como faz:** Compara a URL antiga com a nova, lê o restore antigo, inclui seu eventual `assetId` em `obsolete` e agenda a remoção da chave antiga na mesma transaction.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
 **Risco/alternativa:** O bug de restore órfão foi corrigido no source, mas a troca A→B ainda não possui regressão focal; abort da transaction também não é injetado.  
 **Evidência:** 🟨 SOURCE CORRIGIDO; CLEANURL-CHANGE AINDA NÃO ISOLADO — smoke atual sobrescreve usando a mesma cleanUrl.
@@ -2404,7 +2404,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Entra no branch que consulta/substitui restore somente quando existe nova `cleanUrl`.  
 **Como faz:** Evita criar/consultar restore para URL vazia, mantendo a página persistida sem auto-restore.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** A troca de cleanUrl agora remove a entrada antiga e coleta seu asset; rollback/abort e o cenário A→B ainda não têm regressão focal.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0195
@@ -2413,7 +2413,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Lê eventual restore já existente para a nova `cleanUrl`.  
 **Como faz:** Consulta a chave composta `[chapterId, cleanUrl]` dentro da mesma transaction.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** A troca de cleanUrl agora remove a entrada antiga e coleta seu asset; rollback/abort e o cenário A→B ainda não têm regressão focal.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0196
@@ -2422,7 +2422,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Marca o asset do restore anterior para remoção quando a nova cleanUrl já possuía registro.  
 **Como faz:** Adiciona `previousRestore.assetId` ao Set `obsolete`, deduplicando com o asset da página anterior.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** A troca de cleanUrl agora remove a entrada antiga e coleta seu asset; rollback/abort e o cenário A→B ainda não têm regressão focal.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0197
@@ -4434,12 +4434,12 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0420
 
-**Fonte:** `const data = await new Promise(resolve => chrome.storage.local.get(keys, resolve));`  
-**O que faz:** Inicializa `data` com `await new Promise(resolve => chrome.storage.local.get(keys, resolve));`.  
-**Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
+**Fonte:** `const data = await new Promise((resolve, reject) => chrome.storage.local.get(keys, value => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.get falhou')); else resolve(value); }));`  
+**O que faz:** Lê as chaves legadas e transforma `chrome.storage.local.get` em Promise que rejeita quando o callback expõe `runtime.lastError`.  
+**Como faz:** O callback consulta `chrome.runtime?.lastError`; em erro cria/rejeita `Error`, caso contrário resolve com o objeto retornado.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** O erro da API agora é propagado, mas não existe fault-injection focal de `storage.local.get`; restores órfãos ainda usam índices negativos.  
+**Evidência:** 🟨 CAMINHO FELIZ PROVADO; `lastError` AINDA NÃO INJETADO — smoke-04 usa mock de sucesso.
 
 ### Linha 0421
 
@@ -4661,9 +4661,9 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 **Fonte:** `try {`  
 **O que faz:** Abre o isolamento de erro para migrar uma página legada individual.  
-**Como faz:** Envolve `savePageResult(...)`; se esse save lançar, o `catch` da linha 451 suprime a falha e a iteração continua para a próxima página.  
+**Como faz:** Envolve `savePageResult(...)`; se esse save lançar, o `catch` da linha 451 encerra a migração com `{ failed: true }` antes de flag/cleanup.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** A perda por cleanup após falha foi removida; ainda falta fault-injection e restores órfãos continuam usando índices negativos.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0446
@@ -4832,9 +4832,9 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 **Fonte:** `try {`  
 **O que faz:** Abre o isolamento de erro para migrar um restore legado sem página correspondente.  
-**Como faz:** Envolve `savePageResult(...)` do restore órfão; se falhar, o `catch` vazio da linha 470 suprime a exceção e a migração segue para o próximo item.  
+**Como faz:** Envolve `savePageResult(...)` do restore órfão; se falhar, o `catch` da linha 470 encerra a migração com `{ failed: true }` antes de flag/cleanup.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** A perda por cleanup após falha foi removida; ainda falta fault-injection e o índice negativo do restore órfão permanece parte do desenho.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0465
@@ -4911,12 +4911,12 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0473
 
-**Fonte:** `await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));`  
-**O que faz:** Adapta `chrome.storage.local.set` para uma Promise **resolve-only** que aguarda o callback.  
-**Como faz:** Passa apenas `resolve` como callback; não existe caminho `reject` e `chrome.runtime.lastError` não é consultado, portanto erro da API pode ser tratado como conclusão bem-sucedida.  
+**Fonte:** `await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));`  
+**O que faz:** Grava a flag de migração por uma Promise que resolve no sucesso e rejeita se o callback expõe `runtime.lastError`.  
+**Como faz:** O callback consulta `chrome.runtime?.lastError`; se presente, rejeita com `Error`, caso contrário resolve.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** Falha de `set` já não vira sucesso silencioso, mas ainda não há fault-injection focal desta API.  
+**Evidência:** 🟨 SUCESSO PROVADO; ERRO AINDA NÃO INJETADO — smoke-04 confirma flag no happy path.
 
 ### Linha 0474
 
@@ -4929,21 +4929,21 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0475
 
-**Fonte:** `await new Promise(resolve => chrome.storage.local.remove(`  
-**O que faz:** Adapta `chrome.storage.local.remove` para uma Promise **resolve-only**.  
-**Como faz:** O callback passado nas linhas seguintes apenas resolve a Promise; não há `reject` nem leitura de `chrome.runtime.lastError`, então falha de remoção não é propagada.  
+**Fonte:** `await new Promise((resolve, reject) => chrome.storage.local.remove(`  
+**O que faz:** Inicia a Promise de remoção das chaves legadas com caminhos explícitos de resolve/reject.  
+**Como faz:** O callback completo está na linha 476 e rejeita quando `runtime.lastError` existe.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** Falha de remove é propagada; ainda falta fault-injection focal e uma falha depois da flag pode deixar flag=true com legado presente.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0476
 
-**Fonte:** `[\`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`], resolve));`  
+**Fonte:** `[\`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));`  
 **O que faz:** Passa as três chaves legadas do capítulo para `chrome.storage.local.remove`.  
-**Como faz:** Remove `<chapter>_images`, `<chapter>_restoreMap` e `<chapter>_restoreMeta` em uma única chamada após `migrated > 0`.  
+**Como faz:** Passa as três chaves em uma chamada; o callback consulta `runtime.lastError`, rejeita em erro e resolve somente quando a API não reporta falha.  
 **Por que assim:** Libera a cota ocupada por Base64 antigo depois da migração.  
-**Risco/alternativa:** Em migração parcial, esse cleanup pode apagar dados de itens que falharam; além disso `runtime.lastError` não é verificado.  
-**Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
+**Risco/alternativa:** A migração parcial retorna antes desta linha; porém uma falha de remove acontece depois da flag ter sido gravada e pode exigir política de recuperação específica.  
+**Evidência:** 🟨 SUCESSO PROVADO; ERRO DE REMOVE AINDA NÃO INJETADO — smoke-04 confirma cleanup no happy path.
 
 ### Linha 0477
 
