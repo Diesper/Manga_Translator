@@ -26,6 +26,9 @@ function assertIntroduces(name, baselineResult, mutatedResult, marker) {
   if (baseline.includes(marker)) {
     throw new Error(name + ': baseline já contém marcador=' + marker + '\n' + baseline);
   }
+  if (mutatedResult.status === 0) {
+    throw new Error(name + ': mutação deveria falhar, mas terminou com exit code 0\n' + mutated);
+  }
   if (!mutated.includes(marker)) {
     throw new Error(name + ': mutação não introduziu marcador=' + marker + '\n' + mutated);
   }
