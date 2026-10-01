@@ -2,8 +2,8 @@
   "index": 170,
   "file": "tests/unit/background/tab-identity.test.js",
   "bible": "docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
   "started_at_utc": "2026-09-30T14:00:00Z",
   "completed_at_utc": null,
@@ -82,7 +82,7 @@
     "documented_positions": "335/335",
     "source_text_lines": 334,
     "bible_lines": 2783,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -102,6 +102,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
       "reason": "A8-170-01..03: lifecycle, line 137 e classificação de evidência posicional."
+    },
+    {
+      "at_utc": "2026-10-01T18:32:17.496Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
+      "bible_sha": "527f64b211c32f75fe743dede11b984ca72eb0e9",
+      "reason": "A8-170-01..03 corrigidos; 272 posições reclassificadas para escopo de suíte/estrutural. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
