@@ -4,7 +4,7 @@
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
   "status": "CHANGES_REQUIRED",
   "agent": null,
-  "source_sha": "d280fa9a9094189013d09ac97bd32f3506f9520d",
+  "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -111,7 +111,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T02:36:00Z",
+  "updated_at_utc": "2026-10-01T02:49:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -121,6 +121,13 @@
       "previous_source_sha": "c4509784d71a0f52dc98e822159ffd6b45b0cd7d",
       "current_source_sha": "d280fa9a9094189013d09ac97bd32f3506f9520d",
       "reason": "Fonte mudou durante a infraestrutura documental necessária do recovery; aprovação/Bíblia anterior não pode permanecer vinculada ao SHA antigo."
+    },
+    {
+      "at_utc": "2026-10-01T02:49:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_REPAIR",
+      "previous_source_sha": "d280fa9a9094189013d09ac97bd32f3506f9520d",
+      "current_source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+      "reason": "Remoção de validador inline morto consolidou a implementação documental em bible-coordination.js antes da reconstrução da Bíblia #089."
     }
   ],
   "evidence": []
