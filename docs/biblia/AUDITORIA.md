@@ -1274,3 +1274,22 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### `repo-root.js` — auditoria independente SHA-bound pelo AGENTE 10 em 2026-10-01
+
+- **Índice:** #104 — `tests/helpers/repo-root.js`.
+- **Auditor:** AGENTE 10.
+- **SHA auditado:** `b2520d65820e7b9072602018b0f46609ac967c58`.
+- **Integridade:** state, source, claim e SHA declarado na Bíblia coincidem no mesmo blob. A fonte integral embutida é byte a byte idêntica ao arquivo atual: **23 linhas textuais + newline final = 24/24 posições**.
+- **Cobertura:** o mapa linha/posição enumera exatamente **1–24**, sem gaps, duplicidades ou posições fora do arquivo. A releitura posterior do source reproduziu a mesma correspondência.
+- **Semântica:** `findRepoRoot(startDir = __dirname)` resolve o início, testa `extension/manifest.json` do diretório corrente antes de subir, retorna o ancestral mais próximo que satisfaz `existsSync` e lança ao atingir o ponto fixo da raiz sem sentinela. A Bíblia descreve corretamente ausência de validação do conteúdo/tipo do sentinela, ausência de cache e comportamento síncrono.
+- **Consumers:** busca independente encontrou exatamente **31 consumers diretos**, os mesmos 31 listados na Bíblia; nenhum arquivo sob `tests/` foi alterado por este PR em relação à base, eliminando a hipótese de consumer novo do branch omitido pelo índice de busca da base.
+- **Evidência runtime:** o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f` contém exatamente o mesmo blob do helper. A run **36577447500** terminou com sucesso; jobs `109437162616` (Node 20), `109437162754` (Node 22) e `109437162789` (Windows) registram consumers representativos em PASS e resumo **109/109 suítes, 851/851 testes**. Isso sustenta **execução indireta** do caminho saudável, não prova focal do contrato.
+- **Assertions/evidence classification:** não foi localizado teste focal de `findRepoRoot`; a busca pela mensagem de erro retorna apenas a implementação. A Bíblia classifica corretamente raiz atual, ancestral mais próximo, erro, mensagem, caminho relativo e semântica existence-only como sem prova específica ou execução indireta; não promove CI verde a prova direta.
+- **Request 104-001:** a lacuna de teste focal permanece materialmente válida e está **ACCEPTED** no state. Ela é externa à fidelidade semântica da Bíblia e, por si só, **não bloqueia** conclusão documental.
+- **Falha bloqueante — lifecycle stale duplicado na Bíblia:** a seção 13 da Bíblia rotula `104-001 — TEST_REQUIRED — OPEN` e afirma que a solicitação pode permanecer OPEN, enquanto o state canônico atual registra `104-001.status = ACCEPTED`. Após três verificações independentes, a divergência persistiu. O documento precisa refletir o lifecycle corrente ou deixar de duplicar status mutável. O resumo autoral `document_quality.external_audit_requests_open` também estava stale e é normalizado no state durante esta finalização.
+- **Tentativa formal de reprovação:** SHA, fonte integral, cobertura, semântica, consumers e força das provas resistiram. A única objeção material sustentada é a afirmação de lifecycle OPEN incompatível com a evidência primária do state.
+- **Matriz crítica:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONFIRMADO_3X; audit requests=CONTRADITO apenas quanto ao status duplicado; lifecycle/state=CONTRADITO; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas; checks finais: Integridade=SIM, Veracidade=NÃO (status OPEN stale), Honestidade da classificação de evidência=SIM.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
