@@ -267,6 +267,30 @@ describe('load-content-script helper selftest', () => {
     }
   });
 
+  test('throw do teardown não impede cleanup nem prende o guard de carga', async () => {
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    const globalRegistry = globalThis.__manga_translator_harness_global_event_listeners;
+    const pagehideEntry = globalRegistry.find(entry => entry.target === window && entry.type === 'pagehide');
+    expect(pagehideEntry).toBeTruthy();
+    pagehideEntry.listener = () => { throw new Error('teardown-boom'); };
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).rejects.toThrow('teardown-boom');
+
+    expect(storageMock._listeners).toHaveLength(0);
+    expect(runtimeMock._messageListeners).toHaveLength(0);
+    expect(globalThis.__manga_translator_harness_global_event_listeners).toEqual([]);
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).resolves.toEqual(expect.objectContaining({
+      sendMessage: expect.any(Function),
+    }));
+  });
   test('falha parcial de bundle faz teardown e remove listeners registrados antes do erro', async () => {
     let pagehideCount = 0;
     window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
