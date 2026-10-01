@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const {
   validateBibleCoordination,
@@ -36,6 +37,40 @@ function claimIndex(claimPath) {
   return match ? Number(match[1]) : null;
 }
 
+function coordinationField(source, field) {
+  for (const rawLine of String(source || '').split(/\r?\n/)) {
+    const line = rawLine.trim().replace(/^[-*]\s*/, '').replace(/\*\*/g, '');
+    const prefix = field + ':';
+    if (line.startsWith(prefix)) return line.slice(prefix.length).trim().replace(/^"|"$/g, '');
+  }
+  return null;
+}
+
+function isExpiredClaimSource(source, nowMs = Date.now()) {
+  const expiresAt = coordinationField(source, 'LEASE_EXPIRES_AT_UTC');
+  if (!expiresAt) return false; // claim legado: conservadoramente continua bloqueando.
+  const leaseMs = Date.parse(expiresAt);
+  if (!Number.isFinite(leaseMs)) return false; // inválido é problema de coordenação, não autorização para takeover.
+  return leaseMs <= nowMs;
+}
+
+function classifyAuditClaims(root, auditClaims = [], nowMs = Date.now()) {
+  const active = [];
+  const recoverable = [];
+  for (const claimPath of auditClaims) {
+    const index = claimIndex(claimPath);
+    let source = '';
+    try { source = fs.readFileSync(path.join(root, claimPath), 'utf8'); }
+    catch (_) {
+      // Se desapareceu entre READ e planejamento, ele não deve bloquear a fila local.
+      continue;
+    }
+    if (isExpiredClaimSource(source, nowMs)) recoverable.push({ path: claimPath, index });
+    else active.push(claimPath);
+  }
+  return { active, recoverable };
+}
+
 function allowedForPhase(state, phase) {
   if (phase === 'PRIMARY') return state.status === 'READY_FOR_AUDIT';
   if (phase === 'ADVERSARIAL' || phase === 'REAUDIT') {
@@ -48,6 +83,7 @@ function planAuditWork({
   states,
   pipelines,
   auditClaims = [],
+  recoverableClaimIndexes = [],
   auditorOrdinal,
   shardCount = DEFAULT_AUDITOR_COUNT,
   phase = 'AUTO',
@@ -58,6 +94,7 @@ function planAuditWork({
   const shardOrder = shardOrderForAuditor(auditorOrdinal, count);
   const shardRank = new Map(shardOrder.map((shard, rank) => [shard, rank]));
   const claimed = new Set(auditClaims.map(claimIndex).filter(Number.isInteger));
+  const recoverable = new Set((recoverableClaimIndexes || []).filter(Number.isInteger));
 
   const candidates = [];
   for (const state of states || []) {
@@ -80,6 +117,7 @@ function planAuditWork({
       file: state.file,
       bible: state.bible,
       source_sha: state.source_sha,
+      lease_recovery_required: recoverable.has(state.index),
     });
   }
 
@@ -127,10 +165,12 @@ function main(argv = process.argv.slice(2)) {
     validation.auditResults || [],
     validation.audits
   );
+  const claimSets = classifyAuditClaims(root, validation.auditClaims);
   const plan = planAuditWork({
     states: validation.states,
     pipelines: evaluation.byIndex,
-    auditClaims: validation.auditClaims,
+    auditClaims: claimSets.active,
+    recoverableClaimIndexes: claimSets.recoverable.map((claim) => claim.index),
     auditorOrdinal: args.auditor,
     shardCount: args.auditors,
     phase: args.phase,
@@ -147,7 +187,7 @@ function main(argv = process.argv.slice(2)) {
   console.log('candidates=' + plan.candidates.length + ' showing=' + output.candidates.length);
   for (const item of output.candidates) {
     console.log(
-      (item.preferred ? 'LOCAL ' : 'STEAL ')
+      (item.lease_recovery_required ? 'RECOVER ' : (item.preferred ? 'LOCAL ' : 'STEAL '))
       + '#' + item.index_label
       + ' shard=' + item.shard
       + ' phase=' + item.phase
@@ -170,6 +210,9 @@ module.exports = {
   shardForIndex,
   shardOrderForAuditor,
   claimIndex,
+  coordinationField,
+  isExpiredClaimSource,
+  classifyAuditClaims,
   allowedForPhase,
   planAuditWork,
 };
