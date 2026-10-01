@@ -310,6 +310,13 @@ describe('load-content-script helper selftest', () => {
 
     jest.doMock(frozenModulePath, () => { throw primaryError; }, { virtual: true });
 
+    // Isola este cenário do ownership persistente deixado intencionalmente pela
+    // carga anterior: queremos que o erro de cleanup ocorra no caminho de falha
+    // do bundle atual, depois que content_manga registrou seus próprios listeners.
+    globalThis.__manga_translator_harness_storage_listeners = [];
+    globalThis.__manga_translator_harness_runtime_listeners = [];
+    globalThis.__manga_translator_harness_global_event_listeners = [];
+
     const originalStorageRemove = global.chrome.storage.onChanged.removeListener;
     let throwOnce = true;
     const removeSpy = jest.spyOn(global.chrome.storage.onChanged, 'removeListener')
