@@ -38,3 +38,15 @@ Regras:
 - lease expirado não pode ser sobrescrito cegamente: reler a versão exata e usar operação condicional;
 - publicar o resultado em `audit-results/` antes de remover o lease;
 - nenhum lease exige lock global.
+
+## Binding de revisão documental
+
+Leases novos DEVEM incluir:
+
+```text
+BIBLE_SHA: <40-hex do Git blob da Bíblia atual>
+```
+
+O planner imprime `source_sha` e `bible_sha` do candidato. Um lease cujo `SOURCE_SHA` ou `BIBLE_SHA` não corresponda à versão atual é stale e não autoriza publicar resultado para a revisão nova.
+
+Leases antigos sem `BIBLE_SHA` são aceitos somente enquanto a Bíblia coincidir com a baseline de migração.
