@@ -2,8 +2,8 @@
   "index": 182,
   "file": "tests/unit/content-gemini/manual-assist-hud.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/manual-assist-hud.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
   "started_at_utc": "2026-09-30T14:30:00Z",
   "completed_at_utc": null,
@@ -78,7 +78,7 @@
     "embedded_source_exact": true,
     "documented_positions": "103/103",
     "source_text_lines": 102,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Bíblia criada pelo AGENTE 17; cleanup global e semântica de 'última' separados como lacunas."
   },
   "schema_version": 2,
@@ -92,6 +92,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
       "reason": "A8-182-01/02: realinhar mapa semântico 103/103 e sincronizar lifecycle."
+    },
+    {
+      "at_utc": "2026-10-01T18:47:54.053Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
+      "bible_sha": "a1daa3b47591a17d17aa77d2dc24bdf667c0d046",
+      "reason": "A8-182-01/02 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
