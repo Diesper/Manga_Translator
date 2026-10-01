@@ -2,24 +2,18 @@
 
 const fs = require('fs');
 const path = require('path');
+const core = require('./audit-core');
 
 const repoRoot = path.resolve(__dirname, '../../..');
 const bibleRoot = path.join(repoRoot, 'docs', 'biblia');
 const stateRoot = path.join(bibleRoot, '.state');
-const resultRoot = path.join(__dirname, 'audit-results');
 const legacyClaimRoot = path.join(__dirname, 'audit-claims');
 const leaseRoot = path.join(__dirname, 'audit-leases');
+const reserveRoot = path.join(bibleRoot, '.reservas');
 const auditRegistryPath = path.join(bibleRoot, 'AUDITORIA.md');
 
-const PHASES = new Set(['PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
-const VERDICTS = new Set(['APPROVED', 'CHANGES_REQUIRED']);
-
 function walk(dir) {
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(dir, entry.name);
-    return entry.isDirectory() ? walk(full) : (entry.isFile() ? [full] : []);
-  });
+  return core.walk(dir);
 }
 
 function parseLegacyAuditRegistry(source) {
@@ -76,200 +70,90 @@ function readStates() {
     .sort((a, b) => a.index - b.index);
 }
 
-function loadResults(states) {
-  const stateByIndex = new Map(states.map((state) => [state.index, state]));
-  const records = [];
-  const problems = [];
-
-  for (const absolute of walk(resultRoot)) {
-    const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
-    if (/\/README\.md$/i.test(rel)) continue;
-    if (!/\.json$/i.test(rel)) {
-      problems.push('resultado não-JSON: ' + rel);
-      continue;
-    }
-
-    const match = /^docs\/biblia\/\.coordination\/audit-results\/(\d{3})\/(primary|adversarial|reaudit)\/([^/]+\.json)$/i.exec(rel);
-    if (!match) {
-      problems.push('path de resultado inválido: ' + rel);
-      continue;
-    }
-
-    let raw;
-    try {
-      raw = JSON.parse(fs.readFileSync(absolute, 'utf8'));
-    } catch (error) {
-      problems.push('JSON inválido: ' + rel + ': ' + error.message);
-      continue;
-    }
-
-    const pathIndex = Number(match[1]);
-    const pathPhase = match[2].toUpperCase();
-    const index = Number(raw.index);
-    const phase = String(raw.phase || '').toUpperCase();
-    const verdict = String(raw.verdict || '').toUpperCase();
-    const completedAtMs = Date.parse(raw.completed_at_utc || '');
-
-    if (raw.schema_version !== 1) problems.push('schema_version deve ser 1: ' + rel);
-    if (!Number.isInteger(index) || index < 1 || index > 233) problems.push('index inválido: ' + rel);
-    if (index !== pathIndex) problems.push('index diverge do path: ' + rel);
-    if (!PHASES.has(phase) || phase !== pathPhase) problems.push('phase inválida/divergente: ' + rel);
-    if (!VERDICTS.has(verdict)) problems.push('verdict inválido: ' + rel);
-    if (typeof raw.auditor !== 'string' || !raw.auditor.trim()) problems.push('auditor ausente: ' + rel);
-    if (!/^[0-9a-f]{40}$/i.test(raw.source_sha || '')) problems.push('source_sha inválido: ' + rel);
-    if (!Number.isFinite(completedAtMs)) problems.push('completed_at_utc inválido: ' + rel);
-    if (raw.findings !== undefined && !Array.isArray(raw.findings)) problems.push('findings deve ser array: ' + rel);
-
-    const state = stateByIndex.get(index);
-    if (state) {
-      if (raw.file !== state.file) problems.push('file diverge do state: ' + rel);
-      if (raw.bible !== state.bible) problems.push('bible diverge do state: ' + rel);
-    }
-
-    records.push({
-      index,
-      phase,
-      verdict,
-      auditor: String(raw.auditor || '').trim(),
-      source_sha: raw.source_sha,
-      completed_at_utc: raw.completed_at_utc,
-      completed_at_ms: Number.isFinite(completedAtMs) ? completedAtMs : -1,
-      path: rel,
-      legacy: false,
-    });
-  }
-
-  records.sort((a, b) => (
-    a.index - b.index
-    || a.phase.localeCompare(b.phase)
-    || a.completed_at_ms - b.completed_at_ms
-    || a.path.localeCompare(b.path)
-  ));
-
-  return { records, problems };
-}
-
-function latestFor(records, index, phase, sourceSha) {
-  const matches = records
-    .filter((record) => record.index === index && record.phase === phase && record.source_sha === sourceSha)
-    .sort((a, b) => a.completed_at_ms - b.completed_at_ms || a.path.localeCompare(b.path));
-  return matches.length ? matches[matches.length - 1] : null;
-}
-
-function legacyPrimary(state, legacyAudits) {
-  const legacy = legacyAudits.get(state.index);
-  if (!legacy || !legacy.sourceSha || !state.source_sha || !state.source_sha.startsWith(legacy.sourceSha)) return null;
-  if (!VERDICTS.has(legacy.verdict)) return null;
-  return {
-    index: state.index,
-    phase: 'PRIMARY',
-    verdict: legacy.verdict,
-    auditor: null,
-    source_sha: state.source_sha,
-    completed_at_utc: null,
-    completed_at_ms: -1,
-    path: 'docs/biblia/AUDITORIA.md',
-    legacy: true,
-  };
-}
-
-function resolvePipeline(state, records, legacyAudits) {
-  const primary = latestFor(records, state.index, 'PRIMARY', state.source_sha) || legacyPrimary(state, legacyAudits);
-  const adversarial = latestFor(records, state.index, 'ADVERSARIAL', state.source_sha);
-  const reaudit = latestFor(records, state.index, 'REAUDIT', state.source_sha);
-  const problems = [];
-
-  if (adversarial && !primary) problems.push('ADVERSARIAL sem PRIMARY para o SHA atual');
-  if (primary?.auditor && adversarial?.auditor && primary.auditor === adversarial.auditor) {
-    problems.push('PRIMARY e ADVERSARIAL devem usar auditores diferentes');
-  }
-
-  const divergent = Boolean(primary && adversarial && primary.verdict !== adversarial.verdict);
-
-  if (reaudit && !divergent) problems.push('REAUDIT existe sem divergência PRIMARY × ADVERSARIAL');
-  if (reaudit?.auditor && (reaudit.auditor === primary?.auditor || reaudit.auditor === adversarial?.auditor)) {
-    problems.push('REAUDIT deve usar auditor diferente dos dois anteriores');
-  }
-
-  let decision = 'WAITING_PRIMARY';
-  let nextPhase = 'PRIMARY';
-
-  if (primary && !adversarial) {
-    decision = 'WAITING_ADVERSARIAL';
-    nextPhase = 'ADVERSARIAL';
-  } else if (primary && adversarial) {
-    if (primary.verdict === adversarial.verdict) {
-      decision = primary.verdict;
-      nextPhase = primary.verdict === 'APPROVED' ? null : 'CORRECTION_REQUIRED';
-    } else if (!reaudit) {
-      decision = 'REAUDIT_REQUIRED';
-      nextPhase = 'REAUDIT';
-    } else {
-      decision = reaudit.verdict;
-      nextPhase = reaudit.verdict === 'APPROVED' ? null : 'CORRECTION_REQUIRED';
-    }
-  }
-
-  return {
-    index: state.index,
-    file: state.file,
-    source_sha: state.source_sha,
-    status: state.status,
-    primary,
-    adversarial,
-    reaudit,
-    divergent,
-    decision,
-    next_phase: nextPhase,
-    problems,
-  };
-}
-
 function parseClaimField(source, field) {
-  for (const rawLine of source.split(/\r?\n/)) {
+  for (const rawLine of String(source || '').split(/\r?\n/)) {
     const line = rawLine.trim().replace(/^[-*]\s*/, '').replace(/\*\*/g, '');
     if (line.startsWith(field + ':')) return line.slice(field.length + 1).trim().replace(/^"|"$/g, '');
   }
   return null;
 }
 
-function validateClaims(states) {
+function reservationFilesBySource() {
+  const result = new Map();
+  for (const absolute of walk(reserveRoot)) {
+    const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
+    if (!rel.endsWith('.lock.md')) continue;
+    const prefix = 'docs/biblia/.reservas/';
+    if (!rel.startsWith(prefix)) continue;
+    const sourcePath = rel.slice(prefix.length, -'.lock.md'.length);
+    result.set(sourcePath, rel);
+  }
+  return result;
+}
+
+function validateClaims(states, options = {}) {
+  const baseline = options.baseline || core.loadBibleBaseline(repoRoot);
   const stateByIndex = new Map(states.map((state) => [state.index, state]));
+  const reservations = reservationFilesBySource();
   const problems = [];
+  const strictProblems = [];
   const activeByIndex = new Map();
+  const activeByAuditor = new Map();
   const active = [];
   const expired = [];
 
-  function register(index, auditor, rel) {
-    if (activeByIndex.has(index)) problems.push('mais de um claim/lease ativo para índice ' + index);
-    activeByIndex.set(index, rel);
+  function register(index, auditor, rel, phase) {
+    if (activeByIndex.has(index)) {
+      problems.push('mais de um claim/lease ativo para índice ' + index + ': ' + activeByIndex.get(index).path + ', ' + rel);
+    } else {
+      activeByIndex.set(index, { path: rel, auditor, phase });
+    }
     active.push(rel);
+    if (auditor) {
+      const list = activeByAuditor.get(auditor) || [];
+      list.push(rel);
+      activeByAuditor.set(auditor, list);
+    }
   }
 
-  // Claims planos existentes continuam sendo compatibilidade PRIMARY.
-  // Não movemos esses arquivos durante a migração para não invalidar trabalho em andamento.
+  function validateCommon({ index, auditor, sourceSha, sourcePath, biblePath, rel, phase }) {
+    const state = stateByIndex.get(index);
+    if (!auditor) problems.push('claim/lease sem AUDITOR: ' + rel);
+    if (!state) {
+      problems.push('claim/lease fora do corpus: ' + rel);
+      return null;
+    }
+    if (sourceSha !== state.source_sha) problems.push('claim/lease SOURCE_SHA stale: ' + rel);
+    if (sourcePath && sourcePath !== state.file) problems.push('claim/lease ARQUIVO diverge do state: ' + rel);
+    if (biblePath && biblePath !== state.bible) problems.push('claim/lease BIBLIA diverge do state: ' + rel);
+    if (reservations.has(state.file)) {
+      problems.push('claim/lease conflita com reserva de edição: #' + String(index).padStart(3, '0') + ' (' + phase + ')');
+    }
+    return state;
+  }
+
+  // Claims planos legados permanecem PRIMARY durante a migração.
   for (const absolute of walk(legacyClaimRoot)) {
     const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
     if (!/^docs\/biblia\/\.coordination\/audit-claims\/\d{3}\.lock\.md$/.test(rel)) continue;
 
-    const basename = path.basename(rel);
-    const indexMatch = /^(\d{3})\.lock\.md$/.exec(basename);
     const source = fs.readFileSync(absolute, 'utf8');
+    const basename = path.basename(rel);
     const index = Number(parseClaimField(source, 'INDEX'));
     const auditor = parseClaimField(source, 'AUDITOR');
     const sourceSha = parseClaimField(source, 'SOURCE_SHA');
-    const state = stateByIndex.get(index);
+    const sourcePath = parseClaimField(source, 'ARQUIVO');
+    const biblePath = parseClaimField(source, 'BIBLIA');
+    const indexMatch = /^(\d{3})\.lock\.md$/.exec(basename);
 
     if (!indexMatch || Number(indexMatch[1]) !== index) problems.push('claim legado filename/index divergente: ' + rel);
-    if (!auditor) problems.push('claim legado sem AUDITOR: ' + rel);
-    if (!state) problems.push('claim legado fora do corpus: ' + rel);
-    if (state && sourceSha !== state.source_sha) problems.push('claim legado SOURCE_SHA stale: ' + rel);
-    register(index, auditor, rel);
+    validateCommon({ index, auditor, sourceSha, sourcePath, biblePath, rel, phase: 'PRIMARY' });
+    register(index, auditor, rel, 'PRIMARY');
   }
 
-  // Novas fases usam audit-leases, fora da árvore audit-claims legada.
-  // Isso mantém compatibilidade com o validador estrutural V2 enquanto retira
-  // PRIMARY/ADVERSARIAL/REAUDIT do mutex global.
+  // Novos trabalhos usam leases por fase. BIBLE_SHA é obrigatório para a
+  // geração nova; leases antigos sem o campo só sobrevivem enquanto a Bíblia
+  // permanecer idêntica à baseline de migração.
   for (const absolute of walk(leaseRoot)) {
     const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
     if (/\/README\.md$/i.test(rel)) continue;
@@ -291,50 +175,121 @@ function validateClaims(states) {
     const auditor = parseClaimField(source, 'AUDITOR');
     const declaredPhase = String(parseClaimField(source, 'PHASE') || '').toUpperCase();
     const sourceSha = parseClaimField(source, 'SOURCE_SHA');
+    const bibleSha = parseClaimField(source, 'BIBLE_SHA');
     const sourcePath = parseClaimField(source, 'ARQUIVO');
     const biblePath = parseClaimField(source, 'BIBLIA');
     const leaseExpiresAt = parseClaimField(source, 'LEASE_EXPIRES_AT_UTC');
     const leaseState = parseClaimField(source, 'ESTADO');
-    const state = stateByIndex.get(index);
 
     if (index !== pathIndex) problems.push('lease filename/index divergente: ' + rel);
-    if (!auditor) problems.push('lease sem AUDITOR: ' + rel);
     if (declaredPhase !== pathPhase) problems.push('lease PHASE diverge do path: ' + rel);
     if (leaseState !== 'ACTIVE') problems.push('lease deve estar ACTIVE: ' + rel);
-    if (!state) problems.push('lease fora do corpus: ' + rel);
+
+    const state = validateCommon({
+      index,
+      auditor,
+      sourceSha,
+      sourcePath,
+      biblePath,
+      rel,
+      phase: pathPhase,
+    });
 
     if (state) {
-      if (sourceSha !== state.source_sha) problems.push('lease SOURCE_SHA stale: ' + rel);
-      if (sourcePath !== state.file) problems.push('lease ARQUIVO diverge do state: ' + rel);
-      if (biblePath !== state.bible) problems.push('lease BIBLIA diverge do state: ' + rel);
+      const currentBibleSha = core.currentBibleSha(repoRoot, state);
+      if (bibleSha) {
+        if (!/^[0-9a-f]{40}$/i.test(bibleSha)) problems.push('lease BIBLE_SHA inválido: ' + rel);
+        else if (currentBibleSha && bibleSha.toLowerCase() !== currentBibleSha.toLowerCase()) {
+          problems.push('lease BIBLE_SHA stale: ' + rel);
+        }
+      } else {
+        const entry = core.baselineEntryFor(state, baseline);
+        if (!entry || !currentBibleSha || entry.bible_sha !== currentBibleSha) {
+          problems.push('lease legado sem BIBLE_SHA não corresponde à Bíblia atual: ' + rel);
+        }
+      }
+
+      if (pathPhase === 'PRIMARY' && state.status !== 'READY_FOR_AUDIT') {
+        problems.push('lease PRIMARY incompatível com status: #' + index + '/' + state.status);
+      }
+      if ((pathPhase === 'ADVERSARIAL' || pathPhase === 'REAUDIT')
+        && !['READY_FOR_AUDIT', 'COMPLETED', 'CHANGES_REQUIRED'].includes(state.status)) {
+        problems.push('lease ' + pathPhase + ' incompatível com status: #' + index + '/' + state.status);
+      }
     }
 
     const leaseMs = Date.parse(leaseExpiresAt || '');
-    if (!Number.isFinite(leaseMs)) problems.push('lease sem LEASE_EXPIRES_AT_UTC válido: ' + rel);
-    else if (leaseMs <= Date.now()) expired.push(rel);
-
-    register(index, auditor, rel);
+    if (!Number.isFinite(leaseMs)) {
+      problems.push('lease sem LEASE_EXPIRES_AT_UTC válido: ' + rel);
+      register(index, auditor, rel, pathPhase);
+    } else if (leaseMs <= Date.now()) {
+      expired.push(rel);
+    } else {
+      register(index, auditor, rel, pathPhase);
+    }
   }
 
-  return { problems, active, expired };
+  for (const [auditor, paths] of activeByAuditor) {
+    if (paths.length > 1) {
+      strictProblems.push('auditor possui >1 claim/lease ativo: ' + auditor + ' -> ' + paths.join(', '));
+    }
+  }
+  for (const rel of expired) {
+    strictProblems.push('lease expirado residual deve ser reconciliado/removido por CAS: ' + rel);
+  }
+
+  return {
+    problems,
+    strictProblems,
+    active,
+    expired,
+    activeByIndex,
+    activeByAuditor,
+    reservations: [...reservations.values()].sort(),
+  };
+}
+
+function loadResults(states) {
+  return core.loadAuditResults(repoRoot, states);
+}
+
+function resolvePipeline(state, records = [], legacyAudits = new Map(), options = {}) {
+  const baseline = options.baseline || core.loadBibleBaseline(repoRoot);
+  return core.resolveAuditPipeline(state, records, legacyAudits, {
+    root: options.root || repoRoot,
+    baseline,
+  });
 }
 
 function loadModel() {
   const states = readStates();
+  const baseline = core.loadBibleBaseline(repoRoot);
   const legacyAudits = fs.existsSync(auditRegistryPath)
     ? parseLegacyAuditRegistry(fs.readFileSync(auditRegistryPath, 'utf8'))
     : new Map();
-  const loaded = loadResults(states);
-  const claims = validateClaims(states);
-  const pipelines = states.map((state) => resolvePipeline(state, loaded.records, legacyAudits));
+  const loaded = core.loadAuditResults(repoRoot, states);
+  const claims = validateClaims(states, { baseline });
+  const evaluation = core.evaluateAuditPipelines(states, loaded.records, legacyAudits, {
+    root: repoRoot,
+    baseline,
+  });
+  const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
+
   return {
     states,
+    baseline,
     legacyAudits,
     results: loaded.records,
     pipelines,
     active_claims_and_leases: claims.active,
     expired_leases: claims.expired,
-    problems: [...loaded.problems, ...claims.problems, ...pipelines.flatMap((pipeline) => pipeline.problems.map((problem) => '#' + String(pipeline.index).padStart(3, '0') + ': ' + problem))],
+    reservations: claims.reservations,
+    problems: [
+      ...loaded.problems,
+      ...claims.problems,
+      ...evaluation.problems,
+    ],
+    merge_problems: claims.strictProblems,
   };
 }
 
@@ -348,11 +303,20 @@ function formatPipeline(pipeline) {
 }
 
 function verify(model) {
-  const blockers = [...model.problems];
+  const blockers = [...model.problems, ...(model.merge_problems || [])];
+
   if (model.states.length !== 233) blockers.push('corpus de states incompleto: ' + model.states.length + '/233');
+  if (!model.baseline || Object.keys(model.baseline.bibles || {}).length !== 233) {
+    blockers.push('baseline de revisão das Bíblias incompleta ou ausente');
+  }
+  if (model.reservations.length) blockers.push('reservas editoriais ativas=' + model.reservations.length);
   if (model.active_claims_and_leases.length) {
     blockers.push('claims/leases ativos=' + model.active_claims_and_leases.length + ': ' + model.active_claims_and_leases.join(', '));
   }
+  if (model.expired_leases.length) {
+    blockers.push('leases expirados residuais=' + model.expired_leases.length + ': ' + model.expired_leases.join(', '));
+  }
+
   for (const pipeline of model.pipelines) {
     if (pipeline.decision !== 'APPROVED') {
       blockers.push('#' + String(pipeline.index).padStart(3, '0') + ': ' + pipeline.decision);
@@ -387,19 +351,19 @@ function main() {
       for (const blocker of blockers) console.error('- ' + blocker);
       process.exit(1);
     }
-    console.log('Distributed audit protocol: READY — 233/233 PRIMARY + ADVERSARIAL, divergências re-auditadas.');
+    console.log('Distributed audit protocol: READY — 233/233 PRIMARY + ADVERSARIAL, divergências re-auditadas, Bible revisions atuais.');
     return;
   }
 
-  const selected = Number.isInteger(indexArg)
-    ? model.pipelines.filter((item) => item.index === indexArg)
-    : model.pipelines;
-
-  for (const pipeline of selected) console.log(formatPipeline(pipeline));
+  for (const pipeline of model.pipelines) console.log(formatPipeline(pipeline));
   if (model.problems.length) {
-    console.error('Problemas de coordenação:');
+    console.error('Problemas operacionais de coordenação:');
     for (const problem of model.problems) console.error('- ' + problem);
     process.exitCode = 1;
+  }
+  if (model.merge_problems.length) {
+    console.error('Pendências estritas do gate final:');
+    for (const problem of model.merge_problems) console.error('- ' + problem);
   }
 }
 
@@ -407,9 +371,12 @@ if (require.main === module) main();
 
 module.exports = {
   parseLegacyAuditRegistry,
+  readStates,
+  parseClaimField,
+  reservationFilesBySource,
+  validateClaims,
   loadResults,
   resolvePipeline,
-  validateClaims,
   loadModel,
   verify,
 };
