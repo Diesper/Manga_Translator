@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/dom-modules.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `32441920c27f69aef629f33fc6175ff5b48b0859`  
 > **Agente responsável:** AGENTE 17  
 > **Tipo:** suíte Jest/JSDOM dos módulos reais `selectors.js` e `dom.js`  
@@ -15,7 +15,13 @@ Ela carrega, dentro de `jest.isolateModules`:
 - `extension/content/gemini/selectors.js`;
 - `extension/content/gemini/dom.js`.
 
-Não usa implementação espelho. As assertions executam a API real que depois é consumida por observer, editor, attachment, quarantine e job-runner.
+### Harness de descoberta/execução
+
+Esta é uma suíte Jest executada pelo projeto `content-scripts` de `jest.config.js`, em ambiente `jsdom`, com setup/mocks como `tests/mocks/chrome-api.mock.js` e `dom-environment.js`. Os comandos expostos por `package.json` — incluindo `test:unit:content` e `test:ci` — passam pelo runner/configuração Jest que descobre `tests/unit/content-gemini/**/*.test.js`.
+
+Isso delimita a evidência: os módulos `selectors.js` e `dom.js` são reais, enquanto browser/DOM/Chrome são fornecidos pelo harness JSDOM/Jest; não é execução em Chrome real.
+
+Não usa implementação espelho. As assertions executam a API real que depois é consumida por observer, editor, attachment, quarantine, job-runner e também por `extension/content/content_gemini.js`, que lê `globalThis.MangaTranslatorGeminiDom`, injeta essa API em componentes e chama diretamente helpers como `findVisibleStopButton`, `findSendButton` e `isControlEnabled`.
 
 ## 2. Contratos provados
 
@@ -104,7 +110,7 @@ Também não cobre falsos positivos da blacklist por substrings amplas, nem owne
 
 ## 5. Solicitações ao auditor
 
-### 177-001 — TEST_REQUIRED — OPEN
+### 177-001 — TEST_REQUIRED — SUPERSEDED → 042-001
 
 Adicionar cenários adversariais de `findSendButton`:
 - Send semanticamente correto porém oculto;
@@ -116,7 +122,7 @@ Adicionar cenários adversariais de `findSendButton`:
 
 **Severidade:** HIGH.
 
-### 177-002 — TEST_REQUIRED — OPEN
+### 177-002 — TEST_REQUIRED — SUPERSEDED → 042-003
 
 Parametrizar `isIgnoredGeminiImageSource` com:
 - avatar/favicon/emoji/profile reais;
@@ -127,7 +133,7 @@ Parametrizar `isIgnoredGeminiImageSource` com:
 
 **Severidade:** HIGH.
 
-### 177-003 — TEST_REQUIRED — OPEN
+### 177-003 — TEST_REQUIRED — ACCEPTED
 
 Cobrir diretamente helpers exportados hoje sem assertion focal nesta suíte:
 - `closestComposed`;
@@ -314,15 +320,25 @@ describe('gemini/selectors.js + gemini/dom.js', () => {
 | 1–6 | imports dos módulos reais |
 | 7–16 | loader isolado |
 | 17–29 | helper de retângulo visível |
-| 30–39 | setup/cleanup |
-| 40–49 | seletores |
-| 50–65 | visibilidade |
-| 66–81 | controle habilitado |
-| 82–99 | Shadow DOM |
-| 100–113 | editor |
-| 114–130 | imagem/blacklist/ownership |
-| 131–148 | Send semântico |
-| 149–162 | Stop visível |
+| 30–31 | fechamento do helper + transição estrutural |
+| 32–40 | `describe` + setup/cleanup da suíte |
+| 41 | transição estrutural |
+| 42–50 | teste de seletores críticos |
+| 51 | transição estrutural |
+| 52–66 | teste de visibilidade |
+| 67 | transição estrutural |
+| 68–82 | teste de controle habilitado |
+| 83 | transição estrutural |
+| 84–98 | teste de Shadow DOM |
+| 99 | transição estrutural |
+| 100–110 | teste do editor |
+| 111 | transição estrutural |
+| 112–124 | teste de imagem/blacklist/ownership |
+| 125 | transição estrutural |
+| 126–142 | teste de Send semântico |
+| 143 | transição estrutural |
+| 144–161 | teste de Stop visível/oculto |
+| 162 | fechamento do `describe` |
 | posição final | newline final |
 
 ## 8. Autoauditoria do AGENTE 17
@@ -337,3 +353,6 @@ describe('gemini/selectors.js + gemini/dom.js', () => {
 - [x] três solicitações registradas.
 
 **Resultado:** suíte autêntica e útil, mas ainda não protege os dois fallbacks mais perigosos de seleção do botão Send nem falsos positivos da blacklist.
+
+> **Lifecycle pós-adversarial:** 177-001 está SUPERSEDED por `042-001` (com risco complementar de visibilidade centralizado em `042-002`); 177-002 está SUPERSEDED por `042-003`; 177-003 está ACCEPTED.
+> **Mapa corrigido:** as faixas 42–161 agora seguem exatamente os oito testes reais, e linhas de transição/fechamento foram separadas para manter cobertura 1–162 sem atribuir responsabilidade ao teste vizinho.
