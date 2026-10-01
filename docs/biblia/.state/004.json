@@ -2,11 +2,11 @@
   "index": 4,
   "file": "extension/background/actions/check-extraction-tab.js",
   "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
   "started_at_utc": "2026-09-30T12:54:00Z",
-  "completed_at_utc": "2026-10-01T03:21:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "004-001",
@@ -62,7 +62,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T03:21:00Z",
+  "updated_at_utc": "2026-10-01T16:47:08.900Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:28:00Z",
@@ -78,6 +78,14 @@
       "to_status": "COMPLETED",
       "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
       "reason": "Auditoria independente confirmou fidelidade documental, fonte/coverage e evidências no SHA atual; lacunas externas ACCEPTED permanecem abertas."
+    },
+    {
+      "at_utc": "2026-10-01T16:47:08.900Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+      "reason": "004-REA-001: remover overclaim de invocação de ensureInitialized e separar evidência P0 integrada."
     }
   ],
   "evidence": [],
