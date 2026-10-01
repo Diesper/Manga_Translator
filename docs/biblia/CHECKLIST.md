@@ -2,10 +2,10 @@
 
 > Gerado deterministicamente. [x] exige COMPLETED + auditoria APPROVED válida para o SHA atual + Bíblia existente.
 
-- [ ] 001 — `extension/manifest.json` — READY_FOR_AUDIT
+- [x] 001 — `extension/manifest.json` — COMPLETED
 - [x] 002 — `extension/background.js` — COMPLETED
 - [x] 003 — `extension/background/actions/calculate-visual-fingerprint.js` — COMPLETED
-- [ ] 004 — `extension/background/actions/check-extraction-tab.js` — READY_FOR_AUDIT
+- [x] 004 — `extension/background/actions/check-extraction-tab.js` — COMPLETED
 - [x] 005 — `extension/background/actions/claim-gemini-job.js` — COMPLETED
 - [x] 006 — `extension/background/actions/commit-result.js` — COMPLETED
 - [x] 007 — `extension/background/actions/deliver-result-from-tab.js` — COMPLETED
@@ -34,7 +34,7 @@
 - [x] 030 — `extension/background/log.js` — COMPLETED
 - [x] 031 — `extension/background/router.js` — COMPLETED
 - [x] 032 — `extension/background/state.js` — COMPLETED
-- [ ] 033 — `extension/background/tab-identity.js` — READY_FOR_AUDIT
+- [x] 033 — `extension/background/tab-identity.js` — COMPLETED
 - [x] 034 — `extension/content/cm-auto-restore.js` — COMPLETED
 - [x] 035 — `extension/content/cm-chapter.js` — COMPLETED
 - [x] 036 — `extension/content/cm-dom-replace.js` — COMPLETED

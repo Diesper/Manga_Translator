@@ -900,3 +900,38 @@ Para aprovar uma revisão:
 #### Retificação de integridade pós-veredito — #153
 
 Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutural remanescente na Bíblia: o documento possuía mapa semântico 87/87 e SHA correto, mas não continha uma seção canônica de **Fonte integral**. A Bíblia foi retificada com o blob exato de `tests/unit/background/jobs-watchdog-ordering.test.js` no mesmo SHA `2102182a1e313a02cdb511846a4561c3a0f607eb`, sem alterar o teste, a implementação correlata, as alegações probatórias ou a solicitação `153-001`. O veredito SHA-bound permanece aplicável ao mesmo objeto auditado.
+
+### `manifest.json` — reauditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #001 — `extension/manifest.json`.
+- **SHA auditado:** `841fe70c183350e4110bc8ff57ab69b157169c36`.
+- **Integridade:** 75 linhas textuais + newline final = **76 posições**; state, fonte atual e SHA declarado na Bíblia coincidem. A seção de fonte integral já é validada pelo gate estrutural.
+- **Wiring/evidência reconferidos:** `validate-manifest.js` exige JSON válido, campos básicos e MV3; `verify-repository-structure.js` fixa popup/options/background e ordem dos arrays JS; `surface-reduction.test.js` exige `host_permissions === ['<all_urls>']`; o E2E carrega `extension/` como extensão Chromium real e observa o Service Worker.
+- **Lacunas preservadas:** `001-001` e `001-002` permanecem **ACCEPTED**. O conjunto exato de `permissions` e os descriptors completos `matches/world/run_at` ainda merecem gates focais; a Bíblia não os promove a prova inexistente.
+- **Conclusão:** a documentação é fiel ao objeto atual e separa prova direta, gate estático, execução indireta e ausência de teste.
+
+**Veredito documental independente:** ✅ **APROVADO — #001 / SHA `841fe70c183350e4110bc8ff57ab69b157169c36`**.
+
+### `check-extraction-tab.js` — reauditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #004 — `extension/background/actions/check-extraction-tab.js`.
+- **SHA auditado:** `9ee40474d8c52da5e725ab04a2e325dd69830a51`.
+- **Integridade:** 25 linhas textuais + newline final = **26 posições**; fonte integral, state e fonte atual permanecem no mesmo SHA.
+- **Evidência direta reconferida:** `actions-low-risk.test.js` carrega a action real e prova o hit nominal; `plan-missing-handlers-real.test.js` prova criação real do mapping por `GEMINI_RESULT_URL` e hit/miss; `routed-actions-legacy.test.js` prova alias/roteamento e formato legado sem wrapper `ok`.
+- **Wiring:** `background/router.js` mantém `CHECK_IF_EXTRACTION_TAB → check-extraction-tab`; a action aguarda `ensureInitialized()` antes de ler `state.extractionTabs`.
+- **Lacunas preservadas:** `004-001` e `004-002` permanecem **ACCEPTED**. O spread `{ isExtractionTab: true, ...mapping }` continua vulnerável a mapping malformado com discriminador conflitante, e branches defensivos de sender/state/bootstrap seguem sem testes focais.
+- **Conclusão:** essas lacunas estão corretamente documentadas e não são mascaradas como comportamento provado.
+
+**Veredito documental independente:** ✅ **APROVADO — #004 / SHA `9ee40474d8c52da5e725ab04a2e325dd69830a51`**.
+
+### `tab-identity.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #033 — `extension/background/tab-identity.js`.
+- **SHA auditado:** `008c9a054ae417e0f31224617346e24fc9dbc1b4`.
+- **Integridade:** 362 linhas textuais + newline final = **363 posições**; fonte integral e mapa 363/363 foram revalidados pelo gate documental.
+- **Teste focal:** `tests/unit/background/tab-identity.test.js` no SHA `1f2dd52513037f061613d04453a961fbaeddef84` prova diretamente migração de registros/alarms/state (TAB-01), alias pré-job (TAB-02), cadeia (TAB-03), ciclo (TAB-04), recovery idempotente (TAB-05), TTL (TAB-09) e reconciler com identidade canônica (TAB-12).
+- **Wiring reconferido:** `background.js` cria a facade, recupera migrations/aliases e trata `tabs.onReplaced`; `jobs-lifecycle.js` e `jobs-reconciliation.js` recebem resolução/migração canônicas; `state.js` fornece `replaceGeminiTabReferences`.
+- **Lacunas preservadas:** `033-001`…`033-006` permanecem **ACCEPTED**. Em especial, max hops/IDs inválidos, conflito de ownership, fallbacks de alarm/state, concorrência de índices e reutilização de journal por `jobId` continuam sem prova/correção completa. A Bíblia descreve essas limitações explicitamente.
+- **Conclusão:** bugs/riscos conhecidos não foram “resolvidos” por documentação; o documento é fiel ao código e às evidências atuais.
+
+**Veredito documental independente:** ✅ **APROVADO — #033 / SHA `008c9a054ae417e0f31224617346e24fc9dbc1b4`**.

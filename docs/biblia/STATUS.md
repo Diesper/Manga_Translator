@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **155**
+- READY_FOR_AUDIT: **152**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **78**
+- COMPLETED: **81**
 - requests OPEN: **1**
 - requests ACCEPTED: **586**
 - requests RESOLVED: **5**
@@ -23,10 +23,10 @@
 
 | # | arquivo | status | auditoria | owner | SHA | requests |
 |---:|---|---|---|---|---|---:|
-| 001 | extension/manifest.json | READY_FOR_AUDIT | APPROVED | - | 841fe70c183350e4110bc8ff57ab69b157169c36 | 2 |
+| 001 | extension/manifest.json | COMPLETED | APPROVED | - | 841fe70c183350e4110bc8ff57ab69b157169c36 | 2 |
 | 002 | extension/background.js | COMPLETED | APPROVED | - | 667c05eb2d7adfca16a79d3e706c39a1e9398b72 | 9 |
 | 003 | extension/background/actions/calculate-visual-fingerprint.js | COMPLETED | APPROVED | - | ea474845cf9c6a6784e3ceb75298f0ac8df86e06 | 3 |
-| 004 | extension/background/actions/check-extraction-tab.js | READY_FOR_AUDIT | APPROVED | - | 9ee40474d8c52da5e725ab04a2e325dd69830a51 | 2 |
+| 004 | extension/background/actions/check-extraction-tab.js | COMPLETED | APPROVED | - | 9ee40474d8c52da5e725ab04a2e325dd69830a51 | 2 |
 | 005 | extension/background/actions/claim-gemini-job.js | COMPLETED | APPROVED | - | f5c4643d291931f133a791a2deaa6eb94ef4500d | 2 |
 | 006 | extension/background/actions/commit-result.js | COMPLETED | APPROVED | - | 32270d1c4ade42b7e6decd5ef124d71745c2a5b0 | 2 |
 | 007 | extension/background/actions/deliver-result-from-tab.js | COMPLETED | APPROVED | - | 59543c1359669ced02a1d05c251b272abaad6709 | 4 |
@@ -55,7 +55,7 @@
 | 030 | extension/background/log.js | COMPLETED | APPROVED | - | 86d5f2f1229b2c9ae7f980fad1495628a05222ca | 3 |
 | 031 | extension/background/router.js | COMPLETED | APPROVED | - | d9278e9e58e4e9583a30c16227bfd833e7203d89 | 3 |
 | 032 | extension/background/state.js | COMPLETED | APPROVED | - | 7570b545d5e92496201a7741dee8605cd66fb015 | 4 |
-| 033 | extension/background/tab-identity.js | READY_FOR_AUDIT | NOT_AUDITED | - | 008c9a054ae417e0f31224617346e24fc9dbc1b4 | 6 |
+| 033 | extension/background/tab-identity.js | COMPLETED | APPROVED | - | 008c9a054ae417e0f31224617346e24fc9dbc1b4 | 6 |
 | 034 | extension/content/cm-auto-restore.js | COMPLETED | APPROVED | - | d20e7092652e484d2299345cfd7eeb3afdd34750 | 4 |
 | 035 | extension/content/cm-chapter.js | COMPLETED | APPROVED | - | 44b621d570b6492ef08982ec4e093ffcfe6d24f8 | 3 |
 | 036 | extension/content/cm-dom-replace.js | COMPLETED | APPROVED | - | d3fc72032dbddc81eae8fadc5e4da89b13a3bb79 | 3 |
