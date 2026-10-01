@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **156**
+- READY_FOR_AUDIT: **155**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **77**
+- COMPLETED: **78**
 - requests OPEN: **1**
 - requests ACCEPTED: **586**
 - requests RESOLVED: **5**
@@ -175,7 +175,7 @@
 | 150 | tests/unit/background/jobs-dom-ack-staging.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 5db47daff53026aa778944c999d7dc922f35ecad | 4 |
 | 151 | tests/unit/background/jobs-lifecycle-batch-status.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 820f8c87379fe70b236df49d26f78962f5467b83 | 0 |
 | 152 | tests/unit/background/jobs-reconciliation-batch-queue.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 032df2351f2a202dff11f227f8c4dc6ac5b80807 | 2 |
-| 153 | tests/unit/background/jobs-watchdog-ordering.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 2102182a1e313a02cdb511846a4561c3a0f607eb | 1 |
+| 153 | tests/unit/background/jobs-watchdog-ordering.test.js | COMPLETED | APPROVED | - | 2102182a1e313a02cdb511846a4561c3a0f607eb | 1 |
 | 154 | tests/unit/background/lifecycle-alarms-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1d4c22ba9a78ef994906c4dd16617ddb6079942b | 3 |
 | 155 | tests/unit/background/marker-anchor-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 6a6c977a1a2bad89a49813153039e17a93945017 | 2 |
 | 156 | tests/unit/background/message-handlers-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1c2815cd1f2fecba58a07c568f24d69af0367af3 | 1 |

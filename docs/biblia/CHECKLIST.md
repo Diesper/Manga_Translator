@@ -154,7 +154,7 @@
 - [ ] 150 — `tests/unit/background/jobs-dom-ack-staging.test.js` — READY_FOR_AUDIT
 - [ ] 151 — `tests/unit/background/jobs-lifecycle-batch-status.test.js` — READY_FOR_AUDIT
 - [ ] 152 — `tests/unit/background/jobs-reconciliation-batch-queue.test.js` — READY_FOR_AUDIT
-- [ ] 153 — `tests/unit/background/jobs-watchdog-ordering.test.js` — READY_FOR_AUDIT
+- [x] 153 — `tests/unit/background/jobs-watchdog-ordering.test.js` — COMPLETED
 - [ ] 154 — `tests/unit/background/lifecycle-alarms-real.test.js` — READY_FOR_AUDIT
 - [ ] 155 — `tests/unit/background/marker-anchor-real.test.js` — READY_FOR_AUDIT
 - [ ] 156 — `tests/unit/background/message-handlers-real.test.js` — READY_FOR_AUDIT

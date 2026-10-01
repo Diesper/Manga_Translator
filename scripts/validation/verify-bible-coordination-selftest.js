@@ -162,6 +162,8 @@ expectPass('SHA de CRLF usa bytes brutos',(root)=>{
   const raw='const n = 1;\r\n';
   write(root,s.file,raw);
   s.source_sha=gitBlobSha(raw);
+  s.status='READY_FOR_AUDIT';
+  s.completed_at_utc=null;
   writeJson(root,statePath(1),s);
   write(root,s.bible,v2Bible(s.file,s.source_sha,raw,'### Posições 1–2'));
 });

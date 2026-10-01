@@ -883,3 +883,16 @@ Para aprovar uma revisão:
 - **Gate 066-005:** satisfeito por esta auditoria independente.
 
 **Veredito documental independente:** ✅ **APROVADO — #066 / SHA `f673d445a3cc022d473f9b59ae1e0c8972ecd013`**.
+
+### `jobs-watchdog-ordering.test.js` — reauditoria independente aprovada em 2026-10-01
+
+- **Índice:** #153 — `tests/unit/background/jobs-watchdog-ordering.test.js`.
+- **SHA auditado:** `2102182a1e313a02cdb511846a4561c3a0f607eb`.
+- **Integridade da fonte:** 86 linhas textuais + newline terminal = **87 posições**; o SHA do state, do fonte atual e da Bíblia permanece vinculado ao mesmo objeto auditado.
+- **Correção da reprovação anterior:** a rastreabilidade das posições 060–087 foi revalidada contra o fonte atual. Em particular, a posição 65 documenta `timeoutMinutes: 5`, a 68 documenta a assertion de `handleAlarm(...).toBe(true)`, a 72 documenta `finalizeJob(321,77,true)` e as posições 73–84 agora descrevem exatamente as assertions/ações correspondentes.
+- **Implementação correlata:** `extension/background/jobs-watchdog.js` permanece no SHA `c17b766d7fbc34ea925fb82b19149d3d977de413`.
+- **Evidência funcional preservada:** o Promise-gate prova diretamente, no caminho de sucesso, que `finalizeJob` é aguardado antes do cleanup e que apenas a extraction tab pertencente ao Gemini correspondente é removida. Execução registrada anteriormente: workflow `36791191322`, job `110170457309`, cenário `WATCHDOG-ORDER-01` PASS.
+- **Solicitação 153-001:** permanece **ACCEPTED**. O caminho em que `finalizeJob` rejeita continua sem teste focal e sem política de cleanup/telemetria comprovada. Essa lacuna é funcional/testável e não é convertida artificialmente em prova pela aprovação documental.
+- **Coordenação:** state V2 sem ownership ativo; nenhuma alteração funcional em `jobs-watchdog.js` ou no teste foi necessária para esta reauditoria.
+
+**Veredito documental independente:** ✅ **APROVADO — #153 / SHA `2102182a1e313a02cdb511846a4561c3a0f607eb`**.
