@@ -108,6 +108,24 @@ describe('load-content-script helper selftest', () => {
 
     expect(count).toBe(1);
   });
+  test('captura global preserva listeners preexistentes e restaura addEventListener', async () => {
+    const originalWindowAdd = window.addEventListener;
+    const originalDocumentAdd = document.addEventListener;
+    let externalCount = 0;
+    const external = () => { externalCount += 1; };
+    window.addEventListener('mt-selftest-external', external);
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: true });
+
+    expect(window.addEventListener).toBe(originalWindowAdd);
+    expect(document.addEventListener).toBe(originalDocumentAdd);
+
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: true });
+    window.dispatchEvent(new Event('mt-selftest-external'));
+    expect(externalCount).toBe(1);
+
+    window.removeEventListener('mt-selftest-external', external);
+  });
   test('reinjeção remove listeners globais adicionados pelo bundle', async () => {
     await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
 
