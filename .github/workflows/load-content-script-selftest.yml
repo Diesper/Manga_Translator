@@ -28,8 +28,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build focal config from canonical content-scripts project
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const rootConfig = require('./jest.config.js');
+          const project = rootConfig.projects.find(entry => entry.displayName === 'content-scripts');
+          if (!project) throw new Error('Projeto Jest content-scripts não encontrado');
+          const focal = {
+            ...project,
+            rootDir: process.cwd(),
+            testMatch: ['<rootDir>/docs/biblia/.coordination/load-content-script-selftest.test.js'],
+          };
+          fs.writeFileSync(
+            '/tmp/load-content-script-selftest.config.cjs',
+            'module.exports = ' + JSON.stringify(focal, null, 2) + ';\\n'
+          );
+          NODE
+
       - name: Run helper selftest with open-handle detection
-        run: npx jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath docs/biblia/.coordination/load-content-script-selftest.test.js
+        run: npx jest --config /tmp/load-content-script-selftest.config.cjs --runInBand --detectOpenHandles
 
       - name: Run related content-script unit suite
         run: npm run test:unit:content -- --runInBand
