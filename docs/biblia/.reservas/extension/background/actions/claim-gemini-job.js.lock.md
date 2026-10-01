@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: extension/background/actions/claim-gemini-job.js
+BÍBLIA: docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: f5c4643d291931f133a791a2deaa6eb94ef4500d
+CLAIMED_AT_UTC: 2026-10-01T19:46:28.515Z
+UPDATED_AT_UTC: 2026-10-01T19:46:28.515Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
