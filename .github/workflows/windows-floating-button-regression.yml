@@ -1,7 +1,10 @@
 name: Windows Floating Button Regression
 
 on:
-  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - docs/project-bible
     paths:
       - 'tests/unit/content-manga/floating-button-guard-and-single-click.test.js'
       - 'extension/content/content_manga.js'
