@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/deletion.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** c570bbdc340761412746a1347f297c352e2ff1a4  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest de exclusão segura/recovery da conversa Gemini  
@@ -37,7 +37,7 @@ O título diz que recovery 'executa exclusão', porém o fixture grava debugMode
 
 ## 7. DEL-09/DEL-10 — fallback de reload e no-op
 
-Com DOM vazio, deleteOrScheduleRecovery falha em excluir, persiste o recovery antes do reload e retorna deleted:false/recoverySaved:true/reloadScheduled:true. Sem marker, recoverPending retorna handled:false/deleted:false/recovery:null e não entrega nada.
+Com DOM vazio, `deleteOrScheduleRecovery` falha em excluir e termina com recovery persistido + reload agendado, retornando `deleted:false/recoverySaved:true/reloadScheduled:true`. **No source atual**, a ordem é `await saveRecovery(tabId, delivery)` e só depois `pageWindow.location.reload()`; DEL-09 observa o estado final e a cardinalidade do reload, mas não possui assertion de invocation order. Sem marker, `recoverPending` retorna `handled:false/deleted:false/recovery:null` e não entrega nada.
 
 ## 8. Risco de durabilidade no replay
 
@@ -51,27 +51,33 @@ storageSet/storageRemove convertem chrome.runtime.lastError, Promise rejection e
 
 O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exatamente o blob c570bbdc340761412746a1347f297c352e2ff1a4. Os 10 casos DEL-01..DEL-10 aparecem com ✓ em Node 20.x (109255348388) e Node 22.x (109255348406); global 109/109 suítes e 851/851 testes. CI Gate 109256050280: sucesso.
 
+### Cadeia de descoberta/execução da evidência CI
+
+`package.json#test:ci` chama `scripts/ci/run-jest-ci.js`, que executa a configuração de `jest.config.js`. O projeto Jest `content-scripts` seleciona `tests/unit/content-gemini/**/*.test.js`, usa ambiente `jsdom` e setup/mocks como `tests/mocks/chrome-api.mock.js` e `dom-environment.js`. O workflow **Unit + Integration** chama `npm run test:ci` em Node 20.x/22.x.
+
+Assim, o runner/harness prova descoberta e execução da suíte nesse ambiente; `deletion.js` é a implementação real carregada pelo spec, enquanto DOM/Chrome/window/storage são fronteiras controladas pelo harness.
+
 ## 11. Matriz de evidência
 
 | Contrato | Evidência | Classificação |
 |---|---|---|
 | escape manual de seletor | DEL-01 | ✅ PROVADO DIRETAMENTE |
 | alvo desconectado não estabiliza | DEL-02 | ✅ PROVADO DIRETAMENTE |
-| debug preserva conversa e libera lock | DEL-03 | ✅ PROVADO DIRETAMENTE |
+| debug retorna true, registra `DEBUG_MODE_SKIP` e libera lock | DEL-03 | ✅ PROVADO DIRETAMENTE; preservação de uma conversa real é inferida do early-return do source, pois DEL-03 usa DOM vazio |
 | exclusão nominal exige sidebar/menu/dialog/URL+row | DEL-04 | ✅ PROVADO DIRETAMENTE |
 | clique sem remoção real não é sucesso | DEL-05 | ✅ PROVADO DIRETAMENTE |
 | exclusões concorrentes são serializadas | DEL-06 | ✅ PROVADO DIRETAMENTE |
 | save/read/clear recovery | DEL-07 | ✅ PROVADO DIRETAMENTE |
 | recovery limpa marker e entrega uma vez em debug | DEL-08 | ✅ PROVADO DIRETAMENTE |
 | recovery executa exclusão DOM real com lockScroll | DEL-08 usa DEBUG_MODE_SKIP | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| falha salva marker antes do reload | DEL-09 | ✅ PROVADO DIRETAMENTE |
+| falha termina com recovery persistido e reload chamado | DEL-09 | ✅ PROVADO DIRETAMENTE para estado final; a ordem `await saveRecovery` → `reload()` é fato derivado do source, não ordering provado pelo teste |
 | marker ausente é no-op | DEL-10 | ✅ PROVADO DIRETAMENTE |
 | sendDelivery falha após clearRecovery | sem caso focal; ordem atual remove marker antes | ⚠️ RISCO DE DURABILIDADE |
 | storage.set/remove falham | branches reais, sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 
 ## 12. Solicitações ao auditor
 
-### 176-001 — TEST_REQUIRED — OPEN — HIGH
+### 176-001 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: DEL-08 chama recoverPending com debugMode:true, então deleteCurrentConversation sai por DEBUG_MODE_SKIP. O caso não prova exclusão real nem lockScroll apesar do título.
 
@@ -79,7 +85,7 @@ Evidência ausente: recovery com debugMode=false + DOM nominal, lockScroll:true,
 
 Risco: o caminho de recovery pós-reload pode quebrar no DOM/scroll lock sem afetar DEL-08.
 
-### 176-002 — DURABILITY_REVIEW — OPEN — HIGH
+### 176-002 — DURABILITY_REVIEW — SUPERSEDED → 041-001 — HIGH
 
 Encontrado: recoverPending remove o marker com clearRecovery antes de await sendDelivery. Se sendDelivery falhar/rejeitar, o replay desaparece; no job-runner a entrega é runtime.sendMessage sem ACK explícito.
 
@@ -87,7 +93,7 @@ Evidência ausente: sendDelivery rejeitando/lançando e definição do contrato 
 
 Risco: resultado/erro recuperado pode ser perdido definitivamente após reload.
 
-### 176-003 — TEST_REQUIRED — OPEN — NORMAL
+### 176-003 — TEST_REQUIRED — SUPERSEDED → 041-002 — NORMAL
 
 Encontrado: storageSet/storageRemove possuem tratamento de chrome.runtime.lastError, Promise rejection e throw, mas nenhuma fixture força falha de persistência/remoção.
 
@@ -1217,14 +1223,14 @@ describe('gemini/deletion.js', () => {
 ### Linha 110
 
 - **Código:** `    expect(controller.escapeCssAttributeValue('chat-1')).toBe('chat-1');`
-- **Função:** Exercita escape de chatId para seletor CSS.
+- **Função:** Assertion focal; verifica diretamente `    expect(controller.escapeCssAttributeValue('chat-1')).toBe('chat-1');`.
 - **Contexto:** DEL-01 — escape CSS fallback.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 111
 
 - **Código:** `    expect(controller.escapeCssAttributeValue('chat"1\\x')).toBe('chat\\"1\\\\x');`
-- **Função:** Exercita escape de chatId para seletor CSS.
+- **Função:** Assertion focal; verifica diretamente `    expect(controller.escapeCssAttributeValue('chat"1\\x')).toBe('chat\\"1\\\\x');`.
 - **Contexto:** DEL-01 — escape CSS fallback.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1357,7 +1363,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 130
 
 - **Código:** `    await expect(`
-- **Função:** Assertion focal do contrato.
+- **Função:** Assertion focal; verifica diretamente `    await expect(`.
 - **Contexto:** DEL-02 — elemento desconectado não estabiliza.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1483,21 +1489,21 @@ describe('gemini/deletion.js', () => {
 ### Linha 148
 
 - **Código:** `    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);`
-- **Função:** Executa fluxo real de exclusão/mutex/debug/idempotência.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);`.
 - **Contexto:** DEL-03 — debug mode.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 149
 
 - **Código:** `    expect(controller.isDeletionInProgress()).toBe(false);`
-- **Função:** Observa lock interno de exclusão.
+- **Função:** Assertion focal; verifica diretamente `    expect(controller.isDeletionInProgress()).toBe(false);`.
 - **Contexto:** DEL-03 — debug mode.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 150
 
 - **Código:** `    expect(logs.some(([, action]) => action === 'DEBUG_MODE_SKIP')).toBe(true);`
-- **Função:** Exige log específico do early-return de debug.
+- **Função:** Assertion focal; verifica diretamente `    expect(logs.some(([, action]) => action === 'DEBUG_MODE_SKIP')).toBe(true);`.
 - **Contexto:** DEL-03 — debug mode.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1644,7 +1650,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 171
 
 - **Código:** `    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);`
-- **Função:** Executa fluxo real de exclusão/mutex/debug/idempotência.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1658,42 +1664,42 @@ describe('gemini/deletion.js', () => {
 ### Linha 173
 
 - **Código:** `    expect(dom.link.scrollIntoView).toHaveBeenCalledTimes(1);`
-- **Função:** Espiona scroll até a conversa alvo.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.link.scrollIntoView).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 174
 
 - **Código:** `    expect(dom.options.click).toHaveBeenCalledTimes(1);`
-- **Função:** Ao clicar no botão, monta menu com item Excluir.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.options.click).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 175
 
 - **Código:** `    expect(dom.deleteItem.click).toHaveBeenCalledTimes(1);`
-- **Função:** Cria item Excluir dentro do menu.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.deleteItem.click).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 176
 
 - **Código:** `    expect(dom.confirm.click).toHaveBeenCalledTimes(1);`
-- **Função:** Exige cardinalidade exata do clique/entrega indicado.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.confirm.click).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 177
 
 - **Código:** `    expect(controller.isDeletionInProgress()).toBe(false);`
-- **Função:** Observa lock interno de exclusão.
+- **Função:** Assertion focal; verifica diretamente `    expect(controller.isDeletionInProgress()).toBe(false);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 178
 
 - **Código:** `    expect(logs.some(([, action]) => action === 'DELETE_OK')).toBe(true);`
-- **Função:** Exige observabilidade de exclusão confirmada.
+- **Função:** Assertion focal; verifica diretamente `    expect(logs.some(([, action]) => action === 'DELETE_OK')).toBe(true);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1707,21 +1713,21 @@ describe('gemini/deletion.js', () => {
 ### Linha 180
 
 - **Código:** `    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);`
-- **Função:** Executa fluxo real de exclusão/mutex/debug/idempotência.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.deleteCurrentConversation()).resolves.toBe(true);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 181
 
 - **Código:** `    expect(dom.options.click).toHaveBeenCalledTimes(1);`
-- **Função:** Ao clicar no botão, monta menu com item Excluir.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.options.click).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 182
 
 - **Código:** `    expect(logs.some(([, action]) => action === 'DELETE_ALREADY_CONFIRMED')).toBe(true);`
-- **Função:** Prova idempotência por lastDeletedChatId em segunda chamada.
+- **Função:** Assertion focal; verifica diretamente `    expect(logs.some(([, action]) => action === 'DELETE_ALREADY_CONFIRMED')).toBe(true);`.
 - **Contexto:** DEL-04 — exclusão completa e idempotência.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1840,7 +1846,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 199
 
 - **Código:** `    await expect(controller.deleteCurrentConversation()).resolves.toBe(false);`
-- **Função:** Executa fluxo real de exclusão/mutex/debug/idempotência.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.deleteCurrentConversation()).resolves.toBe(false);`.
 - **Contexto:** DEL-05 — confirmação real exigida.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1854,21 +1860,21 @@ describe('gemini/deletion.js', () => {
 ### Linha 201
 
 - **Código:** `    expect(dom.confirm.click).toHaveBeenCalledTimes(1);`
-- **Função:** Exige cardinalidade exata do clique/entrega indicado.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.confirm.click).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-05 — confirmação real exigida.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 202
 
 - **Código:** `    expect(dom.row.isConnected).toBe(true);`
-- **Função:** Assertion focal do contrato.
+- **Função:** Assertion focal; verifica diretamente `    expect(dom.row.isConnected).toBe(true);`.
 - **Contexto:** DEL-05 — confirmação real exigida.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 203
 
 - **Código:** `    expect(logs.some(([, action, detail]) =>`
-- **Função:** Assertion focal do contrato.
+- **Função:** Assertion focal; verifica diretamente `    expect(logs.some(([, action, detail]) =>`.
 - **Contexto:** DEL-05 — confirmação real exigida.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2092,14 +2098,14 @@ describe('gemini/deletion.js', () => {
 ### Linha 235
 
 - **Código:** `    await expect(controller.deleteCurrentConversation()).resolves.toBe(false);`
-- **Função:** Executa fluxo real de exclusão/mutex/debug/idempotência.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.deleteCurrentConversation()).resolves.toBe(false);`.
 - **Contexto:** DEL-06 — mutex de exclusão.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 236
 
 - **Código:** `    expect(controller.isDeletionInProgress()).toBe(true);`
-- **Função:** Observa lock interno de exclusão.
+- **Função:** Assertion focal; verifica diretamente `    expect(controller.isDeletionInProgress()).toBe(true);`.
 - **Contexto:** DEL-06 — mutex de exclusão.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2120,14 +2126,14 @@ describe('gemini/deletion.js', () => {
 ### Linha 239
 
 - **Código:** `    await expect(first).resolves.toBe(false);`
-- **Função:** Assertion focal do contrato.
+- **Função:** Assertion focal; verifica diretamente `    await expect(first).resolves.toBe(false);`.
 - **Contexto:** DEL-06 — mutex de exclusão.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 240
 
 - **Código:** `    expect(controller.isDeletionInProgress()).toBe(false);`
-- **Função:** Observa lock interno de exclusão.
+- **Função:** Assertion focal; verifica diretamente `    expect(controller.isDeletionInProgress()).toBe(false);`.
 - **Contexto:** DEL-06 — mutex de exclusão.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2246,7 +2252,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 257
 
 - **Código:** `    expect(saved).toEqual({`
-- **Função:** Assertion focal do contrato.
+- **Função:** Assertion focal; verifica diretamente `    expect(saved).toEqual({`.
 - **Contexto:** DEL-07 — save/read/clear recovery.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2281,7 +2287,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 262
 
 - **Código:** `    await expect(controller.readRecovery(77)).resolves.toEqual(saved);`
-- **Função:** Relê marker persistido pelo controller real.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.readRecovery(77)).resolves.toEqual(saved);`.
 - **Contexto:** DEL-07 — save/read/clear recovery.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2302,7 +2308,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 265
 
 - **Código:** `    await expect(controller.readRecovery(77)).resolves.toBeNull();`
-- **Função:** Relê marker persistido pelo controller real.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.readRecovery(77)).resolves.toBeNull();`.
 - **Contexto:** DEL-07 — save/read/clear recovery.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2498,28 +2504,28 @@ describe('gemini/deletion.js', () => {
 ### Linha 293
 
 - **Código:** `    expect(result.handled).toBe(true);`
-- **Função:** Exige que marker existente seja reconhecido.
+- **Função:** Assertion focal; verifica diretamente `    expect(result.handled).toBe(true);`.
 - **Contexto:** DEL-08 — recoverPending com debug skip.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 294
 
 - **Código:** `    expect(result.deleted).toBe(true);`
-- **Função:** Observa resultado de deleteCurrentConversation dentro do recovery.
+- **Função:** Assertion focal; verifica diretamente `    expect(result.deleted).toBe(true);`.
 - **Contexto:** DEL-08 — recoverPending com debug skip.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 295
 
 - **Código:** `    expect(sendDelivery).toHaveBeenCalledTimes(1);`
-- **Função:** Exige cardinalidade exata do clique/entrega indicado.
+- **Função:** Assertion focal; verifica diretamente `    expect(sendDelivery).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-08 — recoverPending com debug skip.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 296
 
 - **Código:** `    await expect(controller.readRecovery(88)).resolves.toBeNull();`
-- **Função:** Relê marker persistido pelo controller real.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.readRecovery(88)).resolves.toBeNull();`.
 - **Contexto:** DEL-08 — recoverPending com debug skip.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2659,7 +2665,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 316
 
 - **Código:** `    expect(result).toEqual({`
-- **Função:** Assertion focal do contrato.
+- **Função:** Assertion focal; verifica diretamente `    expect(result).toEqual({`.
 - **Contexto:** DEL-09 — falha salva recovery e recarrega.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2694,7 +2700,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 321
 
 - **Código:** `    await expect(controller.readRecovery(99)).resolves.toEqual({`
-- **Função:** Relê marker persistido pelo controller real.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.readRecovery(99)).resolves.toEqual({`.
 - **Contexto:** DEL-09 — falha salva recovery e recarrega.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2729,7 +2735,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 326
 
 - **Código:** `    expect(pageWindow.location.reload).toHaveBeenCalledTimes(1);`
-- **Função:** Exige cardinalidade exata do clique/entrega indicado.
+- **Função:** Assertion focal; verifica diretamente `    expect(pageWindow.location.reload).toHaveBeenCalledTimes(1);`.
 - **Contexto:** DEL-09 — falha salva recovery e recarrega.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2820,7 +2826,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 339
 
 - **Código:** `    await expect(controller.recoverPending({`
-- **Função:** Executa replay real do recovery.
+- **Função:** Assertion focal; verifica diretamente `    await expect(controller.recoverPending({`.
 - **Contexto:** DEL-10 — recovery inexistente.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2876,7 +2882,7 @@ describe('gemini/deletion.js', () => {
 ### Linha 347
 
 - **Código:** `    expect(sendDelivery).not.toHaveBeenCalled();`
-- **Função:** Injeta função observável que entrega payload recuperado.
+- **Função:** Assertion focal; verifica diretamente `    expect(sendDelivery).not.toHaveBeenCalled();`.
 - **Contexto:** DEL-10 — recovery inexistente.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -2902,4 +2908,7 @@ describe('gemini/deletion.js', () => {
 
 ## 15. Conclusão documental
 
-Foram documentadas 349 linhas textuais e a posição 350 do newline final. A suíte prova fortemente exclusão nominal, mutex e persistência de recovery no mesmo blob verde em Node 20/22; as três solicitações OPEN delimitam o recovery real (não debug), a ordem clear→delivery e falhas de storage.
+Foram documentadas 349 linhas textuais e a posição 350 do newline final. A suíte prova fortemente exclusão nominal, mutex e persistência de recovery no mesmo blob verde em Node 20/22; as uma request ACCEPTED e duas SUPERSEDED delimitam o recovery real (não debug), a ordem clear→delivery e falhas de storage.
+
+> **Correção pós-adversarial:** 36 descrições de linhas com `expect(...)` foram realinhadas para a assertion concreta, eliminando semântica de setup/fixture copiada sobre posições assertivas.
+> **Lifecycle:** 176-001 está ACCEPTED; 176-002 está SUPERSEDED por `041-001`; 176-003 está SUPERSEDED por `041-002`.
