@@ -3,7 +3,7 @@
   "file": "extension/manifest.json",
   "bible": "docs/biblia/extension/manifest.json/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "841fe70c183350e4110bc8ff57ab69b157169c36",
   "started_at_utc": "2026-09-30T12:50:00Z",
   "completed_at_utc": "2026-09-30T12:56:00Z",
@@ -59,5 +59,10 @@
     "source_text_lines": 75,
     "external_audit_requests_open": 2,
     "note": "Bíblia de auditoria anterior revalidada contra SHA atual; lacunas de gates persistidas no state."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
