@@ -94,7 +94,14 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T02:24:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T02:24:00Z",
+      "type": "DOCUMENTATION_COVERAGE_REPAIR",
+      "to_status": "READY_FOR_AUDIT",
+      "reason": "Faixas semânticas ajustadas para incluir posições separadoras previamente omitidas pelo mapa documental; fonte e testes permanecem inalterados."
+    }
+  ],
   "evidence": []
 }
