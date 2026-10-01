@@ -2,9 +2,9 @@
   "index": 181,
   "file": "tests/unit/content-gemini/job-runner.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
-  "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
   "started_at_utc": "2026-09-30T16:00:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -112,7 +112,8 @@
       109255348406,
       109256050280
     ],
-    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 21 casos RUN/RUN-COV passaram individualmente; global 109/109 suítes e 851/851 testes."
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 21 casos RUN/RUN-COV passaram individualmente; global 109/109 suítes e 851/851 testes.",
+    "note": "RUN-01B ampliado para cobrir DataUrlAtob:null; Bíblia sincronizada com o novo source."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -142,6 +143,16 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
       "reason": "Resolver 179-004 adicionando cobertura focal de DataUrlAtob:null em RUN-01B."
+    },
+    {
+      "at_utc": "2026-10-01T21:29:40.752Z",
+      "type": "CANONICAL_REQUEST_IMPLEMENTATION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+      "current_source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+      "bible_sha": "c2433449872cf63eedc0569c4057d8e31ff49ae4",
+      "reason": "179-004 implementada em RUN-01B. Nova revisão de source+Bíblia exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
