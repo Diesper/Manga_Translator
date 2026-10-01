@@ -55,6 +55,14 @@ function classify(model) {
       continue;
     }
 
+    // Leases possuem TTL explícito: após expirar, ownership acabou por
+    // contrato mesmo que o auditor não tenha publicado resultado. Claims
+    // legados sem TTL continuam fora desta regra e exigem decisão manual.
+    if (rel.includes('/audit-leases/') && (model.expired_leases || []).includes(rel)) {
+      safe.push({ rel, index, phase, auditor, reason: 'lease_expired' });
+      continue;
+    }
+
     const pipeline = model.pipelines.find((item) => item.index === index);
     if (pipeline && pipeline.next_phase && pipeline.next_phase !== phase) {
       safe.push({ rel, index, phase, auditor, reason: 'phase_already_superseded' });
