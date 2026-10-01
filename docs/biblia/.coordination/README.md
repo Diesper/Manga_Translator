@@ -108,3 +108,27 @@ A CI verde do SHA final continua sendo uma condição externa adicional; este co
 - `.coordination/PROGRESS.lock.md`: serialização curta de **escritas globais**.
 
 Os três mecanismos são distintos e não devem ser usados como substitutos uns dos outros.
+
+## Gate de merge readiness local
+
+Quando as auditorias estiverem concluídas, execute:
+
+`node scripts/validation/generate-bible-projections.js --merge-ready`
+
+O modo é fail-closed e exige, no snapshot local do repositório:
+
+- 233/233 states válidos e coerentes;
+- todos os states em `COMPLETED`;
+- auditoria `APPROVED` válida para o SHA atual de cada item;
+- fonte integral/cobertura/projeções coerentes;
+- nenhum `audit_request` em `OPEN`;
+- nenhuma reserva de edição ativa;
+- nenhum audit claim residual;
+- nenhum `PROGRESS.lock.md` residual.
+
+Requests `ACCEPTED`, `RESOLVED`, `REJECTED` e `SUPERSEDED` são estados triados e não bloqueiam por si só o fechamento documental.
+
+O comando também valida que qualquer lifecycle explicitamente escrito ao lado de um request na Bíblia coincide com o lifecycle canônico do `.state`. Isso impede que uma Bíblia continue mostrando `OPEN` depois que o state já foi triado como `ACCEPTED`, por exemplo.
+
+Esse gate cobre readiness **local/documental**. O merge final ainda exige GitHub Actions verde para o **SHA final exato**; o script não transforma uma CI antiga em prova do HEAD atual.
+
