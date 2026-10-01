@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/manual-assist-hud.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f`  
 > **Agente responsável:** AGENTE 17  
 > **Tipo:** suíte Jest/JSDOM do HUD manual Gemini  
@@ -103,7 +103,7 @@ Esses detalhes são implementação real, mas nem todos recebem assertion neste 
 
 ## 5. Solicitações ao auditor
 
-### 182-001 — TEST_STRENGTH_REVIEW — OPEN
+### 182-001 — TEST_STRENGTH_REVIEW — ACCEPTED
 
 O teste “removeGeminiManualPanel remove o HUD e limpa listeners residuais” só exige que o painel desapareça.
 
@@ -116,7 +116,7 @@ O teste “removeGeminiManualPanel remove o HUD e limpa listeners residuais” s
 
 **Severidade:** HIGH.
 
-### 182-002 — CONTRACT_REVIEW — OPEN
+### 182-002 — CONTRACT_REVIEW — ACCEPTED
 
 “Usar última” escolhe `images[images.length-1]`, isto é, o último candidato na ordem retornada pelo DOM traversal. O teste possui somente uma imagem e não prova que a ordem DOM equivale à geração temporal mais recente.
 
@@ -131,7 +131,7 @@ O teste “removeGeminiManualPanel remove o HUD e limpa listeners residuais” s
 
 **Severidade:** HIGH.
 
-### 182-003 — TEST_REQUIRED — OPEN
+### 182-003 — TEST_REQUIRED — ACCEPTED
 
 Não há prova focal de que uma escolha manual:
 - chama `observer.acceptResult(null,url)`;
@@ -253,17 +253,27 @@ describe('Manual Assist HUD (#mt-gemini-assist) — content_gemini.js', () => {
 
 | Linhas | Responsabilidade |
 |---:|---|
-| 1–5 | comentário/objetivo |
-| 6–8 | import do loader real |
-| 9 | describe |
-| 10–14 | setup |
-| 15–20 | cleanup |
-| 21–36 | criação/estado inicial |
-| 37–54 | “Usar última” com candidato |
-| 55–66 | “Usar última” sem candidato |
-| 67–95 | seleção manual e cleanup pós-click |
-| 96–102 | remoção do HUD |
-| posição final | newline final |
+| 1–6 | comentário/objetivo |
+| 7 | transição estrutural |
+| 8 | import do loader real |
+| 9 | transição estrutural |
+| 10 | abertura do `describe` |
+| 11–12 | estado local da suíte + transição |
+| 13–16 | `beforeEach` / setup |
+| 17 | transição estrutural |
+| 18–22 | `afterEach` / cleanup |
+| 23 | transição estrutural |
+| 24–38 | criação/estado inicial do HUD |
+| 39 | transição estrutural |
+| 40–55 | “Usar última” com candidato |
+| 56 | transição estrutural |
+| 57–65 | “Usar última” sem candidato |
+| 66 | transição estrutural |
+| 67–93 | seleção manual e cleanup pós-click |
+| 94 | transição estrutural |
+| 95–101 | remoção do HUD |
+| 102 | fechamento do `describe` |
+| posição 103 | newline final |
 
 ## 8. Invariantes
 
@@ -286,3 +296,6 @@ describe('Manual Assist HUD (#mt-gemini-assist) — content_gemini.js', () => {
 - [x] três solicitações externas registradas.
 
 **Resultado:** suíte útil e autêntica para o HUD básico, porém ainda fraca nos contratos mais perigosos: cleanup global e definição real de “última imagem”.
+
+> **Correção pós-adversarial:** o mapa 1–102 foi realinhado às fronteiras reais de `describe`, setup, cleanup e dos cinco testes; linhas de transição foram separadas explicitamente e a posição 103 continua sendo o newline final.
+> **Lifecycle:** 182-001, 182-002 e 182-003 estão ACCEPTED em `.state/182.json`.
