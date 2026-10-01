@@ -25,6 +25,12 @@ A implementação normaliza trim/lowercase, rejeita hosts fora de [a-z0-9.-] e r
 
 O segundo caso registra uma manga tab reader.test e dispara o listener onClicked com pageUrl e srcUrl. A mensagem entregue deve ser exatamente {action:'TRANSLATE_CONTEXT_IMAGE',srcUrl:'https://reader.test/page-4.png'}.
 
+### Fronteira de prova: dispatch do background vs consumer real
+
+Nesta suíte, o receptor de `chrome.tabs.sendMessage` é **mockado** por `tabsMock._registerMessageHandler(...)`; ele coleta a mensagem e devolve uma resposta sintética. Portanto #167 prova diretamente que o background cria/revalida o menu e despacha o payload correto, mas **não executa o content script real**.
+
+O consumer de produção está em `extension/content/content_manga.js`: no branch `request.action === 'TRANSLATE_CONTEXT_IMAGE'`, ele resolve a imagem correspondente e chama `startSingleImageTranslation(img)`. A suíte `tests/unit/content-manga/floating-button-guard-and-single-click.test.js` exerce esse consumer real em sucesso e rejeições. Essas duas camadas de evidência são complementares e não devem ser confundidas.
+
 Antes de enviar, a implementação relê storage e valida novamente o host da página. Isso evita que um item antigo continue ativo após mudança de preferência.
 
 ## 4. Desativação e listener antigo
@@ -348,14 +354,14 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 013
 
 - **Código:** `    return {`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Abre o objeto retornado pelo factory do mock de `contextMenus`.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 014
 
 - **Código:** `        items,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Expõe o `Map` de itens criados pelo mock para inspeção das assertions.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -383,21 +389,21 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 018
 
 - **Código:** `            if (callback) callback();`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Invoca o callback fornecido pela API Chrome mockada, simulando conclusão da operação.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 019
 
 - **Código:** `            return props.id;`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Retorna o id do item criado pelo mock de `contextMenus.create`.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 020
 
 - **Código:** `        }),`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -418,28 +424,28 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 023
 
 - **Código:** `            if (callback) callback();`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Invoca o callback fornecido pela API Chrome mockada, simulando conclusão da operação.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 024
 
 - **Código:** `            return Promise.resolve();`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Resolve a operação mockada de forma assíncrona sem erro.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 025
 
 - **Código:** `        }),`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 026
 
 - **Código:** `        onClicked: {`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Define a interface mockada do evento `contextMenus.onClicked` e seu registro de listeners.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -474,28 +480,28 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 031
 
 - **Código:** `            }),`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 032
 
 - **Código:** `        },`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 033
 
 - **Código:** `    };`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 034
 
 - **Código:** `}`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** mock de contextMenus.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -698,84 +704,84 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 063
 
 - **Código:** `            storage: {`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Conecta esse subsistema mock ao objeto `chrome` do harness.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 064
 
 - **Código:** `                local: storageMock,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 065
 
 - **Código:** `                onChanged: storageMock.onChanged,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 066
 
 - **Código:** `            },`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 067
 
 - **Código:** `            tabs: tabsMock,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Conecta esse subsistema mock ao objeto `chrome` do harness.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 068
 
 - **Código:** `            alarms: alarmsMock,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Conecta esse subsistema mock ao objeto `chrome` do harness.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 069
 
 - **Código:** `            runtime: runtimeMock,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Conecta esse subsistema mock ao objeto `chrome` do harness.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 070
 
 - **Código:** `            downloads: downloadsMock,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Conecta esse subsistema mock ao objeto `chrome` do harness.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 071
 
 - **Código:** `            scripting: global.chrome?.scripting,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Instala no teste o objeto `chrome` mockado usado pelo background real.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 072
 
 - **Código:** `            contextMenus,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 073
 
 - **Código:** `        };`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 074
 
 - **Código:** `    });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -803,7 +809,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 078
 
 - **Código:** `        alarmsMock.clearAll();`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Invoca a operação indicada como parte do setup, dispatch ou verificação do cenário.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -824,7 +830,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 081
 
 - **Código:** `    });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** setup/teardown do background real.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -845,7 +851,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 084
 
 - **Código:** `        await storageMock.set({`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa e aguarda a operação assíncrona indicada nesta linha.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -866,7 +872,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 087
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -894,7 +900,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 091
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -922,21 +928,21 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 095
 
 - **Código:** `        expect(item).toEqual(expect.objectContaining({`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Assertion focal sobre a definição do item de context menu criado pelo background.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 096
 
 - **Código:** `            id: 'manga-translator-translate-single-image',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 097
 
 - **Código:** `            title: 'Traduzir esta imagem',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -950,7 +956,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 099
 
 - **Código:** `        }));`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -978,14 +984,14 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 103
 
 - **Código:** `        ]);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 104
 
 - **Código:** `    });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** criação do item por domínio.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1006,7 +1012,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 107
 
 - **Código:** `        await storageMock.set({`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa e aguarda a operação assíncrona indicada nesta linha.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1027,7 +1033,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 110
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1055,7 +1061,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 114
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1104,14 +1110,14 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 121
 
 - **Código:** `            sendResponse({ ok: true, index: 4 });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Invoca a operação indicada como parte do setup, dispatch ou verificação do cenário.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 122
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1139,35 +1145,35 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 126
 
 - **Código:** `            menuItemId: 'manga-translator-translate-single-image',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 127
 
 - **Código:** `            pageUrl: tab.url,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 128
 
 - **Código:** `            srcUrl: 'https://reader.test/page-4.png',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 129
 
 - **Código:** `            mediaType: 'image',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 130
 
 - **Código:** `        }, tab);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1181,42 +1187,42 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 132
 
 - **Código:** `        await waitFor(() => forwarded.length === 1);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa e aguarda a operação assíncrona indicada nesta linha.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 133
 
 - **Código:** `        expect(forwarded[0]).toEqual({`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Assertion focal sobre o estado/efeito expresso nesta linha: `expect(forwarded[0]).toEqual({`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 134
 
 - **Código:** `            action: 'TRANSLATE_CONTEXT_IMAGE',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 135
 
 - **Código:** `            srcUrl: 'https://reader.test/page-4.png',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 136
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 137
 
 - **Código:** `    });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** clique encaminha imagem exata.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1237,7 +1243,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 140
 
 - **Código:** `        await storageMock.set({`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa e aguarda a operação assíncrona indicada nesta linha.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1258,7 +1264,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 143
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1286,7 +1292,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 147
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1300,7 +1306,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 149
 
 - **Código:** `        expect(contextMenus.items.has('manga-translator-translate-single-image')).toBe(true);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Assertion focal sobre presença/remoção do item no registry mockado.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1328,7 +1334,7 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 153
 
 - **Código:** `        expect(contextMenus.items.has('manga-translator-translate-single-image')).toBe(false);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Assertion focal sobre presença/remoção do item no registry mockado.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
@@ -1370,14 +1376,14 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 159
 
 - **Código:** `            sendResponse({ ok: true });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Invoca a operação indicada como parte do setup, dispatch ou verificação do cenário.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 160
 
 - **Código:** `        });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1398,35 +1404,35 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 163
 
 - **Código:** `            menuItemId: 'manga-translator-translate-single-image',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 164
 
 - **Código:** `            pageUrl: tab.url,`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 165
 
 - **Código:** `            srcUrl: 'https://reader.test/page-2.png',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 166
 
 - **Código:** `            mediaType: 'image',`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 167
 
 - **Código:** `        }, tab);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Executa a instrução específica desta linha no harness; não representa genericamente uma interação com `onClicked`.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1447,21 +1453,21 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ### Linha 170
 
 - **Código:** `        expect(forwarded).toHaveLength(0);`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Assertion focal sobre o estado/efeito expresso nesta linha: `expect(forwarded).toHaveLength(0);`.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 171
 
 - **Código:** `    });`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** desativação remove item e bloqueia listener antigo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 172
 
 - **Código:** `});`
-- **Função:** Interage com listener onClicked registrado pelo background.
+- **Função:** Fecha ou organiza a estrutura sintática iniciada nas linhas anteriores.
 - **Contexto:** estrutura.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa do cenário verde sem assertion exclusiva nesta linha.
 
@@ -1473,6 +1479,8 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 
 ## 12. Conclusão documental
 
-Foram documentadas 172 linhas textuais e a posição 173 do newline final. Os três contratos principais estão provados no background real e no mesmo blob executado em Node 20/22; as solicitações abertas concentram-se em corrida de rebuild, saneamento de domínios e observabilidade de falhas.
+Foram documentadas 172 linhas textuais e a posição 173 do newline final. Os três contratos principais estão provados no background real e no mesmo blob executado em Node 20/22; as **solicitações ACCEPTED/lacunas aceitas** concentram-se em corrida de rebuild, saneamento de domínios e observabilidade de falhas.
 
 > **Lifecycle pós-adversarial:** 167-001, 167-002 e 167-003 estão ACCEPTED em `.state/167.json`; permanecem riscos/lacunas documentadas, não requests OPEN.
+
+> **Correção pós-ADVERSARIAL v2:** 67 descrições genéricas de linha foram substituídas por função específica; o lifecycle agora usa ACCEPTED sem contradição e a prova de dispatch do background foi separada da prova do consumer real em content_manga.
