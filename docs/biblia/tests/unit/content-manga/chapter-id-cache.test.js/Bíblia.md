@@ -281,12 +281,12 @@ describe('getOrCreateChapterId() — Cache de Promise (stub v3.0)', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–16 | documentação histórica v3.0/BUG #11 |
-| 18–25 | imports/root/storage mock |
-| 27–35 | describe/setup |
-| 37–59 | mirror createSystem |
-| 61–65 | criação inicial |
-| 67–72 | reutilização por resultado |
+| 1–17 | documentação histórica v3.0/BUG #11 |
+| 18–26 | imports/root/storage mock |
+| 27–36 | describe/setup |
+| 37–60 | mirror createSystem |
+| 61–66 | criação inicial |
+| 67–73 | reutilização por resultado |
 | 74–83 | concorrência e ausência de duplicação |
 | 84 | fecha describe |
 | posição 85 | newline final |

@@ -458,12 +458,12 @@ describe('Sistema de Auto-Restore — v3.2', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–10 | contexto e cenários declarados |
+| 1–11 | contexto e cenários declarados |
 | 12–21 | imports/root/storage mock |
-| 23–72 | mirrors getCleanUrl/createAutoRestoreSystem |
-| 74–82 | factory de imagem fake |
-| 84–154 | testes do mirror applyAutoRestore |
-| 156–199 | persistência cross-session simulada |
+| 23–73 | mirrors getCleanUrl/createAutoRestoreSystem |
+| 74–83 | factory de imagem fake |
+| 84–155 | testes do mirror applyAutoRestore |
+| 156–200 | persistência cross-session simulada |
 | 201–239 | debounce local |
 | 241–260 | “integração” por storageMock.set manual |
 | 261 | fecha describe |

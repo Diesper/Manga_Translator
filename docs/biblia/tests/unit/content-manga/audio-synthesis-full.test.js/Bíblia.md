@@ -423,11 +423,11 @@ describe('Síntese de Áudio Procedural — Cobertura Completa', () => {
 |---:|---|
 | 1–15 | objetivo e contexto histórico |
 | 17–24 | imports/root/helper extraído |
-| 26–48 | mirror local de playSuccessSound |
+| 26–49 | mirror local de playSuccessSound |
 | 50–78 | mocks de AudioContext |
-| 80–148 | testes do som de erro |
-| 150–189 | testes do mirror de sucesso |
-| 191–211 | fallback webkitAudioContext |
+| 80–149 | testes do som de erro |
+| 150–190 | testes do mirror de sucesso |
+| 191–212 | fallback webkitAudioContext |
 | 213–224 | grafo osc→gain→destination |
 | 225 | fecha describe |
 | posição 226 | newline final |

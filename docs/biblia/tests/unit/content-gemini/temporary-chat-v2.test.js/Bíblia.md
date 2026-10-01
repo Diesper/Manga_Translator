@@ -299,14 +299,14 @@ describe('gemini/temporary-chat.js — estados verificáveis', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–7 | imports e caminho do módulo |
-| 9–15 | loader isolado |
-| 17–28 | describe/setup/cleanup |
-| 30–45 | TEMP-01 |
+| 1–8 | imports e caminho do módulo |
+| 9–16 | loader isolado |
+| 17–29 | describe/setup/cleanup |
+| 30–46 | TEMP-01 |
 | 47–64 | TEMP-02 |
-| 66–88 | TEMP-03 |
-| 90–106 | TEMP-04 |
-| 108–126 | TEMP-05 |
+| 66–89 | TEMP-03 |
+| 90–107 | TEMP-04 |
+| 108–127 | TEMP-05 |
 | 128–142 | garantia de click único |
 | 143 | fecha describe |
 | posição 144 | newline final |

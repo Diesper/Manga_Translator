@@ -422,11 +422,11 @@ describe('CM-88/CM-89/CM-90/CM-91/CM-92/CM-93: _getOrCreateChapterIdImpl — Pro
 | Linhas | Papel |
 |---:|---|
 | 1–17 | contexto do BUG #11 e abordagem mirror |
-| 19–27 | imports/root/storage mock |
-| 29–70 | implementação espelho |
-| 72–80 | describe/setup |
-| 82–133 | happy path |
-| 135–190 | falhas get/set, limpeza e retry |
+| 19–28 | imports/root/storage mock |
+| 29–71 | implementação espelho |
+| 72–81 | describe/setup |
+| 82–134 | happy path |
+| 135–191 | falhas get/set, limpeza e retry |
 | 192–226 | paralelismo/deduplicação |
 | 227 | fecha describe |
 | posição 228 | newline final |
