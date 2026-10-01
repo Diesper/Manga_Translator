@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "index": 18,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 18",
+  "file": "extension/background/actions/open-manga-root.js",
+  "bible": "docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md",
+  "source_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
+  "bible_sha": "cc5baa2d27ce612031ebafa2ad82961ccbf26d0d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A18-018-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia rotula 018-001 e 018-002 como OPEN, enquanto o state canônico registra ambos como ACCEPTED após auditoria independente.",
+      "evidence": [
+        "Bíblia §Solicitações ao auditor: `018-001 — TEST_REQUIRED — OPEN` e `018-002 — RELIABILITY_REVIEW — OPEN`.",
+        "`.state/018.json`: 018-001 e 018-002 possuem `status: ACCEPTED`, `audited_by: AGENTE 23`, `audited_at_utc` e `audit_finding` persistidos.",
+        "As lacunas técnicas continuam válidas; o erro bloqueante é o lifecycle documental stale."
+      ],
+      "requested_documentation_fix": "Atualizar o lifecycle mostrado na Bíblia para refletir ACCEPTED, ou rotular inequivocamente a seção como snapshot histórico sem apresentá-la como estado atual."
+    },
+    {
+      "id": "A18-018-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_ID_CONTENT_DIVERGENCE",
+      "summary": "O request 018-002 da Bíblia não é o request 018-002 canônico do state: o mesmo ID foi usado para dois problemas diferentes.",
+      "evidence": [
+        "Bíblia 018-002: `RELIABILITY_REVIEW`, foco em marcador temporário potencialmente órfão após reinicialização do service worker, severidade LOW.",
+        "`.state/018.json` 018-002: `ASYNC_LIFECYCLE_REVIEW`, foco em Promise que permanece pendente quando `handleMarkerAndShow` não invoca o callback, severidade NORMAL.",
+        "A Bíblia menciona o hang do callback apenas como lacuna genérica, mas não preserva o request canônico aceito sob seu ID; ao mesmo tempo apresenta um request de restart que não existe no registro canônico."
+      ],
+      "requested_documentation_fix": "Sincronizar 018-002 com o request canônico do state. Se a revisão de cleanup após restart continuar necessária, registrá-la com ID próprio no state e então documentá-la sem reutilizar 018-002."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_PRIMARY_LEGADA_SEM_AUDITOR_REGISTRADO_VS_AGENTE_18",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "20/20",
+    "source_text_lines": 19,
+    "direct_test": "tests/unit/background/open-manga-root-action.test.js",
+    "helper_test": "tests/unit/background/marker-anchor-real.test.js",
+    "production_consumer": "extension/popup/popup.js",
+    "production_wiring": [
+      "extension/background/router.js",
+      "extension/background.js"
+    ],
+    "non_blocking_software_gaps": [
+      "helper ausente/não-função sem teste focal",
+      "helper que nunca chama callback sem timeout local",
+      "categorias de source não exaustivamente testadas",
+      "cleanup do marcador após restart do service worker não provado"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:44:30Z"
+}
