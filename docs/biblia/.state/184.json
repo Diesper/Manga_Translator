@@ -2,8 +2,8 @@
   "index": 184,
   "file": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/plan-rpa-edge-cases.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "81e21c6e245ec8f75c68db163170266c40561a6c",
   "started_at_utc": "2026-09-30T16:45:00Z",
   "completed_at_utc": null,
@@ -79,7 +79,7 @@
     "documented_positions": "635/635",
     "source_text_lines": 634,
     "bible_lines": 5188,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -99,6 +99,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "81e21c6e245ec8f75c68db163170266c40561a6c",
       "reason": "184 PRIMARY+ADVERSARIAL: lifecycle stale e escopo de evidência do scrollInterval."
+    },
+    {
+      "at_utc": "2026-10-01T19:29:59.845Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "81e21c6e245ec8f75c68db163170266c40561a6c",
+      "bible_sha": "49d244552d69e1be8b3e5474231033cce2c694e5",
+      "reason": "184-PRI/A8 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
