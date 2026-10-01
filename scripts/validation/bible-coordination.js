@@ -309,7 +309,7 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
   const statusLines = [
     '# Status — Bíblia técnica por arquivo',
     '',
-    '> Arquivo gerado deterministicamente a partir de .state/*.json, resultados distribuídos de auditoria, AUDITORIA.md legado e filesystem.',
+    '> View de compatibilidade gerada deterministicamente a partir de .state/*.json, AUDITORIA.md legado e filesystem; resultados distribuídos são reconciliados em lote.',
     '',
     '## Snapshot',
     '',
