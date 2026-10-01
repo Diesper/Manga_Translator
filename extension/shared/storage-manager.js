@@ -470,11 +470,11 @@ async function migrateChapterFromLegacy(chapterId) {
         } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
-    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
     if (migrated > 0) {
         await new Promise((resolve, reject) => chrome.storage.local.remove(
             [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));
     }
+    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
 
     return { migrated, skipped: false };
 }
