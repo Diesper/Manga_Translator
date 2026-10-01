@@ -1223,3 +1223,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### `load-content-script.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #102 — `tests/helpers/load-content-script.js`.
+- **Auditor:** AGENTE 8.
+- **SHA auditado:** `40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0`.
+- **Integridade:** source/state/Bíblia/claim coincidem no mesmo SHA; a fonte integral embutida é byte a byte idêntica ao source atual; **171 linhas textuais + LF final = 172/172 posições**; 35 faixas cobrem 1–172 sem gaps, overlaps ou posições fora do arquivo.
+- **Falha documental 1 — evidência superestimada:** a tabela de classificação afirma que respostas de `GET_FLOATING_BUTTON_STATUS`, `TRANSLATE_CONTEXT_IMAGE`, `GET_PAGE_IMAGES` e `UPDATE_IMAGE` são assertadas e classifica o conjunto como “PROVADO DIRETAMENTE”. O único consumer localizado que usa `context.sendMessage('UPDATE_IMAGE', ...)`, `tests/integration/ipc/gtc-indexeddb-deep.test.js`, não captura nem asserta a resposta; ele apenas espera e verifica a persistência no IndexedDB. No handler real, `UPDATE_IMAGE` só chama `sendResponse` quando `expectAck === true`, e esse consumer não envia `expectAck`. Portanto a assertion citada não prova a resposta de `UPDATE_IMAGE`.
+- **Falha documental 2 — semântica assíncrona incorreta e contradição interna:** a seção 10 declara que, porque a Promise ignora resoluções posteriores, “uma resposta do listener ganha do fallback”. O source agenda incondicionalmente `resolve(null)` após 50 ms e ignora o valor retornado pelos listeners; logo qualquer `sendResponse` assíncrono posterior a 50 ms perde para o fallback. O mock público do runtime distingue listeners que retornam `true` e amplia a janela assíncrona, enquanto o helper não preserva essa semântica. A própria seção de cobertura da Bíblia diz corretamente “Primeira resolução vence”, contradizendo a formulação anterior. A invariável de que `sendMessage` “resolve respostas assíncronas” também fica ampla demais sem explicitar o teto/race de 50 ms.
+- **Consumers/dependências:** busca independente localizou dez consumers diretos de `loadContentScript`; os quatro destacados pela Bíblia são reais, mas não constituem inventário exaustivo. Manifest, Jest config, repo-root, mock Chrome e globals/guards do content script foram relidos e confirmam o wiring principal descrito.
+- **Audit requests:** 102-001, 102-002, 102-003 e 102-004 permanecem **ACCEPTED** e foram reconfirmadas contra o source. Elas registram lacunas reais de JSDoc, lifecycle do timer, drift potencial da ordem do manifest e timeout silencioso de bootstrap; não são por si só o motivo da reprovação documental. O finding assíncrono acima é mais forte do que o texto atual de 102-002 e precisa ser representado honestamente na Bíblia.
+- **Assertions/adversarial:** uma regressão que altere/remova a resposta de `UPDATE_IMAGE` pode manter o consumer citado verde porque sua assertion focal observa persistência, não a resposta. Um listener assíncrono válido que responda após 50 ms também pode ser convertido em `null` pelo helper sem que a descrição atual alerte para essa corrida.
+- **Passagens:** 0–15 executadas; os dois findings materiais sobreviveram à releitura do source, à comparação independente com consumers/mock e à tentativa formal de refutação.
+- **Checks finais:** Integridade = SIM; Veracidade = NÃO; Honestidade = NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
