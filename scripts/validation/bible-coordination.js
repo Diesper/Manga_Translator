@@ -53,12 +53,12 @@ function parseCoverageIntervals(bible) {
   const singleLabel = '(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es|Pos\\.?|Linha\\/posi[cç][aã]o|Linhas\\/posi[cç][aã]o)';
 
   const rangeRe = new RegExp(
-    '^#{2,5}\\\\s+(?:\\\\d+\\\\.\\\\s+)?' + rangeLabel
-      + '\\\\s+0*(\\\\d+)\\\\s*[–—-]\\\\s*0*(\\\\d+)\\\\b',
+    '^#{2,5}\\s+(?:\\d+\\.\\s+)?' + rangeLabel
+      + '\\s+0*(\\d+)\\s*[–—-]\\s*0*(\\d+)\\b',
     'gmi'
   );
   const singleRe = new RegExp(
-    '^#{2,5}\\\\s+(?:\\\\d+\\\\.\\\\s+)?' + singleLabel + '\\\\s+0*(\\\\d+)\\\\b',
+    '^#{2,5}\\s+(?:\\d+\\.\\s+)?' + singleLabel + '\\s+0*(\\d+)\\b',
     'gmi'
   );
 
