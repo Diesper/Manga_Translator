@@ -2,8 +2,8 @@
   "index": 97,
   "file": "tests/fixtures/manga-page.html",
   "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
   "started_at_utc": "2026-09-30T06:15:00Z",
   "completed_at_utc": null,
@@ -51,6 +51,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
       "reason": "097-REA-001: reclassificar wiring de servidor/assets para prova de consumidor/execução indireta."
+    },
+    {
+      "at_utc": "2026-10-01T21:35:53.547Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "bible_sha": "3861173aabb790eb8b26b7ef676f77f322e53b7e",
+      "reason": "097-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
