@@ -1487,3 +1487,19 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### Auditoria independente — #115 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #115 — `tests/integration/popup-translated-thumbnails.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `7e4fea854647fe1d21b8066219f9eae8cfd20d1e`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; a seção `Fonte integral exata` é byte-a-byte idêntica ao source.
+- **Cobertura:** documentação posicional 339/339 sem gaps, duplicidades ou extras.
+- **Implementação real:** o harness carrega `popup.html`/`popup.js` reais; o código atual do popup usa `SM_PAGE_INDEX`, `SM_MIGRATE_CHAPTER`, `SM_GET_ASSET` e `IntersectionObserver` conforme descrito.
+- **Assertions:** a Bíblia limita corretamente a força do teste lazy e do caso “somente a miniatura afetada”; essas lacunas já estão formalizadas nas requests 115-001/115-002 e não são promovidas indevidamente a prova.
+- **CI:** o mesmo blob aparece no run `36577447500` e `popup-translated-thumbnails.test.js` passa no job Unit + Integration observado.
+- **Falha documental bloqueante — lifecycle stale:** 115-001 e 115-002 continuam rotuladas `OPEN` na Bíblia, enquanto o state canônico registra ambas como `ACCEPTED`; `document_quality.external_audit_requests_open` também está stale em 2.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; wiring=CONFIRMADO_3X; semântica/assertions=CONFIRMADO_3X; CI=CONFIRMADO_2X; lifecycle de requests=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto o lifecycle documental permanecer divergente.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
