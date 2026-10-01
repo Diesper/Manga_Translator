@@ -28,6 +28,12 @@ Claims planos NNN.lock.md são compatibilidade temporária e equivalem a PRIMARY
 - claim não concede permissão para editar a Bíblia ou o source;
 - nenhum claim exige PROGRESS.lock.md.
 
+## Relação com shards
+
+Os 80 shards virtuais são somente uma estratégia distribuída de descoberta de trabalho. Eles **não têm lock próprio** e não criam ownership.
+
+O auditor prioriza seu shard, pode fazer work stealing e, antes de trabalhar, ainda precisa adquirir o claim/lease CREATE ONLY do índice/fase. Portanto dois agentes podem enxergar a mesma Bíblia como candidata, mas apenas um consegue reservar a unidade de trabalho.
+
 ## Campos mínimos
 
 ~~~text
