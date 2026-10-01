@@ -2,8 +2,8 @@
   "index": 171,
   "file": "tests/unit/background/tab-replacement-observability.test.js",
   "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
   "started_at_utc": "2026-09-30T06:39:19.269Z",
   "completed_at_utc": null,
@@ -95,6 +95,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
       "reason": "171-ADV-001: sincronizar lifecycle documental das audit_requests."
+    },
+    {
+      "at_utc": "2026-10-01T18:25:38.400Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
+      "bible_sha": "f14560d284155de01994b00399187dfc6f1efa16",
+      "reason": "171-ADV-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
