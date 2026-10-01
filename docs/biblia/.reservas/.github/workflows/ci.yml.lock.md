@@ -1,0 +1,9 @@
+AGENTE: AGENTE 23
+ARQUIVO: .github/workflows/ci.yml
+BIBLIA: docs/biblia/.github/workflows/ci.yml/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: ebee75820db9bfab618bf3c3016065c5bc857ed7
+RESERVADO_EM_UTC: 2026-10-01T14:06:57Z
+ATUALIZADO_EM_UTC: 2026-10-01T14:06:57Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ATIVA
