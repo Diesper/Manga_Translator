@@ -2,8 +2,8 @@
   "index": 8,
   "file": "extension/background/actions/deliver-result-url.js",
   "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
   "started_at_utc": "2026-09-30T13:00:00Z",
   "completed_at_utc": null,
@@ -109,6 +109,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
       "reason": "008-ADV2-001..003: upstream wiring, stale audit label e timeout de assertJobOwnership."
+    },
+    {
+      "at_utc": "2026-10-01T19:54:45.505Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+      "bible_sha": "d30e0d76a3cff3b0f250c65ac651567142d10a2d",
+      "reason": "008-ADV2-001..003 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
