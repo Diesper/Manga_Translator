@@ -2,8 +2,8 @@
   "index": 233,
   "file": "tests/visual/runner.js",
   "bible": "docs/biblia/tests/visual/runner.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "fe34764874cac8961bf6c614f5f6d5f85a599763",
   "started_at_utc": "2026-09-30T06:16:11.896Z",
   "completed_at_utc": null,
@@ -126,7 +126,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T14:41:00Z",
+  "updated_at_utc": "2026-10-01T14:45:57Z",
   "history": [
     {
       "at_utc": "2026-10-01T14:41:00Z",
@@ -136,6 +136,15 @@
       "source_sha": "fe34764874cac8961bf6c614f5f6d5f85a599763",
       "auditor": "AGENTE 12",
       "reason": "Falhas documentais materiais: 233-001..005 permanecem rotuladas OPEN na Bíblia embora o state canônico registre quatro ACCEPTED e uma SUPERSEDED; além disso, a seção de invariantes apresenta como contrato factual propriedades que o próprio source e as seções 7.1/7.2/7.4 demonstram estar atualmente violadas."
+    },
+    {
+      "at_utc": "2026-10-01T14:45:57Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "fe34764874cac8961bf6c614f5f6d5f85a599763",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir lifecycle textual stale das requests e invariantes que contradizem o comportamento atual do visual runner, sem alterar o source."
     }
   ],
   "evidence": [
