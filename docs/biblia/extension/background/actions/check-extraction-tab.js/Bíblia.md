@@ -233,9 +233,9 @@ Separa validação de dependência do registro.
 
 **Por que assim:** sem esse await, um Service Worker recém-acordado poderia olhar um `extractionTabs` ainda vazio e retornar falso negativo, fazendo a aba auxiliar perder sua identidade de job.
 
-**Evidência:** 🟨 o teste direto injeta `ensureInitialized: jest.fn().mockResolvedValue()`, provando que o contrato é chamado no caminho normal.
+**Evidência:** 🟨 o teste direto **injeta** `ensureInitialized: jest.fn().mockResolvedValue()`, mas essa injeção isoladamente **não prova que o mock foi chamado**: não existe `toHaveBeenCalled*` e `extractionTabs` já está pré-carregado nesse fixture. A propriedade de reidratação é sustentada separadamente pelo cenário P0 integrado de `batch-lifecycle-real.test.js`, dentro do alcance que esse fluxo efetivamente exerce.
 
-**⚠️ LACUNA:** o teste direto não afirma `toHaveBeenCalled()` nem cria uma inicialização atrasada para provar a **ordem** entre await e leitura do estado.
+**⚠️ LACUNA:** o teste direto não afirma `toHaveBeenCalled()` nem cria uma inicialização atrasada para provar a **ordem** entre await e leitura do estado. Remover a chamada da action poderia manter esse teste específico verde; por isso ele não é usado como prova causal da invocação.
 
 ## Linha 14 — `const tabId = context.sender && context.sender.tab ? context.sender.tab.id : -1;`
 
