@@ -120,8 +120,10 @@ describe('load-content-script helper selftest', () => {
       hostname: 'reader.test',
       floatingButtonEnabled: false,
     });
-    const firstListeners = [...storageMock._listeners];
-    expect(firstListeners.length).toBeGreaterThan(0);
+    const firstStorageListeners = [...storageMock._listeners];
+    const firstRuntimeListeners = [...runtimeMock._messageListeners];
+    expect(firstStorageListeners.length).toBeGreaterThan(0);
+    expect(firstRuntimeListeners.length).toBeGreaterThan(0);
 
     jest.resetModules();
     const reloaded = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));
@@ -130,10 +132,15 @@ describe('load-content-script helper selftest', () => {
       floatingButtonEnabled: false,
     });
 
-    const secondListeners = [...storageMock._listeners];
-    expect(secondListeners).toHaveLength(firstListeners.length);
-    for (const listener of firstListeners) {
-      expect(secondListeners).not.toContain(listener);
+    const secondStorageListeners = [...storageMock._listeners];
+    const secondRuntimeListeners = [...runtimeMock._messageListeners];
+    expect(secondStorageListeners).toHaveLength(firstStorageListeners.length);
+    expect(secondRuntimeListeners).toHaveLength(firstRuntimeListeners.length);
+    for (const listener of firstStorageListeners) {
+      expect(secondStorageListeners).not.toContain(listener);
+    }
+    for (const listener of firstRuntimeListeners) {
+      expect(secondRuntimeListeners).not.toContain(listener);
     }
   });
 
@@ -280,27 +287,6 @@ describe('load-content-script helper selftest', () => {
     expect(received).toEqual({ action: 'CANONICAL', value: 7 });
   });
 
-  test('extra.action não sobrescreve a action explícita', async () => {
-    const context = await loadContentScript({
-      hostname: 'reader.test',
-      floatingButtonEnabled: false,
-    });
-    let observed = null;
-    runtimeMock._messageListeners = [
-      (request, _sender, sendResponse) => {
-        observed = request;
-        sendResponse({ ok: true });
-      },
-    ];
-
-    await expect(context.sendMessage('EXPECTED', {
-      action: 'OVERRIDE_ATTEMPT',
-      value: 7,
-    })).resolves.toEqual({ ok: true });
-
-    expect(observed).toEqual({ action: 'EXPECTED', value: 7 });
-  });
-
   test('throw antes do settlement rejeita e limpa fallback', async () => {
     const context = await loadContentScript({
       hostname: 'reader.test',
@@ -348,6 +334,7 @@ describe('load-content-script helper selftest', () => {
     })).rejects.toThrow('Timeout aguardando botão do content_manga ficar pronto após 20 ms');
 
     expect(storageMock._listeners).toHaveLength(0);
+    expect(runtimeMock._messageListeners).toHaveLength(0);
     expect(document.getElementById('manga-translator-trigger')).toBeNull();
   });
 });
