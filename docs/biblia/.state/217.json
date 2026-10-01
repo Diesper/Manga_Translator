@@ -2,11 +2,11 @@
   "index": 217,
   "file": "tests/unit/popup/dynamic-button.test.js",
   "bible": "docs/biblia/tests/unit/popup/dynamic-button.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4f4dea1b48976a089fdb9f15a2d2579c34823ae7",
   "started_at_utc": "2026-09-30T06:45:00Z",
-  "completed_at_utc": "2026-09-30T06:48:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "217-001",
@@ -61,5 +61,10 @@
     "direct_test_blocks": 1,
     "external_audit_requests_open": 2,
     "note": "Popup HTML/JS real exercitado via JSDOM; guards condicionais não foram tratados como gates obrigatórios."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

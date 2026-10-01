@@ -2,11 +2,11 @@
   "index": 216,
   "file": "tests/unit/manifest/surface-reduction.test.js",
   "bible": "docs/biblia/tests/unit/manifest/surface-reduction.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 1",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d5bde042b414dc6369a105615ff8b838bdbc503b",
   "started_at_utc": "2026-09-30T06:25:55.069Z",
-  "completed_at_utc": "2026-09-30T06:27:39.684Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "216-001",
@@ -38,5 +38,10 @@
     "external_audit_requests_open": 1,
     "evidence_run": 36577447500,
     "evidence_job": 109437162616
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 214,
   "file": "tests/unit/inject/raf-replacement.test.js",
   "bible": "docs/biblia/tests/unit/inject/raf-replacement.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "8b9e1c19b39563476057be01b3be2805a538572c",
   "started_at_utc": "2026-09-30T06:50:00Z",
-  "completed_at_utc": "2026-09-30T06:53:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "214-001",
@@ -85,5 +85,10 @@
     "direct_tests": 10,
     "external_audit_requests_open": 3,
     "note": "Todos os testes foram classificados como prova do mirror local; produção atual diverge materialmente em scheduler/cancelamento."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

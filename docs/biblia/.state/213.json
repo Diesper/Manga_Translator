@@ -2,11 +2,11 @@
   "index": 213,
   "file": "tests/unit/inject/inject-anti-hibernation.test.js",
   "bible": "docs/biblia/tests/unit/inject/inject-anti-hibernation.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 25",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "22cc82c2ea7bc2b5fb5d588a29af5895648f4fc4",
   "started_at_utc": "2026-09-30T14:20:00Z",
-  "completed_at_utc": "2026-09-30T14:25:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "213-001",
@@ -100,5 +100,10 @@
     "documented_positions": "277/277",
     "bible_lines": 507,
     "external_audit_requests_open": 4
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
