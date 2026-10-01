@@ -46,7 +46,7 @@
     "write:bible-projections": "node scripts/validation/generate-bible-projections.js --write",
     "test:bible-audit-pipeline:infra": "node scripts/validation/verify-bible-audit-pipeline-selftest.js",
     "test:bible-audit-shards:infra": "node scripts/validation/verify-bible-audit-shards-selftest.js",
-    "test:bible-protocol:infra": "node docs/biblia/.coordination/audit-protocol-selftest.js && node scripts/validation/verify-bible-audit-pipeline-selftest.js && node scripts/validation/verify-bible-audit-shards-selftest.js && node docs/biblia/.coordination/reconcile-audit-results-selftest.js && node docs/biblia/.coordination/bible-correction-work-plan-selftest.js && node scripts/validation/verify-bible-coordination-selftest.js",
+    "test:bible-protocol:infra": "node docs/biblia/.coordination/audit-core-git-selftest.js && node docs/biblia/.coordination/audit-protocol-selftest.js && node scripts/validation/verify-bible-audit-pipeline-selftest.js && node scripts/validation/verify-bible-audit-shards-selftest.js && node docs/biblia/.coordination/reconcile-audit-results-selftest.js && node docs/biblia/.coordination/bible-correction-work-plan-selftest.js && node scripts/validation/verify-bible-coordination-selftest.js",
     "bible:audit:status": "node docs/biblia/.coordination/audit-protocol.js status",
     "bible:audit:verify": "node docs/biblia/.coordination/audit-protocol.js verify",
     "bible:audit:summary": "node docs/biblia/.coordination/audit-summary.js",
