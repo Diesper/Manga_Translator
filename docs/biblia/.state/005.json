@@ -2,10 +2,10 @@
   "index": 5,
   "file": "extension/background/actions/claim-gemini-job.js",
   "bible": "docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
-  "started_at_utc": "2026-09-30T13:08:00Z",
+  "started_at_utc": "2026-10-01T23:58:05Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -62,7 +62,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T19:48:59.995Z",
+  "updated_at_utc": "2026-10-01T23:58:05Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:47:11.147Z",
@@ -80,6 +80,16 @@
       "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
       "bible_sha": "297de42bf91e03d1b3ac08213dd4467eb72b1735",
       "reason": "005-REA-001/002 corrigidos; 48 posições remapeadas. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T23:58:05Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "bible_sha": "297de42bf91e03d1b3ac08213dd4467eb72b1735",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "PRIMARY e ADVERSARIAL concordaram em CHANGES_REQUIRED; 005-001/002 ACCEPTED exigem cobertura causal de ownership, migração/read-after-write e branches defensivos."
     }
   ],
   "evidence": []
