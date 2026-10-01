@@ -90,7 +90,7 @@
 - [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
 - [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED
 - [x] 088 — `scripts/validation/verify-publish-contract.js` — COMPLETED
-- [ ] 089 — `scripts/validation/verify-repository-structure.js` — CHANGES_REQUIRED
+- [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
 - [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED
 - [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED
 - [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED
@@ -111,9 +111,9 @@
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT
 - [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
 - [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
-- [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — READY_FOR_AUDIT
+- [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — CHANGES_REQUIRED
 - [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — READY_FOR_AUDIT
-- [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — CHANGES_REQUIRED
+- [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — READY_FOR_AUDIT
 - [ ] 113 — `tests/integration/options.ui.test.js` — READY_FOR_AUDIT
 - [ ] 114 — `tests/integration/performance.test.js` — READY_FOR_AUDIT
 - [ ] 115 — `tests/integration/popup-translated-thumbnails.test.js` — READY_FOR_AUDIT
