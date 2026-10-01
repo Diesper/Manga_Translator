@@ -1643,3 +1643,22 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+
+### Auditoria independente — #136 — AGENTE 16 — 2026-10-01
+
+- **Índice:** #136 — `tests/unit/background/commit-result-action.test.js`.
+- **Auditor:** AGENTE 16.
+- **SHA auditado:** `1a185784edd118aeee377d7e3f1ed4a9c8375914`.
+- **Integridade criptográfica:** source real, `.state/136.json`, audit claim e SHA declarado na Bíblia coincidem no mesmo blob.
+- **Fonte integral:** o bloco `javascript` embutido reproduz exatamente as 230 linhas textuais do source; com o LF terminal são **231/231 posições**.
+- **Cobertura:** as faixas 1–5, 6–15, 16–23, 24–26, 27–38, 39–59, 60–66, 67–81, 82–105, 106–115, 116–138, 139–165, 166–179, 180–205, 206–228, 229–230 e 231 cobrem integralmente o arquivo sem gaps, overlaps ou posições fora do source.
+- **Semântica principal:** a suíte carrega `router.js` e `commit-result.js` reais. As dependências `ensureInitialized`, `assertJobOwnership`, `updateJobState`, `finalizeJob`, `log` e, no retry, `storage.get`, são injetadas/mocadas; portanto a suíte prova a política da action diante desses resultados, não a implementação real dessas dependências.
+- **Consumers/wiring:** `extension/content/gemini/job-runner.js` envia `GEMINI_RESULT_COMMIT` e repete o commit até três vezes; `jobs-dom-ack.js` grava `dom_applied/resultPersisted`; Jest inclui `tests/unit/background/**/*.test.js` no projeto background.
+- **Falha bloqueante 1 — evidence classification de ordenação:** a Bíblia coloca entre “O que este caso prova diretamente” que a transição `result_committed` ocorre antes de `finalizeJob`. O source de produção atualmente faz exatamente essa ordem, mas as assertions do teste apenas usam `toHaveBeenCalledWith` para cada spy. Não há assertion de `invocationCallOrder`/ordem. Uma regressão que trocasse a ordem das duas chamadas manteria esse caso verde. A afirmação deve ser rebaixada para semântica confirmada pelo source ou ganhar assertion focal de ordem.
+- **Falha bloqueante 2 — lifecycle das requests stale:** a Bíblia rotula 136-001, 136-002 e 136-003 como `OPEN`. O state canônico já registra 136-001 como `SUPERSEDED` por 006-001 e 136-003 como `SUPERSEDED` por 006-002. Além disso, 136-002 é materialmente subsumida por 006-001, que já cobre journals expirado/fromError/jobId divergente e `storage.get` rejeitando; portanto 136-002 também deve ser `SUPERSEDED` por 006-001.
+- **Audit requests:** 006-001 e 006-002 permanecem `ACCEPTED` como requests canônicas para as lacunas de matriz/journal e robustez/fallbacks. Nenhuma dessas lacunas de software bloqueia por si só a fidelidade documental quando descrita honestamente.
+- **Teste adversarial mental:** trocar OR por AND no gate de persistência, afrouxar predicados do journal, alterar fallbacks de IDs ou inverter `updateJobState`/`finalizeJob` pode escapar desta suíte conforme as lacunas descritas; a Bíblia reconhece as três primeiras categorias, mas superestima especificamente a prova de ordem.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica principal=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONTRADITO na alegação de ordem; audit requests=CONTRADITO quanto ao lifecycle/duplicação; histórico/state=CONFIRMADO_3X; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
