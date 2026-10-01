@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **132**
-- CHANGES_REQUIRED: **2**
+- READY_FOR_AUDIT: **131**
+- CHANGES_REQUIRED: **3**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **0**
@@ -138,7 +138,7 @@
 | 113 | tests/integration/options.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 33c34c89f7131ade147ea65b5f5015b79917b708 | 2 |
 | 114 | tests/integration/performance.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a | 3 |
 | 115 | tests/integration/popup-translated-thumbnails.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 7e4fea854647fe1d21b8066219f9eae8cfd20d1e | 2 |
-| 116 | tests/integration/popup.advanced.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | dd15edcefd5963fea83a72801b1d3c00b7e37453 | 2 |
+| 116 | tests/integration/popup.advanced.ui.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | dd15edcefd5963fea83a72801b1d3c00b7e37453 | 2 |
 | 117 | tests/integration/popup.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 57158c9b6e6f88955bf82a292e75624dc2ad8d0c | 3 |
 | 118 | tests/integration/reader.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 810a207f1264d78836b6e72c6f701bfc0cbce447 | 1 |
 | 119 | tests/mocks/chrome-api.mock.js | READY_FOR_AUDIT | NOT_AUDITED | - | c1d9a056b7777183bfd3f540c49811335f410425 | 3 |
