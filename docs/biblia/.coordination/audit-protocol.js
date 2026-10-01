@@ -237,10 +237,18 @@ function validateClaims(states) {
   const stateByIndex = new Map(states.map((state) => [state.index, state]));
   const problems = [];
   const activeByIndex = new Map();
+  const activeByAuditor = new Map();
+  const active = [];
 
-  function register(index, rel) {
+  function register(index, auditor, rel) {
     if (activeByIndex.has(index)) problems.push('mais de um claim/lease ativo para índice ' + index);
     activeByIndex.set(index, rel);
+    if (auditor) {
+      const count = (activeByAuditor.get(auditor) || 0) + 1;
+      activeByAuditor.set(auditor, count);
+      if (count > 1) problems.push('auditor possui >1 claim/lease ativo: ' + auditor);
+    }
+    active.push(rel);
   }
 
   // Claims planos existentes continuam sendo compatibilidade PRIMARY.
@@ -261,7 +269,7 @@ function validateClaims(states) {
     if (!auditor) problems.push('claim legado sem AUDITOR: ' + rel);
     if (!state) problems.push('claim legado fora do corpus: ' + rel);
     if (state && sourceSha !== state.source_sha) problems.push('claim legado SOURCE_SHA stale: ' + rel);
-    register(index, rel);
+    register(index, auditor, rel);
   }
 
   // Novas fases usam audit-leases, fora da árvore audit-claims legada.
@@ -310,10 +318,10 @@ function validateClaims(states) {
     if (!Number.isFinite(leaseMs)) problems.push('lease sem LEASE_EXPIRES_AT_UTC válido: ' + rel);
     else if (leaseMs <= Date.now()) problems.push('lease expirado: ' + rel);
 
-    register(index, rel);
+    register(index, auditor, rel);
   }
 
-  return problems;
+  return { problems, active };
 }
 
 function loadModel() {
@@ -322,13 +330,15 @@ function loadModel() {
     ? parseLegacyAuditRegistry(fs.readFileSync(auditRegistryPath, 'utf8'))
     : new Map();
   const loaded = loadResults(states);
+  const claims = validateClaims(states);
   const pipelines = states.map((state) => resolvePipeline(state, loaded.records, legacyAudits));
   return {
     states,
     legacyAudits,
     results: loaded.records,
     pipelines,
-    problems: [...loaded.problems, ...validateClaims(states), ...pipelines.flatMap((pipeline) => pipeline.problems.map((problem) => '#' + String(pipeline.index).padStart(3, '0') + ': ' + problem))],
+    active_claims_and_leases: claims.active,
+    problems: [...loaded.problems, ...claims.problems, ...pipelines.flatMap((pipeline) => pipeline.problems.map((problem) => '#' + String(pipeline.index).padStart(3, '0') + ': ' + problem))],
   };
 }
 
@@ -343,6 +353,10 @@ function formatPipeline(pipeline) {
 
 function verify(model) {
   const blockers = [...model.problems];
+  if (model.states.length !== 233) blockers.push('corpus de states incompleto: ' + model.states.length + '/233');
+  if (model.active_claims_and_leases.length) {
+    blockers.push('claims/leases ativos=' + model.active_claims_and_leases.length + ': ' + model.active_claims_and_leases.join(', '));
+  }
   for (const pipeline of model.pipelines) {
     if (pipeline.decision !== 'APPROVED') {
       blockers.push('#' + String(pipeline.index).padStart(3, '0') + ': ' + pipeline.decision);
