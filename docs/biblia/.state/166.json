@@ -2,8 +2,8 @@
   "index": 166,
   "file": "tests/unit/background/router.test.js",
   "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
   "started_at_utc": "2026-09-30T13:05:00Z",
   "completed_at_utc": null,
@@ -80,7 +80,7 @@
     "documented_positions": "162/162",
     "source_text_lines": 161,
     "bible_lines": 1398,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -100,6 +100,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
       "reason": "166-ADV-001/002: rebaixar overclaim do gate de origem e sincronizar lifecycle."
+    },
+    {
+      "at_utc": "2026-10-01T18:28:36.664Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
+      "bible_sha": "be1bfe153521c3a178704315e1690d2dafc8d194",
+      "reason": "166-ADV-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
