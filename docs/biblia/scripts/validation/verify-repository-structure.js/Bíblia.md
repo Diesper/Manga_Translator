@@ -3,8 +3,8 @@
 > **Schema da Bíblia:** 2
 > **Índice:** 89
 > **Fonte:** `scripts/validation/verify-repository-structure.js`
-> **SHA auditado:** `b085fac82c83c4091df407d6e2c869ce7c37a48f`
-> **Posições da fonte:** 416
+> **SHA auditado:** `1b7b48a8e2c088b02616741c91e9998b624df5ab`
+> **Posições da fonte:** 414
 > **Autoauditoria:** READY_FOR_AUDIT
 
 ## 1. Papel arquitetural
@@ -68,7 +68,7 @@ Esta Bíblia documenta o gate estrutural; ela não promove a presença de um mar
 
 - **089-005 — RESOLVED:** `requirePresent()` agora valida tanto existência quanto tipo esperado (`arquivo`/`diretório`) para todos os paths obrigatórios. O self-test substitui `docs/biblia/STATUS.md` por diretório e `tests/setup` por arquivo e exige falha específica.
 - **089-003 — RESOLVED:** existe self-test focal persistente em `docs/biblia/.coordination/verify-repository-structure-selftest.js`. Ele executa o verifier real contra uma árvore temporária e injeta regressões em presença, tipo, raiz de docs, paths legados, Manifest, background, páginas, raiz da extensão, scan de markers, wrappers, configs Jest/Playwright, merge config, workflow, Playwright raiz, scripts npm, portabilidade de testes, `.gitignore` e lifecycle das Bíblias.
-- O override `MANGA_TRANSLATOR_REPO_ROOT` existe exclusivamente para tornar o gate testável contra sandbox; sem a variável, o root continua sendo derivado de `__dirname`.
+- O self-test torna o gate testável sem hook no source: copia o repositório para um sandbox e executa `scripts/validation/verify-repository-structure.js` **da própria cópia**, preservando no gate de produção o root fixo derivado de `__dirname`.
 
 Após esses reparos, não permanece lacuna conhecida da unidade #089 que possa ser corrigida localmente sem depender das auditorias distribuídas independentes exigidas pelo protocolo.
 
@@ -87,9 +87,7 @@ O auditor independente deve continuar tentando refutar especialmente:
 const fs = require('fs');
 const path = require('path');
 
-const root = process.env.MANGA_TRANSLATOR_REPO_ROOT
-  ? path.resolve(process.env.MANGA_TRANSLATOR_REPO_ROOT)
-  : path.resolve(__dirname, '../..');
+const root = path.resolve(__dirname, '../..');
 const problems = [];
 
 function exists(rel) {
@@ -501,63 +499,63 @@ console.log(
 
 ## 8. Cobertura documental por posições/faixas
 
-### Posições 1–10 — bootstrap, imports, root testável e accumulator
+### Posições 1–8 — bootstrap, imports, root fixo e accumulator
 
-Inicializa strict mode/imports, escolhe o root normal por `__dirname` ou o override explícito de sandbox e cria o vetor `problems`.
+Inicializa strict mode/imports, deriva o root exclusivamente de `__dirname` e cria o vetor `problems`.
 
-### Posições 11–28 — helpers de filesystem e paths
+### Posições 9–26 — helpers de filesystem e paths
 
 `exists`, `walk` e `rel` fornecem traversal portável e normalização de paths.
 
-### Posições 29–57 — presença tipada e ausência
+### Posições 27–55 — presença tipada e ausência
 
 `requirePresent` falha para path ausente e também para tipo incorreto usando `fs.statSync`; `requireAbsent` rejeita legado ainda existente.
 
-### Posições 58–112 — inventário obrigatório com contrato arquivo/diretório
+### Posições 56–110 — inventário obrigatório com contrato arquivo/diretório
 
 `requiredDirectories` separa os diretórios obrigatórios; todos os demais entries são tratados como arquivos obrigatórios.
 
-### Posições 113–126 — contrato da raiz `docs/`
+### Posições 111–124 — contrato da raiz `docs/`
 
 Exige exatamente `Documentação.md` e `biblia/` na raiz de docs e rejeita `docs/Bíblia.md` legado.
 
-### Posições 127–133 — delegação do contrato estrutural das Bíblias
+### Posições 125–131 — delegação do contrato estrutural das Bíblias
 
 Importa `validateBibleCoordination`, executa com `checkDerived: false` e agrega seus problemas. Este bloco não lê `audit-leases/`; o protocolo distribuído v2 é validado por `audit-protocol.js` fora deste verifier.
 
-### Posições 134–178 — caminhos legados proibidos
+### Posições 132–176 — caminhos legados proibidos
 
 Lista e rejeita layouts antigos de extension/tests/scripts/docs removidos na reestruturação.
 
-### Posições 179–269 — contratos de runtime/layout da extensão
+### Posições 177–267 — contratos de runtime/layout da extensão
 
 Valida Manifest, content scripts, imports/requires do background, carregamento shared/own scripts de popup/options/reader e forma dos arquivos diretamente na raiz `extension/`.
 
-### Posições 270–323 — scan de referências operacionais legadas
+### Posições 268–321 — scan de referências operacionais legadas
 
 Percorre arquivos textuais operacionais, exclui explicitamente os próprios validadores que precisam citar markers antigos e reporta referências proibidas.
 
-### Posições 324–358 — centralização de package/lock/configs e merge Playwright
+### Posições 322–356 — centralização de package/lock/configs e merge Playwright
 
 Exige package/lock únicos, proíbe BAT/PS1, limita configs Jest/Playwright e impede chaves de execução dentro do arquivo usado só para merge/report.
 
-### Posições 359–387 — workflow, Playwright raiz e scripts npm
+### Posições 357–385 — workflow, Playwright raiz e scripts npm
 
 Rejeita working-directory/prefixos/caminhos antigos em CI, paths antigos no Playwright raiz e scripts npm que recriem o layout legado.
 
-### Posições 388–399 — portabilidade dos testes
+### Posições 386–397 — portabilidade dos testes
 
 Enumera JavaScript sob `tests/` e reprova finder de raiz duplicado ou dependência de `process.cwd()`.
 
-### Posições 400–406 — `.gitignore` obrigatório
+### Posições 398–404 — `.gitignore` obrigatório
 
 Confirma as quatro entradas de caches/resultados/build esperadas.
 
-### Posições 407–415 — resultado do gate
+### Posições 405–413 — resultado do gate
 
 Se `problems` estiver preenchido, imprime todos os itens acumulados e termina com código 1; sem problemas, imprime sucesso. Exceções anteriores de I/O/parsing ainda podem encerrar o processo antes deste epílogo.
 
-### Posição 416 — newline final
+### Posição 414 — newline final
 
 Posição vazia terminal do LF final.
 
@@ -566,7 +564,7 @@ Posição vazia terminal do LF final.
 - Traversal completo é O(n) no número de arquivos rastreados e adequado ao tamanho atual do repositório.
 - Scans por substring podem gerar falso positivo se um marker legado aparecer em contexto não operacional; a lista de exclusões precisa ser mínima e explícita.
 - O gate usa leitura local somente; não executa conteúdo dos arquivos analisados.
-- `MANGA_TRANSLATOR_REPO_ROOT` altera apenas a raiz inspecionada e existe para sandbox de teste; a CI do produto não define essa variável durante `validate:structure`.
+- O root do gate não é redirecionável por ambiente; o isolamento de sandbox pertence exclusivamente ao self-test, que executa a cópia do verifier.
 - O caminho principal contém `readdirSync`, `readFileSync` e `JSON.parse` sem `try/catch`; arquivo ausente coberto por `requirePresent` é agregado, mas I/O/JSON malformado em leituras posteriores pode lançar imediatamente e não produzir a lista completa de `problems`.
 - Alterar esta lista de contratos pode bloquear Windows e CI Contract simultaneamente; `verify-ci-contract.js`, self-tests e CI devem acompanhar toda mudança.
 
@@ -574,7 +572,7 @@ Posição vazia terminal do LF final.
 
 - [x] source SHA atualizado após remover o validador inline morto.
 - [x] fonte integral copiada do blob atual.
-- [x] 416/416 posições cobertas por faixas contíguas.
+- [x] 414/414 posições cobertas por faixas contíguas.
 - [x] fronteira atual entre `bible-coordination.js` e `audit-protocol.js` explicitada sem atribuir exclusividade ao primeiro.
 - [x] STATUS/CHECKLIST descritos como projeções, não fontes primárias.
 - [x] consumer direto `verify-ci-contract.js` registrado no wiring.
