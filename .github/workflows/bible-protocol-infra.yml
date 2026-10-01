@@ -1,3 +1,5 @@
+name: Bible Protocol Infrastructure
+
 on:
   workflow_dispatch:
   push:
@@ -53,23 +55,8 @@ jobs:
           node --check scripts/validation/bible-coordination.js
           node --check scripts/validation/verify-bible-merge-readiness.js
 
-      - name: Protocol decision self-test
-        run: node docs/biblia/.coordination/audit-protocol-selftest.js
-
-      - name: Canonical pipeline self-test
-        run: node scripts/validation/verify-bible-audit-pipeline-selftest.js
-
-      - name: Shards and work-stealing self-test
-        run: node scripts/validation/verify-bible-audit-shards-selftest.js
-
-      - name: Reconciliation idempotence self-test
-        run: node docs/biblia/.coordination/reconcile-audit-results-selftest.js
-
-      - name: Correction planner self-test
-        run: node docs/biblia/.coordination/bible-correction-work-plan-selftest.js
-
-      - name: Legacy coordination compatibility self-test
-        run: node scripts/validation/verify-bible-coordination-selftest.js
+      - name: Canonical protocol self-tests
+        run: npm run test:bible-protocol:infra
 
       - name: Validate live distributed model
         run: node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt
