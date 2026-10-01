@@ -2,11 +2,11 @@
   "index": 150,
   "file": "tests/unit/background/jobs-dom-ack-staging.test.js",
   "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 4",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
   "started_at_utc": "2026-09-30T06:40:30Z",
-  "completed_at_utc": "2026-09-30T06:43:16Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "150-001",
@@ -106,5 +106,10 @@
     "evidence_quality": "Strong direct evidence against the real module for covered result branches; IPC payload and exceptional branches remain explicit gaps.",
     "external_audit_requests_open": 4,
     "note": "Nenhum código/teste externo foi alterado para fabricar evidência."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

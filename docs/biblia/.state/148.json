@@ -2,11 +2,11 @@
   "index": 148,
   "file": "tests/unit/background/handlers-extra-real.test.js",
   "bible": "docs/biblia/tests/unit/background/handlers-extra-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 8",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "2089f42642fc3b16856b0d39ea4f824e6e8dec08",
   "started_at_utc": "2026-09-30T07:03:00Z",
-  "completed_at_utc": "2026-09-30T15:00:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "148-001",
@@ -68,5 +68,10 @@
       "audit_finding": "ACCEPTED. A suíte prova criação de defaultPrompt com storage vazio, mas não preservação de prompt customizado existente no onInstalled real.",
       "auditor_recommended_action": "Adicionar regressão com prompt personalizado antes do evento e exigir igualdade byte a byte após instalação/atualização."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

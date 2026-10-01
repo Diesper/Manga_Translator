@@ -2,11 +2,11 @@
   "index": 146,
   "file": "tests/unit/background/force-send-activation-action.test.js",
   "bible": "docs/biblia/tests/unit/background/force-send-activation-action.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 26",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "cab687a5e5d5dd849b6986aeeca5ac642e5b5a6a",
   "started_at_utc": "2026-09-30T06:59:00Z",
-  "completed_at_utc": "2026-09-30T07:05:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "146-001",
@@ -68,5 +68,10 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x: os dois testes de force-send-activation passaram; jobs globais reportaram 109/109 suítes e 851/851 testes."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

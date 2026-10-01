@@ -2,11 +2,11 @@
   "index": 149,
   "file": "tests/unit/background/helpers-real.test.js",
   "bible": "docs/biblia/tests/unit/background/helpers-real.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 20",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "668cef7f592231856d5071bd35ff6c5c12848a41",
   "started_at_utc": "2026-09-30T07:04:00Z",
-  "completed_at_utc": "2026-09-30T21:15:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "149-001",
@@ -127,5 +127,10 @@
     "taken_over_by": "AGENTE 20",
     "requested_by_user": true,
     "note": "Índice 149 transferido explicitamente ao AGENTE 20; Bíblia existente e histórico documental preservados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

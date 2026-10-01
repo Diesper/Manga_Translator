@@ -2,11 +2,11 @@
   "index": 144,
   "file": "tests/unit/background/export-guard.test.js",
   "bible": "docs/biblia/tests/unit/background/export-guard.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 12",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4a34bd498d62aecdefca112b02d7601346891820",
   "started_at_utc": "2026-09-30T06:58:00Z",
-  "completed_at_utc": "2026-09-30T07:02:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "144-001",
@@ -28,5 +28,10 @@
       "audit_finding": "ACCEPTED. `export-guard.test.js` testa um `createExportAllHandler` espelho local, não `extension/background/actions/export-all.js`; a suíte da action real existe separadamente, então este mirror pode divergir e continuar verde.",
       "auditor_recommended_action": "Remover/renomear como model test ou reescrever apenas cenários adicionais usando a action real, sem lógica duplicada."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

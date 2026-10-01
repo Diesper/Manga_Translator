@@ -2,11 +2,11 @@
   "index": 152,
   "file": "tests/unit/background/jobs-reconciliation-batch-queue.test.js",
   "bible": "docs/biblia/tests/unit/background/jobs-reconciliation-batch-queue.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "032df2351f2a202dff11f227f8c4dc6ac5b80807",
   "started_at_utc": "2026-09-30T06:41:52Z",
-  "completed_at_utc": "2026-09-30T06:47:12Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "152-001",
@@ -62,5 +62,10 @@
     "bible_lines": 979,
     "external_audit_requests_open": 2,
     "evidence_note": "O módulo jobs-reconciliation.js real é executado; Chrome/state/colaboradores são controlados. O escopo probatório é FIFO foreign/no-current-batch."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
