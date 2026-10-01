@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **131**
-- CHANGES_REQUIRED: **1**
+- READY_FOR_AUDIT: **130**
+- CHANGES_REQUIRED: **2**
 - BLOCKED: **0**
 - COMPLETED: **101**
 - requests OPEN: **0**
@@ -255,4 +255,4 @@
 | 230 | tests/visual/helpers.js | READY_FOR_AUDIT | NOT_AUDITED | - | 8d740eb3ee276d99c8a82acfb3eada6712e2efed | 3 |
 | 231 | tests/visual/integration.visual.js | READY_FOR_AUDIT | NOT_AUDITED | - | 2407ce31e6c16ef39466550608a529e92392259f | 5 |
 | 232 | tests/visual/run-all.js | READY_FOR_AUDIT | NOT_AUDITED | - | 2a55421675439c2631778841345c258beaac24a9 | 4 |
-| 233 | tests/visual/runner.js | READY_FOR_AUDIT | NOT_AUDITED | - | fe34764874cac8961bf6c614f5f6d5f85a599763 | 5 |
+| 233 | tests/visual/runner.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | fe34764874cac8961bf6c614f5f6d5f85a599763 | 5 |
