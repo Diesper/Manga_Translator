@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "index": 96,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 16",
+  "file": "tests/fixtures/manga-images.js",
+  "bible": "docs/biblia/tests/fixtures/manga-images.js/Bíblia.md",
+  "source_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "096-ADV-001",
+      "severity": "BLOCKING",
+      "area": "EVIDENCE_CLASSIFICATION",
+      "title": "A matriz classifica relações não protegidas como GATE ESTÁTICO ESPECÍFICO",
+      "claim_in_bible": "A matriz de evidência marca como GATE ESTÁTICO ESPECÍFICO: (a) test:images executa create-test-images.js; (b) Playwright usa gemini-mock-server.js; (c) gemini-mock-server.js importa PNG_IMAGES/writeImagesToDisk.",
+      "evidence": [
+        "scripts/validation/verify-ci-contract.js verifica apenas que pretest:e2e e pretest:e2e:group são exatamente 'npm run test:images'.",
+        "O verificador não contém checagem de pkg.scripts['test:images'], nem marcadores manga-images.js, PNG_IMAGES, gemini-mock-server.js ou webServer.",
+        "package.json atualmente define test:images = node tests/setup/create-test-images.js, mas isso é configuração corrente, não gate que impeça regressão.",
+        "playwright.config.js atualmente aponta webServer para tests/fixtures/gemini-mock-server.js, mas o gate citado não protege essa ligação.",
+        "tests/fixtures/gemini-mock-server.js atualmente importa PNG_IMAGES/writeImagesToDisk, o que é PROVA_DE_CONSUMIDOR direta, não gate automatizado."
+      ],
+      "adversarial_regression": "Alterar test:images para outro comando, trocar o webServer ou remover o import de manga-images.js pode deixar verify-ci-contract.js verde quanto aos dois pretests, refutando a alegação de gate específico para essas relações.",
+      "requested_correction": "Reclassificar essas relações como configuração/fonte atual ou PROVA_DE_CONSUMIDOR; reservar GATE_ESTATICO para invariantes efetivamente verificadas, ou adicionar gates específicos se esse for o contrato desejado."
+    },
+    {
+      "id": "096-ADV-002",
+      "severity": "BLOCKING",
+      "area": "AUDIT_REQUESTS_STATE",
+      "title": "A Bíblia afirma que 096-001..003 permanecem OPEN, mas o estado canônico atual registra ACCEPTED",
+      "claim_in_bible": "Os três cabeçalhos da seção 10 usam OPEN e a conclusão diz que 096-001, 096-002 e 096-003 'permanecem OPEN'.",
+      "evidence": [
+        ".state/096.json registra 096-001, 096-002 e 096-003 como ACCEPTED, todos auditados por AGENTE 23 em 2026-09-30T21:38:00Z.",
+        "AUDITORIA.md, na auditoria independente de #096 por AGENTE 4, reconfirma explicitamente os três requests como ACCEPTED.",
+        "A Bíblia não contém marcador ACCEPTED para essas requests e usa OPEN inclusive em afirmação presente de conclusão."
+      ],
+      "why_blocking": "OPEN e ACCEPTED são estados operacionais distintos; a Bíblia contém uma afirmação atual de status que contradiz duas fontes independentes do processo. As lacunas técnicas continuam descritas corretamente, mas a metadata/status documental não está fiel ao estado auditado.",
+      "requested_correction": "Atualizar os status para ACCEPTED ou marcar explicitamente os rótulos OPEN como estado histórico de criação, mantendo as lacunas técnicas e sua natureza não bloqueante."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:13:01Z"
+}
