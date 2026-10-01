@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **133**
-- CHANGES_REQUIRED: **1**
+- READY_FOR_AUDIT: **132**
+- CHANGES_REQUIRED: **2**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **0**
@@ -137,7 +137,7 @@
 | 112 | tests/integration/ipc/image-translation-routing.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 4f1674c12311a48215b97faabb0415011a6cba87 | 1 |
 | 113 | tests/integration/options.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 33c34c89f7131ade147ea65b5f5015b79917b708 | 2 |
 | 114 | tests/integration/performance.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a | 3 |
-| 115 | tests/integration/popup-translated-thumbnails.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 7e4fea854647fe1d21b8066219f9eae8cfd20d1e | 2 |
+| 115 | tests/integration/popup-translated-thumbnails.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 7e4fea854647fe1d21b8066219f9eae8cfd20d1e | 2 |
 | 116 | tests/integration/popup.advanced.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | dd15edcefd5963fea83a72801b1d3c00b7e37453 | 2 |
 | 117 | tests/integration/popup.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 57158c9b6e6f88955bf82a292e75624dc2ad8d0c | 3 |
 | 118 | tests/integration/reader.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 810a207f1264d78836b6e72c6f701bfc0cbce447 | 1 |
