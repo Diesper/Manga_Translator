@@ -207,7 +207,7 @@ function validateReviewBibleHeader(sourcePath, biblePath, active) {
 const { validateBibleCoordination } = require('./bible-coordination');
 const bibleValidation = validateBibleCoordination(root, {
   checkDerived: true,
-  headLabel: process.env.GITHUB_SHA || 'working-tree',
+  headLabel: 'states-v2',
 });
 for (const problem of bibleValidation.problems) problems.push('Bíblia: ' + problem);
 
