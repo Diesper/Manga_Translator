@@ -13,10 +13,10 @@
 - BLOCKED: **0**
 - COMPLETED: **101**
 - requests OPEN: **0**
-- requests ACCEPTED: **585**
+- requests ACCEPTED: **584**
 - requests RESOLVED: **8**
 - requests REJECTED: **1**
-- requests SUPERSEDED: **63**
+- requests SUPERSEDED: **64**
 - snapshot/HEAD: `states-v2`
 
 ## Itens
@@ -158,7 +158,7 @@
 | 133 | tests/unit/background/calculate-visual-fingerprint-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | f51a0b629ac17be3eda349333192b9480494a07e | 1 |
 | 134 | tests/unit/background/chrome-runtime-mock-lifecycle.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1bd33ea5e027db04ae17bb78810780474a31856e | 0 |
 | 135 | tests/unit/background/claim-gemini-job-action.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 0cb6cb2f100d7493abfdf4038546e8be747289f1 | 2 |
-| 136 | tests/unit/background/commit-result-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1a185784edd118aeee377d7e3f1ed4a9c8375914 | 3 |
+| 136 | tests/unit/background/commit-result-action.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 1a185784edd118aeee377d7e3f1ed4a9c8375914 | 3 |
 | 137 | tests/unit/background/deliver-result-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 654194bf502f3a2c4c21feae64e256bb0ecc49eb | 4 |
 | 138 | tests/unit/background/deliver-result-from-tab-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 263cb827e30468c377c5b1eb5863e90bd6cf26b0 | 4 |
 | 139 | tests/unit/background/deliver-result-url-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 09a0f891434bccf30dbc6e0d244e8f18a40a17d9 | 4 |
@@ -255,4 +255,4 @@
 | 230 | tests/visual/helpers.js | READY_FOR_AUDIT | NOT_AUDITED | - | 8d740eb3ee276d99c8a82acfb3eada6712e2efed | 3 |
 | 231 | tests/visual/integration.visual.js | READY_FOR_AUDIT | NOT_AUDITED | - | 2407ce31e6c16ef39466550608a529e92392259f | 5 |
 | 232 | tests/visual/run-all.js | READY_FOR_AUDIT | NOT_AUDITED | - | 2a55421675439c2631778841345c258beaac24a9 | 4 |
-| 233 | tests/visual/runner.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | fe34764874cac8961bf6c614f5f6d5f85a599763 | 5 |
+| 233 | tests/visual/runner.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | fe34764874cac8961bf6c614f5f6d5f85a599763 | 5 |
