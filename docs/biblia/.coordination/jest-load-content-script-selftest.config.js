@@ -13,5 +13,6 @@ module.exports = {
   ],
   testTimeout: 15000,
   cache: false,
+  transform: {},
   verbose: true,
 };
