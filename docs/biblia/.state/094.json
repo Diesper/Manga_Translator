@@ -2,11 +2,11 @@
   "index": 94,
   "file": "tests/e2e/translation-flow.spec.js",
   "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
   "started_at_utc": "2026-09-30T06:16:55.086Z",
-  "completed_at_utc": "2026-10-01T04:33:48Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "094-001",
@@ -68,7 +68,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:33:48Z",
+  "updated_at_utc": "2026-10-01T21:47:17.156Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:33:48Z",
@@ -78,6 +78,14 @@
       "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou 905/905 posições, fonte integral exata e execução runtime do mesmo blob distribuída pelos cinco shards E2E."
+    },
+    {
+      "at_utc": "2026-10-01T21:47:17.156Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
+      "reason": "094-REA-V2-001..003: escopo FIFO, wiring Playwright/package e lifecycle."
     }
   ],
   "evidence": [
