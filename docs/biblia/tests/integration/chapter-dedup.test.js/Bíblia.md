@@ -47,7 +47,7 @@ Portanto este arquivo é descoberto pelo projeto de integração.
 
 ### 3.2 package.json
 
-`package.json` (33e0b91d1a6f1790124b700d2ce331f80d2b7095) define:
+`package.json` (51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48) define:
 
 - `test:integration = jest --config jest.config.js --selectProjects integration`;
 - `test:ci = node scripts/ci/run-jest-ci.js`;
@@ -142,7 +142,7 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 | Espelho reaproveita ID em duas sessões e mapa manual acumula duas imagens | linhas 205–238 | ✅ PROVADO DIRETAMENTE para o cenário sintético/manual |
 | Espelho separa mesmo título em domínios diferentes | linhas 241–259 | ✅ PROVADO DIRETAMENTE para o espelho local |
 | Arquivo pertence ao projeto Jest `integration` | `jest.config.js` + inventário CI | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| CI está configurada para executar integração | workflow + `test:ci` | 🟨 EXECUTADO INDIRETAMENTE pelo pipeline configurado; nenhuma run nova é reivindicada aqui |
+| CI está configurada para executar integração | workflow + `test:ci` | 🟦 GATE ESTÁTICO / WIRING — a configuração prevê execução, mas nenhuma run concreta é usada aqui como prova runtime |
 | `cm-chapter.js` real deduplica `| Ler` versus `- Mangás` | este arquivo não importa o módulo; regex real diverge | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | `canonicalTitle` real aceita prefixo textual como `Cap 5:` | testes canonical-title usam `extracted-functions.js`, não o módulo real | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | Caminho real `persistTranslatedPage → SM_SAVE_PAGE` mantém duas sessões no mesmo chapter | cenário #107 grava storage manualmente | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO neste arquivo |
@@ -168,7 +168,7 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 
 ## 9. Solicitações ao auditor
 
-### 107-001 — TEST_REQUIRED — OPEN — severidade HIGH
+### 107-001 — TEST_REQUIRED — ACCEPTED — severidade HIGH
 
 **Encontrado:** o teste nominal de integração implementa `buildChapterSystem` local e não importa `extension/content/cm-chapter.js`.
 
@@ -180,7 +180,7 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 
 **Risco:** regressão ou divergência do produto pode permanecer verde indefinidamente.
 
-### 107-002 — FUNCTIONAL_REVIEW — OPEN — severidade HIGH
+### 107-002 — FUNCTIONAL_REVIEW — ACCEPTED — severidade HIGH
 
 **Encontrado:** o `canonicalTitle` espelho remove prefixo textual opcional e sufixo de site; o `canonicalTitle` real atual não possui as mesmas etapas.
 
@@ -190,7 +190,7 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 
 **Risco:** duplicação de capítulos ou confiança indevida em um teste verde que não representa produção.
 
-### 107-003 — TEST_REQUIRED — OPEN — severidade NORMAL
+### 107-003 — TEST_REQUIRED — ACCEPTED — severidade NORMAL
 
 **Encontrado:** o bloco “integração com storage” escreve `${chapId}_images` manualmente e não chama `persistTranslatedPage`, `SM_SAVE_PAGE` ou o Storage Manager.
 
@@ -215,12 +215,280 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 - `tests/unit/content-manga/chapter-id-cache.test.js` — `7bc23a456be69aaac252e7acea2b498d61a07520`
 - `tests/unit/content-manga/chapter-id-rejection.test.js` — `783c8abd86029345a97ce44f4eaf5415274bf4b3`
 - `tests/helpers/repo-root.js` — `b2520d65820e7b9072602018b0f46609ac967c58`
-- `package.json` — `33e0b91d1a6f1790124b700d2ce331f80d2b7095`
+- `package.json` — `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`
 - `jest.config.js` — `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`
 - `.github/workflows/ci.yml` — `ebee75820db9bfab618bf3c3016065c5bc857ed7`
 - `extension/manifest.json` — `841fe70c183350e4110bc8ff57ab69b157169c36`
 
-## 11. Mapeamento linha a linha
+## 11. Fonte integral exata
+
+O bloco abaixo reproduz **byte a byte** o source auditado em `e62187cd957a2fe241e4e704aaa9f8285e89162e`. Ele é a âncora canônica para revalidação do conteúdo integral; o mapa posicional da seção seguinte continua fornecendo rastreabilidade semântica por linha.
+
+```js
+/**
+ * chapter-dedup.test.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Teste de integração: Deduplicação de capítulos com canonicalTitle (BUG #12).
+ *
+ * CENÁRIO: O usuário traduz páginas do mesmo capítulo em duas sessões distintas.
+ * Entre as sessões, o título da aba pode variar ligeiramente (sufixos do site,
+ * separadores diferentes, etc.). O sistema deve reconhecer que é o mesmo capítulo
+ * e agrupar todas as imagens na mesma "pasta" do banco de dados.
+ *
+ * Testa a integração completa: canonicalTitle + _getOrCreateChapterIdImpl +
+ * persistência no chrome.storage.
+ */
+
+const path = require('path');
+const fs   = require('fs');
+// Portable root finder — works regardless of where this file is placed in the tree.
+// Walks up from __dirname until it finds the folder containing extension/manifest.json.
+const { findRepoRoot } = require('../helpers/repo-root');
+const ROOT = findRepoRoot(__dirname);
+
+const { getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
+
+// Implementação espelho completa de getOrCreateChapterId (mesma lógica do content_manga.js v3.1)
+function buildChapterSystem(chromeStorage, location) {
+    let _chapterIdPromise = null;
+
+    function canonicalTitle(t) {
+        // CORREÇÃO v3.2: alinhado com extracted-functions.js
+        // 1. Prefixo textual opcional + número: "Cap 5: " além de "1050 - "
+        // 2. Strip de sufixo de site: "| Ler Online", " - Mangás"
+        //    Garante que o mesmo capítulo visitado com sufixos diferentes
+        //    (variando entre sessões) produza a mesma chave de deduplicação.
+        return (t || '')
+            .replace(/^(?:[A-Za-z]+\.?\s+)?\d+[\s.\-\u2013\u2014:|]+/, '')
+            .replace(/\s+[-|\u2013\u2014]\s+.+$/, '')
+            .replace(/[|\u2013\u2014\u2022\u00B7\[\]()\u00AB\u00BB]/g, ' ')
+            .replace(/\s*[-:]\s*$/, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim()
+            .toLowerCase()
+            .slice(0, 80);
+    }
+
+    function impl() {
+        return new Promise((resolve, reject) => {
+            chromeStorage.get(['chapterList'], (data) => {
+                if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
+                const list = data.chapterList || [];
+                const href = location.href;
+                const hostname = location.hostname;
+                const titleKey = canonicalTitle(location.title || '').replace(/[^a-z0-9]/gi, '_');
+
+                // Busca por URL exata primeiro
+                let chapter = list.find(c => c.url === href);
+
+                // Fallback: mesmo hostname + título normalizado similar
+                if (!chapter) {
+                    chapter = list.find(c => {
+                        if (!c.url) return false;
+                        try {
+                            const sameHost = new URL(c.url).hostname === hostname;
+                            const cKey = canonicalTitle(c.title || '').replace(/[^a-z0-9]/gi, '_');
+                            return sameHost && cKey === titleKey;
+                        } catch { return false; }
+                    });
+                    if (chapter) {
+                        chapter.url = href;
+                        chapter.title = canonicalTitle(location.title || '');
+                        chromeStorage.set({ chapterList: list });
+                    }
+                }
+
+                if (chapter) { resolve(chapter.id); return; }
+
+                const newId = 'chap_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
+                list.push({ id: newId, url: href, title: canonicalTitle(location.title || ''), timestamp: Date.now() });
+                chromeStorage.set({ chapterList: list }, () => {
+                    if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
+                    resolve(newId);
+                });
+            });
+        });
+    }
+
+    function getOrCreate() {
+        if (!_chapterIdPromise) {
+            _chapterIdPromise = impl().catch(e => { _chapterIdPromise = null; throw e; });
+        }
+        return _chapterIdPromise;
+    }
+
+    function resetCache() { _chapterIdPromise = null; }
+
+    return { getOrCreate, resetCache };
+}
+
+describe('Deduplicação de Capítulos — Integração (BUG #12)', () => {
+
+    let storageMock;
+
+    beforeEach(() => {
+        storageMock = getStorageMock();
+    });
+
+    describe('Sessão única', () => {
+        test('cria novo capítulo na primeira visita', async () => {
+            const system = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/one-piece/cap-1050',
+                hostname: 'manga.com',
+                title: 'One Piece Capítulo 1050 | Ler Online',
+            });
+
+            const id = await system.getOrCreate();
+            expect(id).toMatch(/^chap_/);
+
+            const data = await storageMock.get(['chapterList']);
+            expect(data.chapterList).toHaveLength(1);
+        });
+
+        test('reutiliza capítulo na segunda chamada (mesma URL)', async () => {
+            const system = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/one-piece/cap-1050',
+                hostname: 'manga.com',
+                title: 'One Piece Capítulo 1050 | Ler Online',
+            });
+
+            const id1 = await system.getOrCreate();
+            system.resetCache();
+            const id2 = await system.getOrCreate();
+
+            expect(id1).toBe(id2);
+
+            const data = await storageMock.get(['chapterList']);
+            expect(data.chapterList).toHaveLength(1);
+        });
+    });
+
+    describe('Duas sessões — mesmo capítulo, títulos variando (BUG #12)', () => {
+        test('Sessão 1: "One Piece Cap 1050 | Ler" → Sessão 2: "One Piece Cap 1050 - Mangás" → mesmo ID', async () => {
+            // Sessão 1
+            const system1 = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/one-piece/1050',
+                hostname: 'manga.com',
+                title: 'One Piece Cap 1050 | Ler',
+            });
+            const id1 = await system1.getOrCreate();
+
+            // Sessão 2 — URL diferente, título similar
+            const system2 = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/one-piece/1050?page=2',
+                hostname: 'manga.com',
+                title: 'One Piece Cap 1050 - Mangás',
+            });
+            const id2 = await system2.getOrCreate();
+
+            // Devem ser o mesmo capítulo
+            expect(id1).toBe(id2);
+
+            const data = await storageMock.get(['chapterList']);
+            expect(data.chapterList).toHaveLength(1);
+        });
+
+        test('capítulos DIFERENTES não devem ser agrupados', async () => {
+            const system1050 = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/one-piece/1050',
+                hostname: 'manga.com',
+                title: 'One Piece Cap 1050',
+            });
+
+            const system1051 = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/one-piece/1051',
+                hostname: 'manga.com',
+                title: 'One Piece Cap 1051',
+            });
+
+            const id1050 = await system1050.getOrCreate();
+            const id1051 = await system1051.getOrCreate();
+
+            expect(id1050).not.toBe(id1051);
+            const data = await storageMock.get(['chapterList']);
+            expect(data.chapterList).toHaveLength(2);
+        });
+
+        test('obras DIFERENTES não devem ser agrupadas', async () => {
+            const naruto = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/naruto/1',
+                hostname: 'manga.com',
+                title: 'Naruto Capítulo 1',
+            });
+
+            const bleach = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/bleach/1',
+                hostname: 'manga.com',
+                title: 'Bleach Capítulo 1',
+            });
+
+            const idN = await naruto.getOrCreate();
+            const idB = await bleach.getOrCreate();
+
+            expect(idN).not.toBe(idB);
+        });
+    });
+
+    describe('Imagens salvas no mesmo capítulo (integração com storage)', () => {
+        test('imagens de duas sessões são salvas sob o mesmo chapterId', async () => {
+            // Sessão 1: traduz página 0
+            const sys1 = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/chapter/1',
+                hostname: 'manga.com',
+                title: 'Test Chapter 1',
+            });
+            const chapId = await sys1.getOrCreate();
+
+            // Salva imagem da sessão 1
+            await storageMock.set({ [`${chapId}_images`]: { 0: 'data:image/png;base64,sess1page0' } });
+
+            // Sessão 2: traduz página 1 (URL ligeiramente diferente, título igual)
+            const sys2 = buildChapterSystem(storageMock, {
+                href: 'https://manga.com/chapter/1?p=2',
+                hostname: 'manga.com',
+                title: 'Test Chapter 1',
+            });
+            const chapId2 = await sys2.getOrCreate();
+
+            // Deve ser o mesmo capítulo
+            expect(chapId2).toBe(chapId);
+
+            // Adiciona imagem da sessão 2
+            const data = await storageMock.get([`${chapId}_images`]);
+            const images = data[`${chapId}_images`] || {};
+            images[1] = 'data:image/png;base64,sess2page1';
+            await storageMock.set({ [`${chapId}_images`]: images });
+
+            // Verifica que ambas estão no mesmo capítulo
+            const finalData = await storageMock.get([`${chapId}_images`]);
+            expect(Object.keys(finalData[`${chapId}_images`])).toHaveLength(2);
+        });
+    });
+
+    describe('Domínios diferentes não interferem', () => {
+        test('mesmo título em domínios diferentes gera capítulos separados', async () => {
+            const siteA = buildChapterSystem(storageMock, {
+                href: 'https://siteA.com/chapter/1',
+                hostname: 'siteA.com',
+                title: 'Same Title',
+            });
+
+            const siteB = buildChapterSystem(storageMock, {
+                href: 'https://siteB.com/chapter/1',
+                hostname: 'siteB.com',
+                title: 'Same Title',
+            });
+
+            const idA = await siteA.getOrCreate();
+            const idB = await siteB.getOrCreate();
+
+            expect(idA).not.toBe(idB);
+        });
+    });
+});
+```
+
+## 12. Mapeamento linha a linha
 
 | Pos. | Unidade | Fonte | Função auditada |
 |---:|:---:|---|---|
@@ -487,7 +755,7 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 | 261 | U11 | `});` | Fecha a suíte Jest principal. |
 | 262 | U12 | ␠ [linha vazia] | Newline terminal do arquivo; posição física final explicitamente auditada. |
 
-## 12. Auditoria final
+## 13. Auditoria final
 
 - [x] reserva exclusiva confirmada para **AGENTE 22**;
 - [x] SHA do fonte reconfirmado antes da materialização da Bíblia;
@@ -498,5 +766,7 @@ Esses testes fortalecem partes do pipeline, mas não fornecem assertion específ
 - [x] assertions classificadas sem promovê-las indevidamente a prova do produto real;
 - [x] três necessidades externas persistidas como `audit_requests`;
 - [x] nenhum código, teste, fixture, workflow ou config foi alterado.
+
+**Reparo editorial 2026-10-01:** findings da auditoria independente corrigidos sem alterar o source: fonte integral canônica adicionada; SHA de `package.json` atualizado para o blob atual; wiring da CI reclassificado como gate estático; 107-001..003 alinhadas ao state canônico `ACCEPTED`. Reauditoria independente continua necessária.
 
 **Conclusão documental:** a Bíblia está completa para o SHA `e62187cd957a2fe241e4e704aaa9f8285e89162e`. O arquivo é uma suíte executável de integração **por wiring**, mas sua principal lógica funcional é uma **simulação local divergente**. As solicitações OPEN não impedem a conclusão documental.
