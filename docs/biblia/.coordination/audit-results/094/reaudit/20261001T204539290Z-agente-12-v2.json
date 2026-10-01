@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "index": 94,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 12",
+  "file": "tests/e2e/translation-flow.spec.js",
+  "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
+  "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
+  "bible_sha": "9db5495fc597c752012b0cfa0d68ddde0d921dbc",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "094-REA-V2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION_FIFO_RESULT_IDENTITY",
+      "finding": "A Bíblia classifica como prova direta a ausência geral de stale/cross-batch no FIFO A→G, mas as assertions não estabelecem identidade causal entre o resultado entregue e o lote correto.",
+      "evidence": [
+        "Bíblia §9 afirma que o cenário 'prova ausência de mismatch/stale/foreign accounting'; §17 diz que A→G não pode misturar state/result stale; §18 classifica 'ausência de stale/cross-batch' como PROVADO DIRETAMENTE.",
+        "No source, todas as abas FIFO carregam manga-page.html e removem manga-image-1, deixando a mesma page_001.png como única página elegível; START_TRANSLATION_FROM_POPUP é enviado com indices:[0] em todos os lotes.",
+        "Após liberar a barreira, a assertion por lote verifica apenas que existe exatamente um img[data-translated=true] em cada aba; não compara src/bytes/hash/identificador de resultado com o batchId ou tabId esperado.",
+        "As assertions finais verificam ordem de queue positions, batchIds promovidos/concluídos e ausência de quatro actions diagnósticas específicas. Uma regressão silenciosa que entregue uma tradução válida à aba errada sem emitir essas actions pode permanecer verde.",
+        "A run 36577447500 executou exatamente o blob db1da42c48ff795c41c7103cd5778e5a5d98e878 e o shard FIFO passou, mas execução verde não acrescenta o oráculo de identidade que a assertion não contém."
+      ],
+      "required_change": "Rebaixar a documentação para o que o teste realmente prova — FIFO/order, uma tradução por aba e ausência dos quatro diagnósticos observados — ou fortalecer o E2E em mudança separada com entradas/outputs distinguíveis por lote e assertion explícita da identidade A–G antes de chamar ausência geral de stale/cross-batch de prova direta."
+    },
+    {
+      "id": "094-REA-V2-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EXECUTABLE_WIRING_DEPENDENCY_OMISSION",
+      "finding": "A Bíblia descreve CI, runner e mock, mas omite dois elos executáveis que descobrem este spec e iniciam sua fixture HTTP: package.json e playwright.config.js.",
+      "evidence": [
+        "package.json mapeia test:e2e:group para scripts/ci/run-e2e-group.js.",
+        "scripts/ci/run-e2e-group.js invoca Playwright com --config <repo>/playwright.config.js e --grep da tag do grupo.",
+        "playwright.config.js define testDir='./tests/e2e' e webServer.command apontando para tests/fixtures/gemini-mock-server.js na porta 3999.",
+        ".github/workflows/ci.yml chama npm run test:e2e:group para os cinco grupos.",
+        "A Bíblia atual contém run-e2e-group.js e ci.yml, mas não contém qualquer referência a package.json nem playwright.config.js; portanto a cadeia de consumer/dependency executável está incompleta."
+      ],
+      "required_change": "Documentar a cadeia package.json -> run-e2e-group.js -> Playwright --config -> playwright.config.js -> testDir/webServer -> translation-flow.spec.js + gemini-mock-server.js, distinguindo o papel de cada elo."
+    },
+    {
+      "id": "094-REA-V2-003",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "finding": "A Bíblia ainda apresenta 094-001 e 094-002 como OPEN e conclui '2 OPEN', enquanto o state canônico atual registra ambas como ACCEPTED após auditoria independente.",
+      "evidence": [
+        "Bíblia §20: '094-001 — CLEANUP_REVIEW — OPEN' e '094-002 — HARNESS_ROBUSTNESS — OPEN'.",
+        "Bíblia §24: 'solicitações ao auditor: 2 OPEN' e a conclusão repete que os dois riscos permanecem OPEN.",
+        "docs/biblia/.state/094.json registra 094-001 status=ACCEPTED e 094-002 status=ACCEPTED, ambos com audited_by=AGENTE 23 e audit_finding preenchido.",
+        "Os achados técnicos continuam reais e não bloqueiam por si só a fidelidade da Bíblia quando representados como lacunas aceitas; o blocker é o lifecycle documental stale."
+      ],
+      "required_change": "Sincronizar na Bíblia o lifecycle de 094-001 e 094-002 para ACCEPTED e ajustar a autoauditoria/conclusão, preservando integralmente as limitações técnicas e ações recomendadas."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics_main": "CONTRADITO",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONTRADITO",
+    "fixtures": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_sha_bound_evidence": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "905/905",
+    "source_text_lines": 904,
+    "final_newline_position": 905,
+    "primary_current": "legacy AUDITORIA.md APPROVED; migration baseline bible_sha equals current bible_sha; state history records auditor AGENTE 23",
+    "adversarial_current": "AGENTE 14 / CHANGES_REQUIRED / schema v1; valid because current Bible equals migration baseline",
+    "divergence_resolved_by_primary_evidence": true,
+    "ci_run": 36577447500,
+    "ci_run_head_sha": "b6ad13fce47adcab3fcd10281f28848f7b4ce50f",
+    "ci_blob_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
+    "ci_shards": {
+      "fifo": "1 passed",
+      "attachment": "3 passed",
+      "medium_a": "4 passed globally; 2 cases from this spec",
+      "medium_b": "4 passed globally; 2 cases from this spec",
+      "fast": "9 passed globally; 6 cases from this spec"
+    },
+    "ci_aggregate": "21 passed; skipped=0; flaky=0; failed=0",
+    "nonblocking_technical_requests_after_lifecycle_fix": [
+      "094-001 ACCEPTED / CLEANUP_REVIEW / NORMAL",
+      "094-002 ACCEPTED / HARNESS_ROBUSTNESS / NORMAL"
+    ],
+    "triple_check": {
+      "integrity": "SIM",
+      "veracity": "NAO",
+      "honesty": "NAO"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T20:45:39.290Z"
+}
