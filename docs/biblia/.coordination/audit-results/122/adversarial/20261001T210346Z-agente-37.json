@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "index": 122,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 37",
+  "file": "tests/smoke/run-smoke.js",
+  "bible": "docs/biblia/tests/smoke/run-smoke.js/Bíblia.md",
+  "source_sha": "ea6fa903f7a68272a769804a29a97ae967bc1088",
+  "bible_sha": "914ba9cb78133c8e461438cc81093b7689475f6d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "122-ADV-001",
+      "severity": "BLOCKING",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 122-001 e 122-002 como OPEN e conclui que ambas permanecem OPEN, enquanto o state canônico atual registra as duas como ACCEPTED.",
+      "evidence": [
+        "docs/biblia/.state/122.json registra 122-001=ACCEPTED e 122-002=ACCEPTED, ambas auditadas por AGENTE 23 em 2026-09-30T21:30:00Z.",
+        "docs/biblia/tests/smoke/run-smoke.js/Bíblia.md, seção 10, titula 122-001 e 122-002 como OPEN; a autoauditoria final afirma que 122-001 e 122-002 permanecem OPEN.",
+        "O source atual tem blob ea6fa903f7a68272a769804a29a97ae967bc1088 e a Bíblia atual blob 914ba9cb78133c8e461438cc81093b7689475f6d, exatamente os mesmos SHAs auditados pela PRIMARY do AGENTE 42; portanto não houve correção documental posterior que invalide o finding.",
+        "122-001 permanece tecnicamente factual: run-smoke.js descobre qualquer /^smoke-\\d+.*\\.js$/, test-baseline.json protege apenas smoke.minFiles=6 e a busca independente dos seis nomes não encontrou allowlist/gate de identidade.",
+        "122-002 permanece tecnicamente factual: a execução histórica de CI prova o caminho verde com seis filhos, mas buscas independentes por run-smoke.js, pela mensagem do guard e pelo resumo só localizaram o runner/consumidor, sem self-test focal dos branches vermelhos.",
+        "A fonte integral embutida é byte-exata ao source atual; o mapa cobre posições 1..27 sem gaps/duplicatas; a execução CI 36577447500/job 109437162201 usou o mesmo blob do runner e registrou os seis smokes em ordem com resumo verde."
+      ],
+      "requested_action": "Atualizar somente a Bíblia para refletir 122-001 e 122-002 como ACCEPTED, preservando a descrição das lacunas técnicas e sem alterar source/testes para fabricar evidência."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:03:46Z"
+}
