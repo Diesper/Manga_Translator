@@ -86,7 +86,7 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
     'i'
   );
 
-  for (const line of scope.split(/\\r?\\n/)) {
+  for (const line of scope.split(/\r?\n/)) {
     const heading = /^#{3,5}\\s+(.+)$/.exec(line);
     if (!heading) continue;
     const range = rangeRe.exec(heading[1]);
@@ -103,7 +103,7 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
 
   // O formato V1 detalhado é inequívoco quando enumera 1,2,3... sem saltos.
   // Nesse caso ele é preferido a quaisquer faixas-resumo coexistentes.
-  if (isContiguousFromOne(singleHeadings)) return singleHeadings;
+  if (!sourcePositions && isContiguousFromOne(singleHeadings)) return singleHeadings;
 
   // Se há faixas semânticas, elas são o mapa principal. Singles isolados fora
   // das faixas completam newline/separadores sem duplicar cobertura interna.
@@ -114,12 +114,12 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
       if (!covered) intervals.push(single);
     }
     intervals.sort((a,b) => a.start - b.start || a.end - b.end);
-    if (isContiguousFromOne(intervals)) return intervals;
+    if (!sourcePositions && isContiguousFromOne(intervals)) return intervals;
   }
 
   // Tabelas de cobertura podem usar quebras reais ou a sequência literal "\\n"
   // criada por alguns geradores antigos. Cada tabela é avaliada isoladamente.
-  const normalizedForTables = scope.replace(/\\\\n/g, '\n');
+  const normalizedForTables = scope.replace(/\\n/g, '\n');
   const lines = normalizedForTables.split(/\r?\n/);
   const tableCandidates = [];
   let current = null;
