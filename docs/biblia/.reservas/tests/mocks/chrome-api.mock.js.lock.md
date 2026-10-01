@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/mocks/chrome-api.mock.js
-BÍBLIA: docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: c1d9a056b7777183bfd3f540c49811335f410425
-CLAIMED_AT_UTC: 2026-10-01T21:33:03.444Z
-UPDATED_AT_UTC: 2026-10-01T21:33:03.444Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
