@@ -2,8 +2,8 @@
   "index": 177,
   "file": "tests/unit/content-gemini/dom-modules.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/dom-modules.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "32441920c27f69aef629f33fc6175ff5b48b0859",
   "started_at_utc": "2026-09-30T14:55:00Z",
   "completed_at_utc": null,
@@ -80,7 +80,7 @@
     "embedded_source_exact": true,
     "documented_positions": "163/163",
     "source_text_lines": 162,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Suíte real; lacunas materiais de Send/blacklist persistidas."
   },
   "schema_version": 2,
@@ -94,6 +94,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "32441920c27f69aef629f33fc6175ff5b48b0859",
       "reason": "177-ADV-001..004: mapa semântico, lifecycle, consumer content_gemini e harness Jest/jsdom."
+    },
+    {
+      "at_utc": "2026-10-01T18:45:01.091Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "32441920c27f69aef629f33fc6175ff5b48b0859",
+      "bible_sha": "2ac26dd282f21601be60a2db4ddfedbe9e3aa532",
+      "reason": "177-ADV-001..004 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
