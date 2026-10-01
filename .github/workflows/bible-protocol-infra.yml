@@ -7,6 +7,7 @@ on:
       - docs/project-bible
     paths:
       - 'docs/biblia/.coordination/audit-core.js'
+      - 'docs/biblia/.coordination/audit-core-git-selftest.js'
       - 'docs/biblia/.coordination/audit-protocol.js'
       - 'docs/biblia/.coordination/audit-protocol-selftest.js'
       - 'docs/biblia/.coordination/reconcile-audit-results.js'
@@ -45,6 +46,7 @@ jobs:
       - name: Syntax check coordination modules
         run: |
           node --check docs/biblia/.coordination/audit-core.js
+          node --check docs/biblia/.coordination/audit-core-git-selftest.js
           node --check docs/biblia/.coordination/audit-protocol.js
           node --check docs/biblia/.coordination/reconcile-audit-results.js
           node --check docs/biblia/.coordination/audit-lease-gc.js
