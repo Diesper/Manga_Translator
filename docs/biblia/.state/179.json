@@ -2,8 +2,8 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
@@ -78,6 +78,28 @@
       "audited_at_utc": "2026-09-30T22:40:00Z",
       "audit_finding": "ACCEPTED. `waitForElement` faz busca profunda e pode encontrar elementos em Shadow DOM aberto, mas o caso de inserção tardia atual adiciona o nó apenas ao DOM comum. O branch de descoberta tardia dentro de shadow root não tem prova.",
       "auditor_recommended_action": "Adicionar host/shadowRoot aberto e inserir o alvo após o wait ter iniciado, exigindo resolução pela busca profunda."
+    },
+    {
+      "id": "179-004",
+      "status": "OPEN",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/job-runner.test.js",
+      "related_files": [
+        "extension/content/gemini/job-runner.js"
+      ],
+      "found_while_auditing": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+      "finding": "O runner possui guarda específica para DataUrlAtob/atob ausente, mas a cobertura focal existente prova apenas FileImpl:null.",
+      "current_evidence": "RUN-01B prova FileImpl:null e formato inválido; não injeta DataUrlAtob:null nem remove atob.",
+      "missing_evidence": "Runner real com DataUrlAtob/atob ausente produzindo o erro canônico antes de conversão/upload.",
+      "why_needed": "Evitar que a proteção específica de atob regresse mantendo o branch FileImpl verde.",
+      "requested_action": "Adicionar caso focal de DataUrlAtob:null/atob indisponível em job-runner.test.js.",
+      "expected_evidence": "Erro 'APIs de arquivo indisponíveis' (ou contrato canônico equivalente), sem prosseguir para upload/submit.",
+      "expected_auditor_action": "Revisar e encerrar/superseder esta request após cobertura focal.",
+      "possible_regression": "Guarda de DataUrlAtob pode quebrar silenciosamente.",
+      "impact": "Robustez da conversão Data URL→File.",
+      "severity": "NORMAL",
+      "requested_by": "COORDENADOR",
+      "requested_at_utc": "2026-10-01T21:28:13.904Z"
     }
   ],
   "document_quality": {
@@ -87,7 +109,7 @@
     "documented_positions": "684/684",
     "source_text_lines": 683,
     "bible_lines": 5573,
-    "external_audit_requests_open": 0,
+    "external_audit_requests_open": 1,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -125,6 +147,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
       "reason": "A15-179-P01: corrigir overclaim de cobertura File/atob e registrar lacuna DataUrlAtob ausente."
+    },
+    {
+      "at_utc": "2026-10-01T21:28:13.904Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "bible_sha": "dd7f6c9f81ebc135931906274e07952944efd6ce",
+      "reason": "A15-179-P01 corrigido; request 179-004 aberta para cobertura focal DataUrlAtob/atob ausente. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
