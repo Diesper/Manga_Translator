@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/resolution-elevation.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/resolution-elevation.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: a8ef465959d231766ee41b9397183b7cb6b53e36
-CLAIMED_AT_UTC: 2026-10-01T19:30:32.424Z
-UPDATED_AT_UTC: 2026-10-01T19:30:32.424Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
