@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/rpa-flow.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 4bcd24983325106d82be04e2c547a99df1a74fd5
-CLAIMED_AT_UTC: 2026-10-01T19:32:17.673Z
-UPDATED_AT_UTC: 2026-10-01T19:32:17.673Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
