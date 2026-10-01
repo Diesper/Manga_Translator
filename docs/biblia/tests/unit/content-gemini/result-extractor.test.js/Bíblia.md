@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/result-extractor.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 611df28380a88aa8c0b468e7300ee3a17aca0f70  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest da cadeia modular de extração do resultado Gemini  
@@ -21,7 +21,7 @@ EXT-01 prova que data:image retorna imediatamente sem canvas/MAIN/SW. EXT-02 fix
 
 ## 3. Retry e fallback auxiliar
 
-EXT-07 usa duas tentativas completas e exige ordem canvas→page→sw-session, sleep, novamente canvas→page→sw-session, e só então auxiliary. Também verifica logs RETRY_ALL, DIAGNOSTIC e AUXILIARY_FALLBACK em ordem coerente.
+EXT-07 usa duas tentativas completas e exige ordem canvas→page→sw-session, sleep, novamente canvas→page→sw-session, e só então auxiliary. Nos logs, prova a **presença** de RETRY_ALL, DIAGNOSTIC e AUXILIARY_FALLBACK e prova que AUXILIARY_FALLBACK ocorre depois de RETRY_ALL; a ordem total RETRY_ALL→DIAGNOSTIC→AUXILIARY_FALLBACK existe no source atual, mas não é integralmente congelada pelas assertions.
 
 EXT-08 prova que sucesso direto nunca chama auxiliary. EXT-09 prova que, sem callback auxiliar, o último erro continua sendo propagado.
 
@@ -68,7 +68,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 
 ## 10. Solicitações ao auditor
 
-### 186-001 — TEST_REQUIRED — OPEN — NORMAL
+### 186-001 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: o caminho blob possui vários branches de falha: fetchImpl rejeita, FileReaderImpl ausente, construtor lança, readAsDataURL lança e reader.onerror. EXT-06 cobre apenas sucesso.
 
@@ -76,7 +76,7 @@ Evidência ausente: matriz focal contra blobToDataUrl/extractResultImage real ex
 
 Risco: blob gerado pelo Gemini pode falhar apenas no navegador/ambiente específico com CI verde.
 
-### 186-002 — TEST_REQUIRED — OPEN — HIGH
+### 186-002 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: sendRuntimeMessageForDataUrl trata runtime/sendMessage ausentes, runtime.lastError e throw síncrono; as fixtures atuais sempre fornecem runtime saudável e respostas normais.
 
@@ -84,7 +84,7 @@ Evidência ausente: runtime=null, sendMessage ausente, lastError com mensagem e 
 
 Risco: perda/restart do Service Worker pode produzir erro diferente, Promise pendurada ou queda do pipeline.
 
-### 186-003 — TEST_REQUIRED — OPEN — NORMAL
+### 186-003 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: extractOrAuxiliaryFallback chama onAuxiliaryFallback após logs de diagnóstico; se o callback rejeitar/lançar, essa falha é propagada sem envelope específico. Nenhum caso cobre isso.
 
@@ -4027,4 +4027,6 @@ describe('gemini/result-extractor.js', () => {
 
 ## 13. Conclusão documental
 
-Foram documentadas 490 linhas textuais e a posição 491 do newline final. A suíte prova diretamente a ordem das rotas e retries, inclusive sessão autenticada nos três modos; as três solicitações OPEN ficaram restritas a falhas de blob/SW/auxiliary não cobertas também pela suíte safe-background-delete.
+Foram documentadas 490 linhas textuais e a posição 491 do newline final. A suíte prova diretamente a ordem das rotas e retries, inclusive sessão autenticada nos três modos; as três solicitações ACCEPTED ficaram restritas a falhas de blob/SW/auxiliary não cobertas também pela suíte safe-background-delete.
+
+> **Escopo EXT-07 pós-adversarial:** a suíte prova a ordem das rotas de extração e `AUXILIARY_FALLBACK > RETRY_ALL`; para os logs, DIAGNOSTIC é provado por presença, não por posição total relativa. 186-001/002/003 estão ACCEPTED.
