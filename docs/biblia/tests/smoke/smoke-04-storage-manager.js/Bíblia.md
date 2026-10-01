@@ -1,11 +1,11 @@
 # Bíblia técnica — `tests/smoke/smoke-04-storage-manager.js`
 
-> **Estado documental:** 🔴 REGRESSÕES IMPLEMENTADAS — CI REVELOU BUG NO STORAGE-MANAGER CONSUMIDO  
-> **SHA auditado:** `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`  
+> **Estado documental:** 🟡 REGRESSÕES AMPLIADAS — AGUARDANDO CI DO SHA ATUAL  
+> **SHA auditado:** `500853da2950c31fd5fb4e2a91765a9331c28153`  
 > **Agente da correção:** AGENTE 30  
 > **Tipo:** smoke Node.js do storage-manager real com fake IndexedDB e falhas controladas de chrome.storage  
-> **Linhas textuais:** **256**  
-> **Posições documentais:** **257**, contando o newline terminal  
+> **Linhas textuais:** **290**  
+> **Posições documentais:** **291**, contando o newline terminal  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -13,7 +13,7 @@
 
 `smoke-04-storage-manager.js` executa diretamente `extension/shared/storage-manager.js` em Node com `fake-indexeddb`. O arquivo não replica a lógica de persistência: chama a API de produção e usa apenas um mock controlável de `chrome.storage.local`/ `chrome.runtime.lastError` para testar migração, falhas e retry.
 
-A revisão atual amplia o smoke de happy paths para invariantes de consistência: troca de `cleanUrl`, deleção completa de restore/página/asset, mesma URL em múltiplos capítulos, corrida save/delete sem exigir ordem artificial, migração exata, falha parcial retryable, propagação de `lastError`, recuperação após IndexedDB temporariamente ausente, Data URLs inválidas e contadores de `stats()`.
+A revisão atual amplia o smoke de happy paths para invariantes de consistência: troca de `cleanUrl`, deleção completa de restore/página/asset, mesma URL em múltiplos capítulos, corrida save/delete sem exigir ordem artificial, migração exata, falha parcial retryable, propagação de `lastError`, recuperação após IndexedDB temporariamente ausente e após `indexedDB.open()` lançar sincronicamente, abort real de transaction com prova de rollback, Data URLs inválidas e contadores de `stats()`.
 
 ## 2. Integração e dependências
 
@@ -27,75 +27,81 @@ A revisão atual amplia o smoke de happy paths para invariantes de consistência
 ## 3. Sequência funcional
 
 1. round-trip DataURL↔Blob e rejeição de entradas inválidas;
-2. primeira abertura sem IndexedDB, rejeição esperada e retry bem-sucedido após restauração da API;
-3. save/overwrite da mesma página e coleta de asset antigo;
-4. troca de `cleanUrl` com remoção do restore/asset anterior;
-5. `deleteByCleanUrl` provando ausência de restore, página, índice e asset;
-6. mesma `cleanUrl` em dois capítulos, removida integralmente dos dois;
-7. corrida save/delete validada por invariantes finais, não por uma ordem específica;
-8. `deleteChapter` provando página, restore e asset removidos;
-9. migração de duas páginas + restore com contagem/conteúdo exatos e idempotência;
-10. migração parcialmente falha preservando legado/flag para retry;
-11. fault injection de `storage.local.get/remove/set` via `runtime.lastError`, com retries;
-12. `stats()` com deltas exatos de pages/assets/bytes e retorno ao baseline após cleanup.
+2. primeira abertura sem IndexedDB, rejeição esperada e nova tentativa;
+3. `indexedDB.open()` lançando sincronicamente, rejeição esperada e retry posterior;
+4. abertura bem-sucedida confirmando instalação de `onversionchange`;
+5. save/overwrite da mesma página e coleta de asset antigo;
+6. abort deliberado da transaction durante `chapterPages.put`, exigindo rollback de página/restore/asset/stats;
+7. troca de `cleanUrl` com remoção do restore/asset anterior;
+8. `deleteByCleanUrl` provando ausência de restore, página, índice e asset;
+9. mesma `cleanUrl` em dois capítulos, removida integralmente dos dois;
+10. corrida save/delete validada por invariantes finais, não por uma ordem específica;
+11. `deleteChapter` provando página, restore e asset removidos;
+12. migração de duas páginas + restore com contagem/conteúdo exatos e idempotência;
+13. migração parcialmente falha preservando legado/flag para retry + fault injection de `storage.local.get/remove/set`;
+14. `stats()` com deltas exatos de pages/assets/bytes e retorno ao baseline após cleanup.
 
 ## 4. Evidência automatizada da revisão
 
 | Contrato | Evidência no smoke atual | Classificação |
 |---|---|---|
-| DataURL↔Blob preserva conteúdo/MIME | igualdade exata do PNG e Blob válido | ✅ PROVADO DIRETAMENTE |
-| Data URL inválida é rejeitada | `assert.throws` para não-data URL e base64 inválido | ✅ PROVADO DIRETAMENTE |
-| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; segunda chamada deveria abrir DB | ❌ FALHOU NA CI — Promise rejeitada fica cacheada no source #060 |
-| overwrite troca asset e coleta anterior | IDs distintos + `getAssetBlob(old) === null` | ✅ PROVADO DIRETAMENTE |
-| troca A→B de `cleanUrl` remove restore/asset de A | restore A ausente, restore B aponta ao novo asset, asset anterior null | ✅ PROVADO DIRETAMENTE |
-| `deleteByCleanUrl` remove restore/página/asset | assertions focais sobre todos os três e índice de página | ✅ PROVADO DIRETAMENTE |
-| mesma cleanUrl em dois capítulos | `deleted === 2` + ausência de restores/pages/assets em ambos | ✅ PROVADO DIRETAMENTE |
-| corrida save/delete mantém consistência | pós-condição exige página e restore sobreviverem/sumirem juntos; asset sobrevivente deve existir | ✅ PROVADO POR INVARIANTE, SEM FIXAR ORDEM |
-| `deleteChapter` limpa página/restore/asset | pageCount 0, restoreIndex vazio, asset null | ✅ PROVADO DIRETAMENTE |
-| migração feliz é completa | `migrated === 2`, índices [0,1], restore/asset presentes, legado removido | ✅ PROVADO DIRETAMENTE |
-| migração parcial não consolida perda | item inválido produz `failed=true`, sem flag e com legado preservado; retry migra 2 | ✅ PROVADO DIRETAMENTE |
-| `runtime.lastError` de get/remove/set é propagado | três `assert.rejects`; remove mantém legado/sem flag; retries concluem | ✅ PROVADO DIRETAMENTE |
-| `stats()` é coerente | pages/assets +1, bytes + tamanho exato; após delete volta ao baseline | ✅ PROVADO DIRETAMENTE |
-| rollback atômico sob abort/error interno de transaction IDB | nenhuma transaction é deliberadamente abortada no meio de put/delete | ⚠️ NÃO PROVADO; permanece centralizado em 060-002 |
+| DataURL↔Blob preserva conteúdo/MIME | igualdade exata do PNG e Blob válido | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| Data URL inválida é rejeitada | `assert.throws` para não-data URL e base64 inválido | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; nova abertura deve funcionar | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| rejeição síncrona de `indexedDB.open()` não fica cacheada | fake IDB lança sincronicamente; retry posterior com fake-indexeddb real deve abrir | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| conexão instala cleanup de `versionchange` | `typeof reopenedDb.onversionchange === 'function'` | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| overwrite troca asset e coleta anterior | IDs distintos + `getAssetBlob(old) === null` | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| rollback atômico sob abort real | abort em `chapterPages.put`; página/restore/asset/stats devem permanecer idênticos ao snapshot anterior | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| troca A→B de `cleanUrl` remove restore/asset de A | restore A ausente, restore B aponta ao novo asset, asset anterior null | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| `deleteByCleanUrl` remove restore/página/asset | assertions focais sobre todos os três e índice de página | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| mesma cleanUrl em dois capítulos | `deleted === 2` + ausência de restores/pages/assets em ambos | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| corrida save/delete mantém consistência | página e restore sobrevivem/somem juntos; asset sobrevivente deve existir | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| `deleteChapter` limpa página/restore/asset | pageCount 0, restoreIndex vazio, asset null | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| migração feliz é completa | `migrated === 2`, índices [0,1], restore/asset presentes, legado removido | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| migração parcial não consolida perda | `failed=true`, sem flag, legado preservado; retry migra 2 | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| `runtime.lastError` de get/remove/set é propagado | três `assert.rejects`; remove mantém legado/sem flag; retries concluem | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
+| `stats()` é coerente | pages/assets +1, bytes + tamanho exato; após delete volta ao baseline | 🟨 IMPLEMENTADO; CI DO SHA ATUAL PENDENTE |
 | picos de memória Blob↔DataURL em imagens grandes | smoke usa PNGs mínimos | ⚠️ NÃO PROVADO / requer benchmark ou política separada |
 
 ## 5. Invariantes e casos adversariais
 
 1. O teste deve importar o storage-manager real; não deve copiar `savePageResult`, `delete*` ou migração.
 2. Fault injection de Chrome deve existir apenas no mock da fronteira `chrome.storage.local`, deixando IndexedDB realista via fake-indexeddb.
-3. Um overwrite confirmado não pode deixar asset anterior acessível.
-4. Mudar a `cleanUrl` da mesma página não pode deixar restore antigo nem o asset que ele referenciava.
-5. `deleteByCleanUrl` deve remover todos os registros que poderiam ressuscitar a tradução, inclusive em múltiplos capítulos.
-6. Corridas podem ter mais de uma ordem válida; o estado final, porém, nunca pode conter página sem restore correspondente ou restore apontando para asset ausente no cenário exercitado.
-7. Uma falha parcial de migração não pode gravar a flag nem remover o legado necessário para retry.
-8. Falha de cleanup legado não pode gravar a flag; o retry deve permanecer possível.
-9. `runtime.lastError` não pode virar sucesso silencioso.
-10. O smoke não afirma rollback IDB sob abort sem executar fault injection correspondente.
+3. Ausência temporária de IndexedDB e exceção síncrona de `indexedDB.open()` não podem deixar rejeição cacheada impedindo retry.
+4. `onversionchange` deve estar instalado na conexão retornada para permitir cleanup de conexão/cache stale.
+5. Abort deliberado no meio do overwrite deve rejeitar a operação e preservar integralmente o estado anterior.
+6. Um overwrite confirmado não pode deixar asset anterior acessível.
+7. Mudar a `cleanUrl` da mesma página não pode deixar restore antigo nem o asset que ele referenciava.
+8. `deleteByCleanUrl` deve remover todos os registros que poderiam ressuscitar a tradução, inclusive em múltiplos capítulos.
+9. Corridas podem ter mais de uma ordem válida; o estado final nunca pode conter página sem restore correspondente ou restore apontando para asset ausente no cenário exercitado.
+10. Uma falha parcial de migração não pode gravar a flag nem remover o legado necessário para retry.
+11. Falha de cleanup legado não pode gravar a flag; o retry deve permanecer possível.
+12. `runtime.lastError` não pode virar sucesso silencioso.
 
 ## 6. Limitações remanescentes
 
-- **Rollback transacional por abort/error interno:** continua sem injeção de falha no meio de uma transaction IndexedDB. O request 126-001 foi **SUPERSEDED por 060-002**, que é o request canônico desse gap.
+- **Abort/rollback em browser real:** o novo fault injection usa a transaction real do `fake-indexeddb`; diferenças específicas do IndexedDB do Chromium continuam cobertas apenas de forma complementar por E2E.
+- **`onblocked`/upgrade real:** o smoke confirma que `onversionchange` foi instalado, mas não cria um upgrade bloqueado real nem exercita `onblocked`.
 - **Memória em payloads grandes:** os PNGs usados são mínimos; este smoke não é benchmark de pico de memória.
-- **Browser real:** fake-indexeddb aproxima a semântica IDB em Node; E2E Chromium continua sendo evidência complementar para diferenças de runtime.
 - **Concorrência:** o cenário save/delete comprova uma pós-condição de consistência para a corrida exercitada; não é prova formal de todas as interleavings possíveis.
 
 ## 7. Lifecycle das solicitações de auditoria
 
 ### 126-001 — TEST_REQUIRED — SUPERSEDED por 060-002
 
-O gap de rollback atômico por falha/abort continua real, mas não é mais uma request independente desta unidade. O state canônico marca 126-001 como `SUPERSEDED` e aponta `superseded_by: 060-002`. Esta Bíblia não o conta como OPEN nem como resolvido artificialmente.
+A request permanece historicamente `SUPERSEDED` por 060-002 no state canônico. Nesta revisão, o gap técnico associado passou a ter fault injection explícito de transaction abortada; isso não altera retroativamente o lifecycle de 126-001. A prova só será considerada válida após CI verde do SHA atual.
 
 ### 126-002 — TEST_REQUIRED — ACCEPTED; IMPLEMENTAÇÃO ADICIONADA, AGUARDANDO EXECUÇÃO
 
-O state canônico permanece `ACCEPTED`. A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` adiciona prova focal de `deleteByCleanUrl` sobre restore, página, índice e asset, além do caso da mesma cleanUrl em dois capítulos. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
+O state canônico permanece `ACCEPTED`. A revisão `500853da2950c31fd5fb4e2a91765a9331c28153` mantém a prova focal de `deleteByCleanUrl` sobre restore, página, índice e asset, além do caso da mesma cleanUrl em dois capítulos. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
 
 ### 126-003 — TEST_REQUIRED — ACCEPTED; IMPLEMENTAÇÃO ADICIONADA, AGUARDANDO EXECUÇÃO
 
-O state canônico permanece `ACCEPTED`. A revisão `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d` troca `migrated >= 1` por `migrated === 2`, valida índices/restores/assets e adiciona falha parcial seguida de retry. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
+O state canônico permanece `ACCEPTED`. A revisão `500853da2950c31fd5fb4e2a91765a9331c28153` exige `migrated === 2`, valida índices/restores/assets, adiciona falha parcial seguida de retry e mantém fault injection de `runtime.lastError`. A request só deve migrar para `RESOLVED` após execução bem-sucedida dessa revisão.
 
 ## 8. Fonte integral exata
 
-O bloco abaixo reproduz integralmente o blob `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`. O arquivo possui newline terminal.
+O bloco abaixo reproduz integralmente o blob `500853da2950c31fd5fb4e2a91765a9331c28153`. O arquivo possui newline terminal.
 
 ```javascript
 /**
@@ -173,12 +179,16 @@ async function run() {
     try {
         global.indexedDB = undefined;
         await assert.rejects(() => sm.openStorageDb(), /IndexedDB indisponível/);
+
+        global.indexedDB = { open: () => { throw new Error('forced synchronous IndexedDB.open failure'); } };
+        await assert.rejects(() => sm.openStorageDb(), /forced synchronous IndexedDB\.open failure/);
     } finally {
         global.indexedDB = installedIndexedDB;
     }
     const reopenedDb = await sm.openStorageDb();
-    assert(reopenedDb, 'openStorageDb deve recuperar após indisponibilidade transitória');
-    console.log('  -> Retry de openStorageDb após IDB indisponível OK');
+    assert(reopenedDb, 'openStorageDb deve recuperar após indisponibilidade/rejeição transitória');
+    assert.strictEqual(typeof reopenedDb.onversionchange, 'function', 'Conexão deve instalar cleanup de versionchange');
+    console.log('  -> Retry de openStorageDb após IDB ausente/open síncrono falhar OK');
 
     console.log('[smoke-04] 2. Testando transações atômicas e eliminação de assets órfãos...');
     const chapterId = 'chap_test_04';
@@ -208,6 +218,36 @@ async function run() {
 
     const newAsset = await sm.getAssetBlob(save2.assetId);
     assert(newAsset, 'Novo asset deve existir');
+
+    // Abort real no meio do overwrite deve reverter asset/página/restore.
+    const rollbackPageBefore = (await sm.getChapterPageIndex(chapterId)).find(p => p.pageIndex === 0);
+    const rollbackRestoreBefore = await sm.getRestoreIndex(chapterId);
+    const rollbackStatsBefore = await sm.stats();
+    const originalPut = global.IDBObjectStore.prototype.put;
+    let abortInjected = false;
+    global.IDBObjectStore.prototype.put = function (...args) {
+        const request = originalPut.apply(this, args);
+        if (!abortInjected && this.name === 'chapterPages') {
+            abortInjected = true;
+            this.transaction.abort();
+        }
+        return request;
+    };
+    try {
+        await assert.rejects(() => sm.savePageResult(
+            chapterId, 0, sampleDataUrl, origUrl, 'https://example.com/clean/aborted.png',
+            { width: 100, height: 200, host: 'example.com' }
+        ));
+    } finally {
+        global.IDBObjectStore.prototype.put = originalPut;
+    }
+    assert(abortInjected, 'Fault injection deve abortar a transaction de overwrite');
+    const rollbackPageAfter = (await sm.getChapterPageIndex(chapterId)).find(p => p.pageIndex === 0);
+    assert.strictEqual(rollbackPageAfter.assetId, rollbackPageBefore.assetId, 'Abort deve preservar página anterior');
+    assert.deepStrictEqual(await sm.getRestoreIndex(chapterId), rollbackRestoreBefore, 'Abort deve preservar restore anterior');
+    assert(await sm.getAssetBlob(rollbackPageBefore.assetId), 'Abort deve preservar asset anterior');
+    assert.deepStrictEqual(await sm.stats(), rollbackStatsBefore, 'Abort não pode deixar asset/página parcial');
+    console.log('  -> Abort de transaction reverte overwrite integralmente OK');
 
     // Troca de cleanUrl na mesma página não pode deixar restore/asset antigo.
     const cleanUrl2 = 'https://example.com/clean/img1-v2.png';
