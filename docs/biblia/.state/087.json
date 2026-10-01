@@ -2,8 +2,8 @@
   "index": 87,
   "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
   "started_at_utc": "2026-09-30T06:11:00Z",
   "completed_at_utc": null,
@@ -36,7 +36,7 @@
     "embedded_source_exact": true,
     "documented_positions": "11/11",
     "source_text_lines": 10,
-    "external_audit_requests_open": 1,
+    "external_audit_requests_open": 0,
     "evidence_note": "A fonte integral é byte a byte idêntica ao source; o self-test usa helper real e a limitação 087-001 permanece ACCEPTED."
   },
   "schema_version": 2,
@@ -59,6 +59,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
       "reason": "087-REA-001: sincronizar lifecycle 087-001 para ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T21:45:03.799Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
+      "bible_sha": "14c5374a15b047e58a4ef675131bfe15f031b333",
+      "reason": "087-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
