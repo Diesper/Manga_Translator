@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "index": 200,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 40",
+  "file": "tests/unit/content-manga/close-interval.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/close-interval.test.js/Bíblia.md",
+  "source_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
+  "bible_sha": "490a083a0ae60203521c295f187f7e0dc1b0dee5",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV-200-01",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "severity": "NORMAL",
+      "location": "Bíblia.md seção 13 e conclusão documental",
+      "problem": "A Bíblia representa 200-001 como OPEN e conclui que pode ser COMPLETED mantendo a request OPEN, mas o state canônico registra 200-001 como ACCEPTED após auditoria. A divergência técnica que motivou a request permanece verdadeira; o erro bloqueante é o lifecycle/status documental desatualizado.",
+      "evidence": [
+        "docs/biblia/.state/200.json registra 200-001.status = ACCEPTED, audited_by = AGENTE 23 e finding de aceitação persistido.",
+        "Bíblia.md seção 13 contém literalmente `200-001 — TEST_INTEGRITY_REVIEW — OPEN` e a conclusão diz `Pode ser marcada COMPLETED mantendo 200-001 OPEN`.",
+        "O source #200 ainda chama onTick antes do teste terminal e a assertion visual exige `FECHANDO EM 0S` no helper local.",
+        "content_manga.js blob a8b3698019f6f22027f09f544f15c0563a9f6515 mantém zero no branch terminal e só escreve `FECHANDO EM ${_closeCountdown}S` no branch positivo; drawer-real.test.js blob eeebbd56fe1a1c788a81b43e222be06309b90f32 prova início, término e cancelamento no código real.",
+        "Fonte integral da Bíblia reconfirmada exata (6115 caracteres) e cobertura por faixas reconfirmada em 169/169 posições; não foi sustentado outro erro documental material."
+      ],
+      "required_change": "Atualizar 200-001 para ACCEPTED e a conclusão correspondente, preservando a descrição do drift entre o helper local e a produção. A eventual correção/redução do teste é mudança de software/teste separada e não deve ser fabricada durante a correção documental."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:30:00Z"
+}
