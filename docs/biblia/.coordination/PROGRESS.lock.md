@@ -1,7 +1,0 @@
-OWNER: AGENTE 23
-PURPOSE: Reconciliar projeções após reparos #065 e #136
-INDEX: GLOBAL
-PR: #66
-BRANCH: docs/project-bible
-ACQUIRED_AT_UTC: 2026-10-01T14:51:07Z
-ESTADO: ACTIVE
