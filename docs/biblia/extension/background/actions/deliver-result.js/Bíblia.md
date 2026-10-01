@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/deliver-result.js`
 
-> **Estado:** ✅ CRIADO, REAUDITADO E APROVÁVEL.  
+> **Estado:** 🟡 CORRIGIDO APÓS REAUDIT — READY_FOR_AUDIT da revisão documental atual.  
 > **SHA auditado:** `3653bd10c2a0e65c14eb139f906feeafb30411a5`  
 > **Tipo:** action assíncrona — fase de staging durável do resultado Gemini.  
 > **Linhas textuais:** **87**.  
@@ -10,6 +10,15 @@
 ## 1. Papel arquitetural
 
 `deliver-result.js` recebe a imagem extraída diretamente do Gemini e executa **somente a fase de staging durável no leitor**. Ele não finaliza o job. Depois de receber `{staged:true,persisted:true}`, o `job-runner.js` envia `GEMINI_RESULT_COMMIT`, que é tratado por `commit-result.js`.
+
+### Wiring runtime da action
+
+- `extension/background/router.js` mapeia `GEMINI_IMAGE_EXTRACTED` para o nome canônico `deliver-result`; o literal da posição 006, sozinho, não define esse alias.
+- `extension/background.js` carrega `background/actions/deliver-result.js` no service worker real (e por `require` no harness Node), cria o router registrado e encaminha mensagens por `routeRegisteredAction`.
+- O `contextFactory` do background injeta dependências usadas aqui, incluindo `ensureInitialized`, `assertJobOwnership`, `deliverResultToManga`, `log` e estado compartilhado.
+- `extension/content/gemini/job-runner.js` é o producer/consumer upstream: emite `GEMINI_IMAGE_EXTRACTED`, interpreta o retorno de staging e, quando aceito, inicia a fase `GEMINI_RESULT_COMMIT`.
+
+Esses pontos são **wiring arquitetural de produção**; a prova focal da lógica local continua em `deliver-result-action.test.js`.
 
 Essa separação é essencial para que o commit possa ser repetido sem reenviar a imagem se a resposta final do background se perder.
 
@@ -34,7 +43,7 @@ A suíte direta prova separadamente os três mismatches e impede a chamada a `de
 
 ## 4. Protocolo stage → commit
 
-`jobs-dom-ack.js` com `finalizeOnAck:false` envia `UPDATE_IMAGE`, grava `state:'dom_applied'` e `resultPersisted:true` quando o ACK é aceito e não chama finalize.
+`jobs-dom-ack.js` com `finalizeOnAck:false` envia `UPDATE_IMAGE`, grava `state:'dom_applied'` e `resultPersisted:true` quando o ACK é aceito e não chama finalize. **Importante:** o helper normaliza o retorno com `persisted: ok && response?.persisted !== false`; portanto o campo `persisted:true` pode ser **sintetizado** quando a resposta positiva não traz `persisted:false`, e não deve ser descrito automaticamente como confirmação explícita recebida do leitor.
 
 `job-runner.js::stageAndCommitResult` exige resposta staged, depois cria `GEMINI_RESULT_COMMIT`. RUN-13 prova que staging falho **nunca envia commit**; RUN-14 prova que commit pode repetir três vezes **sem reenviar `GEMINI_IMAGE_EXTRACTED`**.
 
@@ -62,7 +71,7 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
 ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para job sem mangaTabId/index/batchId usando os valores do request.
 
 ### Resposta parcial do helper
-⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `{ok:true}` sem campo `persisted`. A action aceitaria; o helper real sempre inclui `persisted`.
+⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `{ok:true}` sem campo `persisted`. A action aceita esse objeto porque rejeita somente `!staged?.ok` ou `staged.persisted === false`. O helper `jobs-dom-ack.js` sempre **devolve** um campo `persisted`, mas pode sintetizar `true` por `response?.persisted !== false`; isso é diferente de receber confirmação explícita do reader. No fluxo atual, `content_manga.js` normalmente responde `{ok:true,persisted:true}` somente depois de `persistTranslatedPage` resolver, o que mitiga — mas não elimina — a permissividade contratual.
 
 ### Logs
 ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `SENDER_MISMATCH`, `RESULT_STAGE_FAILED` e `RESULT_STAGED_DURABLY`. O log de identity mismatch é diretamente assertado.
@@ -76,8 +85,8 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
 2. **`currentBatchId` não é autoridade**, o que evita descartar jobs antigos ainda vivos.
 3. **src é a principal validação fraca:** qualquer string não vazia atravessa esta action se ownership/identidade forem válidos.
 4. **A action não finaliza.** Isso não é omissão; é o contrato do protocolo de duas fases.
-5. **Falha de staging é fail-closed:** sem ACK/persistência, o consumer recebe erro e não entra em commit.
-6. **O helper real fornece `persisted` explicitamente**, mas a guarda local aceita um objeto parcial `{ok:true}`; vale um teste contratual para evitar drift.
+5. **Falha explícita de staging é bloqueante:** `!ok` ou `persisted:false` impede o commit. Ausência do campo `persisted` em uma resposta `ok:true` **não é fail-closed** e passa pela guarda local.
+6. **O helper real sempre retorna um campo `persisted`, mas esse boolean pode ser sintetizado** a partir de `response?.persisted !== false`. Uma resposta upstream parcial positiva pode virar `persisted:true`; falta teste contratual para esse caso.
 
 ## 9. Invariantes
 
@@ -89,9 +98,9 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
 6. Metadados persistidos do job prevalecem sobre request quando presentes.
 7. Staging deve usar `ownership.tabId` como geminiTabId.
 8. Staging deve usar `finalizeOnAck:false`.
-9. ACK/persistência falha nunca retorna staged=true.
+9. ACK com `ok:false` ou persistência **explicitamente** `false` nunca retorna `staged:true`; `{ok:true}` sem `persisted` é aceito pela implementação atual.
 10. Esta action não chama finalizeJob.
-11. Resposta positiva precisa indicar `staged:true,persisted:true`.
+11. A action **retorna** `staged:true,persisted:true` após qualquer staging `ok:true` que não declare `persisted:false`; esse retorno não prova sozinho que `persisted:true` veio explicitamente do reader.
 12. Commit é uma mensagem/fase separada e pode retryar sem reenviar imagem.
 13. Logs não devem incluir o `src`/Base64.
 
@@ -196,7 +205,7 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
 | 003 | U01 | ␠ [linha vazia] | Separador visual de U01 (Cabeçalho e intenção); sem efeito runtime. |
 | 004 | U02 | (function(scope) { | Completa a expressão de U02 com `(function(scope) {`, fornecendo argumento, propriedade ou condição adjacente. |
 | 005 | U02 |   scope.MangaTranslatorRouter.registerAction({ | Registra a definição no MangaTranslatorRouter. |
-| 006 | U02 |     name: 'deliver-result', | Define o nome canônico do alias `GEMINI_IMAGE_EXTRACTED`. |
+| 006 | U02 |     name: 'deliver-result', | Declara o **nome canônico da action** `deliver-result`; o alias `GEMINI_IMAGE_EXTRACTED` é definido externamente em `extension/background/router.js`. |
 | 007 | U02 |     meta: { allowedSources: ['any'] }, | Permite qualquer source classificada; ownership do job continua obrigatório. |
 | 008 | U02 | ␠ [linha vazia] | Separador visual de U02 (Registro e validação mínima); sem efeito runtime. |
 | 009 | U02 |     validate(request) { | Abre a validação pré-efeitos. |
@@ -356,15 +365,15 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
 
 ### U07 — linhas/posição 67–76: Falha de staging/persistência
 
-**O que faz:** Transforma ACK ausente/negativo ou persistência explicitamente falsa em erro sem marcar staging concluído.
+**O que faz:** Transforma `!staged?.ok` ou persistência **explicitamente falsa** em erro sem marcar staging concluído. Uma resposta parcial `{ok:true}` sem `persisted` atravessa esta guarda.
 
 **Como faz:** Guarda `!staged?.ok || staged.persisted === false`; loga `RESULT_STAGE_FAILED` e propaga `reason` com fallback.
 
-**Por que desta forma:** O consumidor não pode avançar ao commit se o leitor não confirmou o resultado.
+**Por que desta forma:** O consumidor não avança quando existe falha explícita; porém o contrato atual não exige confirmação positiva explícita do campo `persisted`, uma lacuna reconhecida.
 
 **Por que uma implementação ingênua seria pior:** Aceitar ACK falho poderia finalizar/excluir Gemini sem resultado persistido no leitor.
 
-**Evidência:** ✅ PROVADO DIRETAMENTE — suíte cobre `{ok:false}`, `{ok:true,persisted:false}` e `null`. ⚠️ `{ok:true}` sem campo `persisted` é aceito localmente e não tem teste; o helper real sempre retorna `persisted`.
+**Evidência:** ✅ PROVADO DIRETAMENTE — suíte cobre `{ok:false}`, `{ok:true,persisted:false}` e `null`. ⚠️ `{ok:true}` sem campo `persisted` é aceito localmente e não tem teste; `jobs-dom-ack.js` sempre retorna o campo, mas pode sintetizar `true` por `!== false`.
 
 ### U08 — linhas/posição 77–84: Telemetria de staging e resposta
 
@@ -414,4 +423,6 @@ A action não usa `state.currentBatchId` para invalidar o resultado. Um job pers
 - [x] nenhuma afirmação de cobertura automatizada total;
 - [x] nenhum código funcional alterado.
 
-**Veredito documental:** ✅ APROVADO para `3653bd10c2a0e65c14eb139f906feeafb30411a5`.
+**Veredito documental desta revisão:** 🟡 CORRIGIDA; requer nova PRIMARY + ADVERSARIAL vinculadas ao novo `BIBLE_SHA`.
+
+> **Correção pós-REAUDIT:** `persisted:true` foi separado entre confirmação explícita do reader e normalização/síntese do helper; o contrato permissivo `{ok:true}` sem `persisted` está explícito, e alias/bootstrap/contextFactory/job-runner foram documentados como wiring de produção.
