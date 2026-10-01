@@ -3,9 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const root = process.env.MANGA_TRANSLATOR_REPO_ROOT
-  ? path.resolve(process.env.MANGA_TRANSLATOR_REPO_ROOT)
-  : path.resolve(__dirname, '../..');
+const root = path.resolve(__dirname, '../..');
 const problems = [];
 
 function exists(rel) {
