@@ -102,7 +102,7 @@
 - [x] 098 — `tests/helpers/background-test-utils.js` — COMPLETED
 - [ ] 099 — `tests/helpers/extracted-functions.js` — READY_FOR_AUDIT
 - [ ] 100 — `tests/helpers/load-background-module.js` — READY_FOR_AUDIT
-- [ ] 101 — `tests/helpers/load-content-gemini-module.js` — READY_FOR_AUDIT
+- [ ] 101 — `tests/helpers/load-content-gemini-module.js` — CHANGES_REQUIRED
 - [ ] 102 — `tests/helpers/load-content-script.js` — READY_FOR_AUDIT
 - [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
 - [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
