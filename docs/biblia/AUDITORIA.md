@@ -1099,3 +1099,17 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #092 / SHA `b181989a9b89151ca17cbcbeb7db9342b98c9add`**.
 
+### `reader-offline.spec.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #093 — `tests/e2e/reader-offline.spec.js`.
+- **SHA auditado:** `1ab953d0a031f77cb458befd31650e9ba9c4c052`.
+- **Integridade:** **276 linhas textuais + newline final = 277/277 posições**; state, source e SHA da Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao arquivo atual e a tabela documental cobre todas as posições 1–277.
+- **Evidência runtime SHA-bound:** a run **36577447500** executou o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f`; o blob deste arquivo nesse commit é exatamente `1ab953d0a031f77cb458befd31650e9ba9c4c052`.
+- **Três cenários confirmados:** renderização/ordem e contador, persistência do slider e navegação por teclado aparecem nominalmente no shard `fast`; o job terminou **9 passed**.
+- **Request 093-001 (HIGH):** permanece **ACCEPTED** — o reset IndexedDB é fail-open em erros de transaction/exceções e não prova stores vazios antes do seed.
+- **Request 093-002 (HIGH):** permanece **ACCEPTED** — a UI final não isola causalmente a migração para o storage novo; fallback legado pode produzir a mesma saída sem assertion direta de IndexedDB/remoção ou flag do legado.
+- **Request 093-003:** permanece **ACCEPTED** — o profile `userDataDir` não tem remoção explícita comprovada no teardown.
+- **Conclusão:** a Bíblia representa corretamente a força da prova E2E e não confunde compatibilidade de UI com prova da migração interna.
+
+**Veredito documental independente:** ✅ **APROVADO — #093 / SHA `1ab953d0a031f77cb458befd31650e9ba9c4c052`**.
+
