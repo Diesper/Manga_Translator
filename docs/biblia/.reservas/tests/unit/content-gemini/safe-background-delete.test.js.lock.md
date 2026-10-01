@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/content-gemini/safe-background-delete.test.js
+BÍBLIA: docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e
+CLAIMED_AT_UTC: 2026-10-01T19:33:35.509Z
+UPDATED_AT_UTC: 2026-10-01T19:33:35.509Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
