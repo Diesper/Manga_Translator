@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "index": 14,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 14",
+  "file": "extension/background/actions/force-send-activation.js",
+  "bible": "docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md",
+  "source_sha": "cbeea5768301008e363a087a1daf636deabb9076",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "014-ADV-001",
+      "severity": "BLOCKING",
+      "type": "EVIDENCE_OVERCLAIM",
+      "bible_location": "Bíblia.md:57",
+      "finding": "A tabela classifica como PROVADO DIRETAMENTE pelo force-send-activation-action.test.js a restauração após 250 ms, mas os dois testes apenas executam jest.advanceTimersByTime(250) e verificam que a restauração ocorreu; não há assertion antes de 250 ms, nem fronteira 249/250, nem verificação do valor do delay. Uma regressão do setTimeout para 0/100/200 ms continuaria satisfazendo essas assertions. O literal 250 é confirmado pelo source, não pelo teste citado.",
+      "required_change": "Rebaixar/separar a classificação: o source prova o literal 250 ms; o teste prova apenas restauração temporizada ocorrida até o avanço de 250 ms, salvo se for adicionada prova focal da fronteira temporal em alteração separada."
+    },
+    {
+      "id": "014-ADV-002",
+      "severity": "BLOCKING",
+      "type": "CONSUMER_OMISSION",
+      "bible_location": "Papel arquitetural / Evidência",
+      "finding": "A Bíblia não menciona extension/background.js nem o wiring de produção. No branch atual, manifest.json declara background.js como service worker; background.js carrega background/actions/force-send-activation.js via importScripts (e via require no harness), registra o módulo no router e encaminha chrome.runtime.onMessage por routeRegisteredAction/createMessageRouter. A afirmação correta de que não há caller de produção para FORCE_SEND_ACTIVATION precisa ser distinguida explicitamente do fato de que o módulo continua carregado e registrado em produção.",
+      "required_change": "Documentar o consumer/load chain manifest.json -> background.js -> force-send-activation.js -> router e manter separada a ausência de emissor/caller runtime."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:08:28Z"
+}
