@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "index": 127,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 44",
+  "file": "tests/smoke/smoke-05-perceptual-queries.js",
+  "bible": "docs/biblia/tests/smoke/smoke-05-perceptual-queries.js/Bíblia.md",
+  "source_sha": "bf8409c3df43062e5e6af496393412eee0c6a694",
+  "bible_sha": "664b21d623dd7cb0b0340e85d6fe6ef0469aa53f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "127-ADV-001",
+      "severity": "BLOCKING",
+      "type": "LINE_SEMANTICS_AND_ASSERTION_REFERENCES",
+      "summary": "A cobertura é numericamente 89/89 e a fonte integral é exata, mas a tabela de cenários e o mapa posição→semântica apontam para linhas/contextos incorretos.",
+      "evidence": [
+        "Na tabela 'Cenários e força', q_exact_A é atribuído a 51–52, produto cruzado a 53, aspect ratio a 63, q1 a 77 e q2 a 78; no source atual as assertions estão em 55–57, 66 e 78–79.",
+        "No source, linha 55 é assert(results['q_exact_A'], ...), linha 56 valida translatedDataUrl de A e linha 57 rejeita q_cross_invalid; o mapa rotula 55–57 como contexto 'aspect ratio'.",
+        "No source, linha 66 é assert(!resRatio['q_bad_ratio'], ...); o mapa rotula 66 como contexto 'exato+aproximado'.",
+        "No source, linhas 41–44 ainda pertencem ao seed da Imagem B (pHash, width, height, fechamento de put), mas o mapa já as rotula como 'produto cruzado'.",
+        "No source, linha 71 é comentário sobre modificar dois caracteres; o mapa diz 'configura hashes controlados'.",
+        "Uma segunda releitura do source após a análise e a rechecagem do mapa reproduziu os mesmos desalinhamentos."
+      ],
+      "requested_document_change": "Realinhar a tabela de assertions e cada transição/contexto do mapa 89/89 ao source atual, preservando a fonte integral e sem alterar o teste para fabricar correspondência."
+    },
+    {
+      "id": "127-ADV-002",
+      "severity": "BLOCKING",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia marca 127-001 e 127-002 como OPEN, enquanto o state canônico registra ambos como ACCEPTED.",
+      "evidence": [
+        "Bíblia.md apresenta os headings '127-001 — DOCUMENTATION_MISMATCH — OPEN' e '127-002 — TEST_SCOPE_REVIEW — OPEN'.",
+        "docs/biblia/.state/127.json registra 127-001.status=ACCEPTED e 127-002.status=ACCEPTED.",
+        "As lacunas técnicas dos requests continuam descritas honestamente; a falha documental é a divergência objetiva de lifecycle."
+      ],
+      "requested_document_change": "Sincronizar os estados dos dois audit requests na Bíblia com o state canônico, mantendo suas limitações técnicas explícitas."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage_union": "CONFIRMADO_3X",
+    "coverage_semantics": "CONTRADITO",
+    "main_runtime_semantics": "CONFIRMADO_3X",
+    "dependencies_consumers": "CONFIRMADO_3X",
+    "evidence_assertions": "CONTRADITO",
+    "audit_requests": "CONTRADITO_STATUS",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "completed_at_utc": "2026-10-01T21:13:31Z"
+}
