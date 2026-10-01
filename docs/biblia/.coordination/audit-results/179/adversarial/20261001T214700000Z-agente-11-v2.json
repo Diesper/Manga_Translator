@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "index": 179,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "bible_sha": "90db61ef1395e685debba9c9c0286bfdb850ab79",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A11-179-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_LINE_AUDIT_FALSE_CLAIMS",
+      "summary": "A cobertura linha-a-linha é estruturalmente completa (683/683 linhas + newline final), mas ainda contém descrições de função factualmente incompatíveis com o código, portanto a alegação de realinhamento semântico completo não é verdadeira.",
+      "evidence": [
+        "Linha 001 do source importa getRuntimeMock/getStorageMock; a Bíblia declara `Função: Ativa strict mode.`, embora não exista diretiva strict nessa linha.",
+        "Linhas 005-007 constroem Object.defineProperty(window, 'location', ...) e seus campos; a Bíblia as descreve como `Importa mocks/helpers compartilhados do harness Gemini.`.",
+        "Linhas 009-012 configuram origin/fechamento/configurable/writable do objeto location; a Bíblia as descreve como `Resolve o caminho do content_gemini real e define loader completo dos módulos Gemini.`.",
+        "Verificação formal confirmou 683 blocos Linha 001..683, sem gaps/overlaps/out-of-range e com 0 mismatches no campo Código; logo a falha é semântica na coluna Função, não de fonte integral ou cobertura."
+      ],
+      "required_change": "Realinhar todas as descrições `Função` ainda herdadas/deslocadas ao comportamento real de cada linha e repetir a validação semântica dos 683 blocos, preservando a fonte funcional."
+    },
+    {
+      "id": "A11-179-ADV-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_RESOLUTION_CONTRADICTION",
+      "summary": "A request 179-004 aparece como RESOLVED e a cobertura DataUrlAtob:null existe, mas o corpo da própria request continua afirmando em tempo presente que a suíte cobre apenas FileImpl:null e que essa evidência está ausente.",
+      "evidence": [
+        "Bíblia §2 declara que job-runner.test.js cobre FileImpl:null e DataUrlAtob:null no blob b0daca4ce839d8a5114c8c94e116fa155c721f7b e que 179-004 está RESOLVED.",
+        "Bíblia §9 classifica `DataUrlAtob/atob ausente falha` como PROVADO DIRETAMENTE pelo RUN-01B no mesmo blob.",
+        "Bíblia §10, heading `179-004 — ... — RESOLVED`, ainda diz `a suíte focal cobre apenas FileImpl:null` e `Evidência ausente: criar runner real com DataUrlAtob:null`.",
+        ".state/179.json registra 179-004=RESOLVED com resolution.action=TEST_ADDED e resolution.source_sha=b0daca4ce839d8a5114c8c94e116fa155c721f7b.",
+        "O job-runner.test.js atual tem exatamente esse blob e RUN-01B cria createGeminiJobRunner({...options, DataUrlAtob:null}) e exige `APIs de arquivo indisponíveis`."
+      ],
+      "required_change": "Atualizar o corpo de 179-004 para registrar a lacuna como histórica e descrever a resolução/evidência atual, removendo a afirmação presente de evidência ausente."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X",
+    "semantic_line_audit": "CONTRADITO",
+    "dependencies_consumers": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_strength": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_11_VS_PRIMARY_AGENTE_1",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_textual_lines": 683,
+    "source_final_newline": true,
+    "documented_positions": "684/684",
+    "line_audit_blocks": 683,
+    "line_audit_missing": 0,
+    "line_audit_duplicates": 0,
+    "code_field_mismatches": 0,
+    "embedded_source_exact": true,
+    "focused_test_cases_read": 15,
+    "focused_test_cases_with_assertions": 15,
+    "loader_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+    "loader_does_not_load_inject_js": true,
+    "ci_run": 36521561968,
+    "ci_run_head_sha": "e720890cf34dc9437ee91f3b8172953497d69870",
+    "ci_conclusion": "success",
+    "ci_focal_blob_matches_current": true,
+    "job_runner_test_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+    "tripla_verificacao": {
+      "A_documento_corresponde_source_atual": "SIM para fonte integral e posições",
+      "B_tudo_que_afirma_e_verdadeiro": "NAO",
+      "C_limitacoes_representadas_honestamente": "NAO por contradição 179-004"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:47:00.000Z"
+}
