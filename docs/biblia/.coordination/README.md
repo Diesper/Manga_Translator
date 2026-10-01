@@ -73,20 +73,22 @@ node scripts/validation/bible-audit-work-plan.js --auditor 16 --phase ADVERSARIA
 
 O planejador sempre considera a próxima fase obrigatória do SHA atual. Em particular, **PRIMARY CHANGES_REQUIRED não pula ADVERSARIAL**: todas as Bíblias passam pela auditoria adversarial antes da decisão final daquele SHA.
 
-## Claims por fase + leases
+## Leases por fase
 
-Novos claims usam:
+Novos trabalhos usam uma árvore separada do mecanismo legado:
 
 ~~~text
-docs/biblia/.coordination/audit-claims/
+docs/biblia/.coordination/audit-leases/
   primary/NNN.lock.md
   adversarial/NNN.lock.md
   reaudit/NNN.lock.md
 ~~~
 
-Claims planos legados (audit-claims/NNN.lock.md) são aceitos temporariamente como PRIMARY durante a migração.
+Claims planos já existentes em `audit-claims/NNN.lock.md` permanecem válidos temporariamente como PRIMARY legado. Novos agentes **não** criam claims por fase dentro de `audit-claims/`; usam `audit-leases/`.
 
-Cada claim novo deve conter:
+Essa separação permite introduzir PRIMARY/ADVERSARIAL/REAUDIT sem quebrar o validador V2 legado que ainda conhece apenas os claims antigos.
+
+Cada lease novo deve conter:
 
 ~~~text
 AUDITOR: AGENTE 12
@@ -111,7 +113,7 @@ Regras:
 4. claim e reserva editorial do mesmo arquivo não coexistem;
 5. SOURCE_SHA, arquivo, Bíblia e índice devem corresponder ao state;
 6. claim expirado não autoriza overwrite cego: recuperação exige reler, confirmar expiração e usar operação condicional sobre a versão exata;
-7. o claim protege somente contra trabalho duplicado; não concede ownership da Bíblia ou do source.
+7. o lease protege somente contra trabalho duplicado; não concede ownership da Bíblia ou do source.
 
 ## Resultados append-only
 
@@ -202,17 +204,19 @@ docs/biblia/AUDITORIA.md continua legível como histórico e compatibilidade.
 
 Uma aprovação válida existente nele conta como **PRIMARY legado**, nunca como ADVERSARIAL.
 
-Bíblias já COMPLETED antes desta migração continuam estruturalmente válidas durante o trabalho, mas o gate final de merge exige uma auditoria ADVERSARIAL válida para o SHA atual.
+Bíblias já COMPLETED antes desta migração continuam estruturalmente válidas durante o trabalho, mas o gate distribuído final exige uma auditoria ADVERSARIAL válida para o SHA atual.
 
-Novos itens podem chegar a COMPLETED somente com pipeline distribuído aprovado, sem necessidade de escrever em AUDITORIA.md.
+O resultado das fases novas é canônico em `audit-results/`. Enquanto os validadores V2 legados ainda exigirem `AUDITORIA.md` + `.state` para materializar `COMPLETED`, essa projeção é reconciliada **em lote**, fora do caminho crítico. Qualquer agente ou auditor pode executar esse checkpoint; não existe agregador único.
 
 ## PROGRESS.lock.md
 
 PROGRESS.lock.md **não faz parte do fluxo normal de auditoria**.
 
-Ele pode existir somente em migrações estruturais raras que realmente alterem infraestrutura global incompatível em paralelo.
+Ele pode existir somente em migrações estruturais raras ou em um **checkpoint de compatibilidade legado em lote** que projete muitos resultados já concluídos para `AUDITORIA.md` / `.state` / views globais.
 
-É proibido exigir esse lock para auditar uma Bíblia, publicar PRIMARY/ADVERSARIAL/REAUDIT, reconciliar a decisão de um único índice ou atualizar .state/NNN.json daquele índice.
+É proibido exigir esse lock para executar PRIMARY, ADVERSARIAL ou REAUDIT, publicar um resultado append-only ou calcular a decisão de um índice.
+
+Quando um checkpoint legado for necessário, ele pode ser executado por **qualquer agente ou auditor**, deve durar o mínimo possível e nunca vira um serviço/agregador permanente.
 
 O merge readiness continua exigindo ausência de qualquer lock global residual.
 
@@ -224,33 +228,45 @@ READ LATEST
 → adquirir lease PRIMARY do índice
 → auditar
 → publicar resultado PRIMARY append-only
-→ liberar claim
+→ liberar lease
 → adquirir lease ADVERSARIAL do mesmo índice
 → tentar refutar PRIMARY + Bíblia
 → publicar resultado ADVERSARIAL append-only
-→ liberar claim
+→ liberar lease
 → calcular decisão deterministicamente
 → se divergência: claim REAUDIT + resultado append-only
-→ reconciliar somente .state/NNN.json
-→ verificar novamente
+→ decisão distribuída concluída
+→ continuar imediatamente para outra Bíblia
+→ em checkpoint separado, qualquer agente/auditor pode projetar resultados legados em lote
 ~~~
 
 Qualquer auditor ou agente autorizado pode fazer a reconciliação por índice.
 
-## Gate final
+## Gates finais
 
+São dois gates complementares:
+
+~~~bash
+node docs/biblia/.coordination/audit-protocol.js verify
 node scripts/validation/verify-bible-merge-readiness.js
+~~~
 
-Além das invariantes anteriores, o gate final exige para **cada um dos 233 SHAs atuais**:
+O primeiro exige para **cada um dos 233 SHAs atuais**:
 
 - PRIMARY válida;
 - ADVERSARIAL válida;
 - independência PRIMARY/ADVERSARIAL quando identificadas;
 - REAUDIT independente quando houver divergência;
-- decisão final APPROVED;
+- decisão distribuída final APPROVED;
+- leases/claims coerentes.
+
+O segundo preserva o contrato estrutural legado do PR:
+
 - state COMPLETED;
 - zero reservas;
-- zero audit claims;
+- zero claims legados;
 - zero requests OPEN;
-- nenhuma coordenação residual inconsistente;
-- CI verde no SHA final.
+- projeções globais coerentes;
+- nenhum lock global residual.
+
+Portanto a auditoria escala sem serialização global, enquanto a projeção final de compatibilidade pode ser feita em lote por qualquer agente/auditor antes do merge. A CI do SHA final também deve estar verde.
