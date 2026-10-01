@@ -72,7 +72,7 @@ A prova de 4 s não foi generalizada para 600/18_000: esses dois valores aparece
 
 ## 7. Solicitações ao auditor
 
-### 105-001 — TEST_REQUIRED — OPEN
+### 105-001 — TEST_REQUIRED — ACCEPTED
 - **Encontrado:** O helper tem prova direta focal para o delay de 4_000 ms por marker-anchor-real.test.js, mas não existe teste dedicado que prove os branches de 600 ms e 18_000 ms, a delegação de delays não rastreados e a remoção automática do Map quando um callback rastreado dispara naturalmente.
 - **Arquivo relacionado:** `tests/unit/background/track-background-delay-timers.test.js`
 - **Evidência atual:** marker-anchor-real.test.js executa o background real, verifica getPendingDelays() contendo 4_000, verifica o retorno do cancelamento contendo 4_000 e getPendingCount() igual a zero. process-finalize-real/lifecycle-alarms-real/regex-escape/message-handlers-real instalam e cancelam o tracker durante teardown, mas sem assertions focais equivalentes para 600/18_000.
@@ -174,5 +174,5 @@ Posição correspondente ao newline terminal do arquivo; não contém instruçã
 - Linhas textuais: **41**; newline terminal: **sim**; posições documentadas: **42/42**.
 - Faixas documentais: **10**, contíguas e sem overlap.
 - Prova direta focal localizada para o timer de 4 s; 600 ms e 18 s mantidos explicitamente como lacuna de prova específica.
-- `audit_request` 105-001 registrada para teste dedicado do helper.
+- `audit_request` 105-001 permanece **ACCEPTED** no state canônico para teste dedicado do helper; a request é dívida de teste não bloqueante para fidelidade documental.
 - Nenhum código, teste, fixture, workflow ou config externo foi alterado.
