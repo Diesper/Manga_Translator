@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "index": 81,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "scripts/validation/validate-manifest.js",
+  "bible": "docs/biblia/scripts/validation/validate-manifest.js/Bíblia.md",
+  "source_sha": "93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T15:47:00Z"
+}
