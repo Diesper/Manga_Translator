@@ -13,16 +13,18 @@ const {
   getStorageMock,
 } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
 
-function loadCanonicalJestConfig({ coverage = false } = {}) {
+function loadCanonicalJestConfig({ coverageMode } = {}) {
   const configPath = path.join(ROOT, 'jest.config.js');
   const previousCoverage = process.env.COVERAGE_MODE;
+  let loaded = null;
   try {
-    if (coverage) process.env.COVERAGE_MODE = '1';
-    else delete process.env.COVERAGE_MODE;
-    delete require.cache[require.resolve(configPath)];
-    return require(configPath);
+    if (coverageMode === undefined) delete process.env.COVERAGE_MODE;
+    else process.env.COVERAGE_MODE = coverageMode;
+    jest.isolateModules(() => {
+      loaded = require(configPath);
+    });
+    return loaded;
   } finally {
-    delete require.cache[require.resolve(configPath)];
     if (previousCoverage === undefined) delete process.env.COVERAGE_MODE;
     else process.env.COVERAGE_MODE = previousCoverage;
   }
@@ -59,7 +61,8 @@ describe('load-content-script helper selftest', () => {
 
   test('config Jest canônica preserva projetos, setups e boundaries de coverage', () => {
     const normal = loadCanonicalJestConfig();
-    const coverage = loadCanonicalJestConfig({ coverage: true });
+    const coverage = loadCanonicalJestConfig({ coverageMode: '1' });
+    const nonCanonicalCoverage = loadCanonicalJestConfig({ coverageMode: 'true' });
     const byName = new Map(normal.projects.map(project => [project.displayName, project]));
 
     expect([...byName.keys()]).toEqual([
@@ -71,6 +74,9 @@ describe('load-content-script helper selftest', () => {
     expect(coverage.testTimeout).toBe(60000);
     expect(coverage.coverageProvider).toBe('v8');
     expect(coverage.collectCoverageFrom).toEqual(['<rootDir>/extension/**/*.js']);
+    expect(nonCanonicalCoverage.cacheDirectory).toBe('<rootDir>/.jest-cache');
+    expect(nonCanonicalCoverage.testTimeout).toBe(15000);
+    expect(nonCanonicalCoverage.coverageProvider).toBeUndefined();
 
     for (const name of ['content-scripts', 'popup', 'reader', 'shared-ui', 'integration']) {
       expect(byName.get(name).setupFilesAfterEnv).toEqual([
