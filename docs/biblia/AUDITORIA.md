@@ -1126,3 +1126,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #094 / SHA `db1da42c48ff795c41c7103cd5778e5a5d98e878`**.
 
+### `gemini-mock-server.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #095 — `tests/fixtures/gemini-mock-server.js`.
+- **SHA auditado:** `1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4`.
+- **Integridade:** **632 linhas textuais + newline final = 633/633 posições**; state, source e SHA da Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao arquivo atual e o mapa documental cobre todas as posições.
+- **Wiring real:** `playwright.config.js` inicia este arquivo como `webServer` na porta 3999. A run **36577447500** usou o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f`, cujo blob deste fixture é exatamente `1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4`.
+- **Superfície exercitada:** os E2E reais cobrem os caminhos centrais de attachment, FIFO/barreira, fast result, Shadow DOM, ignore-submit, ownership de resultado e serving de imagens; a Bíblia não promove rotas auxiliares sem assertion focal a prova direta.
+- **Request 095-001:** permanece **ACCEPTED** — `attachmentFailAttempts`, `attachmentDelayMs`, OPTIONS, `/health`, 405, cleanup de desconexão, fallback de `manga-page.html`, default de resultado e 404 não possuem contract spec focal.
+- **Request 095-002:** permanece **ACCEPTED** — `ATTACHMENT_BARRIERS` retém IDs concluídos; `release` limpa `waiters`, mas não remove a entrada do Map.
+- **Request 095-003:** permanece **SUPERSEDED por 064-003** — identidade/health do serviço reutilizado em `reuseExistingServer:true` já está centralizada no contrato do Playwright config.
+- **Request 095-004:** permanece **ACCEPTED** — `new URL(...)` e `decodeURIComponent(...)` não possuem tratamento local para input malformado; a política fail-fast versus 4xx segue sem teste focal.
+- **Conclusão:** a Bíblia descreve fielmente o mock server atual, separando rotas exercitadas, caminhos indiretos e branches sem prova específica.
+
+**Veredito documental independente:** ✅ **APROVADO — #095 / SHA `1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4`**.
+
