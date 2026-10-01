@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-manga/button-ui-real.test.js
-BÍBLIA: docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: a82baea685c1b325e8b21a9a914ef405a142ef97
-CLAIMED_AT_UTC: 2026-10-01T20:05:42.501Z
-UPDATED_AT_UTC: 2026-10-01T20:05:42.501Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
