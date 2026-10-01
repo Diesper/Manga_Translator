@@ -19,11 +19,12 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 - `bible-coordination.js` é o único validador canônico de state/lock/Bíblia/auditoria.
 - `package.json → validate:structure` executa este arquivo.
 - `.github/workflows/ci.yml` executa a cadeia de validação no Linux e em Windows Portability.
+- `scripts/validation/verify-ci-contract.js` é consumer direto deste source: lê `verify-repository-structure.js` e exige os marcadores `legacyReferenceMarkers` e `referência operacional legada` como parte do contrato estático da CI.
 - Manifest, páginas internas, `background.js`, configs Jest/Playwright, package/lock e testes são lidos como contratos estáticos.
 
 ## 3. Fluxos e contratos relevantes
 
-1. Inicializa `root` e acumula problemas em vez de falhar no primeiro erro.
+1. Inicializa `root` e acumula em `problems` as violações tratadas explicitamente pelas regras do gate. Isso **não** significa fail-safe universal: leituras/parses síncronos sem `try/catch` (`readdirSync`, `readFileSync`, `JSON.parse`) podem lançar antes do epílogo.
 2. Confirma presença de artefatos canônicos e forma de `docs/`.
 3. Delega o subsistema de Bíblias ao validador especializado.
 4. Rejeita caminhos/arquivos legados da reestruturação.
@@ -33,7 +34,7 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 8. Impõe um único package/lock, uma config Jest e o conjunto permitido de configs Playwright.
 9. Rejeita wrappers BAT/PS1 e dependências de `process.cwd()`/finders de raiz duplicados nos testes.
 10. Confere entradas obrigatórias de `.gitignore`.
-11. Imprime todos os problemas e sai 1; caso contrário imprime sucesso.
+11. Se a execução alcançar o epílogo, imprime todos os itens acumulados em `problems` e sai 1; sem problemas imprime sucesso. Exceções não tratadas de I/O/parsing podem encerrar o processo antes dessa agregação final.
 
 ## 4. Invariantes
 
@@ -483,13 +484,13 @@ Percorre arquivos textuais operacionais, exclui explicitamente os próprios vali
 
 Exige package/lock únicos, proíbe BAT/PS1, limita configs Jest/Playwright e impede configuração de execução dentro do arquivo usado só para merge/report.
 
-### Posições 323–345 — workflow, Playwright e scripts npm
+### Posições 323–350 — workflow, Playwright e scripts npm
 
-Rejeita working-directory/prefixos/caminhos antigos em CI, caminhos antigos no Playwright raiz e scripts npm que recriem o layout legado.
+Rejeita working-directory/prefixos/caminhos antigos em CI (323–336), caminhos antigos no Playwright raiz (338–341) e scripts npm que recriem o layout legado (343–350). As posições 346–350 ainda pertencem ao loop de scripts npm.
 
-### Posições 346–363 — portabilidade dos testes
+### Posições 351–363 — portabilidade dos testes
 
-Escaneia JavaScript de testes e reprova finder de raiz duplicado ou dependência de `process.cwd()`.
+A posição 351 é separadora; 352–362 enumeram JavaScript sob `tests/` e reprovam finder de raiz duplicado ou dependência de `process.cwd()`; 363 é a separação antes do bloco de `.gitignore`.
 
 ### Posições 364–370 — `.gitignore` obrigatório
 
@@ -497,7 +498,7 @@ Confirma as quatro entradas de caches/resultados/build esperadas.
 
 ### Posições 371–379 — resultado do gate
 
-Se houver problemas, imprime todos e termina com código 1; sem problemas, imprime a mensagem de estrutura validada.
+Se a execução chegar a este bloco com `problems` preenchido, imprime todos os problemas acumulados e termina com código 1; sem problemas, imprime a mensagem de estrutura validada. Exceções anteriores de I/O ou parsing podem encerrar o processo antes deste epílogo.
 
 ### Posição 380 — newline final
 
@@ -508,7 +509,8 @@ Posição vazia terminal do LF final.
 - Traversal completo é O(n) no número de arquivos rastreados e adequado ao tamanho atual do repositório.
 - Scans por substring podem gerar falso positivo se um marker legado aparecer em contexto não operacional; a lista de exclusões precisa ser mínima e explícita.
 - O gate usa leitura local somente; não executa conteúdo dos arquivos analisados.
-- Alterar esta lista de contratos pode bloquear Windows e CI Contract simultaneamente; self-tests e CI devem acompanhar toda mudança.
+- O caminho principal contém `readdirSync`, `readFileSync` e `JSON.parse` sem `try/catch`; arquivo ausente coberto por `requirePresent` é agregado, mas I/O/JSON malformado em leituras posteriores pode lançar imediatamente e não produzir a lista completa de `problems`.
+- Alterar esta lista de contratos pode bloquear Windows e CI Contract simultaneamente; `verify-ci-contract.js`, self-tests e CI devem acompanhar toda mudança.
 
 ## 10. Autoauditoria documental
 
@@ -517,6 +519,9 @@ Posição vazia terminal do LF final.
 - [x] 380/380 posições cobertas por faixas contíguas.
 - [x] responsabilidades do validador antigo e do novo módulo não foram confundidas.
 - [x] STATUS/CHECKLIST descritos como projeções, não fontes primárias.
+- [x] consumer direto `verify-ci-contract.js` registrado no wiring.
+- [x] semântica de agregação limitada às regras que chegam ao vetor `problems`; exceções síncronas não tratadas documentadas como fail-fast.
+- [x] faixa 323–363 reconciliada com as posições reais do loop npm e do scan de testes.
 - [x] nenhum código funcional da extensão foi alterado para satisfazer esta Bíblia.
 
 **Autoauditoria:** READY_FOR_AUDIT.
