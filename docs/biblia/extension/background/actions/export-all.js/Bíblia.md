@@ -22,8 +22,8 @@ A resposta final é `{ok:true}` mesmo se alguns itens falharem. A action não re
 
 | Fonte | Classificação | O que prova |
 |---|---|---|
-| `export-all-action.test.js` | ✅ PROVADO DIRETAMENTE | Guard de lista vazia, prefixo idempotente, dois downloads, espera e show do último concluído. |
-| `message-handlers-real.test.js` | ✅ PROVADO DIRETAMENTE EM BACKGROUND COMPLETO | Três downloads reais pelo dispatcher e exatamente um show ao fim. |
+| `export-all-action.test.js` | ✅ PROVADO DIRETAMENTE, COM ESCOPO LIMITADO | Guard de lista vazia, prefixo idempotente, duas chamadas de download e `show(12)` no estado final. O stub de `waitForDownload` chama `done` imediatamente e o teste **não afirma sua invocação nem a ordem causal espera→show**. |
+| `message-handlers-real.test.js` | ✅ IMPLEMENTAÇÃO REAL DO BACKGROUND CONTRA MOCK DA API | O dispatcher real produz três chamadas em `ChromeDownloadsMock` e exatamente um `show`; isso não equivale a três downloads do browser nem prova temporalmente que `show` ocorreu somente após todas as conclusões. |
 | `download-wait.test.js` | ✅ PROVADO DIRETAMENTE DO HELPER | Complete, interrupção, timeout e cleanup de listeners/timer. Não prova como esta action reporta esses erros. |
 | `export-guard.test.js` | ⚠️ MIRROR/SIMULAÇÃO COMPLEMENTAR | Reimplementa o handler no próprio teste; cobre `undefined`, mas não executa `export-all.js`. Não conta como prova direta. |
 
@@ -190,7 +190,7 @@ A resposta final é `{ok:true}` mesmo se alguns itens falharem. A action não re
 
 **Alternativa ingênua e risco:** Resolver no primeiro callback perderia downloads ainda em curso; usar o último id criado não representa necessariamente o último concluído.
 
-**Evidência:** ✅ PROVADO DIRETAMENTE — dois downloads completam e `show(12)` ocorre depois; teste integrado com três itens exige três downloads e um show. ⚠️ Ordem de conclusão invertida e cenário todos falham não têm testes focais.
+**Evidência:** ✅ o teste isolado prova duas chamadas de download e o estado final `show(12)`; ✅ o integrado prova três chamadas e um `show` contra `ChromeDownloadsMock`. ⚠️ Nenhum dos dois possui assertion de invocation order/conclusão que prove causalmente `show somente após todos`; ordem invertida e cenário todos falham continuam sem teste focal.
 
 ### U04 — 22–30: Normalização e criação de cada download
 
