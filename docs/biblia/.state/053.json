@@ -2,8 +2,8 @@
   "index": 53,
   "file": "extension/popup/popup.html",
   "bible": "docs/biblia/extension/popup/popup.html/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -19,7 +19,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T01:39:00Z",
+  "updated_at_utc": "2026-10-01T21:49:22.210Z",
   "history": [
     {
       "at_utc": "2026-10-01T01:39:00Z",
@@ -28,6 +28,14 @@
       "to_status": "COMPLETED",
       "reason": "Recuperação administrativa havia reaberto uma Bíblia já aprovada. Fonte, SHA atual, Bíblia e aprovação independente foram revalidados; lifecycle documental restaurado sem reauditoria desnecessária.",
       "previous_owner": "AGENTE 15"
+    },
+    {
+      "at_utc": "2026-10-01T21:49:22.210Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
+      "reason": "053-REA-001..003: CSS linha 7, identidade de 9 IDs e consumers/gate omitidos."
     }
   ],
   "recovery": {
