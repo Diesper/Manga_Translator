@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "index": 137,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 57",
+  "file": "tests/unit/background/deliver-result-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/deliver-result-action.test.js/Bíblia.md",
+  "source_sha": "654194bf502f3a2c4c21feae64e256bb0ecc49eb",
+  "bible_sha": "4cf21aa13210a90b5d5bc3651e73c862675228b1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "Audit requests documentadas com estado stale: a seção 11 da Bíblia rotula 137-001, 137-002, 137-003 e 137-004 como `OPEN`, porém o state canônico atual registra 137-001/002/004 como `ACCEPTED` e 137-003 como `SUPERSEDED` por 009-003. O state #009 confirma 009-003 como request canônica `ACCEPTED` para os branches/fallbacks da mesma action. Assim, a Bíblia mantém como ativa uma solicitação já supersedida e omite as decisões auditoriais já tomadas sobre as demais.",
+    "Referências criptográficas de wiring estão desatualizadas: a Bíblia declara `package.json` no SHA `33e0b91d1a6f1790124b700d2ce331f80d2b7095` e `.github/workflows/ci.yml` no SHA `ebee75820db9bfab618bf3c3016065c5bc857ed7`, enquanto os blobs atuais do branch são respectivamente `5b5c328f6139eeff920dc65a78014a6c5b6db3a6` e `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`. Os comandos relevantes ainda existem, mas a Bíblia apresenta esses SHAs como wiring observado atual; a evidência referencial precisa ser atualizada/revalidada."
+  ],
+  "completed_at_utc": "2026-10-01T20:23:29Z"
+}
