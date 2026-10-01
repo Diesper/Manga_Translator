@@ -2,8 +2,8 @@
   "index": 181,
   "file": "tests/unit/content-gemini/job-runner.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
   "started_at_utc": "2026-09-30T16:00:00Z",
   "completed_at_utc": null,
@@ -105,7 +105,7 @@
     "documented_positions": "758/758",
     "source_text_lines": 757,
     "bible_lines": 6189,
-    "external_audit_requests_open": 4,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -125,6 +125,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
       "reason": "A8-181-01: sincronizar lifecycle documental das quatro audit_requests."
+    },
+    {
+      "at_utc": "2026-10-01T18:50:14.016Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+      "bible_sha": "238c4980cb83a72a292d20459d36c66042d9fdc9",
+      "reason": "A8-181-01 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
