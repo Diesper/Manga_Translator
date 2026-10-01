@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: extension/background/actions/relay-progress.js
-BÍBLIA: docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 24e377893c7151ea0579964453bfc63ce0ed77f4
-CLAIMED_AT_UTC: 2026-10-01T19:59:43.619Z
-UPDATED_AT_UTC: 2026-10-01T19:59:43.619Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
