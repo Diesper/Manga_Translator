@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "index": 50,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 50",
+  "file": "extension/content/inject.js",
+  "bible": "docs/biblia/extension/content/inject.js/Bíblia.md",
+  "source_sha": "21f7f6cf9c940a6de6e4fd72d4bf7eeb88e7a27c",
+  "bible_sha": "ec907e77ddcee9521d4ae87878c2cdd006026975",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A50-050-001",
+      "severity": "BLOCKING",
+      "type": "SEMANTIC_CONTRADICTION",
+      "finding": "A Bíblia afirma que o cancelamento de requestIdleCallback funciona logicamente pela flag/map e estabelece como invariante que callbacks idle cancelados não executam. No source, cancelIdleCallback limpa apenas o timeout/map e chama origCancelIdle com o ID sintético; o callback passado a origIdle consulta somente a variável executed, que não é marcada true no cancelamento. Se o ID nativo divergir do sintético, o callback nativo pode executar depois do cancelamento.",
+      "evidence": "extension/content/inject.js: requestIdleCallback descarta o ID retornado por origIdle; callback nativo faz `if (executed) return; executed = true; ... cb(deadline)`; cancelIdleCallback faz `clearTimeout(...)`, `idleCallbacks.delete(id)` e `origCancelIdle(id)` sem alterar `executed`. Contraexemplo independente com synthetic=1/native=9001 executou a callback após cancelIdleCallback(1). Bíblia §4 diz `A correção lógica local funciona pela flag/map`; §12 invariante 4 diz `Callbacks rAF/idle cancelados não podem executar sua callback da extensão`."
+    },
+    {
+      "id": "A50-050-002",
+      "severity": "BLOCKING",
+      "type": "LINE_SEMANTICS_AND_EVIDENCE_MISMATCH",
+      "finding": "O mapeamento linha-a-linha troca prematuramente a unidade semântica de cancelIdleCallback para AudioContext nas linhas 0239–0241.",
+      "evidence": "A linha 0239 é `try { origCancelIdle(id); } catch (_e) {}`, a 0240 fecha o `if (origCancelIdle)` e a 0241 fecha `window.cancelIdleCallback`; porém a Bíblia atribui às linhas 0239–0241 evidência de gesto `isTrusted`/AudioContext e, na 0240, descreve explicitamente fechamento de `AudioContext silencioso após gesto confiável`. O bloco AudioContext só começa na fonte na linha 0243."
+    },
+    {
+      "id": "A50-050-003",
+      "severity": "BLOCKING",
+      "type": "SUMMARY_OVERSTATEMENT",
+      "finding": "A seção de ponte de prompt afirma que beforeinput, input e change são disparados `inclusive no wrapper rich-textarea`, mas o wrapper recebe somente `input` (além da atribuição de value).",
+      "evidence": "extension/content/inject.js envia beforeinput/input/change ao `target`; para `rta`, o código executa `rta.value = text` quando aplicável e apenas `rta.dispatchEvent(new Event('input', ...))`. A própria documentação linha-a-linha 0343–0355 mostra essa diferença, tornando o resumo semanticamente incompatível com o source e com a própria seção detalhada."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:14:54.254Z"
+}
