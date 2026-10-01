@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: scripts/validation/verify-coverage.js
+BÍBLIA: docs/biblia/scripts/validation/verify-coverage.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 45f920bd2db5ba3a1273438b1814b29aeafc3be4
+CLAIMED_AT_UTC: 2026-10-01T21:42:26.028Z
+UPDATED_AT_UTC: 2026-10-01T21:42:26.028Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
