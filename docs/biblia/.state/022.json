@@ -2,8 +2,8 @@
   "index": 22,
   "file": "extension/background/actions/request-image-data.js",
   "bible": "docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
   "started_at_utc": "2026-09-30T12:05:00Z",
   "completed_at_utc": null,
@@ -50,6 +50,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
       "reason": "022-REAUDIT-001: corrigir semântica da posição 023."
+    },
+    {
+      "at_utc": "2026-10-01T20:02:02.539Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+      "bible_sha": "82c8a928c7858aaee9e35e69a56440a68969123e",
+      "reason": "022-REAUDIT-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
