@@ -226,7 +226,7 @@
 | 201 | tests/unit/content-manga/drawer-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | eeebbd56fe1a1c788a81b43e222be06309b90f32 | 3 |
 | 202 | tests/unit/content-manga/extract-flow-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1bbc481d426bf7471eb655cf514e20d2b323902b | 3 |
 | 203 | tests/unit/content-manga/extraction-and-handlers-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 038961e8228c7b5f1a87023a739ad5f33288423b | 4 |
-| 204 | tests/unit/content-manga/floating-button-guard-and-single-click.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088 | 3 |
+| 204 | tests/unit/content-manga/floating-button-guard-and-single-click.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | a417ca15acc4d2b604a3a72cecad19e476ff4626 | 3 |
 | 205 | tests/unit/content-manga/get-clean-url.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | a04fe1e3552d5b61a91442496a1294e6d8379fbf | 3 |
 | 206 | tests/unit/content-manga/get-page-images-filter.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | d48888d1237e2429180c6c5814e8f5b5bcc83f12 | 4 |
 | 207 | tests/unit/content-manga/image-filtering.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | a187a4c6e681457067746964c7c714c64542e4a8 | 1 |
