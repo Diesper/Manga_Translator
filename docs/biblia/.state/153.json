@@ -2,8 +2,8 @@
   "index": 153,
   "file": "tests/unit/background/jobs-watchdog-ordering.test.js",
   "bible": "docs/biblia/tests/unit/background/jobs-watchdog-ordering.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 15",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
   "started_at_utc": "2026-09-30T06:44:00Z",
   "completed_at_utc": null,
@@ -40,7 +40,6 @@
       ]
     }
   ],
-  "last_update_utc": "2026-10-01T01:08:06Z",
   "takeover_history": [
     {
       "from_agent": "AGENTE 22",
@@ -51,7 +50,7 @@
     }
   ],
   "reopened_reason": "Continuidade explícita do plano da solicitação 153-001 após takeover autorizado pelo usuário.",
-  "progress_note": "Takeover concluído por AGENTE 15; 153-001 revalidada e plano detalhado registrado na Bíblia. Nenhum objeto externo foi alterado para fabricar evidência.",
+  "progress_note": "Correção documental de rastreabilidade concluída; aguardando nova auditoria independente. Nenhum código/teste funcional foi alterado.",
   "execution_evidence": [
     {
       "executed_at_utc": "2026-10-01T01:08:06Z",
@@ -66,6 +65,18 @@
       "test_summary": "851 passed / 851 total",
       "classification": "PROVADO_DIRETAMENTE_POR_EXECUCAO",
       "limitation": "Esta execução cobre o caminho de sucesso existente. Não cobre finalizeJob rejeitando; 153-001 permanece aberta."
+    }
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T01:44:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T01:44:00Z",
+      "type": "AUTHOR_REVIEW_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "reason": "Rastreabilidade das posições 060–087 corrigida conforme auditoria independente; 153-001 permanece ACCEPTED como melhoria funcional/testável externa e não bloqueia automaticamente a documentação."
     }
   ]
 }
