@@ -51,7 +51,7 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 
 | Contrato | Evidência existente | Classificação | Limite |
 |---|---|---|---|
-| caminhos obrigatórios/legados | verificações `exists`, `requirePresent`, `requireAbsent` | PROVA_DIRETA para o gate estático | não prova comportamento runtime dos módulos |
+| caminhos obrigatórios/legados | verificações `exists`, `requirePresent`, `requireAbsent` | 🟦 GATE ESTÁTICO — prova existência/ausência textual do path | `requirePresent` usa `fs.existsSync` e **não prova se o path é arquivo ou diretório** |
 | wiring Manifest/background/páginas | comparação literal/estrutural neste script | GATE_ESTATICO | strings corretas não provam fluxo completo em browser |
 | coordenação das Bíblias | `validateBibleCoordination` + self-test dedicado | PROVA_DIRETA do validador documental | qualidade semântica de cada Bíblia ainda exige auditoria independente |
 | portabilidade de paths dos testes | scan `process.cwd()`/finder duplicado + job Windows | GATE_ESTATICO + EXECUCAO_INDIRETA | Windows job prova o conjunto executado, não todo comportamento do SO |
@@ -59,7 +59,15 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 
 ## 6. Lacunas e solicitações ao auditor
 
-Esta Bíblia documenta o gate estrutural; ela não promove a presença de um marker a prova funcional do software. O auditor deve conferir especialmente:
+Esta Bíblia documenta o gate estrutural; ela não promove a presença de um marker a prova funcional do software.
+
+### Limites explicitamente triados
+
+- **089-005 — ACCEPTED:** `exists()`/`requirePresent()` usam apenas `fs.existsSync`. Portanto o detector prova que o path existe, mas não distingue arquivo de diretório; listas que misturam ambos não recebem prova de tipo.
+- **089-003 — ACCEPTED:** não existe self-test focal que execute `verify-repository-structure.js` contra uma árvore temporária deliberadamente mutada para exercer cada detector negativo. O checkout/CI verde prova o snapshot corrente, não cada branch negativo isoladamente.
+- `verify-ci-contract-selftest.js` exercita o CI contract; copiar/citar este verifier ali não equivale a executar um self-test focal de `verify-repository-structure.js`.
+
+Essas lacunas são de força de evidência/teste e não autorizam classificar a mera existência como prova de tipo ou a CI verde como prova exaustiva de todos os detectores. O auditor deve conferir especialmente:
 
 - falsos positivos de regex/scan em caminhos legados;
 - se a lista de arquivos proibidos continua alinhada à arquitetura real;
