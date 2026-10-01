@@ -20,6 +20,7 @@ const ROOT = findRepoRoot(__dirname);
 
 
 const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
+const EXTENSION_STACK_ROOT = path.join(ROOT, 'extension').replace(/\\/g, '/');
 
 const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
 const RUNTIME_LISTENER_REGISTRY_KEY = '__manga_translator_harness_runtime_listeners';
@@ -102,6 +103,11 @@ function removeGlobalEventListeners(listeners) {
     });
 }
 
+function isExtensionListenerRegistration() {
+    const stack = String(new Error().stack || '').replace(/\\/g, '/');
+    return stack.includes(`${EXTENSION_STACK_ROOT}/`);
+}
+
 function startGlobalEventListenerCapture() {
     const captured = [];
     const targets = [window, document];
@@ -115,7 +121,9 @@ function startGlobalEventListenerCapture() {
 
     originals.forEach(({ target, addEventListener }) => {
         target.addEventListener = function trackedAddEventListener(type, listener, options) {
-            captured.push({ target, type, listener, options });
+            if (isExtensionListenerRegistration()) {
+                captured.push({ target, type, listener, options });
+            }
             return addEventListener.call(this, type, listener, options);
         };
     });
