@@ -291,6 +291,45 @@ describe('load-content-script helper selftest', () => {
       sendMessage: expect.any(Function),
     }));
   });
+  test('erro em removeListener não impede cleanup dos demais subsistemas', async () => {
+    await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
+
+    const originalStorageRemove = global.chrome.storage.onChanged.removeListener;
+    let throwOnce = true;
+    const storageRemoveSpy = jest.spyOn(global.chrome.storage.onChanged, 'removeListener')
+      .mockImplementation((listener) => {
+        originalStorageRemove(listener);
+        if (throwOnce) {
+          throwOnce = false;
+          throw new Error('storage-remove-boom');
+        }
+      });
+    const runtimeRemoveSpy = jest.spyOn(global.chrome.runtime.onMessage, 'removeListener');
+    const documentRemoveSpy = jest.spyOn(document, 'removeEventListener');
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).rejects.toThrow('storage-remove-boom');
+
+    expect(storageMock._listeners).toHaveLength(0);
+    expect(runtimeMock._messageListeners).toHaveLength(0);
+    expect(globalThis.__manga_translator_harness_global_event_listeners).toEqual([]);
+    expect(runtimeRemoveSpy).toHaveBeenCalled();
+    expect(documentRemoveSpy).toHaveBeenCalled();
+
+    storageRemoveSpy.mockRestore();
+    runtimeRemoveSpy.mockRestore();
+    documentRemoveSpy.mockRestore();
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).resolves.toEqual(expect.objectContaining({
+      sendMessage: expect.any(Function),
+    }));
+  });
+
   test('falha parcial de bundle faz teardown e remove listeners registrados antes do erro', async () => {
     let pagehideCount = 0;
     window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
