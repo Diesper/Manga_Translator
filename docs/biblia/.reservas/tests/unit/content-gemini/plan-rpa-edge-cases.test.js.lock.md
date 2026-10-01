@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/content-gemini/plan-rpa-edge-cases.test.js
+BÍBLIA: docs/biblia/tests/unit/content-gemini/plan-rpa-edge-cases.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 81e21c6e245ec8f75c68db163170266c40561a6c
+CLAIMED_AT_UTC: 2026-10-01T19:29:59.845Z
+UPDATED_AT_UTC: 2026-10-01T19:29:59.845Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
