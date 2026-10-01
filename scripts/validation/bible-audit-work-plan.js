@@ -121,6 +121,7 @@ function planAuditWork({
       file: state.file,
       bible: state.bible,
       source_sha: state.source_sha,
+      bible_sha: pipeline?.bible_sha || null,
       lease_recovery_required: recoverable.has(state.index),
     });
   }
@@ -214,6 +215,8 @@ function main(argv = process.argv.slice(2)) {
       + ' shard=' + item.shard
       + ' phase=' + item.phase
       + ' status=' + item.status
+      + ' source_sha=' + item.source_sha
+      + ' bible_sha=' + (item.bible_sha || '-')
       + ' file=' + item.file
     );
   }
