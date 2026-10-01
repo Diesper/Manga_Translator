@@ -3,7 +3,7 @@
   "file": "scripts/ci/playwright-gate-reporter.js",
   "bible": "docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 9",
+  "agent": null,
   "source_sha": "71fb92c1215a86cdb309f4599ea8d0b422e9b02e",
   "started_at_utc": "2026-09-30T03:30:21Z",
   "completed_at_utc": "2026-09-30T05:09:12Z",
@@ -63,5 +63,10 @@
       "audit_finding": "ACCEPTED. O reporter assume `test.id` estável/único e converte `result.retry` via `Number(result.retry || 0)` sem validar NaN; não há cenário com ids intercalados/retry malformado/status desconhecido. O contrato atual funciona com Playwright normal, mas os pressupostos não estão protegidos.",
       "auditor_recommended_action": "Decidir/documentar os pressupostos aceitos e adicionar casos de robustez para ids intercalados, retry inválido e status inesperado."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

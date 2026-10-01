@@ -2,11 +2,11 @@
   "index": 78,
   "file": "scripts/release/sync-version.js",
   "bible": "docs/biblia/scripts/release/sync-version.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 12",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9bc8fa5ae3fb127698e6f35988fd6efab7e56c07",
   "started_at_utc": "2026-09-30T15:34:00Z",
-  "completed_at_utc": "2026-09-30T15:34:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "078-001",
@@ -78,5 +78,10 @@
     "external_audit_requests_open": 3,
     "revalidated_by": "AGENTE 12",
     "note": "Revalidated against the live branch. Global aggregate files were intentionally not modified because they are outside AGENTE 12's write scope in this execution."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

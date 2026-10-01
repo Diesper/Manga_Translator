@@ -3,7 +3,7 @@
   "file": "scripts/ci/run-jest-ci.js",
   "bible": "docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 5",
+  "agent": null,
   "source_sha": "6d2e36a647aadeadb2b875c1b3f92df24cd2f494",
   "started_at_utc": "2026-09-30T03:41:34.047Z",
   "completed_at_utc": "2026-09-30T04:52:00Z",
@@ -89,5 +89,10 @@
     "bible_lines": 3538,
     "external_audit_requests_open": 4,
     "note": "Conclusão documental; solicitações externas permanecem OPEN e não foram usadas como prova."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

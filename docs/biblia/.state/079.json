@@ -3,7 +3,7 @@
   "file": "scripts/validation/check-js-syntax.js",
   "bible": "docs/biblia/scripts/validation/check-js-syntax.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 1",
+  "agent": null,
   "source_sha": "fbc69cf9f910c3666ef390828b1793098b3bfe06",
   "started_at_utc": "2026-09-30T06:06:26.401Z",
   "completed_at_utc": "2026-09-30T06:14:09.169Z",
@@ -58,5 +58,10 @@
     "external_audit_requests_open": 2,
     "evidence_run": 36577447500,
     "evidence_job": 109437162703
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

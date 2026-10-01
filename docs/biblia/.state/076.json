@@ -3,7 +3,7 @@
   "file": "scripts/maintenance/diagnose-background-leak.js",
   "bible": "docs/biblia/scripts/maintenance/diagnose-background-leak.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 1",
+  "agent": null,
   "source_sha": "6b5a15d0d255d0285cfabc05f3412b81ffb3d3d4",
   "started_at_utc": "2026-09-30T03:49:00Z",
   "completed_at_utc": "2026-09-30T05:23:24Z",
@@ -98,5 +98,10 @@
       "audit_finding": "ACCEPTED. Erros de seed desconhecido, ausência de testes e workers inválidos chamam `process.exit` antes da gravação de `background-leak-diagnostic.json`. O workflow usa upload `if: always()` para esse JSON/diretório, mas `continue-on-error` apenas evita falha do upload; não cria o summary ausente.",
       "auditor_recommended_action": "Definir contrato de artifact em falhas de entrada. Se summary for obrigatório, gravá-lo antes dos exits e adicionar assertions."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

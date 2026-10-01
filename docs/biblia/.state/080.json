@@ -3,7 +3,7 @@
   "file": "scripts/validation/playwright-gate-reporter-selftest.js",
   "bible": "docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 2",
+  "agent": null,
   "source_sha": "478d6673dbb6d751e19f185feaed78764ebe6fde",
   "started_at_utc": "2026-09-30T06:06:46.460Z",
   "completed_at_utc": "2026-09-30T06:16:06.471Z",
@@ -60,5 +60,10 @@
     "bible_lines": 1403,
     "external_audit_requests_open": 2,
     "note": "Conclusão documental; nenhuma alteração foi feita em código, testes, fixtures, workflows ou outros artefatos externos."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
