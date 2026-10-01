@@ -1141,3 +1141,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #095 / SHA `1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4`**.
 
+### `verify-repository-structure.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #089 — `scripts/validation/verify-repository-structure.js`.
+- **Auditor:** AGENTE 3.
+- **SHA auditado:** `04d0337a168e14994bd855a455f11dd61fcabcb6`.
+- **Integridade:** source/state/Bíblia/claim coincidem no mesmo SHA; fonte integral exata; 379 linhas textuais + LF final = **380/380 posições**; união das faixas 1–380 sem gaps, overlaps ou posições fora do source.
+- **Falha documental 1 — semântica de exceções:** a Bíblia afirma que o gate “acumula problemas em vez de falhar no primeiro erro” e que ao final “imprime todos os problemas e sai 1”. Isso não é universalmente verdadeiro: há `fs.readdirSync`, `fs.readFileSync` e `JSON.parse` sem `try/catch` no caminho principal (por exemplo, Manifest na linha 144 e package.json na linha 343). I/O/JSON inválido pode lançar antes do epílogo 371–379, sem acumular/imprimir a lista completa.
+- **Falha documental 2 — faixa semanticamente incorreta:** a faixa “Posições 346–363 — portabilidade dos testes” atribui 346–350 ao scan de testes, mas essas posições ainda são a continuação do loop de scripts npm iniciado em 343–345. O scan de JavaScript de testes começa em 352. A cobertura matemática é integral, porém o mapeamento semântico da faixa não é fiel.
+- **Falha documental 3 — consumer relevante omitido:** `scripts/validation/verify-ci-contract.js` lê diretamente `verify-repository-structure.js` e exige os marcadores `legacyReferenceMarkers` e `referência operacional legada`. Esse consumer não aparece na seção “Dependências, consumidores e wiring”.
+- **Assertions/evidência revalidadas:** `verify-bible-coordination-selftest.js` executa a implementação real de `validateBibleCoordination` em sandboxes e prova states, locks, audit claims, SHA, fonte integral, coverage e projeções. Isso sustenta a classificação do módulo de coordenação, mas não corrige as três falhas documentais acima.
+- **Audit requests:** 089-001 e 089-002 foram **RESOLVED** pela delegação atual a `bible-coordination.js` e self-test dedicado; 089-004 foi **SUPERSEDED** porque o parser/checagem exata de `ESTADO: ATIVA` que originava o falso negativo não existe mais no verifier atual. 089-003 (ausência de self-test focal do verifier completo) e 089-005 (presença sem validação de tipo file/dir) permanecem **ACCEPTED** e não são, por si sós, o motivo da reprovação documental.
+- **Execução real correlata:** run #3461 chegou a executar o gate; falhou por um claim residual alheio em #095 (`audit claim exige READY_FOR_AUDIT: #95/COMPLETED`). Essa falha global não foi usada como prova contra #089.
+- **Passagens:** 0–15 executadas; releitura final preservou o mesmo source SHA e os três findings materiais sobreviveram à tentativa formal de refutação e à segunda auditoria da própria conclusão.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
