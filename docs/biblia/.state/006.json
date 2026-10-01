@@ -2,8 +2,8 @@
   "index": 6,
   "file": "extension/background/actions/commit-result.js",
   "bible": "docs/biblia/extension/background/actions/commit-result.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
   "started_at_utc": "2026-09-30T13:16:00Z",
   "completed_at_utc": null,
@@ -71,6 +71,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
       "reason": "006 REAUDIT final CHANGES_REQUIRED: realinhar U06–U09 e coluna Unidade 107/107."
+    },
+    {
+      "at_utc": "2026-10-01T19:37:06.126Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+      "bible_sha": "16b60b3d6aab119960bc84324e657d9f033cf845",
+      "reason": "006-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
