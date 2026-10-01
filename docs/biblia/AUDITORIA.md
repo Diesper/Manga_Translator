@@ -1380,3 +1380,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto os dois claims semânticos acima permanecerem.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### Auditoria independente — #135 — AGENTE 16 — 2026-10-01
+
+- **Índice:** #135 — `tests/unit/background/claim-gemini-job-action.test.js`.
+- **Auditor:** AGENTE 16.
+- **SHA auditado:** `0cb6cb2f100d7493abfdf4038546e8be747289f1`.
+- **Integridade criptográfica:** source real, `.state/135.json`, audit claim e SHA declarado na Bíblia coincidem no mesmo blob.
+- **Fonte integral/cobertura:** a tabela documental reconstrói exatamente as 201 linhas textuais do source e a posição 202 correspondente ao newline final; 202/202 posições, sem gaps, duplicatas, posições fora do arquivo ou divergência textual.
+- **Semântica/assertions:** a suíte carrega router, state, action `claim-gemini-job` e `tab-identity` reais. As assertions de claim direto, minimização do payload, jobId divergente, origem não-Gemini e migração 100→200 foram relidas e correspondem ao comportamento exercitado. O storage/Chrome permanece mockado, conforme reconhecido pela Bíblia.
+- **Consumers/dependências:** `content_gemini.js` envia `CLAIM_GEMINI_JOB`; o router mapeia a action; `jobs-lifecycle.js` persiste job/index antes da chegada do claim. O wiring Jest inclui a suíte no projeto background e `run-jest-ci.js` inclui esse projeto no inventário.
+- **Audit requests:** 135-001 permanece materialmente válida e está `ACCEPTED`; 135-002 foi corretamente `SUPERSEDED` por 005-002 no state canônico. As lacunas de teste não bloqueiam por si só a fidelidade documental.
+- **Falha documental bloqueante 1 — classificação de evidência:** a tabela da Bíblia classifica “CI está configurada para executar inventário Jest” como `EXECUTADO INDIRETAMENTE` citando apenas `package.json#test:ci` + workflow. A própria seção seguinte declara que essa evidência prova somente wiring estático e que nenhuma execução nova é reivindicada. Configuração estática não deve ser promovida a execução indireta sem referência separada a um run concreto.
+- **Falha documental bloqueante 2 — lifecycle stale de requests:** a Bíblia rotula 135-001 e 135-002 como `OPEN`, enquanto o state canônico registra respectivamente `ACCEPTED` e `SUPERSEDED` por 005-002. O conteúdo técnico das lacunas é válido, mas o lifecycle documental está incorreto.
+- **Teste adversarial mental:** uma regressão no branch de ownership canônico pode passar pela suíte atual, e a Bíblia reconhece essa lacuna; isso não é blocker adicional. Já as duas inconsistências acima permanecem documentais mesmo que todos os testes estejam verdes.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica principal=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; evidence classification=CONTRADITO; audit requests=CONTRADITO quanto ao lifecycle; histórico/state=CONFIRMADO_3X; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
