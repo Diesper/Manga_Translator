@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -29,6 +30,27 @@ function fileBlobSha(file) {
   return gitBlobShaBuffer(fs.readFileSync(file));
 }
 
+function gitWorkingTreeBlobSha(root, relativePath) {
+  if (!root || !relativePath) return null;
+  const absolute = path.join(root, relativePath);
+  if (!fs.existsSync(absolute)) return null;
+  try {
+    // hash-object + --path aplica os clean filters/atributos do Git.
+    // Isso produz o blob canônico mesmo quando checkout no Windows
+    // materializa CRLF no working tree, e ainda detecta conteúdo editado
+    // antes do commit.
+    const output = childProcess.execFileSync(
+      'git',
+      ['hash-object', '--path=' + slash(relativePath), absolute],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    return /^[0-9a-f]{40}$/i.test(output) ? output.toLowerCase() : null;
+  } catch (_error) {
+    // Fixtures/self-tests fora de um repositório Git continuam suportados.
+    return fileBlobSha(absolute);
+  }
+}
+
 function loadBibleBaseline(root) {
   const absolute = path.join(root, BASELINE_RELATIVE);
   if (!fs.existsSync(absolute)) return null;
@@ -40,9 +62,10 @@ function loadBibleBaseline(root) {
 }
 
 function currentBibleSha(root, state) {
-  // Em validação real, o filesystem é a autoridade. Um campo mutável do
-  // state nunca pode mascarar uma edição da Bíblia.
-  if (root && state?.bible) return fileBlobSha(path.join(root, state.bible));
+  // Em validação real, o conteúdo da Bíblia é a autoridade. O hash deve ser
+  // calculado como Git o versionaria, não a partir dos bytes EOL-específicos
+  // do working tree (CRLF no Windows vs LF no POSIX).
+  if (root && state?.bible) return gitWorkingTreeBlobSha(root, state.bible);
   if (state && /^[0-9a-f]{40}$/i.test(state.bible_sha || '')) return state.bible_sha;
   return null;
 }
@@ -348,6 +371,7 @@ module.exports = {
   walk,
   gitBlobShaBuffer,
   fileBlobSha,
+  gitWorkingTreeBlobSha,
   loadBibleBaseline,
   currentBibleSha,
   baselineEntryFor,
