@@ -11,7 +11,7 @@
 
 Este script é o gate estrutural geral do repositório. Ele valida layout canônico, ausência de caminhos legados, wiring Manifest/HTML/JS, centralização npm/Jest/Playwright e portabilidade dos testes. Para o corpus das 233 Bíblias, ele delega **o contrato estrutural/documental que pertence ao structure gate** a `scripts/validation/bible-coordination.js`; o protocolo distribuído de auditoria e seus leases v2 são um gate complementar separado.
 
-A mudança principal deste recovery é deliberada: o script deixou de inferir lifecycle documental a partir de `STATUS.md`/`CHECKLIST.md`. Esses arquivos são projeções derivadas. A validação canônica agora entra pela chamada `validateBibleCoordination(...)`.
+A mudança principal deste recovery é deliberada: o script deixou de inferir lifecycle documental a partir de `STATUS.md`/`CHECKLIST.md`. Esses arquivos são projeções derivadas. A validação **estrutural/documental pertencente a este gate** agora entra pela chamada `validateBibleCoordination(...)`; o protocolo distribuído completo permanece separado.
 
 ## 2. Dependências, consumidores e wiring
 
@@ -28,7 +28,7 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 
 1. Inicializa `root` e acumula em `problems` as violações tratadas explicitamente pelas regras do gate. Isso **não** significa fail-safe universal: leituras/parses síncronos sem `try/catch` (`readdirSync`, `readFileSync`, `JSON.parse`) podem lançar antes do epílogo.
 2. Confirma presença de artefatos canônicos e forma de `docs/`.
-3. Delega o subsistema de Bíblias ao validador especializado.
+3. Delega o contrato estrutural/documental das Bíblias pertencente a este gate ao validador especializado.
 4. Rejeita caminhos/arquivos legados da reestruturação.
 5. Confere wiring do Manifest e imports/requires canônicos do background.
 6. Confere scripts das páginas popup/options/reader e layout da raiz `extension/`.
@@ -53,7 +53,7 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 
 | Contrato | Evidência existente | Classificação | Limite |
 |---|---|---|---|
-| caminhos obrigatórios/legados | verificações `exists`, `requirePresent`, `requireAbsent` | 🟦 GATE ESTÁTICO — prova existência/ausência textual do path | `requirePresent` usa `fs.existsSync` e **não prova se o path é arquivo ou diretório** |
+| caminhos obrigatórios/legados | `requirePresent` tipado + `requireAbsent` + self-test de mutação | PROVA_DIRETA estrutural de existência/tipo/ausência | tipo e existência não provam conteúdo/semântica do arquivo |
 | wiring Manifest/background/páginas | comparação literal/estrutural neste script | GATE_ESTATICO | strings corretas não provam fluxo completo em browser |
 | coordenação estrutural das Bíblias | `validateBibleCoordination` + self-tests de coordenação | PROVA_DIRETA do contrato coberto pelo structure gate | não cobre `audit-leases/` v2; esse contrato pertence a `audit-protocol.js`/final readiness |
 | detectores negativos do structure gate | `verify-repository-structure-selftest.js` executando o verifier real em sandbox + workflow dedicado | PROVA_DIRETA de regressão para presença/tipo/docs/legados/Manifest/layout/configs/CI/npm/paths/lifecycle | não substitui auditoria semântica de requisitos novos que ainda não tenham detector |
