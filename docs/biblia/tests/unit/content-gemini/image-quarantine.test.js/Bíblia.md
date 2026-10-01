@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/image-quarantine.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `b2c73b79c8824e5507e436a75ec9abc663919c6b`  
 > **Agente responsável:** AGENTE 17  
 > **Tipo:** suíte Jest/JSDOM do módulo real de quarentena de imagens Gemini  
@@ -111,7 +111,7 @@ URL HTTP comum passada para `computeExactHash` rejeita com erro de Data URL de i
 
 ## 5. Solicitações ao auditor
 
-### 180-001 — TEST_REQUIRED — OPEN
+### 180-001 — TEST_REQUIRED — SUPERSEDED → 044-001
 
 A suíte força `cryptoImpl:null`, portanto não prova o caminho Web Crypto usado normalmente no navegador.
 
@@ -119,7 +119,7 @@ A suíte força `cryptoImpl:null`, portanto não prova o caminho Web Crypto usad
 
 **Severidade:** HIGH.
 
-### 180-002 — TEST_STRENGTH_REVIEW — OPEN
+### 180-002 — TEST_STRENGTH_REVIEW — SUPERSEDED → 044-001
 
 QUA-01 prova consistência do fallback, mas não correção matemática. Uma implementação hash determinística porém errada ainda poderia satisfazer “bytes iguais → hash igual” e regex 64-hex.
 
@@ -127,7 +127,7 @@ QUA-01 prova consistência do fallback, mas não correção matemática. Uma imp
 
 **Severidade:** HIGH.
 
-### 180-003 — TEST_REQUIRED — OPEN
+### 180-003 — TEST_REQUIRED — SUPERSEDED → 044-003
 
 Faltam branches de compatibilidade/erro:
 - Data URL não-base64 e UTF-8;
@@ -295,11 +295,16 @@ describe('gemini/image-quarantine.js', () => {
 | 48–62 | QUA-02 |
 | 63–76 | QUA-03 |
 | 77–92 | QUA-04 |
-| 93–107 | QUA-05 |
-| 108–122 | QUA-06 |
-| 123–134 | QUA-07 |
-| 135–139 | QUA-08 |
-| posição final | newline final |
+| 93 | transição estrutural |
+| 94–105 | QUA-05 |
+| 106 | transição estrutural |
+| 107–118 | QUA-06 |
+| 119 | transição estrutural |
+| 120–131 | QUA-07 |
+| 132 | transição estrutural |
+| 133–138 | QUA-08 |
+| 139 | fechamento do `describe` |
+| posição 140 | newline final |
 
 ## 8. Autoauditoria do AGENTE 17
 
@@ -313,3 +318,5 @@ describe('gemini/image-quarantine.js', () => {
 - [x] três solicitações registradas.
 
 **Resultado:** excelente cobertura do contrato funcional principal, mas ainda falta provar o caminho criptográfico de produção e a correção matemática do fallback.
+
+> **Lifecycle pós-adversarial:** 180-001 e 180-002 estão SUPERSEDED por `044-001`; 180-003 está SUPERSEDED por `044-003`. O mapa QUA-05..08 agora segue as fronteiras reais dos testes sem atravessar declarações vizinhas.
