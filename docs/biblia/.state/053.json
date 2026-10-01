@@ -2,8 +2,8 @@
   "index": 53,
   "file": "extension/popup/popup.html",
   "bible": "docs/biblia/extension/popup/popup.html/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -36,6 +36,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
       "reason": "053-REA-001..003: CSS linha 7, identidade de 9 IDs e consumers/gate omitidos."
+    },
+    {
+      "at_utc": "2026-10-01T21:49:22.210Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
+      "bible_sha": "e806e586a220ad415ce7088cd578e5942084ea31",
+      "reason": "053-REA-001..003 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "recovery": {
