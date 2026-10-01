@@ -52,6 +52,19 @@ assert('APPROVED usa timestamp determinístico', projected.state.completed_at_ut
 const second = projectState(projected.state, approved);
 assert('projeção de state é idempotente', second.changed === false);
 
+let guarded = projectState({ ...base, status: 'BLOCKED' }, approved);
+assert('APPROVED não sobrescreve BLOCKED', guarded.blocker && guarded.state.status === 'BLOCKED');
+
+guarded = projectState({ ...base, coordination_status: 'REPAIR_REQUIRED' }, approved);
+assert('APPROVED não mascara REPAIR_REQUIRED', guarded.blocker && guarded.state.coordination_status === 'REPAIR_REQUIRED');
+
+guarded = projectState({
+  ...base,
+  status: 'READY_FOR_AUDIT',
+  audit_requests: [{ id: '001-001', status: 'OPEN' }],
+}, approved);
+assert('APPROVED não fecha item com request OPEN', guarded.blocker && guarded.state.status === 'READY_FOR_AUDIT');
+
 const section = '<!-- DISTRIBUTED_AUDIT_PROJECTION:BEGIN -->\nnew\n<!-- DISTRIBUTED_AUDIT_PROJECTION:END -->';
 const once = replaceProjectionSection('# Auditoria\n', section);
 const twice = replaceProjectionSection(once, section);
