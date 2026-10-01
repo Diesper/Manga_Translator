@@ -2,8 +2,8 @@
   "index": 94,
   "file": "tests/e2e/translation-flow.spec.js",
   "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
   "started_at_utc": "2026-09-30T06:16:55.086Z",
   "completed_at_utc": null,
@@ -54,7 +54,7 @@
     "documented_positions": "905/905",
     "source_text_lines": 904,
     "bible_lines": 15815,
-    "external_audit_requests_open": 2,
+    "external_audit_requests_open": 0,
     "note": "Conclusão documental; fonte, testes, fixtures, workflows e configurações externos permaneceram read-only.",
     "evidence_run": 36577447500,
     "evidence_jobs": [
@@ -68,7 +68,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:47:17.156Z",
+  "updated_at_utc": "2026-10-01T21:47:49.674Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:33:48Z",
@@ -86,6 +86,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
       "reason": "094-REA-V2-001..003: escopo FIFO, wiring Playwright/package e lifecycle."
+    },
+    {
+      "at_utc": "2026-10-01T21:47:49.674Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
+      "bible_sha": "e0b8f7ed32df50e5dbf4a1d53cc1d399acc4a69b",
+      "reason": "094-REA-V2-001..003 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
