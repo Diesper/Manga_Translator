@@ -87,7 +87,7 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
   );
 
   for (const line of scope.split(/\r?\n/)) {
-    const heading = /^#{3,5}\\s+(.+)$/.exec(line);
+    const heading = /^#{3,5}\s+(.+)$/.exec(line);
     if (!heading) continue;
     const range = rangeRe.exec(heading[1]);
     if (range) {
