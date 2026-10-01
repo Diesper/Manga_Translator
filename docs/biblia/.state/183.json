@@ -2,8 +2,8 @@
   "index": 183,
   "file": "tests/unit/content-gemini/observer.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/observer.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "0eff259f673c32e44c6d5ccf6f627c0c6d5505cc",
   "started_at_utc": "2026-09-30T16:25:00Z",
   "completed_at_utc": null,
@@ -79,7 +79,7 @@
     "documented_positions": "486/486",
     "source_text_lines": 485,
     "bible_lines": 3993,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -99,6 +99,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "0eff259f673c32e44c6d5ccf6f627c0c6d5505cc",
       "reason": "183-PRI/A8: sincronizar lifecycle e restringir claim de coalescing à cardinalidade realmente provada."
+    },
+    {
+      "at_utc": "2026-10-01T19:13:34.034Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "0eff259f673c32e44c6d5ccf6f627c0c6d5505cc",
+      "bible_sha": "2d0fffc83d41bfdbc89431ce3f2c9328c9d9a9b2",
+      "reason": "183-PRI/A8 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
