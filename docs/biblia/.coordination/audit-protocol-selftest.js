@@ -1,0 +1,86 @@
+'use strict';
+
+const { resolvePipeline } = require('./audit-protocol');
+
+function state() {
+  return {
+    index: 1,
+    file: 'fixture.js',
+    bible: 'docs/biblia/fixture.js/Bíblia.md',
+    source_sha: 'a'.repeat(40),
+    status: 'COMPLETED',
+  };
+}
+
+function record(phase, verdict, auditor, minute) {
+  return {
+    index: 1,
+    phase,
+    verdict,
+    auditor,
+    source_sha: 'a'.repeat(40),
+    completed_at_ms: Date.parse('2026-10-01T15:' + String(minute).padStart(2, '0') + ':00Z'),
+    path: phase + '-' + auditor + '.json',
+    legacy: false,
+  };
+}
+
+function assert(name, condition, detail) {
+  if (!condition) throw new Error(name + ': ' + detail);
+  process.stdout.write('PASS ' + name + '\n');
+}
+
+const legacy = new Map([[1, {
+  index: 1,
+  sourceSha: 'a'.repeat(40),
+  verdict: 'APPROVED',
+  legacy: true,
+}]]);
+
+let pipeline = resolvePipeline(state(), [], legacy);
+assert(
+  'aprovação legada vale somente como PRIMARY',
+  pipeline.decision === 'WAITING_ADVERSARIAL' && pipeline.next_phase === 'ADVERSARIAL',
+  JSON.stringify(pipeline)
+);
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'APPROVED', 'AUDITOR-2', 1),
+], new Map());
+assert('PRIMARY + ADVERSARIAL aprovam', pipeline.decision === 'APPROVED', JSON.stringify(pipeline));
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', 1),
+], new Map());
+assert('dupla reprovação exige correção', pipeline.decision === 'CHANGES_REQUIRED', JSON.stringify(pipeline));
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', 1),
+], new Map());
+assert(
+  'divergência exige REAUDIT',
+  pipeline.decision === 'REAUDIT_REQUIRED' && pipeline.next_phase === 'REAUDIT',
+  JSON.stringify(pipeline)
+);
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', 1),
+  record('REAUDIT', 'APPROVED', 'AUDITOR-3', 2),
+], new Map());
+assert('REAUDIT resolve divergência', pipeline.decision === 'APPROVED', JSON.stringify(pipeline));
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'APPROVED', 'AUDITOR-1', 1),
+], new Map());
+assert(
+  'PRIMARY e ADVERSARIAL exigem auditores independentes',
+  pipeline.problems.some((problem) => problem.includes('auditores diferentes')),
+  JSON.stringify(pipeline)
+);
+
+process.stdout.write('Distributed audit protocol self-test: SUCCESS\n');
