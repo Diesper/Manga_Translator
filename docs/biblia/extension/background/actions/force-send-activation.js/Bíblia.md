@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/force-send-activation.js`
 
-> **Estado:** ✅ CRIADO E AUDITADO  
+> **Estado:** 🟡 CORRIGIDO APÓS REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `cbeea5768301008e363a087a1daf636deabb9076`  
 > **Linhas textuais:** **70**  
 > **Posições documentais:** **71** contando newline final  
@@ -10,7 +10,17 @@
 
 A action implementa um mecanismo de ativação forçada do Gemini. Ela pode focar temporariamente uma janela dedicada minimizada ou ativar uma aba Gemini comum, envia `DO_SEND_NOW` ao content script e tenta devolver o foco ao mangá 250 ms depois.
 
-A busca do corpus atual encontra `FORCE_SEND_ACTIVATION` apenas no router, documentação e teste da própria action. **Não existe caller de produção atual no repositório.** Em contrapartida, `DO_SEND_NOW` continua implementado em `content_gemini.js`. Portanto este arquivo é funcional e testado, mas atualmente se comporta como caminho legado/reserva, não como etapa demonstrada do fluxo principal.
+A busca do corpus atual não identifica um **emissor/caller operacional atual** de `FORCE_SEND_ACTIVATION`. Isso não significa ausência de integração: a action é carregada e roteável no runtime de produção.
+
+### Cadeia de loading/dispatch
+
+- `extension/manifest.json` declara `extension/background.js` como service worker;
+- `extension/background.js` carrega `background/actions/force-send-activation.js` via `importScripts` no worker (e por `require` no harness Node), cria o router registrado e encaminha `chrome.runtime.onMessage` por `routeRegisteredAction`;
+- `extension/background/router.js` mapeia `FORCE_SEND_ACTIVATION` para o nome canônico `force-send-activation`;
+- `tests/unit/background/routed-actions-legacy.test.js` atravessa `background.js` e exige que `routerApi.getAction('force-send-activation')` esteja definido;
+- `content_gemini.js` continua implementando o receptor `DO_SEND_NOW`.
+
+Portanto: **loaded/registered/routable em produção = sim**; **caller/emissor operacional atual identificado = não**. A action permanece um caminho legado/reserva até surgir um producer real.
 
 ## Contrato síncrono versus efeitos assíncronos
 
@@ -25,7 +35,7 @@ Assim, **a resposta positiva não confirma que DO_SEND_NOW foi recebido nem que 
 Se o modo efetivo é `minimized_window` e há `windowId`:
 1. foca a janela Gemini;
 2. envia `DO_SEND_NOW`;
-3. espera 250 ms;
+3. o **source** agenda um timer literal de 250 ms; o teste avança o fake clock em 250 ms antes de verificar a restauração;
 4. minimiza novamente;
 5. procura a aba do mangá e foca sua janela atual.
 
@@ -36,7 +46,7 @@ O teste direto verifica essas chamadas.
 Se há `geminiTabId`:
 1. ativa a aba Gemini;
 2. envia `DO_SEND_NOW`;
-3. espera 250 ms;
+3. o **source** agenda um timer literal de 250 ms; o teste avança o fake clock em 250 ms antes de verificar a reativação;
 4. reativa `mangaTabId`, quando fornecido.
 
 O segundo teste direto verifica esse caminho.
@@ -54,7 +64,7 @@ A resposta desse handler é ignorada por esta action.
 
 | Fonte | Classificação | O que prova |
 |---|---|---|
-| `force-send-activation-action.test.js` | ✅ PROVADO DIRETAMENTE | Fluxo minimized_window, fluxo por aba, DO_SEND_NOW, restauração após 250 ms e resposta síncrona do router. |
+| `force-send-activation-action.test.js` | ✅ PROVADO DIRETAMENTE COM ESCOPO TEMPORAL | Fluxo minimized_window, fluxo por aba, DO_SEND_NOW e estado restaurado **depois de o fake clock avançar 250 ms**; o teste não prova a fronteira exata 249→250 ms. O literal `250` é prova do source. |
 | `content_gemini.js` | 🟨 DEPENDÊNCIA REAL | Semântica atual de DO_SEND_NOW; não prova que FORCE_SEND_ACTIVATION seja chamado. |
 | `job-runner.js` | 🟨 EVIDÊNCIA ARQUITETURAL | O submit principal atual usa `submitWithConfirmation`; o retry local declara não disparar DO_SEND_NOW. |
 | `routed-actions-legacy.test.js` | 🟨 GATE DE CARREGAMENTO | Mantém ações legadas carregáveis; não prova os branches deste arquivo. |
@@ -75,7 +85,7 @@ A resposta desse handler é ignorada por esta action.
 1. `executionMode` do request prevalece sobre storage; fallback final é `temp_chat`.
 2. O fluxo de janela minimizada exige `windowId`.
 3. `DO_SEND_NOW` só é enviado após callback da ativação/foco.
-4. A restauração ocorre depois de 250 ms.
+4. O source agenda a restauração com literal `250`; o teste confirma que ela já ocorreu após avançar o fake clock em 250 ms, mas não fixa a fronteira temporal exata.
 5. Erros assíncronos das APIs Chrome não alteram a resposta já enviada.
 6. Esta action não verifica o resultado lógico do submit.
 7. A documentação não deve tratar este caminho como usado em produção sem um caller real.
@@ -266,3 +276,5 @@ Posição editorial para equivalência física.
 - [x] nenhum código funcional alterado.
 
 **Veredito:** ✅ APROVADO para `cbeea5768301008e363a087a1daf636deabb9076`.
+
+> **Correção pós-REAUDIT:** 250 ms é literal diretamente observável no source; a suíte prova restauração até/depois do avanço de 250 ms, não a fronteira temporal exata. A action está carregada e roteável no service worker, embora nenhum producer atual de `FORCE_SEND_ACTIVATION` tenha sido identificado.
