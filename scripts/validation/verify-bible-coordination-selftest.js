@@ -197,7 +197,7 @@ expectFail('gap falha','gap de cobertura',(root)=>{
 });
 expectFail('overlap falha','overlap de cobertura',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
-  write(root,s.bible,v2Bible(s.file,s.source_sha,source,'### Posições 1–2\n\n### Posição 2'));
+  write(root,s.bible,v2Bible(s.file,s.source_sha,source,'## Mapa integral\n\n| Linhas | Papel |\n|---:|---|\n| 1–2 | base |\n| 2 | duplicada |'));
 });
 expectFail('range fora do fonte falha','faixa fora do fonte',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
