@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/mocks/chrome-api.mock.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `c1d9a056b7777183bfd3f540c49811335f410425`  
 > **Agente responsável:** AGENTE 18  
 > **Tipo:** infraestrutura Jest — mock stateful das APIs Chrome  
@@ -240,7 +240,7 @@ Isso é evidência de que a infraestrutura participa de fluxos verdes/vermelhos 
 
 ## 12. Solicitações ao auditor
 
-### 119-001 — TEST_REQUIRED — OPEN
+### 119-001 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** não existe uma suíte focal abrangente do `chrome-api.mock.js`; as provas diretas localizadas cobrem lifecycle de timers e replacement, enquanto a maioria das APIs é validada apenas indiretamente por testes da extensão.
 
@@ -264,7 +264,7 @@ Isso é evidência de que a infraestrutura participa de fluxos verdes/vermelhos 
 
 **Severidade:** ALTA.
 
-### 119-002 — ISOLATION_REVIEW — OPEN
+### 119-002 — ISOLATION_REVIEW — ACCEPTED
 
 **Encontrado:** o reset de `initChromeMocks` limpa dados de storage/tabs/alarms/downloads, mas não restaura todos os registries/counters do construtor. Permanecem, entre outros, `storageMock._listeners`, `tabsMock._messageHandlers`, registries `onRemoved/onUpdated/onReplaced`, `alarmsMock._listeners`, `tabsMock._nextTabId` e IDs de download. O runtime é preservado intencionalmente; downloads listeners, ao contrário, são explicitamente zerados por histórico de leak.
 
@@ -284,7 +284,7 @@ Isso é evidência de que a infraestrutura participa de fluxos verdes/vermelhos 
 
 **Severidade:** ALTA.
 
-### 119-003 — MOCK_FIDELITY_REVIEW — OPEN
+### 119-003 — MOCK_FIDELITY_REVIEW — ACCEPTED
 
 **Encontrado:** várias superfícies são intencionalmente simplificadas: `Tabs.query` só respeita `active`; Storage `remove/clear` não notificam o registry `onChanged`; `onInstalled.addListener` agenda install automaticamente; Downloads converte “delay” em microtasks; Port tem métodos majoritariamente stubs; APIs Chrome ausentes são injetadas ad hoc por algumas suítes.
 
@@ -1028,4 +1028,6 @@ O fato de um teste importar um getter prova dependência do fixture, mas não pr
 - [x] lacunas de teste, isolamento e fidelidade registradas como audit_requests;
 - [x] nenhum código/teste/fixture externo foi modificado.
 
-**Resultado:** documentação individual concluída para o blob `c1d9a056b7777183bfd3f540c49811335f410425`; as solicitações 119-001, 119-002 e 119-003 permanecem abertas para auditoria separada.
+**Resultado:** documentação individual corrigida para o blob `c1d9a056b7777183bfd3f540c49811335f410425`; 119-001, 119-002 e 119-003 estão ACCEPTED no state canônico como dívida externa não bloqueante.
+
+> **Lifecycle pós-REAUDIT:** 119-001/002/003 permanecem tecnicamente válidas como lacunas reconhecidas, mas já foram auditadas e estão ACCEPTED; não são requests OPEN.
