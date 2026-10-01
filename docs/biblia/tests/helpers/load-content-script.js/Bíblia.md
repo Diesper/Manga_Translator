@@ -1,116 +1,183 @@
 # Bíblia técnica — tests/helpers/load-content-script.js
 
-> **Estado documental:** reparo local concluído; decisão distribuída ainda pendente  
-> **SHA auditado:** `024a2a8f4ace4579f622a232dfb1d2a46505d807`  
+> **Estado documental:** reparo corretivo local concluído; decisão distribuída final ainda pendente  
+> **SHA auditado:** `48deaef8742e7629c46c8930128699c4443329ff`  
 > **Tipo:** helper de harness Jest/JSDOM para executar o bundle Manga real sob estado controlado  
-> **Linhas textuais:** **376**  
-> **Posições documentais:** **377**, contando o newline final  
-> **Tamanho textual observado:** **14915 caracteres**  
+> **Linhas textuais:** **429**  
+> **Posições documentais:** **430**, contando o LF final  
+> **Tamanho textual observado:** **17960 caracteres**  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
 
-`tests/helpers/load-content-script.js` prepara um ambiente JSDOM controlado e carrega os módulos reais do bundle Manga. Ele não substitui `content_manga.js` por mirror: o helper prepara storage/DOM/globals, reinjeta os módulos do Manifest e expõe utilitários para dirigir a implementação real.
+`tests/helpers/load-content-script.js` é o adaptador entre suites Jest/JSDOM e o bundle Manga real declarado no Manifest V3. Ele prepara ambiente, storage, DOM e globals; executa os módulos reais; controla ownership de recursos entre reinjeções; espera readiness do botão; e devolve utilitários de teste.
 
-O fluxo atual é deliberadamente defensivo:
+O helper **não** deve criar um mirror da lógica de `content_manga.js`. A fidelidade vem de carregar diretamente os módulos apontados por `extension/manifest.json` dentro de `jest.isolateModules()`.
 
-1. entrega `pagehide` à instância anterior ainda ativa para permitir teardown cooperativo;
-2. remove apenas listeners Chrome rastreados como pertencentes à carga anterior;
-3. invalida o token de ownership e remove UI stale;
-4. prepara `window.location`, storage e imagens de fixture;
-5. deriva a lista de módulos diretamente do `extension/manifest.json`;
-6. carrega o bundle real em `jest.isolateModules`; em falha parcial, executa teardown e remove listeners já adicionados;
-7. aguarda readiness do botão por até 250 ms quando ele deveria existir e rejeita com erro causal se não ficar pronto;
-8. retorna `sendMessage`, `getButton` e `getMainContent`.
+## 2. Contrato de entrada
 
-## 2. Contrato de entrada e saída
+A função `loadContentScript(options)` aceita:
 
-Entradas principais: `hostname`, `enabledDomains`, `bannedImages`, `imageMinWidth`, `imageMinHeight`, `floatingButtonEnabled`, `clickToTranslateEnabled`, `domImages` e `readyTimeoutMs`.
+- `hostname`: default `testmanga.com`;
+- `enabledDomains`: `null`/`undefined` vira `[hostname]`; `[]` explícito continua vazio;
+- `bannedImages`: lista semeada na chave `bannedImages_<hostname>`;
+- `imageMinWidth` / `imageMinHeight`: só são gravados se não forem `undefined`;
+- `floatingButtonEnabled` / `clickToTranslateEnabled`: `false` explícito é preservado;
+- `domImages`: descritores de imagens de fixture;
+- `readyTimeoutMs`: default 250 ms; valor inválido/negativo cai para 250 ms.
 
-`enabledDomains ?? [hostname]` preserva `[]` explícito. Preferências booleanas só são semeadas quando diferentes de `undefined`, preservando `false`. `readyTimeoutMs` default é 250 ms; valor não-numérico/negativo volta a 250 ms.
+## 3. Contrato de saída
 
-O JSDoc está alinhado ao retorno real: a Promise resolve para um objeto com `sendMessage(action, extra)`, `getButton()` e `getMainContent()`.
+O retorno é `Promise<Object>` com exatamente os helpers públicos usados pelos consumidores:
 
-## 3. Manifest e fidelidade do bundle
+- `sendMessage(action, extra = {})`;
+- `getButton()`;
+- `getMainContent()`.
 
-`getMangaContentScriptRelativePaths()` lê `extension/manifest.json`, procura o `content_scripts` que contém `content/content_manga.js` e devolve sua sequência `js`. A carga usa essa lista diretamente; não existe mais cópia manual dos seis paths no helper.
+O JSDoc do source atual descreve esse contrato e está imediatamente anexado à função `loadContentScript`. A regressão focal correspondente existe no self-test dedicado.
 
-O self-test dedicado compara a lista retornada com o Manifest atual. Isso elimina o drift que originou 102-003.
+## 4. Manifest como fonte canônica
 
-## 4. Lifecycle e ownership
+`getMangaContentScriptRelativePaths()` lê `extension/manifest.json`, localiza o `content_scripts` que contém `content/content_manga.js` e devolve a sequência `js` daquele entry. `getMangaContentScriptPaths()` converte os paths relativos em paths absolutos sob `extension/`.
 
-O helper usa registries persistidos em `globalThis` para sobreviver a `jest.resetModules()`. São rastreados separadamente listeners de `chrome.storage.onChanged` e `chrome.runtime.onMessage` adicionados pela carga do bundle.
+Isso elimina a antiga duplicação manual da ordem dos seis módulos: se o Manifest mudar, o harness acompanha a fonte canônica. O self-test compara explicitamente a lista retornada com o Manifest atual.
 
-`disposePreviousContentInstance()` dispara `pagehide` somente quando há uma instância content injetada. Esse evento permite que o próprio `content_manga.js` desconecte observers/timers/contextmenu que ele controla enquanto ainda é a instância ativa. Depois, `cleanupPreviousListeners()` remove do mock apenas listeners Chrome previamente rastreados pelo harness.
+## 5. Ownership e lifecycle entre reinjeções
 
-O helper não afirma remover todo listener anônimo de `window` criado pelo código de produção. Callbacks stale que permanecem registrados no ambiente precisam continuar sendo inertes pelos guards do próprio content script; a Bíblia não converte esse limite em alegação de cleanup universal.
+O helper mantém registries em `globalThis` para sobreviver a `jest.resetModules()`. São rastreados separadamente:
 
-Em falha parcial durante `require`, o `finally` calcula os listeners adicionados antes da exceção, dispara teardown cooperativo e remove esses listeners. Em timeout de readiness, o mesmo teardown ocorre antes de invalidar definitivamente o token e rejeitar.
+- listeners de `chrome.storage.onChanged`;
+- listeners de `chrome.runtime.onMessage`;
+- listeners globais de `window`/`document` adicionados pelo bundle durante o bootstrap.
 
-## 5. Fixture DOM
+Antes de uma nova carga, `disposePreviousContentInstance()` entrega um evento `pagehide` **somente ao handler rastreado do bundle anterior**, sem disparar `pagehide` globalmente para listeners externos do teste. Depois `cleanupPreviousListeners()` remove os listeners Chrome e globais pertencentes à carga anterior.
 
-As imagens são criadas por `document.createElement`/`setAttribute`, sem interpolação de `innerHTML`. Assim, valores de atributos controlados pelo teste permanecem dados e não viram markup acidental. Depois o helper define `naturalWidth`, `naturalHeight` e `complete` como propriedades configuráveis para reproduzir dimensões que JSDOM não calcula.
+Essa ordem preserva o teardown interno de `content_manga.js` — observers/timers/contextmenu próprios — e evita acumular closures stale entre reinjeções.
 
-## 6. Bootstrap e timeout
+## 6. Captura de listeners globais
 
-Quando `domains.includes(hostname)` e `floatingButtonEnabled !== false`, o helper aguarda `#manga-translator-trigger[data-position-ready=true]`. Se o limite termina sem readiness, a função rejeita com mensagem causal, executa teardown da instância e remove o botão parcial.
+`startGlobalEventListenerCapture()` intercepta temporariamente `window.addEventListener` e `document.addEventListener`. A captura permanece ativa até o bootstrap do botão terminar, cobrindo registros síncronos do IIFE e registros assíncronos feitos por callbacks de storage/createButton.
 
-Quando o botão não deveria existir, o helper não exige readiness visual.
+`stop()` restaura exatamente a forma anterior de `addEventListener`: se a propriedade era própria, restaura o descriptor; se vinha do prototype, remove a propriedade temporária. Listeners preexistentes não entram no registry da instância e portanto não são removidos na reinjeção seguinte.
 
-## 7. sendMessage
+## 7. Falha parcial e exceções
 
-`sendMessage` dirige diretamente `global.chrome.runtime._messageListeners`, simulando a entrega de uma mensagem ao content script.
+Há três caminhos de falha explícitos:
 
-- O payload é `{ ...extra, action }`; portanto `extra.action` não sobrescreve a ação explícita.
-- A primeira resolução/rejeição vence.
-- Se um listener responde sincronamente, nenhum fallback fica pendente.
-- Se pelo menos um listener retorna `true`, a janela de fallback é 500 ms; caso contrário, 50 ms.
-- O fallback é cancelado na primeira resposta/rejeição.
-- Throw antes de settlement rejeita; throw posterior a um settlement não o reverte.
+1. **erro durante carga do bundle**: para captura, identifica listeners adicionados, entrega `pagehide` à instância parcial, remove ownership e relança o erro original;
+2. **exceção durante bootstrap/polling**: o `finally` sempre restaura a instrumentação e coleta os recursos; depois o caminho de erro executa teardown e relança;
+3. **timeout de readiness**: se o botão deveria existir mas não chega a `positionReady=true`, executa teardown completo, invalida o token da instância, remove o botão parcial e lança erro causal.
 
-O helper não pretende implementar toda a API Chrome; 500 ms é um limite do harness para permitir respostas assíncronas sem introduzir Promise indefinida.
+Nenhum desses caminhos converte falha em warning nem deixa o helper retornar um contexto aparentemente pronto.
 
-## 8. Requests históricas da unidade
+## 8. DOM de fixture
 
-### 102-001 — RESOLVED
+As imagens são construídas com DOM API (`createElement`, `setAttribute`, `appendChild`) em vez de interpolação em `innerHTML`. Assim, valores de atributos controlados por testes permanecem valores de atributo e não viram markup adicional.
 
-O JSDoc agora descreve os três helpers reais.
+`naturalWidth`, `naturalHeight` e `complete` são definidos como propriedades configuráveis para modelar imagens carregadas em JSDOM.
 
-### 102-002 — RESOLVED
+## 9. Seed de storage e globals
 
-O fallback é armazenado/cancelado no settlement. O self-test cobre resposta imediata, resposta assíncrona com `return true`, ausência de resposta, throw e ausência de handles abertos.
+O storage é semeado antes do bundle ser carregado. Isso evita corrida em que o IIFE leia whitelist, banidas ou dimensões antes de a fixture estar pronta.
 
-### 102-003 — RESOLVED
+`crypto` e `TextEncoder` só são espelhados de `global` para `window` quando a referência global existe e a janela ainda não fornece a propriedade.
 
-A ordem do bundle é derivada do Manifest e existe comparação focal com `content_scripts[].js`.
+## 10. Readiness do botão
 
-### 102-004 — RESOLVED
+`shouldCreateButton` é verdadeiro quando o hostname está nos domínios habilitados e `floatingButtonEnabled !== false`. Quando verdadeiro, o helper aguarda até `#manga-translator-trigger` existir com `dataset.positionReady === 'true'`, limitado por `readyTimeoutMs`.
 
-Bootstrap incompleto rejeita com diagnóstico local e executa cleanup. O self-test força esse caminho.
+O default permaneceu 250 ms; a correção não mascarou instabilidade aumentando silenciosamente o timeout. O failure mode agora é explícito e causal.
 
-### 102-005 — RESOLVED
+## 11. sendMessage
 
-Listeners de storage adicionados pela carga são rastreados e removidos antes da reinjeção, inclusive através de `jest.resetModules`; o teste focal verifica contagem bounded e identidades novas. O hardening também aplica o mesmo ownership a `runtime.onMessage` e dispara `pagehide` antes da reinjeção.
+`sendMessage` entrega diretamente o payload aos listeners do mock `chrome.runtime._messageListeners`, simulando a chegada de uma mensagem ao content script.
 
-## 9. Evidência de teste
+Contratos atuais:
 
-- Self-test focal: `docs/biblia/.coordination/load-content-script-selftest.test.js` (SHA `3928d232a85e40601fd6984d06bdb180de5bcecd`).
-- O self-test cobre Manifest, fixture DOM, reinjeção de listeners storage/runtime, reload de módulo, falha parcial, teardown por `pagehide`, messaging síncrono/assíncrono, precedência de `action`, throw e timeout de bootstrap.
-- Workflow dedicado: `.github/workflows/load-content-script-selftest.yml` (SHA `9eb534298b30c7dd619ecbb2d51e044f972f50d6`).
-- O workflow executa o self-test com `--detectOpenHandles` e depois toda a suíte Jest `content-scripts`.
+- o parâmetro `action` explícito vence `extra.action` (`{ ...extra, action }`);
+- a primeira resolução/rejeição efetiva vence;
+- resposta síncrona cancela qualquer fallback;
+- listener que retorna `true` abre uma janela assíncrona bounded de 500 ms;
+- sem canal assíncrono, silêncio resolve `null` em 50 ms;
+- throws antes do settlement rejeitam; throws posteriores não alteram uma Promise já resolvida.
 
-## 10. Limites e riscos remanescentes
+A janela de 500 ms é uma aproximação deliberadamente bounded do canal assíncrono Chrome para evitar Promises pendentes indefinidamente no harness; não deve ser confundida com lifetime ilimitado do runtime real.
 
-- O harness depende de internals do mock (`_messageListeners`, `_listeners`); mudanças no mock exigem revalidação.
-- O shape de `window.location` continua parcial (`hostname`, `href`, `pathname`), suficiente para o código atual auditado.
-- A janela assíncrona de 500 ms é política de teste, não equivalência temporal ilimitada ao runtime Chromium.
-- O teardown cooperativo depende de `content_manga.js` manter seu contrato de `pagehide`; mudanças nesse contrato devem quebrar/atualizar o self-test.
-- Não há `.skip`, `.only`, `xit` ou `xdescribe` introduzido nesta unidade.
+## 12. Evidência focal
 
-## 11. Fonte integral exata
+Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — SHA `3ad467cb310debaf72eefbd8f522f57529cce8af`.
 
-```js
+O self-test cobre, entre outros:
+
+- JSDoc anexado à função pública;
+- derivação do bundle pelo Manifest;
+- construção de fixture sem markup injection;
+- restauração exata de `addEventListener`;
+- preservação de listeners externos;
+- teardown anterior sem disparar `pagehide` externo;
+- cleanup de listeners globais síncronos e assíncronos;
+- cleanup de storage/runtime;
+- reinjeção após `jest.resetModules()`;
+- falha parcial do bundle;
+- resposta imediata/assíncrona/silêncio em `sendMessage`;
+- `return true` e fallback de 500 ms;
+- precedência de `action`;
+- throws antes/depois do settlement;
+- exceção durante bootstrap;
+- timeout causal com cleanup.
+
+Workflow dedicado: `.github/workflows/load-content-script-selftest.yml` — SHA `9eb534298b30c7dd619ecbb2d51e044f972f50d6`.
+
+O workflow executa o self-test com `--detectOpenHandles` e, em seguida, a suíte Jest relacionada `content-scripts` em `--runInBand`.
+
+## 13. Resolução das audit requests históricas
+
+### 102-001 — SOURCE_DOCUMENTATION_CORRECTION
+
+**Implementado localmente:** JSDoc alinhado à API real e regressão estática que garante que o bloco permanece anexado a `loadContentScript`.
+
+### 102-002 — RESOURCE_LIFECYCLE_REVIEW / sendMessage
+
+**Implementado localmente:** fallback é cancelado na primeira resolução; canal `return true` possui janela assíncrona bounded; casos imediato, assíncrono, sem resposta e throw possuem regressões focais; workflow usa `--detectOpenHandles`.
+
+### 102-003 — STATIC_CONTRACT_TEST_REQUIRED
+
+**Implementado localmente:** o helper deriva a ordem do Manifest em vez de duplicá-la, e o self-test compara o resultado ao Manifest real.
+
+### 102-004 — TEST_HARNESS_ROBUSTNESS
+
+**Implementado localmente:** timeout não é mais silencioso; executa teardown e lança diagnóstico causal, com cenário focal controlado.
+
+### 102-005 — RESOURCE_LIFECYCLE_REVIEW / listeners stale
+
+**Implementado localmente:** listeners de storage/runtime e listeners globais pertencentes ao bundle são rastreados e removidos; ownership sobrevive a `jest.resetModules`; reinjeção executa teardown cooperativo antes da remoção; regressões verificam contagem bounded e não-retenção de listeners antigos.
+
+Esses itens só devem ser promovidos de `ACCEPTED` para `RESOLVED` no state após a execução verde da revisão vinculada e a releitura final.
+
+## 14. Invariantes
+
+1. A Bíblia só vale para o `SOURCE_SHA` declarado no cabeçalho.
+2. O Manifest é a fonte canônica da ordem do bundle Manga.
+3. Storage de bootstrap é preparado antes da carga dos módulos.
+4. Reinjecção entrega teardown à instância anterior antes de invalidar ownership.
+5. O helper remove somente recursos que rastreou como pertencentes ao bundle; listeners externos devem sobreviver.
+6. Instrumentação temporária de `addEventListener` deve ser restaurada mesmo sob erro.
+7. Falha parcial/timeout não pode deixar listeners/timers do harness como sucesso silencioso.
+8. `action` explícito não pode ser sobrescrito por `extra.action`.
+9. `false` e arrays vazios explícitos não podem ser perdidos por defaults/truthiness.
+10. O helper executa módulos reais; não replica a implementação de produção.
+
+## 15. Limites honestos
+
+- `window.location` do harness é um shape parcial (`hostname`, `href`, `pathname`); código futuro que dependa de outros campos precisa ampliar o fixture.
+- A janela assíncrona de `sendMessage` é bounded e não reproduz lifetime indefinido do Chrome.
+- Listeners adicionados fora de `window`/`document` e fora das APIs Chrome rastreadas dependem do teardown interno do próprio bundle ou da remoção do nó DOM correspondente.
+- A prova focal do helper não substitui os testes funcionais do content script; por isso o workflow executa também a suíte `content-scripts`.
+
+## 16. Fonte integral auditada
+
+~~~javascript
 /**
  * load-content-script.js
  * ─────────────────────────────────────────────────────────────────────────────
@@ -133,10 +200,12 @@ const ROOT = findRepoRoot(__dirname);
 
 
 const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
+const EXTENSION_STACK_ROOT = path.join(ROOT, 'extension').replace(/\\/g, '/');
 
 const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
 const RUNTIME_LISTENER_REGISTRY_KEY = '__manga_translator_harness_runtime_listeners';
 const GLOBAL_EVENT_LISTENER_REGISTRY_KEY = '__manga_translator_harness_global_event_listeners';
+const LOAD_IN_PROGRESS_REGISTRY_KEY = '__manga_translator_harness_load_in_progress';
 
 function getTrackedStorageListeners() {
     const tracked = globalThis[STORAGE_LISTENER_REGISTRY_KEY];
@@ -214,32 +283,46 @@ function removeGlobalEventListeners(listeners) {
     });
 }
 
-function captureGlobalEventListeners(callback) {
+function isExtensionListenerRegistration() {
+    const stack = String(new Error().stack || '').replace(/\\/g, '/');
+    return stack.includes(`${EXTENSION_STACK_ROOT}/`);
+}
+
+function startGlobalEventListenerCapture() {
     const captured = [];
     const targets = [window, document];
     const originals = targets.map(target => ({
         target,
+        hadOwn: Object.prototype.hasOwnProperty.call(target, 'addEventListener'),
+        descriptor: Object.getOwnPropertyDescriptor(target, 'addEventListener'),
         addEventListener: target.addEventListener,
     }));
+    let stopped = false;
 
     originals.forEach(({ target, addEventListener }) => {
         target.addEventListener = function trackedAddEventListener(type, listener, options) {
-            captured.push({ target, type, listener, options });
+            if (isExtensionListenerRegistration()) {
+                captured.push({ target, type, listener, options });
+            }
             return addEventListener.call(this, type, listener, options);
         };
     });
 
-    try {
-        callback();
-        return captured;
-    } catch (error) {
-        removeGlobalEventListeners(captured);
-        throw error;
-    } finally {
-        originals.forEach(({ target, addEventListener }) => {
-            target.addEventListener = addEventListener;
-        });
-    }
+    return {
+        stop() {
+            if (!stopped) {
+                originals.forEach(({ target, hadOwn, descriptor }) => {
+                    if (hadOwn && descriptor) {
+                        Object.defineProperty(target, 'addEventListener', descriptor);
+                    } else {
+                        delete target.addEventListener;
+                    }
+                });
+                stopped = true;
+            }
+            return [...captured];
+        },
+    };
 }
 
 function cleanupPreviousListeners() {
@@ -251,15 +334,22 @@ function cleanupPreviousListeners() {
     setTrackedGlobalEventListeners([]);
 }
 
-function disposePreviousContentInstance() {
+function disposePreviousContentInstance(listeners = getTrackedGlobalEventListeners()) {
     if (
-        typeof window !== 'undefined'
-        && window.__manga_translator_content_injected
-        && typeof window.dispatchEvent === 'function'
-        && typeof window.Event === 'function'
+        typeof window === 'undefined'
+        || !window.__manga_translator_content_injected
+        || typeof window.Event !== 'function'
     ) {
-        window.dispatchEvent(new window.Event('pagehide'));
+        return;
     }
+
+    const event = new window.Event('pagehide');
+    listeners
+        .filter(({ target, type }) => target === window && type === 'pagehide')
+        .forEach(({ listener }) => {
+            if (typeof listener === 'function') listener.call(window, event);
+            else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(event);
+        });
 }
 
 /**
@@ -288,6 +378,12 @@ async function loadContentScript({
     domImages = [],
     readyTimeoutMs = 250,
 } = {}) {
+    if (globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY]) {
+        throw new Error('loadContentScript não suporta cargas concorrentes no mesmo ambiente JSDOM');
+    }
+    globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = true;
+
+    try {
     disposePreviousContentInstance();
     cleanupPreviousListeners();
     const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
@@ -369,52 +465,87 @@ async function loadContentScript({
     delete window.__manga_translator_content_injected;
 
     // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
-    let bundleLoaded = false;
-    let addedGlobalEventListeners = [];
+    const globalEventCapture = startGlobalEventListenerCapture();
+    let bundleLoadError = null;
     try {
-        addedGlobalEventListeners = captureGlobalEventListeners(() => {
-            jest.isolateModules(() => {
-                getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
-            });
+        jest.isolateModules(() => {
+            getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
         });
-        bundleLoaded = true;
-    } finally {
+    } catch (error) {
+        bundleLoadError = error;
+    }
+
+    if (bundleLoadError) {
+        const addedGlobalEventListeners = globalEventCapture.stop();
         const addedStorageListeners = storageListenersSnapshot()
             .filter(listener => !storageListenersBeforeLoad.has(listener));
         const addedRuntimeListeners = runtimeListenersSnapshot()
             .filter(listener => !runtimeListenersBeforeLoad.has(listener));
-        if (bundleLoaded) {
-            setTrackedStorageListeners(addedStorageListeners);
-            setTrackedRuntimeListeners(addedRuntimeListeners);
-            setTrackedGlobalEventListeners(addedGlobalEventListeners);
-        } else {
-            disposePreviousContentInstance();
-            removeStorageListeners(addedStorageListeners);
-            setTrackedStorageListeners([]);
-            removeRuntimeListeners(addedRuntimeListeners);
-            setTrackedRuntimeListeners([]);
-            removeGlobalEventListeners(addedGlobalEventListeners);
-            setTrackedGlobalEventListeners([]);
-        }
+
+        disposePreviousContentInstance(addedGlobalEventListeners);
+        removeStorageListeners(addedStorageListeners);
+        removeRuntimeListeners(addedRuntimeListeners);
+        removeGlobalEventListeners(addedGlobalEventListeners);
+        setTrackedStorageListeners([]);
+        setTrackedRuntimeListeners([]);
+        setTrackedGlobalEventListeners([]);
+        throw bundleLoadError;
     }
 
-    // 9. Aguarda a inicialização assíncrona do content script de forma determinística
-    const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
-    const normalizedReadyTimeoutMs = Number.isFinite(Number(readyTimeoutMs)) && Number(readyTimeoutMs) >= 0
-        ? Number(readyTimeoutMs)
-        : 250;
-    const startedAt = Date.now();
-    while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
-        const button = document.getElementById('manga-translator-trigger');
-        if (!shouldCreateButton) break;
-        if (button && button.dataset.positionReady === 'true') break;
-        await new Promise(r => setTimeout(r, 10));
+    // 9. Aguarda a inicialização assíncrona do content script de forma determinística.
+    // A captura de listeners globais permanece ativa até o bootstrap terminar para
+    // incluir registros feitos por callbacks assíncronos de storage/createButton.
+    let shouldCreateButton = false;
+    let normalizedReadyTimeoutMs = 250;
+    let bootstrapError = null;
+    let addedGlobalEventListeners = [];
+    let addedStorageListeners = [];
+    let addedRuntimeListeners = [];
+
+    try {
+        shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
+        const numericReadyTimeoutMs = Number(readyTimeoutMs);
+        normalizedReadyTimeoutMs = Number.isFinite(numericReadyTimeoutMs) && numericReadyTimeoutMs >= 0
+            ? numericReadyTimeoutMs
+            : 250;
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
+            const button = document.getElementById('manga-translator-trigger');
+            if (!shouldCreateButton) break;
+            if (button && button.dataset.positionReady === 'true') break;
+            await new Promise(r => setTimeout(r, 10));
+        }
+    } catch (error) {
+        bootstrapError = error;
+    } finally {
+        addedGlobalEventListeners = globalEventCapture.stop();
+        addedStorageListeners = storageListenersSnapshot()
+            .filter(listener => !storageListenersBeforeLoad.has(listener));
+        addedRuntimeListeners = runtimeListenersSnapshot()
+            .filter(listener => !runtimeListenersBeforeLoad.has(listener));
     }
+
+    if (bootstrapError) {
+        disposePreviousContentInstance(addedGlobalEventListeners);
+        removeStorageListeners(addedStorageListeners);
+        removeRuntimeListeners(addedRuntimeListeners);
+        removeGlobalEventListeners(addedGlobalEventListeners);
+        setTrackedStorageListeners([]);
+        setTrackedRuntimeListeners([]);
+        setTrackedGlobalEventListeners([]);
+        throw bootstrapError;
+    }
+
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
-            disposePreviousContentInstance();
-            cleanupPreviousListeners();
+            disposePreviousContentInstance(addedGlobalEventListeners);
+            removeStorageListeners(addedStorageListeners);
+            removeRuntimeListeners(addedRuntimeListeners);
+            removeGlobalEventListeners(addedGlobalEventListeners);
+            setTrackedStorageListeners([]);
+            setTrackedRuntimeListeners([]);
+            setTrackedGlobalEventListeners([]);
             window.__manga_translator_active_instance =
                 `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
             if (button) button.remove();
@@ -423,6 +554,10 @@ async function loadContentScript({
             );
         }
     }
+
+    setTrackedStorageListeners(addedStorageListeners);
+    setTrackedRuntimeListeners(addedRuntimeListeners);
+    setTrackedGlobalEventListeners(addedGlobalEventListeners);
 
     // 10. Retorna helpers para os testes
     return {
@@ -481,46 +616,54 @@ async function loadContentScript({
             return document.getElementById('manga-main-content');
         },
     };
+    } finally {
+        globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = false;
+    }
 }
 
 module.exports = {
     loadContentScript,
     getMangaContentScriptRelativePaths,
 };
-```
+~~~
 
-## 12. Cobertura integral por posições
+## 17. Cobertura integral por posições
 
-Faixas contíguas da revisão atual:
+- **1–13:** cabeçalho explicativo do helper.
+- **14–23:** imports, descoberta da raiz e path do Manifest.
+- **24–54:** registries persistentes e accessors de ownership.
+- **55–71:** leitura do Manifest e resolução dos módulos.
+- **72–95:** snapshots e remoção de listeners Chrome.
+- **96–103:** remoção de listeners globais.
+- **104–138:** captura/restauração de `addEventListener`.
+- **139–147:** cleanup da carga anterior.
+- **148–165:** teardown `pagehide` direcionado ao handler rastreado.
+- **166–180:** JSDoc do contrato público.
+- **181–204:** assinatura, teardown anterior, snapshots e invalidação de ownership.
+- **205–218:** `window.location` e premissa `window.top`.
+- **219–231:** seed de storage.
+- **232–246:** construção DOM segura das imagens.
+- **247–254:** dimensões naturais/complete no JSDOM.
+- **255–268:** espelhamento de globals.
+- **269–282:** liberação do guard e carga do bundle com captura de erro.
+- **283–299:** cleanup/rethrow de falha parcial.
+- **300–332:** polling de readiness e finalização segura da captura.
+- **333–365:** cleanup de exceção/timeout e persistência dos registries.
+- **366–413:** objeto retornado e contrato de `sendMessage`.
+- **414–424:** getters DOM e fechamento de `loadContentScript`.
+- **425–429:** export CommonJS.
+- **430:** LF final.
 
-- **1–13:** cabeçalho/propósito do helper.
-- **14–22:** imports, descoberta da raiz e Manifest.
-- **23–44:** registries persistentes de listeners do harness.
-- **45–60:** derivação do bundle Manga diretamente do Manifest.
-- **61–85:** snapshots e remoção de listeners Chrome.
-- **86–102:** cleanup rastreado e teardown cooperativo por `pagehide`.
-- **103–118:** JSDoc público do `loadContentScript`.
-- **119–142:** assinatura, defaults, teardown anterior, snapshots de ownership, invalidação e botão stale.
-- **143–156:** `window.location` e premissa `window.top`.
-- **157–169:** seed de storage.
-- **170–184:** construção segura das imagens de fixture.
-- **185–192:** propriedades naturais das imagens.
-- **193–206:** espelhamento de `crypto`/`TextEncoder`.
-- **207–209:** liberação do guard de injeção.
-- **210–233:** carga do bundle, tracking e cleanup em falha parcial.
-- **234–259:** polling de readiness, timeout causal e cleanup do caminho negativo.
-- **260–305:** objeto de retorno e contrato de `sendMessage`.
-- **306–317:** lookups `getButton`/`getMainContent` e fechamento da função.
-- **318–322:** export CommonJS.
-- **323:** newline final.
+Faixas contíguas: **1–430**, sem lacunas e sem sobreposição.
 
-**Cobertura:** 323/323 posições, sem gap ou overlap.
+## 18. Autoauditoria pós-correção
 
-## 13. Autoauditoria documental
+- SOURCE_SHA reconfirmado: `48deaef8742e7629c46c8930128699c4443329ff`.
+- Self-test focal vinculado: `3ad467cb310debaf72eefbd8f522f57529cce8af`.
+- Workflow vinculado: `9eb534298b30c7dd619ecbb2d51e044f972f50d6`.
+- Fonte embutida obtida diretamente do blob e deve ser comparada byte-a-byte na reauditoria.
+- Lifecycle do cabeçalho não alega `COMPLETED` antes da decisão distribuída.
+- Cinco requests históricas são descritas como correções locais, não como aprovação independente.
+- Não há `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME usado para esconder pendência neste helper.
 
-- Source SHA conferido: `024a2a8f4ace4579f622a232dfb1d2a46505d807`.
-- Fonte integral acima é o blob atual sem o LF final dentro do fence.
-- Lifecycle descrito como revisão/reparo local, não como `COMPLETED` distribuído.
-- Cinco requests 102-001..102-005 descritos individualmente; não há contagem stale de quatro.
-- Metadata estrutural desta Bíblia deve ser sincronizada no `.state/102.json` após materialização.
-- A promoção para `READY_FOR_AUDIT` depende da execução verde da revisão corrente e da releitura final do diff.
+**Conclusão local:** o reparo da unidade está pronto para revalidação por evidência. O estado canônico deve permanecer `IN_PROGRESS`/`READY_FOR_AUDIT` até a execução verde e a auditoria independente da revisão vinculada.
