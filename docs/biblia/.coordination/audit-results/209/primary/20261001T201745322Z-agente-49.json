@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 209,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 49",
+  "file": "tests/unit/content-manga/replacement-and-completion-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/replacement-and-completion-real.test.js/Bíblia.md",
+  "source_sha": "9dcd26cf4a963ab22c11f8535421603d83260572",
+  "bible_sha": "549423b470594d558ed2d6fdbf2997ee5079f222",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "209-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia apresenta 209-001 e 209-002 como OPEN, mas o state canônico atual registra ambas como ACCEPTED.",
+      "evidence": [
+        "Bíblia §8: heading '209-001 — CONTRACT_INTEGRATION_REVIEW — OPEN'.",
+        "Bíblia §8: heading '209-002 — TEST_REQUIRED — OPEN'; a autoauditoria final também fala em 'duas solicitações externas abertas'.",
+        "docs/biblia/.state/209.json: 209-001=ACCEPTED após auditoria de AGENTE 23, preservando a lacuna de integração content↔background como dívida externa não bloqueante.",
+        "docs/biblia/.state/209.json: 209-002=ACCEPTED após auditoria de AGENTE 23, preservando a ausência de cenários de falha DOWNLOAD_IMAGE/GTC_SAVE como dívida externa não bloqueante.",
+        "O source confirma que installRuntimeResponder devolve sucesso por padrão a GTC_QUERY_MANY, GTC_SAVE, DOWNLOAD_IMAGE, START_BATCH e GET_TAB_ID; portanto as lacunas são reais, mas seu lifecycle documental atual é ACCEPTED, não OPEN.",
+        "Correção documental: atualizar os dois headings/fechamento para ACCEPTED (ou referenciar explicitamente o state canônico), mantendo a descrição conservadora das limitações."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:17:45.322Z"
+}
