@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **152**
+- READY_FOR_AUDIT: **151**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **81**
+- COMPLETED: **82**
 - requests OPEN: **1**
 - requests ACCEPTED: **586**
 - requests RESOLVED: **5**
@@ -100,7 +100,7 @@
 | 075 | scripts/ci/run-jest-ci.js | COMPLETED | APPROVED | - | 6d2e36a647aadeadb2b875c1b3f92df24cd2f494 | 4 |
 | 076 | scripts/maintenance/diagnose-background-leak.js | COMPLETED | APPROVED | - | 6b5a15d0d255d0285cfabc05f3412b81ffb3d3d4 | 5 |
 | 077 | scripts/maintenance/diagnose-jest-workers.js | COMPLETED | APPROVED | - | 87d25d2b61cc1068059a39a24d3e4d86be78c335 | 3 |
-| 078 | scripts/release/sync-version.js | READY_FOR_AUDIT | NOT_AUDITED | - | 9bc8fa5ae3fb127698e6f35988fd6efab7e56c07 | 3 |
+| 078 | scripts/release/sync-version.js | COMPLETED | APPROVED | - | 9bc8fa5ae3fb127698e6f35988fd6efab7e56c07 | 3 |
 | 079 | scripts/validation/check-js-syntax.js | COMPLETED | APPROVED | - | fbc69cf9f910c3666ef390828b1793098b3bfe06 | 2 |
 | 080 | scripts/validation/playwright-gate-reporter-selftest.js | COMPLETED | APPROVED | - | 478d6673dbb6d751e19f185feaed78764ebe6fde | 2 |
 | 081 | scripts/validation/validate-manifest.js | COMPLETED | APPROVED | - | 93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1 | 3 |

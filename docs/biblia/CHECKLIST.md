@@ -79,7 +79,7 @@
 - [x] 075 — `scripts/ci/run-jest-ci.js` — COMPLETED
 - [x] 076 — `scripts/maintenance/diagnose-background-leak.js` — COMPLETED
 - [x] 077 — `scripts/maintenance/diagnose-jest-workers.js` — COMPLETED
-- [ ] 078 — `scripts/release/sync-version.js` — READY_FOR_AUDIT
+- [x] 078 — `scripts/release/sync-version.js` — COMPLETED
 - [x] 079 — `scripts/validation/check-js-syntax.js` — COMPLETED
 - [x] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` — COMPLETED
 - [x] 081 — `scripts/validation/validate-manifest.js` — COMPLETED

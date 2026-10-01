@@ -935,3 +935,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Conclusão:** bugs/riscos conhecidos não foram “resolvidos” por documentação; o documento é fiel ao código e às evidências atuais.
 
 **Veredito documental independente:** ✅ **APROVADO — #033 / SHA `008c9a054ae417e0f31224617346e24fc9dbc1b4`**.
+
+### `sync-version.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #078 — `scripts/release/sync-version.js`.
+- **SHA auditado:** `9bc8fa5ae3fb127698e6f35988fd6efab7e56c07`.
+- **Integridade:** 172 linhas textuais + newline final = **173/173 posições**; state, fonte atual e SHA declarado na Bíblia coincidem, e a fonte integral é validada pelo gate documental V2.
+- **Evidência direta:** `tests/unit/background/version-sync.test.js` prova `parseNumericSemver` e `deriveVersionInfo` para 6.5.0, patch não-zero, 7.0.0 e formatos inválidos; o teste também protege marcadores canônicos do workflow de release.
+- **Wiring/gates:** `package.json` expõe `version:sync` e `version:check`; o job **Version Integrity** executa `npm run version:check` e depois `--print-env`; `verify-publish-contract.js` e `verify-ci-contract.js` protegem os caminhos/comandos canônicos.
+- **Request 078-001:** permanece **ACCEPTED**. Não há teste focal em sandbox/child-process para `collectState/getDifferences/syncWorkspace/checkWorkspace/printEnv`, mismatches individuais, escrita, exit code e precedência CLI.
+- **Request 078-002:** permanece **ACCEPTED**. `syncWorkspace` grava Manifest e lockfile sequencialmente, sem transação/rollback; falha na segunda escrita pode deixar estado parcial.
+- **Request 078-003:** permanece **ACCEPTED**. `--print-env` não chama `getDifferences` e, isoladamente, pode emitir metadados mesmo com drift; os workflows oficiais mitigam isso executando `version:check` antes.
+- **Conclusão:** a Bíblia não transforma essas lacunas em comportamento provado e descreve corretamente CLI, side effects, precedência e limites da evidência atual.
+
+**Veredito documental independente:** ✅ **APROVADO — #078 / SHA `9bc8fa5ae3fb127698e6f35988fd6efab7e56c07`**.
+
