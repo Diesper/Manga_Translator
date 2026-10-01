@@ -33,11 +33,34 @@ function projectState(state, pipeline) {
   if (!pipeline || !['APPROVED', 'CHANGES_REQUIRED'].includes(pipeline.decision)) {
     return { changed: false, state };
   }
+  const label = '#' + String(state.index).padStart(3, '0');
   if (state.status === 'IN_PROGRESS') {
     return {
       changed: false,
       state,
-      blocker: '#' + String(state.index).padStart(3, '0') + ': decisão final não pode sobrescrever edição IN_PROGRESS',
+      blocker: label + ': decisão final não pode sobrescrever edição IN_PROGRESS',
+    };
+  }
+  if (state.status === 'BLOCKED') {
+    return {
+      changed: false,
+      state,
+      blocker: label + ': decisão final não pode sobrescrever lifecycle BLOCKED',
+    };
+  }
+  if (state.coordination_status === 'REPAIR_REQUIRED') {
+    return {
+      changed: false,
+      state,
+      blocker: label + ': decisão final não pode mascarar coordination_status REPAIR_REQUIRED',
+    };
+  }
+  const openRequests = (state.audit_requests || []).filter((request) => request?.status === 'OPEN');
+  if (pipeline.decision === 'APPROVED' && openRequests.length) {
+    return {
+      changed: false,
+      state,
+      blocker: label + ': APPROVED não pode materializar COMPLETED com audit_request OPEN=' + openRequests.length,
     };
   }
 
