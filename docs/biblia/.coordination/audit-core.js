@@ -30,18 +30,65 @@ function fileBlobSha(file) {
   return gitBlobShaBuffer(fs.readFileSync(file));
 }
 
+const gitSnapshotCache = new Map();
+
+function loadGitSnapshot(root) {
+  const key = path.resolve(root);
+  if (gitSnapshotCache.has(key)) return gitSnapshotCache.get(key);
+
+  const index = new Map();
+  const dirty = new Set();
+
+  const indexedOutput = childProcess.execFileSync(
+    'git',
+    ['ls-files', '-s', '-z', '--', 'docs/biblia'],
+    { cwd: key, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+  );
+  for (const record of indexedOutput.split('\0')) {
+    if (!record) continue;
+    const match = /^\d+\s+([0-9a-f]{40})\s+\d+\t([\s\S]+)$/i.exec(record);
+    if (match) index.set(slash(match[2]), match[1].toLowerCase());
+  }
+
+  // git diff aplica os mesmos clean filters do índice, portanto um checkout
+  // CRLF limpo no Windows não aparece como modificado. Só os paths realmente
+  // diferentes do índice precisam de hash-object individual.
+  const dirtyOutput = childProcess.execFileSync(
+    'git',
+    ['diff', '--name-only', '-z', '--no-ext-diff', '--', 'docs/biblia'],
+    { cwd: key, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+  );
+  for (const rel of dirtyOutput.split('\0')) {
+    if (rel) dirty.add(slash(rel));
+  }
+
+  const snapshot = { index, dirty };
+  gitSnapshotCache.set(key, snapshot);
+  return snapshot;
+}
+
+function clearGitSnapshotCache(root = null) {
+  if (root) gitSnapshotCache.delete(path.resolve(root));
+  else gitSnapshotCache.clear();
+}
+
 function gitWorkingTreeBlobSha(root, relativePath) {
   if (!root || !relativePath) return null;
+  const rel = slash(relativePath);
   const absolute = path.join(root, relativePath);
   if (!fs.existsSync(absolute)) return null;
   try {
-    // hash-object + --path aplica os clean filters/atributos do Git.
-    // Isso produz o blob canônico mesmo quando checkout no Windows
-    // materializa CRLF no working tree, e ainda detecta conteúdo editado
-    // antes do commit.
+    const snapshot = loadGitSnapshot(root);
+    const indexedSha = snapshot.index.get(rel);
+
+    // Caminho comum (CI/checkout limpo): zero processos Git por Bíblia.
+    if (indexedSha && !snapshot.dirty.has(rel)) return indexedSha;
+
+    // Caminho modificado/untracked: aplica clean filters/atributos do Git para
+    // obter o blob que seria versionado, preservando binding correto da revisão.
     const output = childProcess.execFileSync(
       'git',
-      ['hash-object', '--path=' + slash(relativePath), absolute],
+      ['hash-object', '--path=' + rel, absolute],
       { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
     ).trim();
     return /^[0-9a-f]{40}$/i.test(output) ? output.toLowerCase() : null;
@@ -371,6 +418,8 @@ module.exports = {
   walk,
   gitBlobShaBuffer,
   fileBlobSha,
+  loadGitSnapshot,
+  clearGitSnapshotCache,
   gitWorkingTreeBlobSha,
   loadBibleBaseline,
   currentBibleSha,
