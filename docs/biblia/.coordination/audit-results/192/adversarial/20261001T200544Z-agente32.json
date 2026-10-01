@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 192,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 32",
+  "file": "tests/unit/content-manga/audio-synthesis.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis.test.js/Bíblia.md",
+  "source_sha": "f47b6cf91846bfcea634ce1177d7d857ad9cdb46",
+  "bible_sha": "86b01f5a75a38ef2776d4da37870cb4ecc1cb392",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A32-192-01",
+      "severity": "BLOCKING",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia ainda apresenta 192-001 e 192-002 como OPEN, mas ambas foram SUPERSEDED no state canônico por 191-001 e 191-002, que concentram as mesmas lacunas de autenticidade/mirror.",
+      "evidence": [
+        "Bíblia linhas 74 e 92: headings `192-001 ... OPEN` e `192-002 ... OPEN`.",
+        "docs/biblia/.state/192.json: 192-001=SUPERSEDED por 191-001 e 192-002=SUPERSEDED por 191-002.",
+        "docs/biblia/.state/191.json: 191-001 e 191-002 estão ACCEPTED e registram a autenticidade limitada do helper/mirror.",
+        "A fonte integral do stub é exata; o helper realmente implementa playErrorSound separado e a suíte full realmente usa helper/mirror, portanto a lacuna técnica continua válida, mas o lifecycle documental das requests está stale."
+      ],
+      "required_change": "Atualizar as seções 192-001/002 para SUPERSEDED, apontando explicitamente para 191-001/002 e preservando a descrição técnica sem manter requests duplicadas como OPEN."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:05:44Z"
+}
