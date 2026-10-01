@@ -54,3 +54,17 @@ Regras de decisão:
 - REAUDIT deve ser independente dos dois anteriores.
 
 Uma aprovação em AUDITORIA.md anterior à migração vale somente como PRIMARY legado.
+
+## Reconciliação com o estado legado
+
+Publicar um resultado aqui **não exige** editar imediatamente `AUDITORIA.md`, `STATUS.md` ou `CHECKLIST.md`.
+
+O caminho crítico termina quando o resultado append-only foi persistido e o lease da fase foi liberado. As projeções legadas podem ser atualizadas depois, em lote, por qualquer agente ou auditor. Isso evita um agregador único e evita serializar dezenas de auditores atrás de um mutex global.
+
+No fechamento do PR, os dois gates precisam passar:
+
+~~~bash
+node docs/biblia/.coordination/audit-protocol.js verify
+node scripts/validation/verify-bible-merge-readiness.js
+~~~
+
