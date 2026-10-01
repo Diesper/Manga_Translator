@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "index": 8,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 7",
+  "file": "extension/background/actions/deliver-result-url.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
+  "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "Invariante 3 é absoluto, mas as guardas de batchId/mangaTabId só comparam valores truthy e index só quando ambos são inteiros; a própria U05 reconhece que valores ausentes/falsy desativam comparações.",
+    "U09 associa PROVADO DIRETAMENTE à afirmação de que a resposta só ocorre após syncState awaited, porém o teste apenas verifica que syncState foi chamado com mock já resolvido; remover o await preservaria essas assertions.",
+    "A rastreabilidade da posição 006 atribui o alias GEMINI_RESULT_URL à linha name:'deliver-result-url', mas o alias é definido em extension/background/router.js."
+  ],
+  "completed_at_utc": "2026-10-01T16:09:46.521Z"
+}
