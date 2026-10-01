@@ -2,8 +2,8 @@
   "index": 136,
   "file": "tests/unit/background/commit-result-action.test.js",
   "bible": "docs/biblia/tests/unit/background/commit-result-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
   "started_at_utc": "2026-09-30T06:38:00Z",
   "completed_at_utc": null,
@@ -85,11 +85,12 @@
     "source_text_lines": 230,
     "bible_lines": 727,
     "external_audit_requests_open": 0,
-    "note": "Router e action reais foram diferenciados de dependências mockadas; fonte integral comparada exatamente."
+    "note": "Router e action reais foram diferenciados de dependências mockadas; fonte integral comparada exatamente.",
+    "repair_note": "Alegação de ordering rebaixada para semântica do source sem assertion focal; 136-001/002 superseded por 006-001 e 136-003 por 006-002."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T14:49:26Z",
+  "updated_at_utc": "2026-10-01T14:50:05Z",
   "history": [
     {
       "at_utc": "2026-10-01T14:46:00Z",
@@ -108,6 +109,15 @@
       "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
       "agent": "AGENTE 23",
       "reason": "Corrigir evidence classification da ordem updateJobState→finalizeJob e alinhar lifecycle textual 136-001..003 aos requests canônicos superseding, sem alterar o teste source."
+    },
+    {
+      "at_utc": "2026-10-01T14:50:05Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #136 corrigida conforme findings do AGENTE 16; source permaneceu inalterado. Reauditoria independente necessária."
     }
   ],
   "evidence": [
@@ -118,6 +128,13 @@
       "auditor": "AGENTE 16",
       "at_utc": "2026-10-01T14:46:00Z",
       "note": "Passagens 0-15 executadas. SHA/fonte/cobertura/semântica principal passaram; evidence classification de ordering e lifecycle/duplicação das audit requests falharam após revalidação."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T14:50:05Z",
+      "note": "Fonte integral 231/231 reconfirmada; evidence ordering e lifecycle textual corrigidos. Reauditoria independente necessária."
     }
   ]
 }
