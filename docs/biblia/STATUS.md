@@ -8,13 +8,13 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **131**
-- CHANGES_REQUIRED: **3**
+- READY_FOR_AUDIT: **134**
+- CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
 - COMPLETED: **99**
-- requests OPEN: **1**
+- requests OPEN: **0**
 - requests ACCEPTED: **585**
-- requests RESOLVED: **7**
+- requests RESOLVED: **8**
 - requests REJECTED: **1**
 - requests SUPERSEDED: **63**
 - snapshot/HEAD: `states-v2`
@@ -128,7 +128,7 @@
 | 103 | tests/helpers/load-extension-page.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | c2325598f10b3ef9dd656a4e87db8569748e66b0 | 2 |
 | 104 | tests/helpers/repo-root.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b2520d65820e7b9072602018b0f46609ac967c58 | 1 |
 | 105 | tests/helpers/track-background-delay-timers.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
-| 106 | tests/integration/banned-images-flow.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
+| 106 | tests/integration/banned-images-flow.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 7624e120e7ffac4efd5abe5c68fc5706aea35017 | 2 |
 | 107 | tests/integration/chapter-dedup.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | e62187cd957a2fe241e4e704aaa9f8285e89162e | 3 |
 | 108 | tests/integration/gtc-end-to-end.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
 | 109 | tests/integration/ipc/gemini-cors-fallback.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1f5a1236139d85640cb5fa24590f434859155c62 | 2 |
@@ -157,7 +157,7 @@
 | 132 | tests/unit/background/batch-lifecycle-real.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1368df4b1fdb85d8ad1f593f78decd16a3175c98 | 1 |
 | 133 | tests/unit/background/calculate-visual-fingerprint-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | f51a0b629ac17be3eda349333192b9480494a07e | 1 |
 | 134 | tests/unit/background/chrome-runtime-mock-lifecycle.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1bd33ea5e027db04ae17bb78810780474a31856e | 0 |
-| 135 | tests/unit/background/claim-gemini-job-action.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 0cb6cb2f100d7493abfdf4038546e8be747289f1 | 2 |
+| 135 | tests/unit/background/claim-gemini-job-action.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 0cb6cb2f100d7493abfdf4038546e8be747289f1 | 2 |
 | 136 | tests/unit/background/commit-result-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1a185784edd118aeee377d7e3f1ed4a9c8375914 | 3 |
 | 137 | tests/unit/background/deliver-result-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 654194bf502f3a2c4c21feae64e256bb0ecc49eb | 4 |
 | 138 | tests/unit/background/deliver-result-from-tab-action.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 263cb827e30468c377c5b1eb5863e90bd6cf26b0 | 4 |
