@@ -2,11 +2,11 @@
   "index": 97,
   "file": "tests/fixtures/manga-page.html",
   "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
   "started_at_utc": "2026-09-30T06:15:00Z",
-  "completed_at_utc": "2026-10-01T04:58:55Z",
+  "completed_at_utc": null,
   "audit_requests": [],
   "document_quality": {
     "self_audit": "APPROVED",
@@ -33,7 +33,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:58:55Z",
+  "updated_at_utc": "2026-10-01T21:35:53.547Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:58:55Z",
@@ -43,6 +43,14 @@
       "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
       "auditor": "AGENTE 1",
       "reason": "Auditoria independente SHA-bound confirmou 101/101 posições, fonte integral exata, wiring/consumers e assertions E2E focais executadas com sucesso."
+    },
+    {
+      "at_utc": "2026-10-01T21:35:53.547Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "reason": "097-REA-001: reclassificar wiring de servidor/assets para prova de consumidor/execução indireta."
     }
   ],
   "evidence": [
