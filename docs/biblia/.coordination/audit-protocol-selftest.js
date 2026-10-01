@@ -85,6 +85,49 @@ assert(
   JSON.stringify(pipeline)
 );
 
+
+const stale = record('PRIMARY', 'APPROVED', 'AUDITOR-STALE', 3);
+stale.source_sha = 'b'.repeat(40);
+pipeline = resolvePipeline(state(), [stale], new Map());
+assert(
+  'resultado distribuído com SOURCE_SHA stale é ignorado',
+  pipeline.decision === 'WAITING_PRIMARY' && pipeline.primary === null,
+  JSON.stringify(pipeline)
+);
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', 1),
+  record('REAUDIT', 'APPROVED', 'AUDITOR-1', 2),
+], new Map());
+assert(
+  'REAUDIT não pode repetir auditor PRIMARY',
+  pipeline.problems.some((problem) => problem.includes('REAUDIT deve ser independente')),
+  JSON.stringify(pipeline)
+);
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', 1),
+  record('REAUDIT', 'APPROVED', 'AUDITOR-2', 2),
+], new Map());
+assert(
+  'REAUDIT não pode repetir auditor ADVERSARIAL',
+  pipeline.problems.some((problem) => problem.includes('REAUDIT deve ser independente')),
+  JSON.stringify(pipeline)
+);
+
+pipeline = resolvePipeline(state(), [
+  record('PRIMARY', 'APPROVED', 'AUDITOR-1', 0),
+  record('ADVERSARIAL', 'APPROVED', 'AUDITOR-2', 1),
+  record('REAUDIT', 'APPROVED', 'AUDITOR-3', 2),
+], new Map());
+assert(
+  'REAUDIT sem divergência é inválido',
+  pipeline.problems.some((problem) => problem.includes('REAUDIT só é válido')),
+  JSON.stringify(pipeline)
+);
+
 const ownership = strictOwnershipProblems(new Map([
   ['AGENTE 8', [
     'docs/biblia/.coordination/audit-claims/101.lock.md',
