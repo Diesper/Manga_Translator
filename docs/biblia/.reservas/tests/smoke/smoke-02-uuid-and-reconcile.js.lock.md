@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/smoke/smoke-02-uuid-and-reconcile.js
-BÍBLIA: docs/biblia/tests/smoke/smoke-02-uuid-and-reconcile.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: d977f43a4b29653d01b0fd9c395cb04edb9c1a50
-CLAIMED_AT_UTC: 2026-10-01T21:38:16.211Z
-UPDATED_AT_UTC: 2026-10-01T21:38:16.211Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
