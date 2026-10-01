@@ -43,6 +43,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -67,6 +69,9 @@ jobs:
 
       - name: Canonical protocol self-tests
         run: npm run test:bible-protocol:infra
+
+      - name: Enforce append-only audit result history
+        run: npm run bible:audit:append-only
 
       - name: Validate live distributed model
         run: node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt
