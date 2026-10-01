@@ -43,7 +43,7 @@ function parseCoverageIntervals(bible) {
   for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linhas|Posi[cç][oõ]es)\s+0*(\d+)\s*[–—-]\s*0*(\d+)\b/gmi)) {
     rangeHeadings.push({ start: Number(match[1]), end: Number(match[2]), raw: match[0] });
   }
-  for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linha|Posi[cç][aã]o|Linhas)\s+0*(\d+)\b/gmi)) {
+  for (const match of bible.matchAll(/^#{2,5}\s+(?:\d+\.\s+)?(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es)\s+0*(\d+)\b/gmi)) {
     singleHeadings.push({ start: Number(match[1]), end: Number(match[1]), raw: match[0] });
   }
 
