@@ -967,3 +967,18 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #082 / SHA `8d34dee0d632fde17c0609dac7dfe2a0ef60c927`**.
 
+### `verify-ci-contract.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #083 — `scripts/validation/verify-ci-contract.js`.
+- **SHA auditado:** `636e4bfbaa0646cd8259e1f27f09004a92541294`.
+- **Integridade:** **508/508 posições**, sem newline terminal; state, fonte atual e SHA declarado na Bíblia coincidem, com fonte integral validada pelo gate V2.
+- **Papel confirmado:** o arquivo é um meta-gate estático transversal; lê workflow/configs/package/baseline/matriz/plano/runners, acumula violações em `problems` e falha com exit 1 quando qualquer contrato é quebrado.
+- **Prova direta:** `verify-ci-contract-selftest.js` executa este verifier real em sandbox e prova três falhas negativas independentes: job `visual` ausente, `forbidOnly` enfraquecido e marker de regressão removido.
+- **Wiring:** `package.json#validate`, o job `ci-contract` e `package.json#test:ci-contract:infra` apontam para o verifier/self-test canônicos.
+- **Escopo corretamente limitado:** demais regras sobre triggers/concurrency, diagnósticos, Windows, topology E2E, coverage, Jest, baseline e reporter são classificadas como gates estáticos, não como provas funcionais.
+- **Request 083-001:** permanece **ACCEPTED** — os três cenários do self-test não cobrem focalmente dezenas de branches independentes do verifier.
+- **Request 083-002:** permanece **ACCEPTED** — `String.includes`/regex e `jobBlock` dependem de representação textual; comentário/dead text ou YAML semanticamente equivalente podem causar falso positivo/negativo conforme o check.
+- **Conclusão:** a Bíblia descreve fielmente força, limites, arquitetura e riscos do meta-gate sem transformar presença textual em execução real.
+
+**Veredito documental independente:** ✅ **APROVADO — #083 / SHA `636e4bfbaa0646cd8259e1f27f09004a92541294`**.
+
