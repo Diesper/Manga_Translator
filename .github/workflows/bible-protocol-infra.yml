@@ -1,7 +1,10 @@
 name: Bible Protocol Infrastructure
 
 on:
-  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - docs/project-bible
     paths:
       - 'docs/biblia/.coordination/audit-core.js'
       - 'docs/biblia/.coordination/audit-protocol.js'
