@@ -2,8 +2,8 @@
   "index": 181,
   "file": "tests/unit/content-gemini/job-runner.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
   "started_at_utc": "2026-09-30T16:00:00Z",
   "completed_at_utc": null,
@@ -116,7 +116,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T18:50:14.016Z",
+  "updated_at_utc": "2026-10-01T21:29:40.752Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:50:14.016Z",
@@ -134,6 +134,14 @@
       "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
       "bible_sha": "238c4980cb83a72a292d20459d36c66042d9fdc9",
       "reason": "A8-181-01 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:29:40.752Z",
+      "type": "CANONICAL_REQUEST_IMPLEMENTATION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+      "reason": "Resolver 179-004 adicionando cobertura focal de DataUrlAtob:null em RUN-01B."
     }
   ],
   "evidence": []
