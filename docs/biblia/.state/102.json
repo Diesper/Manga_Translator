@@ -2,8 +2,8 @@
   "index": 102,
   "file": "tests/helpers/load-content-script.js",
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
@@ -121,13 +121,13 @@
     "documented_positions": "172/172",
     "source_text_lines": 171,
     "bible_lines": 862,
-    "external_audit_requests_open": 4,
+    "external_audit_requests_open": 5,
     "note": "Fonte integral verificada byte/texto contra o blob; cobertura por faixas contíguas 1-172; nenhum arquivo externo alterado.",
-    "repair_note": "Corrigidos findings do auditor AGENTE 8: UPDATE_IMAGE não é apresentado como resposta assertada; semântica/race do fallback de 50 ms documentada; requests 102-001..004 alinhadas como ACCEPTED."
+    "repair_note": "Segunda rodada de reparo concluída: guard active_instance limitado aos callbacks que o consultam; listener de dimensões explicitamente excluído; semântica de throw após settlement corrigida; 102-005 documentada como ACCEPTED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T11:22:14Z",
+  "updated_at_utc": "2026-10-01T11:23:26Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -173,6 +173,15 @@
       "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
       "agent": "AGENTE 23",
       "reason": "Corrigir segunda rodada de findings documentais #102 do AGENTE 11: escopo real do guard active_instance em listeners de storage e settlement de throws síncronos em sendMessage."
+    },
+    {
+      "at_utc": "2026-10-01T11:23:26Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
+      "agent": "AGENTE 23",
+      "reason": "Segunda rodada de reparo #102 concluída conforme findings do AGENTE 11; source permaneceu inalterado."
     }
   ],
   "evidence": [
@@ -190,6 +199,13 @@
       "at_utc": "2026-10-01T06:04:31Z",
       "verdict": "CHANGES_REQUIRED",
       "note": "Passagens 0-15 executadas. Integridade/fonte/cobertura passaram; semântica de ownership de listeners stale e edge case de throw em sendMessage falharam após múltiplas revalidações."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T11:23:26Z",
+      "note": "Fonte 172/172 permaneceu inalterada. Bíblia agora limita ownership guard aos listeners que o consultam, corrige settlement de throws síncronos e documenta 102-005; reauditoria independente necessária."
     }
   ]
 }

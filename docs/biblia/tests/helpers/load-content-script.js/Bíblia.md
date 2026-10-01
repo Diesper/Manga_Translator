@@ -136,7 +136,7 @@ O helper explora esse contrato antes de alterar storage:
 
 `window.__manga_translator_active_instance = __mt_test_reset_<tempo>_<aleatório>`.
 
-Isso torna listeners antigos logicamente stale antes que alterações de storage do próximo caso possam acioná-los.
+Isso torna stale apenas os callbacks antigos que realmente consultam `isActiveContentInstance()`. A proteção não cobre todos os listeners de storage: o listener de `imageMinWidth`/`imageMinHeight` registrado por `content_manga.js` não consulta esse guard e pode continuar sendo invocado se o mock preservar listeners entre cargas.
 
 Depois, o helper remove `#manga-translator-trigger` antigo e, somente mais tarde, apaga `__manga_translator_content_injected` para permitir a nova execução do IIFE.
 
@@ -306,7 +306,7 @@ Isso fornece evidência concreta de que storage seed, dimensões naturais, DOM f
 | bannedImages é semeado antes do IIFE | GET_PAGE_IMAGES e menu contextual rejeitam URLs banidas passadas ao loader | ✅ PROVADO DIRETAMENTE pelo fluxo real |
 | floatingButtonEnabled=false chega ao bootstrap | consumer exige ausência do botão logo após o loader | ✅ PROVADO DIRETAMENTE |
 | ordem dos seis requires coincide com manifest atual | comparação manual do branch atual | 🟦 CONTRATO ESTÁTICO OBSERVADO; sem gate automático específico |
-| invalidação de instância stale evita listener antigo no storage | código do helper + guard real do content_manga | 🟨 EXECUTADO INDIRETAMENTE |
+| invalidação de instância stale neutraliza apenas handlers que consultam `isActiveContentInstance()` | helper + guard real do `content_manga.js`; listener de dimensões não usa o guard | 🟨 EXECUTADO INDIRETAMENTE para handlers guardados; ⚠️ lacuna 102-005 para listener de dimensões |
 | fallback de `sendMessage` retorna null sem resposta | branch presente, mas não foi localizada assertion focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | timeout do fallback é limpo após resposta | implementação não limpa | ⚠️ AUSÊNCIA/ROBUSTEZ — 102-002 |
 | timeout de bootstrap 250 ms é tratado explicitamente | implementação retorna silenciosamente | ⚠️ AUSÊNCIA/ROBUSTEZ — 102-004 |
@@ -333,7 +333,7 @@ Isso fornece evidência concreta de que storage seed, dimensões naturais, DOM f
 16. **listener responde imediatamente ou antes de 50 ms**: a resposta vence, mas o timer de 50 ms continua agendado.
 17. **listener responde assincronamente depois de 50 ms**: o fallback `null` vence e a resposta tardia é ignorada; o helper não prolonga a janela com base em `return true`.
 18. **múltiplos listeners respondem**: primeira resolução ganha; todos foram invocados.
-19. **listener lança síncronamente dentro do forEach**: executor da Promise captura a exception e rejeita a Promise; o fallback pode já não ser alcançado dependendo do ponto da throw.
+19. **listener lança síncronamente dentro do forEach**: se o throw ocorrer antes de qualquer `resolve`, o executor rejeita a Promise; se um listener anterior já tiver resolvido, um throw posterior não altera o settlement e a Promise permanece fulfilled. A primeira resolução/rejeição efetiva é definitiva.
 20. **extra contém action**: como payload é `{ action, ...extra }`, `extra.action` pode sobrescrever o primeiro argumento. Isso é uma característica do helper e exige disciplina do caller.
 21. **location precisa de propriedade não modelada**: este helper oferece apenas hostname/href/pathname; código futuro que leia origin/search/hash pode observar undefined no harness.
 
@@ -451,6 +451,20 @@ A ordem do spread permite isso. Nenhum consumer observado passa `extra.action`, 
 **Ação solicitada:** decidir se timeout deve rejeitar com diagnóstico específico, retornar estado de readiness ou permanecer best-effort; adicionar teste focal para a decisão.
 
 **Regressão possível:** flakiness com erro distante da causa em runners lentos ou após crescimento do bootstrap.
+
+**Severidade:** NORMAL.
+
+### 102-005 — RESOURCE_LIFECYCLE_REVIEW — ACCEPTED
+
+**Encontrado:** reinjetar `content_manga.js` registra novamente o listener de `imageMinWidth`/`imageMinHeight`; esse listener não consulta `isActiveContentInstance()`, enquanto o `ChromeStorageMock` preserva `_listeners` entre resets normais.
+
+**Evidência atual:** o helper reinjeta os módulos após trocar o token de instância, mas a proteção por ownership vale somente para callbacks que efetivamente consultam o guard. O listener de dimensões permanece fora dessa proteção e pode continuar sendo invocado em cargas posteriores.
+
+**Evidência ausente:** teste focal de duas ou mais cargas que prove contagem/cleanup bounded dos listeners ou demonstre explicitamente qual retenção é intencional.
+
+**Ação solicitada:** definir o lifecycle canônico dos listeners de storage em alteração separada; limpar/remover listeners no harness/mock ou adicionar guard onde for arquiteturalmente correto, acompanhado de regressão de reinjeção repetida.
+
+**Regressão possível:** callbacks/closures stale podem acumular e reagir a mudanças de dimensões em testes posteriores, reduzindo determinismo e fidelidade do harness.
 
 **Severidade:** NORMAL.
 
@@ -684,7 +698,7 @@ Define função async; hostname default testmanga.com, whitelist null, banidas v
 
 ### Linhas 51–58 — Invalidação da instância anterior e remoção do botão stale
 
-Antes de tocar no storage, troca __manga_translator_active_instance por token de teste e remove #manga-translator-trigger existente. Isso faz listeners da instância antiga falharem em isActiveContentInstance antes que storage.clear/set do teste seguinte os faça agir.
+Antes de tocar no storage, troca `__manga_translator_active_instance` por token de teste e remove `#manga-translator-trigger` existente. Isso invalida somente callbacks da instância antiga que consultam `isActiveContentInstance()` antes de agir. O listener de dimensões (`imageMinWidth`/`imageMinHeight`) não usa esse guard; se o mock conservar `_listeners`, callbacks antigos desse listener ainda podem ser invocados após reinjeções.
 
 **Evidência:** 🟨 EXECUTADO INDIRETAMENTE: várias suítes reutilizam JSDOM e o content_manga real usa exatamente o mesmo global para ownership; não foi localizado teste focal que prove especificamente a sequência invalidação→storage.
 
