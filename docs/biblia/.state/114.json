@@ -2,8 +2,8 @@
   "index": 114,
   "file": "tests/integration/performance.test.js",
   "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
   "started_at_utc": "2026-09-30T06:25:33.185Z",
   "completed_at_utc": null,
@@ -81,11 +81,12 @@
     "external_audit_requests_open": 0,
     "evidence_run": 36577447500,
     "evidence_job": 109437162616,
-    "evidence_summary": "Unit + Integration (20.x): performance.test.js PASS; PERF-01 a PERF-09 aparecem nominalmente e todos passaram."
+    "evidence_summary": "Unit + Integration (20.x): performance.test.js PASS; PERF-01 a PERF-09 aparecem nominalmente e todos passaram.",
+    "repair_note": "Lifecycle documental 114-001..003 alinhado ao state canônico: ACCEPTED; conclusão corrigida sem alterar source/testes."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T13:35:00Z",
+  "updated_at_utc": "2026-10-01T13:35:34Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:30:28.877Z",
@@ -104,6 +105,15 @@
       "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
       "agent": "AGENTE 23",
       "reason": "Alinhar lifecycle documental 114-001..003 com o state canônico ACCEPTED e corrigir conclusão sem alterar o source."
+    },
+    {
+      "at_utc": "2026-10-01T13:35:34Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #114 corrigida conforme auditoria independente: 114-001..003 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
     }
   ],
   "evidence": [
@@ -114,6 +124,13 @@
       "auditor": "AGENTE 6",
       "at_utc": "2026-10-01T13:30:28.877Z",
       "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/CI/semântica/assertions/evidence classification passam; lifecycle documental das requests falha. Requests 114-001..003 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T13:35:34Z",
+      "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
     }
   ]
 }
