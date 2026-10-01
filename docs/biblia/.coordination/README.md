@@ -38,6 +38,41 @@ A consolidação de uma Bíblia pode ser executada pelo agente editor, auditor P
 
 STATUS.md, CHECKLIST.md e AUDITORIA.md são views/projeções ou compatibilidade legada. Eles não são mecanismo de ownership e não ficam no caminho crítico da auditoria distribuída. A CI normal não exige regenerar STATUS.md/CHECKLIST.md a cada resultado; a coerência dessas projeções é exigida novamente pelo gate final de merge.
 
+## Shards virtuais + work stealing
+
+O agendamento de trabalho não usa fila global nem arquivo agregador. Ele usa **shards virtuais determinísticos** sobre os 233 índices.
+
+Por padrão existem **80 shards**, alinhados à execução atual de 80 agentes:
+
+~~~text
+shard(index) = ((index - 1) % 80) + 1
+~~~
+
+Assim, o AGENTE 16 prioriza o shard 16. Se não houver trabalho elegível nele, percorre os demais shards em ordem circular e faz **work stealing**.
+
+O shard é apenas uma preferência de descoberta/agendamento:
+
+- não concede ownership;
+- não substitui claim/lease;
+- não cria lock de shard;
+- não existe coordenador central;
+- qualquer auditor pode roubar trabalho ocioso de outro shard;
+- a aquisição real continua sendo CREATE ONLY no lease da Bíblia/fase.
+
+Comando operacional:
+
+~~~bash
+node scripts/validation/bible-audit-work-plan.js --auditor 16 --auditors 80
+~~~
+
+Também é possível filtrar fase:
+
+~~~bash
+node scripts/validation/bible-audit-work-plan.js --auditor 16 --phase ADVERSARIAL
+~~~
+
+O planejador sempre considera a próxima fase obrigatória do SHA atual. Em particular, **PRIMARY CHANGES_REQUIRED não pula ADVERSARIAL**: todas as Bíblias passam pela auditoria adversarial antes da decisão final daquele SHA.
+
 ## Claims por fase + leases
 
 Novos claims usam:
