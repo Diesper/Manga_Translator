@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/background-strict-load.test.js
 
-> **Estado:** ✅ CONCLUÍDO — autoauditoria documental do AGENTE 8  
+> **Estado:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** 25a663f527f7d3303c51751b4bf3440ea3424b9f  
 > **Índice:** 130  
 > **Linhas textuais:** 55 — **posições:** 56 com newline final  
@@ -14,7 +14,7 @@ O uso de subprocesso é a parte central do contrato: módulos/globals criados po
 
 ## 2. Wiring da suíte
 
-`jest.config.js` (SHA `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`) inclui `tests/unit/background/**/*.test.js` no projeto `background`. `package.json` (SHA `33e0b91d1a6f1790124b700d2ce331f80d2b7095`) inclui esse projeto em `test:unit` e expõe `test:unit:background`; o runner `test:ci` também inventaria os testes Jest do repositório.
+`jest.config.js` (SHA `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`) inclui `tests/unit/background/**/*.test.js` no projeto `background`. `package.json` (blob atual `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`) inclui esse projeto em `test:unit` e expõe `test:unit:background`; o runner `test:ci` também inventaria os testes Jest do repositório. O blob histórico `33e0b91d1a6f1790124b700d2ce331f80d2b7095` corresponde ao snapshot antigo de CI e não é mais tratado como identidade atual.
 
 O arquivo não possui `.skip`, `.only` ou `todo`; a política anti-skip do repositório cobre esses marcadores estaticamente em `verify-test-policy.js`.
 
@@ -55,15 +55,15 @@ Logo, BG-STRICT-01 prova que **o corpo principal do background** consegue carreg
 
 ## 7. Solicitações ao auditor
 
-### 130-001 — TEST_REQUIRED — OPEN
+### 130-001 — TEST_REQUIRED — ACCEPTED
 
 Adicionar prova separada do bootstrap real dos módulos obrigatórios ou um importScripts controlado que realmente carregue/valide os paths e APIs essenciais. O teste atual só usa no-op. **Severidade: HIGH.**
 
-### 130-002 — TEST_REQUIRED — OPEN
+### 130-002 — TEST_REQUIRED — ACCEPTED
 
 Fortalecer BG-STRICT-01 com assertions observáveis de registros/imports esperados, em vez de somente `not.toThrow`, sem substituir a implementação real. **Severidade: NORMAL.**
 
-### 130-003 — CI_POLICY_REVIEW — OPEN
+### 130-003 — CI_POLICY_REVIEW — ACCEPTED
 
 Definir timeout para o subprocesso ou aceitar explicitamente a ausência; `execFileSync` hoje não possui limite local. **Severidade: NORMAL.**
 
@@ -424,4 +424,6 @@ new Function(source)();
 - Headings `Linha 001` → `Linha 056` sequenciais.
 - Background, Jest config, package wiring e política anti-skip foram cruzados sem alterar nenhum deles.
 - Evidência de subprocesso não foi promovida a prova de módulos importados.
-- Solicitações 130-001..003 permanecem OPEN.
+- Solicitações 130-001..003 estão ACCEPTED no state canônico; permanecem limitações reconhecidas, não requests OPEN.
+
+> **Lifecycle pós-REAUDIT:** 130-001/002/003 estão ACCEPTED. A referência de `package.json` usa o blob atual; o SHA antigo permanece apenas como snapshot histórico da execução.
