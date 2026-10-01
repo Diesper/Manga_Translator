@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/single-image-context-menu.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** c4e122e3fd2a5298b255e647dbc804c903ed17f5  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest do menu de contexto nativo no background real  
@@ -58,7 +58,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 
 ## 9. Solicitações ao auditor
 
-### 167-001 — TEST_REQUIRED — OPEN — HIGH
+### 167-001 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: singleImageContextMenuSyncVersion existe para impedir que callback tardio de contextMenus.remove recrie configuração obsoleta, mas o mock chama remove callback imediatamente.
 
@@ -66,7 +66,7 @@ Evidência ausente: controlar dois rebuilds concorrentes com callbacks de remove
 
 Risco: mudanças rápidas em enabledDomains/enable podem ressuscitar menu com allowlist antiga.
 
-### 167-002 — TEST_REQUIRED — OPEN — NORMAL
+### 167-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: enabledDomainToMatchPattern normaliza lowercase/trim, filtra formato e rebuild deduplica patterns; o caso atual usa apenas dois hosts já válidos e distintos.
 
@@ -74,7 +74,7 @@ Evidência ausente: mistura com espaços/maiúsculas, duplicatas e entradas inv�
 
 Risco: menu pode aparecer em domínio indevido ou falhar ao criar por pattern inválido.
 
-### 167-003 — TEST_REQUIRED — OPEN — NORMAL
+### 167-003 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: branches de observabilidade SINGLE_IMAGE_CONTEXT_MENU_CREATE_FAILED, DELIVERY_FAILED e REJECTED não são exercitados.
 
@@ -1474,3 +1474,5 @@ describe('background.js - menu nativo para tradução de uma imagem', () => {
 ## 12. Conclusão documental
 
 Foram documentadas 172 linhas textuais e a posição 173 do newline final. Os três contratos principais estão provados no background real e no mesmo blob executado em Node 20/22; as solicitações abertas concentram-se em corrida de rebuild, saneamento de domínios e observabilidade de falhas.
+
+> **Lifecycle pós-adversarial:** 167-001, 167-002 e 167-003 estão ACCEPTED em `.state/167.json`; permanecem riscos/lacunas documentadas, não requests OPEN.
