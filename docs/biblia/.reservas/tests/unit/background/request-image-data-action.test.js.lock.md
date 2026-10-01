@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/background/request-image-data-action.test.js
+BÍBLIA: docs/biblia/tests/unit/background/request-image-data-action.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: b04cd6cac53339fb479c19b7977acb61339ffdd9
+CLAIMED_AT_UTC: 2026-10-01T18:27:37.885Z
+UPDATED_AT_UTC: 2026-10-01T18:27:37.885Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
