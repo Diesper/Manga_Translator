@@ -123,7 +123,7 @@ Importante: a maioria das validações de `verify-ci-contract.js` é **estática
 4. ⚠️ Não há teste/gate de `permissions:` least-privilege porque o arquivo não declara esse bloco.
 5. ⚠️ Não há teste/gate de `timeout-minutes`.
 6. ⚠️ Não há prova automatizada de que o secret Codecov nunca é ecoado por action externa; apenas o YAML evita imprimi-lo diretamente.
-7. ⚠️ A condição `e2e if: always()` não recebe assertion focal própria.
+7. ⚠️ A condição `e2e if: always() && !cancelled()` não recebe assertion focal própria; o gate atual protege esse literal no `ci-gate`, não possui assertion focal equivalente para o job agregador `e2e`.
 8. ⚠️ A lista exata dos 18 casos de `jest-worker-diagnostic` não é protegida por comparação completa no contrato; ele protege condição/comando, não cada caso.
 9. ⚠️ A lista exata dos 10 casos de `focused-project-leak-diagnostic` também não recebe gate de igualdade.
 10. ⚠️ Não há teste que simule resultado `skipped/failure/cancelled` de todos os `needs.*.result` e execute o shell final isoladamente.
@@ -4110,7 +4110,7 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Fonte:** `    if: ${{ always() && !cancelled() }}`
 
-**O que faz:** Aplica condição GitHub Expression ao bloco e2e agregado: ` ${{ always() }}`.
+**O que faz:** Aplica condição GitHub Expression ao bloco e2e agregado: ` ${{ always() && !cancelled() }}`; o job continua após falha normal de shard para agregar evidências, mas não ressuscita um workflow cancelado.
 
 **Como faz:** O job/step é marcado para execução ou skip antes de iniciar conforme evento/resultados.
 
