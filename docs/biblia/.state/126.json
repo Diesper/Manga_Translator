@@ -2,10 +2,10 @@
   "index": 126,
   "file": "tests/smoke/smoke-04-storage-manager.js",
   "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
   "source_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
-  "started_at_utc": "2026-10-01T22:36:20Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -50,7 +50,7 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "ACCEPTED. `deleteByCleanUrl` no smoke verifica contagem e ausência do restore, mas não prova diretamente ausência da página/asset correspondente nem cenário multi-capítulo. O cleanup completo pode regredir sem quebrar essas assertions.",
       "auditor_recommended_action": "Adicionar assertions sobre page/asset removidos e, se contratual, caso da mesma cleanUrl em capítulos distintos.",
-      "repair_progress": "IMPLEMENTED_AWAITING_CI"
+      "repair_progress": "IMPLEMENTED_BUT_CI_BLOCKED_BY_060_OPEN_DB_CACHE_BUG"
     },
     {
       "id": "126-003",
@@ -72,25 +72,25 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "ACCEPTED. A migração semeia duas páginas e um restore, mas aceita apenas `migrated >= 1`, flag true e cleanup legado; migração parcial ainda pode satisfazer o teste. Não há cenário de falha parcial.",
       "auditor_recommended_action": "Exigir contagem/conteúdo exatos antes da limpeza e adicionar falha parcial para definir quando a flag/remoção do legado podem ocorrer.",
-      "repair_progress": "IMPLEMENTED_AWAITING_CI"
+      "repair_progress": "IMPLEMENTED_BUT_CI_BLOCKED_BY_060_OPEN_DB_CACHE_BUG"
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED_STATIC_AWAITING_CI",
+    "self_audit": "CI_FAILURE_DOCUMENTED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "257/257",
     "range_blocks": 11,
     "ranges_contiguous": true,
     "source_has_final_newline": true,
-    "bible_lines": 407,
+    "bible_lines": 410,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 2,
-    "note": "REAUDIT lifecycle stale corrigido. 126-002/003 têm regressões implementadas, mas permanecem ACCEPTED até execução CI bem-sucedida. 126-001 segue SUPERSEDED por 060-002."
+    "note": "Smoke ampliado está documentalmente sincronizado; CI falhou porque revelou bug real em openStorageDb da unidade #060. Requests 126-002/003 permanecem ACCEPTED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:45:00Z",
+  "updated_at_utc": "2026-10-01T22:47:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T22:36:20Z",
@@ -109,7 +109,31 @@
       "bible_sha": "9e62d2fbe4319c82b6200fa299508d96c34b5f88",
       "agent": "AGENTE 30",
       "reason": "Smoke ampliado para cleanup completo, cleanUrl-change, concorrência, migração exata/falha parcial, lastError, retry de IDB, entradas inválidas e stats; requests aceitas ainda não resolvidas sem execução."
+    },
+    {
+      "at_utc": "2026-10-01T22:47:30Z",
+      "type": "CI_REGRESSION_FOUND",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
+      "bible_sha": "53989ce00a54c2ee8f113419614898b2631ce575",
+      "agent": "AGENTE 30",
+      "reason": "Smoke regression exposed ineffective _smDbPromise reset in #060; release #126 reservation before sequential dependency repair."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "CI_FAILURE",
+      "at_utc": "2026-10-01T22:43:58Z",
+      "workflow": "MangaTranslator CI",
+      "run_id": 36936712283,
+      "job_id": 110618800485,
+      "job": "Smoke Tests",
+      "source_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
+      "consumed_storage_sha": "f9b5c5b330eaab35477582344e8b0f088825aca1",
+      "result": "FAIL",
+      "failure": "openStorageDb retry after transient IndexedDB absence returned cached rejected Promise",
+      "note": "Negative evidence discovered by the newly added regression; no request resolved."
+    }
+  ]
 }

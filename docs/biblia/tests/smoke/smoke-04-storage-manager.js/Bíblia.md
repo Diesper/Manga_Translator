@@ -1,6 +1,6 @@
 # Bíblia técnica — `tests/smoke/smoke-04-storage-manager.js`
 
-> **Estado documental:** 🟡 CORRIGIDA — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
+> **Estado documental:** 🔴 REGRESSÕES IMPLEMENTADAS — CI REVELOU BUG NO STORAGE-MANAGER CONSUMIDO  
 > **SHA auditado:** `b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d`  
 > **Agente da correção:** AGENTE 30  
 > **Tipo:** smoke Node.js do storage-manager real com fake IndexedDB e falhas controladas de chrome.storage  
@@ -45,7 +45,7 @@ A revisão atual amplia o smoke de happy paths para invariantes de consistência
 |---|---|---|
 | DataURL↔Blob preserva conteúdo/MIME | igualdade exata do PNG e Blob válido | ✅ PROVADO DIRETAMENTE |
 | Data URL inválida é rejeitada | `assert.throws` para não-data URL e base64 inválido | ✅ PROVADO DIRETAMENTE |
-| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; segunda chamada abre DB | ✅ PROVADO DIRETAMENTE |
+| `openStorageDb` recupera após IDB ausente | primeira chamada rejeita; API é restaurada; segunda chamada deveria abrir DB | ❌ FALHOU NA CI — Promise rejeitada fica cacheada no source #060 |
 | overwrite troca asset e coleta anterior | IDs distintos + `getAssetBlob(old) === null` | ✅ PROVADO DIRETAMENTE |
 | troca A→B de `cleanUrl` remove restore/asset de A | restore A ausente, restore B aponta ao novo asset, asset anterior null | ✅ PROVADO DIRETAMENTE |
 | `deleteByCleanUrl` remove restore/página/asset | assertions focais sobre todos os três e índice de página | ✅ PROVADO DIRETAMENTE |
@@ -403,4 +403,7 @@ Posição do newline terminal.
 - 126-002: **ACCEPTED; regressão implementada e aguardando execução**.
 - 126-003: **ACCEPTED; regressão implementada e aguardando execução**.
 - Gap de rollback IDB sob abort: **explicitamente não reivindicado como provado**.
-- A revisão precisa de nova auditoria PRIMARY + ADVERSARIAL porque source e Bíblia mudaram.
+- Execução CI `MangaTranslator CI` run **36936712283**, job **110618800485 (Smoke Tests)**: **FAIL** em `smoke-04`, ao tentar reabrir o DB após indisponibilidade transitória.
+- Causa confirmada por leitura do source #060: `_smDbPromise = null` dentro do executor é sobrescrito pela atribuição externa `_smDbPromise = new Promise(...)`; a rejeição permanece cacheada.
+- 126-002/126-003 continuam `ACCEPTED`; nenhuma request foi resolvida artificialmente.
+- Após corrigir #060 e obter execução verde, esta revisão deve ser revalidada e então seguir para nova auditoria PRIMARY + ADVERSARIAL.
