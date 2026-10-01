@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **151**
+- READY_FOR_AUDIT: **150**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **82**
+- COMPLETED: **83**
 - requests OPEN: **1**
 - requests ACCEPTED: **586**
 - requests RESOLVED: **5**
@@ -104,7 +104,7 @@
 | 079 | scripts/validation/check-js-syntax.js | COMPLETED | APPROVED | - | fbc69cf9f910c3666ef390828b1793098b3bfe06 | 2 |
 | 080 | scripts/validation/playwright-gate-reporter-selftest.js | COMPLETED | APPROVED | - | 478d6673dbb6d751e19f185feaed78764ebe6fde | 2 |
 | 081 | scripts/validation/validate-manifest.js | COMPLETED | APPROVED | - | 93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1 | 3 |
-| 082 | scripts/validation/verify-ci-contract-selftest.js | READY_FOR_AUDIT | NOT_AUDITED | - | 8d34dee0d632fde17c0609dac7dfe2a0ef60c927 | 3 |
+| 082 | scripts/validation/verify-ci-contract-selftest.js | COMPLETED | APPROVED | - | 8d34dee0d632fde17c0609dac7dfe2a0ef60c927 | 3 |
 | 083 | scripts/validation/verify-ci-contract.js | READY_FOR_AUDIT | NOT_AUDITED | - | 636e4bfbaa0646cd8259e1f27f09004a92541294 | 2 |
 | 084 | scripts/validation/verify-coverage-selftest.js | READY_FOR_AUDIT | NOT_AUDITED | - | ac08dd661f2d2410a56a7fd685cd9b55e85901f9 | 4 |
 | 085 | scripts/validation/verify-coverage.js | READY_FOR_AUDIT | NOT_AUDITED | - | 45f920bd2db5ba3a1273438b1814b29aeafc3be4 | 5 |

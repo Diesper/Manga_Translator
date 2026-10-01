@@ -83,7 +83,7 @@
 - [x] 079 — `scripts/validation/check-js-syntax.js` — COMPLETED
 - [x] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` — COMPLETED
 - [x] 081 — `scripts/validation/validate-manifest.js` — COMPLETED
-- [ ] 082 — `scripts/validation/verify-ci-contract-selftest.js` — READY_FOR_AUDIT
+- [x] 082 — `scripts/validation/verify-ci-contract-selftest.js` — COMPLETED
 - [ ] 083 — `scripts/validation/verify-ci-contract.js` — READY_FOR_AUDIT
 - [ ] 084 — `scripts/validation/verify-coverage-selftest.js` — READY_FOR_AUDIT
 - [ ] 085 — `scripts/validation/verify-coverage.js` — READY_FOR_AUDIT

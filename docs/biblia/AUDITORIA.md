@@ -950,3 +950,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #078 / SHA `9bc8fa5ae3fb127698e6f35988fd6efab7e56c07`**.
 
+### `verify-ci-contract-selftest.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #082 — `scripts/validation/verify-ci-contract-selftest.js`.
+- **SHA auditado:** `8d34dee0d632fde17c0609dac7dfe2a0ef60c927`.
+- **Integridade:** 122 linhas textuais + newline final = **123/123 posições**; state, fonte atual e SHA declarado na Bíblia coincidem, com fonte integral validada pelo gate V2.
+- **Objeto exercitado:** o self-test executa o `verify-ci-contract.js` real em sandboxes temporários e não replica sua lógica.
+- **Cenário 1:** renomeia o job `visual` no workflow e exige falha com `job obrigatório ausente: visual`.
+- **Cenário 2:** enfraquece `forbidOnly: isCi` para `false` e exige o diagnóstico específico de `test.only`.
+- **Cenário 3:** remove um marker real selecionado da matriz de regressão e exige `marcador obrigatório ausente`.
+- **Força da prova:** cada cenário exige status não-zero **e** mensagem esperada; falha incidental não é aceita como sucesso do self-test. Cada sandbox é removido em `finally`.
+- **Request 082-001:** permanece **ACCEPTED** — não há meta-self-test focal para falhas do próprio harness, como marker ausente antes da mutação, cópia/spawn e cleanup após erro deliberado.
+- **Request 082-002:** permanece **ACCEPTED** — `String.replace` altera apenas a primeira ocorrência e a seleção do marker é dinâmica; falta contrato de unicidade/asserção pós-mutação.
+- **Request 082-003:** permanece **ACCEPTED** — o helper normaliza CRLF, mas não há fixture CRLF controlada que prove deterministicamente essa ramificação.
+- **Conclusão:** as três lacunas estão explicitamente limitadas à robustez/meta-infra e não são promovidas a evidência inexistente.
+
+**Veredito documental independente:** ✅ **APROVADO — #082 / SHA `8d34dee0d632fde17c0609dac7dfe2a0ef60c927`**.
+
