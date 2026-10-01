@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/background/tab-replacement-observability.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `b5aeb216f48ef28e471233aaa074c86a15561f01`  
 > **Agente responsável:** AGENTE 2  
 > **Tipo:** suíte Jest focal da semântica de substituição de abas no `ChromeTabsMock`  
@@ -129,7 +129,7 @@ Há também um limite de escopo: a presença desta suíte pode ser interpretada 
 
 ## 8. Solicitações ao auditor
 
-### 171-001 — TEST_REQUIRED — OPEN — NORMAL
+### 171-001 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** `ChromeTabsMock._simulateReplacement` possui três guards explícitos — old tab ausente, old/new iguais e target já existente — que não são exercitados por esta suíte.
 
@@ -143,7 +143,7 @@ Há também um limite de escopo: a presença desta suíte pode ser interpretada 
 
 **Possível regressão:** colisão ou input inválido pode corromper o mapa do mock e contaminar testes seguintes sem que esta suíte falhe.
 
-### 171-002 — TEST_REQUIRED — OPEN — NORMAL
+### 171-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 **Encontrado:** a suíte prova que o handler funciona no novo id, porém não prova diretamente a remoção da chave antiga de `_messageHandlers`, nem o caminho que omite `newTabId` e depende de `_nextTabId++`.
 
@@ -157,7 +157,7 @@ Há também um limite de escopo: a presença desta suíte pode ser interpretada 
 
 **Possível regressão:** retenção de handler stale pode gerar leak/duplicidade entre casos; alocação automática defeituosa pode criar colisões artificiais.
 
-### 171-003 — INTEGRATION_TEST_REQUIRED — OPEN — HIGH
+### 171-003 — INTEGRATION_TEST_REQUIRED — SUPERSEDED → 002-005 — HIGH
 
 **Encontrado:** `extension/background.js` consome `chrome.tabs.onReplaced`, registra `TAB_REPLACED` e chama `recordReplacement(addedTabId, removedTabId)`, mas esta suíte testa somente o evento do mock.
 
@@ -453,3 +453,5 @@ describe('ChromeTabsMock tab replacement observability', () => {
 A suíte é pequena, mas exerce um contrato importante da infraestrutura: o mock de tabs representa o replacement nominal com reidentificação da aba, ordem correta de `onReplaced` e continuidade de mensagens. Esse comportamento está **provado diretamente** pelas assertions existentes.
 
 Os guards do helper e o wiring do background real permanecem sem prova automatizada focal nesta investigação. A Bíblia documenta essa diferença sem atribuir à suíte uma cobertura que ela não possui.
+
+> **Lifecycle pós-adversarial:** 171-001 e 171-002 estão ACCEPTED; 171-003 está SUPERSEDED por `002-005`, que concentra a lacuna de wiring real `chrome.tabs.onReplaced -> recordReplacement`.
