@@ -111,7 +111,7 @@ A suíte é forte para a lógica de UI do popup, mas não deve ser usada como pr
 
 ## 7. Solicitações ao auditor
 
-### 115-001 — ASSERTION_GAP — OPEN
+### 115-001 — ASSERTION_GAP — ACCEPTED
 
 **Encontrado:** o teste “falha ao buscar asset mantém a caixa e marca somente a miniatura afetada” usa apenas um card.
 
@@ -123,7 +123,7 @@ A suíte é forte para a lógica de UI do popup, mas não deve ser usada como pr
 
 **Risco:** regressão que marque o capítulo inteiro ou cards irmãos como falhos ainda poderia satisfazer o teste atual.
 
-### 115-002 — TEST_STRENGTH — OPEN
+### 115-002 — TEST_STRENGTH — ACCEPTED
 
 **Encontrado:** o caso de `IntersectionObserver` verifica somente contagem de `SM_GET_ASSET`.
 
@@ -3877,4 +3877,4 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
 - Cobertura posicional: **339/339**, incluindo newline final.
 - Implementação real do popup cruzada por `SM_PAGE_INDEX`, `SM_MIGRATE_CHAPTER`, `SM_GET_ASSET`, `chapter-thumb-card` e `IntersectionObserver`.
 - Assertions do próprio teste foram classificadas como prova direta da **lógica do popup sob fronteiras mockadas**, não do background/IndexedDB real.
-- Lacunas de força de teste foram registradas como solicitações ao auditor; nenhum arquivo externo foi alterado.
+- Lacunas de força de teste 115-001 e 115-002 permanecem ACCEPTED no state canônico; nenhum arquivo externo foi alterado e essas requests não são apresentadas como prova já implementada.
