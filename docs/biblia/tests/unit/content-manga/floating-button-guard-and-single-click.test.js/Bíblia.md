@@ -1,13 +1,13 @@
 # Bíblia técnica — tests/unit/content-manga/floating-button-guard-and-single-click.test.js
 
 > **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA DOCUMENTAL APROVADA  
-> **SHA auditado:** 8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088  
+> **SHA auditado:** a417ca15acc4d2b604a3a72cecad19e476ff4626  
 > **Agente responsável:** AGENTE 21  
 > **Índice do corpus:** 204  
 > **Tipo:** suíte Jest/JSDOM do watchdog do botão flutuante e tradução individual por contexto  
 > **Linhas textuais:** **410**  
 > **Posições documentais:** **411**, contando o newline final  
-> **Tamanho textual observado:** **18752 caracteres**
+> **Tamanho textual observado:** **18773 caracteres**
 
 ## 1. Papel arquitetural
 
@@ -168,7 +168,7 @@ A suíte cobre:
 - banida;
 - translated;
 - removida entre contexto e comando;
-- banida depois do contexto;
+- banida depois do contexto, com o spy limpo imediatamente antes do comando para isolar apenas efeitos da ação;
 - mudança do DOM antes do comando, recalculando índice 1→2.
 
 Isso reduz risco de agir em referência stale.
@@ -280,7 +280,7 @@ run-jest-ci.js mantém inventário de .test.js e falha se esperado não executad
 9. índice deve ser recalculado após mutação DOM;
 10. segundo fluxo individual não pode iniciar durante lote ativo;
 11. botão recriado durante lote não pode regressar para estado idle;
-12. esta Bíblia vale somente para SHA 8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088.
+12. esta Bíblia vale somente para SHA a417ca15acc4d2b604a3a72cecad19e476ff4626.
 
 ## 18. Fonte integral auditada
 
@@ -689,7 +689,7 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
             'bannedImages_reader.test': ['https://reader.test/becomes-banned.png'],
         });
 
-        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
+        sendSpy.mockClear(); const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
         expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
         expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
     });
@@ -789,7 +789,7 @@ Posição vazia do LF terminal.
 ## 21. Autoauditoria documental
 
 - reserva exclusiva confirmada para **AGENTE 21**;
-- SHA reconfirmado: **8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088**;
+- SHA reconfirmado: **a417ca15acc4d2b604a3a72cecad19e476ff4626**;
 - fonte integral embutida exatamente;
 - **410 linhas textuais + newline final = 411/411 posições**;
 - 15 testes/43 expectations mapeados;
