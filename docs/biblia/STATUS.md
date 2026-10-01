@@ -52,15 +52,15 @@ Criar uma Bíblia independente para cada arquivo do corpus técnico, com fonte i
 
 - Total: **233**
 - Bíblias materializadas: **98**
-- ✅ Concluídos auditados: **78**
+- ✅ Concluídos auditados: **80**
 - 🟠 Em andamento: **0**
 - 🟣 Aguardando revisão de qualidade: **0**
 - ⬜ Ainda não materializados: **135**
-- ⬜ Pendentes: **155**
+- ⬜ Pendentes: **153**
 - ⛔ Bloqueados: **0**
-- Cobertura realmente aprovada: **33,48%**
+- Cobertura realmente aprovada: **34,33%**
 - Cobertura apenas materializada: **42,06%**
-- Último aprovado: `scripts/validation/validate-manifest.js`
+- Último aprovado: `.github/workflows/publish.yml`
 - Arquivos atualmente em andamento:
 
 - Menor índice pendente sem reserva no momento desta atualização: `#033 extension/background/tab-identity.js`
@@ -394,7 +394,7 @@ Detalhes e provas: `docs/biblia/AUDITORIA.md`.
 | 63 | ✅ CONCLUÍDO | `package.json` | `33e0b91d1a6f` | `docs/biblia/package.json/Bíblia.md` |
 | 64 | ✅ CONCLUÍDO | `playwright.config.js` | `6a27b774a000` | `docs/biblia/playwright.config.js/Bíblia.md` |
 | 65 | ✅ CONCLUÍDO | `.github/workflows/ci.yml` | `ebee75820db9` | `docs/biblia/.github/workflows/ci.yml/Bíblia.md` |
-| 66 | ⬜ PENDENTE | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
+| 66 | ✅ CONCLUÍDO | `.github/workflows/publish.yml` | `f673d445a3cc` | `docs/biblia/.github/workflows/publish.yml/Bíblia.md` |
 | 67 | ✅ CONCLUÍDO | `.github/workflows/recover-cancelled-ci.yml` | `4809f824f177` | `docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md` |
 | 68 | ✅ CONCLUÍDO | `scripts/ci/data/e2e-shard-plan.json` | `22e8c20df9f4` | `docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md` |
 | 69 | ✅ CONCLUÍDO | `scripts/ci/data/regression-matrix.json` | `f9b9e17e5870` | `docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md` |
