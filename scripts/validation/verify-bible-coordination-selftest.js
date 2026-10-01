@@ -129,11 +129,11 @@ function progressLockFor(root,state,auditor='AUDITOR-X'){
   ].join('\n'));
   return rel;
 }
-function validate(root,checkDerived=false){
-  return validateBibleCoordination(root,{checkDerived,headLabel:'fixture'}).problems;
+function validate(root,checkDerived=false,enforceSingleAuditClaimPerAuditor=false){
+  return validateBibleCoordination(root,{checkDerived,enforceSingleAuditClaimPerAuditor,headLabel:'fixture'}).problems;
 }
 function readiness(root, options = {}) {
-  const validation = validateBibleCoordination(root,{checkDerived:false,headLabel:'fixture'});
+  const validation = validateBibleCoordination(root,{checkDerived:false,enforceSingleAuditClaimPerAuditor:true,headLabel:'fixture'});
   return evaluateMergeReadiness(validation, options);
 }
 function expectReadiness(name, expectedReady, setup, options = {}, needle = null) {
@@ -159,11 +159,11 @@ function expectPass(name,setup){
     process.stdout.write('PASS '+name+'\n');
   } finally { fs.rmSync(root,{recursive:true,force:true}); }
 }
-function expectFail(name,needle,setup,checkDerived=false){
+function expectFail(name,needle,setup,checkDerived=false,enforceSingleAuditClaimPerAuditor=false){
   const root=makeFixture();
   try{
     setup(root);
-    const problems=validate(root,checkDerived);
+    const problems=validate(root,checkDerived,enforceSingleAuditClaimPerAuditor);
     if(!problems.some((p)=>p.includes(needle))){
       throw new Error(name+' expected problem containing '+JSON.stringify(needle)+', got:\n'+problems.join('\n'));
     }
@@ -293,11 +293,16 @@ expectFail('audit claim terminal com evento posterior ao veredito falha','audit 
   auditClaimFor(root,s,'AUDITOR-X');
   progressLockFor(root,s,'AUDITOR-X');
 });
-expectFail('auditor com dois claims falha','auditor possui >1 audit claim ativo',(root)=>{
+expectPass('modo ativo tolera auditor com dois claims transitórios',(root)=>{
   for(const i of [1,2]){
     const s=readJson(root,statePath(i));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(i),s);auditClaimFor(root,s,'AUDITOR-X');
   }
 });
+expectFail('modo estrito rejeita auditor com dois claims','auditor possui >1 audit claim ativo',(root)=>{
+  for(const i of [1,2]){
+    const s=readJson(root,statePath(i));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(i),s);auditClaimFor(root,s,'AUDITOR-X');
+  }
+},false,true);
 expectFail('audit claim com SHA stale falha','audit claim SOURCE_SHA diverge do state',(root)=>{
   const s=readJson(root,statePath(1));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(1),s);auditClaimFor(root,s,'AUDITOR-X',{sourceSha:'0'.repeat(40)});
 });

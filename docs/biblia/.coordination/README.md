@@ -36,7 +36,7 @@ Invariantes:
 
 - somente itens `READY_FOR_AUDIT` podem possuir audit claim;
 - índice → no máximo 1 audit claim ativo;
-- auditor → no máximo 1 audit claim ativo;
+- auditor → no máximo 1 audit claim ativo como regra operacional de coordenação;
 - audit claim e reserva de edição do mesmo arquivo não podem coexistir;
 - `SOURCE_SHA` do claim deve ser idêntico ao `.state/<ÍNDICE>.json`;
 - claim é **CREATE ONLY**;
@@ -82,6 +82,8 @@ READ LATEST
 ```
 
 Se outro auditor ganhar o claim primeiro, escolher outro `READY_FOR_AUDIT`.
+
+Durante a fase ativa, `validate:structure` continua fail-closed para claim duplicado por índice, claim stale, SHA/path divergente e conflito com reserva, mas não transforma a cardinalidade global “um claim por auditor” em falha da CI funcional. Essa cardinalidade segue sendo regra operacional e o modo estrito do gate final a valida; além disso, `verify-bible-merge-readiness.js` exige **zero audit claims** antes do merge.
 
 ## Gate final de merge readiness
 

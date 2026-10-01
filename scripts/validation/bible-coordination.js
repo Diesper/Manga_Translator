@@ -339,6 +339,7 @@ function buildDerived(states, audits, headLabel) {
 
 function validateBibleCoordination(root, options = {}) {
   const problems = [];
+  const enforceSingleAuditClaimPerAuditor = options.enforceSingleAuditClaimPerAuditor === true;
   const bibleRoot = path.join(root, 'docs', 'biblia');
   const stateRoot = path.join(bibleRoot, '.state');
   const reserveRoot = path.join(bibleRoot, '.reservas');
@@ -503,7 +504,9 @@ function validateBibleCoordination(root, options = {}) {
     auditClaimsByIndex.set(index, { auditor, claimFile });
 
     auditClaimsByAuditor.set(auditor, (auditClaimsByAuditor.get(auditor) || 0) + 1);
-    if (auditClaimsByAuditor.get(auditor) > 1) problems.push('auditor possui >1 audit claim ativo: ' + auditor);
+    if (enforceSingleAuditClaimPerAuditor && auditClaimsByAuditor.get(auditor) > 1) {
+      problems.push('auditor possui >1 audit claim ativo: ' + auditor);
+    }
 
     const state = states.find((item) => item.index === index);
     if (!state) {

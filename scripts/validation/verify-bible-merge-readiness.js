@@ -12,6 +12,7 @@ const bibleRoot = path.join(root, 'docs', 'biblia');
 
 const validation = validateBibleCoordination(root, {
   checkDerived: true,
+  enforceSingleAuditClaimPerAuditor: true,
   headLabel: 'states-v2',
 });
 
