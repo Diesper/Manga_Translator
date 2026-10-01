@@ -2,8 +2,8 @@
   "index": 17,
   "file": "extension/background/actions/open-existing-folder.js",
   "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
   "started_at_utc": "2026-09-30T12:12:00Z",
   "completed_at_utc": null,
@@ -50,6 +50,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
       "reason": "017-REA-001/002: corrigir semântica da posição 025 e documentar cadeia manifest/background/router/popup."
+    },
+    {
+      "at_utc": "2026-10-01T18:00:41.405Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+      "bible_sha": "096f77d1ca0b3f9f7f9fd325632a988109c81e0c",
+      "reason": "017-REA-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
