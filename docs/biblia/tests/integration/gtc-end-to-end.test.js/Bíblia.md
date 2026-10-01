@@ -13,7 +13,7 @@
 
 Este arquivo é uma suíte Jest localizada em tests/integration e descoberta pelo projeto Jest chamado integration. Seu objetivo declarado é representar uma jornada de usuário que combina persistência por capítulo, restoreMap e Global Translation Cache (GTC).
 
-O ponto técnico mais importante é que o arquivo **não carrega a implementação de produção dessa jornada**. Ele define três implementações espelho dentro do próprio teste:
+O ponto técnico mais importante é que o arquivo **não carrega a implementação de produção dessa jornada**. Ele define quatro implementações espelho dentro do próprio teste:
 
 - getCleanUrl;
 - simulateUpdateImage;
@@ -166,7 +166,7 @@ O nome do teste diz que o restante “vai para Gemini”, mas não existe chamad
 
 ### Consistência — linhas 230–254
 
-Chama simulateUpdateImage três vezes e confirma que o mapa _images preserva três índices e valores distintos. É prova direta de independência por índice no objeto local armazenado pelo mock.
+Chama simulateUpdateImage três vezes e confirma cardinalidade de três índices no mapa _images; as assertions verificam explicitamente os valores dos índices 0 e 2. Não há assertion específica para o valor data:T1 do índice 1, portanto a Bíblia não promove esse valor intermediário a prova direta.
 
 ## 6. Relação com a implementação de produção atual
 
@@ -235,7 +235,7 @@ Isso comprova que o arquivo auditado é executável, descoberto pela suíte e qu
 
 ## 9. Solicitações ao auditor
 
-### 108-001 — TEST_DESIGN_REVIEW — OPEN
+### 108-001 — TEST_DESIGN_REVIEW — ACCEPTED
 
 **Encontrado:** a suíte é nomeada e comentada como “GTC End-to-End — Jornada Completa”, mas seus fluxos centrais são implementações espelho locais. Ela não importa content_manga.js, gtc-indexeddb.js, background.js nem os helpers reais que implementam a jornada.
 
@@ -257,7 +257,7 @@ Isso comprova que o arquivo auditado é executável, descoberto pela suíte e qu
 
 **Severidade:** NORMAL.
 
-### 108-002 — STALE_ARCHITECTURE_TEST — OPEN
+### 108-002 — STALE_ARCHITECTURE_TEST — ACCEPTED
 
 **Encontrado:** simulateUpdateImage e simulateGTCLookup modelam GTC por escrita/leitura direta de storage.local em chaves gtc_<hash>. O código atual usa GTC_QUERY_MANY/IndexedDB como caminho primário e mantém storage.local como fallback legado.
 
@@ -279,7 +279,7 @@ Isso comprova que o arquivo auditado é executável, descoberto pela suíte e qu
 
 **Severidade:** NORMAL.
 
-### 108-003 — ASSERTION_GAP — OPEN
+### 108-003 — ASSERTION_GAP — ACCEPTED
 
 **Encontrado:** o caso da Jornada 4 afirma que misses “vão para Gemini”, e comentários anteriores afirmam restauração “SEM Gemini”, mas o arquivo não cria spy/chamada Gemini/START_BATCH. Na Jornada 3, SITE_B_URL não é usado para calcular fingerprint; o mesmo hash é injetado diretamente.
 
@@ -922,4 +922,4 @@ O valor atual da suíte está em documentar e verificar um modelo conceitual sim
 - [x] três lacunas persistidas como solicitações ao auditor;
 - [x] nenhum código, teste, fixture, workflow, configuração ou tracker global foi alterado para fabricar evidência.
 
-**Resultado documental:** Bíblia concluída para o blob 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc. As solicitações 108-001, 108-002 e 108-003 podem permanecer OPEN sem impedir a conclusão documental.
+**Resultado documental:** Bíblia concluída para o blob 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc. As solicitações 108-001, 108-002 e 108-003 permanecem ACCEPTED e não bloqueiam por si só a conclusão documental quando as lacunas são descritas honestamente.
