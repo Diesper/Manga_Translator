@@ -240,7 +240,7 @@ jobs:
 
   e2e:
     name: E2E Tests (Playwright)
-    if: ${{ always() }}
+    if: ${{ always() && !cancelled() }}
     needs:
       - e2e-shard
     runs-on: ubuntu-latest

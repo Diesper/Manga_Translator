@@ -1,8 +1,8 @@
 # Bíblia técnica — .github/workflows/ci.yml
 
-> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
-> **SHA auditado:** `ebee75820db9bfab618bf3c3016065c5bc857ed7`  
-> **Agente responsável pela auditoria:** AGENTE 3  
+> **Estado:** 🟡 READY_FOR_AUDIT — correção de orquestração E2E aplicada; reauditoria independente pendente  
+> **SHA auditado:** `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`  
+> **Última auditoria independente válida para o SHA anterior:** AGENTE 3  
 > **Tipo:** workflow GitHub Actions / CI  
 > **Linhas textuais:** **558**  
 > **Posições documentais:** **558** — o arquivo não possui newline terminal  
@@ -95,7 +95,7 @@ Importante: a maioria das validações de `verify-ci-contract.js` é **estática
 4. **Codecov é deliberadamente não bloqueante:** `fail_ci_if_error: true` faz a action produzir falha própria, mas `continue-on-error: true` permite o job continuar; a linha seguinte converte isso em warning. O gate local de coverage é a autoridade real.
 5. **Duplicação de carga:** `windows-portability` roda `npm run validate` e depois vários testes novamente; `fresh-developer-flow` também repete suites. Isso aumenta custo, mas verifica entry points/OS/fluxo limpo.
 6. **Diagnósticos de leak não rodam em PR comum:** são obrigatórios só na main/manual. Uma regressão pode ser descoberta apenas pós-merge; essa é uma decisão explícita de custo versus feedback.
-7. **`e2e` usa `if: always()`:** necessário para agregar artifacts mesmo após shard falhar, mas deve ser mantido alinhado ao comportamento de cancelamento do workflow; o gate final usa `!cancelled()` para não criar falso vermelho em runs superseded.
+7. **`e2e` usa `if: always() && !cancelled()`:** continua agregando artifacts após falha normal de shard, mas não executa quando o workflow foi cancelado por um commit superseding; isso evita transformar cancelamento legítimo em `failure` por inventário parcial.
 8. **Contagem exata de cinco blobs:** é forte contra shard ausente, mas acopla workflow ao plano atual de exatamente cinco grupos. Alterar o plano exige mudança coordenada nesta linha e no contrato.
 9. **Node 22 só cobre Jest:** outros gates usam Node 20. Compatibilidade de Playwright/validators com Node 22 não é provada por este workflow.
 10. **Comentários históricos do leak:** as linhas 392–395 citam evidência de run anterior. Elas podem ficar stale se a causa/limiar mudar; o comportamento executável é somente `MT_BACKGROUND_LEAK_WORKERS: "3"`.
@@ -109,7 +109,7 @@ Importante: a maioria das validações de `verify-ci-contract.js` é **estática
 - shard falha antes de gerar blob: upload pode avisar/continuar, mas o agregador falha na exigência de cinco ZIPs.
 - job diagnóstico fica `skipped` em PR: CI Gate não o exige porque `FULL_DIAGNOSTICS_REQUIRED=false`.
 - fresh flow fica `skipped` fora de `workflow_dispatch`: CI Gate não o exige.
-- workflow cancelado: `ci-gate` não deve ressuscitar por causa de `!cancelled()`.
+- workflow cancelado: nem o agregador `e2e` nem `ci-gate` devem ressuscitar a execução; ambos usam `!cancelled()` para evitar falso vermelho em run superseded.
 - teste novo sem tag de shard: `verify-e2e-shard-plan.js` deve detectar “Testes sem grupo”.
 - teste duplicado em duas tags: o mesmo verificador falha por duplicação na união.
 - Jest termina 0 mas emite aviso de worker forçado: `run-jest-ci.js` examina stderr e reprova.
@@ -140,7 +140,7 @@ Importante: a maioria das validações de `verify-ci-contract.js` é **estática
 4. Jobs funcionais não podem receber `continue-on-error: true` para mascarar falhas.
 5. `e2e-shard` deve permanecer independente de outros gates funcionais e usar cinco grupos explícitos definidos pelo plano.
 6. Workers E2E devem vir do `e2e-shard-plan.json`, não de hardcode no workflow.
-7. O agregador E2E deve verificar o plano e exigir todos os cinco blob reports antes do merge.
+7. O agregador E2E deve usar `always() && !cancelled()`, verificar o plano e exigir todos os cinco blob reports antes do merge quando a execução não foi cancelada.
 8. Coverage local (`test:coverage` + verifier) é bloqueante; Codecov externo não substitui esse gate.
 9. Diagnósticos de worker/leak devem ser bloqueantes quando obrigatórios e artifacts devem continuar publicáveis em falha.
 10. Windows deve continuar executando validação e suites canônicas da raiz.
@@ -396,7 +396,7 @@ jobs:
 
   e2e:
     name: E2E Tests (Playwright)
-    if: ${{ always() }}
+    if: ${{ always() && !cancelled() }}
     needs:
       - e2e-shard
     runs-on: ubuntu-latest
@@ -4084,7 +4084,7 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **O que faz:** Declara o job agregador `e2e`, que valida o plano, reúne os cinco blob reports e aplica o gate global do Playwright.
 
-**Como faz:** O job depende de `e2e-shard`, roda com `if: always()`, baixa artifacts do mesmo SHA, exige exatamente cinco ZIPs e chama `playwright merge-reports` com a configuração de gate.
+**Como faz:** O job depende de `e2e-shard`, roda com `if: always() && !cancelled()`, baixa artifacts do mesmo SHA, exige exatamente cinco ZIPs e chama `playwright merge-reports` com a configuração de gate. Falhas normais de shard ainda permitem a agregação; cancelamento do workflow impede o job.
 
 **Por que foi implementado dessa forma:** Os shards executam subconjuntos independentes; uma etapa agregada é necessária para provar cobertura do conjunto e avaliar o resultado combinado sem tratar cada shard como universo completo.
 
@@ -4108,7 +4108,7 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 ### Linha 243
 
-**Fonte:** `    if: ${{ always() }}`
+**Fonte:** `    if: ${{ always() && !cancelled() }}`
 
 **O que faz:** Aplica condição GitHub Expression ao bloco e2e agregado: ` ${{ always() }}`.
 
@@ -4118,7 +4118,7 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 **Por que uma implementação ingênua seria pior:** Executar tudo em todo PR aumenta custo; pular condições críticas pode mascarar falha ou perder artefatos.
 
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: permite que o agregador E2E rode mesmo após shard falhar/ser skipped; não há assertion focal do literal `always()` para este job.
+**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE: permite que o agregador E2E rode após shard falhar/ser skipped, mas não após cancelamento do workflow; ainda não há assertion focal específica desse literal no `verify-ci-contract.js`.
 
 ### Linha 244
 
@@ -8532,7 +8532,7 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 
 ## 14. Autoauditoria
 
-- SHA da fonte relido do branch: `ebee75820db9bfab618bf3c3016065c5bc857ed7`.
+- SHA da fonte relido do branch: `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`.
 - Fonte integral embutida: 558 linhas/posições, sem newline terminal.
 - Headings `Linha N`: 558/558, sequenciais.
 - Dependências cruzadas: `package.json`, `verify-ci-contract.js`, self-test do contrato, gate estrutural, Playwright config/plano/runner/merge, Jest runner e diagnósticos.
@@ -8541,4 +8541,4 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 - Lacunas de runtime/segurança/timeout/pinning permanecem explícitas.
 - Nenhum código funcional foi alterado.
 
-**Estado documental desta materialização:** ✅ APROVADO em `AUDITORIA.md`; fonte integral, 558/558 posições, consumers/dependências e força das evidências foram reconfirmados para o SHA auditado.
+**Estado documental desta materialização:** 🟡 READY_FOR_AUDIT; fonte integral e 558/558 posições foram atualizadas para o novo SHA após a correção `e2e: always() && !cancelled()`. A aprovação anterior permanece histórica e uma reauditoria independente é necessária.
