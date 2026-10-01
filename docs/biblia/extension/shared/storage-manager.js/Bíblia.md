@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/shared/storage-manager.js`
 
-> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
+> **Estado:** 🟡 CORRIGIDO — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
 > **SHA auditado:** `d1cd5a2c83ed5fe5a36e67966ea835806b863395`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — persistência IndexedDB do Manga Translator  
@@ -25,6 +25,8 @@ O desenho separa **metadados** de **bytes da imagem**. Popup/reader podem listar
 - `assets`: keyPath `assetId`; contém Blob, MIME, tamanho e timestamp.
 - `chapterList` continua em `chrome.storage.local` porque é metadado pequeno e compartilhado.
 - `background.js` resolve `self.MangaTranslatorStorageManager` e roteia ações `SM_*`.
+- `extension/options/options.js` consome `SM_GET_ASSET` via `smRequest()` para recuperar o asset de preview quando a URL direta/legada não basta.
+- `extension/shared/shared-ui.js` consome `SM_LIST_RESTORE` para materializar o índice de restores e `SM_DELETE_CLEAN_URL` no fluxo de refazer/remover tradução salva; esse consumer toca diretamente as invariantes de restore/deleção.
 
 ## 3. Fluxos críticos
 
@@ -55,7 +57,7 @@ A migração lê somente `_sm_migrated_<chapterId>`, `<chapter>_images`, `<chapt
 | 10 saves concorrentes mesmo capítulo | smoke-03 usa Promise.all e comprova 10/10 páginas + restores | ✅ PROVADO DIRETAMENTE |
 | persistência real no Chromium MV3 | cache-and-storage.spec lê duas páginas e restoreIndex no background worker | ✅ PROVADO EM E2E |
 | deleteByCleanUrl sequencial | smoke-04 prova restore removido | ✅ PROVADO PARCIALMENTE |
-| deleteChapter sequencial | smoke-04 prova pageCount 0 após delete | ✅ PROVADO DIRETAMENTE |
+| deleteChapter sequencial | smoke-04 prova `deleted > 0` e `pageCount === 0`; não consulta restoreEntries/assets após a deleção | 🟨 PROVADO PARCIALMENTE — páginas sim; cleanup focal de restore/assets não é provado |
 | migração legada bem-sucedida/idempotente | smoke-04 prova migrated, flag, limpeza e segunda chamada skipped | ✅ PROVADO DIRETAMENTE |
 | roteamento SM_* | smoke-06 usa módulo real, mas copia o handler de background.js | 🟨 SIMULAÇÃO FIEL/CONTRATO, NÃO PROVA DO HANDLER REAL |
 | rollback por abort/error de transaction | nenhum fault-injection específico encontrado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -4248,43 +4250,43 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Como faz:** Agrupa `chapters`, `chapterPages`, `restoreEntries` e `assets` na mesma transação de deleção.  
 **Por que assim:** A remoção integral precisa ser atomicamente coerente entre metadados e blobs.  
 **Risco/alternativa:** Transactions separadas poderiam deixar restos parciais se uma etapa falhar.  
-**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL — smoke-04 salva e deleta capítulo, depois prova pageCount=0; race é serializada pela fila do capítulo.
+**Evidência:** 🟨 PROVA PARCIAL — o source mostra a transaction conjunta; smoke-04 comprova `deleted > 0` e `pageCount === 0`, mas não consulta todos os stores após `deleteChapter`.
 
 ### Linha 0400
 
 **Fonte:** `tx.objectStore(SM_STORE_CHAPTERS).delete(chapterId);`  
-**O que faz:** Obtém object store com `tx.objectStore(SM_STORE_CHAPTERS).delete(chapterId);`.  
-**Como faz:** Resolve o store dentro da transaction atual antes de get/put/delete.  
-**Por que assim:** coleta IDs e apaga capítulos/páginas/restores/assets em lote.  
-**Risco/alternativa:** transação de leitura é separada da de escrita; serialização só cobre operações que usam a mesma fila.  
-**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL — smoke-04 salva e deleta capítulo, depois prova pageCount=0; race é serializada pela fila do capítulo.
+**O que faz:** Agenda a remoção do registro de metadados do capítulo em `chapters`.  
+**Como faz:** Executa `delete(chapterId)` dentro da mesma transaction readwrite que contém páginas, restores e assets.  
+**Por que assim:** O metadado do capítulo deve ser removido junto com seus dados associados.  
+**Risco/alternativa:** smoke-04 não lê `chapters` depois de `deleteChapter`; este efeito é confirmado por leitura do source, não por assertion focal.  
+**Evidência:** 🟨 SOURCE + PROVA PARCIAL — o teste prova que houve deleção e que as páginas zeraram, mas não prova focalmente a ausência do registro em `chapters`.
 
 ### Linha 0401
 
 **Fonte:** `pages.forEach(p => tx.objectStore(SM_STORE_CHAPTER_PAGES).delete([p.chapterId, p.pageIndex]));`  
-**O que faz:** Obtém object store com `pages.forEach(p => tx.objectStore(SM_STORE_CHAPTER_PAGES).delete([p.chapterId, p.pageIndex]));`.  
-**Como faz:** Resolve o store dentro da transaction atual antes de get/put/delete.  
-**Por que assim:** coleta IDs e apaga capítulos/páginas/restores/assets em lote.  
-**Risco/alternativa:** transação de leitura é separada da de escrita; serialização só cobre operações que usam a mesma fila.  
-**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL — smoke-04 salva e deleta capítulo, depois prova pageCount=0; race é serializada pela fila do capítulo.
+**O que faz:** Agenda a remoção de cada registro de página do capítulo.  
+**Como faz:** Itera as páginas lidas previamente e deleta cada chave composta `[chapterId, pageIndex]` na transaction de escrita.  
+**Por que assim:** Garante que o índice de páginas do capítulo seja esvaziado no commit.  
+**Risco/alternativa:** a leitura dos IDs ocorre em transaction anterior; concorrência fora da fila poderia alterar o conjunto entre leitura e escrita.  
+**Evidência:** ✅ PROVADO PARA PÁGINAS NO CAMINHO SEQUENCIAL — smoke-04 chama `getChapterPageCount()` após `deleteChapter` e exige `0`; isso não prova os outros stores.
 
 ### Linha 0402
 
 **Fonte:** `restores.forEach(r => tx.objectStore(SM_STORE_RESTORE).delete([r.chapterId, r.cleanUrl]));`  
-**O que faz:** Obtém object store com `restores.forEach(r => tx.objectStore(SM_STORE_RESTORE).delete([r.chapterId, r.cleanUrl]));`.  
-**Como faz:** Resolve o store dentro da transaction atual antes de get/put/delete.  
-**Por que assim:** coleta IDs e apaga capítulos/páginas/restores/assets em lote.  
-**Risco/alternativa:** transação de leitura é separada da de escrita; serialização só cobre operações que usam a mesma fila.  
-**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL — smoke-04 salva e deleta capítulo, depois prova pageCount=0; race é serializada pela fila do capítulo.
+**O que faz:** Agenda a remoção das entradas de restore pertencentes ao capítulo.  
+**Como faz:** Itera os restores lidos previamente e deleta cada chave `[chapterId, cleanUrl]` na mesma transaction readwrite.  
+**Por que assim:** Evita que um capítulo excluído continue reaparecendo via auto-restore.  
+**Risco/alternativa:** smoke-04 não chama `getRestoreIndex()` depois de `deleteChapter`; uma regressão exclusiva deste delete não seria detectada pelas assertions atuais.  
+**Evidência:** ⚠️ SEM ASSERTION FOCAL PÓS-`deleteChapter` — comportamento confirmado por leitura do source; o smoke só prova deleção positiva e pageCount zero.
 
 ### Linha 0403
 
 **Fonte:** `assetIds.forEach(id => tx.objectStore(SM_STORE_ASSETS).delete(id));`  
-**O que faz:** Obtém object store com `assetIds.forEach(id => tx.objectStore(SM_STORE_ASSETS).delete(id));`.  
-**Como faz:** Resolve o store dentro da transaction atual antes de get/put/delete.  
-**Por que assim:** coleta IDs e apaga capítulos/páginas/restores/assets em lote.  
-**Risco/alternativa:** transação de leitura é separada da de escrita; serialização só cobre operações que usam a mesma fila.  
-**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL — smoke-04 salva e deleta capítulo, depois prova pageCount=0; race é serializada pela fila do capítulo.
+**O que faz:** Agenda a remoção dos assets referenciados pelas páginas/restores coletados do capítulo.  
+**Como faz:** Deduplica os IDs em `assetIds` e chama `delete(id)` no store `assets` dentro da transaction conjunta.  
+**Por que assim:** O capítulo excluído não deve deixar blobs órfãos consumindo quota.  
+**Risco/alternativa:** smoke-04 não tenta ler esses assetIds depois de `deleteChapter`; cleanup de assets não possui assertion focal neste cenário.  
+**Evidência:** ⚠️ SEM ASSERTION FOCAL PÓS-`deleteChapter` — comportamento confirmado por leitura do source, não por prova direta do smoke.
 
 ### Linha 0404
 
@@ -4658,8 +4660,8 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0445
 
 **Fonte:** `try {`  
-**O que faz:** Abre bloco protegido contra exceção de API opcional.  
-**Como faz:** Permite usar crypto/storage sem derrubar a operação quando o fallback é aceitável.  
+**O que faz:** Abre o isolamento de erro para migrar uma página legada individual.  
+**Como faz:** Envolve `savePageResult(...)`; se esse save lançar, o `catch` da linha 451 suprime a falha e a iteração continua para a próxima página.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
 **Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
@@ -4829,8 +4831,8 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0464
 
 **Fonte:** `try {`  
-**O que faz:** Abre bloco protegido contra exceção de API opcional.  
-**Como faz:** Permite usar crypto/storage sem derrubar a operação quando o fallback é aceitável.  
+**O que faz:** Abre o isolamento de erro para migrar um restore legado sem página correspondente.  
+**Como faz:** Envolve `savePageResult(...)` do restore órfão; se falhar, o `catch` vazio da linha 470 suprime a exceção e a migração segue para o próximo item.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
 **Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
@@ -4910,8 +4912,8 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0473
 
 **Fonte:** `await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));`  
-**O que faz:** Cria uma Promise para adaptar API callback/event-driven.  
-**Como faz:** Resolve/rejeita a operação quando o request/transaction correspondente dispara seus eventos.  
+**O que faz:** Adapta `chrome.storage.local.set` para uma Promise **resolve-only** que aguarda o callback.  
+**Como faz:** Passa apenas `resolve` como callback; não existe caminho `reject` e `chrome.runtime.lastError` não é consultado, portanto erro da API pode ser tratado como conclusão bem-sucedida.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
 **Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
@@ -4928,8 +4930,8 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 ### Linha 0475
 
 **Fonte:** `await new Promise(resolve => chrome.storage.local.remove(`  
-**O que faz:** Cria uma Promise para adaptar API callback/event-driven.  
-**Como faz:** Resolve/rejeita a operação quando o request/transaction correspondente dispara seus eventos.  
+**O que faz:** Adapta `chrome.storage.local.remove` para uma Promise **resolve-only**.  
+**Como faz:** O callback passado nas linhas seguintes apenas resolve a Promise; não há `reject` nem leitura de `chrome.runtime.lastError`, então falha de remoção não é propagada.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
 **Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
@@ -5317,7 +5319,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 - [x] Fonte integral materializada.
 - [x] SHA da reserva coincide com o fonte atual.
 - [x] 517/517 posições documentadas em ordem.
-- [x] Consumers background/content/popup/reader investigados.
+- [x] Consumers background/content/popup/reader/options/shared-ui investigados; `options.js` usa `SM_GET_ASSET` e `shared-ui.js` usa `SM_LIST_RESTORE`/`SM_DELETE_CLEAN_URL`.
 - [x] Smoke/E2E reais separados de simulação de routing.
 - [x] Schema, transactions, fila, deleção e migração documentados.
 - [x] Lacunas de fault-injection/race/migração registradas.
