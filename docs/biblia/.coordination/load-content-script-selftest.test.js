@@ -75,6 +75,51 @@ describe('load-content-script helper selftest', () => {
     }
   });
 
+  test('cleanup sobrevive a jest.resetModules e reimport do helper', async () => {
+    await loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+    const firstListeners = [...storageMock._listeners];
+    expect(firstListeners.length).toBeGreaterThan(0);
+
+    jest.resetModules();
+    const reloaded = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));
+    await reloaded.loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    });
+
+    const secondListeners = [...storageMock._listeners];
+    expect(secondListeners).toHaveLength(firstListeners.length);
+    for (const listener of firstListeners) {
+      expect(secondListeners).not.toContain(listener);
+    }
+  });
+
+  test('falha parcial de bundle remove listeners registrados antes do erro', async () => {
+    const manifestPath = path.join(ROOT, 'extension/manifest.json');
+    const realReadFileSync = fs.readFileSync.bind(fs);
+    jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...args) => {
+      const content = realReadFileSync(file, ...args);
+      if (path.resolve(String(file)) !== manifestPath) return content;
+
+      const manifest = JSON.parse(String(content));
+      const mangaEntry = manifest.content_scripts.find(entry =>
+        Array.isArray(entry.js) && entry.js.includes('content/content_manga.js')
+      );
+      mangaEntry.js = [...mangaEntry.js, 'content/__missing_selftest__.js'];
+      return JSON.stringify(manifest);
+    });
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+    })).rejects.toThrow('__missing_selftest__');
+
+    expect(storageMock._listeners).toHaveLength(0);
+  });
+
   test('sendMessage cancela fallback quando listener responde imediatamente', async () => {
     const context = await loadContentScript({
       hostname: 'reader.test',
@@ -150,5 +195,8 @@ describe('load-content-script helper selftest', () => {
       floatingButtonEnabled: true,
       readyTimeoutMs: 20,
     })).rejects.toThrow('Timeout aguardando botão do content_manga ficar pronto após 20 ms');
+
+    expect(storageMock._listeners).toHaveLength(0);
+    expect(document.getElementById('manga-translator-trigger')).toBeNull();
   });
 });
