@@ -3,7 +3,7 @@
   "file": "extension/reader/reader.html",
   "bible": "docs/biblia/extension/reader/reader.html/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "agent": null,
   "source_sha": "065fc4e201c5661ffafa0de8626940929420ad3f",
   "completed_at_utc": "2026-09-30T06:18:25.223Z",
   "audit_requests": [
@@ -38,5 +38,11 @@
     "embedded_source_exact": true,
     "documented_positions": "78/78",
     "bible_lines": 1075
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "started_at_utc": null,
+  "history": [],
+  "evidence": []
 }

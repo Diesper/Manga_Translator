@@ -3,7 +3,7 @@
   "file": ".gitignore",
   "bible": "docs/biblia/.gitignore/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "e48fc70b1acc14aabb245f0db1820bc6c7a2849e",
   "started_at_utc": "2026-09-30T13:30:00Z",
   "completed_at_utc": "2026-09-30T13:35:00Z",
@@ -49,5 +49,10 @@
     "source_text_lines": 37,
     "external_audit_requests_open": 2,
     "note": "Bíblia pré-existente do Agente L revalidada pelo AGENTE 17 sem substituir autoria; fonte integral exata."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

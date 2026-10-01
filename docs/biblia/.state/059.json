@@ -3,7 +3,7 @@
   "file": "extension/shared/shared-ui.js",
   "bible": "docs/biblia/extension/shared/shared-ui.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 13",
+  "agent": null,
   "source_sha": "b284fb8eb0e8d30f34dc83642f07916d20012bf0",
   "started_at_utc": "2026-09-30T22:00:00Z",
   "completed_at_utc": "2026-09-30T22:02:00Z",
@@ -39,5 +39,10 @@
     "audit_status_verified": "APPROVED",
     "historical_audit_requests_recovered": false,
     "completed": true
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

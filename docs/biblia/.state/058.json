@@ -3,7 +3,7 @@
   "file": "extension/shared/gtc-indexeddb.js",
   "bible": "docs/biblia/extension/shared/gtc-indexeddb.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 13",
+  "agent": null,
   "source_sha": "0c872f23a665304b46dc2bb43c6468762feb2e31",
   "started_at_utc": "2026-09-30T21:55:00Z",
   "completed_at_utc": "2026-09-30T21:58:00Z",
@@ -39,5 +39,10 @@
     "audit_status_verified": "APPROVED",
     "historical_audit_requests_recovered": false,
     "completed": true
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

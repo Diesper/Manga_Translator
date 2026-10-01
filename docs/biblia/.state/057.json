@@ -34,5 +34,6 @@
     "coordination_repair": "Restored approved document to COMPLETED after verifying current source SHA and independent audit.",
     "original_completed_at_utc": "unknown / not_recovered",
     "administrative_reopen_started_at_utc": "2026-09-30T16:16:00Z"
-  }
+  },
+  "evidence": []
 }

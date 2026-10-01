@@ -3,7 +3,7 @@
   "file": "jest.config.js",
   "bible": "docs/biblia/jest.config.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
   "started_at_utc": "2026-09-30T14:36:00Z",
   "completed_at_utc": "2026-09-30T14:42:00Z",
@@ -60,5 +60,10 @@
     "source_text_lines": 90,
     "external_audit_requests_open": 2,
     "note": "Config canônico e partição dos oito projetos revalidados; lacunas limitadas a self-tests da infraestrutura/configuração."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
