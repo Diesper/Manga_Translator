@@ -2,15 +2,15 @@
   "index": 102,
   "file": "tests/helpers/load-content-script.js",
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
-  "started_at_utc": "2026-09-30T06:21:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "102-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "SOURCE_DOCUMENTATION_CORRECTION",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -27,11 +27,23 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:22:00Z",
       "audit_finding": "ACCEPTED. O JSDoc de `loadContentScript` declara retorno `{ listeners, getState }`, enquanto a implementação real retorna helpers como `sendMessage`, `getButton` e `getMainContent`, usados pelos consumidores atuais. A documentação inline está stale.",
-      "auditor_recommended_action": "Corrigir apenas o JSDoc/assinatura documental em mudança separada, preservando o contrato runtime existente."
+      "auditor_recommended_action": "Corrigir apenas o JSDoc/assinatura documental em mudança separada, preservando o contrato runtime existente.",
+      "resolution": "JSDoc de loadContentScript agora descreve { sendMessage, getButton, getMainContent }; self-test atual verifica associação à função pública. Run 36941566574/job 110634026523: 28/28 focais e 445/445 relacionados verdes.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:41:30Z",
+      "validation": {
+        "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+        "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+        "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+        "run_id": 36941566574,
+        "job_id": 110634026523,
+        "focal": "28/28 passed with --detectOpenHandles",
+        "related": "40/40 suites; 445/445 tests passed"
+      }
     },
     {
       "id": "102-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "RESOURCE_LIFECYCLE_REVIEW",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -48,11 +60,23 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. `sendMessage` sempre agenda fallback de 50 ms e não o cancela quando listener responde antes, deixando timer residual curto.",
-      "auditor_recommended_action": "Cancelar o fallback na primeira resolução e adicionar teste de zero timer pendente após resposta precoce, se o projeto exigir teardown limpo."
+      "auditor_recommended_action": "Cancelar o fallback na primeira resolução e adicionar teste de zero timer pendente após resposta precoce, se o projeto exigir teardown limpo.",
+      "resolution": "sendMessage cancela fallback após settlement, cobre resposta síncrona/assíncrona, silêncio, throws e canal async bounded; self-test roda com --detectOpenHandles. Run 36941566574/job 110634026523: success.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:41:30Z",
+      "validation": {
+        "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+        "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+        "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+        "run_id": 36941566574,
+        "job_id": 110634026523,
+        "focal": "28/28 passed with --detectOpenHandles",
+        "related": "40/40 suites; 445/445 tests passed"
+      }
     },
     {
       "id": "102-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "STATIC_CONTRACT_TEST_REQUIRED",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -69,11 +93,23 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. A ordem dos seis módulos no harness coincide hoje com o manifest, mas é duplicada manualmente e não existe gate que compare as sequências.",
-      "auditor_recommended_action": "Adicionar contrato estático de inclusão/ordem ou derivar ambos de fonte canônica."
+      "auditor_recommended_action": "Adicionar contrato estático de inclusão/ordem ou derivar ambos de fonte canônica.",
+      "resolution": "A ordem do bundle é derivada diretamente de extension/manifest.json por getMangaContentScriptRelativePaths(); self-test compara o retorno ao Manifest atual. Run 36941566574/job 110634026523: success.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:41:30Z",
+      "validation": {
+        "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+        "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+        "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+        "run_id": 36941566574,
+        "job_id": 110634026523,
+        "focal": "28/28 passed with --detectOpenHandles",
+        "related": "40/40 suites; 445/445 tests passed"
+      }
     },
     {
       "id": "102-004",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_HARNESS_ROBUSTNESS",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -90,11 +126,23 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:45:00Z",
       "audit_finding": "ACCEPTED. O polling de readiness termina após 250 ms sem erro/sinal caso a UI esperada não fique pronta; consumers seguem adiante assumindo bootstrap completo.",
-      "auditor_recommended_action": "Definir timeout como reject/estado explícito ou documentar best-effort; adicionar cenário de bootstrap lento com diagnóstico causal."
+      "auditor_recommended_action": "Definir timeout como reject/estado explícito ou documentar best-effort; adicionar cenário de bootstrap lento com diagnóstico causal.",
+      "resolution": "Bootstrap incompleto rejeita com diagnóstico causal e cleanup; exceções intermediárias restauram captura global e liberam guard concorrente. Run 36941566574/job 110634026523: success.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:41:30Z",
+      "validation": {
+        "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+        "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+        "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+        "run_id": 36941566574,
+        "job_id": 110634026523,
+        "focal": "28/28 passed with --detectOpenHandles",
+        "related": "40/40 suites; 445/445 tests passed"
+      }
     },
     {
       "id": "102-005",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "RESOURCE_LIFECYCLE_REVIEW",
       "target_file": "tests/helpers/load-content-script.js",
       "found_while_auditing": "tests/helpers/load-content-script.js",
@@ -111,23 +159,35 @@
       "audited_by": "AGENTE 11",
       "audited_at_utc": "2026-10-01T06:04:31Z",
       "audit_finding": "ACCEPTED. O listener de imageMinDimensions não consulta isActiveContentInstance e storageMock._listeners não é resetado; reinjeções podem manter callbacks stale ativos.",
-      "auditor_recommended_action": "Definir cleanup/guard explícito e adicionar teste de cargas repetidas antes de alegar neutralização integral de listeners antigos."
+      "auditor_recommended_action": "Definir cleanup/guard explícito e adicionar teste de cargas repetidas antes de alegar neutralização integral de listeners antigos.",
+      "resolution": "Ownership de listeners storage/runtime/global é rastreado entre reinjeções e jest.resetModules; cleanup cobre falha parcial, timeout, teardown que lança e removeListener que lança, preservando listeners externos. Run 36941566574/job 110634026523: success.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:41:30Z",
+      "validation": {
+        "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+        "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+        "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+        "run_id": 36941566574,
+        "job_id": 110634026523,
+        "focal": "28/28 passed with --detectOpenHandles",
+        "related": "40/40 suites; 445/445 tests passed"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "172/172",
-    "source_text_lines": 171,
-    "bible_lines": 862,
-    "external_audit_requests_open": 5,
-    "note": "Fonte integral verificada byte/texto contra o blob; cobertura por faixas contíguas 1-172; nenhum arquivo externo alterado.",
-    "repair_note": "Segunda rodada de reparo concluída: guard active_instance limitado aos callbacks que o consultam; listener de dimensões explicitamente excluído; semântica de throw após settlement corrigida; 102-005 documentada como ACCEPTED."
+    "documented_positions": "496/496",
+    "source_text_lines": 495,
+    "bible_lines": 650,
+    "external_audit_requests_open": 0,
+    "note": "Fonte/Bíblia/self-test/workflow vinculados aos blobs validados. Run 36941566574/job 110634026523 executou exatamente source 0b52224..., self-test e69bbea... e workflow e5689d6...: 28/28 focais com --detectOpenHandles; 40/40 suites e 445/445 testes relacionados.",
+    "repair_note": "102-001..005 resolvidos por correção funcional + regressões focais; unidade devolvida para nova auditoria independente, sem atribuir DONE/100 antecipadamente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:02:00Z",
+  "updated_at_utc": "2026-10-01T23:41:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -289,6 +349,18 @@
       "previous_source_sha": "1eb37bc08852bab1bd6b060073690f9d756fc35a",
       "current_source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
       "reason": "attachCleanupError deixou de usar catch best-effort; metadata secundária só é anexada quando o erro primário é extensível e a propriedade é gravável."
+    },
+    {
+      "at_utc": "2026-10-01T23:41:30Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+      "bible_sha": "56216f1a496348322f51595e5622214afa8e4513",
+      "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+      "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Cinco requests corrigidos e validados. Run 36941566574/job 110634026523: 28/28 focal com detectOpenHandles; 40/40 suites e 445/445 testes relacionados."
     }
   ],
   "evidence": [
@@ -313,6 +385,22 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T11:23:26Z",
       "note": "Fonte 172/172 permaneceu inalterada. Bíblia agora limita ownership guard aos listeners que o consultam, corrige settlement de throws síncronos e documenta 102-005; reauditoria independente necessária."
+    },
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-01T23:41:30Z",
+      "source_sha": "0b52224bd7063db9b6bb683d827217d8f2fda69c",
+      "bible_sha": "56216f1a496348322f51595e5622214afa8e4513",
+      "selftest_sha": "e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde",
+      "workflow_sha": "e5689d6a5acbd81f633d906c24b6a8f6c6fcc663",
+      "run_id": 36941566574,
+      "job_id": 110634026523,
+      "result": "PASS",
+      "focal": "28/28",
+      "related_suites": "40/40",
+      "related_tests": "445/445",
+      "open_handles": "self-test executed with --detectOpenHandles",
+      "note": "GitHub API confirmou que a run executou exatamente os blobs atualmente presentes no branch."
     }
   ]
 }
