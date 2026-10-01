@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 66,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 66",
+  "file": ".github/workflows/publish.yml",
+  "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
+  "source_sha": "f673d445a3cc022d473f9b59ae1e0c8972ecd013",
+  "bible_sha": "2c37e604bcef3128fd1106a7a427782b37a39f4f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "066-ADV66-001",
+      "category": "SEMANTIC_MISMATCH",
+      "severity": "BLOCKING",
+      "summary": "A Bíblia amplia incorretamente a semântica do filtro de tags `v*` para qualquer nome de tag que comece por `v`.",
+      "evidence": [
+        "No source, Linhas 3–8 configuram `on.push.tags` com o padrão exato `v*`.",
+        "Na Bíblia, Linha 337 afirma: `Declara workflow_dispatch e push de qualquer tag cujo nome comece por v.`",
+        "Na sintaxe de filtros de branches/tags do GitHub Actions, `*` não corresponde ao caractere `/`; `**` corresponde. Portanto `v/foo` começa por `v`, mas não corresponde a `v*`.",
+        "O gate `verify-publish-contract.js` apenas exige textualmente o padrão `v*`; ele não transforma esse padrão em `v**` nem sustenta a formulação mais ampla da Bíblia."
+      ],
+      "required_change": "Corrigir a descrição para a semântica real do glob `v*` (por exemplo, `tags cujo nome corresponde ao padrão v*`, explicitando que `*` não atravessa `/`) e revalidar a faixa 3–8."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:26:15Z"
+}
