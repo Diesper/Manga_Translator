@@ -2,11 +2,11 @@
   "index": 207,
   "file": "tests/unit/content-manga/image-filtering.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/image-filtering.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 25",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "a187a4c6e681457067746964c7c714c64542e4a8",
   "started_at_utc": "2026-09-30T13:29:00Z",
-  "completed_at_utc": "2026-09-30T13:31:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "207-001",
@@ -38,5 +38,10 @@
     "bible_lines": 244,
     "external_audit_requests_open": 1,
     "note": "Conclusão documental particionada; demais arquivos permaneceram read-only."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

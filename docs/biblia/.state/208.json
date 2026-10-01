@@ -2,11 +2,11 @@
   "index": 208,
   "file": "tests/unit/content-manga/image-fingerprint.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/image-fingerprint.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 25",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e4e553c7702701fd17a1d1f3ed2e429ad23934fd",
   "started_at_utc": "2026-09-30T13:40:00Z",
-  "completed_at_utc": "2026-09-30T13:44:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "208-001",
@@ -101,5 +101,10 @@
     "documented_positions": "174/174",
     "bible_lines": 374,
     "external_audit_requests_open": 4
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

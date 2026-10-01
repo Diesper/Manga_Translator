@@ -2,11 +2,11 @@
   "index": 210,
   "file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/twin-backdrop-sync.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 25",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "5d2151b3673af6ca7c4faf39b4a23d039d9aaa64",
   "started_at_utc": "2026-09-30T13:55:00Z",
-  "completed_at_utc": "2026-09-30T13:59:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "210-001",
@@ -80,5 +80,10 @@
     "bible_lines": 298,
     "external_audit_requests_open": 3,
     "reaudit_consistency": true
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

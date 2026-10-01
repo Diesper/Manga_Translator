@@ -2,11 +2,11 @@
   "index": 206,
   "file": "tests/unit/content-manga/get-page-images-filter.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/get-page-images-filter.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 25",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d48888d1237e2429180c6c5814e8f5b5bcc83f12",
   "started_at_utc": "2026-09-30T13:34:00Z",
-  "completed_at_utc": "2026-09-30T13:38:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "206-001",
@@ -103,5 +103,10 @@
     "takeover_authorized": true,
     "previous_agent": "AGENTE 21",
     "note": "Takeover autorizado explicitamente pelo usuário. Nenhuma Bíblia anterior existia no momento da transferência."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
