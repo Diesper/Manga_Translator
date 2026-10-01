@@ -2,11 +2,11 @@
   "index": 100,
   "file": "tests/helpers/load-background-module.js",
   "bible": "docs/biblia/tests/helpers/load-background-module.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113",
   "started_at_utc": "2026-09-30T06:21:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T14:31:39.756Z",
   "audit_requests": [
     {
       "id": "100-001",
@@ -100,12 +100,31 @@
     "documented_positions": "121/121",
     "source_text_lines": 120,
     "bible_lines": 826,
-    "external_audit_requests_open": 4,
-    "note": "Conclusão documental; nenhuma mudança funcional foi usada para fabricar evidência."
+    "external_audit_requests_open": 0,
+    "note": "Conclusão documental confirmada por auditoria independente; 121/121 posições, source integral exato e requests 100-001..004 ACCEPTED como dívida externa."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T14:31:39.756Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T14:31:39.756Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113",
+      "auditor": "AGENTE 6",
+      "reason": "Auditoria independente confirmou SHA, fonte integral, cobertura 121/121, background real, consumers, evidence classification e trust boundaries. Requests 100-001..004 permanecem ACCEPTED como dívida externa não bloqueante."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T14:31:39.756Z",
+      "note": "Passagens 0–15 concluídas. Integridade, veracidade e honestidade confirmadas 3x para a Bíblia #100."
+    }
+  ]
 }
