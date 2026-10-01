@@ -11,7 +11,7 @@
 
 ## 1. Papel arquitetural
 
-`tests/integration/ipc/gtc-indexeddb-deep.test.js` conecta peças reais do pipeline de Global Translation Cache (GTC) em um ambiente controlado: carrega `extension/content/content_manga.js` pelo helper `loadContentScript`, usa `createFingerprintFromDescriptor` real, registra `createGtcRuntimeHandler` real sobre o runtime mock e persiste em um `createIndexedDbRepository` real alimentado por `fake-indexeddb`.
+`tests/integration/ipc/gtc-indexeddb-deep.test.js` conecta peças reais do pipeline de Global Translation Cache (GTC) em um ambiente controlado: `loadContentScript` carrega `gtc-fingerprint.js`, `cm-gtc-client.js` e então `content_manga.js` na ordem do harness; `content_manga.js` faz rebind das operações GTC para `window.MangaTranslatorGtcClient`. A suíte também usa `createFingerprintFromDescriptor` real, registra `createGtcRuntimeHandler` real sobre o runtime mock e persiste em um `createIndexedDbRepository` real alimentado por `fake-indexeddb`.
 
 A suíte é mais forte que um teste que reimplementa o algoritmo localmente: as decisões de consulta `GTC_QUERY_MANY`, aplicação de cache hit e persistência `GTC_SAVE` passam pelas implementações de produção dos módulos citados. Ao mesmo tempo, ela **não inicializa o service worker `extension/background.js` completo** e não usa o IndexedDB nativo de Chromium; o “background” é representado pelo handler real registrado diretamente no runtime mock.
 
@@ -22,7 +22,8 @@ A suíte é mais forte que um teste que reimplementa o algoritmo localmente: as 
 - WebCrypto de Node é exposto como `global.crypto`;
 - `TextEncoder` de `util` é exposto globalmente;
 - `tests/helpers/repo-root.js` encontra a raiz sem depender do cwd;
-- `tests/helpers/load-content-script.js` prepara JSDOM, storage, imagens e carrega os módulos reais do content script;
+- `tests/helpers/load-content-script.js` prepara JSDOM, storage, imagens e carrega os módulos reais do content script na ordem `gtc-fingerprint → cm-gtc-client → cm-dom-replace → cm-chapter → cm-auto-restore → content_manga`;
+- `extension/content/cm-gtc-client.js` publica `window.MangaTranslatorGtcClient`; ao inicializar, `content_manga.js` exige esse objeto e reatribui `generateImageFingerprint`, queries GTC e `saveGlobalTranslationCacheEntry` para as funções do cliente;
 - `tests/mocks/chrome-api.mock.js` fornece `chrome.runtime` e `chrome.storage`;
 - `extension/shared/gtc-indexeddb.js` fornece o repositório e o handler IPC reais;
 - `extension/shared/gtc-fingerprint.js` fornece o fingerprint real;
@@ -33,11 +34,11 @@ A suíte é mais forte que um teste que reimplementa o algoritmo localmente: as 
 
 ### 3.1 Consulta do cache
 
-No `content_manga.js`, `queryGlobalTranslationCache` envia `{ action: 'GTC_QUERY_MANY', hashes }` e aceita `entriesByHash` quando a resposta é `ok`. O teste registra `createGtcRuntimeHandler({ repository })`, cujo branch `GTC_QUERY_MANY` chama `repository.getMany(...)` e responde de forma assíncrona pelo runtime mock.
+No harness real desta suíte, `loadContentScript` carrega `cm-gtc-client.js` antes de `content_manga.js`; o bootstrap de `content_manga.js` obtém `window.MangaTranslatorGtcClient` e faz rebind de `queryGlobalTranslationCache` (assim como das demais operações GTC) para esse módulo. É portanto a implementação de `cm-gtc-client.js` que emite `{ action: 'GTC_QUERY_MANY', hashes }` no caminho operacional carregado pelo teste. O teste registra `createGtcRuntimeHandler({ repository })`, cujo branch `GTC_QUERY_MANY` chama `repository.getMany(...)` e responde de forma assíncrona pelo runtime mock.
 
 Assim, o cenário de cache hit prova uma cadeia real:
 
-`content_manga.js → chrome.runtime.sendMessage → createGtcRuntimeHandler → createIndexedDbRepository → resposta IPC → content_manga.js → DOM`.
+`content_manga.js (call site) → MangaTranslatorGtcClient → chrome.runtime.sendMessage → createGtcRuntimeHandler → createIndexedDbRepository → resposta IPC → MangaTranslatorGtcClient/content_manga.js → DOM`.
 
 ### 3.2 Persistência de UPDATE_IMAGE
 
@@ -147,7 +148,7 @@ O teste cria 50 hashes/entradas, carrega 50 imagens e exige:
 
 ## 8. Solicitações ao auditor
 
-### 111-001 — PERFORMANCE_ASSERTION_GAP — OPEN
+### 111-001 — PERFORMANCE_ASSERTION_GAP — ACCEPTED
 
 **Encontrado:** o contrato textual afirma “menos de 200ms”, mas a assertion aceita `elapsedMs < 1000`.  
 **Arquivo relacionado:** `tests/integration/ipc/gtc-indexeddb-deep.test.js`.  
@@ -157,7 +158,7 @@ O teste cria 50 hashes/entradas, carrega 50 imagens e exige:
 **Risco:** regressões entre 200 e 999 ms permanecem verdes enquanto a documentação do teste promete 200 ms.  
 **Severidade:** HIGH.
 
-### 111-002 — PERFORMANCE_BENCHMARK_REVIEW — OPEN
+### 111-002 — PERFORMANCE_BENCHMARK_REVIEW — ACCEPTED
 
 **Encontrado:** o cenário “50 imagens pesadas” usa strings data URL pequenas, JSDOM, fake-indexeddb e MutationObserver no-op.  
 **Arquivo relacionado:** `tests/integration/ipc/gtc-indexeddb-deep.test.js`.  
@@ -167,7 +168,7 @@ O teste cria 50 hashes/entradas, carrega 50 imagens e exige:
 **Risco:** o teste pode permanecer rápido enquanto a experiência real degrada, ou flutuar por carga do runner sem representar o produto.  
 **Severidade:** NORMAL.
 
-### 111-003 — RESOURCE_CLEANUP — OPEN
+### 111-003 — RESOURCE_CLEANUP — ACCEPTED
 
 **Encontrado:** cada `beforeEach` cria um banco com nome único, mas o `afterEach` não chama `repository.clear()` nem apaga o database; `fs` também é importado sem uso.  
 **Arquivo relacionado:** `tests/integration/ipc/gtc-indexeddb-deep.test.js`.  
@@ -518,6 +519,8 @@ Os blocos abaixo são contíguos e cobrem **1–312 sem lacunas**.
 | 254–311 | cenário de 50 hits, medição, ausência de fetch/Gemini e cardinalidade da query | ✅ funcionalmente; ⚠️ limite de 200 ms não é provado porque a linha 304 exige apenas <1000 ms |
 | 312 | newline final | 🟦 posição estrutural explicitamente contabilizada |
 
+**Reparo editorial 2026-10-01:** a documentação foi alinhada ao finding independente: `cm-gtc-client.js` passa a constar como dependência/owner operacional das chamadas GTC carregadas pelo harness, e 111-001..003 refletem o lifecycle canônico `ACCEPTED`. O source do teste permaneceu inalterado; reauditoria independente continua necessária.
+
 ## 11. Verificação documental final
 
 - SHA reconfirmado contra o branch antes da escrita: **sim**;
@@ -527,5 +530,5 @@ Os blocos abaixo são contíguos e cobrem **1–312 sem lacunas**.
 - implementação real distinguida de mocks/harness: **sim**;
 - prova direta distinguida de gate estático/execução indireta/lacuna: **sim**;
 - problemas externos não foram corrigidos para fabricar evidência: **sim**;
-- solicitações ao auditor abertas: **3**;
+- solicitações registradas no state: **3 ACCEPTED, 0 OPEN**;
 - `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, código, testes, fixtures e configs externos permaneceram somente leitura para AGENTE 6.
