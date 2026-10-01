@@ -2,8 +2,8 @@
   "index": 166,
   "file": "tests/unit/background/router.test.js",
   "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
   "started_at_utc": "2026-09-30T13:05:00Z",
   "completed_at_utc": null,
@@ -91,7 +91,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T18:28:36.664Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:28:36.664Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
+      "reason": "166-ADV-001/002: rebaixar overclaim do gate de origem e sincronizar lifecycle."
+    }
+  ],
   "evidence": []
 }
