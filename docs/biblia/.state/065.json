@@ -2,10 +2,10 @@
   "index": 65,
   "file": ".github/workflows/ci.yml",
   "bible": "docs/biblia/.github/workflows/ci.yml/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 15",
+  "status": "COMPLETED",
+  "agent": null,
   "source_sha": "ebee75820db9bfab618bf3c3016065c5bc857ed7",
-  "started_at_utc": "2026-09-30T22:03:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -32,7 +32,10 @@
     "original_bible_agent": "AGENTE 3",
     "bible_sha": "cee86319dbbff5b138da44dc9c894d1b0f8584ab",
     "audit_status_verified": "APPROVED",
-    "historical_audit_requests_recovered": false
+    "historical_audit_requests_recovered": false,
+    "coordination_repair": "Restored approved document to COMPLETED after verifying current source SHA and independent audit.",
+    "original_completed_at_utc": "unknown / not_recovered",
+    "administrative_reopen_started_at_utc": "2026-09-30T22:03:00Z"
   },
   "takeover_history": [
     {
@@ -43,5 +46,17 @@
       "reason": "Usuário informou que os demais agentes não estão mais ativos e autorizou o AGENTE 15 a herdar todas as autorizações dos arquivos ainda em progresso."
     }
   ],
-  "last_update_utc": "2026-09-30T22:00:00Z"
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T01:39:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T01:39:00Z",
+      "type": "COORDINATION_REPAIR",
+      "from_status": "IN_PROGRESS",
+      "to_status": "COMPLETED",
+      "reason": "Recuperação administrativa havia reaberto uma Bíblia já aprovada. Fonte, SHA atual, Bíblia e aprovação independente foram revalidados; lifecycle documental restaurado sem reauditoria desnecessária.",
+      "previous_owner": "AGENTE 15"
+    }
+  ]
 }
