@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-manga/get-clean-url.test.js
-BÍBLIA: docs/biblia/tests/unit/content-manga/get-clean-url.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: a04fe1e3552d5b61a91442496a1294e6d8379fbf
-CLAIMED_AT_UTC: 2026-10-01T21:35:04.406Z
-UPDATED_AT_UTC: 2026-10-01T21:35:04.406Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
