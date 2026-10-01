@@ -1,6 +1,6 @@
 # Bíblia técnica — scripts/validation/verify-publish-contract.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
+> **Estado documental:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `f5b3f6c69f85f90fe43689de2e44b6ed70cca757`  
 > **Agente responsável:** AGENTE 11  
 > **Tipo:** gate CLI Node.js de integridade do contrato de publicação  
@@ -57,7 +57,7 @@ O desenho combina checks positivos (marcadores que precisam existir), checks neg
 | `validate:publish` aponta para este arquivo | assertion estática em `verify-ci-contract.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
 | workflow de CI chama `validate:publish` | assertion estática em `verify-ci-contract.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
 | este verificador retém marcadores de `sync-version.js`, `cp -R extension/.` e `docs/Documentação.md` | loop específico em `verify-ci-contract.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| caminho verde do CLI na CI | job `ci-contract` chama o CLI real | 🟨 EXECUTADO INDIRETAMENTE |
+| wiring do CLI na CI | `package.json#validate:publish` + job `ci-contract` referenciam o CLI | 🟦 GATE ESTÁTICO/WIRING — a run observada estava pending e não prova execução verde deste blob |
 | arquivo obrigatório ausente | nenhum self-test focal localizado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | marcador positivo removido | nenhum self-test focal localizado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | path legado reintroduzido | nenhum self-test focal localizado | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -65,7 +65,7 @@ O desenho combina checks positivos (marcadores que precisam existir), checks neg
 | marcador de `sync-version.js` removido | nenhum self-test focal do verificador | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 | mensagem e exit 1 para cada branch negativo | nenhuma assertion focal por subprocesso | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 
-Na consulta feita durante esta auditoria, o run `MangaTranslator CI` do head observado do PR #66 ainda estava **pending**; esse run não foi usado como prova de sucesso.
+Na consulta feita durante esta auditoria, o run `MangaTranslator CI` do head observado do PR #66 ainda estava **pending**; portanto ele **não é evidência de execução** desta revisão. O que está comprovado nesta seção é o wiring estático que faz a CI chamar `validate:publish`.
 
 ## 6. Invariantes
 
@@ -96,11 +96,11 @@ Na consulta feita durante esta auditoria, o run `MangaTranslator CI` do head obs
 
 ## 8. Solicitações ao auditor
 
-### 088-001 — TEST_REQUIRED — OPEN
+### 088-001 — TEST_REQUIRED — ACCEPTED
 
 Não existe self-test focal do CLI cobrindo: ausência dos quatro arquivos, perda dos marcadores positivos, reintrodução dos paths legados, trigger `v*`, perda dos marcadores do sincronizador, mensagens e exit code. Solicita-se self-test separado em sandbox/subprocesso usando a implementação real.
 
-### 088-002 — CONTRACT_REVIEW — OPEN
+### 088-002 — CONTRACT_REVIEW — ACCEPTED
 
 O gate usa texto bruto (`includes`/regex). Solicita-se decidir explicitamente se falsos positivos por comentário/string e falsos negativos por refatoração equivalente são trade-off aceito; se não forem, fortalecer o gate em mudança funcional separada, com regressões próprias.
 
@@ -190,7 +190,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 2
 
@@ -210,7 +210,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 4
 
@@ -220,7 +220,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 5
 
@@ -240,7 +240,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 7
 
@@ -250,7 +250,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 8
 
@@ -270,7 +270,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 10
 
@@ -280,7 +280,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 11
 
@@ -290,7 +290,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 12
 
@@ -310,7 +310,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 14
 
@@ -320,7 +320,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 15
 
@@ -330,7 +330,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 16
 
@@ -340,7 +340,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 17
 
@@ -350,7 +350,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 18
 
@@ -360,7 +360,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 19
 
@@ -370,7 +370,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 20
 
@@ -380,7 +380,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 21
 
@@ -400,7 +400,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 23
 
@@ -410,7 +410,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 24
 
@@ -420,7 +420,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 25
 
@@ -430,7 +430,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 26
 
@@ -440,7 +440,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 27
 
@@ -450,7 +450,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 28
 
@@ -480,7 +480,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 31
 
@@ -500,7 +500,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 33
 
@@ -510,7 +510,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 34
 
@@ -520,7 +520,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 35
 
@@ -530,7 +530,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 36
 
@@ -540,7 +540,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 37
 
@@ -550,7 +550,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 38
 
@@ -560,7 +560,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 39
 
@@ -570,7 +570,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 40
 
@@ -580,7 +580,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 41
 
@@ -590,7 +590,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 42
 
@@ -600,7 +600,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 43
 
@@ -610,7 +610,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 44
 
@@ -620,7 +620,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 45
 
@@ -630,7 +630,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 46
 
@@ -640,7 +640,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 47
 
@@ -650,7 +650,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 48
 
@@ -660,7 +660,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 49
 
@@ -680,7 +680,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 51
 
@@ -690,7 +690,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 52
 
@@ -700,7 +700,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 53
 
@@ -710,7 +710,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 54
 
@@ -720,7 +720,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 55
 
@@ -730,7 +730,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 56
 
@@ -740,7 +740,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 57
 
@@ -750,7 +750,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 58
 
@@ -760,7 +760,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 59
 
@@ -770,7 +770,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 60
 
@@ -780,7 +780,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 61
 
@@ -790,7 +790,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 62
 
@@ -800,7 +800,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 63
 
@@ -810,7 +810,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 64
 
@@ -830,7 +830,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 66
 
@@ -840,7 +840,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 67
 
@@ -850,7 +850,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 68
 
@@ -860,7 +860,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 69
 
@@ -870,7 +870,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 70
 
@@ -890,7 +890,7 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 
 **Racional técnico:** A linha participa do gate fail-closed que preserva caminhos e marcadores canônicos sem alterar os arquivos auditados.
 
-**Evidência:** 🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a `package.json#validate:publish` e ao job `ci-contract`, mas não há self-test focal deste ramo.
+**Evidência:** 🟦 GATE ESTÁTICO/WIRING — `package.json#validate:publish` e o job `ci-contract` referenciam este CLI; isso prova alcançabilidade/configuração, não que este ramo tenha sido executado com sucesso no blob auditado.
 
 ### Linha/posição 72
 
@@ -911,3 +911,5 @@ console.log('Contrato de publicação validado: extensão, docs e versionamento 
 - Evidências classificadas sem promover ocorrência textual a prova direta.
 - Lacunas externas registradas em `.state/088.json`; nenhum arquivo externo foi modificado.
 - `STATUS.md`, `CHECKLIST.md` e `AUDITORIA.md` permaneceram somente leitura neste escopo.
+
+> **Correção pós-REAUDIT:** 088-001 e 088-002 estão ACCEPTED; 60 classificações line-a-line baseadas apenas em wiring foram rebaixadas de EXECUTADO_INDIRETAMENTE para GATE_ESTATICO/WIRING. Nenhuma run pending é usada como prova de sucesso.
