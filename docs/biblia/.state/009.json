@@ -2,8 +2,8 @@
   "index": 9,
   "file": "extension/background/actions/deliver-result.js",
   "bible": "docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "3653bd10c2a0e65c14eb139f906feeafb30411a5",
   "started_at_utc": "2026-09-30T12:50:00Z",
   "completed_at_utc": null,
@@ -92,6 +92,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "3653bd10c2a0e65c14eb139f906feeafb30411a5",
       "reason": "A8-009-R-01..03: contrato persisted, síntese do helper e wiring router/background."
+    },
+    {
+      "at_utc": "2026-10-01T19:53:26.635Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "3653bd10c2a0e65c14eb139f906feeafb30411a5",
+      "bible_sha": "f8bc4693ee82bd7156d03420bbff9c7cc378161c",
+      "reason": "A8-009-R-01..03 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
