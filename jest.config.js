@@ -1,7 +1,6 @@
 'use strict';
 
 const isCoverage = process.env.COVERAGE_MODE === '1';
-const includeLoadContentScriptInfra = process.env.JEST_LOAD_CONTENT_SCRIPT_SELFTEST === '1';
 
 const unitProjects = [
   {
@@ -80,15 +79,6 @@ module.exports = {
         '<rootDir>/tests/mocks/dom-environment.js',
       ],
     },
-    ...(includeLoadContentScriptInfra ? [{
-      displayName: 'load-content-script-infra',
-      testEnvironment: 'jsdom',
-      testMatch: ['<rootDir>/docs/biblia/.coordination/load-content-script-selftest.test.js'],
-      setupFilesAfterEnv: [
-        '<rootDir>/tests/mocks/chrome-api.mock.js',
-        '<rootDir>/tests/mocks/dom-environment.js',
-      ],
-    }] : []),
   ],
   ...(isCoverage ? {
     coverageProvider: 'v8',
