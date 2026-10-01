@@ -6,12 +6,11 @@ const path = require('path');
 const childProcess = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '../../..');
-const verifier = path.join(repoRoot, 'scripts', 'validation', 'verify-repository-structure.js');
-
 function run(root) {
+  const verifier = path.join(root, 'scripts', 'validation', 'verify-repository-structure.js');
   return childProcess.spawnSync(process.execPath, [verifier], {
     cwd: root,
-    env: { ...process.env, MANGA_TRANSLATOR_REPO_ROOT: root },
+    env: { ...process.env },
     encoding: 'utf8',
     timeout: 30000,
   });
