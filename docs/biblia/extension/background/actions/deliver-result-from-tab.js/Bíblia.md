@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/deliver-result-from-tab.js`
 
-> **Estado:** ✅ REAUDITADO E APROVÁVEL.  
+> **Estado:** 🟡 CORRIGIDO APÓS REAUDIT — READY_FOR_AUDIT da revisão documental atual.  
 > **SHA auditado:** `59543c1359669ced02a1d05c251b272abaad6709`  
 > **Tipo:** action assíncrona — ingestão de resultado de aba auxiliar.  
 > **Linhas textuais:** **103**.  
@@ -42,6 +42,13 @@ O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal
 
 `content_manga.js` envia `IMAGE_READY_FROM_NEW_TAB` com os dados recebidos de `CHECK_IF_EXTRACTION_TAB`. Se o ACK do background não confirmar persistência, ele redefine `imageDelivered=false` e agenda nova tentativa; após ACK persistido encerra a extração.
 
+### Wiring runtime da action
+
+- `extension/background/router.js` define o alias `IMAGE_READY_FROM_NEW_TAB: 'deliver-result-from-tab'`; essa é a prova primária da relação alias→nome canônico.
+- `extension/background.js` carrega `background/actions/deliver-result-from-tab.js` no bootstrap real, tanto no caminho `importScripts` quanto no harness Node/`require`.
+- O dispatcher/router então resolve `IMAGE_READY_FROM_NEW_TAB` para esta action registrada como `deliver-result-from-tab`.
+- `tests/unit/background/message-handlers-real.test.js` atravessa o background real com `IMAGE_READY_FROM_NEW_TAB`, servindo como prova integrada do wiring; isso é distinto da prova focal do comportamento interno desta action.
+
 `tests/unit/content-manga/extraction-and-handlers-real.test.js` prova esse retry do consumidor com runtime responder mockado. Isso complementa, mas não substitui, a prova direta da action.
 
 ## 6. Matriz de evidência
@@ -50,7 +57,7 @@ O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal
 |---|---|---|
 | `deliver-result-from-tab-action.test.js` | ✅ PROVADO DIRETAMENTE | Payload inválido antes de reidratar, mapping/jobId mismatch, sucesso completo, independência de `currentBatchId`, falha de staging preservando aba/mapping e finalize somente após sucesso. |
 | `jobs-dom-ack-staging.test.js` — `5db47daff53026aa778944c999d7dc922f35ecad` | ✅ PROVADO DIRETAMENTE DO HELPER | `finalizeOnAck:false`, persistência `dom_applied/resultPersisted`, ACK negativo, timeout e runtime error sem finalize. |
-| `process-finalize-real.test.js` — `abb1b936fadf0e309933e39b4b705116eb320a1f` | ✅ PROVADO DIRETAMENTE DO LIFECYCLE | Finalize real, marcador durável, contabilidade/cleanup e casos de restart; prova o helper chamado depois do staging. |
+| `process-finalize-real.test.js` — `abb1b936fadf0e309933e39b4b705116eb320a1f` | ✅ PROVADO DIRETAMENTE DO LIFECYCLE DE FINALIZE | Exercita `finalizeJob` real, marcador durável, contabilidade/cleanup e restart; **não executa esta action nem o staging e não prova a ordem staging→finalize**. |
 | `extraction-and-handlers-real.test.js` — `038961e8228c7b5f1a87023a739ad5f33288423b` | 🟨 PROVA DO CONSUMIDOR | ACK persistido encerra; ACK não confirmado repete exatamente a entrega. A resposta do background é mockada. |
 
 ## 7. Lacunas de teste e riscos
@@ -222,7 +229,7 @@ O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal
 | 003 | U01 | ␠ [linha vazia] | Separador visual de U01 (Cabeçalho e intenção); não altera estado, IPC ou controle. |
 | 004 | U02 | (function(scope) { | Completa a expressão de U02 com `(function(scope) {`, fornecendo argumento, propriedade ou condição das linhas contíguas. |
 | 005 | U02 |   scope.MangaTranslatorRouter.registerAction({ | Registra a definição no MangaTranslatorRouter. |
-| 006 | U02 |     name: 'deliver-result-from-tab', | Define o nome canônico do alias `IMAGE_READY_FROM_NEW_TAB`. |
+| 006 | U02 |     name: 'deliver-result-from-tab', | Declara somente o **nome canônico da action** `deliver-result-from-tab`; o alias `IMAGE_READY_FROM_NEW_TAB` é mapeado externamente em `extension/background/router.js`. |
 | 007 | U02 |     meta: { allowedSources: ['any'] }, | Permite qualquer source classificada pelo router; a autorização forte usa senderTabId + mapping + ownership. |
 | 008 | U02 | ␠ [linha vazia] | Separador visual de U02 (Registro, origem e validação do payload); não altera estado, IPC ou controle. |
 | 009 | U02 |     validate(request) { | Abre a validação executada antes de reidratar/tocar estado. |
@@ -442,7 +449,7 @@ O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal
 
 **Por que uma implementação ingênua seria pior:** Responder antes de finalize permite caller encerrar enquanto cleanup falha; usar request.mangaTabId poderia redirecionar finalização.
 
-**Evidência:** ✅ PROVADO DIRETAMENTE — sucesso exige `finalizeJob(17,33,false)` e resposta `{staged:true,persisted:true,committed:true}`. `process-finalize-real.test.js` prova cleanup/finalização real do helper. ⚠️ Rejeição de finalizeJob e fallback mangaTabId não têm testes focais.
+**Evidência:** ✅ o teste focal prova que sucesso chama `finalizeJob(17,33,false)` e retorna `{staged:true,persisted:true,committed:true}`. A **ordem** `await deliverResultToManga(...)` → cleanup/sync → `await finalizeJob(...)` é prova direta da leitura do source; o teste focal não possui assertion explícita de invocation order. `process-finalize-real.test.js` prova somente o lifecycle interno de `finalizeJob`. ⚠️ Rejeição de finalizeJob e fallback mangaTabId não têm testes focais.
 
 ### U11 — linhas/posição 104–104: Newline final
 
@@ -468,3 +475,5 @@ O helper retorna sempre um objeto com `ok` e `persisted`; portanto o ramo normal
 - [x] nenhum código funcional alterado.
 
 **Veredito documental:** aprovada para `59543c1359669ced02a1d05c251b272abaad6709`.
+
+> **Correção pós-REAUDIT:** alias, loader e consumer estão separados por responsabilidade; a ordem staging→finalize é tratada como fato do source atual, não como propriedade automatizada por `process-finalize-real.test.js`.
