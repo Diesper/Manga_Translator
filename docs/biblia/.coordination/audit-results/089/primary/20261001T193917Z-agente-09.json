@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 89,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 9",
+  "file": "scripts/validation/verify-repository-structure.js",
+  "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
+  "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+  "bible_sha": "c42c9f668d7646a6a80df6663638f508b13e7a16",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "089-PRI-001",
+      "severity": "NORMAL",
+      "category": "ARCHITECTURE_BOUNDARY_OVERCLAIM",
+      "location": "Bíblia.md — seções 1, 2 e 4 (papel arquitetural, wiring e invariantes)",
+      "problem": "A Bíblia afirma que `bible-coordination.js` é o único validador canônico de state/lock/Bíblia/auditoria e que locks/claims do subsistema canônico são delegados a ele. No protocolo distribuído atual, isso é amplo demais: `validateBibleCoordination()` percorre `docs/biblia/.coordination/audit-claims/`, mas não `audit-leases/`; os leases novos por fase, inclusive BIBLE_SHA/expiração/fase, são validados por `docs/biblia/.coordination/audit-protocol.js`. Assim, a Bíblia apaga uma fronteira arquitetural atual e pode levar o leitor a supor que `verify-repository-structure.js` valida leases v2 que ele não valida.",
+      "evidence": [
+        "`scripts/validation/bible-coordination.js`: `auditClaimRoot = .../.coordination/audit-claims` e `auditClaims = walk(auditClaimRoot)`; não há traversal de `audit-leases/` nesse validador.",
+        "`docs/biblia/.coordination/audit-protocol.js`: define `leaseRoot = .../audit-leases`, percorre esse diretório e valida path/fase/INDEX/AUDITOR/SOURCE_SHA/BIBLE_SHA/LEASE_EXPIRES_AT_UTC/ESTADO.",
+        "`package.json`: o gate final `bible:final-readiness` executa `bible:audit:verify`, confirmando que o protocolo distribuído é um validador separado necessário além de `validate:structure`/`bible-coordination`.",
+        "A própria lease PRIMARY #089 desta auditoria está em `audit-leases/primary/089.lock.md`, portanto é um exemplo real da categoria que `validateBibleCoordination()` não percorre."
+      ],
+      "required_change": "Corrigir a Bíblia para explicitar a fronteira: `bible-coordination.js` valida states, reservas de edição, claims legados/compatíveis, fonte/cobertura e resultados/pipeline que carrega; `audit-protocol.js` valida os leases distribuídos atuais em `audit-leases/` e seus bindings de revisão. Remover ou qualificar `único validador canônico` e qualquer invariant que atribua todos os locks/claims ao mesmo módulo. Não é necessário alterar o source para corrigir este finding documental."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:39:17Z"
+}
