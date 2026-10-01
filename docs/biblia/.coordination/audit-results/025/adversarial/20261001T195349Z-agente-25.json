@@ -1,0 +1,50 @@
+{
+  "schema_version": 2,
+  "index": 25,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 25",
+  "file": "extension/background/actions/stop-batch.js",
+  "bible": "docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md",
+  "source_sha": "e552d0a911092c5cd7e457fbe262d366c413f0c1",
+  "bible_sha": "4b0e3472a12d42314c332c69fd3535616d680e4c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV-025-01",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_CLASSIFICATION_CONTRADICTION",
+      "summary": "A Bíblia declara ausência de teste probatório específico para STOP_BATCH com batchId omitido, mas existe prova integrada real que atravessa o router/action e exerce exatamente esse caso.",
+      "evidence": [
+        "tests/unit/background/batch-lifecycle-real.test.js:215-266 carrega background.js real, envia { action: 'STOP_BATCH' } sem batchId e verifica limpeza + currentBatchId:null.",
+        "docs/biblia/.state/025.json registra em current_evidence que STOP sem batchId do lote atual tem prova automatizada e a nota document_quality afirma cobertura integrada real.",
+        "A seção 'Lacunas e riscos' da Bíblia ainda diz 'SEM TESTE PROBATÓRIO ESPECÍFICO para batchId omitido na action focal'."
+      ],
+      "required_change": "Reclassificar honestamente a evidência existente. Se a intenção for dizer apenas que falta teste unitário isolado em batch-actions.test.js, declarar essa limitação de forma específica sem negar a prova integrada real."
+    },
+    {
+      "id": "ADV-025-02",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_OVERCLAIM",
+      "summary": "A tabela de evidência atribui a plan-missing-handlers-real.test.js prova de que 'stop do lote ativo preserva isolamento', mas as assertions citáveis desse arquivo não sustentam essa formulação.",
+      "evidence": [
+        "tests/unit/background/plan-missing-handlers-real.test.js:203-252 (BG-44b) prova isolamento ao remover um lote PENDENTE específico enquanto o ativo permanece.",
+        "tests/unit/background/plan-missing-handlers-real.test.js:341-386 (BG-46) para o lote ATIVO contém somente recursos de batch-stop; não há recursos de outro lote/pending cuja preservação pudesse falhar.",
+        "Uma regressão em que STOP do lote ativo removesse indevidamente recursos de outro lote poderia manter BG-46 verde."
+      ],
+      "required_change": "Restringir a afirmação ao que BG-44b/BG-46 realmente provam ou citar/adicionar uma assertion que contenha simultaneamente o lote ativo alvo e recursos de outro lote/pending e verifique preservação."
+    },
+    {
+      "id": "ADV-025-03",
+      "severity": "NORMAL",
+      "type": "SEMANTIC_OMISSION",
+      "summary": "A Bíblia resume que stopBatch remove 'extraction tabs do lote', mas a implementação também remove mappings sem batchId, independentemente do lote alvo.",
+      "evidence": [
+        "extension/background.js: o loop de extractionTabs só preserva uma entrada quando info.batchId é truthy e diferente de targetBatchId; entradas sem batchId caem no caminho de remoção.",
+        "tests/unit/background/state-api.test.js:26-50 e 53+ exercitam snapshots/restore de extractionTabs sem batchId, demonstrando que esse formato legado/compatível é aceito pelo estado.",
+        "A Bíblia não explicita esse efeito lateral sobre entries não etiquetadas."
+      ],
+      "required_change": "Documentar o comportamento de compatibilidade para extractionTabs sem batchId e sua consequência ao cancelar um lote, ou ajustar a descrição para não afirmar remoção restrita ao lote."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:53:49Z"
+}
