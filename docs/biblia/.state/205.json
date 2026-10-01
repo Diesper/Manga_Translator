@@ -2,8 +2,8 @@
   "index": 205,
   "file": "tests/unit/content-manga/get-clean-url.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/get-clean-url.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
   "started_at_utc": "2026-09-30T07:20:00Z",
   "completed_at_utc": null,
@@ -78,7 +78,7 @@
     "embedded_source_exact": true,
     "documented_positions": "159/159",
     "bible_lines": 401,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "STATUS.md, CHECKLIST.md e AUDITORIA.md não foram alterados por AGENTE 25 conforme escopo."
   },
   "schema_version": 2,
@@ -92,6 +92,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
       "reason": "R40-205-001/002: lifecycle + reclassificação de evidência Reddit/Imgur."
+    },
+    {
+      "at_utc": "2026-10-01T21:35:04.406Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
+      "bible_sha": "729b972718e0ee7dc66b25293301373090c36b78",
+      "reason": "R40-205-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
