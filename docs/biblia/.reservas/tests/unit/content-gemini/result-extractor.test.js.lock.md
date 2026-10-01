@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/content-gemini/result-extractor.test.js
+BÍBLIA: docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 611df28380a88aa8c0b468e7300ee3a17aca0f70
+CLAIMED_AT_UTC: 2026-10-01T19:31:32.507Z
+UPDATED_AT_UTC: 2026-10-01T19:31:32.507Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
