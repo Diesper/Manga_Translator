@@ -2,8 +2,8 @@
   "index": 178,
   "file": "tests/unit/content-gemini/editor-submit.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/editor-submit.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
   "started_at_utc": "2026-09-30T15:20:00Z",
   "completed_at_utc": null,
@@ -79,7 +79,7 @@
     "documented_positions": "265/265",
     "source_text_lines": 264,
     "bible_lines": 2211,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -99,6 +99,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
       "reason": "A8-178-01/02: sincronizar lifecycle e restringir SEND-05 a estado final preservado."
+    },
+    {
+      "at_utc": "2026-10-01T18:49:33.032Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
+      "bible_sha": "d1c0c12eb751eb06be354dd7780c1530370df699",
+      "reason": "A8-178-01/02 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
