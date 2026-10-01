@@ -199,34 +199,34 @@ Isso é wiring verificável, não uma afirmação de execução nova.
 | 057 | U05 | `        mangaTabId: 77,` | Injeta jobIndex realista, mapa de extraction tabs, finalizeJob controlado, logger e timeout de 5 min. |
 | 058 | U05 | `        index: 4,` | Injeta jobIndex realista, mapa de extraction tabs, finalizeJob controlado, logger e timeout de 5 min. |
 | 059 | U05 | `        geminiTabId: 321,` | Injeta jobIndex realista, mapa de extraction tabs, finalizeJob controlado, logger e timeout de 5 min. |
-| 060 | U05 | `        jobId: 'job-1',` | Injeta jobIndex realista, mapa de extraction tabs, finalizeJob controlado, logger e timeout de 5 min. |
-| 061 | U05 | `      }],` | Injeta jobIndex realista, mapa de extraction tabs, finalizeJob controlado, logger e timeout de 5 min. |
-| 062 | U05 | `      getExtractionTabs: () => extractionTabs,` | Injeta jobIndex realista, mapa de extraction tabs, finalizeJob controlado, logger e timeout de 5 min. |
-| 063 | U05 | `      finalizeJob,` | Fecha criação do watchdog. |
-| 064 | U05 | `      log: jest.fn(),` | Linha estrutural/fixture pertencente à unidade, explicada pelas operações e assertions adjacentes. |
-| 065 | U05 | `      timeoutMinutes: 5,` | Assertion direta: alarme com prefixo watchdog é aceito (`handleAlarm` retorna true). |
-| 066 | U05 | `    });` | Libera microtasks suficientes para o callback de storage alcançar e aguardar `finalizeJob`. |
-| 067 | U06 | ␠ [linha vazia] | Libera microtasks suficientes para o callback de storage alcançar e aguardar `finalizeJob`. |
-| 068 | U06 | `    expect(watchdog.handleAlarm({ name: 'watchdog_job-1' })).toBe(true);` | Linha estrutural/fixture pertencente à unidade, explicada pelas operações e assertions adjacentes. |
-| 069 | U06 | `    await Promise.resolve();` | Assertion direta: `finalizeJob(321,77,true)` foi chamado. |
-| 070 | U06 | `    await Promise.resolve();` | Assertion crítica de ordenação: nenhuma tab foi removida enquanto a finalização está pendente. |
-| 071 | U06 | ␠ [linha vazia] | Assertion: extraction tab 900 continua presente durante a finalização. |
-| 072 | U06 | `    expect(finalizeJob).toHaveBeenCalledWith(321, 77, true);` | Linha estrutural/fixture pertencente à unidade, explicada pelas operações e assertions adjacentes. |
-| 073 | U06 | `    expect(remove).not.toHaveBeenCalled();` | Resolve manualmente o gate de finalização. |
-| 074 | U06 | `    expect(extractionTabs[900]).toBeDefined();` | Espera a própria Promise de finalização. |
-| 075 | U06 | ␠ [linha vazia] | Libera microtasks para executar o cleanup posterior ao await. |
-| 076 | U06 | `    releaseFinalization();` | Libera microtasks para executar o cleanup posterior ao await. |
-| 077 | U06 | `    await finalizationGate;` | Linha estrutural/fixture pertencente à unidade, explicada pelas operações e assertions adjacentes. |
-| 078 | U06 | `    await Promise.resolve();` | Assertion: somente depois da finalização, tab 900 é removida. |
-| 079 | U06 | `    await Promise.resolve();` | Assertion negativa: tab 901 (outro Gemini) não é removida. |
-| 080 | U06 | ␠ [linha vazia] | Assertion: chave 900 é apagada do mapa de extraction tabs. |
-| 081 | U06 | `    expect(remove).toHaveBeenCalledWith(900, expect.any(Function));` | Assertion: chave 901 permanece no mapa. |
-| 082 | U06 | `    expect(remove).not.toHaveBeenCalledWith(901, expect.any(Function));` | Fecha o teste. |
-| 083 | U06 | `    expect(extractionTabs[900]).toBeUndefined();` | Fecha a suíte. |
-| 084 | U06 | `    expect(extractionTabs[901]).toBeDefined();` | Linha estrutural final. |
-| 085 | U06 | `  });` | Linha estrutural final. |
-| 086 | U07 | `});` | Linha estrutural final. |
-| 087 | U08 | ␠ [linha vazia] | Newline terminal do arquivo; posição final auditada. |
+| 060 | U05 | `        jobId: 'job-1',` | Define `jobId: 'job-1'` no único registro do jobIndex usado pelo watchdog. |
+| 061 | U05 | `      }],` | Fecha o objeto do job e o array retornado por `getJobIndex`, completando a fixture de identidade manga/Gemini/job. |
+| 062 | U05 | `      getExtractionTabs: () => extractionTabs,` | Injeta `getExtractionTabs` que devolve o mapa mutável observado nas assertions de cleanup. |
+| 063 | U05 | `      finalizeJob,` | Injeta o mock controlado `finalizeJob`, cuja Promise é mantida pendente pelo gate até `releaseFinalization()`. |
+| 064 | U05 | `      log: jest.fn(),` | Injeta logger mockado; este teste não faz assertions de telemetria e não o promove a prova específica. |
+| 065 | U05 | `      timeoutMinutes: 5,` | Configura `timeoutMinutes: 5`; é parâmetro de construção e não uma assertion por si só. |
+| 066 | U05 | `    });` | Fecha a chamada `createWatchdog(...)`; a partir daqui `watchdog` está pronto para receber o alarme. |
+| 067 | U06 | ␠ [linha vazia] | Linha vazia que separa a montagem da fixture do início das ações/assertions. |
+| 068 | U06 | `    expect(watchdog.handleAlarm({ name: 'watchdog_job-1' })).toBe(true);` | Assertion direta de reconhecimento do alarme: `handleAlarm({name:'watchdog_job-1'})` retorna `true`. |
+| 069 | U06 | `    await Promise.resolve();` | Primeiro flush de microtask para avançar o callback assíncrono iniciado pelo alarme em direção a `finalizeJob`. |
+| 070 | U06 | `    await Promise.resolve();` | Segundo flush de microtask; junto da linha 069 permite que o fluxo alcance o `await finalizeJob` ainda pendente. |
+| 071 | U06 | ␠ [linha vazia] | Linha vazia que separa o avanço assíncrono das assertions feitas enquanto a finalização continua pendente. |
+| 072 | U06 | `    expect(finalizeJob).toHaveBeenCalledWith(321, 77, true);` | Assertion direta de parâmetros: `finalizeJob` foi chamado com `(321, 77, true)`. |
+| 073 | U06 | `    expect(remove).not.toHaveBeenCalled();` | Assertion crítica de ordenação: nenhuma chamada a `tabs.remove` ocorreu enquanto `finalizeJob` está pendente. |
+| 074 | U06 | `    expect(extractionTabs[900]).toBeDefined();` | Assertion de estado durante a espera: a extraction tab `900` continua registrada antes da conclusão de `finalizeJob`. |
+| 075 | U06 | ␠ [linha vazia] | Linha vazia antes da liberação explícita do gate de finalização. |
+| 076 | U06 | `    releaseFinalization();` | Resolve manualmente a Promise controlada de `finalizeJob`, permitindo que o fluxo do watchdog prossiga. |
+| 077 | U06 | `    await finalizationGate;` | Aguarda o próprio `finalizationGate`, garantindo que a resolução foi observada antes dos flushes seguintes. |
+| 078 | U06 | `    await Promise.resolve();` | Primeiro flush de microtask após a resolução para avançar o cleanup posterior ao `await finalizeJob`. |
+| 079 | U06 | `    await Promise.resolve();` | Segundo flush de microtask após a resolução, dando tempo ao callback de remoção/limpeza atualizar o estado observado. |
+| 080 | U06 | ␠ [linha vazia] | Linha vazia que separa o avanço pós-finalização das assertions finais de cleanup e isolamento. |
+| 081 | U06 | `    expect(remove).toHaveBeenCalledWith(900, expect.any(Function));` | Assertion direta: a tab `900`, pertencente ao Gemini do job expirado, é solicitada para remoção somente após a finalização. |
+| 082 | U06 | `    expect(remove).not.toHaveBeenCalledWith(901, expect.any(Function));` | Assertion negativa de isolamento: a tab `901`, pertencente a outro Gemini, não é solicitada para remoção. |
+| 083 | U06 | `    expect(extractionTabs[900]).toBeUndefined();` | Assertion direta do mapa: a entrada `extractionTabs[900]` foi removida após o cleanup. |
+| 084 | U06 | `    expect(extractionTabs[901]).toBeDefined();` | Assertion direta de preservação: `extractionTabs[901]` continua presente. |
+| 085 | U06 | `  });` | Fecha o caso de teste `WATCHDOG-ORDER-01`. |
+| 086 | U07 | `});` | Fecha o bloco `describe` da suíte. |
+| 087 | U08 | ␠ [linha vazia] | Newline terminal do arquivo; posição final explicitamente coberta. |
 
 ## 12. Auditoria final
 
@@ -301,10 +301,10 @@ Plano mínimo recomendado:
 ### 13.5 Estado desta reabertura
 
 - ownership atual: **AGENTE 15**;
-- estado do arquivo: **IN_PROGRESS**;
+- estado documental após esta correção: **READY_FOR_AUDIT**;
 - `153-001`: **ACCEPTED**, ainda não resolvida;
 - nenhuma alteração foi feita em `jobs-watchdog.js`, no teste #153 ou em qualquer outro objeto externo para fabricar evidência;
-- próxima etapa depende do processo separado de correção/auditoria funcional descrito em `153-001`.
+- próxima etapa documental: auditoria independente da rastreabilidade corrigida; a correção funcional descrita em `153-001` continua separada e não bloqueia por si só a fidelidade desta Bíblia.
 
 ## 14. Execução real após reabertura
 
@@ -325,3 +325,9 @@ Evidência observada:
 
 Limite desta prova: a execução valida o cenário existente de ordenação no caminho de sucesso. Ela **não** adiciona nem executa um cenário em que `finalizeJob` rejeita. Portanto, a solicitação `153-001` permanece **ACCEPTED** e sem resolução funcional.
 
+
+## 15. Correção solicitada pela auditoria independente
+
+A tabela de cobertura das posições 060–087 foi realinhada semanticamente ao fonte atual após o achado do AGENTE 23. A alteração é exclusivamente documental: nenhuma linha do teste nem de `jobs-watchdog.js` foi modificada. A solicitação `153-001` permanece `ACCEPTED`, porque descreve uma lacuna funcional/testável distinta do defeito de rastreabilidade aqui corrigido.
+
+**Autoauditoria:** READY_FOR_AUDIT.
