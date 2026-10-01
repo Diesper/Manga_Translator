@@ -50,6 +50,11 @@ for (const [name, content] of outputs) {
 if (stale.length) {
   console.error('Bible projections stale: ' + stale.join(', '));
   console.error('Run: node scripts/validation/generate-bible-projections.js --write');
+  console.error('--- EXPECTED STATUS.md ---');
+  console.error(normalized(generated.status));
+  console.error('--- EXPECTED CHECKLIST.md ---');
+  console.error(normalized(generated.checklist));
+  console.error('--- END EXPECTED PROJECTIONS ---');
   process.exit(1);
 }
 process.stdout.write('Bible projections check: SUCCESS\n');
