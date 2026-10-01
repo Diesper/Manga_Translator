@@ -40,6 +40,7 @@ jobs:
             ...project,
             rootDir: process.cwd(),
             testMatch: ['<rootDir>/docs/biblia/.coordination/load-content-script-selftest.test.js'],
+            transform: {},
           };
           fs.writeFileSync(
             '/tmp/load-content-script-selftest.config.cjs',
