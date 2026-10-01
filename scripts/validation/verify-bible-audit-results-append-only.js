@@ -68,6 +68,13 @@ function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT) {
       problems.push('histórico de audit-result não pôde ser interpretado: ' + change.file);
       continue;
     }
+    if (change.status !== 'A') {
+      problems.push(
+        'audit-result histórico não é append-only: status='
+        + change.status + ' file=' + change.file
+      );
+    }
+
     const set = blobsByPath.get(change.file) || new Set();
     for (const sha of [change.oldSha, change.newSha]) {
       if (sha && sha !== ZERO_SHA) set.add(sha);
