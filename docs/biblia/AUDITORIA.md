@@ -1204,3 +1204,22 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Conclusão:** a Bíblia descreve fielmente a implementação atual e separa prova direta, execução indireta, gates estáticos e ausência de teste focal sem fabricar evidência.
 
 **Veredito documental independente:** ✅ **APROVADO — #096 / SHA `cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b`**.
+
+### Auditoria independente — #101 — AGENTE 7 — 2026-10-01
+
+- **Índice:** #101 — `tests/helpers/load-content-gemini-module.js`.
+- **SHA auditado:** `d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem. A fonte integral embutida é byte a byte idêntica ao blob atual: 34 linhas textuais + newline terminal = **35/35 posições**.
+- **Cobertura:** as seções `Linha 001`–`Linha 034` mais `Posição 035 — newline final` cobrem integralmente a fonte, sem gap, duplicidade ou posição fora do arquivo.
+- **Consumers e wiring:** foram reconfirmados os cinco consumidores do helper documentados na Bíblia; `rpa-flow.test.js` e `resolution-elevation.test.js` mantêm loaders paralelos semelhantes. O projeto `content-scripts` de Jest inclui `tests/unit/content-gemini/**/*.test.js`.
+- **Evidência/assertions:** consumidores exercitam APIs reais de produção, mas não existe assertion focal que prove o contrato próprio de ordem/cache/duas cargas do helper. A classificação indireta dessas provas é apropriada; não autoriza promover o contrato de carregamento a prova direta.
+- **Falha bloqueante 1 — dependência overstated:** a Bíblia afirma que o bootstrap exige os **dez** submódulos e que lê os dez namespaces globais. O source real de `extension/content/content_gemini.js` captura/verifica diretamente **nove** globals (Dom, ImageQuarantine, Observer, Editor, Attachment, TemporaryChat, ResultExtractor, Deletion e JobRunner). `selectors.js` não é um global exigido diretamente pelo bootstrap; em CommonJS, `dom.js` e `observer.js` possuem fallback de `require('./selectors.js')`. Portanto as seções 1/4/5 e as justificativas de Linha 016/Linha 025 superestimam a obrigatoriedade/ordem e precisam ser corrigidas.
+- **Falha bloqueante 2 — side effect de reload omitido:** cada chamada remove `content_gemini.js` do `require.cache` e reexecuta seu top-level. Esse top-level chama `chrome.storage.local.get(['debugMode'], ...)` e registra `chrome.storage.onChanged.addListener(...)` novamente. O mock `ChromeStorageMock` preserva `_listeners` quando `clear()`/o `beforeEach` reseta dados, e `manual-assist-hud.test.js` chama o helper em todo `beforeEach` sem `jest.resetModules()`. A Bíblia documenta cache dos submódulos, mas omite este efeito observável da própria recarga do bootstrap.
+- **Falha bloqueante 3 — lifecycle de requests stale na Bíblia:** a seção 6 rotula 101-001…101-004 como `OPEN`, enquanto `.state/101.json` registra as quatro como `ACCEPTED`. O state é canônico; a Bíblia precisa refletir o lifecycle corrente ou evitar duplicar status mutável.
+- **Audit requests revalidadas:** 101-001, 101-002 e 101-003 permanecem materialmente válidas; 101-004 permanece válida como risco de loaders paralelos, com a ressalva de que as sequências são semelhantes, não idênticas. Nova 101-005 registra a ausência de contrato/teste para acumulação de side effects/listeners ao recarregar o bootstrap.
+- **Tentativa formal de reprovação:** sustentada independentemente pela leitura do helper, do bootstrap, dos módulos dependentes, dos consumers, das assertions e do mock Chrome. A segunda auditoria da conclusão reproduziu os mesmos findings.
+- **Matriz crítica:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; semântica=CONTRADITO; dependências=CONTRADITO; consumers=CONFIRMADO_3X; testes/assertions=CONFIRMADO_3X; classificação de evidência=CONTRADITO no claim dos dez módulos; audit requests=CONTRADITO quanto aos status duplicados; lifecycle/state=CONFIRMADO_3X; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas; checks finais: Integridade=SIM, Veracidade=NÃO, Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
