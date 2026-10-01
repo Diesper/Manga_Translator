@@ -97,6 +97,7 @@ INDEX: 087
 ARQUIVO: <source>
 BIBLIA: <Bible path>
 SOURCE_SHA: <40-hex>
+BIBLE_SHA: <Git blob SHA de 40 hex da Bíblia atual>
 CLAIMED_AT_UTC: <timestamp>
 UPDATED_AT_UTC: <timestamp>
 LEASE_EXPIRES_AT_UTC: <timestamp futuro>
@@ -111,9 +112,10 @@ Regras:
 2. índice → no máximo um claim ativo entre as fases;
 3. auditor → no máximo um claim ativo no modo estrito;
 4. claim e reserva editorial do mesmo arquivo não coexistem;
-5. SOURCE_SHA, arquivo, Bíblia e índice devem corresponder ao state;
-6. claim expirado não autoriza overwrite cego: recuperação exige reler, confirmar expiração e usar operação condicional sobre a versão exata;
-7. o lease protege somente contra trabalho duplicado; não concede ownership da Bíblia ou do source.
+5. SOURCE_SHA, BIBLE_SHA, arquivo, Bíblia e índice devem corresponder à revisão atual;
+6. lease novo sem BIBLE_SHA é inválido; somente leases/resultados pré-migração podem usar a compatibilidade controlada pela baseline;
+7. claim expirado não autoriza overwrite cego: recuperação exige reler, confirmar expiração e usar operação condicional sobre a versão exata;
+8. o lease protege somente contra trabalho duplicado; não concede ownership da Bíblia ou do source.
 
 ## Resultados append-only
 
@@ -131,13 +133,14 @@ Schema mínimo:
 
 ~~~json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "index": 87,
   "phase": "ADVERSARIAL",
   "auditor": "AGENTE 31",
   "file": "scripts/example.js",
   "bible": "docs/biblia/scripts/example.js/Bíblia.md",
   "source_sha": "<40-hex>",
+  "bible_sha": "<40-hex Git blob SHA>",
   "verdict": "APPROVED",
   "findings": [],
   "completed_at_utc": "2026-10-01T15:00:00Z"
@@ -149,7 +152,9 @@ Vereditos permitidos:
 - APPROVED
 - CHANGES_REQUIRED
 
-Um resultado existente nunca deve ser editado para mudar o passado. Nova tentativa gera um novo arquivo. Para o mesmo SHA/fase, a resolução usa o resultado mais recente de forma determinística, mantendo o histórico completo.
+Um resultado existente nunca deve ser editado ou removido para mudar o passado. Nova tentativa gera um novo arquivo. Para a mesma unidade `(index, SOURCE_SHA, BIBLE_SHA, PHASE)`, a resolução usa o resultado mais recente de forma determinística, mantendo o histórico completo.
+
+Resultados schema v1 são apenas compatibilidade de migração: permanecem válidos somente enquanto a Bíblia for byte-a-byte o mesmo Git blob registrado em `audit-bible-baseline.json`. O invariant append-only é verificado por histórico Git e exige que cada path publicado preserve um único blob imutável e continue presente no HEAD.
 
 ## Ordem obrigatória
 
@@ -216,7 +221,7 @@ Ele pode existir somente em migrações estruturais raras ou em um **checkpoint 
 
 É proibido exigir esse lock para executar PRIMARY, ADVERSARIAL ou REAUDIT, publicar um resultado append-only ou calcular a decisão de um índice.
 
-Quando um checkpoint legado for necessário, ele pode ser executado por **qualquer agente ou auditor**, deve durar o mínimo possível e nunca vira um serviço/agregador permanente.
+O checkpoint canônico atual não usa esse mutex: `bible-reconcile-checkpoint.yml` faz READ LATEST, reconciliação determinística, GC seguro e publicação somente por fast-forward/CAS se o branch não tiver avançado.
 
 O merge readiness continua exigindo ausência de qualquer lock global residual.
 
@@ -244,7 +249,23 @@ Qualquer auditor ou agente autorizado pode fazer a reconciliação por índice.
 
 ## Gates finais
 
-São dois gates complementares:
+Os comandos canônicos são expostos no `package.json`:
+
+~~~bash
+npm run test:bible-protocol:infra
+npm run bible:audit:append-only
+npm run bible:reconcile:check
+npm run bible:audit:verify
+npm run bible:merge-readiness
+~~~
+
+O fechamento completo é:
+
+~~~bash
+npm run bible:final-readiness
+~~~
+
+Os dois gates semânticos centrais continuam equivalentes a:
 
 ~~~bash
 node docs/biblia/.coordination/audit-protocol.js verify
@@ -282,6 +303,13 @@ Desde a migração de revision binding, a unidade canônica de auditoria é:
 `audit-bible-baseline.json` permite consumir resultados schema v1 já publicados sem perder trabalho. Qualquer edição posterior da Bíblia altera seu Git blob SHA e invalida automaticamente resultados antigos daquela revisão. Novas publicações devem usar schema v2 com `bible_sha`.
 
 A reconciliação em lote é feita por:
+
+```bash
+npm run bible:reconcile:check
+npm run bible:reconcile:write
+```
+
+Equivalentes diretos:
 
 ```bash
 node docs/biblia/.coordination/reconcile-audit-results.js --check
