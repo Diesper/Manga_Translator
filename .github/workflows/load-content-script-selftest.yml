@@ -6,7 +6,6 @@ on:
       - 'tests/helpers/load-content-script.js'
       - 'extension/manifest.json'
       - 'docs/biblia/.coordination/load-content-script-selftest.test.js'
-      - 'docs/biblia/.coordination/jest-load-content-script-selftest.config.js'
       - '.github/workflows/load-content-script-selftest.yml'
   workflow_dispatch:
 
@@ -30,7 +29,7 @@ jobs:
         run: npm ci
 
       - name: Run helper selftest with open-handle detection
-        run: npx jest --config docs/biblia/.coordination/jest-load-content-script-selftest.config.js --runInBand --detectOpenHandles
+        run: npx jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath docs/biblia/.coordination/load-content-script-selftest.test.js
 
       - name: Run related content-script unit suite
         run: npm run test:unit:content -- --runInBand
