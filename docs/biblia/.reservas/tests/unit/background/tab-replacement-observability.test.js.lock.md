@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/background/tab-replacement-observability.test.js
+BÍBLIA: docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: b5aeb216f48ef28e471233aaa074c86a15561f01
+CLAIMED_AT_UTC: 2026-10-01T18:25:38.400Z
+UPDATED_AT_UTC: 2026-10-01T18:25:38.400Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
