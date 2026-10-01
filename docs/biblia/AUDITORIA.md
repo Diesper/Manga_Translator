@@ -1113,3 +1113,16 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #093 / SHA `1ab953d0a031f77cb458befd31650e9ba9c4c052`**.
 
+### `translation-flow.spec.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #094 — `tests/e2e/translation-flow.spec.js`.
+- **SHA auditado:** `db1da42c48ff795c41c7103cd5778e5a5d98e878`.
+- **Integridade:** **904 linhas textuais + newline final = 905/905 posições**; state, source e SHA declarado na Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao arquivo atual e a cobertura documental possui todas as posições 1–905.
+- **Evidência runtime SHA-bound:** a run **36577447500** executou o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f`; o blob deste arquivo nesse commit é exatamente `db1da42c48ff795c41c7103cd5778e5a5d98e878`.
+- **Cobertura por shards confirmada nos logs:** FIFO = 1 cenário; attachment = 3; medium-a = 2 deste arquivo; medium-b = 2; fast = 6. Os cinco jobs concluíram com sucesso e o gate agregado da mesma run permaneceu verde.
+- **Request 094-001:** permanece **ACCEPTED** — cada teste cria um `userDataDir` externo e o `afterEach` fecha apenas o persistent context; não há remoção explícita do diretório, apesar do import de `fs`.
+- **Request 094-002:** permanece **ACCEPTED** — `resetExtensionState` e `readStorage` resolvem callbacks de `chrome.storage.local` sem verificar `chrome.runtime.lastError`, podendo transformar falha de setup/leitura em timeout ou assertion secundária.
+- **Conclusão:** a Bíblia representa corretamente a evidência E2E forte do caminho nominal e preserva os riscos reais de cleanup e diagnóstico de storage.
+
+**Veredito documental independente:** ✅ **APROVADO — #094 / SHA `db1da42c48ff795c41c7103cd5778e5a5d98e878`**.
+

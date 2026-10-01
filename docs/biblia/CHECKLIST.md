@@ -95,7 +95,7 @@
 - [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED
 - [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED
 - [x] 093 — `tests/e2e/reader-offline.spec.js` — COMPLETED
-- [ ] 094 — `tests/e2e/translation-flow.spec.js` — READY_FOR_AUDIT
+- [x] 094 — `tests/e2e/translation-flow.spec.js` — COMPLETED
 - [ ] 095 — `tests/fixtures/gemini-mock-server.js` — READY_FOR_AUDIT
 - [ ] 096 — `tests/fixtures/manga-images.js` — READY_FOR_AUDIT
 - [ ] 097 — `tests/fixtures/manga-page.html` — READY_FOR_AUDIT
