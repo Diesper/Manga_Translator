@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "index": 116,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 27",
+  "file": "tests/integration/popup.advanced.ui.test.js",
+  "bible": "docs/biblia/tests/integration/popup.advanced.ui.test.js/Bíblia.md",
+  "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+  "bible_sha": "a0b98ad040e5adfa87a59ea41751e9267665e6da",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "116-REAUDIT-A27-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "A auditoria linha a linha representa corretamente o código da posição 278 como `    });`, mas descreve sua função como uma linha em branco sem efeito de runtime; na fonte real essa posição fecha o quarto teste e marca a fronteira estrutural antes do quinto teste.",
+      "evidence": [
+        "Source `tests/integration/popup.advanced.ui.test.js` posição 278: `    });`.",
+        "Bíblia §10 / `### Linha 278`: campo Código registra `    });`, mas o campo Função afirma `Linha em branco usada apenas para separar blocos lógicos; não altera runtime.`.",
+        "A própria Bíblia §5.4 delimita o quarto cenário como linhas 230–278, enquanto §5.5 inicia o quinto cenário na linha 279.",
+        "A posição 278 é portanto fechamento executável/estrutural do quarto `test`, não whitespace."
+      ],
+      "requested_documentation_fix": "Corrigir a função/semântica documentada da linha 278 para registrar que `});` fecha o quarto teste (configurações/paralelismo/debug), preservando a cobertura 311/311 e sem alterar o source/teste."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_27_DIFERENTE_DE_PRIMARY_AGENTE_6_E_ADVERSARIAL_AGENTE_36",
+    "embedded_source": "CONFIRMADO_3X_BYTE_A_BYTE",
+    "positional_coverage": "CONFIRMADO_3X_310_LINHAS_MAIS_NEWLINE_311",
+    "line_heading_coverage": "CONFIRMADO_310_DE_310_SEM_GAPS_OU_DUPLICATAS",
+    "semantics": "CONTRADITO_NA_POSICAO_278",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers_wiring": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X_EXCETO_DESCRICAO_SEMANTICA_DA_LINHA_278",
+    "audit_requests": "CONFIRMADO_3X_116_001_E_116_002_ACCEPTED",
+    "ci_evidence": "CONFIRMADO_RUN_36521561968_MESMO_BLOB_NODE20_NODE22_CI_GATE_SUCCESS",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 310,
+    "terminal_newline_position": 311,
+    "embedded_source_exact": true,
+    "current_primary": "AGENTE 6 / CHANGES_REQUIRED (legado, válido para baseline atual)",
+    "current_adversarial": "AGENTE 36 / APPROVED / schema v2 / mesma SOURCE_SHA+BIBLE_SHA",
+    "reaudit_reason": "Divergência PRIMARY vs ADVERSARIAL na revisão atual.",
+    "prior_primary_blocker_status": "O blocker anterior de lifecycle foi corrigido: 116-001 e 116-002 agora são ACCEPTED na Bíblia e no state.",
+    "formal_refutation": "O código literal da linha 278 está embutido corretamente, mas isso não elimina a contradição semântica: o documento chama um fechamento de test de linha em branco, enquanto o próprio mapa de cenários usa 278 como limite final do quarto teste.",
+    "triple_check": {
+      "A_documento_corresponde_source_atual": "SIM quanto a SHA/fonte integral; NÃO integralmente quanto à semântica da posição 278",
+      "B_tudo_que_afirma_e_verdadeiro": "NÃO",
+      "C_limitacoes_representadas_honestamente": "SIM para requests/evidence scope; NÃO para a função atribuída à posição 278"
+    }
+  },
+  "completed_at_utc": "2026-10-01T22:02:19.878Z"
+}
