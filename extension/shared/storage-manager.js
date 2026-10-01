@@ -190,7 +190,7 @@ async function savePageResult(chapterId, pageIndex, imageData, originalUrl, clea
         const obsolete = new Set();
         const previousPage = await _idbGet(pageStore, [chapterId, index]);
         if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);
-        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) restoreStore.delete([chapterId, previousPage.cleanUrl]);
+        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) { const staleRestore = await _idbGet(restoreStore, [chapterId, previousPage.cleanUrl]); if (staleRestore && staleRestore.assetId) obsolete.add(staleRestore.assetId); restoreStore.delete([chapterId, previousPage.cleanUrl]); }
         if (cleanUrl) {
             const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);
             if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);
@@ -417,7 +417,7 @@ async function migrateChapterFromLegacy(chapterId) {
 
     const flagKey = `_sm_migrated_${chapterId}`;
     const keys = [flagKey, `${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`];
-    const data = await new Promise(resolve => chrome.storage.local.get(keys, resolve));
+    const data = await new Promise((resolve, reject) => chrome.storage.local.get(keys, value => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.get falhou')); else resolve(value); }));
 
     if (data[flagKey]) return { migrated: 0, skipped: true };
 
@@ -470,10 +470,10 @@ async function migrateChapterFromLegacy(chapterId) {
         } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
-    await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));
+    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
     if (migrated > 0) {
-        await new Promise(resolve => chrome.storage.local.remove(
-            [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], resolve));
+        await new Promise((resolve, reject) => chrome.storage.local.remove(
+            [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));
     }
 
     return { migrated, skipped: false };
