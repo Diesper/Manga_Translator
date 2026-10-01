@@ -101,11 +101,12 @@ function removeGlobalEventListeners(listeners) {
     });
 }
 
-function captureGlobalEventListeners(callback) {
-    const captured = [];
+function captureGlobalEventListeners(callback, captured = []) {
     const targets = [window, document];
     const originals = targets.map(target => ({
         target,
+        hadOwn: Object.prototype.hasOwnProperty.call(target, 'addEventListener'),
+        descriptor: Object.getOwnPropertyDescriptor(target, 'addEventListener'),
         addEventListener: target.addEventListener,
     }));
 
@@ -117,14 +118,14 @@ function captureGlobalEventListeners(callback) {
     });
 
     try {
-        callback();
-        return captured;
-    } catch (error) {
-        removeGlobalEventListeners(captured);
-        throw error;
+        return callback();
     } finally {
-        originals.forEach(({ target, addEventListener }) => {
-            target.addEventListener = addEventListener;
+        originals.forEach(({ target, hadOwn, descriptor }) => {
+            if (hadOwn && descriptor) {
+                Object.defineProperty(target, 'addEventListener', descriptor);
+            } else {
+                delete target.addEventListener;
+            }
         });
     }
 }
@@ -257,13 +258,13 @@ async function loadContentScript({
 
     // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
     let bundleLoaded = false;
-    let addedGlobalEventListeners = [];
+    const addedGlobalEventListeners = [];
     try {
-        addedGlobalEventListeners = captureGlobalEventListeners(() => {
+        captureGlobalEventListeners(() => {
             jest.isolateModules(() => {
                 getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
             });
-        });
+        }, addedGlobalEventListeners);
         bundleLoaded = true;
     } finally {
         const addedStorageListeners = storageListenersSnapshot()
