@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/editor-submit.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** 🟡 CORRIGIDA após ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** ccfa4c881543111b13d0bd8f8198f402039b2233  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest de submit Gemini confirmado por Observer  
@@ -23,9 +23,9 @@ SEND-01 esvazia editor no click e exige confirmed=true/reason=editor_consumed/at
 
 Com Send disabled, a primeira tentativa local não confirma; na segunda, mainWorldFallback é chamado uma vez. Se MAIN apenas retorna true sem transição, SEND-03 ainda falha. Se MAIN monta Stop visível e o Observer inspeciona, SEND-04 confirma reason=stop_visible/attempt=2.
 
-## 4. SEND-05/SEND-06 — disabled não é adulterado
+## 4. SEND-05/SEND-06 — estado final de disabled é preservado
 
-SEND-05 exige que disabled, atributo disabled e aria-disabled permaneçam intactos mesmo quando o envio falha. SEND-06 mostra o caminho correto: nudge do editor dispara input, a fixture/framework habilita o botão, o click consome o editor e a submissão confirma sem o módulo remover disabled por conta própria.
+SEND-05 exige que, **ao final da operação**, `disabled`, o atributo `disabled` e `aria-disabled` permaneçam com os valores esperados mesmo quando o envio falha. O teste não observa setters/mutações transitórias durante o fluxo, portanto não prova que esses atributos `jamais` foram tocados. SEND-06 mostra o caminho correto: nudge do editor dispara input, a fixture/framework habilita o botão, o click consome o editor e a submissão confirma.
 
 ## 5. SEND-07 — cardinalidade e término
 
@@ -47,7 +47,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 | click sem transição não confirma | SEND-02 | ✅ PROVADO DIRETAMENTE |
 | MAIN disparado sem transição não confirma | SEND-03 | ✅ PROVADO DIRETAMENTE |
 | MAIN + Stop visível confirma | SEND-04 | ✅ PROVADO DIRETAMENTE |
-| disabled/aria-disabled não são forçados | SEND-05 | ✅ PROVADO DIRETAMENTE |
+| estado final de disabled/aria-disabled é preservado | SEND-05 | ✅ PROVADO DIRETAMENTE; ausência de mutação transitória não é provada |
 | nudge pode habilitar via framework | SEND-06 | ✅ PROVADO DIRETAMENTE |
 | exatamente maxAttempts falhos e erro final | SEND-07 | ✅ PROVADO DIRETAMENTE |
 | editor/botão substituídos entre tentativas | getters reais, sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -56,7 +56,7 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 
 ## 9. Solicitações ao auditor
 
-### 178-001 — TEST_REQUIRED — OPEN — HIGH
+### 178-001 — TEST_REQUIRED — ACCEPTED — HIGH
 
 Encontrado: submitWithConfirmation reobtém editor e sendButton antes/depois do nudge. Isso existe para tolerar re-render do composer, mas todos os casos retornam os mesmos elementos.
 
@@ -64,7 +64,7 @@ Evidência ausente: primeiro editor/botão desconectados/substituídos após nud
 
 Risco: Gemini re-renderiza o composer e o envio continua mirando nó stale, gerando falha ou click incorreto.
 
-### 178-002 — TEST_REQUIRED — OPEN — NORMAL
+### 178-002 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: quando Send continua disabled na primeira tentativa, editor.js usa pressEnter(editor) antes de recorrer a MAIN na segunda. SEND-03 implica essa ordem, mas não observa o KeyboardEvent nem seus campos.
 
@@ -72,7 +72,7 @@ Evidência ausente: listener keydown no editor exigindo key/code Enter, keyCode/
 
 Risco: fallback local pode regredir silenciosamente e a suíte continuar passando pelo MAIN/timeout.
 
-### 178-003 — TEST_REQUIRED — OPEN — NORMAL
+### 178-003 — TEST_REQUIRED — ACCEPTED — NORMAL
 
 Encontrado: observer.waitForSubmission que rejeita com code diferente de GEMINI_SUBMISSION_NOT_CONFIRMED é relançado imediatamente. Nenhum caso usa erro alternativo.
 
@@ -2207,4 +2207,6 @@ describe('gemini/editor.js — submit confirmado', () => {
 
 ## 12. Conclusão documental
 
-Foram documentadas 264 linhas textuais e a posição 265 do newline final. Os sete cenários principais estão diretamente provados no mesmo blob verde em Node 20/22; as três solicitações OPEN concentram-se em re-render de controles, fallback Enter e propagação de erro estrutural do Observer.
+Foram documentadas 264 linhas textuais e a posição 265 do newline final. Os sete cenários principais estão diretamente provados no mesmo blob verde em Node 20/22; 178-001/002/003 estão ACCEPTED e continuam registrando re-render de controles, fallback Enter e propagação de erro estrutural do Observer sem permanecer OPEN.
+
+> **Escopo SEND-05:** as assertions provam o estado final dos atributos após `submitWithConfirmation`; não existe observer/spy de mutation que congele ausência de alteração transitória durante toda a execução.
