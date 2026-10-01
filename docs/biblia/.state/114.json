@@ -2,7 +2,7 @@
   "index": 114,
   "file": "tests/integration/performance.test.js",
   "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
   "started_at_utc": "2026-09-30T06:25:33.185Z",
@@ -78,14 +78,33 @@
     "embedded_source_exact": true,
     "documented_positions": "434/434",
     "bible_lines": 1373,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "evidence_run": 36577447500,
     "evidence_job": 109437162616,
     "evidence_summary": "Unit + Integration (20.x): performance.test.js PASS; PERF-01 a PERF-09 aparecem nominalmente e todos passaram."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T13:30:28.877Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T13:30:28.877Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "auditor": "AGENTE 6",
+      "reason": "Falha documental material: requests 114-001, 114-002 e 114-003 permanecem rotuladas OPEN e a conclusão fala em solicitações externas abertas, enquanto o state canônico registra as três como ACCEPTED."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T13:30:28.877Z",
+      "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/CI/semântica/assertions/evidence classification passam; lifecycle documental das requests falha. Requests 114-001..003 permanecem ACCEPTED como dívida externa."
+    }
+  ]
 }
