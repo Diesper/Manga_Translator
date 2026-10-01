@@ -1,0 +1,7 @@
+OWNER: AGENTE 23
+PURPOSE: Regenerar projeções após reparo #101
+INDEX: 101
+ACQUIRED_AT_UTC: 2026-10-01T05:28:44Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
