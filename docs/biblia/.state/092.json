@@ -2,11 +2,11 @@
   "index": 92,
   "file": "tests/e2e/cache-and-storage.spec.js",
   "bible": "docs/biblia/tests/e2e/cache-and-storage.spec.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
   "started_at_utc": "2026-09-30T06:16:30Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T04:23:25Z",
   "audit_requests": [
     {
       "id": "092-001",
@@ -78,7 +78,6 @@
     "embedded_source_exact": true,
     "documented_positions": "368/368",
     "source_text_lines": 367,
-    "bible_lines": 871,
     "external_audit_requests_open": 3,
     "evidence_run": 36577447500,
     "evidence_jobs": [
@@ -86,11 +85,30 @@
       109437162771,
       109437798789
     ],
-    "evidence_summary": "Mesmo blob executado: quatro testes deste arquivo passaram nos shards medium-a/medium-b; gate global terminou 21 passed, skipped=0, flaky=0, failed=0."
+    "evidence_summary": "Mesmo blob b181989... executado na run 36577447500: medium-a e medium-b exibem nominalmente os quatro testes; gate agregado 21 passed, skipped=0, flaky=0, failed=0."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T04:23:25Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:23:25Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 368/368 posições, fonte integral exata e evidência runtime do mesmo blob para os quatro testes E2E."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:23:25Z",
+      "note": "Run 36577447500 usou commit b6ad13f... cujo blob deste arquivo é exatamente b181989...; medium-a/b e gate agregado passaram. 092-001..003 permanecem ACCEPTED."
+    }
+  ]
 }

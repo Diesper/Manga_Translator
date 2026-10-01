@@ -1085,3 +1085,17 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #091 / SHA `4a821403353445023452a0b5055e3a0893beaad2`**.
 
+### `cache-and-storage.spec.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #092 — `tests/e2e/cache-and-storage.spec.js`.
+- **SHA auditado:** `b181989a9b89151ca17cbcbeb7db9342b98c9add`.
+- **Integridade:** **367 linhas textuais + newline final = 368/368 posições**; state, source e SHA da Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao arquivo atual e o mapa por faixas cobre todas as posições.
+- **Evidência runtime SHA-bound:** a run **36577447500** executou o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f`; o blob de `tests/e2e/cache-and-storage.spec.js` nesse commit é exatamente `b181989a9b89151ca17cbcbeb7db9342b98c9add`.
+- **Quatro cenários confirmados nos logs:** os dois casos `@e2e-medium-a` e os dois `@e2e-medium-b` aparecem nominalmente; ambos os shards terminaram `4 passed`. O gate agregado terminou **21 passed, skipped=0, flaky=0, failed=0**.
+- **Request 092-001 (HIGH):** permanece **ACCEPTED** — `resetExtensionState` trata falhas de IndexedDB de forma best-effort e não prova pós-condição de bancos vazios, permitindo risco de contaminação entre testes no persistent context.
+- **Request 092-002:** permanece **ACCEPTED** — o branch visível/headed/ui de `getBrowserModeConfig` não é exercitado pela CI stealth atual.
+- **Request 092-003:** permanece **ACCEPTED** — `userDataDir` é criado em `os.tmpdir()` e não há remoção explícita comprovada após fechar o persistent context.
+- **Conclusão:** a Bíblia representa corretamente tanto a evidência E2E forte do caminho nominal quanto os riscos de isolamento, modo visível e limpeza de recursos.
+
+**Veredito documental independente:** ✅ **APROVADO — #092 / SHA `b181989a9b89151ca17cbcbeb7db9342b98c9add`**.
+

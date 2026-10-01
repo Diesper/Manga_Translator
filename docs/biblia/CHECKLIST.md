@@ -93,7 +93,7 @@
 - [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
 - [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED
 - [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED
-- [ ] 092 — `tests/e2e/cache-and-storage.spec.js` — READY_FOR_AUDIT
+- [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED
 - [ ] 093 — `tests/e2e/reader-offline.spec.js` — READY_FOR_AUDIT
 - [ ] 094 — `tests/e2e/translation-flow.spec.js` — READY_FOR_AUDIT
 - [ ] 095 — `tests/fixtures/gemini-mock-server.js` — READY_FOR_AUDIT

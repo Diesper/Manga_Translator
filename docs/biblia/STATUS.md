@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **142**
+- READY_FOR_AUDIT: **141**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **91**
+- COMPLETED: **92**
 - requests OPEN: **1**
 - requests ACCEPTED: **586**
 - requests RESOLVED: **5**
@@ -114,7 +114,7 @@
 | 089 | scripts/validation/verify-repository-structure.js | READY_FOR_AUDIT | NOT_AUDITED | - | 04d0337a168e14994bd855a455f11dd61fcabcb6 | 5 |
 | 090 | scripts/validation/verify-test-policy-selftest.js | COMPLETED | APPROVED | - | ac0318e4d90c5014180eb3d3a6ac4784cc70a24a | 2 |
 | 091 | scripts/validation/verify-test-policy.js | COMPLETED | APPROVED | - | 4a821403353445023452a0b5055e3a0893beaad2 | 3 |
-| 092 | tests/e2e/cache-and-storage.spec.js | READY_FOR_AUDIT | NOT_AUDITED | - | b181989a9b89151ca17cbcbeb7db9342b98c9add | 3 |
+| 092 | tests/e2e/cache-and-storage.spec.js | COMPLETED | APPROVED | - | b181989a9b89151ca17cbcbeb7db9342b98c9add | 3 |
 | 093 | tests/e2e/reader-offline.spec.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1ab953d0a031f77cb458befd31650e9ba9c4c052 | 3 |
 | 094 | tests/e2e/translation-flow.spec.js | READY_FOR_AUDIT | NOT_AUDITED | - | db1da42c48ff795c41c7103cd5778e5a5d98e878 | 2 |
 | 095 | tests/fixtures/gemini-mock-server.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4 | 4 |
