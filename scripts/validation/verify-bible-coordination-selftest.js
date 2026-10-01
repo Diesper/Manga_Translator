@@ -208,6 +208,26 @@ expectFail('audit claim terminal sem history de veredito falha','audit claim exi
   auditClaimFor(root,s,'AUDITOR-X');
   progressLockFor(root,s,'AUDITOR-X');
 });
+expectFail('audit claim terminal com evento posterior ao veredito falha','audit claim exige READY_FOR_AUDIT',(root)=>{
+  const s=readJson(root,statePath(1));
+  s.history.push({
+    at_utc:'2026-10-01T04:21:00Z',
+    type:'INDEPENDENT_AUDIT_APPROVED',
+    from_status:'READY_FOR_AUDIT',
+    to_status:'COMPLETED',
+    source_sha:s.source_sha,
+    auditor:'AUDITOR-X'
+  });
+  s.history.push({
+    at_utc:'2026-10-01T04:22:00Z',
+    type:'COORDINATION_NOTE',
+    source_sha:s.source_sha,
+    reason:'evento posterior ao veredito'
+  });
+  writeJson(root,statePath(1),s);
+  auditClaimFor(root,s,'AUDITOR-X');
+  progressLockFor(root,s,'AUDITOR-X');
+});
 expectFail('auditor com dois claims falha','auditor possui >1 audit claim ativo',(root)=>{
   for(const i of [1,2]){
     const s=readJson(root,statePath(i));s.status='READY_FOR_AUDIT';s.completed_at_utc=null;writeJson(root,statePath(i),s);auditClaimFor(root,s,'AUDITOR-X');

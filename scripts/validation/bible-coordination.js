@@ -502,9 +502,8 @@ function validateBibleCoordination(root, options = {}) {
       problems.push('audit claim fora do corpus: ' + claimFile);
       continue;
     }
-    const latestAuditEvent = Array.isArray(state.history)
-      ? [...state.history].reverse().find((event) =>
-        event && (event.type === 'INDEPENDENT_AUDIT_APPROVED' || event.type === 'INDEPENDENT_AUDIT_CHANGES_REQUIRED'))
+    const latestAuditEvent = Array.isArray(state.history) && state.history.length
+      ? state.history[state.history.length - 1]
       : null;
     const terminalVerdictMatches = (
       (state.status === 'COMPLETED' && latestAuditEvent?.type === 'INDEPENDENT_AUDIT_APPROVED')
