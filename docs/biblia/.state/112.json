@@ -2,11 +2,11 @@
   "index": 112,
   "file": "tests/integration/ipc/image-translation-routing.test.js",
   "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 12",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": "2026-09-30T06:36:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "112-001",
@@ -28,5 +28,10 @@
       "audit_finding": "ACCEPTED. A suíte real cobre 100% miss, 100% hit e filtro de imagem pequena, mas não combina cache hit e miss no mesmo lote real. O branch híbrido precisa provar simultaneamente substituição da hit e START_BATCH contendo somente as misses.",
       "auditor_recommended_action": "Adicionar cenário com pelo menos duas imagens e resposta GTC parcial, assertando DOM/data-translated da hit e payload START_BATCH exclusivo das misses."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

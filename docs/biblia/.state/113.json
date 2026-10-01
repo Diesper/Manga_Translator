@@ -2,11 +2,11 @@
   "index": 113,
   "file": "tests/integration/options.ui.test.js",
   "bible": "docs/biblia/tests/integration/options.ui.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 5",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "33c34c89f7131ade147ea65b5f5015b79917b708",
   "started_at_utc": "2026-09-30T06:31:00Z",
-  "completed_at_utc": "2026-09-30T06:39:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "113-001",
@@ -63,5 +63,10 @@
     "external_audit_requests_open": 2,
     "global_files_modified": false,
     "note": "Conclusão documental individual do #113; nenhum código, teste externo ou arquivo global de coordenação foi alterado."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

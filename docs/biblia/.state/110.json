@@ -2,11 +2,11 @@
   "index": 110,
   "file": "tests/integration/ipc/gtc-cache-flow.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 9",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
   "started_at_utc": "2026-09-30T06:27:00Z",
-  "completed_at_utc": "2026-09-30T06:30:13.034Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "110-001",
@@ -108,5 +108,10 @@
       "audit_finding": "ACCEPTED. `tests/integration/ipc/gtc-cache-flow.test.js` importa `fs` e não o utiliza posteriormente. É dívida de manutenção sem impacto funcional.",
       "auditor_recommended_action": "Remover o import morto em alteração separada e manter a suíte verde."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

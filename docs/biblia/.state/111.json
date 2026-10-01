@@ -2,11 +2,11 @@
   "index": 111,
   "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
   "started_at_utc": "2026-09-30T06:23:49.485Z",
-  "completed_at_utc": "2026-09-30T15:04:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "111-001",
@@ -94,5 +94,10 @@
       109437162789
     ],
     "evidence_note": "Mesmo blob do arquivo presente no CI verde; assertions diretas diferenciadas de execução indireta e limitações do harness."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

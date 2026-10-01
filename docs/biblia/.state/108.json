@@ -2,11 +2,11 @@
   "index": 108,
   "file": "tests/integration/gtc-end-to-end.test.js",
   "bible": "docs/biblia/tests/integration/gtc-end-to-end.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 24",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
   "started_at_utc": "2026-09-30T06:22:44.572Z",
-  "completed_at_utc": "2026-09-30T06:31:37.194Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "108-001",
@@ -88,5 +88,10 @@
       109437162789
     ],
     "note": "Bíblia concluída sem alterar o objeto auditado nem trackers globais; evidência de produção foi distinguida das implementações espelho locais."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

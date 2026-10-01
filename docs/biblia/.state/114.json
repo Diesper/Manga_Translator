@@ -2,11 +2,11 @@
   "index": 114,
   "file": "tests/integration/performance.test.js",
   "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 16",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
   "started_at_utc": "2026-09-30T06:25:33.185Z",
-  "completed_at_utc": "2026-09-30T06:31:23.078Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "114-001",
@@ -82,5 +82,10 @@
     "evidence_run": 36577447500,
     "evidence_job": 109437162616,
     "evidence_summary": "Unit + Integration (20.x): performance.test.js PASS; PERF-01 a PERF-09 aparecem nominalmente e todos passaram."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
