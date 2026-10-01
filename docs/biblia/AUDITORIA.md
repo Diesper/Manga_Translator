@@ -1326,3 +1326,19 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas; a releitura final preservou o mesmo source SHA. Os três findings documentais sobreviveram à tentativa formal de refutação e à segunda auditoria da própria conclusão.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `verify-repository-structure.js` — reauditoria independente pelo AGENTE 2 em 2026-10-01
+
+- **Índice:** #089 — `scripts/validation/verify-repository-structure.js`.
+- **Auditor:** AGENTE 2.
+- **SHA auditado:** `04d0337a168e14994bd855a455f11dd61fcabcb6`.
+- **Integridade:** state, claim, source e SHA declarado na Bíblia coincidem; a fonte integral embutida é byte a byte idêntica ao blob atual; 379 linhas textuais + LF final = **380/380 posições**.
+- **Cobertura matemática:** união das faixas 1–380 sem gaps, overlaps ou posições fora do source.
+- **Falha documental 1 — invariant de `extension/` exagerado:** a Bíblia afirma que “a raiz de `extension/` permanece somente com `background.js` e `manifest.json`”. O source, porém, usa `fs.readdirSync(...).filter(entry => entry.isFile())` antes da comparação; portanto a regra limita somente os **arquivos diretamente na raiz**, não os diretórios. O próprio tree atual possui `background/`, `content/`, `options/`, `popup/`, `reader/` e `shared/`.
+- **Falha documental 2 — faixa 98–143 semanticamente deslocada:** a faixa “Posições 98–143 — caminhos legados proibidos” inclui a posição 143, mas a linha 143 é o comentário `Contrato interno do bloco 0-G: paths de runtime precisam permanecer alinhados.`, que introduz o bloco de Manifest/runtime iniciado na linha 144. A cobertura é matematicamente integral, porém a atribuição semântica dessa posição está incorreta.
+- **Falha documental 3 — invariant documental absoluto incorreto:** a frase “Toda inconsistência documental deve vir de `bible-coordination.js` ou do checker de projeções” é ampla demais. Este próprio verifier detecta diretamente, fora desses dois mecanismos, ausência de `docs/Documentação.md`, `STATUS.md`, `CHECKLIST.md` e `AUDITORIA.md`, forma inesperada da raiz de `docs/`, presença de `docs/Bíblia.md` e vários paths documentais legados.
+- **Evidência/assertions revalidadas:** `verify-bible-coordination-selftest.js` chama a implementação real de `validateBibleCoordination` em sandbox e cobre states/locks/claims/SHA/fonte/cobertura/projeções; a run `36810129768` executou o mesmo blob deste source e o job **Windows Portability** concluiu com sucesso, inclusive o passo `Validar contratos e paths`. A classificação `GATE_ESTATICO + EXECUCAO_INDIRETA` para essa evidência foi mantida.
+- **Audit requests:** 089-001 e 089-002 permanecem **RESOLVED**; 089-004 permanece **SUPERSEDED**; 089-003 e 089-005 permanecem **ACCEPTED** e não são, por si sós, os blockers documentais desta reauditoria.
+- **Passagens:** 0–15 concluídas. As três falhas acima sobreviveram à releitura do source, à tentativa formal de refutação e à segunda auditoria independente da própria conclusão.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
