@@ -1171,3 +1171,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Conclusão:** não foi encontrada falha documental bloqueante após tentativa formal de reprovação, releitura do source e segunda verificação independente dos pontos críticos.
 
 **Veredito documental independente:** ✅ **APROVADO — #097 / SHA `71d78eea7eddb51bc93c74bbb3bf652119551ce4`**.
+
+### `background-test-utils.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #098 — `tests/helpers/background-test-utils.js`.
+- **Auditor:** AGENTE 5.
+- **SHA auditado:** `1c38cfc47917f2a42788c467b9dbf58648b73e2b`.
+- **Integridade:** **60 linhas textuais + newline final = 61/61 posições**; state, source, claim e SHA declarado na Bíblia coincidem. A fonte integral embutida é **byte a byte idêntica** ao arquivo atual e a tabela cobre exatamente as posições 1–61, sem gaps ou posições extras.
+- **Papel confirmado:** harness CommonJS compartilhado que resolve o path absoluto do `extension/background.js`, fornece `delay`/`flush`/`waitFor`, exige exatamente um listener de background e adapta `sendResponse`/retorno do listener para Promise.
+- **Consumers reconfirmados:** exatamente nove imports reais no corpus atual: `test_bg59`, `marker-anchor-real`, `helpers-real`, `routed-actions-legacy`, `single-image-context-menu`, `lifecycle-alarms-real`, `message-handlers-real`, `process-finalize-real` e `plan-missing-handlers-real`. `delay` e `getBackgroundListener` não são importados externamente nesses consumers.
+- **Assertions revalidadas:** `helpers-real.test.js` usa o valor retornado por `waitFor` em assertions posteriores; `test_bg59.test.js` exige `keepAlive === true` e payload específico; `plan-missing-handlers-real.test.js` BG-43 exige `keepAlive === false` e `response === { ok: true }`. Isso sustenta somente os caminhos concretos descritos pela Bíblia, não os branches negativos ausentes.
+- **Evidência runtime SHA-bound:** o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f` contém exatamente o mesmo blob do helper e os mesmos blobs dos nove consumers. A run **36577447500** terminou com sucesso; jobs `109437162616` (Unit + Integration 20.x) e `109437162789` (Windows Portability) listam PASS nominal para as nove suítes e resumo 109/109 suites, 851/851 testes.
+- **Request 098-001:** permanece **ACCEPTED** — falta suíte focal para delay, rounds/limites de flush, timeout/erro/opções de waitFor, cardinalidade de listeners e combinações de settlement.
+- **Request 098-002:** permanece **ACCEPTED** — `sendResponse` síncrono pode capturar `keepAlive=false` antes do retorno final do listener; `undefined` sem response não aciona o fallback estrito e pode deixar a Promise pendente.
+- **Nota de lifecycle:** a Bíblia preserva rótulos autorais `OPEN` nas seções dessas solicitações; o estado operacional canônico atual é o `.state/098.json`, onde ambas estão `ACCEPTED`. As lacunas em si permanecem descritas corretamente e não são promovidas a prova.
+- **Conclusão:** após tentativa formal de reprovação, releitura do source e segunda auditoria independente dos pontos críticos, não foi encontrada falha documental bloqueante.
+
+**Veredito documental independente:** ✅ **APROVADO — #098 / SHA `1c38cfc47917f2a42788c467b9dbf58648b73e2b`**.
