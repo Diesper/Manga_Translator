@@ -291,6 +291,53 @@ describe('load-content-script helper selftest', () => {
       sendMessage: expect.any(Function),
     }));
   });
+  test('erro primário não extensível não é mascarado por erro de cleanup', async () => {
+    const manifestPath = path.join(ROOT, 'extension/manifest.json');
+    const frozenModuleRelative = 'content/__frozen_cleanup_selftest__.js';
+    const frozenModulePath = path.join(ROOT, 'extension', frozenModuleRelative);
+    const primaryError = Object.freeze(new Error('frozen-primary'));
+    const realReadFileSync = fs.readFileSync.bind(fs);
+    const readSpy = jest.spyOn(fs, 'readFileSync').mockImplementation((file, ...args) => {
+      const content = realReadFileSync(file, ...args);
+      if (path.resolve(String(file)) !== manifestPath) return content;
+      const manifest = JSON.parse(String(content));
+      const mangaEntry = manifest.content_scripts.find(entry =>
+        Array.isArray(entry.js) && entry.js.includes('content/content_manga.js')
+      );
+      mangaEntry.js = [...mangaEntry.js, frozenModuleRelative];
+      return JSON.stringify(manifest);
+    });
+
+    jest.doMock(frozenModulePath, () => { throw primaryError; }, { virtual: true });
+
+    const originalStorageRemove = global.chrome.storage.onChanged.removeListener;
+    let throwOnce = true;
+    const removeSpy = jest.spyOn(global.chrome.storage.onChanged, 'removeListener')
+      .mockImplementation((listener) => {
+        originalStorageRemove(listener);
+        if (throwOnce) {
+          throwOnce = false;
+          throw new Error('cleanup-secondary');
+        }
+      });
+
+    try {
+      await expect(loadContentScript({
+        hostname: 'reader.test',
+        floatingButtonEnabled: false,
+      })).rejects.toBe(primaryError);
+
+      expect(primaryError.cleanupError).toBeUndefined();
+      expect(storageMock._listeners).toHaveLength(0);
+      expect(runtimeMock._messageListeners).toHaveLength(0);
+      expect(globalThis.__manga_translator_harness_global_event_listeners).toEqual([]);
+    } finally {
+      jest.dontMock(frozenModulePath);
+      readSpy.mockRestore();
+      removeSpy.mockRestore();
+      jest.resetModules();
+    }
+  });
   test('erro em removeListener não impede cleanup dos demais subsistemas', async () => {
     await loadContentScript({ hostname: 'reader.test', floatingButtonEnabled: false });
 
