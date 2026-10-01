@@ -1,9 +1,0 @@
-AGENTE: AGENTE 23
-ARQUIVO: tests/helpers/repo-root.js
-BIBLIA: docs/biblia/tests/helpers/repo-root.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: b2520d65820e7b9072602018b0f46609ac967c58
-RESERVADO_EM_UTC: 2026-10-01T05:38:24Z
-ATUALIZADO_EM_UTC: 2026-10-01T05:38:24Z
-PR: #66
-BRANCH: docs/project-bible
-ESTADO: ATIVA

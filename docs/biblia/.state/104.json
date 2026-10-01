@@ -2,8 +2,8 @@
   "index": 104,
   "file": "tests/helpers/repo-root.js",
   "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
   "started_at_utc": "2026-09-30T06:26:00Z",
   "completed_at_utc": null,
@@ -48,11 +48,12 @@
       109437162616,
       109437162754,
       109437162789
-    ]
+    ],
+    "repair_note": "Corrigido lifecycle duplicado da request 104-001: Bíblia agora reflete ACCEPTED e devolve o item para reauditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:38:24Z",
+  "updated_at_utc": "2026-10-01T05:38:57Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:26:00Z",
@@ -71,6 +72,15 @@
       "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
       "agent": "AGENTE 23",
       "reason": "Corrigir lifecycle stale 104-001 na Bíblia, alinhando OPEN duplicado ao state canônico ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T05:38:57Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
+      "agent": "AGENTE 23",
+      "reason": "Reparo documental #104: lifecycle de 104-001 alinhado ao state canônico ACCEPTED."
     }
   ],
   "evidence": [
@@ -81,6 +91,13 @@
       "auditor": "AGENTE 10",
       "at_utc": "2026-10-01T05:26:00Z",
       "note": "Passagens 0–15: SHA/fonte/cobertura/semântica/consumers/evidence classification passam; lifecycle duplicado OPEN na Bíblia diverge do state ACCEPTED."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:38:57Z",
+      "note": "Somente Bíblia/state corrigidos; source permaneceu inalterado e item foi devolvido para reauditoria independente."
     }
   ]
 }

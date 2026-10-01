@@ -301,7 +301,7 @@ Não foi encontrada evidência que mereça ✅ PROVADO DIRETAMENTE para o contra
 
 ## 13. Solicitação ao auditor
 
-### 104-001 — TEST_REQUIRED — OPEN
+### 104-001 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** o helper possui 31 consumidores diretos e seu caminho normal é exercitado por CI real em Linux e Windows, porém não existe teste focal que controle a árvore de diretórios e faça assertions sobre o contrato da própria função.
 
@@ -478,4 +478,4 @@ Não há execução de arquivos encontrados. O helper apenas retorna o caminho.
 - [x] lacuna externa registrada como audit_request 104-001;
 - [x] nenhum código, teste, fixture, workflow ou configuração foi alterado.
 
-**Resultado documental:** a Bíblia descreve integralmente o comportamento observado do blob b2520d65820e7b9072602018b0f46609ac967c58. O caminho normal possui execução indireta real e multiplataforma; branches/contratos de borda sem assertions permanecem explicitamente marcados. A solicitação 104-001 pode permanecer OPEN sem impedir a conclusão documental.
+**Resultado documental após reparo:** a Bíblia descreve integralmente o comportamento observado do blob b2520d65820e7b9072602018b0f46609ac967c58. O caminho normal possui execução indireta real e multiplataforma; branches/contratos de borda sem assertions permanecem explicitamente marcados. A solicitação 104-001 permanece `ACCEPTED` no state canônico e não bloqueia, por si só, a fidelidade documental. O item retorna a `READY_FOR_AUDIT` e somente auditor independente pode promovê-lo a `COMPLETED`.
