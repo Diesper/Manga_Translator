@@ -61,7 +61,7 @@ function isContiguousFromOne(intervals) {
 
 function coverageScope(bible) {
   const normalized = normalizeText(bible);
-  const matches = [...normalized.matchAll(/^##\s+.*(?:cobertura|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi)];
+  const matches = [...normalized.matchAll(/^##\s+.*(?:cobertura|rastreabilidade|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi)];
   if (!matches.length) return normalized;
   const start = matches[matches.length - 1].index;
   const rest = normalized.slice(start);
@@ -87,7 +87,7 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
   );
 
   for (const line of scope.split(/\r?\n/)) {
-    const heading = /^#{3,5}\s+(.+)$/.exec(line);
+    const heading = /^#{2,5}\s+(.+)$/.exec(line);
     if (!heading) continue;
     const range = rangeRe.exec(heading[1]);
     if (range) {
@@ -117,47 +117,53 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
     if (!sourcePositions && isContiguousFromOne(intervals)) return intervals;
   }
 
-  // Tabelas de cobertura podem usar quebras reais ou a sequência literal "\\n"
-  // criada por alguns geradores antigos. Cada tabela é avaliada isoladamente.
-  const normalizedForTables = scope.replace(/\\n/g, '\n');
-  const lines = normalizedForTables.split(/\r?\n/);
-  const tableCandidates = [];
-  let current = null;
-  const headerRe = /^\|\s*(?:Linha|Linhas|Linha\/posi[cç][aã]o|Linhas\/posi[cç][aã]o|Pos\.?|Posi[cç][aã]o|Posi[cç][oõ]es)\s*\|/i;
+  // Tabelas de cobertura: primeiro usa quebras reais. Só tenta expandir a
+  // sequência literal "\\n" quando nenhum mapa tabular foi encontrado, para
+  // não quebrar células de código que contêm strings como '\n'.
+  function collectCoverageTables(tableText) {
+    const rows = tableText.split(/\r?\n/);
+    const tables = [];
+    let current = null;
+    const headerRe = /^\|\s*(?:Linha|Linhas|Linha\/posi[cç][aã]o|Linhas\/posi[cç][aã]o|Pos\.?|Posi[cç][aã]o|Posi[cç][oõ]es|Faixa|Intervalo)\s*\|/i;
+    const finishTable = () => {
+      if (current && current.length) tables.push(current);
+      current = null;
+    };
 
-  function finishTable() {
-    if (current && current.length) tableCandidates.push(current);
-    current = null;
+    for (const line of rows) {
+      if (headerRe.test(line)) {
+        finishTable();
+        current = [];
+        continue;
+      }
+      if (current && /^\|\s*:?-{3,}/.test(line)) continue;
+      if (current && !/^\|/.test(line)) {
+        finishTable();
+        continue;
+      }
+      if (!current) continue;
+
+      let match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*[–—-]\s*0*(\d+)\s*\|/i.exec(line);
+      if (match) {
+        current.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
+        continue;
+      }
+      match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*\|/i.exec(line);
+      if (match) {
+        current.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
+        continue;
+      }
+      if (sourcePositions && /^\|\s*posi[cç][aã]o\s+final\s*\|/i.test(line)) {
+        current.push({ start: sourcePositions, end: sourcePositions, raw: line.trim() });
+      }
+    }
+    finishTable();
+    return tables;
   }
 
-  for (const line of lines) {
-    if (headerRe.test(line)) {
-      finishTable();
-      current = [];
-      continue;
-    }
-    if (current && /^\|\s*:?-{3,}/.test(line)) continue;
-    if (current && !/^\|/.test(line)) {
-      finishTable();
-      continue;
-    }
-    if (!current) continue;
-
-    let match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*[–—-]\s*0*(\d+)\s*\|/i.exec(line);
-    if (match) {
-      current.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
-      continue;
-    }
-    match = /^\|\s*(?:posi[cç][aã]o\s+)?0*(\d+)\s*\|/i.exec(line);
-    if (match) current.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
-  }
-  finishTable();
-
-  for (const candidate of tableCandidates) {
-    candidate.sort((a,b) => a.start - b.start || a.end - b.end);
-    if (isContiguousFromOne(candidate) && (!sourcePositions || validateCoverage(candidate, sourcePositions).length === 0)) {
-      return candidate;
-    }
+  let tableCandidates = collectCoverageTables(scope);
+  if (!tableCandidates.length && /\\n/.test(scope)) {
+    tableCandidates = collectCoverageTables(scope.replace(/\\n/g, '\n'));
   }
 
   const combinedRanges = [...rangeHeadings];
