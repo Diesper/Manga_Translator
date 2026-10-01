@@ -101,12 +101,14 @@ Assertions:
 
 - action real é registrada e resolvida por GEMINI_RESULT_COMMIT;
 - ownership tab id 321 é usado;
-- transição para result_committed ocorre antes da finalização no fluxo;
+- o teste prova que `updateJobState(...result_committed...)` e `finalizeJob(...)` são ambos chamados; a ordem entre essas chamadas é confirmada pelo source atual, mas **não** possui assertion focal de ordenação nesta suíte;
 - mangaTabId do job chega a finalize;
 - `fromError=false`;
 - router envelopa retorno com `ok:true`.
 
 ### O que ele não isola
+
+Além da matriz de prontidão abaixo, a suíte **não** afirma a ordem relativa entre `updateJobState` e `finalizeJob`: ela verifica argumentos/chamadas, não `invocationCallOrder`. A ordem atual permanece semântica do source, não prova direta desta suíte.
 
 O job satisfaz **as duas** condições de prontidão ao mesmo tempo:
 
@@ -318,7 +320,7 @@ Nenhum dado sensível é manipulado diretamente pelo teste; o risco principal é
 
 ## 16. Solicitações ao auditor
 
-### 136-001 — TEST_REQUIRED — OPEN
+### 136-001 — TEST_REQUIRED — SUPERSEDED por 006-001
 
 **Encontrado:** o caso positivo usa simultaneamente `resultPersisted=true` e `state='dom_applied'`, enquanto a implementação aceita qualquer um isoladamente.
 
@@ -334,7 +336,7 @@ Nenhum dado sensível é manipulado diretamente pelo teste; o risco principal é
 
 **Severidade:** NORMAL.
 
-### 136-002 — TEST_REQUIRED — OPEN
+### 136-002 — TEST_REQUIRED — SUPERSEDED por 006-001
 
 **Encontrado:** o journal idempotente possui apenas caso positivo.
 
@@ -352,7 +354,7 @@ Nenhum dado sensível é manipulado diretamente pelo teste; o risco principal é
 
 **Severidade:** HIGH.
 
-### 136-003 — TEST_REQUIRED — OPEN
+### 136-003 — TEST_REQUIRED — SUPERSEDED por 006-002
 
 **Encontrado:** a seleção `ownership.tabId ?? senderTabId ?? job.geminiTabId` e `job.mangaTabId ?? request.mangaTabId` só é testada pelos primeiros operandos presentes.
 
