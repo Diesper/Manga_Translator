@@ -2,8 +2,8 @@
   "index": 102,
   "file": "tests/helpers/load-content-script.js",
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T11:23:26Z",
+  "updated_at_utc": "2026-10-01T23:10:15Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -182,6 +182,15 @@
       "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
       "agent": "AGENTE 23",
       "reason": "Segunda rodada de reparo #102 concluída conforme findings do AGENTE 11; source permaneceu inalterado."
+    },
+    {
+      "at_utc": "2026-10-01T23:10:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "PRIMARY e ADVERSARIAL concordaram em CHANGES_REQUIRED; reauditoria também identificou cinco requests ACCEPTED corrigíveis que impedem 100/100."
     }
   ],
   "evidence": [
