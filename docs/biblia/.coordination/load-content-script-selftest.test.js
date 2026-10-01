@@ -402,6 +402,35 @@ describe('load-content-script helper selftest', () => {
     expect(jest.getTimerCount()).toBe(0);
   });
 
+  test('exceção durante bootstrap restaura captura global e limpa a carga', async () => {
+    const originalWindowAdd = window.addEventListener;
+    const originalDocumentAdd = document.addEventListener;
+    const documentRemoveSpy = jest.spyOn(document, 'removeEventListener');
+    let externalPagehideCount = 0;
+    const externalPagehide = () => { externalPagehideCount += 1; };
+    window.addEventListener('pagehide', externalPagehide);
+
+    const explosiveTimeout = {
+      valueOf() { throw new Error('ready-timeout-conversion-boom'); },
+    };
+
+    await expect(loadContentScript({
+      hostname: 'reader.test',
+      floatingButtonEnabled: false,
+      readyTimeoutMs: explosiveTimeout,
+    })).rejects.toThrow('ready-timeout-conversion-boom');
+
+    expect(window.addEventListener).toBe(originalWindowAdd);
+    expect(document.addEventListener).toBe(originalDocumentAdd);
+    expect(externalPagehideCount).toBe(0);
+    expect(storageMock._listeners).toHaveLength(0);
+    expect(runtimeMock._messageListeners).toHaveLength(0);
+    expect(
+      documentRemoveSpy.mock.calls.filter(([type]) => type === 'contextmenu').length
+    ).toBeGreaterThanOrEqual(2);
+
+    window.removeEventListener('pagehide', externalPagehide);
+  });
   test('bootstrap incompleto faz teardown e rejeita com timeout causal', async () => {
     let pagehideCount = 0;
     window.addEventListener('pagehide', () => { pagehideCount += 1; }, { once: true });
