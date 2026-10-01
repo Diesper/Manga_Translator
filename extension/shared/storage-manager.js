@@ -45,12 +45,12 @@ function getIndexedDb() {
 
 function openStorageDb() {
     if (_smDbPromise) return _smDbPromise;
+    const idb = getIndexedDb();
+    if (!idb || typeof idb.open !== 'function') {
+        return Promise.reject(new Error('IndexedDB indisponível neste contexto'));
+    }
     _smDbPromise = new Promise((resolve, reject) => {
-        const idb = getIndexedDb();
-        if (!idb || typeof idb.open !== 'function') {
-            _smDbPromise = null; reject(new Error('IndexedDB indisponível neste contexto'));
-            return;
-        }
+
         const req = idb.open(SM_DB_NAME, SM_DB_VERSION);
         req.onupgradeneeded = (event) => {
             const db = event.target.result;
@@ -71,7 +71,7 @@ function openStorageDb() {
                 db.createObjectStore(SM_STORE_ASSETS, { keyPath: 'assetId' });
             }
         };
-        req.onsuccess = () => resolve(req.result);
+        req.onsuccess = () => { const db = req.result; db.onversionchange = () => { db.close(); _smDbPromise = null; }; resolve(db); };
         req.onerror = () => { _smDbPromise = null; reject(req.error || new Error('Falha ao abrir IndexedDB')); };
     });
     return _smDbPromise;
