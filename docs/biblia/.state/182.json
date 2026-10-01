@@ -2,8 +2,8 @@
   "index": 182,
   "file": "tests/unit/content-gemini/manual-assist-hud.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/manual-assist-hud.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
   "started_at_utc": "2026-09-30T14:30:00Z",
   "completed_at_utc": null,
@@ -83,7 +83,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T18:47:54.053Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:47:54.053Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
+      "reason": "A8-182-01/02: realinhar mapa semântico 103/103 e sincronizar lifecycle."
+    }
+  ],
   "evidence": []
 }
