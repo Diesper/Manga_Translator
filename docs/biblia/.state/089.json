@@ -4,7 +4,7 @@
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
+  "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T22:56:20Z",
+  "updated_at_utc": "2026-10-01T22:59:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -258,6 +258,13 @@
       "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Passagem PRIMARY encontrou hook MANGA_TRANSLATOR_REPO_ROOT desnecessariamente redirecionável por ambiente; correção moverá a testabilidade para execução da cópia do verifier no sandbox."
+    },
+    {
+      "at_utc": "2026-10-01T22:59:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
+      "current_source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
+      "reason": "Removido MANGA_TRANSLATOR_REPO_ROOT do gate de produção; self-test passou a executar a cópia do verifier no sandbox."
     }
   ],
   "evidence": [
@@ -288,8 +295,8 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "416/416",
-    "source_text_lines": 415,
-    "repair_note": "Overclaim arquitetural corrigido; fronteira bible-coordination.js × audit-protocol.js explicitada. 089-003 e 089-005 RESOLVED. Self-test focal do verifier real passou na run 36936938761."
+    "documented_positions": "414/414",
+    "source_text_lines": 413,
+    "repair_note": "Overclaim arquitetural corrigido; 089-003/005 resolvidos; root do verifier voltou a ser fixo por __dirname e o self-test executa a cópia do verifier no sandbox, sem hook de ambiente."
   }
 }
