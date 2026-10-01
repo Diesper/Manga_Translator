@@ -1,6 +1,6 @@
 # Bíblia técnica — verify-test-policy.js
 
-> **Estado documental:** ✅ CONCLUÍDO pelo AGENTE 3 segundo o state individual  
+> **Estado documental:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `4a821403353445023452a0b5055e3a0893beaad2`  
 > **Agente responsável:** AGENTE 3  
 > **Arquivo:** `scripts/validation/verify-test-policy.js`  
@@ -178,7 +178,7 @@ Casos provados diretamente:
 3. **`--forceExit` em script npm** retorna não zero e mensagem correspondente;
 4. **`npm run test:ci || true` no workflow** retorna não zero e mensagem de mascaramento.
 
-O self-test remove o sandbox em `finally`, inclusive nos caminhos de falha.
+Depois que `createSandbox()` retorna com sucesso, o self-test remove esse sandbox em `finally`, inclusive nas falhas ocorridas dentro do bloco protegido. Uma falha durante a própria criação do sandbox, antes da entrada no `try/finally`, não é abrangida por essa garantia.
 
 Ele **não** possui casos focais para `.only`, `test.todo`, `--passWithNoTests`, `--forceExit` em workflow/JS operacional, `|| true` em package script, aliases/chains Jest ou filesystem/symlink.
 
@@ -249,7 +249,7 @@ Como gate de CI, seu papel é de policy enforcement do próprio código versiona
 
 ## 15. Solicitações ao auditor
 
-### 091-001 — TEST_REQUIRED — OPEN
+### 091-001 — TEST_REQUIRED — SUPERSEDED → 090-001
 
 **Encontrado:** o self-test cobre somente baseline, `test.skip`, `--forceExit` em package e masking `npm run test:* || true` em workflow.
 
@@ -259,7 +259,7 @@ Como gate de CI, seu papel é de policy enforcement do próprio código versiona
 
 **Risco:** branches existentes podem regressar sem que o self-test atual falhe.
 
-### 091-002 — POLICY_GAP_REVIEW — OPEN — HIGH
+### 091-002 — POLICY_GAP_REVIEW — ACCEPTED — HIGH
 
 **Encontrado:** a política declara impedir skip/only, mas os regexes atuais não cobrem aliases/chains semanticamente equivalentes como `xit`, `xdescribe`, `fit`, `fdescribe`, `test.concurrent.skip` e `test.concurrent.only`.
 
@@ -267,9 +267,11 @@ Como gate de CI, seu papel é de policy enforcement do próprio código versiona
 
 **Necessário:** auditor decidir a superfície Jest proibida e, se a intenção for “nenhum skip/focus”, ampliar a política e adicionar regressões separadas.
 
+**Lifecycle canônico:** ACCEPTED no `.state/091.json`.
+
 **Risco:** suíte pode conter teste pulado/focado sem o gate acusar.
 
-### 091-003 — POLICY_GAP_REVIEW — OPEN
+### 091-003 — POLICY_GAP_REVIEW — ACCEPTED
 
 **Encontrado:** masking por `|| true` em workflow só é detectado quando a linha contém `npm run test:<...>`.
 
@@ -278,6 +280,8 @@ Como gate de CI, seu papel é de policy enforcement do próprio código versiona
 **Falta:** proteção/teste para comandos diretos como `npm test || true`, `npx jest || true` ou `node tests/... || true`.
 
 **Necessário:** definir se o contrato deve proibir qualquer comando de teste mascarado e, se sim, implementar detecção robusta + self-tests.
+
+**Lifecycle canônico:** ACCEPTED no `.state/091.json`.
 
 **Risco:** uma alteração de workflow pode mascarar falha real sem violar o gate atual.
 
