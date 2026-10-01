@@ -238,7 +238,7 @@ Passos:
    - `resolve` como sendResponse;
 4. agenda `resolve(null)` após 50 ms caso ninguém responda.
 
-Como Promise ignora resoluções posteriores, uma resposta do listener ganha do fallback.
+Como a Promise aceita somente a primeira resolução, o vencedor depende do tempo. Se um listener chamar `sendResponse` antes de 50 ms, essa resposta vence. Se a resposta assíncrona chegar depois de 50 ms, o fallback `resolve(null)` já terá resolvido a Promise e a resposta tardia será ignorada. O helper também não usa o valor de retorno dos listeners (`true` no contrato Chrome para manter o canal assíncrono aberto), portanto não reproduz integralmente essa semântica.
 
 ### Limite de lifecycle
 
@@ -283,7 +283,7 @@ Isso fornece evidência concreta de que storage seed, dimensões naturais, DOM f
 - passa `className` e `attributes` em `domImages`;
 - usa `data-testid`;
 - clica `context.getMainContent()`;
-- usa `context.sendMessage('UPDATE_IMAGE', ...)`;
+- usa `context.sendMessage('UPDATE_IMAGE', ...)`, mas esse consumer **não asserta a resposta** da mensagem; ele observa efeitos/persistência posteriores. No handler real, `UPDATE_IMAGE` só envia ACK quando `expectAck === true`, opção não fornecida nesse cenário;
 - em cenário com 50 imagens, verifica comportamento e texto através do mesmo loader.
 
 ### button-ui-real.test.js
@@ -300,7 +300,7 @@ Isso fornece evidência concreta de que storage seed, dimensões naturais, DOM f
 | loader usa módulos reais, não cópias | require dos seis arquivos reais + assertions downstream | ✅ PROVADO DIRETAMENTE no ambiente de teste |
 | `getButton()` retorna o botão real | consumers inspecionam null/presença/estilo pelo retorno | ✅ PROVADO DIRETAMENTE |
 | `getMainContent()` retorna o main content real | consumers clicam/leem textContent pelo retorno | ✅ PROVADO DIRETAMENTE |
-| `sendMessage` entrega e obtém resposta dos listeners | respostas GET_FLOATING_BUTTON_STATUS, TRANSLATE_CONTEXT_IMAGE, GET_PAGE_IMAGES, UPDATE_IMAGE são assertadas | ✅ PROVADO DIRETAMENTE no harness atual |
+| `sendMessage` entrega mensagens aos listeners e obtém algumas respostas | `GET_FLOATING_BUTTON_STATUS`, `TRANSLATE_CONTEXT_IMAGE` e `GET_PAGE_IMAGES` possuem assertions de resposta em consumers; `UPDATE_IMAGE` é disparado em consumer observado, mas sua resposta não é assertada e o cenário não envia `expectAck` | ✅ PROVADO DIRETAMENTE para dispatch e para as respostas explicitamente assertadas; 🟨 execução indireta para `UPDATE_IMAGE` |
 | `domImages` cria IDs determinísticos | consumers usam `[data-testid="img-N"]` após o loader | ✅ PROVADO DIRETAMENTE |
 | naturalWidth/naturalHeight refletem fixture | teste de limites 180×120/180×90 depende dessas propriedades e faz assertion de resultado | ✅ PROVADO DIRETAMENTE pelo fluxo real |
 | bannedImages é semeado antes do IIFE | GET_PAGE_IMAGES e menu contextual rejeitam URLs banidas passadas ao loader | ✅ PROVADO DIRETAMENTE pelo fluxo real |
@@ -330,11 +330,12 @@ Isso fornece evidência concreta de que storage seed, dimensões naturais, DOM f
 13. **storage.set rejeita/lança**: requires não começam.
 14. **botão nunca chega a positionReady=true**: helper retorna depois do limite sem erro explícito.
 15. **nenhum runtime listener**: `sendMessage` resolve null após 50 ms.
-16. **listener responde imediatamente**: Promise resolve, mas timer de 50 ms continua agendado.
-17. **múltiplos listeners respondem**: primeira resolução ganha; todos foram invocados.
-18. **listener lança síncronamente dentro do forEach**: executor da Promise captura a exception e rejeita a Promise; o fallback pode já não ser alcançado dependendo do ponto da throw.
-19. **extra contém action**: como payload é `{ action, ...extra }`, `extra.action` pode sobrescrever o primeiro argumento. Isso é uma característica do helper e exige disciplina do caller.
-20. **location precisa de propriedade não modelada**: este helper oferece apenas hostname/href/pathname; código futuro que leia origin/search/hash pode observar undefined no harness.
+16. **listener responde imediatamente ou antes de 50 ms**: a resposta vence, mas o timer de 50 ms continua agendado.
+17. **listener responde assincronamente depois de 50 ms**: o fallback `null` vence e a resposta tardia é ignorada; o helper não prolonga a janela com base em `return true`.
+18. **múltiplos listeners respondem**: primeira resolução ganha; todos foram invocados.
+19. **listener lança síncronamente dentro do forEach**: executor da Promise captura a exception e rejeita a Promise; o fallback pode já não ser alcançado dependendo do ponto da throw.
+20. **extra contém action**: como payload é `{ action, ...extra }`, `extra.action` pode sobrescrever o primeiro argumento. Isso é uma característica do helper e exige disciplina do caller.
+21. **location precisa de propriedade não modelada**: este helper oferece apenas hostname/href/pathname; código futuro que leia origin/search/hash pode observar undefined no harness.
 
 ## 14. Invariantes
 
@@ -347,7 +348,7 @@ Isso fornece evidência concreta de que storage seed, dimensões naturais, DOM f
 7. `false` explícito em preferências não pode ser perdido por truthiness.
 8. Array vazio explícito de enabledDomains não deve virar `[hostname]`.
 9. O helper deve continuar executando implementação real, não um mirror de `content_manga.js`.
-10. `sendMessage` deve preservar `action` + campos extras e resolver respostas assíncronas.
+10. `sendMessage` deve preservar `action` + campos extras. Respostas síncronas ou assíncronas que cheguem antes do fallback de 50 ms podem resolver a Promise; respostas posteriores a 50 ms perdem para `null`, e o helper não preserva a semântica de `return true` do runtime Chrome.
 11. O fallback de mensagem não deve converter silêncio em Promise pendente indefinidamente.
 12. Timers do harness não devem permanecer vivos além do necessário.
 13. O helper não deve apagar estado adicional sem que o caller peça; alguns testes semeiam chaves antes da chamada.
@@ -363,7 +364,7 @@ O retorno documentado não existe. Isso pode induzir novos testes a procurar API
 
 ### 15.2 Timer de 50 ms não cancelado
 
-Cada `sendMessage` deixa o fallback agendado mesmo depois de resposta. O custo é pequeno, mas é conceitualmente contrário ao esforço do projeto de eliminar handles pendentes.
+Cada `sendMessage` deixa o fallback agendado mesmo depois de resposta. O custo é pequeno, mas é conceitualmente contrário ao esforço do projeto de eliminar handles pendentes. Além disso, o timer é também um limite semântico: uma resposta assíncrona posterior a 50 ms é perdida para `null`, mesmo que o listener use o padrão de canal assíncrono do Chrome.
 
 ### 15.3 Timeout de bootstrap silencioso
 
@@ -395,7 +396,7 @@ A ordem do spread permite isso. Nenhum consumer observado passa `extra.action`, 
 
 ## 16. Solicitações ao auditor
 
-### 102-001 — SOURCE_DOCUMENTATION_CORRECTION — OPEN
+### 102-001 — SOURCE_DOCUMENTATION_CORRECTION — ACCEPTED
 
 **Encontrado:** o JSDoc declara `@returns {Promise<Object>} { listeners, getState }`, enquanto a implementação retorna `sendMessage`, `getButton` e `getMainContent`.
 
@@ -409,15 +410,15 @@ A ordem do spread permite isso. Nenhum consumer observado passa `extra.action`, 
 
 **Severidade:** LOW.
 
-### 102-002 — RESOURCE_LIFECYCLE_REVIEW — OPEN
+### 102-002 — RESOURCE_LIFECYCLE_REVIEW — ACCEPTED
 
-**Encontrado:** `sendMessage` sempre agenda `setTimeout(() => resolve(null), 50)` e não cancela o timeout quando um listener responde antes.
+**Encontrado:** `sendMessage` sempre agenda `setTimeout(() => resolve(null), 50)`, não cancela o timeout quando um listener responde antes e não preserva a semântica de canal assíncrono baseada no retorno `true`. Assim, uma resposta que chegue depois de 50 ms é substituída por `null`.
 
 **Evidência atual:** linhas 149–156 mostram o timer incondicional; diversos consumers obtêm respostas por listener.
 
-**Evidência ausente:** teste que demonstre zero timers residuais após resposta imediata ou decisão explícita de que o handle de 50 ms é aceitável.
+**Evidência ausente:** teste que demonstre zero timers residuais após resposta imediata e teste de contrato para listener assíncrono que responde antes/depois de 50 ms, incluindo a decisão explícita sobre compatibilidade com `return true`.
 
-**Ação solicitada:** auditar o lifecycle; se a política exigir cleanup, armazenar/cancelar o timer após primeira resposta em mudança separada e adicionar regressão focal.
+**Ação solicitada:** definir o contrato assíncrono do harness. Se ele deve modelar o runtime Chrome, preservar a janela de resposta de listeners assíncronos e cancelar o fallback após settlement; em qualquer caso, adicionar regressões focais para resposta precoce, tardia e ausência de resposta.
 
 **Evidência esperada:** resposta preservada e nenhum timer do helper restante após resolução precoce.
 
@@ -425,7 +426,7 @@ A ordem do spread permite isso. Nenhum consumer observado passa `extra.action`, 
 
 **Severidade:** NORMAL.
 
-### 102-003 — STATIC_CONTRACT_TEST_REQUIRED — OPEN
+### 102-003 — STATIC_CONTRACT_TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** o helper declara carregar os módulos “na ordem real do manifest”, e o branch atual realmente coincide, mas a sequência está duplicada manualmente.
 
@@ -439,7 +440,7 @@ A ordem do spread permite isso. Nenhum consumer observado passa `extra.action`, 
 
 **Severidade:** NORMAL.
 
-### 102-004 — TEST_HARNESS_ROBUSTNESS — OPEN
+### 102-004 — TEST_HARNESS_ROBUSTNESS — ACCEPTED
 
 **Encontrado:** a espera do botão termina silenciosamente após 250 ms mesmo quando `shouldCreateButton` é true e `positionReady` nunca chega a true.
 
@@ -805,7 +806,7 @@ Linha vazia.
 
 Retorna Promise, lê a lista privada _messageListeners do mock Chrome, cria payload {action,...extra}, chama todos os listeners com sender tab.id=1 e o mesmo resolve, e agenda fallback resolve(null) após 50 ms. Primeira resolução vence; o timeout permanece agendado mesmo quando um listener responde síncrona/rapidamente.
 
-**Evidência:** ✅ PROVADO DIRETAMENTE para dispatch/resposta em diversos consumers (GET_FLOATING_BUTTON_STATUS, TRANSLATE_CONTEXT_IMAGE, GET_PAGE_IMAGES, UPDATE_IMAGE). ⚠️ cleanup do timeout não é provado e gera 102-002.
+**Evidência:** ✅ PROVADO DIRETAMENTE para dispatch e para respostas explicitamente assertadas de `GET_FLOATING_BUTTON_STATUS`, `TRANSLATE_CONTEXT_IMAGE` e `GET_PAGE_IMAGES`; 🟨 `UPDATE_IMAGE` é executado, mas o consumer observado não asserta sua resposta. ⚠️ O limite/race de 50 ms e o cleanup do timeout não possuem prova focal e permanecem em 102-002.
 
 ### Linhas 158–162 — Helper getButton
 
@@ -858,4 +859,4 @@ Posição documental vazia produzida pelo LF terminal do blob.
 - Quatro necessidades externas foram registradas; nenhum objeto externo foi alterado.
 - Nenhum código, teste, fixture, workflow, configuração ou arquivo global foi modificado.
 
-**Conclusão documental:** a Bíblia descreve o comportamento real do helper no SHA auditado e está apta a `COMPLETED`, mantendo as solicitações 102-001..004 abertas para o processo de auditoria separado.
+**Conclusão documental após reparo:** a Bíblia foi corrigida para representar honestamente a força das assertions de `UPDATE_IMAGE`, a corrida de 50 ms de `sendMessage` e o lifecycle canônico das requests. O item deve retornar a `READY_FOR_AUDIT`; somente um auditor independente pode promovê-lo novamente a `COMPLETED`.
