@@ -223,6 +223,7 @@ async function loadContentScript({
             setTrackedStorageListeners(addedStorageListeners);
             setTrackedRuntimeListeners(addedRuntimeListeners);
         } else {
+            disposePreviousContentInstance();
             removeStorageListeners(addedStorageListeners);
             setTrackedStorageListeners([]);
             removeRuntimeListeners(addedRuntimeListeners);
@@ -245,6 +246,7 @@ async function loadContentScript({
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
+            disposePreviousContentInstance();
             cleanupPreviousListeners();
             window.__manga_translator_active_instance =
                 `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
