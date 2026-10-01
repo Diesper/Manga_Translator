@@ -2,11 +2,11 @@
   "index": 90,
   "file": "scripts/validation/verify-test-policy-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-test-policy-selftest.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
   "started_at_utc": "2026-09-30T06:15:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T04:20:42Z",
   "audit_requests": [
     {
       "id": "090-001",
@@ -57,12 +57,32 @@
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "110/110",
-    "bible_lines": 1744,
-    "external_audit_requests_open": 2
+    "source_text_lines": 109,
+    "external_audit_requests_open": 2,
+    "evidence_note": "Self-test usa verifier real em sandbox; baseline + três mutações executadas. 090-001 permanece ACCEPTED e 090-002 SUPERSEDED por 083-002."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T04:20:42Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:20:42Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 110/110 posições, fonte integral exata, execução do verifier real em sandbox e classificação correta das lacunas."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:20:42Z",
+      "note": "090-001 permanece ACCEPTED; 090-002 permanece SUPERSEDED por 083-002."
+    }
+  ]
 }

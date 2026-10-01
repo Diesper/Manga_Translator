@@ -91,7 +91,7 @@
 - [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED
 - [x] 088 — `scripts/validation/verify-publish-contract.js` — COMPLETED
 - [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
-- [ ] 090 — `scripts/validation/verify-test-policy-selftest.js` — READY_FOR_AUDIT
+- [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED
 - [ ] 091 — `scripts/validation/verify-test-policy.js` — READY_FOR_AUDIT
 - [ ] 092 — `tests/e2e/cache-and-storage.spec.js` — READY_FOR_AUDIT
 - [ ] 093 — `tests/e2e/reader-offline.spec.js` — READY_FOR_AUDIT

@@ -1057,3 +1057,17 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #088 / SHA `f5b3f6c69f85f90fe43689de2e44b6ed70cca757`**.
 
+### `verify-test-policy-selftest.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #090 — `scripts/validation/verify-test-policy-selftest.js`.
+- **SHA auditado:** `ac0318e4d90c5014180eb3d3a6ac4784cc70a24a`.
+- **Integridade:** **109 linhas textuais + newline final = 110/110 posições**; state, fonte atual e SHA da Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao source.
+- **Implementação real:** cada sandbox copia `scripts/validation/verify-test-policy.js` atual e o executa via Node; o self-test não replica as regex do gate.
+- **Cenários provados:** baseline válida; `test.skip`; `--forceExit` em script npm; e comando de teste mascarado com `|| true` no workflow. Os negativos exigem status não-zero e diagnóstico esperado.
+- **Wiring:** `package.json#test:test-policy:infra`, job `ci-contract` e `verify-ci-contract.js` mantêm o self-test no fluxo oficial.
+- **Request 090-001:** permanece **ACCEPTED** — ainda faltam mutações focais para `.only`, `test.todo`, `--passWithNoTests`, outros escopos de `--forceExit`/`|| true` e tokens proibidos em scripts/extension.
+- **Request 090-002:** permanece **SUPERSEDED por 083-002**, que centraliza a fragilidade geral de gates textuais do CI Contract.
+- **Conclusão:** a Bíblia representa corretamente a força e as limitações do self-test atual.
+
+**Veredito documental independente:** ✅ **APROVADO — #090 / SHA `ac0318e4d90c5014180eb3d3a6ac4784cc70a24a`**.
+
