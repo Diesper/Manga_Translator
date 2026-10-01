@@ -2,8 +2,8 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
@@ -210,6 +210,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
       "reason": "089-ADV-001/002: limitar requirePresent à existência e registrar gaps ACCEPTED 089-003/089-005."
+    },
+    {
+      "at_utc": "2026-10-01T16:46:32.631Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+      "bible_sha": "c42c9f668d7646a6a80df6663638f508b13e7a16",
+      "reason": "089-ADV-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
