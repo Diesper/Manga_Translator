@@ -59,7 +59,18 @@ function isContiguousFromOne(intervals) {
   return true;
 }
 
+function coverageScope(bible) {
+  const normalized = normalizeText(bible);
+  const matches = [...normalized.matchAll(/^##\s+.*(?:cobertura|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi)];
+  if (!matches.length) return normalized;
+  const start = matches[matches.length - 1].index;
+  const rest = normalized.slice(start);
+  const next = /\n##\s+/.exec(rest.slice(1));
+  return next ? rest.slice(0, next.index + 1) : rest;
+}
+
 function parseCoverageIntervals(bible, sourcePositions = null) {
+  const scope = coverageScope(bible);
   const rangeHeadings = [];
   const singleHeadings = [];
 
@@ -67,21 +78,24 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
   const singleLabel = '(?:Linha|Linhas|Posi[cç][aã]o|Posi[cç][oõ]es|Pos\\.?|Linha\\/posi[cç][aã]o|Linhas\\/posi[cç][aã]o)';
 
   const rangeRe = new RegExp(
-    '^#{2,5}\\s+(?:\\d+\\.\\s+)?' + rangeLabel
-      + '\\s+0*(\\d+)\\s*[–—-]\\s*0*(\\d+)\\b',
-    'gmi'
+    rangeLabel + '\\s+0*(\\d+)\\s*[–—-]\\s*0*(\\d+)\\b',
+    'i'
   );
   const singleRe = new RegExp(
-    '^#{2,5}\\s+(?:\\d+\\.\\s+)?' + singleLabel
-      + '\\s+0*(\\d+)(?!\\s*[–—-]\\s*\\d)\\b',
-    'gmi'
+    singleLabel + '\\s+0*(\\d+)\\b',
+    'i'
   );
 
-  for (const match of bible.matchAll(rangeRe)) {
-    rangeHeadings.push({ start: Number(match[1]), end: Number(match[2]), raw: match[0] });
-  }
-  for (const match of bible.matchAll(singleRe)) {
-    singleHeadings.push({ start: Number(match[1]), end: Number(match[1]), raw: match[0] });
+  for (const line of scope.split(/\\r?\\n/)) {
+    const heading = /^#{3,5}\\s+(.+)$/.exec(line);
+    if (!heading) continue;
+    const range = rangeRe.exec(heading[1]);
+    if (range) {
+      rangeHeadings.push({ start: Number(range[1]), end: Number(range[2]), raw: line.trim() });
+      continue;
+    }
+    const single = singleRe.exec(heading[1]);
+    if (single) singleHeadings.push({ start: Number(single[1]), end: Number(single[1]), raw: line.trim() });
   }
 
   rangeHeadings.sort((a,b) => a.start - b.start || a.end - b.end);
@@ -105,7 +119,7 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
 
   // Tabelas de cobertura podem usar quebras reais ou a sequência literal "\\n"
   // criada por alguns geradores antigos. Cada tabela é avaliada isoladamente.
-  const normalizedForTables = bible.replace(/\\\\n/g, '\n');
+  const normalizedForTables = scope.replace(/\\\\n/g, '\n');
   const lines = normalizedForTables.split(/\r?\n/);
   const tableCandidates = [];
   let current = null;
@@ -179,9 +193,14 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
   return exactCandidates[0] || [];
 }
 
-function validateCoverage(intervals, sourcePositions) {
+function validateCoverage(intervals, sourcePositions, sourceText = null) {
   if (!intervals.length) return ['nenhuma cobertura V1/V2 reconhecida'];
   const errors = [];
+  const sourceLines = sourceText === null ? null : normalizeText(sourceText).split('\n');
+  const blankGap = (start, end) => Boolean(
+    sourceLines && start <= end
+    && sourceLines.slice(start - 1, end).every((line) => line.trim() === '')
+  );
   let expected = 1;
   for (const interval of intervals) {
     if (!Number.isInteger(interval.start) || !Number.isInteger(interval.end) || interval.start < 1 || interval.end < interval.start) {
@@ -189,11 +208,18 @@ function validateCoverage(intervals, sourcePositions) {
       continue;
     }
     if (interval.end > sourcePositions) errors.push('faixa fora do fonte: ' + interval.raw + ' / máximo=' + sourcePositions);
-    if (interval.start > expected) errors.push('gap de cobertura: esperado ' + expected + ', próximo=' + interval.start);
-    else if (interval.start < expected) errors.push('overlap de cobertura: esperado ' + expected + ', próximo=' + interval.start);
+    if (interval.start > expected) {
+      if (!blankGap(expected, interval.start - 1)) {
+        errors.push('gap de cobertura: esperado ' + expected + ', próximo=' + interval.start);
+      }
+    } else if (interval.start < expected) {
+      errors.push('overlap de cobertura: esperado ' + expected + ', próximo=' + interval.start);
+    }
     expected = Math.max(expected, interval.end + 1);
   }
-  if (expected <= sourcePositions) errors.push('cobertura termina em ' + (expected - 1) + ', fonte termina em ' + sourcePositions);
+  if (expected <= sourcePositions && !blankGap(expected, sourcePositions)) {
+    errors.push('cobertura termina em ' + (expected - 1) + ', fonte termina em ' + sourcePositions);
+  }
   return errors;
 }
 
@@ -362,7 +388,7 @@ function validateBibleCoordination(root, options = {}) {
         } else if (state.status === 'COMPLETED') problems.push(stateFile + ': COMPLETED sem seção Fonte integral reconhecível');
 
         if (['COMPLETED','READY_FOR_AUDIT','CHANGES_REQUIRED'].includes(state.status)) {
-          for (const error of validateCoverage(parseCoverageIntervals(bible, source.split('\n').length), source.split('\n').length)) {
+          for (const error of validateCoverage(parseCoverageIntervals(bible, source.split('\n').length), source.split('\n').length, source)) {
             problems.push(stateFile + ': ' + error);
           }
         }
