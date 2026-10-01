@@ -40,9 +40,11 @@ function loadBibleBaseline(root) {
 }
 
 function currentBibleSha(root, state) {
+  // Em validação real, o filesystem é a autoridade. Um campo mutável do
+  // state nunca pode mascarar uma edição da Bíblia.
+  if (root && state?.bible) return fileBlobSha(path.join(root, state.bible));
   if (state && /^[0-9a-f]{40}$/i.test(state.bible_sha || '')) return state.bible_sha;
-  if (!root || !state?.bible) return null;
-  return fileBlobSha(path.join(root, state.bible));
+  return null;
 }
 
 function baselineEntryFor(state, baseline) {
