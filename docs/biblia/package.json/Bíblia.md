@@ -3,29 +3,29 @@
 > **Schema da Bíblia:** 2
 > **Índice:** 63
 > **Fonte:** `package.json`
-> **SHA auditado:** `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`
-> **Posições da fonte:** 59
+> **SHA auditado:** `4b2ed97106c576075c960ab20308ee1c835cae71`
+> **Posições da fonte:** 61
 > **Autoauditoria:** READY_FOR_AUDIT
 
 ## 1. Papel arquitetural
 
 `package.json` é a fachada operacional Node/npm do repositório. Centraliza versão do projeto, comandos canônicos de validação/teste, dependências de desenvolvimento e o piso de Node declarado.
 
-Neste SHA, a cadeia `validate` também incorpora a infraestrutura documental do PR #66: validação estrutural canônica, verificação determinística de STATUS/CHECKLIST e self-tests do validador das Bíblias.
+Neste SHA, a cadeia `validate` também executa os self-tests do pipeline distribuído de auditoria e dos shards/work stealing, além dos gates documentais já existentes.
 
 ## 2. Dependências, consumidores e wiring
 
 - GitHub Actions invoca scripts npm deste arquivo em CI.
 - `jest.config.js` fornece os projetos selecionados pelos aliases `test:unit:*`.
 - `playwright.config.js` é usado por `test:e2e`.
-- `scripts/validation/verify-repository-structure.js`, `bible-coordination.js`, `generate-bible-projections.js` e seus self-tests compõem os gates documentais adicionados neste recovery.
+- `scripts/validation/verify-repository-structure.js`, `bible-coordination.js`, `generate-bible-projections.js`, `bible-audit-pipeline.js`, `bible-audit-work-plan.js` e seus self-tests compõem os gates documentais e de coordenação.
 - `scripts/release/sync-version.js` usa a versão raiz como fonte canônica para sincronização de release.
 
 ## 3. Fluxos e contratos relevantes
 
 - `test` executa Jest canônico + smoke + visual.
 - `test:all` acrescenta E2E e coverage, mas continua separado de `validate`; a request `063-001` preserva essa ambiguidade de naming.
-- `validate` encadeia version/manifest/syntax/structure/projeções/self-tests/policy/publish/CI contract/coverage infra/E2E plan.
+- `validate` encadeia version/manifest/syntax/structure/projeções/coordenação, self-test do pipeline distribuído, policy/publish/CI contract/coverage infra/E2E plan e self-test de shards.
 - `validate:bible-projections` é modo check; `write:bible-projections` é modo write determinístico.
 - `engines.node` permanece `>=18.0.0`; `063-002` continua aceito porque a matriz funcional observada não exercita o piso 18.
 
@@ -43,7 +43,7 @@ Neste SHA, a cadeia `validate` também incorpora a infraestrutura documental do 
 |---|---|---|---|
 | scripts principais apontam para tooling real | caminhos literais deste arquivo + CI | GATE_ESTATICO | existência do comando não prova todos os branches runtime |
 | projetos Jest especializados são selecionáveis | `jest.config.js` + aliases | EXECUCAO_INDIRETA | nem todo alias possui self-test focal |
-| projeções das Bíblias têm check/write separados | scripts 45–46 | PROVA_DIRETA documental | ainda depende do gerador/validator passarem na CI |
+| projeções e coordenação distribuída possuem gates explícitos | scripts 38–48 | PROVA_DIRETA documental | execução dos self-tests prova invariantes do protocolo, não a correção de cada Bíblia |
 | Node >=18 é promessa declarada | `engines` | GATE_ESTATICO | CI 20/22 não prova Node 18 |
 
 ## 6. Lacunas e solicitações ao auditor
@@ -94,7 +94,7 @@ Essas requests são externas e não bloqueiam a fidelidade desta Bíblia, desde 
     "version:check": "node scripts/release/sync-version.js --check",
     "validate:manifest": "node scripts/validation/validate-manifest.js",
     "lint": "node scripts/validation/check-js-syntax.js",
-    "validate": "npm run version:check && npm run validate:manifest && npm run lint && npm run validate:structure && npm run validate:bible-projections && npm run test:bible-coordination:infra && npm run validate:test-policy && npm run test:test-policy:infra && npm run validate:publish && node scripts/validation/verify-ci-contract.js && npm run test:ci-contract:infra && npm run test:coverage:infra && node scripts/validation/playwright-gate-reporter-selftest.js && node scripts/validation/verify-jest-worker-warning-selftest.js && npm run test:e2e:plan",
+    "validate": "npm run version:check && npm run validate:manifest && npm run lint && npm run validate:structure && npm run validate:bible-projections && npm run test:bible-coordination:infra && npm run test:bible-audit-pipeline:infra && npm run validate:test-policy && npm run test:test-policy:infra && npm run validate:publish && node scripts/validation/verify-ci-contract.js && npm run test:ci-contract:infra && npm run test:coverage:infra && node scripts/validation/playwright-gate-reporter-selftest.js && node scripts/validation/verify-jest-worker-warning-selftest.js && npm run test:e2e:plan && npm run test:bible-audit-shards:infra",
     "validate:structure": "node scripts/validation/verify-repository-structure.js",
     "test:ci-contract:infra": "node scripts/validation/verify-ci-contract-selftest.js",
     "validate:test-policy": "node scripts/validation/verify-test-policy.js",
@@ -102,7 +102,9 @@ Essas requests são externas e não bloqueiam a fidelidade desta Bíblia, desde 
     "validate:publish": "node scripts/validation/verify-publish-contract.js",
     "test:bible-coordination:infra": "node scripts/validation/verify-bible-coordination-selftest.js",
     "validate:bible-projections": "node scripts/validation/generate-bible-projections.js",
-    "write:bible-projections": "node scripts/validation/generate-bible-projections.js --write"
+    "write:bible-projections": "node scripts/validation/generate-bible-projections.js --write",
+    "test:bible-audit-pipeline:infra": "node scripts/validation/verify-bible-audit-pipeline-selftest.js",
+    "test:bible-audit-shards:infra": "node scripts/validation/verify-bible-audit-shards-selftest.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
@@ -123,23 +125,23 @@ Essas requests são externas e não bloqueiam a fidelidade desta Bíblia, desde 
 
 Define nome, versão canônica, descrição e `private: true`.
 
-### Posições 6–47 — interface npm e gates
+### Posições 6–49 — interface npm e gates
 
-Contém todos os comandos de teste, diagnóstico, release e validação. As posições 38–46 concentram a cadeia de validação e os gates documentais adicionados neste recovery.
+Contém todos os comandos de teste, diagnóstico, release e validação. As posições 38–48 concentram `validate`, os gates documentais e os self-tests de auditoria distribuída/shards.
 
-### Posições 48–53 — dependências de desenvolvimento
+### Posições 50–55 — dependências de desenvolvimento
 
 Declara Playwright, fake-indexeddb, Jest e jsdom environment; versões são ranges npm e não vendorizam dependências.
 
-### Posições 54–56 — contrato de runtime Node
+### Posições 56–58 — contrato de runtime Node
 
 Declara `node >=18.0.0`; a lacuna de teste do piso permanece em `063-002`.
 
-### Posições 57–58 — licença e fechamento JSON
+### Posições 59–60 — licença e fechamento JSON
 
 Registra MIT e fecha o objeto raiz.
 
-### Posição 59 — newline final
+### Posição 61 — newline final
 
 Posição vazia terminal criada pelo LF final do blob.
 
@@ -153,9 +155,10 @@ Posição vazia terminal criada pelo LF final do blob.
 ## 10. Autoauditoria documental
 
 - [x] SHA atualizado para o blob atual.
-- [x] fonte integral copiada do source atual.
-- [x] 59/59 posições cobertas sem gap/overlap.
+- [x] fonte integral copiada exatamente do source atual.
+- [x] 61/61 posições cobertas sem gap/overlap.
+- [x] wiring dos self-tests distribuídos refletido na documentação.
 - [x] requests 063-001..003 preservadas no state.
-- [x] nenhum claim transforma execução indireta em prova direta.
+- [x] aprovação do SHA anterior não foi reutilizada.
 
 **Autoauditoria:** READY_FOR_AUDIT.

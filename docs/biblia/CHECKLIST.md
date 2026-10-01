@@ -64,7 +64,7 @@
 - [x] 060 — `extension/shared/storage-manager.js` — COMPLETED
 - [x] 061 — `.gitignore` — COMPLETED
 - [x] 062 — `jest.config.js` — COMPLETED
-- [x] 063 — `package.json` — COMPLETED
+- [ ] 063 — `package.json` — READY_FOR_AUDIT
 - [x] 064 — `playwright.config.js` — COMPLETED
 - [ ] 065 — `.github/workflows/ci.yml` — READY_FOR_AUDIT
 - [x] 066 — `.github/workflows/publish.yml` — COMPLETED

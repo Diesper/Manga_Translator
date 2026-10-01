@@ -2,11 +2,11 @@
   "index": 63,
   "file": "package.json",
   "bible": "docs/biblia/package.json/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+  "source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
   "started_at_utc": "2026-09-30T14:10:00Z",
-  "completed_at_utc": "2026-10-01T14:26:12.326Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "063-001",
@@ -76,14 +76,14 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "59/59",
-    "source_text_lines": 58,
+    "documented_positions": "61/61",
+    "source_text_lines": 60,
     "external_audit_requests_open": 0,
-    "note": "package.json e Bíblia fisicamente coerentes no SHA atual; 59/59 posições documentadas. Requests 063-001..003 permanecem ACCEPTED e não bloqueantes."
+    "note": "package.json e Bíblia atualizados para o wiring distribuído de auditoria; 61/61 posições documentadas. O SHA novo exige PRIMARY + ADVERSARIAL antes de voltar a COMPLETED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T14:26:12.326Z",
+  "updated_at_utc": "2026-10-01T15:20:38Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -110,6 +110,23 @@
       "source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
       "auditor": "AGENTE 6",
       "reason": "Reauditoria independente herdada confirmou SHA, fonte integral, cobertura 59/59, wiring, consumers e contratos do package.json atual. Metadata derivado stale do document_quality foi normalizado; requests 063-001..003 permanecem ACCEPTED como dívida externa não bloqueante."
+    },
+    {
+      "at_utc": "2026-10-01T15:20:38Z",
+      "type": "SOURCE_SHA_INVALIDATION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48",
+      "current_source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
+      "reason": "package.json passou a executar os self-tests distribuídos de pipeline/shards; a aprovação do SHA anterior não pode ser reutilizada."
+    },
+    {
+      "at_utc": "2026-10-01T15:20:38Z",
+      "type": "BIBLE_UPDATED_FOR_CURRENT_SOURCE",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
+      "reason": "Bíblia #063 sincronizada com o package.json atual e recolocada na fila PRIMARY → ADVERSARIAL."
     }
   ],
   "evidence": [
