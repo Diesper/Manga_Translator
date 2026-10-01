@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "index": 169,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 6",
+  "file": "tests/unit/background/state-api.test.js",
+  "bible": "docs/biblia/tests/unit/background/state-api.test.js/Bíblia.md",
+  "source_sha": "d9c080339202848719ac448d7684d793684aced2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "169-PRI-001",
+      "severity": "MATERIAL",
+      "category": "COVERAGE_GAP",
+      "summary": "O mapa denominado integral não cobre todas as 110 linhas textuais antes da posição 111/newline.",
+      "evidence": [
+        "As faixas/singles documentados cobrem 1–7, 9–20, 22–24 e 26–110, deixando as posições 8, 21 e 25 sem qualquer entrada.",
+        "As linhas 8, 21 e 25 existem no source atual e são linhas vazias separadoras; a política documental do projeto trata linhas/posições vazias como parte da cobertura.",
+        "A Autoauditoria declara '110 linhas + newline = 111 posições', mas a união real das faixas não contém essas três posições."
+      ],
+      "requested_change": "Incluir explicitamente as posições 8, 21 e 25 em faixas/unidades coerentes, mantendo a posição 111 para o newline final."
+    },
+    {
+      "id": "169-PRI-002",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_RANGE_MAPPING",
+      "summary": "A faixa 84–95 está rotulada como 'restore sem mt_state', mas a linha 95 já abre o teste de isolamento de pendingBatches.",
+      "evidence": [
+        "Source linha 95: test('pendingBatches é clonado no snapshot e não pode ser mutado por referência externa', () => {",
+        "O mapa atribui 84–95 a 'restore sem mt_state' e 96–109 a 'proteção de pendingBatches', deslocando a fronteira semântica do quarto teste.",
+        "O teste de restore sem mt_state termina na linha 93 e a linha 94 é vazia."
+      ],
+      "requested_change": "Realinhar as faixas; por exemplo, manter o bloco de restore até 94 e iniciar a unidade pendingBatches na linha 95."
+    },
+    {
+      "id": "169-PRI-003",
+      "severity": "MATERIAL",
+      "category": "STALE_AUDIT_REQUEST_STATUS",
+      "summary": "A Bíblia rotula 169-001/002/003 como OPEN, mas o state canônico atual já possui lifecycle diferente.",
+      "evidence": [
+        "169-001 está SUPERSEDED por 032-001; 032-001 existe e está ACCEPTED.",
+        "169-002 está ACCEPTED.",
+        "169-003 está ACCEPTED.",
+        "A Seção 11 ainda apresenta os três headings como OPEN."
+      ],
+      "requested_change": "Sincronizar os status documentais com o state atual e registrar explicitamente 169-001 → 032-001."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:14:22.834Z"
+}
