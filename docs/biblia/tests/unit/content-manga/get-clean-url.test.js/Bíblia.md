@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/get-clean-url.test.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
+> **Estado documental:** 🟡 CORRIGIDO após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `a04fe1e3552d5b61a91442496a1294e6d8379fbf`  
 > **Agente responsável:** AGENTE 25  
 > **Tipo:** suíte Jest de normalização de URL baseada em implementação espelho local  
@@ -81,8 +81,8 @@ Consequentemente, um verde desta suíte não prova a chave gerada pela extensão
 | Entradas falsy retornam null | linhas 104–115 | ✅ PROVADO DIRETAMENTE para o mirror |
 | String sem scheme resolve para a base fixa do mirror | linhas 117–129 | ✅ PROVADO DIRETAMENTE para o mirror |
 | URL relativa usa **origem real da página** | teste exige somente presença do path e mirror usa host fixo | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| Produção canonicaliza Reddit preview | `auto-restorer-real.test.js` executa o content script real e restaura via chave `i.redd.it` | ✅ PROVADO DIRETAMENTE por teste externo |
-| Produção canonicaliza thumbnail Imgur | `auto-restorer-real.test.js` executa o content script real e restaura chave sem sufixo | ✅ PROVADO DIRETAMENTE por teste externo |
+| Produção canonicaliza Reddit preview | `auto-restorer-real.test.js` executa o content script real e restaura via chave `i.redd.it` | 🟨 PROVA INTEGRADA/CONSUMER-LEVEL — não chama `MangaTranslatorDomReplace.getCleanUrl` focalmente |
+| Produção canonicaliza thumbnail Imgur | `auto-restorer-real.test.js` executa o content script real e restaura chave sem sufixo | 🟨 PROVA INTEGRADA/CONSUMER-LEVEL — demonstra comportamento consumidor, não retorno focal da API |
 | Produção filtra backdrop gêmeo Reddit | `twin-backdrop-sync.test.js` carrega pipeline real | ✅ PROVADO DIRETAMENTE por teste externo para o comportamento consumidor |
 | Produção rejeita `blob:` em `getCleanUrl` | leitura direta do código, sem assertion focal encontrada nesta suíte | 🟦 GATE ESTÁTICO ESPECÍFICO para estrutura; ⚠️ sem prova desta suíte |
 | Query genérica com resize + token produz chave estável entre rotações | nenhum caso encontrado nesta suíte | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
@@ -110,7 +110,7 @@ Consequentemente, um verde desta suíte não prova a chave gerada pela extensão
 
 ## 8. Solicitações ao auditor
 
-### 205-001 — TEST_CORRECTION — OPEN
+### 205-001 — TEST_CORRECTION — ACCEPTED
 
 **Encontrado:** `get-clean-url.test.js` testa um mirror v3.2 que não corresponde à implementação atual de `MangaTranslatorDomReplace.getCleanUrl`.
 
@@ -126,7 +126,7 @@ Consequentemente, um verde desta suíte não prova a chave gerada pela extensão
 
 **Severidade:** HIGH.
 
-### 205-002 — CONTRACT_REVIEW — OPEN
+### 205-002 — CONTRACT_REVIEW — ACCEPTED
 
 **Encontrado:** em `cm-dom-replace.js`/`cm-gtc-client.js`, a query é toda descartada quando nenhum resize param é reconhecido, mas, se um resize param for removido, parâmetros restantes são preservados (`changed && url.search`).
 
@@ -142,7 +142,7 @@ Consequentemente, um verde desta suíte não prova a chave gerada pela extensão
 
 **Severidade:** HIGH.
 
-### 205-003 — DEDUPLICATION_REVIEW — OPEN
+### 205-003 — DEDUPLICATION_REVIEW — ACCEPTED
 
 **Encontrado:** há duas implementações reais quase equivalentes de `getCleanUrl`, em `cm-dom-replace.js` e `cm-gtc-client.js`, além de mirrors antigos em testes.
 
@@ -399,3 +399,5 @@ Terminador textual final. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFI
 - `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, código e testes permaneceram fora do escopo de escrita.
 
 **Resultado da autoauditoria:** ✅ APROVADO documentalmente, com três `audit_requests` abertos.
+
+> **Lifecycle pós-REAUDIT:** 205-001/002/003 estão ACCEPTED. Reddit/Imgur permanecem demonstrados em integração consumer-level; prova focal direta de `MangaTranslatorDomReplace.getCleanUrl` continua ausente e é exatamente a limitação registrada em 205-001.
