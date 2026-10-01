@@ -100,7 +100,7 @@
 - [x] 096 — `tests/fixtures/manga-images.js` — COMPLETED
 - [x] 097 — `tests/fixtures/manga-page.html` — COMPLETED
 - [x] 098 — `tests/helpers/background-test-utils.js` — COMPLETED
-- [ ] 099 — `tests/helpers/extracted-functions.js` — READY_FOR_AUDIT
+- [x] 099 — `tests/helpers/extracted-functions.js` — COMPLETED
 - [ ] 100 — `tests/helpers/load-background-module.js` — READY_FOR_AUDIT
 - [ ] 101 — `tests/helpers/load-content-gemini-module.js` — CHANGES_REQUIRED
 - [ ] 102 — `tests/helpers/load-content-script.js` — CHANGES_REQUIRED
