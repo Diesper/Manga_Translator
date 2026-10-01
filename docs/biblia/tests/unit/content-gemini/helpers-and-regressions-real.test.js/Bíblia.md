@@ -17,7 +17,7 @@ O loader executa content_gemini.js e os módulos Gemini associados. Isso dá for
 
 ## 2. dataURLtoFile
 
-CG-01/CG-02 provam a conversão nominal de Data URL para `File` com MIME correto em PNG/JPEG. CG-03/CG-04 provam a rejeição de Data URL sem vírgula ou sem MIME. `job-runner.test.js` possui cobertura focal para **`FileImpl:null`**, mas não há caso focal equivalente para **`DataUrlAtob/atob` ausente**. Essa segunda lacuna é registrada abaixo como `179-004`.
+CG-01/CG-02 provam a conversão nominal de Data URL para `File` com MIME correto em PNG/JPEG. CG-03/CG-04 provam a rejeição de Data URL sem vírgula ou sem MIME. `job-runner.test.js` agora cobre focalmente tanto **`FileImpl:null`** quanto **`DataUrlAtob:null`** no blob `b0daca4ce839d8a5114c8c94e116fa155c721f7b`; a request `179-004` está RESOLVED.
 
 ## 3. waitForElement / sleep / helpers DOM
 
@@ -56,7 +56,7 @@ O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exa
 | dataURL válida vira File | CG-01 | ✅ PROVADO DIRETAMENTE |
 | dataURL sem vírgula/MIME falha | CG-03/CG-04 | ✅ PROVADO DIRETAMENTE |
 | `FileImpl` ausente falha | job-runner RUN-01B | ✅ PROVADO DIRETAMENTE |
-| `DataUrlAtob/atob` ausente falha | sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| `DataUrlAtob/atob` ausente falha | job-runner RUN-01B @ `b0daca4ce839d8a5114c8c94e116fa155c721f7b` | ✅ PROVADO DIRETAMENTE |
 | waitForElement imediato/tardio/timeout | CG-05/06/07 | ✅ PROVADO DIRETAMENTE |
 | processGeminiJob respeita deleting_urls | regressão real | ✅ PROVADO DIRETAMENTE |
 | wrappers de delete/export respondem | cenários reais | ✅ PROVADO DIRETAMENTE |
@@ -84,7 +84,7 @@ Ação pedida: atualizar nomenclatura e assertions para a arquitetura atual; se 
 
 Risco: documentação de teste obsoleta pode induzir manutenção regressiva ou falsa leitura de cobertura.
 
-### 179-004 — TEST_REQUIRED — OPEN — NORMAL
+### 179-004 — TEST_REQUIRED — RESOLVED — NORMAL
 
 Encontrado: `createGeminiJobRunner` trata `DataUrlAtob` ausente como `APIs de arquivo indisponíveis`, mas a suíte focal cobre apenas `FileImpl:null`.
 
@@ -5609,3 +5609,5 @@ Foram revalidados 683 blocos `### Linha N`; 683 campos de contexto foram realinh
 | 684 | newline final / posição estrutural |
 
 > **Lifecycle:** 179-001 está SUPERSEDED por `050-001`; 179-002 e 179-003 estão ACCEPTED.
+
+> **Resolução 179-004:** `RUN-01B` em `tests/unit/content-gemini/job-runner.test.js` agora instancia o runner com `DataUrlAtob:null` e exige `APIs de arquivo indisponíveis`; implementação registrada no source blob `b0daca4ce839d8a5114c8c94e116fa155c721f7b`.
