@@ -1,6 +1,6 @@
 # Status — Bíblia técnica por arquivo
 
-> Arquivo gerado deterministicamente a partir de .state/*.json, AUDITORIA.md e filesystem.
+> Arquivo gerado deterministicamente a partir de .state/*.json, resultados distribuídos de auditoria, AUDITORIA.md legado e filesystem.
 
 ## Snapshot
 
