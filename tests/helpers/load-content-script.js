@@ -22,6 +22,7 @@ const ROOT = findRepoRoot(__dirname);
 const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
 
 const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
+const RUNTIME_LISTENER_REGISTRY_KEY = '__manga_translator_harness_runtime_listeners';
 
 function getTrackedStorageListeners() {
     const tracked = globalThis[STORAGE_LISTENER_REGISTRY_KEY];
@@ -30,6 +31,15 @@ function getTrackedStorageListeners() {
 
 function setTrackedStorageListeners(listeners) {
     globalThis[STORAGE_LISTENER_REGISTRY_KEY] = [...listeners];
+}
+
+function getTrackedRuntimeListeners() {
+    const tracked = globalThis[RUNTIME_LISTENER_REGISTRY_KEY];
+    return Array.isArray(tracked) ? tracked : [];
+}
+
+function setTrackedRuntimeListeners(listeners) {
+    globalThis[RUNTIME_LISTENER_REGISTRY_KEY] = [...listeners];
 }
 
 function getMangaContentScriptRelativePaths() {
@@ -54,6 +64,11 @@ function storageListenersSnapshot() {
     return Array.isArray(listeners) ? [...listeners] : [];
 }
 
+function runtimeListenersSnapshot() {
+    const listeners = global.chrome?.runtime?._messageListeners;
+    return Array.isArray(listeners) ? [...listeners] : [];
+}
+
 function removeStorageListeners(listeners) {
     const removeListener = global.chrome?.storage?.onChanged?.removeListener;
     if (typeof removeListener === 'function') {
@@ -61,9 +76,18 @@ function removeStorageListeners(listeners) {
     }
 }
 
-function cleanupPreviousStorageListeners() {
+function removeRuntimeListeners(listeners) {
+    const removeListener = global.chrome?.runtime?.onMessage?.removeListener;
+    if (typeof removeListener === 'function') {
+        listeners.forEach(listener => removeListener(listener));
+    }
+}
+
+function cleanupPreviousListeners() {
     removeStorageListeners(getTrackedStorageListeners());
     setTrackedStorageListeners([]);
+    removeRuntimeListeners(getTrackedRuntimeListeners());
+    setTrackedRuntimeListeners([]);
 }
 
 /**
@@ -92,8 +116,9 @@ async function loadContentScript({
     domImages = [],
     readyTimeoutMs = 250,
 } = {}) {
-    cleanupPreviousStorageListeners();
+    cleanupPreviousListeners();
     const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
+    const runtimeListenersBeforeLoad = new Set(runtimeListenersSnapshot());
     // Invalida explicitamente qualquer instância anterior ANTES de tocar no
     // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
     // listener antigo ainda pode reagir ao clear/set do teste seguinte e
@@ -130,16 +155,20 @@ async function loadContentScript({
     if (clickToTranslateEnabled !== undefined) storageInit.clickToTranslateEnabled = clickToTranslateEnabled;
     await global.chrome.storage.local.set(storageInit);
 
-    // 4. Constrói DOM com imagens de teste
-    const imgTags = domImages.map(({ src, width, height, className = '', attributes = {} }, i) => {
-        const extraAttrs = Object.entries(attributes)
-            .map(([key, value]) => `${key}="${String(value)}"`)
-            .join(' ');
-        const classAttr = className ? ` class="${className}"` : '';
-        const extra = extraAttrs ? ` ${extraAttrs}` : '';
-        return `<img src="${src}" data-testid="img-${i}"${classAttr}${extra} width="${width}" height="${height}">`;
-    }).join('\n');
-    document.body.innerHTML = imgTags || '';
+    // 4. Constrói DOM com imagens de teste sem interpolar HTML.
+    document.body.replaceChildren();
+    domImages.forEach(({ src, width, height, className = '', attributes = {} }, i) => {
+        const img = document.createElement('img');
+        for (const [key, value] of Object.entries(attributes)) {
+            img.setAttribute(key, String(value));
+        }
+        img.setAttribute('src', String(src));
+        img.setAttribute('data-testid', `img-${i}`);
+        if (className) img.className = className;
+        img.setAttribute('width', String(width));
+        img.setAttribute('height', String(height));
+        document.body.appendChild(img);
+    });
 
     // 5. Injeta naturalWidth/naturalHeight (JSDOM não renderiza imagens reais)
     document.querySelectorAll('img').forEach((img, i) => {
@@ -176,11 +205,16 @@ async function loadContentScript({
     } finally {
         const addedStorageListeners = storageListenersSnapshot()
             .filter(listener => !storageListenersBeforeLoad.has(listener));
+        const addedRuntimeListeners = runtimeListenersSnapshot()
+            .filter(listener => !runtimeListenersBeforeLoad.has(listener));
         if (bundleLoaded) {
             setTrackedStorageListeners(addedStorageListeners);
+            setTrackedRuntimeListeners(addedRuntimeListeners);
         } else {
             removeStorageListeners(addedStorageListeners);
             setTrackedStorageListeners([]);
+            removeRuntimeListeners(addedRuntimeListeners);
+            setTrackedRuntimeListeners([]);
         }
     }
 
@@ -199,7 +233,7 @@ async function loadContentScript({
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
-            cleanupPreviousStorageListeners();
+            cleanupPreviousListeners();
             window.__manga_translator_active_instance =
                 `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
             if (button) button.remove();
@@ -221,6 +255,7 @@ async function loadContentScript({
                 const payload = { ...extra, action };
                 let settled = false;
                 let fallbackTimer = null;
+                let asyncChannelOpen = false;
 
                 const settle = (value) => {
                     if (settled) return;
@@ -235,14 +270,22 @@ async function loadContentScript({
                     reject(error);
                 };
 
-                fallbackTimer = setTimeout(() => settle(null), 50);
                 for (const listener of listeners) {
                     try {
-                        listener(payload, { tab: { id: 1 } }, settle);
+                        if (listener(payload, { tab: { id: 1 } }, settle) === true) {
+                            asyncChannelOpen = true;
+                        }
                     } catch (error) {
                         fail(error);
                         if (settled) break;
                     }
+                }
+
+                if (!settled) {
+                    fallbackTimer = setTimeout(
+                        () => settle(null),
+                        asyncChannelOpen ? 500 : 50
+                    );
                 }
             });
         },
