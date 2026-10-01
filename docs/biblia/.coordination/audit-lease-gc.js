@@ -55,6 +55,37 @@ function classify(model) {
       continue;
     }
 
+    // Claims legados não têm TTL. Só os coletamos automaticamente quando
+    // existe prova append-only de que o MESMO auditor concluiu trabalho em
+    // outro índice depois do timestamp do claim. Isso demonstra que o claim
+    // antigo foi abandonado/supersedido sem depender de timeout inventado.
+    if (rel.includes('/audit-claims/')) {
+      const claimedAt = parseClaimField(source, 'UPDATED_AT_UTC')
+        || parseClaimField(source, 'CLAIMED_AT_UTC');
+      const claimedMs = Date.parse(claimedAt || '');
+      if (Number.isFinite(claimedMs) && auditor) {
+        const later = (model.results || [])
+          .filter((record) => (
+            record.auditor === auditor
+            && record.index !== index
+            && Number.isFinite(record.completed_at_ms)
+            && record.completed_at_ms > claimedMs
+          ))
+          .sort((a, b) => b.completed_at_ms - a.completed_at_ms)[0];
+        if (later) {
+          safe.push({
+            rel,
+            index,
+            phase,
+            auditor,
+            reason: 'legacy_claim_superseded_by_later_auditor_result',
+            evidence: later.path,
+          });
+          continue;
+        }
+      }
+    }
+
     // Leases possuem TTL explícito: após expirar, ownership acabou por
     // contrato mesmo que o auditor não tenha publicado resultado. Claims
     // legados sem TTL continuam fora desta regra e exigem decisão manual.
