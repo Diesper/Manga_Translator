@@ -2,8 +2,8 @@
   "index": 107,
   "file": "tests/integration/chapter-dedup.test.js",
   "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
   "started_at_utc": "2026-09-30T06:32:00Z",
   "completed_at_utc": null,
@@ -74,7 +74,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:32:56.571Z",
+  "updated_at_utc": "2026-10-01T12:38:51Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:32:56.571Z",
@@ -84,6 +84,15 @@
       "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
       "auditor": "AGENTE 6",
       "reason": "Falhas documentais materiais: ausência da seção canônica Fonte integral exigida para COMPLETED; SHA stale de package.json usado como evidência de wiring; configuração estática de CI classificada como EXECUTADO INDIRETAMENTE sem run concreta; requests 107-001..003 rotuladas OPEN na Bíblia enquanto o state canônico registra ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T12:38:51Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir findings documentais #107: fonte integral canônica ausente, SHA stale de package.json, classificação de CI e lifecycle 107-001..003."
     }
   ],
   "evidence": [
