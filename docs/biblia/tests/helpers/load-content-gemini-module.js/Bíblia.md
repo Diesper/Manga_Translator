@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/helpers/load-content-gemini-module.js
 
-> **Estado documental:** ✅ CONCLUÍDO pelo AGENTE 9  
+> **Estado documental:** READY_FOR_AUDIT após reparo; `.state/101.json` é a fonte canônica do lifecycle  
 > **SHA auditado:** `d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee`  
 > **Agente responsável:** AGENTE 9  
 > **Tipo:** helper CommonJS de bootstrap/reload de `content_gemini.js` para Jest  
@@ -11,9 +11,9 @@
 
 ## 1. Papel arquitetural
 
-Este helper reconstrói, dentro do processo Jest, a ordem de carregamento que a extensão precisa antes de avaliar `content_gemini.js`. O bootstrap real lê `globalThis.MangaTranslatorGeminiDom`, `...ImageQuarantine`, `...Observer`, `...Editor`, `...Attachment`, `...TemporaryChat`, `...ResultExtractor`, `...Deletion` e `...JobRunner`; se qualquer um estiver ausente, ele lança erro. Por isso o helper requer explicitamente os dez submódulos antes do bootstrap.
+Este helper reconstrói, dentro do processo Jest, a sequência de carregamento usada antes de avaliar `content_gemini.js`. O bootstrap real captura diretamente **nove** APIs em `globalThis`: `MangaTranslatorGeminiDom`, `...ImageQuarantine`, `...Observer`, `...Editor`, `...Attachment`, `...TemporaryChat`, `...ResultExtractor`, `...Deletion` e `...JobRunner`; se uma dessas nove APIs estiver ausente, ele lança erro. O helper executa dez `require`s porque também carrega `selectors.js` primeiro: selectors **não é um global exigido diretamente pelo bootstrap**, mas é dependência de `dom.js` e `observer.js` (que em CommonJS também possuem fallback `require('./selectors.js')`).
 
-A segunda responsabilidade é dar aos testes uma nova avaliação de `content_gemini.js`: a linha 27 remove apenas esse arquivo do `require.cache`, então a linha 28 recria sua API exportada. Os submódulos, porém, continuam cacheados salvo quando o próprio teste executa `jest.resetModules()`. Essa diferença é importante para isolamento de estado.
+A segunda responsabilidade é dar aos testes uma nova avaliação de `content_gemini.js`: a linha 27 remove apenas esse arquivo do `require.cache`, então a linha 28 recria sua API exportada. Os dez módulos pré-carregados (selectors + nove providers das APIs globais) permanecem cacheados salvo reset externo. A nova avaliação do bootstrap **não é side-effect free**: seu top-level executa `chrome.storage.local.get(['debugMode'], ...)` e registra novamente `chrome.storage.onChanged.addListener(...)`. Portanto chamadas repetidas podem acumular listeners quando o mock/consumer não limpa esse registro; `manual-assist-hud.test.js`, por exemplo, chama o helper em cada `beforeEach` sem `jest.resetModules()`.
 
 ## 2. Consumidores observados
 
@@ -26,35 +26,38 @@ A segunda responsabilidade é dar aos testes uma nova avaliação de `content_ge
 
 ## 3. Relação com `content_gemini.js`
 
-O bootstrap real captura as APIs em `globalThis` logo no topo e falha se faltar qualquer módulo obrigatório. No final, quando detecta CommonJS (`module.exports`), apenas exporta `contentGeminiApi`; o `processGeminiJob()` automático acontece somente no ramo de navegador. Portanto o argumento `{skipAutoProcess:true}` passado por `manual-assist-hud.test.js` não é necessário para impedir autoexecução no estado atual, mas também não é uma opção implementada por este helper.
+O bootstrap real captura **nove APIs globais** logo no topo e falha se uma delas estiver ausente. `selectors.js` não é capturado diretamente por `content_gemini.js`; ele sustenta `dom.js`/`observer.js`. No final, quando detecta CommonJS (`module.exports`), o bootstrap exporta `contentGeminiApi`; o `processGeminiJob()` automático acontece somente no ramo de navegador. Isso não elimina os demais side effects do top-level: leitura de `debugMode` e registro de listener de `chrome.storage.onChanged` ainda ocorrem a cada reavaliação. Portanto `{skipAutoProcess:true}` passado por `manual-assist-hud.test.js` continua sendo um argumento ignorado, não uma opção implementada.
 
 ## 4. Evidência automatizada
 
 | Contrato | Evidência | Classificação |
 |---|---|---|
 | loader normal produz API utilizável | múltiplas suítes chamam funções reais após `loadContentGeminiModule()` | 🟨 EXECUTADO INDIRETAMENTE para o loader; assertions focam APIs de produção |
-| submódulos precisam existir antes do bootstrap | `content_gemini.js` lança se globals obrigatórios faltarem; ordem normal funciona nos consumidores | 🟨 EXECUTADO INDIRETAMENTE |
+| nove APIs globais precisam existir antes do bootstrap | `content_gemini.js` valida diretamente Dom/Quarantine/Observer/Editor/Attachment/TemporaryChat/ResultExtractor/Deletion/JobRunner; selectors sustenta módulos anteriores, não o bootstrap diretamente | 🟨 EXECUTADO INDIRETAMENTE |
 | cache de `content_gemini.js` é removido | nenhuma assertion compara identidade/efeito de duas cargas | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| submódulos permanecem cacheados | comportamento do CommonJS por inspeção; consumidores podem usar `jest.resetModules()` externamente | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| dependências pré-carregadas permanecem cacheadas | comportamento do CommonJS por inspeção; consumidores podem usar `jest.resetModules()` externamente | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| reload do bootstrap repete `storage.get` e `storage.onChanged.addListener` | inspeção do top-level real + mock que preserva `_listeners` em `storageMock.clear()` | ⚠️ SEM TESTE FOCAL DE LIFECYCLE/ACUMULAÇÃO |
 | paths resolvidos são corretos | requires dos consumidores passam no fluxo normal | 🟨 EXECUTADO INDIRETAMENTE |
 | argumento `skipAutoProcess` tem efeito | helper não possui parâmetro; CommonJS já evita auto-start | ⚠️ NÃO EXISTE CONTRATO IMPLEMENTADO |
 | erro quando submódulo falta/reordena | sem teste focal do helper | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
 
 ## 5. Invariantes e riscos
 
-1. Os dez submódulos devem ser requeridos antes de `content_gemini.js`, porque o bootstrap lê seus namespaces globais imediatamente.
+1. Antes de `content_gemini.js`, as **nove APIs globais diretas** precisam estar disponíveis; `selectors.js` participa como dependência de módulos como `dom.js`/`observer.js`, não como décimo global lido diretamente pelo bootstrap.
 2. O path do bootstrap deve continuar derivado de `__dirname`, tornando o helper independente do diretório de trabalho.
-3. Somente o bootstrap é recarregado por chamada; qualquer estado interno mantido pelos submódulos pode sobreviver entre chamadas se o consumidor não resetar módulos.
-4. O helper não recebe opções. Passar argumentos hoje é semanticamente ignorado.
-5. A ordem é codificada manualmente. Adicionar novo módulo obrigatório ao bootstrap sem atualizar este helper pode quebrar consumidores.
-6. Não há cleanup próprio de globals publicados pelos submódulos; isolamento depende do ecossistema de testes/Jest.
+3. Somente o bootstrap é removido do cache por chamada; estado dos dez módulos pré-carregados (selectors + nove providers) pode sobreviver sem reset externo.
+4. Reavaliar o bootstrap repete side effects de top-level, incluindo `storage.local.get` e `storage.onChanged.addListener`; consumers/mocks precisam definir política de cleanup para evitar listeners acumulados.
+5. O helper não recebe opções. Passar argumentos hoje é semanticamente ignorado.
+6. A ordem é codificada manualmente. Mudanças nas dependências diretas/indiretas precisam atualizar helper e testes.
+7. Não há cleanup próprio de globals nem dos listeners registrados pelo bootstrap; isolamento depende do ecossistema de testes/Jest.
 
 ## 6. Solicitações ao auditor
 
-- **101-001 — TEST_REQUIRED — OPEN:** criar teste focal do helper comprovando ordem/bootstrap, paths, invalidação do cache do bootstrap e comportamento em duas cargas sucessivas.
-- **101-002 — TEST_ISOLATION_REVIEW — OPEN:** verificar se manter submódulos no cache pode vazar estado entre testes que não chamam `jest.resetModules()`; definir contrato e regressão.
-- **101-003 — API_CONTRACT_REVIEW — OPEN:** resolver a chamada `loadContentGeminiModule({ skipAutoProcess: true })`: remover argumento enganoso ou implementar opção real, com teste. No estado atual CommonJS já evita auto-start.
-- **101-004 — MAINTAINABILITY_REVIEW — OPEN:** avaliar centralizar nos helpers as sequências duplicadas de carga encontradas em outras suítes, sem mudar testes durante esta auditoria.
+- **101-001 — TEST_REQUIRED — ACCEPTED:** criar teste focal do helper comprovando ordem/bootstrap, paths, invalidação do cache do bootstrap e comportamento em duas cargas sucessivas.
+- **101-002 — TEST_ISOLATION_REVIEW — ACCEPTED:** verificar se manter dependências pré-carregadas no cache pode vazar estado entre testes sem `jest.resetModules()`; definir contrato e regressão.
+- **101-003 — API_CONTRACT_REVIEW — ACCEPTED:** resolver a chamada `loadContentGeminiModule({ skipAutoProcess: true })`: remover argumento enganoso ou implementar opção real, com teste. No estado atual CommonJS evita auto-start, mas não os demais side effects do bootstrap.
+- **101-004 — MAINTAINABILITY_REVIEW — ACCEPTED:** avaliar centralizar no helper as sequências paralelas semelhantes encontradas em outras suítes, sem assumir que sejam byte a byte idênticas.
+- **101-005 — TEST_ISOLATION_REVIEW — ACCEPTED:** definir/testar o lifecycle dos side effects ao reavaliar `content_gemini.js`, especialmente acumulação de `chrome.storage.onChanged` listeners entre cargas.
 
 ## 7. Fonte integral exata
 
@@ -221,8 +224,8 @@ module.exports = {
 
 - **Código:** `    require(GEMINI_SELECTORS_PATH);`
 - **O que faz:** Executa `selectors.js`; `require` também deixa o módulo no cache CommonJS.
-- **Como:** O `require` CommonJS avalia o módulo na primeira carga e depois reutiliza seu cache; esses módulos publicam as APIs que o bootstrap consome via `globalThis`.
-- **Por que / risco:** Carregar antes do bootstrap é necessário porque `content_gemini.js` valida as APIs globais no topo; requerê-lo primeiro causaria erro de dependência ausente.
+- **Como:** O `require` CommonJS avalia `selectors.js` na primeira carga e depois reutiliza seu cache; `dom.js`/`observer.js` podem obtê-lo do global ou por fallback CommonJS.
+- **Por que / risco:** A posição anterior ao restante da sequência sustenta dependências de DOM/observer. `content_gemini.js` **não** valida `MangaTranslatorGeminiSelectors` diretamente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — várias suítes reais chamam `loadContentGeminiModule()` e exercitam APIs retornadas, mas não há assertion focal sobre ordem/cache desta linha.
 
 ### Linha 017
@@ -292,7 +295,7 @@ module.exports = {
 ### Linha 025
 
 - **Código:** `    require(GEMINI_JOB_RUNNER_PATH);`
-- **O que faz:** Executa `job-runner.js`, completando os dez módulos exigidos pelo bootstrap.
+- **O que faz:** Executa `job-runner.js`, completando o conjunto das nove APIs globais que o bootstrap captura diretamente; `selectors.js` é a décima dependência pré-carregada, porém indireta.
 - **Como:** O `require` CommonJS avalia o módulo na primeira carga e depois reutiliza seu cache; esses módulos publicam as APIs que o bootstrap consome via `globalThis`.
 - **Por que / risco:** Carregar antes do bootstrap é necessário porque `content_gemini.js` valida as APIs globais no topo; requerê-lo primeiro causaria erro de dependência ausente.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — várias suítes reais chamam `loadContentGeminiModule()` e exercitam APIs retornadas, mas não há assertion focal sobre ordem/cache desta linha.
@@ -308,17 +311,17 @@ module.exports = {
 ### Linha 027
 
 - **Código:** `    delete require.cache[require.resolve(CONTENT_GEMINI_PATH)];`
-- **O que faz:** Remove somente `content_gemini.js` do cache do Node. Isso força uma nova avaliação do bootstrap na chamada seguinte, mas deliberadamente não invalida os dez submódulos.
+- **O que faz:** Remove somente `content_gemini.js` do cache do Node. Isso força uma nova avaliação do bootstrap na chamada seguinte, mas não invalida as dez dependências pré-carregadas (selectors + nove providers globais).
 - **Como:** `require.resolve` obtém a chave exata usada no cache; `delete` remove a entrada apenas do bootstrap.
-- **Por que / risco:** Recarregar só o bootstrap é barato e dá API nova, mas preserva estado dos submódulos; essa escolha precisa de contrato explícito para evitar vazamento entre testes.
+- **Por que / risco:** Recarregar só o bootstrap preserva estado das dependências **e** repete side effects do próprio top-level do bootstrap; sem cleanup/reset, listeners de storage podem se acumular.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — várias suítes reais chamam `loadContentGeminiModule()` e exercitam APIs retornadas, mas não há assertion focal sobre ordem/cache desta linha.
 
 ### Linha 028
 
 - **Código:** `    return require(CONTENT_GEMINI_PATH);`
-- **O que faz:** Requer e retorna a nova exportação CommonJS de `content_gemini.js`; o arquivo lê as APIs Gemini previamente publicadas em `globalThis`.
-- **Como:** O `require` seguinte reavalia o bootstrap e devolve seu `module.exports` novo.
-- **Por que / risco:** Retornar a implementação real evita duplicar/mocar a API auditada; qualquer falha de bootstrap fica visível ao teste.
+- **O que faz:** Requer e retorna a nova exportação CommonJS de `content_gemini.js`; o arquivo lê as nove APIs Gemini previamente publicadas em `globalThis`.
+- **Como:** O `require` seguinte reavalia o bootstrap, executa novamente seus side effects de top-level (`storage.get` e registro de listener) e devolve o novo `module.exports`.
+- **Por que / risco:** Retornar a implementação real evita duplicar/mocar a API auditada, mas múltiplas cargas precisam considerar o lifecycle dos listeners adicionados pela reavaliação.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — várias suítes reais chamam `loadContentGeminiModule()` e exercitam APIs retornadas, mas não há assertion focal sobre ordem/cache desta linha.
 
 ### Linha 029
@@ -377,4 +380,4 @@ module.exports = {
 
 ## 9. Conclusão documental
 
-O blob `d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee` foi coberto integralmente: 34 linhas textuais e o newline final. O helper é operacionalmente importante e amplamente exercitado por consumidores, mas suas propriedades próprias de cache, ordem e isolamento não possuem assertions focais. As quatro pendências foram registradas no estado individual sem alterar testes, helpers externos ou produção.
+O blob `d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee` foi coberto integralmente: 34 linhas textuais e o newline final. O helper é operacionalmente importante e amplamente exercitado por consumidores, mas suas propriedades próprias de cache, ordem, reload e isolamento não possuem assertions focais. A documentação distingue agora os nove globals diretos da dependência indireta de selectors e registra o side effect de listeners em reload. As cinco requests permanecem `ACCEPTED` no state canônico sem alterar testes, helpers externos ou produção.
