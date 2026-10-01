@@ -46,7 +46,7 @@
     "write:bible-projections": "node scripts/validation/generate-bible-projections.js --write",
     "test:bible-audit-pipeline:infra": "node scripts/validation/verify-bible-audit-pipeline-selftest.js",
     "test:bible-audit-shards:infra": "node scripts/validation/verify-bible-audit-shards-selftest.js",
-    "test:bible-protocol:infra": "node docs/biblia/.coordination/audit-core-git-selftest.js && node docs/biblia/.coordination/audit-protocol-selftest.js && node scripts/validation/verify-bible-audit-pipeline-selftest.js && node scripts/validation/verify-bible-audit-shards-selftest.js && node docs/biblia/.coordination/reconcile-audit-results-selftest.js && node docs/biblia/.coordination/bible-correction-work-plan-selftest.js && node scripts/validation/verify-bible-coordination-selftest.js",
+    "test:bible-protocol:infra": "node scripts/validation/verify-bible-audit-results-append-only-selftest.js && node docs/biblia/.coordination/audit-core-git-selftest.js && node docs/biblia/.coordination/audit-protocol-selftest.js && node scripts/validation/verify-bible-audit-pipeline-selftest.js && node scripts/validation/verify-bible-audit-shards-selftest.js && node docs/biblia/.coordination/reconcile-audit-results-selftest.js && node docs/biblia/.coordination/bible-correction-work-plan-selftest.js && node scripts/validation/verify-bible-coordination-selftest.js",
     "bible:audit:status": "node docs/biblia/.coordination/audit-protocol.js status",
     "bible:audit:verify": "node docs/biblia/.coordination/audit-protocol.js verify",
     "bible:audit:summary": "node docs/biblia/.coordination/audit-summary.js",
@@ -57,7 +57,9 @@
     "bible:lease-gc": "node docs/biblia/.coordination/audit-lease-gc.js",
     "bible:lease-gc:write": "node docs/biblia/.coordination/audit-lease-gc.js --write-safe",
     "bible:merge-readiness": "node scripts/validation/verify-bible-merge-readiness.js",
-    "bible:final-readiness": "npm run test:bible-protocol:infra && npm run bible:reconcile:check && npm run bible:audit:verify && npm run bible:merge-readiness"
+    "bible:final-readiness": "npm run test:bible-protocol:infra && npm run bible:audit:append-only && npm run bible:reconcile:check && npm run bible:audit:verify && npm run bible:merge-readiness",
+    "test:bible-audit-append-only:infra": "node scripts/validation/verify-bible-audit-results-append-only-selftest.js",
+    "bible:audit:append-only": "node scripts/validation/verify-bible-audit-results-append-only.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
