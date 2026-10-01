@@ -103,7 +103,7 @@
 - [x] 099 — `tests/helpers/extracted-functions.js` — COMPLETED
 - [ ] 100 — `tests/helpers/load-background-module.js` — READY_FOR_AUDIT
 - [ ] 101 — `tests/helpers/load-content-gemini-module.js` — READY_FOR_AUDIT
-- [ ] 102 — `tests/helpers/load-content-script.js` — CHANGES_REQUIRED
+- [ ] 102 — `tests/helpers/load-content-script.js` — READY_FOR_AUDIT
 - [ ] 103 — `tests/helpers/load-extension-page.js` — READY_FOR_AUDIT
 - [ ] 104 — `tests/helpers/repo-root.js` — READY_FOR_AUDIT
 - [ ] 105 — `tests/helpers/track-background-delay-timers.js` — READY_FOR_AUDIT
@@ -111,7 +111,7 @@
 - [ ] 107 — `tests/integration/chapter-dedup.test.js` — READY_FOR_AUDIT
 - [ ] 108 — `tests/integration/gtc-end-to-end.test.js` — READY_FOR_AUDIT
 - [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — READY_FOR_AUDIT
-- [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — CHANGES_REQUIRED
+- [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — READY_FOR_AUDIT
 - [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — READY_FOR_AUDIT
 - [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — READY_FOR_AUDIT
 - [ ] 113 — `tests/integration/options.ui.test.js` — READY_FOR_AUDIT

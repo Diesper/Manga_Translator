@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **132**
-- CHANGES_REQUIRED: **2**
+- READY_FOR_AUDIT: **134**
+- CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
 - COMPLETED: **99**
 - requests OPEN: **1**
@@ -124,7 +124,7 @@
 | 099 | tests/helpers/extracted-functions.js | COMPLETED | APPROVED | - | ccbf20485608a223c723adf638860cb7151c8886 | 3 |
 | 100 | tests/helpers/load-background-module.js | READY_FOR_AUDIT | NOT_AUDITED | - | b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113 | 4 |
 | 101 | tests/helpers/load-content-gemini-module.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee | 5 |
-| 102 | tests/helpers/load-content-script.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | 40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0 | 5 |
+| 102 | tests/helpers/load-content-script.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0 | 5 |
 | 103 | tests/helpers/load-extension-page.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | c2325598f10b3ef9dd656a4e87db8569748e66b0 | 2 |
 | 104 | tests/helpers/repo-root.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b2520d65820e7b9072602018b0f46609ac967c58 | 1 |
 | 105 | tests/helpers/track-background-delay-timers.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | b7860da7879c9bac7714f3ba7d33a7024b586c0d | 1 |
@@ -132,7 +132,7 @@
 | 107 | tests/integration/chapter-dedup.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | e62187cd957a2fe241e4e704aaa9f8285e89162e | 3 |
 | 108 | tests/integration/gtc-end-to-end.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 9042b3b5370afdbce3baf31b01ce3fa9c49b34dc | 3 |
 | 109 | tests/integration/ipc/gemini-cors-fallback.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 1f5a1236139d85640cb5fa24590f434859155c62 | 2 |
-| 110 | tests/integration/ipc/gtc-cache-flow.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | e6eb5c744499fcaa0309a187a173841c185bbaea | 5 |
+| 110 | tests/integration/ipc/gtc-cache-flow.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | e6eb5c744499fcaa0309a187a173841c185bbaea | 5 |
 | 111 | tests/integration/ipc/gtc-indexeddb-deep.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 39d0542f9bad4ee59fe1939396e2fb3e41e2c38d | 3 |
 | 112 | tests/integration/ipc/image-translation-routing.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 4f1674c12311a48215b97faabb0415011a6cba87 | 1 |
 | 113 | tests/integration/options.ui.test.js | READY_FOR_AUDIT | NOT_AUDITED | - | 33c34c89f7131ade147ea65b5f5015b79917b708 | 2 |
