@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const childProcess = require('child_process');
 
 const LIFECYCLE = new Set(['PENDING','IN_PROGRESS','READY_FOR_AUDIT','CHANGES_REQUIRED','BLOCKED','COMPLETED']);
 const COORDINATION = new Set(['OK','REPAIR_REQUIRED']);
@@ -19,6 +20,19 @@ function walk(dir) {
 function gitBlobSha(source) {
   const buffer = Buffer.from(source, 'utf8');
   return crypto.createHash('sha1').update('blob ' + buffer.length + '\0').update(buffer).digest('hex');
+}
+function trackedBlobSha(root, sourcePath, fallbackSource) {
+  try {
+    const value = childProcess.execFileSync(
+      'git',
+      ['rev-parse', 'HEAD:' + slash(sourcePath)],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    if (/^[0-9a-f]{40}$/i.test(value)) return value;
+  } catch (_) {
+    // Self-tests use temporary non-Git roots; fall back to exact fixture bytes.
+  }
+  return gitBlobSha(fallbackSource);
 }
 const normalizeText = (s) => s.replace(/\r\n/g, '\n');
 
@@ -45,7 +59,7 @@ function isContiguousFromOne(intervals) {
   return true;
 }
 
-function parseCoverageIntervals(bible) {
+function parseCoverageIntervals(bible, sourcePositions = null) {
   const rangeHeadings = [];
   const singleHeadings = [];
 
@@ -58,7 +72,8 @@ function parseCoverageIntervals(bible) {
     'gmi'
   );
   const singleRe = new RegExp(
-    '^#{2,5}\\s+(?:\\d+\\.\\s+)?' + singleLabel + '\\s+0*(\\d+)\\b',
+    '^#{2,5}\\s+(?:\\d+\\.\\s+)?' + singleLabel
+      + '\\s+0*(\\d+)(?!\\s*[–—-]\\s*\\d)\\b',
     'gmi'
   );
 
@@ -126,23 +141,42 @@ function parseCoverageIntervals(bible) {
 
   for (const candidate of tableCandidates) {
     candidate.sort((a,b) => a.start - b.start || a.end - b.end);
-    if (isContiguousFromOne(candidate)) return candidate;
+    if (isContiguousFromOne(candidate) && (!sourcePositions || validateCoverage(candidate, sourcePositions).length === 0)) {
+      return candidate;
+    }
+  }
+
+  const combinedRanges = [...rangeHeadings];
+  for (const single of singleHeadings) {
+    const covered = rangeHeadings.some((range) => single.start >= range.start && single.end <= range.end);
+    if (!covered) combinedRanges.push(single);
+  }
+  combinedRanges.sort((a,b) => a.start - b.start || a.end - b.end);
+
+  // Escolhe primeiro um mapa que cubra exatamente a fonte atual. Isso resolve
+  // Bíblias legadas que preservam simultaneamente mapa linha-a-linha, resumo
+  // por faixas e tabelas de cenários sem misturar esses formatos.
+  const exactCandidates = [
+    singleHeadings,
+    combinedRanges,
+    ...tableCandidates,
+    rangeHeadings,
+  ].filter((candidate) => candidate.length);
+  if (sourcePositions) {
+    for (const candidate of exactCandidates) {
+      if (validateCoverage(candidate, sourcePositions).length === 0) return candidate;
+    }
   }
 
   // Último fallback: retorna o candidato estrutural mais promissor para que
   // validateCoverage produza gaps/overlaps objetivos em vez de "não reconhecido".
-  const candidates = [
-    ...(rangeHeadings.length ? [rangeHeadings] : []),
-    ...(singleHeadings.length ? [singleHeadings] : []),
-    ...tableCandidates,
-  ].filter((candidate) => candidate.length);
-  candidates.sort((a,b) => {
+  exactCandidates.sort((a,b) => {
     const aStarts = a[0]?.start === 1 ? 1 : 0;
     const bStarts = b[0]?.start === 1 ? 1 : 0;
     if (aStarts !== bStarts) return bStarts - aStarts;
     return b.length - a.length;
   });
-  return candidates[0] || [];
+  return exactCandidates[0] || [];
 }
 
 function validateCoverage(intervals, sourcePositions) {
@@ -314,7 +348,7 @@ function validateBibleCoordination(root, options = {}) {
 
     if (fs.existsSync(sourceAbs)) {
       const rawSource = fs.readFileSync(sourceAbs, 'utf8');
-      const currentSha = gitBlobSha(rawSource);
+      const currentSha = trackedBlobSha(root, state.file, rawSource);
       const source = normalizeText(rawSource);
       if (!/^[0-9a-f]{40}$/i.test(state.source_sha || '')) problems.push(stateFile + ': source_sha ausente/inválido');
       else if (state.source_sha !== currentSha) problems.push(stateFile + ': SHA stale declarado=' + state.source_sha + ' atual=' + currentSha);
@@ -328,7 +362,7 @@ function validateBibleCoordination(root, options = {}) {
         } else if (state.status === 'COMPLETED') problems.push(stateFile + ': COMPLETED sem seção Fonte integral reconhecível');
 
         if (['COMPLETED','READY_FOR_AUDIT','CHANGES_REQUIRED'].includes(state.status)) {
-          for (const error of validateCoverage(parseCoverageIntervals(bible), source.split('\n').length)) {
+          for (const error of validateCoverage(parseCoverageIntervals(bible, source.split('\n').length), source.split('\n').length)) {
             problems.push(stateFile + ': ' + error);
           }
         }
