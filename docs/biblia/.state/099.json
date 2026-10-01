@@ -2,11 +2,11 @@
   "index": 99,
   "file": "tests/helpers/extracted-functions.js",
   "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
   "started_at_utc": "2026-09-30T06:25:00Z",
-  "completed_at_utc": "2026-10-01T05:19:50Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "099-001",
@@ -114,7 +114,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:19:50Z",
+  "updated_at_utc": "2026-10-01T21:37:31.520Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:19:50Z",
@@ -124,6 +124,14 @@
       "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou 102/102 posições, fonte integral exata, consumers reais e evidência CI do mesmo blob; mirror drift e helpers legados permanecem requests explícitas."
+    },
+    {
+      "at_utc": "2026-10-01T21:37:31.520Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
+      "reason": "A19-099-R01: sincronizar lifecycle documental 099-001/002/003."
     }
   ],
   "evidence": [
