@@ -2,8 +2,8 @@
   "index": 195,
   "file": "tests/unit/content-manga/button-ui-real.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
   "started_at_utc": "2026-09-30T15:04:00Z",
   "completed_at_utc": null,
@@ -91,7 +91,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T20:06:20.240Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:06:20.240Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
+      "reason": "195-PRI/ADV: lifecycle 195-001..003 e reclassificação de Chromium real como não provado em JSDOM."
+    }
+  ],
   "evidence": []
 }
