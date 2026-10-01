@@ -7,7 +7,8 @@ const repoRoot = path.resolve(__dirname, '../../..');
 const bibleRoot = path.join(repoRoot, 'docs', 'biblia');
 const stateRoot = path.join(bibleRoot, '.state');
 const resultRoot = path.join(__dirname, 'audit-results');
-const claimRoot = path.join(__dirname, 'audit-claims');
+const legacyClaimRoot = path.join(__dirname, 'audit-claims');
+const leaseRoot = path.join(__dirname, 'audit-leases');
 const auditRegistryPath = path.join(bibleRoot, 'AUDITORIA.md');
 
 const PHASES = new Set(['PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
@@ -237,41 +238,79 @@ function validateClaims(states) {
   const problems = [];
   const activeByIndex = new Map();
 
-  for (const absolute of walk(claimRoot)) {
+  function register(index, rel) {
+    if (activeByIndex.has(index)) problems.push('mais de um claim/lease ativo para índice ' + index);
+    activeByIndex.set(index, rel);
+  }
+
+  // Claims planos existentes continuam sendo compatibilidade PRIMARY.
+  // Não movemos esses arquivos durante a migração para não invalidar trabalho em andamento.
+  for (const absolute of walk(legacyClaimRoot)) {
     const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
-    if (!/\.lock\.md$/.test(rel)) continue;
+    if (!/^docs\/biblia\/\.coordination\/audit-claims\/\d{3}\.lock\.md$/.test(rel)) continue;
 
     const basename = path.basename(rel);
     const indexMatch = /^(\d{3})\.lock\.md$/.exec(basename);
     const source = fs.readFileSync(absolute, 'utf8');
     const index = Number(parseClaimField(source, 'INDEX'));
     const auditor = parseClaimField(source, 'AUDITOR');
-    const declaredPhase = String(parseClaimField(source, 'PHASE') || '').toUpperCase();
     const sourceSha = parseClaimField(source, 'SOURCE_SHA');
     const state = stateByIndex.get(index);
 
-    const inside = rel.split('docs/biblia/.coordination/audit-claims/')[1] || '';
-    const dir = inside.includes('/') ? inside.split('/')[0].toLowerCase() : '';
-    const pathPhase = dir === 'primary' ? 'PRIMARY'
-      : dir === 'adversarial' ? 'ADVERSARIAL'
-      : dir === 'reaudit' ? 'REAUDIT'
-      : 'PRIMARY';
-    const staged = Boolean(dir);
+    if (!indexMatch || Number(indexMatch[1]) !== index) problems.push('claim legado filename/index divergente: ' + rel);
+    if (!auditor) problems.push('claim legado sem AUDITOR: ' + rel);
+    if (!state) problems.push('claim legado fora do corpus: ' + rel);
+    if (state && sourceSha !== state.source_sha) problems.push('claim legado SOURCE_SHA stale: ' + rel);
+    register(index, rel);
+  }
 
-    if (!indexMatch || Number(indexMatch[1]) !== index) problems.push('claim filename/index divergente: ' + rel);
-    if (!auditor) problems.push('claim sem AUDITOR: ' + rel);
-    if (!state) problems.push('claim fora do corpus: ' + rel);
-    if (state && sourceSha !== state.source_sha) problems.push('claim SOURCE_SHA stale: ' + rel);
-
-    if (staged) {
-      if (declaredPhase !== pathPhase) problems.push('claim PHASE diverge do path: ' + rel);
-      const lease = Date.parse(parseClaimField(source, 'LEASE_EXPIRES_AT_UTC') || '');
-      if (!Number.isFinite(lease)) problems.push('claim sem lease válido: ' + rel);
-      else if (lease <= Date.now()) problems.push('claim lease expirado: ' + rel);
+  // Novas fases usam audit-leases, fora da árvore audit-claims legada.
+  // Isso mantém compatibilidade com o validador estrutural V2 enquanto retira
+  // PRIMARY/ADVERSARIAL/REAUDIT do mutex global.
+  for (const absolute of walk(leaseRoot)) {
+    const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
+    if (/\/README\.md$/i.test(rel)) continue;
+    if (!/\.lock\.md$/.test(rel)) {
+      problems.push('lease com arquivo inesperado: ' + rel);
+      continue;
     }
 
-    if (activeByIndex.has(index)) problems.push('mais de um claim ativo para índice ' + index);
-    activeByIndex.set(index, rel);
+    const match = /^docs\/biblia\/\.coordination\/audit-leases\/(primary|adversarial|reaudit)\/(\d{3})\.lock\.md$/i.exec(rel);
+    if (!match) {
+      problems.push('path de lease inválido: ' + rel);
+      continue;
+    }
+
+    const pathPhase = match[1].toUpperCase();
+    const pathIndex = Number(match[2]);
+    const source = fs.readFileSync(absolute, 'utf8');
+    const index = Number(parseClaimField(source, 'INDEX'));
+    const auditor = parseClaimField(source, 'AUDITOR');
+    const declaredPhase = String(parseClaimField(source, 'PHASE') || '').toUpperCase();
+    const sourceSha = parseClaimField(source, 'SOURCE_SHA');
+    const sourcePath = parseClaimField(source, 'ARQUIVO');
+    const biblePath = parseClaimField(source, 'BIBLIA');
+    const leaseExpiresAt = parseClaimField(source, 'LEASE_EXPIRES_AT_UTC');
+    const leaseState = parseClaimField(source, 'ESTADO');
+    const state = stateByIndex.get(index);
+
+    if (index !== pathIndex) problems.push('lease filename/index divergente: ' + rel);
+    if (!auditor) problems.push('lease sem AUDITOR: ' + rel);
+    if (declaredPhase !== pathPhase) problems.push('lease PHASE diverge do path: ' + rel);
+    if (leaseState !== 'ACTIVE') problems.push('lease deve estar ACTIVE: ' + rel);
+    if (!state) problems.push('lease fora do corpus: ' + rel);
+
+    if (state) {
+      if (sourceSha !== state.source_sha) problems.push('lease SOURCE_SHA stale: ' + rel);
+      if (sourcePath !== state.file) problems.push('lease ARQUIVO diverge do state: ' + rel);
+      if (biblePath !== state.bible) problems.push('lease BIBLIA diverge do state: ' + rel);
+    }
+
+    const leaseMs = Date.parse(leaseExpiresAt || '');
+    if (!Number.isFinite(leaseMs)) problems.push('lease sem LEASE_EXPIRES_AT_UTC válido: ' + rel);
+    else if (leaseMs <= Date.now()) problems.push('lease expirado: ' + rel);
+
+    register(index, rel);
   }
 
   return problems;
