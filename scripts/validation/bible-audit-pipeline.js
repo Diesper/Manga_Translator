@@ -128,6 +128,9 @@ function latestFor(records, index, phase, sourceSha) {
     record.index === index
     && record.phase === phase
     && record.source_sha === sourceSha
+  )).sort((a, b) => (
+    (a.completed_at_ms || -1) - (b.completed_at_ms || -1)
+    || String(a.path || '').localeCompare(String(b.path || ''))
   ));
   if (!candidates.length) return null;
   return candidates[candidates.length - 1];
@@ -250,7 +253,7 @@ function pipelineMergeBlockers(states, evaluation) {
 function displayAuditStatus(pipeline, legacyEntry = null) {
   if (pipeline?.hasDistributed) return pipeline.decision;
   if (legacyEntry?.result) return legacyEntry.result;
-  return pipeline?.decision || 'NOT_AUDITED';
+  return 'NOT_AUDITED';
 }
 
 module.exports = {
