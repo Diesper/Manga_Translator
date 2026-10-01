@@ -2,15 +2,15 @@
   "index": 5,
   "file": "extension/background/actions/claim-gemini-job.js",
   "bible": "docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
-  "started_at_utc": "2026-10-01T23:58:05Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "005-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
       "found_while_auditing": "extension/background/actions/claim-gemini-job.js",
@@ -27,11 +27,26 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:15:00Z",
       "audit_finding": "ACCEPTED. A suíte cobre claim direto, jobId divergente, aba manual e migração de alias válida, mas não executa o guard `canonicalIndexedTabId !== canonicalSenderTabId`, nem `migrateTabIdentity` rejeitando, nem pós-migração com chave ausente/jobId divergente. Esses branches controlam ownership do job exposto ao worker Gemini.",
-      "auditor_recommended_action": "Adicionar casos contra a action real para canonical mismatch, rejeição de migrateTabIdentity e pós-condição migrada inválida, garantindo `job:null`/erro previsível sem vazamento de job alheio."
+      "auditor_recommended_action": "Adicionar casos contra a action real para canonical mismatch, rejeição de migrateTabIdentity e pós-condição migrada inválida, garantindo `job:null`/erro previsível sem vazamento de job alheio.",
+      "resolution": "Self-test causal prova canonical mismatch, migrateTabIdentity rejeitando, ordem migrate→read-after-write, chave pós-migração ausente e jobId divergente. Run 36943278337/job 110639489841: PASS; background 45/45 suites, 225/225 testes com --detectOpenHandles.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:56:00Z",
+      "validation": {
+        "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+        "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+        "selftest_sha": "80af4a6a2b923a785b346f5eaf7b4b42e659bbe3",
+        "workflow_sha": "e2fa4093e6f63cdf014152ef22ae9a7b27122161",
+        "run_id": 36943278337,
+        "job_id": 110639489841,
+        "focal": "PASS",
+        "background_suites": "45/45",
+        "background_tests": "225/225",
+        "open_handles": "background suite executed with --detectOpenHandles"
+      }
     },
     {
       "id": "005-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
       "found_while_auditing": "extension/background/actions/claim-gemini-job.js",
@@ -48,7 +63,22 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:36:00Z",
       "audit_finding": "ACCEPTED. A suíte funcional usa sender inteiro, inicialização/storage saudáveis e tabIdentity disponível. Não há casos para ensureInitialized rejeitando, sender sem tab/id inteiro, tabIdentity ausente, jobIndex sem entry ou storage.get rejeitando; esses branches defensivos permanecem sem prova focal.",
-      "auditor_recommended_action": "Adicionar casos parametrizados da action real cobrindo contexto/dependências ausentes ou rejeitando, com job:null/INTERNAL_ERROR e ausência de exposição indevida do job conforme o contrato."
+      "auditor_recommended_action": "Adicionar casos parametrizados da action real cobrindo contexto/dependências ausentes ou rejeitando, com job:null/INTERNAL_ERROR e ausência de exposição indevida do job conforme o contrato.",
+      "resolution": "Self-test focal cobre ensureInitialized aguardado/rejeitando, sender sem tab/id inteiro, tabIdentity ausente, jobIndex ausente/sem entry e storage.get rejeitando. Run 36943278337/job 110639489841: PASS.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:56:00Z",
+      "validation": {
+        "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+        "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+        "selftest_sha": "80af4a6a2b923a785b346f5eaf7b4b42e659bbe3",
+        "workflow_sha": "e2fa4093e6f63cdf014152ef22ae9a7b27122161",
+        "run_id": 36943278337,
+        "job_id": 110639489841,
+        "focal": "PASS",
+        "background_suites": "45/45",
+        "background_tests": "225/225",
+        "open_handles": "background suite executed with --detectOpenHandles"
+      }
     }
   ],
   "document_quality": {
@@ -57,12 +87,14 @@
     "embedded_source_exact": true,
     "documented_positions": "103/103",
     "source_text_lines": 102,
-    "external_audit_requests_open": 2,
-    "note": "Bíblia concorrente existente revalidada; fonte integral exata."
+    "external_audit_requests_open": 0,
+    "note": "Bíblia reconstruída sem status stale e com evidência causal. Run 36943278337/job 110639489841 executou exatamente os blobs atuais: self-test PASS; background 45/45 suites e 225/225 testes com --detectOpenHandles.",
+    "bible_lines": 258,
+    "repair_note": "Findings PRIMARY/ADVERSARIAL de rastreabilidade, overclassification e status stale corrigidos; 005-001/002 RESOLVED. Unidade devolvida para auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:58:05Z",
+  "updated_at_utc": "2026-10-01T23:56:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:47:11.147Z",
@@ -90,7 +122,38 @@
       "bible_sha": "297de42bf91e03d1b3ac08213dd4467eb72b1735",
       "agent": "AGENTE HÍBRIDO",
       "reason": "PRIMARY e ADVERSARIAL concordaram em CHANGES_REQUIRED; 005-001/002 ACCEPTED exigem cobertura causal de ownership, migração/read-after-write e branches defensivos."
+    },
+    {
+      "at_utc": "2026-10-01T23:56:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+      "selftest_sha": "80af4a6a2b923a785b346f5eaf7b4b42e659bbe3",
+      "workflow_sha": "e2fa4093e6f63cdf014152ef22ae9a7b27122161",
+      "run_id": 36943278337,
+      "job_id": 110639489841,
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Findings distribuídos corrigidos; 005-001/002 resolvidos com prova causal. Background 45/45 suites, 225/225 testes."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-01T23:56:00Z",
+      "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+      "selftest_sha": "80af4a6a2b923a785b346f5eaf7b4b42e659bbe3",
+      "workflow_sha": "e2fa4093e6f63cdf014152ef22ae9a7b27122161",
+      "run_id": 36943278337,
+      "job_id": 110639489841,
+      "result": "PASS",
+      "focal": "PASS",
+      "background_suites": "45/45",
+      "background_tests": "225/225",
+      "open_handles": "--detectOpenHandles enabled"
+    }
+  ],
+  "progress_note": "Correção híbrida validada; requests 005-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes."
 }
