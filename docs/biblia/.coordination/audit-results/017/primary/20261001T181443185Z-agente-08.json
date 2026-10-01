@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "index": 17,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/open-existing-folder.js",
+  "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
+  "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+  "bible_sha": "096f77d1ca0b3f9f7f9fd325632a988109c81e0c",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "39/39",
+    "direct_action_test_blob": "49b6cd110ebae43d7a4ed5a29b5a8e8430e5efb3",
+    "regex_background_test_blob": "3707482c013734dd2fd0e6a3989eee30c5f5406e",
+    "handlers_background_test_blob": "2089f42642fc3b16856b0d39ea4f824e6e8dec08",
+    "integrated_background_test_blob": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
+    "marker_helper_test_blob": "6a6c977a1a2bad89a49813153039e17a93945017",
+    "corrected_prior_findings": [
+      "017-REA-001 posição 025 corrigida para exists:true",
+      "017-REA-002 cadeia manifest/background/router/popup documentada"
+    ],
+    "nonblocking_requests": [
+      "017-001 ACCEPTED"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:14:43.185Z"
+}
