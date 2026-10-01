@@ -2,15 +2,15 @@
   "index": 4,
   "file": "extension/background/actions/check-extraction-tab.js",
   "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
-  "started_at_utc": "2026-10-01T23:50:10Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "004-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "ROBUSTNESS_REVIEW",
       "target_file": "extension/background/actions/check-extraction-tab.js",
       "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
@@ -27,11 +27,26 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:40:00Z",
       "audit_finding": "ACCEPTED — bug de robustez confirmado. O retorno é `{ isExtractionTab: true, ...mapping }`; portanto um mapping persistido malformado com `isExtractionTab:false` sobrescreve o discriminador e retorna falso mesmo existindo mapping válido pela chave.",
-      "auditor_recommended_action": "Colocar o discriminador depois do spread (`{ ...mapping, isExtractionTab: true }`) ou sanitizar mapping; adicionar regressão com campo conflitante."
+      "auditor_recommended_action": "Colocar o discriminador depois do spread (`{ ...mapping, isExtractionTab: true }`) ou sanitizar mapping; adicionar regressão com campo conflitante.",
+      "resolution": "Hit aplica `{ ...mapping, isExtractionTab: true }`; mappings primitivos/arrays, índice array e propriedades herdadas são rejeitados. Run 36942704897/job 110637664732 validou o self-test focal e a suíte background.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:50:45Z",
+      "validation": {
+        "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+        "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+        "selftest_sha": "26977004615d152923a9abd9a5451571ce3c46a7",
+        "workflow_sha": "87803437d424048622a396c74975426114fdd680",
+        "run_id": 36942704897,
+        "job_id": 110637664732,
+        "focal": "PASS",
+        "background_suites": "45/45",
+        "background_tests": "225/225",
+        "open_handles": "background suite executed with --detectOpenHandles"
+      }
     },
     {
       "id": "004-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/actions-low-risk.test.js",
       "found_while_auditing": "extension/background/actions/check-extraction-tab.js",
@@ -48,21 +63,38 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:22:00Z",
       "audit_finding": "ACCEPTED. A suíte `actions-low-risk.test.js` cobre apenas o mapping persistido nominal. O branch sem sender.tab (tabId=-1), `state.extractionTabs` ausente/null, rejeição de `ensureInitialized` e bootstrap do módulo com `MangaTranslatorRouter` indisponível não possuem casos focais.",
-      "auditor_recommended_action": "Adicionar casos separados usando a action real para sender sem tab, estado vazio, ensureInitialized rejeitando e import sem router, fixando resposta/erro e ausência de falso mapping."
+      "auditor_recommended_action": "Adicionar casos separados usando a action real para sender sem tab, estado vazio, ensureInitialized rejeitando e import sem router, fixando resposta/erro e ausência de falso mapping.",
+      "resolution": "Self-test focal cobre sender sem tab, state/extractionTabs ausentes, rejeição e ordenação de ensureInitialized, bootstrap sem router e seleção self/globalThis. Run 36942704897/job 110637664732: PASS; background 45/45 suites e 225/225 testes com --detectOpenHandles.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-01T23:50:45Z",
+      "validation": {
+        "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+        "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+        "selftest_sha": "26977004615d152923a9abd9a5451571ce3c46a7",
+        "workflow_sha": "87803437d424048622a396c74975426114fdd680",
+        "run_id": 36942704897,
+        "job_id": 110637664732,
+        "focal": "PASS",
+        "background_suites": "45/45",
+        "background_tests": "225/225",
+        "open_handles": "background suite executed with --detectOpenHandles"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "26/26",
-    "source_text_lines": 25,
-    "external_audit_requests_open": 2,
-    "note": "Bíblia existente de auditoria anterior revalidada contra o mesmo SHA; bloco ```javascript reproduz a fonte integral exatamente."
+    "documented_positions": "30/30",
+    "source_text_lines": 29,
+    "external_audit_requests_open": 0,
+    "note": "Fonte/Bíblia/self-test/workflow vinculados aos blobs validados. Run 36942704897/job 110637664732: self-test focal PASS; background 45/45 suites e 225/225 testes com --detectOpenHandles.",
+    "bible_lines": 163,
+    "repair_note": "Findings distribuídos de status stale/escopo self-globalThis corrigidos; 004-001/002 resolvidos por hardening funcional e regressão focal. Unidade devolvida para auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:54:00Z",
+  "updated_at_utc": "2026-10-01T23:50:45Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:28:00Z",
@@ -118,8 +150,38 @@
       "previous_source_sha": "f960710fe6b0ba43a6386f7dd903568284588423",
       "current_source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
       "reason": "extractionTabs exige objeto não-array e mapping próprio; propriedades herdadas e arrays não podem produzir hit."
+    },
+    {
+      "at_utc": "2026-10-01T23:50:45Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+      "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+      "selftest_sha": "26977004615d152923a9abd9a5451571ce3c46a7",
+      "workflow_sha": "87803437d424048622a396c74975426114fdd680",
+      "run_id": 36942704897,
+      "job_id": 110637664732,
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "PRIMARY e ADVERSARIAL findings corrigidos; 004-001/002 resolvidos. Self-test focal PASS; background 45/45 suites e 225/225 testes com detectOpenHandles."
     }
   ],
-  "evidence": [],
-  "progress_note": "Reauditoria independente SHA-bound aprovada; requests 004-001, 004-002 permanecem ACCEPTED e não são mascaradas como resolvidas."
+  "evidence": [
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-01T23:50:45Z",
+      "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+      "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+      "selftest_sha": "26977004615d152923a9abd9a5451571ce3c46a7",
+      "workflow_sha": "87803437d424048622a396c74975426114fdd680",
+      "run_id": 36942704897,
+      "job_id": 110637664732,
+      "result": "PASS",
+      "focal": "PASS",
+      "background_suites": "45/45",
+      "background_tests": "225/225",
+      "open_handles": "--detectOpenHandles enabled"
+    }
+  ],
+  "progress_note": "Correção híbrida validada; requests 004-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes."
 }
