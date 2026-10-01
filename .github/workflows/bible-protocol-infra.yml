@@ -8,6 +8,7 @@ on:
       - 'docs/biblia/.coordination/audit-protocol-selftest.js'
       - 'docs/biblia/.coordination/reconcile-audit-results.js'
       - 'docs/biblia/.coordination/reconcile-audit-results-selftest.js'
+      - 'docs/biblia/.coordination/audit-lease-gc.js'
       - 'docs/biblia/.coordination/audit-bible-baseline.json'
       - 'scripts/validation/bible-audit-pipeline.js'
       - 'scripts/validation/bible-audit-work-plan.js'
