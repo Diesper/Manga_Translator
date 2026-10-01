@@ -1188,3 +1188,19 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Conclusão:** após tentativa formal de reprovação, releitura do source e segunda auditoria independente dos pontos críticos, não foi encontrada falha documental bloqueante.
 
 **Veredito documental independente:** ✅ **APROVADO — #098 / SHA `1c38cfc47917f2a42788c467b9dbf58648b73e2b`**.
+
+### `manga-images.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #096 — `tests/fixtures/manga-images.js`.
+- **Auditor:** AGENTE 4.
+- **SHA auditado:** `cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b`.
+- **Integridade:** **136 linhas textuais + newline final = 137/137 posições**; state, source, claim e SHA declarado na Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao arquivo atual; o mapa documental cobre 1–137 sem gaps e cada linha 1–136 reproduz exatamente a linha fonte correspondente.
+- **Semântica revalidada:** inspeção independente confirmou sete PNGs, dimensões, assinatura/chunks/CRC, bit depth 8/color type 2, fronteiras cromáticas de `buildPanelPng`, ordem do Map e paridade Map→disco; também confirmou que `writeImagesToDisk` preserva arquivos stale, exatamente como a Bíblia registra.
+- **Wiring/consumers:** `gemini-mock-server.js` e `create-test-images.js` são os consumers diretos localizados de `PNG_IMAGES`/writer; nenhum consumer externo de `buildPng`/`buildPanelPng` foi localizado. `package.json`, `playwright.config.js`, `verify-ci-contract.js` e `manga-page.html` confirmam o fluxo descrito.
+- **Assertions/runtime:** `translation-flow.spec.js` exige dimensões naturais mínimas, data URLs PNG distintas e ausência de tradução de avatar/banner; `cache-and-storage.spec.js` exige data URLs persistidas e `restoreIndex` das URLs originais. Na run **36577447500**, o commit `b6ad13fce47adcab3fcd10281f28848f7b4ce50f` contém exatamente o blob `cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b`; os shards medium-a e medium-b terminaram com sucesso.
+- **Request 096-001:** permanece **ACCEPTED** — falta suíte focal para CRC/chunks/IHDR/pixels, conjunto/ordem do Map e writer.
+- **Request 096-002:** permanece **ACCEPTED** — builders exportados seguem sem contrato/validação explícita do domínio de entrada; consumers atuais usam apenas entradas canônicas.
+- **Request 096-003:** permanece **ACCEPTED** — writer segue não transacional, sem limpeza de stale files nem rollback.
+- **Conclusão:** a Bíblia descreve fielmente a implementação atual e separa prova direta, execução indireta, gates estáticos e ausência de teste focal sem fabricar evidência.
+
+**Veredito documental independente:** ✅ **APROVADO — #096 / SHA `cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b`**.
