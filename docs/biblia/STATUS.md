@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **132**
+- READY_FOR_AUDIT: **131**
 - CHANGES_REQUIRED: **1**
 - BLOCKED: **0**
-- COMPLETED: **100**
+- COMPLETED: **101**
 - requests OPEN: **0**
 - requests ACCEPTED: **585**
 - requests RESOLVED: **8**
@@ -141,7 +141,7 @@
 | 116 | tests/integration/popup.advanced.ui.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | dd15edcefd5963fea83a72801b1d3c00b7e37453 | 2 |
 | 117 | tests/integration/popup.ui.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 57158c9b6e6f88955bf82a292e75624dc2ad8d0c | 3 |
 | 118 | tests/integration/reader.ui.test.js | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 810a207f1264d78836b6e72c6f701bfc0cbce447 | 1 |
-| 119 | tests/mocks/chrome-api.mock.js | READY_FOR_AUDIT | NOT_AUDITED | - | c1d9a056b7777183bfd3f540c49811335f410425 | 3 |
+| 119 | tests/mocks/chrome-api.mock.js | COMPLETED | APPROVED | - | c1d9a056b7777183bfd3f540c49811335f410425 | 3 |
 | 120 | tests/mocks/dom-environment.js | READY_FOR_AUDIT | NOT_AUDITED | - | 9c3bc91608aa52a2d8324fc645c75fac5e4f7452 | 1 |
 | 121 | tests/setup/create-test-images.js | READY_FOR_AUDIT | NOT_AUDITED | - | f35e7896ffb5fea9091876544c8351bbba3c86da | 0 |
 | 122 | tests/smoke/run-smoke.js | READY_FOR_AUDIT | NOT_AUDITED | - | ea6fa903f7a68272a769804a29a97ae967bc1088 | 2 |
