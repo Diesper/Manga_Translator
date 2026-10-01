@@ -227,6 +227,10 @@ describe('gemini/job-runner.js', () => {
     const withoutFileApi = createGeminiJobRunner({ ...options, FileImpl: null });
     expect(() => withoutFileApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
       .toThrow('APIs de arquivo indisponíveis');
+
+    const withoutAtobApi = createGeminiJobRunner({ ...options, DataUrlAtob: null });
+    expect(() => withoutAtobApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
+      .toThrow('APIs de arquivo indisponíveis');
   });
 
   test('RUN-02: recovery pendente encerra antes de abrir keepalive', async () => {
