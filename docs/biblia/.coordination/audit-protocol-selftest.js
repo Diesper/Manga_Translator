@@ -2,7 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const { resolvePipeline, strictOwnershipProblems } = require('./audit-protocol');
+const {
+  resolvePipeline,
+  strictOwnershipProblems,
+  commonClaimProblems,
+  duplicateIndexProblem,
+  leaseRevisionProblems,
+} = require('./audit-protocol');
 
 function state() {
   return {
@@ -126,6 +132,83 @@ assert(
   'REAUDIT sem divergência é inválido',
   pipeline.problems.some((problem) => problem.includes('REAUDIT só é válido')),
   JSON.stringify(pipeline)
+);
+
+const fixtureState = state();
+let leaseProblems = commonClaimProblems({
+  state: fixtureState,
+  index: 1,
+  auditor: 'AUDITOR-LEASE',
+  sourceSha: 'b'.repeat(40),
+  sourcePath: fixtureState.file,
+  biblePath: fixtureState.bible,
+  rel: 'docs/biblia/.coordination/audit-leases/primary/001.lock.md',
+  phase: 'PRIMARY',
+});
+assert(
+  'lease com SOURCE_SHA stale é rejeitado',
+  leaseProblems.some((problem) => problem.includes('SOURCE_SHA stale')),
+  JSON.stringify(leaseProblems)
+);
+
+leaseProblems = commonClaimProblems({
+  state: fixtureState,
+  index: 1,
+  auditor: 'AUDITOR-LEASE',
+  sourceSha: fixtureState.source_sha,
+  sourcePath: fixtureState.file,
+  biblePath: fixtureState.bible,
+  rel: 'docs/biblia/.coordination/audit-leases/primary/001.lock.md',
+  phase: 'PRIMARY',
+  reservationPath: 'docs/biblia/.reservas/fixture.js.lock.md',
+});
+assert(
+  'lease conflitando com reserva editorial é rejeitado',
+  leaseProblems.some((problem) => problem.includes('conflita com reserva de edição')),
+  JSON.stringify(leaseProblems)
+);
+
+const duplicateMap = new Map([[1, {
+  path: 'docs/biblia/.coordination/audit-leases/primary/001.lock.md',
+  auditor: 'AUDITOR-1',
+  phase: 'PRIMARY',
+}]]);
+const duplicate = duplicateIndexProblem(
+  duplicateMap,
+  1,
+  'docs/biblia/.coordination/audit-leases/adversarial/001.lock.md'
+);
+assert(
+  'mais de um lease ativo no mesmo índice é rejeitado',
+  Boolean(duplicate && duplicate.includes('mais de um claim/lease ativo')),
+  String(duplicate)
+);
+
+const currentBibleSha = 'c'.repeat(40);
+leaseProblems = leaseRevisionProblems({
+  state: fixtureState,
+  bibleSha: 'd'.repeat(40),
+  currentBibleSha,
+  baseline: null,
+  rel: 'docs/biblia/.coordination/audit-leases/primary/001.lock.md',
+});
+assert(
+  'lease com BIBLE_SHA stale é rejeitado',
+  leaseProblems.some((problem) => problem.includes('BIBLE_SHA stale')),
+  JSON.stringify(leaseProblems)
+);
+
+leaseProblems = leaseRevisionProblems({
+  state: fixtureState,
+  bibleSha: currentBibleSha,
+  currentBibleSha,
+  baseline: null,
+  rel: 'docs/biblia/.coordination/audit-leases/primary/001.lock.md',
+});
+assert(
+  'lease com BIBLE_SHA atual é aceito',
+  leaseProblems.length === 0,
+  JSON.stringify(leaseProblems)
 );
 
 const ownership = strictOwnershipProblems(new Map([
