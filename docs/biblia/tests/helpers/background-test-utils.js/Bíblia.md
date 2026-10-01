@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/helpers/background-test-utils.js
 
-> **Estado documental:** ✅ CONCLUÍDA pelo AGENTE 20 após autoauditoria documental  
+> **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
 > **SHA auditado:** `1c38cfc47917f2a42788c467b9dbf58648b73e2b`  
 > **Agente:** AGENTE 20  
 > **Tipo:** harness CommonJS compartilhado dos testes do background  
@@ -123,7 +123,7 @@ Isso prova execução real e portabilidade observada do caminho usado. Não prov
 
 ## 10. Solicitações ao auditor
 
-### 098-001 — TEST_REQUIRED — OPEN
+### 098-001 — TEST_REQUIRED — ACCEPTED
 **Encontrado:** não existe suíte focal do helper para branches negativos/bordas.  
 **Target sugerido:** `tests/unit/helpers/background-test-utils.test.js` (novo, se aprovado).  
 **Evidência atual:** nove consumers verdes em Linux/Windows e prova direta de alguns resultados positivos.  
@@ -133,7 +133,7 @@ Isso prova execução real e portabilidade observada do caminho usado. Não prov
 **Risco:** harness pode mascarar erro ou pendurar suíte.  
 **Severidade:** NORMAL.
 
-### 098-002 — CONTRACT_REVIEW — OPEN
+### 098-002 — CONTRACT_REVIEW — ACCEPTED
 **Encontrado:** resposta síncrona pode capturar o keepAlive inicial antes do retorno final; undefined sem response não ativa fallback.  
 **Target:** `tests/helpers/background-test-utils.js`.  
 **Evidência atual:** ordem das linhas 39/41–46 e fallback estrito da linha 47; consumers não cobrem essas bordas.  
@@ -314,4 +314,6 @@ module.exports = {
 - [x] lacunas registradas como audit_requests;
 - [x] nenhum arquivo externo foi modificado para fabricar evidência.
 
-**Resultado:** documentação completa do blob `1c38cfc47917f2a42788c467b9dbf58648b73e2b`. As solicitações 098-001 e 098-002 permanecem OPEN para auditoria separada.
+**Resultado:** documentação corrigida do blob `1c38cfc47917f2a42788c467b9dbf58648b73e2b`. As solicitações 098-001 e 098-002 estão ACCEPTED no state canônico; permanecem lacunas reconhecidas, não requests OPEN.
+
+> **Lifecycle pós-REAUDIT:** 098-001/002 continuam tecnicamente válidas como lacunas do harness, mas já foram auditadas e estão ACCEPTED.
