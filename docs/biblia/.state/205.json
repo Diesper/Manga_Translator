@@ -2,8 +2,8 @@
   "index": 205,
   "file": "tests/unit/content-manga/get-clean-url.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/get-clean-url.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
   "started_at_utc": "2026-09-30T07:20:00Z",
   "completed_at_utc": null,
@@ -83,7 +83,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T21:35:04.406Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:35:04.406Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
+      "reason": "R40-205-001/002: lifecycle + reclassificação de evidência Reddit/Imgur."
+    }
+  ],
   "evidence": []
 }
