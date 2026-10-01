@@ -2,8 +2,8 @@
   "index": 91,
   "file": "scripts/validation/verify-test-policy.js",
   "bible": "docs/biblia/scripts/validation/verify-test-policy.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4a821403353445023452a0b5055e3a0893beaad2",
   "started_at_utc": "2026-09-30T06:15:30Z",
   "completed_at_utc": null,
@@ -93,6 +93,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "4a821403353445023452a0b5055e3a0893beaad2",
       "reason": "REAUDIT final CHANGES_REQUIRED: corrigir lifecycle 091-001..003 e qualificar alcance do cleanup em finally."
+    },
+    {
+      "at_utc": "2026-10-01T16:43:34.351Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4a821403353445023452a0b5055e3a0893beaad2",
+      "bible_sha": "9d132ef2aadf0e23bea92ad01f8fa32a89968852",
+      "reason": "Correções documentais exigidas por 091-REA-001/002; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": [
@@ -111,7 +120,7 @@
     "embedded_source_exact": true,
     "documented_positions": "86/86",
     "source_text_lines": 85,
-    "external_audit_requests_open": 3,
-    "evidence_note": "Mapa por faixas cobre 86/86 posições e fonte integral é exata. 091-001 SUPERSEDED por 090-001; 091-002..003 permanecem ACCEPTED."
+    "external_audit_requests_open": 0,
+    "evidence_note": "Revisão documental pós-REAUDIT: 091-001 SUPERSEDED por 090-001; 091-002/003 ACCEPTED; cleanup em finally qualificado ao intervalo após createSandbox retornar."
   }
 }
