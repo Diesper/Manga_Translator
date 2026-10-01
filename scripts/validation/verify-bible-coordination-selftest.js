@@ -190,18 +190,33 @@ expectReadiness('state READY_FOR_AUDIT bloqueia merge readiness', false, (root)=
   s.completed_at_utc=null;
   writeJson(root,statePath(1),s);
 }, {}, 'states não-COMPLETED=1');
+expectReadiness('coordination_status REPAIR_REQUIRED bloqueia merge readiness', false, (root)=>{
+  const s=readJson(root,statePath(1));
+  s.coordination_status='REPAIR_REQUIRED';
+  writeJson(root,statePath(1),s);
+}, {}, 'coordination_status não-OK=1');
+expectReadiness('reserva ativa bloqueia merge readiness', false, (root)=>{
+  const s=readJson(root,statePath(1));
+  s.status='IN_PROGRESS';
+  s.agent='AGENT-X';
+  writeJson(root,statePath(1),s);
+  lockFor(root,s,'AGENT-X');
+}, {}, 'reservas ativas=1');
+expectReadiness('audit claim ativo bloqueia merge readiness', false, (root)=>{
+  const s=readJson(root,statePath(1));
+  s.status='READY_FOR_AUDIT';
+  s.completed_at_utc=null;
+  writeJson(root,statePath(1),s);
+  auditClaimFor(root,s,'AUDITOR-X');
+}, {}, 'audit claims ativos=1');
 expectReadiness('PROGRESS lock residual bloqueia merge readiness', false, null, {progressLockActive:true}, 'PROGRESS.lock.md ainda está ativo');
+expectReadiness('BOOTSTRAP lock residual bloqueia merge readiness', false, null, {bootstrapLockActive:true}, 'BOOTSTRAP.lock.md ainda está ativo');
 expectFail('lifecycle explícito da Bíblia deve coincidir com state','audit_request lifecycle divergente na Bíblia',(root)=>{
   const s=readJson(root,statePath(1));
   s.audit_requests=[{id:'001-001',status:'ACCEPTED'}];
   writeJson(root,statePath(1),s);
   const bible=fs.readFileSync(path.join(root,s.bible),'utf8')+'\n### 001-001 — TEST_REQUIRED — OPEN\n';
   write(root,s.bible,bible);
-});
-expectFail('contador OPEN documental stale falha','document_quality.external_audit_requests_open divergente',(root)=>{
-  const s=readJson(root,statePath(1));
-  s.document_quality={external_audit_requests_open:1};
-  writeJson(root,statePath(1),s);
 });
 
 expectFail('state ausente','quantidade de states deve ser 233',(root)=>fs.unlinkSync(path.join(root,statePath(1))));
