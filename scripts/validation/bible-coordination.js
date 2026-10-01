@@ -338,6 +338,7 @@ function validateBibleCoordination(root, options = {}) {
   const bibleRoot = path.join(root, 'docs', 'biblia');
   const stateRoot = path.join(bibleRoot, '.state');
   const reserveRoot = path.join(bibleRoot, '.reservas');
+  const auditClaimRoot = path.join(bibleRoot, '.coordination', 'audit-claims');
   const auditPath = path.join(bibleRoot, 'AUDITORIA.md');
 
   const all = walk(bibleRoot).map((file) => slash(path.relative(root, file))).sort();
@@ -442,6 +443,61 @@ function validateBibleCoordination(root, options = {}) {
     if (state.status === 'COMPLETED' && lock) problems.push('COMPLETED com lock proibido: ' + state.file);
   }
 
+  // Claims de auditoria são mutexes independentes dos locks de edição.
+  // Eles evitam trabalho duplicado sem conceder ownership de escrita da Bíblia.
+  const auditClaims = walk(auditClaimRoot)
+    .map((file) => slash(path.relative(root, file)))
+    .filter((file) => file.endsWith('.lock.md'))
+    .sort();
+  const auditClaimsByIndex = new Map();
+  const auditClaimsByAuditor = new Map();
+  for (const claimFile of auditClaims) {
+    const basename = path.basename(claimFile);
+    const canonicalName = /^(\d{3})\.lock\.md$/.exec(basename);
+    const source = fs.readFileSync(path.join(root, claimFile), 'utf8');
+    const auditor = coordinationField(source, 'AUDITOR');
+    const indexRaw = coordinationField(source, 'INDEX');
+    const sourcePath = coordinationField(source, 'ARQUIVO');
+    const biblePath = coordinationField(source, 'BIBLIA');
+    const sourceSha = coordinationField(source, 'SOURCE_SHA');
+    const claimState = coordinationField(source, 'ESTADO');
+
+    if (!canonicalName) problems.push('audit claim com nome inválido: ' + claimFile);
+    if (!auditor || !indexRaw || !sourcePath || !biblePath || !sourceSha || !claimState) {
+      problems.push('audit claim incompleto: ' + claimFile);
+      continue;
+    }
+
+    const index = Number(indexRaw);
+    if (!Number.isInteger(index) || index < 1 || index > 233) {
+      problems.push('audit claim com INDEX inválido: ' + claimFile + '/' + indexRaw);
+      continue;
+    }
+    if (canonicalName && Number(canonicalName[1]) !== index) {
+      problems.push('audit claim filename/index divergente: ' + claimFile + '/INDEX=' + index);
+    }
+    if (claimState !== 'ACTIVE') problems.push('audit claim deve estar ACTIVE: ' + claimFile);
+
+    if (auditClaimsByIndex.has(index)) problems.push('mais de um audit claim para índice: ' + index);
+    auditClaimsByIndex.set(index, { auditor, claimFile });
+
+    auditClaimsByAuditor.set(auditor, (auditClaimsByAuditor.get(auditor) || 0) + 1);
+    if (auditClaimsByAuditor.get(auditor) > 1) problems.push('auditor possui >1 audit claim ativo: ' + auditor);
+
+    const state = states.find((item) => item.index === index);
+    if (!state) {
+      problems.push('audit claim fora do corpus: ' + claimFile);
+      continue;
+    }
+    if (state.status !== 'READY_FOR_AUDIT') {
+      problems.push('audit claim exige READY_FOR_AUDIT: #' + index + '/' + state.status);
+    }
+    if (state.file !== sourcePath) problems.push('audit claim ARQUIVO diverge do state: #' + index);
+    if (state.bible !== biblePath) problems.push('audit claim BIBLIA diverge do state: #' + index);
+    if (state.source_sha !== sourceSha) problems.push('audit claim SOURCE_SHA diverge do state: #' + index);
+    if (locksByFile.has(state.file)) problems.push('audit claim conflita com reserva de edição: #' + index);
+  }
+
   const audits = fs.existsSync(auditPath) ? parseAuditRegistry(fs.readFileSync(auditPath, 'utf8')) : new Map();
   for (const state of states) {
     if (state.status === 'COMPLETED' && !approvalMatches(audits.get(state.index), state.source_sha || '')) {
@@ -457,7 +513,7 @@ function validateBibleCoordination(root, options = {}) {
     if (normalizeText(currentChecklist).trimEnd() !== normalizeText(generated.checklist).trimEnd()) problems.push('CHECKLIST.md derivado divergente/stale');
   }
 
-  return { problems, states, audits, reservations };
+  return { problems, states, audits, reservations, auditClaims };
 }
 
 module.exports = {
