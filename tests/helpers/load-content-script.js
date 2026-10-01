@@ -218,7 +218,7 @@ async function loadContentScript({
         sendMessage(action, extra = {}) {
             return new Promise((resolve, reject) => {
                 const listeners = global.chrome.runtime._messageListeners ?? [];
-                const payload = { action, ...extra };
+                const payload = { ...extra, action };
                 let settled = false;
                 let fallbackTimer = null;
 
