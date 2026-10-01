@@ -88,7 +88,7 @@
 - [x] 084 — `scripts/validation/verify-coverage-selftest.js` — COMPLETED
 - [x] 085 — `scripts/validation/verify-coverage.js` — COMPLETED
 - [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
-- [ ] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — READY_FOR_AUDIT
+- [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED
 - [ ] 088 — `scripts/validation/verify-publish-contract.js` — READY_FOR_AUDIT
 - [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
 - [ ] 090 — `scripts/validation/verify-test-policy-selftest.js` — READY_FOR_AUDIT

@@ -1031,3 +1031,16 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #086 / SHA `ea1149ced74425ad27ede90ec409c2548cb5b65d`**.
 
+### `verify-jest-worker-warning-selftest.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #087 — `scripts/validation/verify-jest-worker-warning-selftest.js`.
+- **SHA auditado:** `4c8ce078abcf58f66ded7918650b2f54d9fa40cf`.
+- **Integridade:** **10 linhas textuais + newline final = 11/11 posições**; state, fonte atual e SHA declarado na Bíblia coincidem. A seção de fonte integral é **byte a byte idêntica** ao arquivo real.
+- **Implementação real:** o self-test importa `FORCED_WORKER_EXIT` e `hasForcedWorkerExit` diretamente de `scripts/ci/jest-worker-warning.js`, sem mock ou cópia local.
+- **Prova comportamental:** exige `true` quando a string contém a assinatura compartilhada e `false` para PASS saudável e FAIL funcional comum.
+- **Wiring reconfirmado:** `package.json#validate`, workflow CI, `verify-ci-contract.js` e `REG-WORKER-WARNING-GATE` mantêm este self-test no fluxo oficial; o runner Jest também continua chamando `hasForcedWorkerExit(jestStderr)`.
+- **Request 087-001:** permanece **ACCEPTED** — o caso positivo monta o input com a própria constante `FORCED_WORKER_EXIT`; isso prova consistência interna, mas não aderência independente ao literal real emitido pela versão Jest suportada.
+- **Conclusão:** a Bíblia classifica corretamente o que é prova direta, gate estático, execução indireta e lacuna; nenhuma evidência externa foi fabricada.
+
+**Veredito documental independente:** ✅ **APROVADO — #087 / SHA `4c8ce078abcf58f66ded7918650b2f54d9fa40cf`**.
+
