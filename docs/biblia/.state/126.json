@@ -2,10 +2,10 @@
   "index": 126,
   "file": "tests/smoke/smoke-04-storage-manager.js",
   "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "0ba92d74356cb092a7706dca7d280168cd5c512e",
-  "started_at_utc": "2026-09-30T06:29:00Z",
+  "started_at_utc": "2026-10-01T22:36:20Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -87,7 +87,18 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T22:36:20Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T22:36:20Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "0ba92d74356cb092a7706dca7d280168cd5c512e",
+      "bible_sha": "03d33f33a127aa289c317315f21894956d75a1f1",
+      "agent": "AGENTE 30",
+      "reason": "Decisão distribuída final CHANGES_REQUIRED; sincronizar lifecycle das audit_requests e adicionar regressões focais para cleanup/migração/storage-manager."
+    }
+  ],
   "evidence": []
 }
