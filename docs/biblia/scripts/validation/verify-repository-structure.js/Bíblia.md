@@ -3,24 +3,26 @@
 > **Schema da Bíblia:** 2
 > **Índice:** 89
 > **Fonte:** `scripts/validation/verify-repository-structure.js`
-> **SHA auditado:** `04d0337a168e14994bd855a455f11dd61fcabcb6`
-> **Posições da fonte:** 380
+> **SHA auditado:** `b085fac82c83c4091df407d6e2c869ce7c37a48f`
+> **Posições da fonte:** 416
 > **Autoauditoria:** READY_FOR_AUDIT
 
 ## 1. Papel arquitetural
 
-Este script é o gate estrutural geral do repositório. Ele valida layout canônico, ausência de caminhos legados, wiring Manifest/HTML/JS, centralização npm/Jest/Playwright, portabilidade dos testes e delega a arquitetura documental das 233 Bíblias ao módulo `scripts/validation/bible-coordination.js`.
+Este script é o gate estrutural geral do repositório. Ele valida layout canônico, ausência de caminhos legados, wiring Manifest/HTML/JS, centralização npm/Jest/Playwright e portabilidade dos testes. Para o corpus das 233 Bíblias, ele delega **o contrato estrutural/documental que pertence ao structure gate** a `scripts/validation/bible-coordination.js`; o protocolo distribuído de auditoria e seus leases v2 são um gate complementar separado.
 
 A mudança principal deste recovery é deliberada: o script deixou de inferir lifecycle documental a partir de `STATUS.md`/`CHECKLIST.md`. Esses arquivos são projeções derivadas. A validação canônica agora entra pela chamada `validateBibleCoordination(...)`.
 
 ## 2. Dependências, consumidores e wiring
 
 - `fs` e `path` fazem leitura e traversal do working tree.
-- `bible-coordination.js` é o único validador canônico de state/lock/Bíblia/auditoria.
+- `bible-coordination.js` valida, no escopo deste structure gate, states/lifecycle, reservas editoriais, claims legados em `.coordination/audit-claims`, vínculo source/Bíblia/cobertura e as projeções/resultados que carrega.
+- `docs/biblia/.coordination/audit-protocol.js` é o validador complementar do protocolo distribuído atual: percorre `.coordination/audit-leases`, valida fase/expiração/`SOURCE_SHA`/`BIBLE_SHA`, independência entre auditores e a decisão PRIMARY → ADVERSARIAL → REAUDIT. `verify-repository-structure.js` **não** o invoca.
 - `package.json → validate:structure` executa este arquivo.
 - `.github/workflows/ci.yml` executa a cadeia de validação no Linux e em Windows Portability.
 - `scripts/validation/verify-ci-contract.js` é consumer direto deste source: lê `verify-repository-structure.js` e exige os marcadores `legacyReferenceMarkers` e `referência operacional legada` como parte do contrato estático da CI.
 - Manifest, páginas internas, `background.js`, configs Jest/Playwright, package/lock e testes são lidos como contratos estáticos.
+- `docs/biblia/.coordination/verify-repository-structure-selftest.js` executa este verifier real contra uma árvore temporária e injeta regressões negativas; `.github/workflows/repository-structure-selftest.yml` executa esse self-test em CI quando o gate ou o próprio teste mudam.
 
 ## 3. Fluxos e contratos relevantes
 
@@ -39,7 +41,7 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 ## 4. Invariantes
 
 - `STATUS.md` e `CHECKLIST.md` nunca determinam ownership/lifecycle neste script.
-- Inconsistências do **subsistema canônico das 233 Bíblias** (state/lifecycle/locks/claims/SHA/fonte/cobertura e projeções derivadas) são delegadas a `bible-coordination.js`/checker de projeções. Este verifier ainda valida diretamente contratos documentais de nível de repositório, como presença de `docs/Documentação.md`, `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, forma da raiz `docs/` e ausência de paths documentais legados.
+- Dentro deste structure gate, inconsistências de **state/lifecycle, reservas editoriais, claims legados, SHA/fonte/cobertura e projeções derivadas** das 233 Bíblias são delegadas a `bible-coordination.js`/checker de projeções. Os **leases distribuídos v2** em `.coordination/audit-leases/` e seus bindings de fase/expiração/`BIBLE_SHA` são validados por `audit-protocol.js` no gate distribuído separado. Este verifier ainda valida diretamente contratos documentais de nível de repositório, como presença de `docs/Documentação.md`, `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, forma da raiz `docs/` e ausência de paths documentais legados.
 - Os **arquivos diretamente na raiz** de `extension/` permanecem somente `background.js` e `manifest.json`; diretórios canônicos como `background/`, `content/`, `options/`, `popup/`, `reader/` e `shared/` são permitidos e exigidos por outros contratos.
 - `package.json` e `package-lock.json` são únicos e canônicos na raiz.
 - Config Jest canônica: somente `jest.config.js`.
@@ -53,7 +55,8 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 |---|---|---|---|
 | caminhos obrigatórios/legados | verificações `exists`, `requirePresent`, `requireAbsent` | 🟦 GATE ESTÁTICO — prova existência/ausência textual do path | `requirePresent` usa `fs.existsSync` e **não prova se o path é arquivo ou diretório** |
 | wiring Manifest/background/páginas | comparação literal/estrutural neste script | GATE_ESTATICO | strings corretas não provam fluxo completo em browser |
-| coordenação das Bíblias | `validateBibleCoordination` + self-test dedicado | PROVA_DIRETA do validador documental | qualidade semântica de cada Bíblia ainda exige auditoria independente |
+| coordenação estrutural das Bíblias | `validateBibleCoordination` + self-tests de coordenação | PROVA_DIRETA do contrato coberto pelo structure gate | não cobre `audit-leases/` v2; esse contrato pertence a `audit-protocol.js`/final readiness |
+| detectores negativos do structure gate | `verify-repository-structure-selftest.js` executando o verifier real em sandbox + workflow dedicado | PROVA_DIRETA de regressão para presença/tipo/docs/legados/Manifest/layout/configs/CI/npm/paths/lifecycle | não substitui auditoria semântica de requisitos novos que ainda não tenham detector |
 | portabilidade de paths dos testes | scan `process.cwd()`/finder duplicado + job Windows | GATE_ESTATICO + EXECUCAO_INDIRETA | Windows job prova o conjunto executado, não todo comportamento do SO |
 | centralização package/Jest/Playwright | inventário do tree | PROVA_DIRETA estrutural | não substitui execução das ferramentas |
 
@@ -61,18 +64,20 @@ A mudança principal deste recovery é deliberada: o script deixou de inferir li
 
 Esta Bíblia documenta o gate estrutural; ela não promove a presença de um marker a prova funcional do software.
 
-### Limites explicitamente triados
+### Pendências históricas fechadas nesta revisão
 
-- **089-005 — ACCEPTED:** `exists()`/`requirePresent()` usam apenas `fs.existsSync`. Portanto o detector prova que o path existe, mas não distingue arquivo de diretório; listas que misturam ambos não recebem prova de tipo.
-- **089-003 — ACCEPTED:** não existe self-test focal que execute `verify-repository-structure.js` contra uma árvore temporária deliberadamente mutada para exercer cada detector negativo. O checkout/CI verde prova o snapshot corrente, não cada branch negativo isoladamente.
-- `verify-ci-contract-selftest.js` exercita o CI contract; copiar/citar este verifier ali não equivale a executar um self-test focal de `verify-repository-structure.js`.
+- **089-005 — RESOLVED:** `requirePresent()` agora valida tanto existência quanto tipo esperado (`arquivo`/`diretório`) para todos os paths obrigatórios. O self-test substitui `docs/biblia/STATUS.md` por diretório e `tests/setup` por arquivo e exige falha específica.
+- **089-003 — RESOLVED:** existe self-test focal persistente em `docs/biblia/.coordination/verify-repository-structure-selftest.js`. Ele executa o verifier real contra uma árvore temporária e injeta regressões em presença, tipo, raiz de docs, paths legados, Manifest, background, páginas, raiz da extensão, scan de markers, wrappers, configs Jest/Playwright, merge config, workflow, Playwright raiz, scripts npm, portabilidade de testes, `.gitignore` e lifecycle das Bíblias.
+- O override `MANGA_TRANSLATOR_REPO_ROOT` existe exclusivamente para tornar o gate testável contra sandbox; sem a variável, o root continua sendo derivado de `__dirname`.
 
-Essas lacunas são de força de evidência/teste e não autorizam classificar a mera existência como prova de tipo ou a CI verde como prova exaustiva de todos os detectores. O auditor deve conferir especialmente:
+Após esses reparos, não permanece lacuna conhecida da unidade #089 que possa ser corrigida localmente sem depender das auditorias distribuídas independentes exigidas pelo protocolo.
+
+O auditor independente deve continuar tentando refutar especialmente:
 
 - falsos positivos de regex/scan em caminhos legados;
 - se a lista de arquivos proibidos continua alinhada à arquitetura real;
 - se novos arquivos de infraestrutura documental necessários ao PR permanecem fora do corpus congelado sem quebrar a correspondência 233 states ↔ 233 Bíblias;
-- se `bible-coordination.js` e seus self-tests cobrem as invariantes documentais prometidas.
+- a fronteira entre `bible-coordination.js` (contrato estrutural/documental deste gate) e `audit-protocol.js` (leases e decisão distribuída v2).
 
 ## 7. Fonte integral exata
 
@@ -82,7 +87,9 @@ Essas lacunas são de força de evidência/teste e não autorizam classificar a 
 const fs = require('fs');
 const path = require('path');
 
-const root = path.resolve(__dirname, '../..');
+const root = process.env.MANGA_TRANSLATOR_REPO_ROOT
+  ? path.resolve(process.env.MANGA_TRANSLATOR_REPO_ROOT)
+  : path.resolve(__dirname, '../..');
 const problems = [];
 
 function exists(rel) {
@@ -103,13 +110,47 @@ function rel(file) {
   return path.relative(root, file).replace(/\\/g, '/');
 }
 
-function requirePresent(relPath) {
-  if (!exists(relPath)) problems.push('arquivo/diretório obrigatório ausente: ' + relPath);
+function requirePresent(relPath, expectedType) {
+  const full = path.join(root, relPath);
+  if (!fs.existsSync(full)) {
+    problems.push('arquivo/diretório obrigatório ausente: ' + relPath);
+    return;
+  }
+
+  if (!expectedType) return;
+  let stat;
+  try {
+    stat = fs.statSync(full);
+  } catch (error) {
+    problems.push('não foi possível inspecionar tipo de ' + relPath + ': ' + error.message);
+    return;
+  }
+
+  const validType = expectedType === 'directory' ? stat.isDirectory() : stat.isFile();
+  if (!validType) {
+    problems.push(
+      'tipo inválido para ' + relPath + ': esperado '
+      + (expectedType === 'directory' ? 'diretório' : 'arquivo')
+    );
+  }
 }
 
 function requireAbsent(relPath) {
   if (exists(relPath)) problems.push('legado proibido ainda existe: ' + relPath);
 }
+
+const requiredDirectories = new Set([
+  'extension/background',
+  'tests/unit',
+  'tests/integration',
+  'tests/smoke',
+  'tests/visual',
+  'tests/e2e',
+  'tests/fixtures',
+  'tests/helpers',
+  'tests/mocks',
+  'tests/setup',
+]);
 
 for (const required of [
   'package.json',
@@ -151,7 +192,7 @@ for (const required of [
   'docs/biblia/STATUS.md',
   'docs/biblia/CHECKLIST.md',
   'docs/biblia/AUDITORIA.md',
-]) requirePresent(required);
+]) requirePresent(required, requiredDirectories.has(required) ? 'directory' : 'file');
 
 const docsRootEntries = fs.readdirSync(path.join(root, 'docs'), { withFileTypes: true })
   .map(entry => entry.name)
@@ -460,59 +501,63 @@ console.log(
 
 ## 8. Cobertura documental por posições/faixas
 
-### Posições 1–8 — bootstrap, imports e accumulator
+### Posições 1–10 — bootstrap, imports, root testável e accumulator
 
-`'use strict'`, imports, root e array `problems` estabelecem o ambiente do gate.
+Inicializa strict mode/imports, escolhe o root normal por `__dirname` ou o override explícito de sandbox e cria o vetor `problems`.
 
-### Posições 9–34 — helpers de filesystem e paths
+### Posições 11–28 — helpers de filesystem e paths
 
-`exists`, `walk`, `rel`, `requirePresent` e `requireAbsent` fornecem traversal portável e coleta de violações.
+`exists`, `walk` e `rel` fornecem traversal portável e normalização de paths.
 
-### Posições 35–90 — inventário obrigatório e contrato de `docs/`
+### Posições 29–57 — presença tipada e ausência
 
-Confere package/configs/runtime/testes/scripts/documentação, limita a raiz de `docs/` e proíbe `docs/Bíblia.md` legado.
+`requirePresent` falha para path ausente e também para tipo incorreto usando `fs.statSync`; `requireAbsent` rejeita legado ainda existente.
 
-### Posições 91–97 — delegação canônica da arquitetura das Bíblias
+### Posições 58–112 — inventário obrigatório com contrato arquivo/diretório
 
-Importa `validateBibleCoordination`, executa com `checkDerived: false` e adiciona seus problemas ao gate geral. Projeções são verificadas separadamente.
+`requiredDirectories` separa os diretórios obrigatórios; todos os demais entries são tratados como arquivos obrigatórios.
 
-### Posições 98–142 — caminhos legados proibidos
+### Posições 113–126 — contrato da raiz `docs/`
+
+Exige exatamente `Documentação.md` e `biblia/` na raiz de docs e rejeita `docs/Bíblia.md` legado.
+
+### Posições 127–133 — delegação do contrato estrutural das Bíblias
+
+Importa `validateBibleCoordination`, executa com `checkDerived: false` e agrega seus problemas. Este bloco não lê `audit-leases/`; o protocolo distribuído v2 é validado por `audit-protocol.js` fora deste verifier.
+
+### Posições 134–178 — caminhos legados proibidos
 
 Lista e rejeita layouts antigos de extension/tests/scripts/docs removidos na reestruturação.
 
-### Posição 143 — transição para contratos de runtime
+### Posições 179–269 — contratos de runtime/layout da extensão
 
-Comentário estrutural que introduz o contrato interno do bloco 0-G; a lógica de Manifest/runtime começa na posição 144.
+Valida Manifest, content scripts, imports/requires do background, carregamento shared/own scripts de popup/options/reader e forma dos arquivos diretamente na raiz `extension/`.
 
-### Posições 144–233 — contratos de runtime/layout da extensão
-
-Valida Manifest, content scripts, imports/requires do background, carregamento shared/own scripts de popup/options/reader e forma da raiz `extension/`.
-
-### Posições 234–287 — scan de referências operacionais legadas
+### Posições 270–323 — scan de referências operacionais legadas
 
 Percorre arquivos textuais operacionais, exclui explicitamente os próprios validadores que precisam citar markers antigos e reporta referências proibidas.
 
-### Posições 288–322 — centralização de package/lock/configs e merge Playwright
+### Posições 324–358 — centralização de package/lock/configs e merge Playwright
 
-Exige package/lock únicos, proíbe BAT/PS1, limita configs Jest/Playwright e impede configuração de execução dentro do arquivo usado só para merge/report.
+Exige package/lock únicos, proíbe BAT/PS1, limita configs Jest/Playwright e impede chaves de execução dentro do arquivo usado só para merge/report.
 
-### Posições 323–350 — workflow, Playwright e scripts npm
+### Posições 359–387 — workflow, Playwright raiz e scripts npm
 
-Rejeita working-directory/prefixos/caminhos antigos em CI (323–336), caminhos antigos no Playwright raiz (338–341) e scripts npm que recriem o layout legado (343–350). As posições 346–350 ainda pertencem ao loop de scripts npm.
+Rejeita working-directory/prefixos/caminhos antigos em CI, paths antigos no Playwright raiz e scripts npm que recriem o layout legado.
 
-### Posições 351–363 — portabilidade dos testes
+### Posições 388–399 — portabilidade dos testes
 
-A posição 351 é separadora; 352–362 enumeram JavaScript sob `tests/` e reprovam finder de raiz duplicado ou dependência de `process.cwd()`; 363 é a separação antes do bloco de `.gitignore`.
+Enumera JavaScript sob `tests/` e reprova finder de raiz duplicado ou dependência de `process.cwd()`.
 
-### Posições 364–370 — `.gitignore` obrigatório
+### Posições 400–406 — `.gitignore` obrigatório
 
 Confirma as quatro entradas de caches/resultados/build esperadas.
 
-### Posições 371–379 — resultado do gate
+### Posições 407–415 — resultado do gate
 
-Se a execução chegar a este bloco com `problems` preenchido, imprime todos os problemas acumulados e termina com código 1; sem problemas, imprime a mensagem de estrutura validada. Exceções anteriores de I/O ou parsing podem encerrar o processo antes deste epílogo.
+Se `problems` estiver preenchido, imprime todos os itens acumulados e termina com código 1; sem problemas, imprime sucesso. Exceções anteriores de I/O/parsing ainda podem encerrar o processo antes deste epílogo.
 
-### Posição 380 — newline final
+### Posição 416 — newline final
 
 Posição vazia terminal do LF final.
 
@@ -521,6 +566,7 @@ Posição vazia terminal do LF final.
 - Traversal completo é O(n) no número de arquivos rastreados e adequado ao tamanho atual do repositório.
 - Scans por substring podem gerar falso positivo se um marker legado aparecer em contexto não operacional; a lista de exclusões precisa ser mínima e explícita.
 - O gate usa leitura local somente; não executa conteúdo dos arquivos analisados.
+- `MANGA_TRANSLATOR_REPO_ROOT` altera apenas a raiz inspecionada e existe para sandbox de teste; a CI do produto não define essa variável durante `validate:structure`.
 - O caminho principal contém `readdirSync`, `readFileSync` e `JSON.parse` sem `try/catch`; arquivo ausente coberto por `requirePresent` é agregado, mas I/O/JSON malformado em leituras posteriores pode lançar imediatamente e não produzir a lista completa de `problems`.
 - Alterar esta lista de contratos pode bloquear Windows e CI Contract simultaneamente; `verify-ci-contract.js`, self-tests e CI devem acompanhar toda mudança.
 
@@ -528,12 +574,14 @@ Posição vazia terminal do LF final.
 
 - [x] source SHA atualizado após remover o validador inline morto.
 - [x] fonte integral copiada do blob atual.
-- [x] 380/380 posições cobertas por faixas contíguas.
-- [x] responsabilidades do validador antigo e do novo módulo não foram confundidas.
+- [x] 416/416 posições cobertas por faixas contíguas.
+- [x] fronteira atual entre `bible-coordination.js` e `audit-protocol.js` explicitada sem atribuir exclusividade ao primeiro.
 - [x] STATUS/CHECKLIST descritos como projeções, não fontes primárias.
 - [x] consumer direto `verify-ci-contract.js` registrado no wiring.
 - [x] semântica de agregação limitada às regras que chegam ao vetor `problems`; exceções síncronas não tratadas documentadas como fail-fast.
 - [x] faixa 323–363 reconciliada com as posições reais do loop npm e do scan de testes.
+- [x] `requirePresent()` agora distingue arquivo/diretório e possui regressões negativas focais.
+- [x] self-test adversarial persistente executa o verifier real em sandbox e está ligado a workflow dedicado.
 - [x] nenhum código funcional da extensão foi alterado para satisfazer esta Bíblia.
 
 **Autoauditoria:** READY_FOR_AUDIT.
