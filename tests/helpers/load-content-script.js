@@ -145,15 +145,6 @@ function startGlobalEventListenerCapture() {
     };
 }
 
-function cleanupPreviousListeners() {
-    removeStorageListeners(getTrackedStorageListeners());
-    setTrackedStorageListeners([]);
-    removeRuntimeListeners(getTrackedRuntimeListeners());
-    setTrackedRuntimeListeners([]);
-    removeGlobalEventListeners(getTrackedGlobalEventListeners());
-    setTrackedGlobalEventListeners([]);
-}
-
 function disposePreviousContentInstance(listeners = getTrackedGlobalEventListeners()) {
     if (
         typeof window === 'undefined'
@@ -170,6 +161,42 @@ function disposePreviousContentInstance(listeners = getTrackedGlobalEventListene
             if (typeof listener === 'function') listener.call(window, event);
             else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(event);
         });
+}
+
+function cleanupContentInstanceListeners({
+    storageListeners = getTrackedStorageListeners(),
+    runtimeListeners = getTrackedRuntimeListeners(),
+    globalEventListeners = getTrackedGlobalEventListeners(),
+} = {}) {
+    let disposeError = null;
+    try {
+        disposePreviousContentInstance(globalEventListeners);
+    } catch (error) {
+        disposeError = error;
+    } finally {
+        removeStorageListeners(storageListeners);
+        removeRuntimeListeners(runtimeListeners);
+        removeGlobalEventListeners(globalEventListeners);
+        setTrackedStorageListeners([]);
+        setTrackedRuntimeListeners([]);
+        setTrackedGlobalEventListeners([]);
+    }
+    return disposeError;
+}
+
+function attachCleanupError(primaryError, cleanupError) {
+    if (
+        cleanupError
+        && primaryError
+        && (typeof primaryError === 'object' || typeof primaryError === 'function')
+    ) {
+        try {
+            primaryError.cleanupError = cleanupError;
+        } catch (_error) {
+            // O erro primário continua sendo a evidência causal do caminho original.
+        }
+    }
+    return primaryError;
 }
 
 /**
@@ -204,9 +231,10 @@ async function loadContentScript({
     globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = true;
 
     try {
-    disposePreviousContentInstance();
-    cleanupPreviousListeners();
-    const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
+        const previousCleanupError = cleanupContentInstanceListeners();
+        if (previousCleanupError) throw previousCleanupError;
+
+        const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
     const runtimeListenersBeforeLoad = new Set(runtimeListenersSnapshot());
     // Invalida explicitamente qualquer instância anterior ANTES de tocar no
     // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
@@ -302,14 +330,12 @@ async function loadContentScript({
         const addedRuntimeListeners = runtimeListenersSnapshot()
             .filter(listener => !runtimeListenersBeforeLoad.has(listener));
 
-        disposePreviousContentInstance(addedGlobalEventListeners);
-        removeStorageListeners(addedStorageListeners);
-        removeRuntimeListeners(addedRuntimeListeners);
-        removeGlobalEventListeners(addedGlobalEventListeners);
-        setTrackedStorageListeners([]);
-        setTrackedRuntimeListeners([]);
-        setTrackedGlobalEventListeners([]);
-        throw bundleLoadError;
+        const cleanupError = cleanupContentInstanceListeners({
+            storageListeners: addedStorageListeners,
+            runtimeListeners: addedRuntimeListeners,
+            globalEventListeners: addedGlobalEventListeners,
+        });
+        throw attachCleanupError(bundleLoadError, cleanupError);
     }
 
     // 9. Aguarda a inicialização assíncrona do content script de forma determinística.
@@ -346,32 +372,29 @@ async function loadContentScript({
     }
 
     if (bootstrapError) {
-        disposePreviousContentInstance(addedGlobalEventListeners);
-        removeStorageListeners(addedStorageListeners);
-        removeRuntimeListeners(addedRuntimeListeners);
-        removeGlobalEventListeners(addedGlobalEventListeners);
-        setTrackedStorageListeners([]);
-        setTrackedRuntimeListeners([]);
-        setTrackedGlobalEventListeners([]);
-        throw bootstrapError;
+        const cleanupError = cleanupContentInstanceListeners({
+            storageListeners: addedStorageListeners,
+            runtimeListeners: addedRuntimeListeners,
+            globalEventListeners: addedGlobalEventListeners,
+        });
+        throw attachCleanupError(bootstrapError, cleanupError);
     }
 
     if (shouldCreateButton) {
         const button = document.getElementById('manga-translator-trigger');
         if (!button || button.dataset.positionReady !== 'true') {
-            disposePreviousContentInstance(addedGlobalEventListeners);
-            removeStorageListeners(addedStorageListeners);
-            removeRuntimeListeners(addedRuntimeListeners);
-            removeGlobalEventListeners(addedGlobalEventListeners);
-            setTrackedStorageListeners([]);
-            setTrackedRuntimeListeners([]);
-            setTrackedGlobalEventListeners([]);
+            const timeoutError = new Error(
+                `Timeout aguardando botão do content_manga ficar pronto após ${normalizedReadyTimeoutMs} ms`
+            );
+            const cleanupError = cleanupContentInstanceListeners({
+                storageListeners: addedStorageListeners,
+                runtimeListeners: addedRuntimeListeners,
+                globalEventListeners: addedGlobalEventListeners,
+            });
             window.__manga_translator_active_instance =
                 `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
             if (button) button.remove();
-            throw new Error(
-                `Timeout aguardando botão do content_manga ficar pronto após ${normalizedReadyTimeoutMs} ms`
-            );
+            throw attachCleanupError(timeoutError, cleanupError);
         }
     }
 
