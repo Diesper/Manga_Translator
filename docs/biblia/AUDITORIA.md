@@ -1071,3 +1071,17 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #090 / SHA `ac0318e4d90c5014180eb3d3a6ac4784cc70a24a`**.
 
+### `verify-test-policy.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #091 — `scripts/validation/verify-test-policy.js`.
+- **SHA auditado:** `4a821403353445023452a0b5055e3a0893beaad2`.
+- **Integridade:** **85 linhas textuais + newline final = 86/86 posições**; state, source e SHA da Bíblia coincidem. A fonte integral é **byte a byte idêntica** ao arquivo atual, e o mapa por faixas cobre todas as posições 1–86 sem lacunas.
+- **Papel confirmado:** o gate varre testes, scripts npm, workflows e JS operacional para bloquear formas textuais conhecidas de skip/focus/todo e escape hatches como `--forceExit`, `--passWithNoTests` e masking por `|| true`.
+- **Prova direta correlata:** `verify-test-policy-selftest.js` executa esta implementação real em sandbox e cobre baseline, `test.skip`, `--forceExit` em script npm e `npm run test:* || true` em workflow.
+- **Request 091-001:** permanece **SUPERSEDED por 090-001**, que centraliza a expansão da matriz negativa do self-test.
+- **Request 091-002 (HIGH):** permanece **ACCEPTED** — aliases/chains semanticamente equivalentes como `xit`, `xdescribe`, `fit`, `fdescribe` e `test.concurrent.skip/only` não são cobertos pelos regexes atuais.
+- **Request 091-003:** permanece **ACCEPTED** — masking em workflow só é detectado para `npm run test:<...> || true`; formas diretas como `npm test || true` ou `npx jest || true` ficam fora da regra.
+- **Conclusão:** a Bíblia é fiel ao alcance textual real do gate e não apresenta a política como semanticamente completa.
+
+**Veredito documental independente:** ✅ **APROVADO — #091 / SHA `4a821403353445023452a0b5055e3a0893beaad2`**.
+
