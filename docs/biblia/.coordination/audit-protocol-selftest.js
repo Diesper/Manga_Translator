@@ -1,6 +1,8 @@
 'use strict';
 
-const { resolvePipeline } = require('./audit-protocol');
+const fs = require('fs');
+const path = require('path');
+const { resolvePipeline, strictOwnershipProblems } = require('./audit-protocol');
 
 function state() {
   return {
@@ -81,6 +83,35 @@ assert(
   'PRIMARY e ADVERSARIAL exigem auditores independentes',
   pipeline.problems.some((problem) => problem.includes('auditores diferentes')),
   JSON.stringify(pipeline)
+);
+
+const ownership = strictOwnershipProblems(new Map([
+  ['AGENTE 8', [
+    'docs/biblia/.coordination/audit-claims/101.lock.md',
+    'docs/biblia/.coordination/audit-leases/adversarial/081.lock.md',
+  ]],
+]), ['docs/biblia/.coordination/audit-leases/primary/099.lock.md']);
+assert(
+  'gate final rejeita auditor com claim legado + lease novo simultâneos',
+  ownership.some((problem) => problem.includes('>1 claim/lease ativo')),
+  JSON.stringify(ownership)
+);
+assert(
+  'gate final rejeita lease expirado residual',
+  ownership.some((problem) => problem.includes('lease expirado residual')),
+  JSON.stringify(ownership)
+);
+
+const protocolSource = fs.readFileSync(path.join(__dirname, 'audit-protocol.js'), 'utf8');
+assert(
+  'protocolo normal não depende de PROGRESS.lock.md',
+  !protocolSource.includes('PROGRESS.lock.md'),
+  'audit-protocol.js não pode adquirir/exigir o mutex global legado'
+);
+assert(
+  'leases conflitam explicitamente com reserva editorial',
+  protocolSource.includes('claim/lease conflita com reserva de edição'),
+  'validação deve preservar exclusão edição↔auditoria'
 );
 
 process.stdout.write('Distributed audit protocol self-test: SUCCESS\n');
