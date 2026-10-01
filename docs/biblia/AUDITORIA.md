@@ -1418,3 +1418,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+
+### Auditoria independente — #108 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #108 — `tests/integration/gtc-end-to-end.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `9042b3b5370afdbce3baf31b01ce3fa9c49b34dc`.
+- **Integridade criptográfica:** source real, `.state/108.json`, audit claim e SHA declarado na Bíblia coincidem no mesmo blob; o SHA também foi reconfirmado pela árvore Git.
+- **Fonte integral/cobertura:** 254 linhas textuais + newline final = **255/255 posições**. A fonte integral embutida é byte a byte idêntica ao source atual; a tabela cobre posições 1–255 exatamente uma vez, sem gaps, duplicatas ou posições fora do arquivo.
+- **Wiring/execução:** `jest.config.js` inclui `tests/integration/**/*.test.js`; `package.json` expõe `test:integration`/`test:ci`; o mesmo blob foi executado no run 36577447500 e apareceu como PASS em Node 20, Node 22, coverage e Windows. Isso prova execução das assertions existentes, não amplia o escopo delas para a implementação de produção.
+- **Arquitetura/evidência:** a Bíblia acerta ao distinguir os helpers locais/ChromeStorageMock da implementação real e ao registrar que GTC primário atual usa `GTC_QUERY_MANY`/IndexedDB com `storage.local gtc_<hash>` como fallback legado. As requests 108-001, 108-002 e 108-003 permanecem materialmente válidas e **ACCEPTED**.
+- **Falha documental bloqueante 1 — contagem interna contraditória:** a seção 1 afirma que o arquivo define **três** implementações espelho, mas enumera quatro (`getCleanUrl`, `simulateUpdateImage`, `simulateAutoRestore`, `simulateGTCLookup`), e o source define exatamente essas quatro funções.
+- **Falha documental bloqueante 2 — força probatória overstated:** a seção “Consistência” afirma que o teste confirma que `_images` preserva “três índices e valores distintos” e trata isso como prova direta de independência por índice. As assertions reais verificam cardinalidade 3 e os valores apenas dos índices 0 e 2; não existe assertion para o valor `data:T1` do índice 1. Uma regressão que preserve a chave 1 com valor incorreto poderia manter essas assertions verdes.
+- **Falha documental bloqueante 3 — lifecycle stale:** a Bíblia rotula 108-001, 108-002 e 108-003 como `OPEN`, enquanto o state canônico atual registra as três como `ACCEPTED`. As lacunas são não bloqueantes como dívida externa quando descritas honestamente, mas o documento não pode duplicar lifecycle mutável incorreto.
+- **Teste adversarial mental:** regressões no runtime real, no roteamento Gemini e no fingerprint cross-site podem passar por esta suíte local e a Bíblia reconhece isso; não são blockers adicionais. Os três findings acima permaneceram após releitura independente, tentativa formal de refutação e terceira confirmação.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; dependências/consumers=CONFIRMADO_3X; testes/execução=CONFIRMADO_3X; semântica=CONTRADITO; assertions/evidence classification=CONTRADITO; audit requests=CONTRADITO quanto ao lifecycle; histórico/state=CONFIRMADO_3X; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
