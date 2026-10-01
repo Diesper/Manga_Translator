@@ -1503,3 +1503,19 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### Auditoria independente — #116 — AGENTE 6 — 2026-10-01
+
+- **Índice:** #116 — `tests/integration/popup.advanced.ui.test.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `dd15edcefd5963fea83a72801b1d3c00b7e37453`.
+- **Integridade:** source, state, claim e SHA declarado na Bíblia coincidem; a seção `Fonte integral auditada` é byte-a-byte idêntica ao source.
+- **Cobertura:** 310 linhas textuais + newline final = 311/311 posições, sem gaps ou duplicidades.
+- **CI:** run `36521561968`, commit `e720890cf34dc9437ee91f3b8172953497d69870`, contém o mesmo blob; o arquivo passa em Node 20.x e Node 22.x com o conjunto Jest integral verde.
+- **Semântica/assertions:** a Bíblia descreve corretamente que `popup.js` real envia `folderPath` em `SHOW_EXISTING_FOLDER` e suporta `minimized_window`; as lacunas 116-001 e 116-002 correspondem ao que as assertions atuais não verificam.
+- **Requests externas:** 116-001 e 116-002 permanecem materialmente válidas como dívida de teste separada e não bloqueiam, por si só, a fidelidade documental.
+- **Falha documental bloqueante — lifecycle stale:** 116-001 e 116-002 permanecem rotuladas `OPEN` na Bíblia, enquanto o state canônico registra ambas como `ACCEPTED`; `document_quality.external_audit_requests_open` também está stale em 2.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; CI=CONFIRMADO_3X; wiring/semântica=CONFIRMADO_3X; assertions=CONFIRMADO_3X; lifecycle de requests=CONTRADITO; veredito final=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=NÃO; Honestidade=NÃO enquanto o lifecycle documental permanecer divergente.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
+
