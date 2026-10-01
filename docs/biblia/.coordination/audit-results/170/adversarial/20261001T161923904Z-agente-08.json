@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "index": 170,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/background/tab-identity.test.js",
+  "bible": "docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md",
+  "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-170-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia declara 170-001/002/003 como OPEN e conclui que há três solicitações OPEN, mas o state canônico registra todas como SUPERSEDED pelas requests 033-002/033-001/033-004.",
+      "evidence": [
+        "Bíblia §11: `170-001 — TEST_REQUIRED — OPEN — HIGH`, `170-002 — TEST_REQUIRED — OPEN — NORMAL`, `170-003 — TEST_REQUIRED — OPEN — NORMAL`.",
+        "Bíblia §14: `as três solicitações OPEN delimitam safeguards excepcionais ainda sem caso focal`.",
+        "`.state/170.json`: 170-001=SUPERSEDED por 033-002; 170-002=SUPERSEDED por 033-001; 170-003=SUPERSEDED por 033-004.",
+        "`.state/033.json`: 033-001, 033-002 e 033-004 existem e estão ACCEPTED."
+      ],
+      "relation_to_primary": "Confirma integralmente 170-PRI-001.",
+      "requested_documentation_fix": "Atualizar o lifecycle das três requests para SUPERSEDED, referenciar as requests canônicas 033 correspondentes e remover a conclusão de que permanecem OPEN."
+    },
+    {
+      "id": "A8-170-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_LINE_MAPPING_ERROR",
+      "summary": "A descrição da linha 137 atribui à chave nova `gemini_job_200` o papel da chave antiga.",
+      "evidence": [
+        "Source/Bíblia linha 137: `expect(data.gemini_job_200).toBeUndefined();`.",
+        "Bíblia linha-a-linha: Função=`Prova remoção da chave antiga.`.",
+        "No cenário TAB-02, 100 é oldTabId e 200 é newTabId/canonical destination; o próprio §3 explica que antes da persistência não deve ser inventado registro de job.",
+        "A assertion anterior, linha 136, é que verifica `gemini_job_100` (a chave antiga) como undefined."
+      ],
+      "adversarial_interpretation": "A linha 137 prova que o replacement pré-persistência não cria um job na chave nova/canônica 200; não prova remoção da chave antiga.",
+      "requested_documentation_fix": "Corrigir a Função da linha 137 para refletir ausência de criação do job no destino/canônico antes da persistência."
+    },
+    {
+      "id": "A8-170-03",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_CLASSIFICATION_OVERREACH",
+      "summary": "A auditoria por posição classifica inclusive linhas vazias e fechamentos meramente sintáticos como `EXECUTADO INDIRETAMENTE`, embora o run verde só prove execução da suíte/blob, não execução de posições não executáveis.",
+      "evidence": [
+        "Seção `Linha 002`: Código=`(linha vazia)`, Função=`Separa blocos lógicos sem efeito em runtime`, Evidência=`EXECUTADO INDIRETAMENTE — participa de cenário verde...`.",
+        "O mesmo padrão é aplicado a várias linhas vazias e fechamentos sintáticos, inclusive linhas 333/334.",
+        "O run 36521561968 foi revalidado: o mesmo blob `1f2dd525...` passou em Node 20/22, 109/109 suítes e 851/851 testes; isso prova execução da suíte, não execução semântica de whitespace.",
+        "O newline final já é corretamente classificado como `GATE ESTÁTICO ESPECÍFICO`, mostrando que a taxonomia estrutural está disponível."
+      ],
+      "requested_documentation_fix": "Reclassificar posições não executáveis como evidência estrutural/fonte integral; reservar EXECUTADO_INDIRETAMENTE para código realmente alcançado por fluxo executado e com escopo claramente limitado."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_10_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T16:19:23.904Z"
+}
