@@ -42,7 +42,10 @@ if (pipelines.problems.length) {
   for (const problem of pipelines.problems) console.error('- ' + problem);
   process.exit(1);
 }
-const generated = buildDerived(states, audits, 'states-v2', pipelines.byIndex);
+// Audit results distributed are validated above, but intentionally do not mutate
+// global projections on every append-only result. STATUS/CHECKLIST are legacy
+// compatibility views reconciled in batches.
+const generated = buildDerived(states, audits, 'states-v2');
 
 const outputs = [
   ['STATUS.md', generated.status],
