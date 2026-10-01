@@ -2,8 +2,8 @@
   "index": 7,
   "file": "extension/background/actions/deliver-result-from-tab.js",
   "bible": "docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "59543c1359669ced02a1d05c251b272abaad6709",
   "started_at_utc": "2026-09-30T13:10:00Z",
   "completed_at_utc": null,
@@ -113,6 +113,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "59543c1359669ced02a1d05c251b272abaad6709",
       "reason": "007-REA-001/002: corrigir alias/wiring e força de evidência staging→finalize."
+    },
+    {
+      "at_utc": "2026-10-01T19:44:55.782Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "59543c1359669ced02a1d05c251b272abaad6709",
+      "bible_sha": "39d4fc3e04954d4ea338fdca969412c2197cfc69",
+      "reason": "007-REA-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
