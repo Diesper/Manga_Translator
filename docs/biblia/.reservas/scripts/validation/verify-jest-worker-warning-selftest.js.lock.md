@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: scripts/validation/verify-jest-worker-warning-selftest.js
-BÍBLIA: docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 4c8ce078abcf58f66ded7918650b2f54d9fa40cf
-CLAIMED_AT_UTC: 2026-10-01T21:45:03.799Z
-UPDATED_AT_UTC: 2026-10-01T21:45:03.799Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
