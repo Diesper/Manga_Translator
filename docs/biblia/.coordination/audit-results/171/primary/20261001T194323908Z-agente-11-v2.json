@@ -1,0 +1,80 @@
+{
+  "schema_version": 2,
+  "index": 171,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/background/tab-replacement-observability.test.js",
+  "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
+  "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
+  "bible_sha": "f14560d284155de01994b00399187dfc6f1efa16",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "171-PRI-R2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A seção `Invariantes provados` amplia a prova de preservação de atributos além do que as assertions realmente verificam.",
+      "evidence": [
+        "Bíblia §1 define corretamente o contrato testado como preservação de atributos relevantes `URL` e `active`.",
+        "Bíblia §5 classifica diretamente apenas URL e `active:false` como preservados pelas assertions.",
+        "Bíblia §6 muda para `o objeto novo preserva propriedades da aba antiga salvo o id` sob o heading `Invariantes provados`, formulação que abrange também `status`, `title` e quaisquer outros campos.",
+        "O source do mock cria a aba com `status` e `title`, mas o teste só usa `toMatchObject({ id, url, active:false })`; nenhuma assertion exige preservação de `status` ou `title`.",
+        "Uma regressão que reconstruísse a nova aba somente com `{id,url,active}` continuaria satisfazendo todas as assertions desta suíte, portanto preservação geral de propriedades não está provada pelo teste."
+      ],
+      "requested_documentation_fix": "Restringir o invariante provado aos campos efetivamente assertados (`id`, URL e `active`) ou classificar a preservação dos demais campos apenas como comportamento observado por inspeção estática da implementação, não como prova direta da suíte."
+    },
+    {
+      "id": "171-PRI-R2-002",
+      "severity": "NORMAL",
+      "type": "STATE_METADATA_STALE",
+      "summary": "O metadado `document_quality.external_audit_requests_open` permanece 3 apesar de não existir nenhuma audit_request com status OPEN.",
+      "evidence": [
+        ".state/171.json registra 171-001=ACCEPTED, 171-002=ACCEPTED e 171-003=SUPERSEDED por 002-005.",
+        "Contagem literal de requests com `status === OPEN` no state atual é 0.",
+        "O mesmo state mantém `document_quality.external_audit_requests_open: 3` após a correção documental que declarou sincronização do lifecycle.",
+        "O reconciliador canônico calcula requests OPEN diretamente de `audit_requests`, portanto este campo não é autoridade de decisão, mas continua sendo metadado documental inconsistente."
+      ],
+      "requested_documentation_fix": "Atualizar o metadado derivado para refletir o lifecycle atual ou remover/renomear o campo se ele pretende representar requests não resolvidas em vez de requests com status OPEN."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONTRADITO",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "37/37",
+    "source_text_lines": 36,
+    "mock_blob": "c1d9a056b7777183bfd3f540c49811335f410425",
+    "jest_config_blob": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
+    "ci_runner_blob": "6d2e36a647aadeadb2b875c1b3f92df24cd2f494",
+    "audit_requests": [
+      "171-001 ACCEPTED and source-confirmed",
+      "171-002 ACCEPTED and source-confirmed",
+      "171-003 SUPERSEDED by 002-005; 002-005 exists and is ACCEPTED"
+    ],
+    "points_passed": [
+      "source SHA/state/Bible identity",
+      "embedded source exact",
+      "37/37 contiguous coverage",
+      "nominal assertions for id/url/active/onReplaced/handler reachability",
+      "runner and CI wiring",
+      "production listener correctly distinguished from mock-only proof",
+      "audit request lifecycle headings"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:43:23.908Z"
+}
