@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: extension/background/actions/get-tab-id.js
-BÍBLIA: docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 2f3b26304ac12a671927b1abefc2a914d7eaa372
-CLAIMED_AT_UTC: 2026-10-01T20:00:42.538Z
-UPDATED_AT_UTC: 2026-10-01T20:00:42.538Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
