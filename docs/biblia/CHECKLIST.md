@@ -234,4 +234,4 @@
 - [ ] 230 — `tests/visual/helpers.js` — READY_FOR_AUDIT
 - [ ] 231 — `tests/visual/integration.visual.js` — READY_FOR_AUDIT
 - [ ] 232 — `tests/visual/run-all.js` — READY_FOR_AUDIT
-- [ ] 233 — `tests/visual/runner.js` — READY_FOR_AUDIT
+- [ ] 233 — `tests/visual/runner.js` — CHANGES_REQUIRED
