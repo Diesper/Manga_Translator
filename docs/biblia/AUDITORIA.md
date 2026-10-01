@@ -1607,3 +1607,21 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito:** 🟣 CHANGES_REQUIRED
 
+### `chrome-api.mock.js` — auditoria independente SHA-bound pelo AGENTE 6 em 2026-10-01
+
+- **Índice:** #119 — `tests/mocks/chrome-api.mock.js`.
+- **Auditor:** AGENTE 6.
+- **SHA auditado:** `c1d9a056b7777183bfd3f540c49811335f410425`.
+- **Integridade:** state, claim, source e Bíblia apontam para o mesmo SHA; a seção `Fonte integral auditada` é byte-a-byte idêntica ao fixture atual.
+- **Cobertura:** 593 linhas textuais + LF final = 594 posições; o mapa documental cobre 594/594.
+- **Lifecycle/reset:** a Bíblia descreve corretamente o singleton por ambiente Jest, o `initChromeMocks()` top-level, o reset leve em `beforeEach` e o teardown de timers/alarms/runtime em `afterEach`.
+- **Fidelidade reduzida:** `tabs.query` filtra apenas `active`; Storage `remove/clear` não emitem `onChanged`; Port tem superfície majoritariamente stub; `onInstalled.addListener` agenda auto-fire; Downloads usa microtasks. Essas diferenças estão explicitadas como limites, não promovidas a equivalência com Chromium.
+- **Evidência focal:** `chrome-runtime-mock-lifecycle.test.js` prova cancelamento de timers e auto-fire; `tab-replacement-observability.test.js` prova migração/replacement. O mesmo blob do mock aparece no run `36577447500`, onde esses testes passaram no job Unit + Integration observado.
+- **Consumers reais:** código de produção usa filtros como `currentWindow` e `windowId`, além da fidelidade modelada por `tabs.query`; isso sustenta 119-003 como lacuna real, não como defeito documental.
+- **Requests:** 119-001, 119-002 e 119-003 estão `ACCEPTED` no state canônico e permanecem dívida externa não bloqueante. Rótulos `OPEN` na Bíblia são snapshot documental conforme o protocolo atual.
+- **Metadata state:** `external_audit_requests_open=3` é derivado stale e será normalizado para 0 na finalização; não é defeito da Bíblia.
+- **Matriz de confiança:** SHA=CONFIRMADO_3X; fonte integral=CONFIRMADO_3X; cobertura=CONFIRMADO_3X; lifecycle=CONFIRMADO_3X; fidelidade/limites=CONFIRMADO_3X; evidência=CONFIRMADO_3X; requests/lifecycle canônico=CONFIRMADO_3X; veredito=CONFIRMADO_3X.
+- **Passagens:** 0–15 executadas. Checks finais: Integridade=SIM; Veracidade=SIM; Honestidade=SIM.
+
+**Veredito:** ✅ APROVADO
+
