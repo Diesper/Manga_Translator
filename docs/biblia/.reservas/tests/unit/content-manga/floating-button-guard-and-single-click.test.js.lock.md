@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/content-manga/floating-button-guard-and-single-click.test.js
+BÍBLIA: docs/biblia/tests/unit/content-manga/floating-button-guard-and-single-click.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 8e8aacd0fc54aa15166cb8e0eaf6d21379a8d088
+CLAIMED_AT_UTC: 2026-10-01T16:28:14.755Z
+UPDATED_AT_UTC: 2026-10-01T16:28:14.755Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
