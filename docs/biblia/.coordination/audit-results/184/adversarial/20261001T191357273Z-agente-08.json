@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "index": 184,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/content-gemini/plan-rpa-edge-cases.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/plan-rpa-edge-cases.test.js/Bíblia.md",
+  "source_sha": "81e21c6e245ec8f75c68db163170266c40561a6c",
+  "bible_sha": "bccc651ee6f6877672de2bd3bd97eb90f8f7bfa7",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-184-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 184-001, 184-002 e 184-003 como OPEN, embora as três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia §10 usa headings OPEN para 184-001/002/003.",
+        "`.state/184.json`: 184-001, 184-002 e 184-003 têm `status: ACCEPTED`.",
+        "As três lacunas continuam válidas; o erro é o lifecycle documental stale."
+      ],
+      "relation_to_primary": "Confirma 184-PRI-001.",
+      "requested_documentation_fix": "Atualizar os headings para ACCEPTED e a conclusão que ainda as chama de solicitações OPEN."
+    },
+    {
+      "id": "A8-184-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INTERNAL_CONTRADICTION_EVIDENCE_SCOPE",
+      "summary": "A matriz classifica `editor disabled aborta e limpa interval` como PROVADO DIRETAMENTE, mas a mesma matriz admite que o teardown do `scrollInterval` específico é apenas PROVA PARCIAL.",
+      "evidence": [
+        "Matriz §9: `editor disabled aborta e limpa interval | REG-12/CG-19/40 | ✅ PROVADO DIRETAMENTE`.",
+        "Na mesma matriz: `teardown específico do scroll interval | apenas clearInterval chamado, sem identificar timer/ticks | ⚠️ PROVA PARCIAL`.",
+        "Assertion real: `expect(clearIntervalSpy).toHaveBeenCalled();` — não verifica o id removido nem ticks posteriores.",
+        "`job-runner.js` possui pelo menos dois timers encerrados por `clearIntervalFn`: `scrollInterval` (linhas 680–702) e `progressTimer` (linhas 1224–1279), então uma chamada incidental pode satisfazer o spy."
+      ],
+      "adversarial_mutation": "Uma regressão que deixasse o scrollInterval ativo, mas chamasse clearInterval para outro timer, poderia manter a assertion focal verde.",
+      "requested_documentation_fix": "Rebaixar o contrato da primeira linha para `aborta e chama clearInterval`/prova parcial, ou fortalecer o teste para capturar e exigir o id específico do scrollInterval + ausência de ticks após o erro."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "635/635",
+    "ci_run": 36521561968,
+    "ci_blob_sha": "81e21c6e245ec8f75c68db163170266c40561a6c",
+    "ci_durations_seconds": {
+      "node20": 37.846,
+      "node22": 37.807
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:13:57.273Z"
+}
