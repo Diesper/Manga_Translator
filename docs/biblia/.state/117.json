@@ -2,8 +2,8 @@
   "index": 117,
   "file": "tests/integration/popup.ui.test.js",
   "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 23",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
   "started_at_utc": "2026-09-30T06:22:00Z",
   "completed_at_utc": null,
@@ -79,11 +79,12 @@
     "documented_positions": "632/632",
     "bible_lines": 1122,
     "external_audit_requests_open": 0,
-    "note": "Bíblia #117 concluída pelo AGENTE 17 sem alterar implementação, helpers, mocks ou testes externos."
+    "note": "Bíblia #117 concluída pelo AGENTE 17 sem alterar implementação, helpers, mocks ou testes externos.",
+    "repair_note": "Lifecycle documental 117-001..003 alinhado ao state canônico: ACCEPTED; nenhuma alteração no source/testes."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T13:43:18Z",
+  "updated_at_utc": "2026-10-01T13:43:49Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:39:48.407Z",
@@ -102,6 +103,15 @@
       "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
       "agent": "AGENTE 23",
       "reason": "Alinhar lifecycle documental 117-001..003 com o state canônico ACCEPTED sem alterar source/testes."
+    },
+    {
+      "at_utc": "2026-10-01T13:43:49Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #117 corrigida conforme auditoria independente: 117-001..003 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
     }
   ],
   "evidence": [
@@ -112,6 +122,13 @@
       "auditor": "AGENTE 6",
       "at_utc": "2026-10-01T13:39:48.407Z",
       "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/wiring/semântica/assertions passam; lifecycle documental das requests falha. Requests 117-001..003 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T13:43:49Z",
+      "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
     }
   ]
 }
