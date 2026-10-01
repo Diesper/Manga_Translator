@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **148**
+- READY_FOR_AUDIT: **147**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **85**
+- COMPLETED: **86**
 - requests OPEN: **1**
 - requests ACCEPTED: **586**
 - requests RESOLVED: **5**
@@ -107,7 +107,7 @@
 | 082 | scripts/validation/verify-ci-contract-selftest.js | COMPLETED | APPROVED | - | 8d34dee0d632fde17c0609dac7dfe2a0ef60c927 | 3 |
 | 083 | scripts/validation/verify-ci-contract.js | COMPLETED | APPROVED | - | 636e4bfbaa0646cd8259e1f27f09004a92541294 | 2 |
 | 084 | scripts/validation/verify-coverage-selftest.js | COMPLETED | APPROVED | - | ac08dd661f2d2410a56a7fd685cd9b55e85901f9 | 4 |
-| 085 | scripts/validation/verify-coverage.js | READY_FOR_AUDIT | NOT_AUDITED | - | 45f920bd2db5ba3a1273438b1814b29aeafc3be4 | 5 |
+| 085 | scripts/validation/verify-coverage.js | COMPLETED | APPROVED | - | 45f920bd2db5ba3a1273438b1814b29aeafc3be4 | 5 |
 | 086 | scripts/validation/verify-e2e-shard-plan.js | READY_FOR_AUDIT | NOT_AUDITED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
 | 087 | scripts/validation/verify-jest-worker-warning-selftest.js | READY_FOR_AUDIT | NOT_AUDITED | - | 4c8ce078abcf58f66ded7918650b2f54d9fa40cf | 1 |
 | 088 | scripts/validation/verify-publish-contract.js | READY_FOR_AUDIT | NOT_AUDITED | - | f5b3f6c69f85f90fe43689de2e44b6ed70cca757 | 2 |

@@ -999,3 +999,20 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 
 **Veredito documental independente:** ✅ **APROVADO — #084 / SHA `ac08dd661f2d2410a56a7fd685cd9b55e85901f9`**.
 
+### `verify-coverage.js` — auditoria independente SHA-bound em 2026-10-01
+
+- **Índice:** #085 — `scripts/validation/verify-coverage.js`.
+- **SHA auditado:** `45f920bd2db5ba3a1273438b1814b29aeafc3be4`.
+- **Integridade:** **223 linhas textuais + newline final = 224/224 posições**; state, fonte atual e SHA declarado na Bíblia coincidem. A seção de fonte integral da Bíblia é **byte a byte idêntica** ao arquivo real.
+- **Papel confirmado:** `verifyCoverage()` cruza `coverage-summary.json`, `lcov.info`, o corpus físico `extension/**/*.js` e o baseline para bloquear omissões de arquivos, coverage zero, thresholds globais/críticos e piso de arquivos instrumentados.
+- **Wiring reconfirmado:** `jest.config.js` usa V8 + `collectCoverageFrom: ['<rootDir>/extension/**/*.js']`; `package.json` expõe `test:coverage:verify`; o workflow de CI executa o verificador após gerar coverage nos jobs canônicos; `verify-ci-contract.js` protege os marcadores principais do gate/self-test.
+- **Self-test real:** `verify-coverage-selftest.js` importa a implementação real e cobre happy path, LCOV vazio, coverage 0%, ausência crítica combinada, threshold global e threshold crítico. As limitações de causalidade/assertions são corretamente documentadas, não promovidas a prova inexistente.
+- **Request 085-001:** permanece **SUPERSEDED por 084-002** para centralizar a expansão da matriz de branches no self-test.
+- **Request 085-002 (HIGH):** permanece **ACCEPTED** — baseline ausente/malformado e thresholds inválidos ainda podem enfraquecer ou tornar assimétrica a política do gate em execução isolada.
+- **Request 085-003:** permanece **ACCEPTED** — o caso “arquivo crítico ausente” não isola causalmente a guarda crítica explícita.
+- **Request 085-004:** permanece **ACCEPTED** — `parseLcovFiles` carece de testes focais para absoluto/relativo/tests, CRLF, barras Windows, dedup e ordenação.
+- **Request 085-005:** permanece **ACCEPTED** — retornos precoces não incluem `lcovFiles`, enquanto o retorno normal inclui; o contrato de shape ainda precisa decisão explícita.
+- **Conclusão:** a Bíblia descreve fielmente a implementação atual e separa comportamento provado, execução indireta, gates estáticos e lacunas reais sem fabricar evidência.
+
+**Veredito documental independente:** ✅ **APROVADO — #085 / SHA `45f920bd2db5ba3a1273438b1814b29aeafc3be4`**.
+
