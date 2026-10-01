@@ -2,8 +2,8 @@
   "index": 172,
   "file": "tests/unit/background/test_bg59.test.js",
   "bible": "docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
   "started_at_utc": "2026-09-30T06:30:47.120Z",
   "completed_at_utc": null,
@@ -43,7 +43,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T18:26:39.015Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:26:39.015Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
+      "reason": "172-ADV-001/002/003: lifecycle, força de evidência do crop e consumers de produção."
+    }
+  ],
   "evidence": []
 }
