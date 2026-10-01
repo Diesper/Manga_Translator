@@ -1271,16 +1271,16 @@ Exige um único listener e retorna-o. **Evidência:** ✅ todos os dispatchToCon
 ### Linhas 56–73 — dispatch helper
 Captura resposta síncrona/assíncrona e keepAlive. **Evidência:** ✅ prova contratos REQUEST_IMAGE_DATA e outros handlers.
 
-### Linhas 74–85 — defineImageState
+### Linhas 74–86 — defineImageState + separador
 Define dimensões/complete/src e scrollIntoView mockado. **Evidência:** ✅ base dos testes de extração.
 
-### Linhas 87–91 — suite/estado
+### Linhas 87–92 — suite/estado + separador
 Abrem describe principal e variáveis do harness. **Evidência:** 🟨 estrutura Jest.
 
-### Linhas 93–110 — beforeEach
+### Linhas 93–111 — beforeEach + separador
 Reset de módulos/runtime/storage/flags/DOM e preservação dos originais. **Evidência:** 🟨 EXECUTADO INDIRETAMENTE.
 
-### Linhas 112–126 — afterEach
+### Linhas 112–127 — afterEach + separador
 Despacha pagehide e restaura sendMessage/canvas/mocks/storage/DOM. **Evidência:** 🟨 EXECUTADO INDIRETAMENTE; relevante contra leaks.
 
 ### Linhas 128–177 — loadExtractionScript
