@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "index": 179,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 15",
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "bible_sha": "585464f495a94f96422c8b8c086232e1ba4f7276",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-179-P01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "EVIDENCE_OVERCLAIM_MISSING_TEST",
+      "summary": "A Bíblia afirma que a ausência de File e de atob já possui cobertura em job-runner.test.js, mas a suíte só prova o subcaso FileImpl ausente; DataUrlAtob/atob ausente não é exercitado.",
+      "evidence": [
+        "Bíblia §2 declara: 'A ausência das APIs File/atob já possui cobertura em job-runner.test.js e não é duplicada como gap nesta Bíblia.'",
+        "extension/content/gemini/job-runner.js:35 injeta DataUrlAtob a partir de scope.atob; :144-145 lança 'APIs de arquivo indisponíveis' quando DataUrlAtob não é função OU FileImpl não é função.",
+        "tests/unit/content-gemini/job-runner.test.js RUN-01B cobre formato inválido e cria apenas createGeminiJobRunner({ ...options, FileImpl: null }); não injeta DataUrlAtob:null e o arquivo inteiro não contém DataUrlAtob/atob.",
+        "Busca de código por DataUrlAtob no repositório encontrou o símbolo apenas na implementação job-runner.js, não em teste.",
+        "docs/biblia/.state/045.json e docs/biblia/.state/181.json não contêm request canônica para ausência de DataUrlAtob/atob; portanto a lacuna não está atualmente rastreada em outro request consultado."
+      ],
+      "adversarial_counterexample": "Uma regressão poderia remover ou quebrar especificamente a proteção para DataUrlAtob ausente mantendo intacto o branch FileImpl:null; RUN-01B continuaria verde, então a afirmação de cobertura de File/atob não é sustentada.",
+      "required_change": "Corrigir §2 para dizer exatamente que FileImpl ausente é coberto e DataUrlAtob/atob ausente não possui caso focal, registrando uma audit_request canônica para essa lacuna se ela permanecer sem teste; alternativamente adicionar teste focal em trabalho separado e só então declarar cobertura de ambos."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantic_traceability": "CONFIRMADO_3X",
+    "prior_corrections": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "audit_requests_lifecycle": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 683,
+    "source_has_final_newline": true,
+    "documented_positions": "684/684",
+    "code_line_mismatches": 0,
+    "current_requests": [
+      "179-001 SUPERSEDED→050-001",
+      "179-002 ACCEPTED",
+      "179-003 ACCEPTED"
+    ],
+    "ci_run": 36521561968,
+    "ci_jobs": [
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "prior_findings_revalidated_as_fixed": [
+      "Mapa semântico realinhado aos 15 cenários.",
+      "Lifecycle 179-001/002/003 sincronizado.",
+      "CG-01/02 nominal e CG-03/04 inválidos corrigidos."
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T20:30:00Z"
+}
