@@ -3,7 +3,7 @@
   "file": "scripts/ci/data/test-baseline.json",
   "bible": "docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e",
   "started_at_utc": "2026-09-30T14:26:00Z",
   "completed_at_utc": "2026-09-30T14:34:00Z",
@@ -101,5 +101,10 @@
     "source_text_lines": 67,
     "external_audit_requests_open": 4,
     "note": "Baseline é amplamente consumido; foram persistidos gaps de schema/anti-enfraquecimento e o status informativo de measuredBaseline."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -3,7 +3,7 @@
   "file": "scripts/ci/jest-worker-warning.js",
   "bible": "docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 8",
+  "agent": null,
   "source_sha": "b1379b6811e5513b955ebbbef4450ca4ca1e77da",
   "started_at_utc": "2026-09-30T07:00:00Z",
   "completed_at_utc": "2026-09-30T05:06:47Z",
@@ -35,5 +35,10 @@
     "source_sha_reconfirmed": true,
     "external_bible_author": "AGENTE 8",
     "note": "AGENTE 17 não alterou a Bíblia existente para preservar trabalho alheio."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

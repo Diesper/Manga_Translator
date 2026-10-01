@@ -3,7 +3,7 @@
   "file": "scripts/ci/data/e2e-shard-plan.json",
   "bible": "docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc",
   "started_at_utc": "2026-09-30T13:40:00Z",
   "completed_at_utc": "2026-09-30T13:45:00Z",
@@ -65,5 +65,10 @@
     "source_text_lines": 45,
     "external_audit_requests_open": 3,
     "note": "Bíblia pré-existente do AGENTE 5 revalidada pelo AGENTE 17; fonte integral exata."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

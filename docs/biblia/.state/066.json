@@ -3,7 +3,7 @@
   "file": ".github/workflows/publish.yml",
   "bible": "docs/biblia/.github/workflows/publish.yml/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 20",
+  "agent": null,
   "source_sha": "f673d445a3cc022d473f9b59ae1e0c8972ecd013",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": "2026-09-30T21:15:00Z",
@@ -94,7 +94,7 @@
     },
     {
       "id": "066-005",
-      "status": "SATISFIED",
+      "status": "RESOLVED",
       "type": "DOCUMENT_AUDIT_REQUIRED",
       "target_file": "docs/biblia/AUDITORIA.md",
       "found_while_auditing": ".github/workflows/publish.yml",
@@ -120,7 +120,9 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:55:00Z",
       "audit_finding": "Auditoria independente registrada em docs/biblia/AUDITORIA.md para o SHA f673d445a3cc022d473f9b59ae1e0c8972ecd013; STATUS.md e CHECKLIST.md reconciliados para #066.",
-      "auditor_recommended_action": "Nenhuma ação documental adicional para 066-005. Manter 066-001..004 como lacunas técnicas aceitas e não bloqueantes."
+      "auditor_recommended_action": "Nenhuma ação documental adicional para 066-005. Manter 066-001..004 como lacunas técnicas aceitas e não bloqueantes.",
+      "legacy_status": "SATISFIED",
+      "resolution": "Auditoria independente registrada em docs/biblia/AUDITORIA.md para o SHA f673d445a3cc022d473f9b59ae1e0c8972ecd013; STATUS.md e CHECKLIST.md reconciliados para #066."
     }
   ],
   "document_quality": {
@@ -143,5 +145,10 @@
     "observed_branch_head_at_takeover": "1fe41a874ae91f20fba5c4c2426c7bbb0b109cf6",
     "requested_by_user": true,
     "note": "Ownership total do índice 066 transferido explicitamente ao AGENTE 20 por instrução do usuário; histórico e audit_requests preservados."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

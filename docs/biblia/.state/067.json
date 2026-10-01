@@ -3,7 +3,7 @@
   "file": ".github/workflows/recover-cancelled-ci.yml",
   "bible": "docs/biblia/.github/workflows/recover-cancelled-ci.yml/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 4",
+  "agent": null,
   "source_sha": "4809f824f177e93686c11270793eb672aee5952b",
   "started_at_utc": "2026-09-30T03:25:00Z",
   "completed_at_utc": "2026-09-30T05:12:00Z",
@@ -50,5 +50,10 @@
       "audit_finding": "ACCEPTED. As chamadas de listagem, `github.rest.actions.getWorkflowRun`, listagem de branch, POST de rerun e polling não possuem retry/backoff local para erros transitórios. O job pode abortar por falha temporária da API.",
       "auditor_recommended_action": "Definir política de retry/backoff para operações idempotentes e para polling, com testes de falha transitória."
     }
-  ]
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

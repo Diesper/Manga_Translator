@@ -3,7 +3,7 @@
   "file": "scripts/ci/data/regression-matrix.json",
   "bible": "docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 6",
+  "agent": null,
   "source_sha": "f9b9e17e5870c0c6dff9394ef944a803414cc4d2",
   "started_at_utc": "2026-09-30T03:28:19Z",
   "completed_at_utc": "2026-09-30T05:42:02Z",
@@ -55,5 +55,10 @@
     "documented_positions": "232/232",
     "bible_lines": 3204,
     "external_audit_requests_open": 3
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

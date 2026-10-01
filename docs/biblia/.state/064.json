@@ -3,7 +3,7 @@
   "file": "playwright.config.js",
   "bible": "docs/biblia/playwright.config.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "6a27b774a0009db800a70969eaad18716fb5f565",
   "started_at_utc": "2026-09-30T14:18:00Z",
   "completed_at_utc": "2026-09-30T14:24:00Z",
@@ -101,5 +101,10 @@
     "source_text_lines": 55,
     "external_audit_requests_open": 4,
     "note": "Config canônico fisicamente coerente; gaps de parsing, webServer e persistent contexts persistidos."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
