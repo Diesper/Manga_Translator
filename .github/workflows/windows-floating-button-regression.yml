@@ -1,0 +1,29 @@
+name: Windows Floating Button Regression
+
+on:
+  pull_request:
+    paths:
+      - 'tests/unit/content-manga/floating-button-guard-and-single-click.test.js'
+      - 'extension/content/content_manga.js'
+      - '.github/workflows/windows-floating-button-regression.yml'
+
+jobs:
+  focused-windows:
+    name: Focused Windows Content Manga Regression
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run floating-button regression
+        run: npx jest --config jest.config.js --selectProjects content-scripts --runTestsByPath tests/unit/content-manga/floating-button-guard-and-single-click.test.js --runInBand
