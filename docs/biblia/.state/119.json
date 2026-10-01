@@ -2,11 +2,11 @@
   "index": 119,
   "file": "tests/mocks/chrome-api.mock.js",
   "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": "2026-10-01T14:40:17.413Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "119-001",
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T14:40:17.413Z",
+  "updated_at_utc": "2026-10-01T21:33:03.444Z",
   "history": [
     {
       "at_utc": "2026-10-01T14:40:17.413Z",
@@ -93,6 +93,14 @@
       "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
       "auditor": "AGENTE 6",
       "reason": "Auditoria independente confirmou SHA, fonte integral, cobertura 594/594, lifecycle/reset, fidelidade limitada do mock, evidência focal e consumers reais. Requests 119-001..003 permanecem ACCEPTED como dívida externa não bloqueante."
+    },
+    {
+      "at_utc": "2026-10-01T21:33:03.444Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+      "reason": "119-REAUDIT-001: sincronizar lifecycle documental 119-001..003 para ACCEPTED."
     }
   ],
   "evidence": [
