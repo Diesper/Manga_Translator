@@ -2,8 +2,8 @@
   "index": 102,
   "file": "tests/helpers/load-content-script.js",
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 23",
   "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T06:04:31Z",
+  "updated_at_utc": "2026-10-01T11:22:14Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -164,6 +164,15 @@
       "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
       "auditor": "AGENTE 11",
       "reason": "Falhas documentais materiais remanescentes: a Bíblia generaliza que a invalidação de active_instance neutraliza listeners antigos de storage, mas existe listener de dimensões sem guard e o mock preserva _listeners; além disso, o caso-limite de throw síncrono afirma rejeição mesmo quando um listener anterior já resolveu a Promise."
+    },
+    {
+      "at_utc": "2026-10-01T11:22:14Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "40d7c59d81a533c2f7d2b12d6c8c30bc77fb43f0",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir segunda rodada de findings documentais #102 do AGENTE 11: escopo real do guard active_instance em listeners de storage e settlement de throws síncronos em sendMessage."
     }
   ],
   "evidence": [
