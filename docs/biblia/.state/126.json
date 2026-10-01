@@ -2,10 +2,10 @@
   "index": 126,
   "file": "tests/smoke/smoke-04-storage-manager.js",
   "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "500853da2950c31fd5fb4e2a91765a9331c28153",
-  "started_at_utc": "2026-10-01T23:23:45Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -29,11 +29,11 @@
       "audit_finding": "SUPERSEDED por 060-002. O pedido de fault-injection para provar rollback atômico de storage-manager é um caso específico do mesmo gap já aceito no módulo canônico.",
       "auditor_recommended_action": "Centralizar fault injection/rollback no request 060-002 e reutilizar esse harness para o smoke se necessário.",
       "superseded_by": "060-002",
-      "repair_progress": "FAULT_INJECTION_ABORT_IMPLEMENTED; LIFECYCLE_REMAINS_SUPERSEDED_BY_060_002; CI_PENDING"
+      "repair_progress": "FAULT_INJECTION_ABORT_VALIDATED; LIFECYCLE_REMAINS_SUPERSEDED_BY_060_002"
     },
     {
       "id": "126-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-04-storage-manager.js",
       "found_while_auditing": "tests/smoke/smoke-04-storage-manager.js",
@@ -51,11 +51,14 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "ACCEPTED. `deleteByCleanUrl` no smoke verifica contagem e ausência do restore, mas não prova diretamente ausência da página/asset correspondente nem cenário multi-capítulo. O cleanup completo pode regredir sem quebrar essas assertions.",
       "auditor_recommended_action": "Adicionar assertions sobre page/asset removidos e, se contratual, caso da mesma cleanUrl em capítulos distintos.",
-      "repair_progress": "IMPLEMENTED_AWAITING_CI"
+      "repair_progress": "VALIDATED_RESOLVED",
+      "resolved_at_utc": "2026-10-01T23:39:00Z",
+      "resolved_by": "AGENTE 30",
+      "resolution": "Smoke SHA 500853da2950c31fd5fb4e2a91765a9331c28153 validates full deleteByCleanUrl cleanup including restore/page/asset and multi-chapter same cleanUrl. Validation PR #67, run 36941818303, Smoke Tests job 110634842323: success."
     },
     {
       "id": "126-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/smoke/smoke-04-storage-manager.js",
       "found_while_auditing": "tests/smoke/smoke-04-storage-manager.js",
@@ -73,11 +76,14 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "ACCEPTED. A migração semeia duas páginas e um restore, mas aceita apenas `migrated >= 1`, flag true e cleanup legado; migração parcial ainda pode satisfazer o teste. Não há cenário de falha parcial.",
       "auditor_recommended_action": "Exigir contagem/conteúdo exatos antes da limpeza e adicionar falha parcial para definir quando a flag/remoção do legado podem ocorrer.",
-      "repair_progress": "IMPLEMENTED_AWAITING_CI"
+      "repair_progress": "VALIDATED_RESOLVED",
+      "resolved_at_utc": "2026-10-01T23:39:00Z",
+      "resolved_by": "AGENTE 30",
+      "resolution": "Smoke SHA 500853da2950c31fd5fb4e2a91765a9331c28153 validates exact two-page migration, restore/asset, partial failure preserving legacy/flag and successful retry with runtime.lastError injection. Validation PR #67, run 36941818303, Smoke Tests job 110634842323: success."
     }
   ],
   "document_quality": {
-    "self_audit": "AWAITING_CI",
+    "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "291/291",
@@ -86,12 +92,12 @@
     "source_has_final_newline": true,
     "bible_lines": 450,
     "external_audit_requests_open": 0,
-    "accepted_requests_pending_validation": 2,
-    "note": "Smoke #126 ampliado com retry após IDB ausente/open síncrono, onversionchange, rollback por transaction.abort, cleanup completo, migração exata/falha parcial, lastError e stats. Aguardando CI verde do SHA atual."
+    "accepted_requests_pending_validation": 0,
+    "note": "Smoke #126 validated green in isolated draft PR #67. Exact blobs: smoke 500853da2950c31fd5fb4e2a91765a9331c28153, storage-manager f4e1e231fa62d22dd50fb20cf0cffbb09da98bee. Run 36941818303 / Smoke Tests job 110634842323 success with focal log confirmations."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:25:10Z",
+  "updated_at_utc": "2026-10-01T23:39:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T22:36:20Z",
@@ -138,6 +144,19 @@
       "bible_sha": "1369666c287c648209a9c24b91a8ddaafdc14f62",
       "agent": "AGENTE 30",
       "reason": "Added synchronous idb.open failure/retry and transaction.abort rollback regressions; Bible synchronized to 291/291."
+    },
+    {
+      "at_utc": "2026-10-01T23:39:00Z",
+      "type": "TARGETED_REGRESSIONS_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "500853da2950c31fd5fb4e2a91765a9331c28153",
+      "bible_sha": "4f9166d6d3863580dd650dd1383940b17c70efb0",
+      "validation_pr": 67,
+      "validation_run_id": 36941818303,
+      "validation_job_id": 110634842323,
+      "agent": "AGENTE 30",
+      "reason": "Isolated CI executed exact source/test blobs successfully; 126-002 and 126-003 resolved. Fresh independent PRIMARY + ADVERSARIAL still required for this new revision."
     }
   ],
   "evidence": [
@@ -153,6 +172,27 @@
       "result": "FAIL",
       "failure": "openStorageDb retry after transient IndexedDB absence returned cached rejected Promise",
       "note": "Negative evidence discovered by the newly added regression; no request resolved."
+    },
+    {
+      "type": "CI_PASS",
+      "at_utc": "2026-10-01T23:38:10Z",
+      "validation_pr": 67,
+      "workflow": "MangaTranslator CI",
+      "run_id": 36941818303,
+      "job_id": 110634842323,
+      "job": "Smoke Tests",
+      "source_sha": "500853da2950c31fd5fb4e2a91765a9331c28153",
+      "consumed_storage_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
+      "result": "SUCCESS",
+      "confirmations": [
+        "Retry de openStorageDb após IDB ausente/open síncrono falhar OK",
+        "Abort de transaction reverte overwrite integralmente OK",
+        "Substituição e troca de cleanUrl sem órfãos OK",
+        "deleteByCleanUrl remove restore/página/asset inclusive multi-capítulo OK",
+        "Migração completa e idempotente OK",
+        "Falha parcial e lastError permanecem retryable OK",
+        "stats pages/assets/bytes e cleanup exatos OK"
+      ]
     }
   ]
 }
