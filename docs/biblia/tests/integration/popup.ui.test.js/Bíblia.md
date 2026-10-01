@@ -335,7 +335,7 @@ Portanto “integração real” significa integração real entre HTML/JS da ex
 
 ## 7. Solicitações ao auditor
 
-### 117-001 — TRACEABILITY_REVIEW — OPEN
+### 117-001 — TRACEABILITY_REVIEW — ACCEPTED
 
 **Encontrado:** o `describe` da linha 11 enumera `REG-06/REG-07` e `PU-01` até `PU-81` (incluindo variantes), enquanto o arquivo contém 11 blocos `test()` e não possui mapeamento entre IDs e assertions.
 
@@ -357,7 +357,7 @@ Portanto “integração real” significa integração real entre HTML/JS da ex
 
 **Severidade:** NORMAL.
 
-### 117-002 — TEST_REQUIRED — OPEN
+### 117-002 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** o teste “remover site habilitado tira o dominio da lista mesmo quando existem imagens salvas no historico” cria `chapterList`, `chap_popup_remove_restoreMap` e `chap_popup_remove_restoreMeta`, porém após a remoção verifica somente `enabledDomains`, `siteMeta_<host>` e UI.
 
@@ -379,7 +379,7 @@ Portanto “integração real” significa integração real entre HTML/JS da ex
 
 **Severidade:** NORMAL.
 
-### 117-003 — TEST_STRENGTH_REVIEW — OPEN
+### 117-003 — TEST_STRENGTH_REVIEW — ACCEPTED
 
 **Encontrado:** o teste de Refazer prova preservação de `restoreMap[keepUrl]` e `images[1]`, mas não verifica `restoreMeta[keepUrl]` nem `paths[1]` após remover a imagem alvo.
 
@@ -1119,4 +1119,4 @@ describe('REG-06/REG-07/PU-01/PU-02/PU-03/PU-04/PU-05/PU-06/PU-07/PU-08/PU-09/PU
 - [x] lacunas foram registradas como `audit_requests`, sem corrigi-las;
 - [x] nenhum arquivo externo foi modificado.
 
-**Resultado:** documentação concluída para o blob `57158c9b6e6f88955bf82a292e75624dc2ad8d0c`; as solicitações 117-001 a 117-003 permanecem para auditoria separada.
+**Resultado:** documentação concluída para o blob `57158c9b6e6f88955bf82a292e75624dc2ad8d0c`; 117-001 a 117-003 permanecem ACCEPTED como dívida externa e não são apresentadas como prova já implementada.
