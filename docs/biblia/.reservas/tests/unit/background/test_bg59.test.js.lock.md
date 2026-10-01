@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/background/test_bg59.test.js
+BÍBLIA: docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: ae96b142717418e4071fd160b6c521412da03090
+CLAIMED_AT_UTC: 2026-10-01T18:26:39.015Z
+UPDATED_AT_UTC: 2026-10-01T18:26:39.015Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
