@@ -309,7 +309,7 @@ A inspeção do código atual mostrou que persistência de página de produção
 
 ## 16. Solicitações ao auditor
 
-### 114-001 — TEST_VALIDITY — OPEN
+### 114-001 — TEST_VALIDITY — ACCEPTED
 
 **Encontrado:** `PERF-09` implementa a lógica de quota/fallback em `saveImagesWithIndexedDbFallback`, função local ao próprio teste, e passa `createInMemoryRepository()`. O cenário não chama o fluxo de persistência de página de produção.
 
@@ -333,7 +333,7 @@ A inspeção do código atual mostrou que persistência de página de produção
 
 **Severidade:** HIGH.
 
-### 114-002 — CONTRACT_REVIEW — OPEN
+### 114-002 — CONTRACT_REVIEW — ACCEPTED
 
 **Encontrado:** `PERF-08` afirma “IndexedDB ... em até 2s”, mas injeta `fake-indexeddb.IDBFactory`; logo o limite temporal mede uma implementação em memória/processo Node, não o IndexedDB do Chromium.
 
@@ -357,7 +357,7 @@ A inspeção do código atual mostrou que persistência de página de produção
 
 **Severidade:** NORMAL.
 
-### 114-003 — CONTRACT_REVIEW — OPEN
+### 114-003 — CONTRACT_REVIEW — ACCEPTED
 
 **Encontrado:** `PERF-05` inicia o cronômetro depois de `loadExtensionPage` concluir. Assim o limite de 1s mede o clique/render da aba traduzida em JSDOM, não o carregamento completo do popup com 200 capítulos.
 
@@ -1369,4 +1369,4 @@ Fecha o describe; a posição 434 é o newline final explicitamente contabilizad
 - [x] três lacunas persistíveis identificadas para auditor;
 - [x] nenhum arquivo externo foi modificado para fabricar prova.
 
-**Resultado da autoauditoria:** APPROVED para conclusão documental, com solicitações externas abertas.
+**Resultado da autoauditoria:** APPROVED para conclusão documental; 114-001, 114-002 e 114-003 permanecem ACCEPTED como dívida externa e não constituem prova implementada.
