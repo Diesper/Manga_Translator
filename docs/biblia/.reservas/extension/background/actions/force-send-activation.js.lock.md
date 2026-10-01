@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: extension/background/actions/force-send-activation.js
-BÍBLIA: docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: cbeea5768301008e363a087a1daf636deabb9076
-CLAIMED_AT_UTC: 2026-10-01T19:51:25.730Z
-UPDATED_AT_UTC: 2026-10-01T19:51:25.730Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
