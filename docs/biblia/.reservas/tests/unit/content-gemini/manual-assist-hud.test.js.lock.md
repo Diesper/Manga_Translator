@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/unit/content-gemini/manual-assist-hud.test.js
-BÍBLIA: docs/biblia/tests/unit/content-gemini/manual-assist-hud.test.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: 14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f
-CLAIMED_AT_UTC: 2026-10-01T18:47:54.053Z
-UPDATED_AT_UTC: 2026-10-01T18:47:54.053Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
