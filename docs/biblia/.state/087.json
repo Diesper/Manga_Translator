@@ -2,11 +2,11 @@
   "index": 87,
   "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
   "started_at_utc": "2026-09-30T06:11:00Z",
-  "completed_at_utc": "2026-10-01T04:18:37Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "087-001",
@@ -41,7 +41,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:18:37Z",
+  "updated_at_utc": "2026-10-01T21:45:03.799Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:18:37Z",
@@ -51,6 +51,14 @@
       "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou 11/11 posições, fonte integral exata, uso do helper real e wiring no validate/CI/CI Contract/regression matrix."
+    },
+    {
+      "at_utc": "2026-10-01T21:45:03.799Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
+      "reason": "087-REA-001: sincronizar lifecycle 087-001 para ACCEPTED."
     }
   ],
   "evidence": [
