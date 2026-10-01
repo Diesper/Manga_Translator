@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/helpers/load-content-script.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "48deaef8742e7629c46c8930128699c4443329ff",
+  "source_sha": "c51eb0eedfc33b3b165a394bb79f3b360bb82d84",
   "started_at_utc": "2026-09-30T06:21:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:42:00Z",
+  "updated_at_utc": "2026-10-01T23:46:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:17:00Z",
@@ -261,6 +261,13 @@
       "previous_source_sha": "1528c716aac6580f7ca14d83d1b34660c3720ec6",
       "current_source_sha": "48deaef8742e7629c46c8930128699c4443329ff",
       "reason": "Harness passou a rejeitar cargas concorrentes no mesmo JSDOM com guard global liberado em finally; regressão focal adicionada."
+    },
+    {
+      "at_utc": "2026-10-01T23:46:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "48deaef8742e7629c46c8930128699c4443329ff",
+      "current_source_sha": "c51eb0eedfc33b3b165a394bb79f3b360bb82d84",
+      "reason": "Cleanup unificado remove storage/runtime/global listeners em finally mesmo se teardown pagehide lançar; erros secundários de cleanup ficam anexados ao erro causal sem mascará-lo."
     }
   ],
   "evidence": [
