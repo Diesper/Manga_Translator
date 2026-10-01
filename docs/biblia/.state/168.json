@@ -2,8 +2,8 @@
   "index": 168,
   "file": "tests/unit/background/startup-recovery.test.js",
   "bible": "docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "COORDENADOR",
   "source_sha": "649829ac36bb9428c9458c615365970349b741a1",
   "started_at_utc": "2026-09-30T13:45:00Z",
   "completed_at_utc": null,
@@ -97,7 +97,16 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-01T18:31:25.052Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T18:31:25.052Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "649829ac36bb9428c9458c615365970349b741a1",
+      "reason": "A8-168-01..04: corrigir line mapping, lifecycle e overclassification de CI por posição."
+    }
+  ],
   "evidence": []
 }
