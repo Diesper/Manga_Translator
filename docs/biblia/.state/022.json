@@ -3,7 +3,7 @@
   "file": "extension/background/actions/request-image-data.js",
   "bible": "docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
   "started_at_utc": "2026-09-30T12:05:00Z",
   "completed_at_utc": "2026-09-30T12:10:00Z",
@@ -38,5 +38,10 @@
     "source_text_lines": 32,
     "external_audit_requests_open": 1,
     "note": "Bíblia concorrente validada; bloco fonte normalizado para equivalência física exata."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

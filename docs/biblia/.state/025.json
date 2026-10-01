@@ -3,7 +3,7 @@
   "file": "extension/background/actions/stop-batch.js",
   "bible": "docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "e552d0a911092c5cd7e457fbe262d366c413f0c1",
   "started_at_utc": "2026-09-30T13:36:00Z",
   "completed_at_utc": "2026-09-30T13:41:00Z",
@@ -38,5 +38,10 @@
     "source_text_lines": 18,
     "external_audit_requests_open": 1,
     "note": "Bíblia concorrente revalidada e fonte integral normalizada; omitted batchId também possui cobertura integrada real."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -3,7 +3,7 @@
   "file": "extension/background/actions/open-manga-root.js",
   "bible": "docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md",
   "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "agent": null,
   "source_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
   "started_at_utc": "2026-09-30T12:27:00Z",
   "completed_at_utc": "2026-09-30T12:37:00Z",
@@ -59,5 +59,10 @@
     "source_text_lines": 19,
     "external_audit_requests_open": 2,
     "note": "Reauditoria solicitada pelo usuário concluída; duas lacunas persistidas sem alterar código funcional."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
