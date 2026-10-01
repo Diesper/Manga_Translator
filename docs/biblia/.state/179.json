@@ -2,8 +2,8 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
@@ -81,7 +81,7 @@
     },
     {
       "id": "179-004",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/job-runner.test.js",
       "related_files": [
@@ -99,7 +99,14 @@
       "impact": "Robustez da conversão Data URL→File.",
       "severity": "NORMAL",
       "requested_by": "COORDENADOR",
-      "requested_at_utc": "2026-10-01T21:28:13.904Z"
+      "requested_at_utc": "2026-10-01T21:28:13.904Z",
+      "resolved_at_utc": "2026-10-01T21:30:22.653Z",
+      "resolution": {
+        "action": "TEST_ADDED",
+        "target_file": "tests/unit/content-gemini/job-runner.test.js",
+        "source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+        "evidence": "RUN-01B cobre DataUrlAtob:null e exige 'APIs de arquivo indisponíveis'."
+      }
     }
   ],
   "document_quality": {
@@ -109,7 +116,7 @@
     "documented_positions": "684/684",
     "source_text_lines": 683,
     "bible_lines": 5573,
-    "external_audit_requests_open": 1,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
@@ -164,6 +171,17 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
       "reason": "Resolver 179-004 após cobertura DataUrlAtob:null adicionada ao source #181."
+    },
+    {
+      "at_utc": "2026-10-01T21:30:22.653Z",
+      "type": "AUDIT_REQUEST_RESOLVED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "bible_sha": "90db61ef1395e685debba9c9c0286bfdb850ab79",
+      "request_id": "179-004",
+      "resolution_source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+      "reason": "179-004 fechada por teste focal no #181; nova revisão da Bíblia #179 exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
