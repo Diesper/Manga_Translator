@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "index": 126,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 22",
+  "file": "tests/smoke/smoke-04-storage-manager.js",
+  "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
+  "source_sha": "0ba92d74356cb092a7706dca7d280168cd5c512e",
+  "bible_sha": "03d33f33a127aa289c317315f21894956d75a1f1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "126-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia registra 126-001, 126-002 e 126-003 como OPEN e conclui que as três audit_requests estão abertas, mas o state canônico já registra 126-001 como SUPERSEDED e 126-002/126-003 como ACCEPTED.",
+      "evidence": [
+        "Bíblia §7: `126-001 — TEST_REQUIRED — OPEN`, `126-002 — TEST_REQUIRED — OPEN` e `126-003 — TEST_REQUIRED — OPEN`.",
+        "Bíblia §10: `audit_requests abertas: 126-001, 126-002, 126-003`.",
+        ".state/126.json: 126-001 possui status SUPERSEDED e `superseded_by: 060-002`; 126-002 e 126-003 possuem status ACCEPTED.",
+        ".state/060.json: 060-002 está ACCEPTED e cobre explicitamente fault injection/rollback do storage-manager, confirmando que a supersessão de 126-001 é material e não apenas metadata.",
+        ".state/126.json ainda contém `document_quality.external_audit_requests_open: 3`, metadata derivada igualmente stale."
+      ],
+      "requested_documentation_fix": "Sincronizar a Bíblia com o lifecycle canônico: 126-001=SUPERSEDED por 060-002, 126-002=ACCEPTED e 126-003=ACCEPTED; remover a conclusão de três requests OPEN e, na reconciliação editorial, normalizar a metadata derivada sem reabrir requests."
+    }
+  ],
+  "evidence_classification": {
+    "tests/smoke/smoke-04-storage-manager.js": "PROVA_DIRETA sobre storage-manager real com fake-indexeddb e mock mínimo de chrome.storage",
+    "extension/shared/storage-manager.js": "PROVA_DIRETA_DE_SEMANTICA_DO_CONSUMIDO",
+    "tests/smoke/run-smoke.js": "GATE_ESTATICO_ESPECIFICO",
+    "package.json#test:smoke": "GATE_ESTATICO_ESPECIFICO",
+    "rollback_atomico_sob_falha": "SEM_PROVA_ESPECIFICA",
+    "deleteByCleanUrl_page_asset_completo": "SEM_PROVA_ESPECIFICA",
+    "migracao_completude_exata_e_falha_parcial": "SEM_PROVA_ESPECIFICA"
+  },
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_numeric": "CONFIRMADO_3X",
+    "coverage_semantic": "CONFIRMADO_3X",
+    "storage_manager_semantics": "CONFIRMADO_3X",
+    "runner_and_package_wiring": "CONFIRMADO_3X",
+    "tests_and_assertions": "CONFIRMADO_3X_APOS_LEITURA",
+    "evidence_limits": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_22_VS_AGENTE_46",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 122,
+    "final_newline": true,
+    "documented_positions": "123/123; 16 faixas contíguas, sem gaps ou overlaps",
+    "primary_current": "APPROVED por AGENTE 46 para o mesmo SOURCE_SHA/BIBLE_SHA",
+    "semantics_revalidated": [
+      "savePageResult usa uma transação readwrite única para assets/pages/restore/chapters e remove assets substituídos no mesmo caminho feliz.",
+      "deleteByCleanUrl remove restore/page/assets na implementação, mas o smoke só assert diretamente contagem + restore ausente, como a Bíblia admite.",
+      "migrateChapterFromLegacy captura falhas por item e ainda marca flag; o smoke aceita migrated>=1, portanto a lacuna de migração parcial documentada é real.",
+      "run-smoke.js descobre smoke-\\d+*.js, executa cada smoke em processo Node separado e falha status agregado quando qualquer subprocesso retorna não-zero.",
+      "package.json inclui test:smoke em npm test."
+    ],
+    "formal_rejection": "A Bíblia deveria ser reprovada porque afirma um lifecycle de audit_requests objetivamente incompatível com o state canônico atual, embora fonte, cobertura, semântica e limitações técnicas estejam corretas.",
+    "triple_check": {
+      "A_document_matches_current_source": "SIM",
+      "B_every_claim_true_and_supported": "NAO — lifecycle OPEN é falso",
+      "C_limitations_represented_honestly": "NAO — lifecycle canônico não está refletido"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:58:54.854Z"
+}
