@@ -2,7 +2,7 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
   "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
   "started_at_utc": "2026-09-30T06:14:00Z",
@@ -111,7 +111,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T02:49:00Z",
+  "updated_at_utc": "2026-10-01T02:55:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -128,6 +128,14 @@
       "previous_source_sha": "d280fa9a9094189013d09ac97bd32f3506f9520d",
       "current_source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
       "reason": "Remoção de validador inline morto consolidou a implementação documental em bible-coordination.js antes da reconstrução da Bíblia #089."
+    },
+    {
+      "at_utc": "2026-10-01T02:55:00Z",
+      "type": "BIBLE_UPDATED_FOR_CURRENT_SOURCE",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+      "reason": "Bíblia #089 reconstruída em schema V2 para o validador estrutural atual, após remoção do bloco inline obsoleto."
     }
   ],
   "evidence": []
