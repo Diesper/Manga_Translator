@@ -1,5 +1,3 @@
-name: Windows Floating Button Regression
-
 on:
   workflow_dispatch:
   push:
@@ -10,9 +8,6 @@ on:
       - 'extension/content/content_manga.js'
       - '.github/workflows/windows-floating-button-regression.yml'
 
-concurrency:
-  group: windows-floating-button-regression-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 jobs:
   focused-windows:
     name: Focused Windows Content Manga Regression
