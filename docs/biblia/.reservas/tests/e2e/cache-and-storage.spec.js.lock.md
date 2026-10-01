@@ -1,9 +1,0 @@
-AGENTE: COORDENADOR
-ARQUIVO: tests/e2e/cache-and-storage.spec.js
-BÍBLIA: docs/biblia/tests/e2e/cache-and-storage.spec.js/Bíblia.md
-SHA_DO_FONTE_AO_RESERVAR: b181989a9b89151ca17cbcbeb7db9342b98c9add
-CLAIMED_AT_UTC: 2026-10-01T16:44:40.718Z
-UPDATED_AT_UTC: 2026-10-01T16:44:40.718Z
-PR: 66
-BRANCH: docs/project-bible
-ESTADO: ACTIVE
