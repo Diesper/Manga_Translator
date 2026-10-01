@@ -1,0 +1,33 @@
+name: Load Content Script Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'tests/helpers/load-content-script.js'
+      - 'extension/manifest.json'
+      - 'docs/biblia/.coordination/load-content-script-selftest.test.js'
+      - 'docs/biblia/.coordination/jest-load-content-script-selftest.config.js'
+      - '.github/workflows/load-content-script-selftest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  helper-selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run helper selftest
+        run: npx jest --config docs/biblia/.coordination/jest-load-content-script-selftest.config.js --runInBand
