@@ -2,7 +2,7 @@
   "index": 136,
   "file": "tests/unit/background/commit-result-action.test.js",
   "bible": "docs/biblia/tests/unit/background/commit-result-action.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
   "started_at_utc": "2026-09-30T06:38:00Z",
@@ -32,7 +32,7 @@
     },
     {
       "id": "136-002",
-      "status": "ACCEPTED",
+      "status": "SUPERSEDED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/commit-result-action.test.js",
       "found_while_auditing": "tests/unit/background/commit-result-action.test.js",
@@ -49,7 +49,10 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T19:05:00Z",
       "audit_finding": "ACCEPTED — journal/idempotência testado só no caminho favorável. O caso de marker cobre expiresAt futuro, mesmo jobId e `fromError:false`; não há prova de marker expirado, jobId diferente ou `fromError:true`, que devem cair para commit normal/regras específicas.",
-      "auditor_recommended_action": "Adicionar matriz focal para marker expirado, foreign job e fromError true, verificando que não produz `ALREADY_FINALIZED` indevido."
+      "auditor_recommended_action": "Adicionar matriz focal para marker expirado, foreign job e fromError true, verificando que não produz `ALREADY_FINALIZED` indevido.",
+      "superseded_by": "006-001",
+      "superseded_at_utc": "2026-10-01T14:46:00Z",
+      "superseded_reason": "Duplicata material/subconjunto de 006-001, que já cobre journals expirado/fromError/jobId divergente e storage.get rejeitando para a mesma suíte."
     },
     {
       "id": "136-003",
@@ -81,12 +84,31 @@
     "documented_positions": "231/231",
     "source_text_lines": 230,
     "bible_lines": 727,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Router e action reais foram diferenciados de dependências mockadas; fonte integral comparada exatamente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T14:46:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T14:46:00Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
+      "auditor": "AGENTE 16",
+      "reason": "Falhas documentais materiais: lifecycle stale das requests e classificação indevida de ordem updateJobState→finalizeJob como prova direta sem assertion de ordenação."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "1a185784edd118aeee377d7e3f1ed4a9c8375914",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 16",
+      "at_utc": "2026-10-01T14:46:00Z",
+      "note": "Passagens 0-15 executadas. SHA/fonte/cobertura/semântica principal passaram; evidence classification de ordering e lifecycle/duplicação das audit requests falharam após revalidação."
+    }
+  ]
 }
