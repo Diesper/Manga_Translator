@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
 const root = path.resolve(__dirname, '../..');
 const problems = [];
@@ -88,121 +87,6 @@ if (JSON.stringify(docsRootEntries) !== JSON.stringify(expectedDocsRootEntries))
 
 requireAbsent('docs/Bíblia.md');
 
-
-function gitBlobSha(source) {
-  const buffer = Buffer.from(source, 'utf8');
-  return crypto.createHash('sha1')
-    .update('blob ' + buffer.length + '\0')
-    .update(buffer)
-    .digest('hex');
-}
-
-function extractBibleIntegralSource(bible) {
-  const normalized = bible.replace(/\r\n/g, '\n');
-  const section = /^##+\s+(?:\d+\.\s+)?Fonte integral(?: auditada)?\s*$/im.exec(normalized);
-  if (!section) return null;
-
-  const rest = normalized.slice(section.index + section[0].length);
-  const fence = /\n```[A-Za-z0-9_-]*\n/.exec(rest);
-  if (!fence) return null;
-
-  const contentStart = fence.index + fence[0].length;
-  const after = rest.slice(contentStart);
-  const contentEnd = after.indexOf('\n```');
-  if (contentEnd < 0) return null;
-  return after.slice(0, contentEnd);
-}
-
-function validateApprovedBible(sourcePath, biblePath) {
-  if (!exists(sourcePath)) {
-    problems.push('Bíblia aprovada aponta para fonte ausente: ' + sourcePath);
-    return;
-  }
-
-  const source = fs.readFileSync(path.join(root, sourcePath), 'utf8').replace(/\r\n/g, '\n');
-  const bible = fs.readFileSync(path.join(root, biblePath), 'utf8').replace(/\r\n/g, '\n');
-
-  if (!/> \*\*Estado:\*\*[^\n]*CONCLUÍDO[^\n]*AUDITORIA DE QUALIDADE APROVADA/i.test(bible)) {
-    problems.push('Bíblia CONCLUÍDA sem selo interno de auditoria aprovada: ' + sourcePath);
-  }
-  if (/REVISÃO DE QUALIDADE/i.test(bible.split('\n').slice(0, 12).join('\n'))) {
-    problems.push('Bíblia CONCLUÍDA ainda se declara em revisão: ' + sourcePath);
-  }
-
-  const declaredSha = /\*\*SHA(?: do conteúdo)? auditado:\*\*\s*`([0-9a-f]{40})`/i.exec(bible);
-  const actualSha = gitBlobSha(source);
-  if (!declaredSha || declaredSha[1] !== actualSha) {
-    problems.push(
-      'SHA auditado divergente em ' + sourcePath
-      + ': declarado=' + (declaredSha ? declaredSha[1] : 'ausente')
-      + ', atual=' + actualSha
-    );
-  }
-
-  const embedded = extractBibleIntegralSource(bible);
-  const sourceWithoutTerminalNewline = source.endsWith('\n') ? source.slice(0, -1) : source;
-  const embeddedMatches = embedded !== null && (
-    embedded === sourceWithoutTerminalNewline ||
-    embedded === sourceWithoutTerminalNewline + '\n'
-  );
-  if (!embeddedMatches) {
-    problems.push('Fonte integral da Bíblia diverge da fonte auditada: ' + sourcePath);
-  }
-
-  const headings = [...bible.matchAll(/^#{2,4}\s+Linha\s+0*(\d+)/gm)]
-    .map(match => Number(match[1]));
-  const sourcePositions = source.split('\n').length;
-  const sequential = headings.every((value, index) => value === index + 1);
-  if (headings.length !== sourcePositions || !sequential) {
-    problems.push(
-      'Cobertura linha a linha incompleta em ' + sourcePath
-      + ': posições documentadas=' + headings.length
-      + ', posições fonte=' + sourcePositions
-    );
-  }
-
-  if (!/Invariantes/i.test(bible)) {
-    problems.push('Bíblia aprovada sem seção de invariantes: ' + sourcePath);
-  }
-  if (!/Lacunas|SEM TESTE PROBATÓRIO/i.test(bible)) {
-    problems.push('Bíblia aprovada sem seção/avisos de lacunas de teste: ' + sourcePath);
-  }
-
-  const proseOnly = bible.replace(/```[\s\S]*?```/g, '');
-  const forbiddenBoilerplate = [
-    /executa a instrução concreta/i,
-    /executa a instrução específica(?: de)?/i,
-    /usa os dados já validados pelas linhas/i,
-    /usa valores produzidos nas linhas vizinhas/i,
-    /usa identidades e valores estabelecidos pelas linhas anteriores/i,
-    /dentro do protocolo de (?:claim|commit)/i,
-    /coberta direta ou estruturalmente pelos cenários/i,
-    /quando coberta pelos cenários diretos acima/i,
-    /a ordem desta seção é parte do contrato/i,
-  ];
-  const badPattern = forbiddenBoilerplate.find(pattern => pattern.test(proseOnly));
-  if (badPattern) {
-    problems.push(
-      'Bíblia aprovada contém boilerplate genérico proibido '
-      + String(badPattern) + ': ' + sourcePath
-    );
-  }
-}
-
-function validateReviewBibleHeader(sourcePath, biblePath, active) {
-  if (!exists(biblePath)) return;
-  const head = fs.readFileSync(path.join(root, biblePath), 'utf8')
-    .replace(/\r\n/g, '\n')
-    .split('\n')
-    .slice(0, 14)
-    .join('\n');
-  if (!/REVISÃO DE QUALIDADE/i.test(head)) {
-    problems.push('Bíblia em revisão sem aviso interno de REVISÃO DE QUALIDADE: ' + sourcePath);
-  }
-  if (active && !/EM ANDAMENTO/i.test(head)) {
-    problems.push('Bíblia do arquivo EM ANDAMENTO não declara revisão ativa: ' + sourcePath);
-  }
-}
 
 const { validateBibleCoordination } = require('./bible-coordination');
 const bibleValidation = validateBibleCoordination(root, {
