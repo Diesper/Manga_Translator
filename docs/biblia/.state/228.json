@@ -2,11 +2,11 @@
   "index": 228,
   "file": "tests/visual/gtc-fingerprint.visual.js",
   "bible": "docs/biblia/tests/visual/gtc-fingerprint.visual.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 1",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "fb66d9d8eb4125fae1ee9c7f93e52a94cdc5e6e7",
   "started_at_utc": "2026-09-30T15:05:00Z",
-  "completed_at_utc": "2026-09-30T15:12:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "228-001",
@@ -147,5 +147,10 @@
     "ci_visual_summary": "224 passed / 224 total",
     "external_audit_requests_open": 5,
     "note": "Bíblia concluída pelo AGENTE 1 sem modificar fonte, runner, helpers, testes relacionados, workflows ou produção."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

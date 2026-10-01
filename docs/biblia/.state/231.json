@@ -2,11 +2,11 @@
   "index": 231,
   "file": "tests/visual/integration.visual.js",
   "bible": "docs/biblia/tests/visual/integration.visual.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 14",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "2407ce31e6c16ef39466550608a529e92392259f",
   "started_at_utc": "2026-09-30T06:33:57.941Z",
-  "completed_at_utc": "2026-09-30T06:42:20.000Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "231-001",
@@ -122,5 +122,10 @@
     "bible_lines": 1799,
     "external_audit_requests_open": 5,
     "note": "Bíblia concluída com separação explícita entre prova direta in-memory e comportamento persistente/browser não exercitado."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

@@ -2,11 +2,11 @@
   "index": 230,
   "file": "tests/visual/helpers.js",
   "bible": "docs/biblia/tests/visual/helpers.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 20",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "8d740eb3ee276d99c8a82acfb3eada6712e2efed",
   "started_at_utc": "2026-09-30T06:35:07Z",
-  "completed_at_utc": "2026-09-30T06:39:34Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "230-001",
@@ -84,5 +84,10 @@
       109437162605,
       109437162789
     ]
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

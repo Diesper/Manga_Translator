@@ -2,11 +2,11 @@
   "index": 227,
   "file": "tests/visual/crop.visual.js",
   "bible": "docs/biblia/tests/visual/crop.visual.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "432fe488697a98d09e056b89f40b4bf686e8541c",
   "started_at_utc": "2026-09-30T14:28:00Z",
-  "completed_at_utc": "2026-09-30T14:34:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "227-001",
@@ -59,5 +59,10 @@
     "source_text_lines": 106,
     "external_audit_requests_open": 2,
     "note": "Suíte visual é gate real de CI; divergência principal é rotulagem relaxed versus matcher estrito."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

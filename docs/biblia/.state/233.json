@@ -2,11 +2,11 @@
   "index": 233,
   "file": "tests/visual/runner.js",
   "bible": "docs/biblia/tests/visual/runner.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 14",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "fe34764874cac8961bf6c614f5f6d5f85a599763",
   "started_at_utc": "2026-09-30T06:16:11.896Z",
-  "completed_at_utc": "2026-09-30T06:26:30.300Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "233-001",
@@ -123,5 +123,10 @@
     "bible_lines": 850,
     "external_audit_requests_open": 5,
     "note": "Bíblia concluída sem modificar código, testes, fixtures, workflows ou arquivos globais; solicitações externas permanecem OPEN."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
