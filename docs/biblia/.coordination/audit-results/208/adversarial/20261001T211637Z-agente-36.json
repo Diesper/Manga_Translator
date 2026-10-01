@@ -1,0 +1,36 @@
+{
+  "schema_version": 2,
+  "index": 208,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/unit/content-manga/image-fingerprint.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/image-fingerprint.test.js/Bíblia.md",
+  "source_sha": "e4e553c7702701fd17a1d1f3ed2e429ad23934fd",
+  "bible_sha": "fd445726aeb152754361011883ffe6987279c6b2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "208-ADV36-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 208-001/002/003/004 como OPEN e conclui que há quatro solicitações abertas; o state canônico registra 208-001/002/003 como ACCEPTED e 208-004 como SUPERSEDED por 205-001.",
+      "evidence": [
+        "Bíblia.md linhas 107, 117, 127 e 137 rotulam 208-001..004 como OPEN; linha 374 afirma 'quatro solicitações abertas'.",
+        "docs/biblia/.state/208.json registra 208-001=ACCEPTED, 208-002=ACCEPTED, 208-003=ACCEPTED e 208-004=SUPERSEDED, superseded_by=205-001.",
+        "As lacunas técnicas permanecem honestamente descritas; o defeito é o lifecycle documental stale."
+      ]
+    },
+    {
+      "id": "208-ADV36-002",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia classifica como prova direta de que a produção gera dHash/wHash/pHash/regionais um teste que executa apenas o módulo shared gtc-fingerprint, sem executar generateImageFingerprint de content_manga.js ou cm-gtc-client.js.",
+      "evidence": [
+        "Bíblia.md linha 92: 'Produção gera dHash/wHash/pHash/regionais' → tests/unit/gtc/fingerprint.test.js → 'PROVADO DIRETAMENTE por teste externo'.",
+        "tests/unit/gtc/fingerprint.test.js importa e testa diretamente extension/shared/gtc-fingerprint.js; não chama generateImageFingerprint nem content_manga.js/cm-gtc-client.js.",
+        "content_manga.js e cm-gtc-client.js realmente chamam os helpers, mas isso é evidência estática de wiring. Remover essas chamadas do pipeline manteria o teste shared verde; portanto a evidência citada não é prova direta do comportamento de produção."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:16:37Z"
+}
