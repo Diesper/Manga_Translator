@@ -72,31 +72,33 @@ Timeout de readiness não é silencioso: executa cleanup, invalida o token da in
 
 ## 10. Audit requests históricas
 
-### 102-001 — corrigida
+### 102-001 — RESOLVED
 JSDoc alinhado à API real, com regressão de attachment.
 
-### 102-002 — corrigida
+### 102-002 — RESOLVED
 Fallback cancelável, sem timer residual após resposta, cobertura de resposta imediata/assíncrona/silêncio/throw e `--detectOpenHandles`.
 
-### 102-003 — corrigida
+### 102-003 — RESOLVED
 Bundle derivado do Manifest, com comparação focal.
 
-### 102-004 — corrigida
+### 102-004 — RESOLVED
 Bootstrap incompleto rejeita com erro causal e cleanup.
 
-### 102-005 — corrigida
+### 102-005 — RESOLVED
 Ownership e cleanup de listeners storage/runtime/globais cobertos em reinjeção, reload de módulo, registros assíncronos e caminhos de falha.
 
 ## 11. Evidência focal
 
-Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — SHA `ab21c4a581e2e36496e92b83d9bebc8709d5300d`.
+Self-test: `docs/biblia/.coordination/load-content-script-selftest.test.js` — SHA `e69bbea8a1d2ca056c51e812af30c9b0f9f3cdde`.
 
-O self-test cobre, entre outros: reentrada, JSDoc, Manifest, DOM fixture, listeners externos síncronos/assíncronos, restore de `addEventListener`, storage/runtime/global ownership, `jest.resetModules`, teardown normal e com erro, cleanup best-effort quando `removeListener` lança, erro primário não extensível com erro secundário de cleanup, falha parcial, bootstrap exception/timeout e semântica de `sendMessage`.
+Workflow dedicado: `.github/workflows/load-content-script-selftest.yml` — SHA `e5689d6a5acbd81f633d906c24b6a8f6c6fcc663`.
 
-Workflow dedicado: `.github/workflows/load-content-script-selftest.yml` — SHA `9eb534298b30c7dd619ecbb2d51e044f972f50d6`.
+- Run `36941566574`: etapa focal concluiu `success` com 28/28 casos e `--detectOpenHandles`.
+- Run `36940601914` (job `110630946560`): suíte relacionada `content-scripts` concluiu `success` com **40/40 suites e 445/445 testes** sobre o mesmo `SOURCE_SHA=0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- Comparação `3d3dcddad0aa631290a5e3f9324a8eda9ac09cd1...49daf72b97f9ea24061f4aad6dbd76fd0f84d5d6`: nenhum arquivo do helper, `jest.config.js`, mocks ou projetos `content-manga`/`content-gemini`/`inject` mudou depois da execução 445/445; a evidência ampla permanece aplicável.
+- Run `36941566579`: `Repository Structure Selftest` concluiu `success`, confirmando que a infraestrutura focal não introduz segunda config Jest versionada nem quebra o gate estrutural.
 
-O workflow executa o self-test com `--detectOpenHandles` e depois a suíte relacionada `content-scripts` em `--runInBand`.
-
+O self-test cobre: config Jest canônica/coverage em processos frescos, reentrada, JSDoc, Manifest, DOM fixture, listeners externos síncronos/assíncronos, restauração de `addEventListener`, ownership storage/runtime/global, `jest.resetModules`, teardown normal e com erro, cleanup best-effort, erro primário não extensível, falha parcial, bootstrap exception/timeout e semântica de `sendMessage`.
 ## 12. Limites honestos
 
 - O helper depende de internals do mock (`_listeners`, `_messageListeners`).
