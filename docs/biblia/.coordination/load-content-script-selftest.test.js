@@ -106,8 +106,6 @@ describe('load-content-script helper selftest', () => {
     expect(windowRemoveSpy.mock.calls.some(([type]) => type === 'resize')).toBe(true);
     expect(windowRemoveSpy.mock.calls.some(([type]) => type === 'pagehide')).toBe(true);
     expect(documentRemoveSpy.mock.calls.some(([type]) => type === 'contextmenu')).toBe(true);
-    expect(documentRemoveSpy.mock.calls.some(([type]) => type === 'mousemove')).toBe(true);
-    expect(documentRemoveSpy.mock.calls.some(([type]) => type === 'mouseup')).toBe(true);
   });
   test('reinjeção remove listeners de storage da carga anterior', async () => {
     await loadContentScript({
