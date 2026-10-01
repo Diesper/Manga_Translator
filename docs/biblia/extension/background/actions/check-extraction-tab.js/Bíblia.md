@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/check-extraction-tab.js`
 
-> **Estado documental:** correção materializada; validação executável final pendente  
+> **Estado documental:** correção validada; decisão distribuída final pendente  
 > **SHA auditado:** `18640c20e3ba872c18e81ec4ec7d7357d16fd958`  
 > **Tipo:** action do background que identifica abas temporárias de extração  
 > **Linhas textuais:** **29**  
@@ -72,17 +72,17 @@ O self-test executa o **arquivo real** em `vm` e cobre:
 
 Workflow dedicado: `.github/workflows/check-extraction-tab-selftest.yml` — SHA `87803437d424048622a396c74975426114fdd680`.
 
-O workflow roda o self-test Node e depois todo o projeto Jest `background` em `--runInBand --detectOpenHandles`. A aprovação desta revisão continua pendente até uma run verde vinculada aos blobs atuais.
+O workflow roda o self-test Node e depois todo o projeto Jest `background` em `--runInBand --detectOpenHandles`. A run `36942704897`, job `110637664732`, executou exatamente `SOURCE_SHA=18640c20e3ba872c18e81ec4ec7d7357d16fd958`, self-test `26977004615d152923a9abd9a5451571ce3c46a7` e workflow `87803437d424048622a396c74975426114fdd680`: self-test focal **PASS**, suíte background **45/45 suites e 225/225 testes**, com detecção de open handles habilitada.
 
 ## 7. Audit requests históricas
 
-### 004-001 — IMPLEMENTED; validação final pendente
+### 004-001 — RESOLVED
 
-O discriminador agora é aplicado depois do spread e mappings malformados recebem tratamento defensivo. O self-test inclui conflito explícito `isExtractionTab:false`.
+O discriminador agora é aplicado depois do spread e mappings malformados recebem tratamento defensivo. O self-test inclui conflito explícito `isExtractionTab:false`, arrays, primitivos e propriedades herdadas. A run `36942704897` concluiu `success`.
 
-### 004-002 — IMPLEMENTED; validação final pendente
+### 004-002 — RESOLVED
 
-A cobertura focal agora inclui sender sem tab, state/extractionTabs ausentes, rejeição de `ensureInitialized`, ordem do await e bootstrap sem router. A evidência foi colocada em infraestrutura de coordenação para não alterar/inutilizar a Bíblia de outro arquivo de teste.
+A cobertura focal agora inclui sender sem tab, state/extractionTabs ausentes, rejeição de `ensureInitialized`, ordem do await, bootstrap sem router e os ramos `self`/`globalThis`. A evidência foi colocada em infraestrutura de coordenação para não alterar/inutilizar a Bíblia de outro arquivo de teste. A run `36942704897` concluiu `success`.
 
 ## 8. Findings PRIMARY + ADVERSARIAL da revisão anterior
 
@@ -158,5 +158,5 @@ Ambos são removidos nesta revisão. Esta Bíblia não declara `DONE`, `COMPLETE
 - Fonte integral acima inserida diretamente do blob atual.
 - Nenhuma aprovação histórica é apresentada como status da revisão atual.
 - O ramo de escopo é descrito pela condição real, não por suposição de ambiente.
-- Requests 004-001/002 permanecem como implementadas/pending até evidência executável verde.
-- Próximo passo: validar self-test + suíte background, sincronizar state/Bíblia e devolver a nova revisão para auditoria independente.
+- Requests 004-001/002 estão corrigidas e validadas pela run `36942704897` / job `110637664732`.
+- A revisão continua sem aprovação distribuída própria; próximo passo canônico é nova auditoria independente PRIMARY + ADVERSARIAL para este `SOURCE_SHA`/`BIBLE_SHA`.
