@@ -2188,7 +2188,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Declara a função `savePageResult` em **savePageResult transacional**.  
 **Como faz:** Abre o escopo da operação de storage descrita nas linhas seguintes.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0171
@@ -2197,7 +2197,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!chapterId) throw new Error('savePageResult: chapterId obrigatório');`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0172
@@ -2206,7 +2206,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `index` com `Number(pageIndex);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0173
@@ -2215,7 +2215,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!Number.isFinite(index)) throw new Error('savePageResult: pageIndex inválido');`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0174
@@ -2233,7 +2233,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Retorna `return enqueueChapterOp(chapterId, async () => {`.  
 **Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0176
@@ -2242,7 +2242,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `db` com `await openStorageDb();`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0177
@@ -2251,7 +2251,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `assetId` com `generateAssetId();`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0178
@@ -2260,7 +2260,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `blob` com `dataUrlToBlob(imageData);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0179
@@ -2269,7 +2269,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `now` com `Date.now();`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0180
@@ -2287,7 +2287,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `tx` com `db.transaction(`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0182
@@ -2314,7 +2314,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `);`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0185
@@ -2323,7 +2323,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `assetStore` com `tx.objectStore(SM_STORE_ASSETS);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0186
@@ -2332,7 +2332,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `pageStore` com `tx.objectStore(SM_STORE_CHAPTER_PAGES);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0187
@@ -2341,7 +2341,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `restoreStore` com `tx.objectStore(SM_STORE_RESTORE);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0188
@@ -2368,7 +2368,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `obsolete` com `new Set();`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0191
@@ -2377,7 +2377,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `previousPage` com `await _idbGet(pageStore, [chapterId, index]);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0192
@@ -2386,7 +2386,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0193
@@ -2440,7 +2440,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Agenda `put` no IndexedDB com `assetStore.put({`.  
 **Como faz:** Insere ou substitui o registro pela keyPath do store dentro da transaction atual.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0199
@@ -2449,7 +2449,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `assetId` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0200
@@ -2458,7 +2458,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `blob` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0201
@@ -2467,7 +2467,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `mimeType: blob.type \|\| 'image/png',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0202
@@ -2476,7 +2476,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `size: blob.size,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0203
@@ -2485,7 +2485,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `createdAt: now,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0204
@@ -2494,7 +2494,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0205
@@ -2512,7 +2512,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Agenda `put` no IndexedDB com `pageStore.put({`.  
 **Como faz:** Insere ou substitui o registro pela keyPath do store dentro da transaction atual.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0207
@@ -2521,7 +2521,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `chapterId` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0208
@@ -2530,7 +2530,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `pageIndex: index,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0209
@@ -2539,7 +2539,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `assetId` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0210
@@ -2548,7 +2548,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `originalUrl: originalUrl \|\| '',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0211
@@ -2557,7 +2557,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `cleanUrl: cleanUrl \|\| '',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0212
@@ -2566,7 +2566,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `width: metadata.width \|\| 0,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0213
@@ -2575,7 +2575,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `height: metadata.height \|\| 0,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0214
@@ -2584,7 +2584,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `updatedAt: now,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0215
@@ -2593,7 +2593,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0216
@@ -2611,7 +2611,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (cleanUrl) {`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0218
@@ -2620,7 +2620,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Agenda `put` no IndexedDB com `restoreStore.put({`.  
 **Como faz:** Insere ou substitui o registro pela keyPath do store dentro da transaction atual.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0219
@@ -2629,7 +2629,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `chapterId` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0220
@@ -2638,7 +2638,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `cleanUrl` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0221
@@ -2647,7 +2647,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `assetId` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0222
@@ -2656,7 +2656,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `sourceUrl: metadata.sourceUrl \|\| originalUrl \|\| '',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0223
@@ -2665,7 +2665,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `host: metadata.host \|\| '',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0224
@@ -2674,7 +2674,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Adiciona `index` ao objeto/API em construção.  
 **Como faz:** Usa shorthand de propriedade para expor a função/constante já definida.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0225
@@ -2683,7 +2683,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `width: metadata.width \|\| 0,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0226
@@ -2692,7 +2692,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `height: metadata.height \|\| 0,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0227
@@ -2701,7 +2701,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `updatedAt: now,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0228
@@ -2710,7 +2710,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0229
@@ -2719,7 +2719,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0230
@@ -2737,7 +2737,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Agenda deleção com `obsolete.forEach(id => { if (id !== assetId) assetStore.delete(id); });`.  
 **Como faz:** Remove registro/asset identificado pela chave dentro da transaction.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0232
@@ -2755,7 +2755,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Obtém object store com `tx.objectStore(SM_STORE_CHAPTERS).put({ chapterId, updatedAt: now });`.  
 **Como faz:** Resolve o store dentro da transaction atual antes de get/put/delete.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0234
@@ -2773,7 +2773,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aguarda `await _idbTxComplete(tx);`.  
 **Como faz:** Impede que a função retorne antes de leitura, transaction, conversão ou save necessário terminar.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0236
@@ -2782,7 +2782,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Retorna `return { assetId, chapterId, pageIndex: index };`.  
 **Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0237
@@ -2791,7 +2791,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0238
@@ -2800,7 +2800,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **savePageResult transacional** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** grava asset+página+restore+chapter numa única transaction readwrite e coleta assets substituídos.  
-**Risco/alternativa:** troca de cleanUrl pode deixar restore antigo referenciando asset removido; abort não é injetado.  
+**Risco/alternativa:** troca de cleanUrl agora remove restore/asset antigo na mesma transaction; abort/rollback ainda não é injetado.  
 **Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO FELIZ — smoke-04 prova save, overwrite e remoção do asset antigo; smoke-03 prova concorrência e restore; rollback/cleanUrl-change não têm testes.
 
 ### Linha 0239
@@ -4393,7 +4393,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Declara a função `migrateChapterFromLegacy` em **migração legada por capítulo**.  
 **Como faz:** Abre o escopo da operação de storage descrita nas linhas seguintes.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0416
@@ -4402,7 +4402,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!chapterId) return { migrated: 0, skipped: true };`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0417
@@ -4420,7 +4420,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `flagKey` com `\`_sm_migrated_${chapterId}\`;`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0419
@@ -4429,7 +4429,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `keys` com `[flagKey, \`${chapterId}_images\`, \`${chapterId}_restoreMap\`, \`${chapterId}_restoreMeta\`];`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0420
@@ -4456,7 +4456,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (data[flagKey]) return { migrated: 0, skipped: true };`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0423
@@ -4474,7 +4474,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `images` com `data[\`${chapterId}_images\`] \|\| {};`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0425
@@ -4483,7 +4483,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `restoreMap` com `data[\`${chapterId}_restoreMap\`] \|\| {};`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0426
@@ -4492,7 +4492,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `restoreMeta` com `data[\`${chapterId}_restoreMeta\`] \|\| {};`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0427
@@ -4510,7 +4510,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `migrated` com `0;`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0429
@@ -4537,7 +4537,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `urlByIndex` com `{};`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0432
@@ -4546,7 +4546,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Percorre a coleção com `Object.keys(restoreMeta).forEach(url => {`.  
 **Como faz:** Aplica delete, coleta de assetId ou construção de mapa a cada registro.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0433
@@ -4555,7 +4555,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `meta` com `restoreMeta[url];`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0434
@@ -4564,7 +4564,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (meta && meta.index !== undefined && meta.index !== null) urlByIndex[String(meta.index)] = url;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0435
@@ -4573,7 +4573,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0436
@@ -4591,7 +4591,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicia a iteração `for (const indexStr of Object.keys(images)) {`.  
 **Como faz:** Percorre bytes, capítulos, páginas, restores ou assets na ordem do algoritmo.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0438
@@ -4600,7 +4600,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `dataUrl` com `images[indexStr];`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0439
@@ -4609,7 +4609,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!dataUrl \|\| typeof dataUrl !== 'string') continue;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0440
@@ -4618,7 +4618,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `pageIndex` com `parseInt(indexStr, 10);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0441
@@ -4627,7 +4627,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!Number.isFinite(pageIndex)) continue;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0442
@@ -4645,7 +4645,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `cleanUrl` com `urlByIndex[indexStr] \|\| '';`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0444
@@ -4654,7 +4654,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `meta` com `(cleanUrl && restoreMeta[cleanUrl]) \|\| {};`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0445
@@ -4672,7 +4672,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aguarda `await savePageResult(chapterId, pageIndex, dataUrl, meta.sourceUrl \|\| '', cleanUrl, {`.  
 **Como faz:** Impede que a função retorne antes de leitura, transaction, conversão ou save necessário terminar.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0447
@@ -4681,7 +4681,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `host: meta.host \|\| '', width: meta.width \|\| 0, height: meta.height \|\| 0,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0448
@@ -4690,7 +4690,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `sourceUrl: meta.sourceUrl \|\| '',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0449
@@ -4699,7 +4699,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0450
@@ -4726,7 +4726,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0453
@@ -4753,7 +4753,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `orphanSlot` com `-1;`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0456
@@ -4762,7 +4762,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicia a iteração `for (const cleanUrl of Object.keys(restoreMap)) {`.  
 **Como faz:** Percorre bytes, capítulos, páginas, restores ou assets na ordem do algoritmo.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0457
@@ -4771,7 +4771,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `dataUrl` com `restoreMap[cleanUrl];`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0458
@@ -4780,7 +4780,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (!dataUrl \|\| typeof dataUrl !== 'string') continue;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0459
@@ -4789,7 +4789,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `meta` com `restoreMeta[cleanUrl] \|\| {};`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0460
@@ -4798,7 +4798,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `declaredIndex` com `Number(meta.index);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0461
@@ -4807,7 +4807,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `hasPage` com `Number.isFinite(declaredIndex) && images[String(declaredIndex)];`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0462
@@ -4816,7 +4816,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aplica a guarda `if (hasPage) continue; // já migrado acima`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0463
@@ -4825,7 +4825,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Inicializa `pageIndex` com `Number.isFinite(declaredIndex) ? declaredIndex : (orphanSlot--);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0464
@@ -4843,7 +4843,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Aguarda `await savePageResult(chapterId, pageIndex, dataUrl, meta.sourceUrl \|\| '', cleanUrl, {`.  
 **Como faz:** Impede que a função retorne antes de leitura, transaction, conversão ou save necessário terminar.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0466
@@ -4852,7 +4852,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `host: meta.host \|\| '', width: meta.width \|\| 0, height: meta.height \|\| 0,`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0467
@@ -4861,7 +4861,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Define o campo `sourceUrl: meta.sourceUrl \|\| '',`.  
 **Como faz:** Compõe registro de page/restore/asset ou objeto de retorno com valor explícito.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0468
@@ -4870,7 +4870,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `});`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0469
@@ -4897,7 +4897,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0472
@@ -4969,7 +4969,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Retorna `return { migrated, skipped: false };`.  
 **Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0480
@@ -4978,7 +4978,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **O que faz:** Fecha/continua a estrutura sintática de **migração legada por capítulo** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
 **Por que assim:** migra chaves específicas do capítulo e limpa Base64 legado só após o fluxo de saves.  
-**Risco/alternativa:** catch por página + flag final pode transformar falha parcial em perda/skip permanente; orphan slots negativos afetam índices.  
+**Risco/alternativa:** falha de item agora retorna antes de cleanup/flag, preservando retry; orphan slots negativos continuam afetando índices.  
 **Evidência:** 🟨 PROVADO DIRETAMENTE PARA SUCESSO/IDEMPOTÊNCIA — smoke-04 prova migração, flag, limpeza e segunda execução skipped; falha parcial/orphan restore não são injetados.
 
 ### Linha 0481
