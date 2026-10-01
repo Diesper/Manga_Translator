@@ -13,6 +13,20 @@ const {
   getStorageMock,
 } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
 
+function loadCanonicalJestConfig({ coverage = false } = {}) {
+  const configPath = path.join(ROOT, 'jest.config.js');
+  const previousCoverage = process.env.COVERAGE_MODE;
+  try {
+    if (coverage) process.env.COVERAGE_MODE = '1';
+    else delete process.env.COVERAGE_MODE;
+    delete require.cache[require.resolve(configPath)];
+    return require(configPath);
+  } finally {
+    delete require.cache[require.resolve(configPath)];
+    if (previousCoverage === undefined) delete process.env.COVERAGE_MODE;
+    else process.env.COVERAGE_MODE = previousCoverage;
+  }
+}
 describe('load-content-script helper selftest', () => {
   let runtimeMock;
   let storageMock;
@@ -43,6 +57,31 @@ describe('load-content-script helper selftest', () => {
     document.documentElement.innerHTML = '<head></head><body></body>';
   });
 
+  test('config Jest canônica preserva projetos, setups e boundaries de coverage', () => {
+    const normal = loadCanonicalJestConfig();
+    const coverage = loadCanonicalJestConfig({ coverage: true });
+    const byName = new Map(normal.projects.map(project => [project.displayName, project]));
+
+    expect([...byName.keys()]).toEqual([
+      'background', 'gtc', 'content-scripts', 'popup', 'reader', 'manifest', 'shared-ui', 'integration',
+    ]);
+    expect(normal.cacheDirectory).toBe('<rootDir>/.jest-cache');
+    expect(normal.testTimeout).toBe(15000);
+    expect(coverage.cacheDirectory).toBe('<rootDir>/.jest-cache-coverage');
+    expect(coverage.testTimeout).toBe(60000);
+    expect(coverage.coverageProvider).toBe('v8');
+    expect(coverage.collectCoverageFrom).toEqual(['<rootDir>/extension/**/*.js']);
+
+    for (const name of ['content-scripts', 'popup', 'reader', 'shared-ui', 'integration']) {
+      expect(byName.get(name).setupFilesAfterEnv).toEqual([
+        '<rootDir>/tests/mocks/chrome-api.mock.js',
+        '<rootDir>/tests/mocks/dom-environment.js',
+      ]);
+    }
+    expect(byName.get('background').setupFilesAfterEnv).toEqual([
+      '<rootDir>/tests/mocks/chrome-api.mock.js',
+    ]);
+  });
   test('JSDoc de loadContentScript permanece anexado à função pública', () => {
     const source = fs.readFileSync(path.join(ROOT, 'tests/helpers/load-content-script.js'), 'utf8');
     const signature = '*/\nasync function loadContentScript({';
