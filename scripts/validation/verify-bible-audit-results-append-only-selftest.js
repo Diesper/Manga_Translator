@@ -64,8 +64,8 @@ try {
     commit(root, 'mutate result');
     const problems = verifyAppendOnly(root);
     assert(
-      'resultado já publicado modificado é rejeitado',
-      problems.some((p) => p.includes('status=M')),
+      'resultado já publicado com outro blob é rejeitado',
+      problems.some((p) => p.includes('conteúdo foi alterado')),
       JSON.stringify(problems)
     );
   }
@@ -80,9 +80,27 @@ try {
     commit(root, 'delete result');
     const problems = verifyAppendOnly(root);
     assert(
-      'resultado já publicado apagado é rejeitado',
-      problems.some((p) => p.includes('status=D')),
+      'resultado publicado ausente no HEAD é rejeitado',
+      problems.some((p) => p.includes('ausente no HEAD')),
       JSON.stringify(problems)
+    );
+  }
+
+  {
+    const root = makeRepo(); roots.push(root);
+    const file = resultFile(root);
+    const original = '{"verdict":"APPROVED"}\n';
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, original);
+    commit(root, 'add result');
+    fs.unlinkSync(file);
+    commit(root, 'temporary tree loss');
+    fs.writeFileSync(file, original);
+    commit(root, 'restore exact result');
+    assert(
+      'deleção transitória com restauração byte-idêntica preserva imutabilidade',
+      verifyAppendOnly(root).length === 0,
+      JSON.stringify(verifyAppendOnly(root))
     );
   }
 
