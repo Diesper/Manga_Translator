@@ -1,0 +1,9 @@
+AGENTE: COORDENADOR
+ARQUIVO: tests/unit/background/tab-identity.test.js
+BÍBLIA: docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: 1f2dd52513037f061613d04453a961fbaeddef84
+CLAIMED_AT_UTC: 2026-10-01T18:32:17.496Z
+UPDATED_AT_UTC: 2026-10-01T18:32:17.496Z
+PR: 66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
