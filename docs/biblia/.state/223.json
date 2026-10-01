@@ -2,11 +2,11 @@
   "index": 223,
   "file": "tests/unit/reader/page-counter.test.js",
   "bible": "docs/biblia/tests/unit/reader/page-counter.test.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 17",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "cec252ffefc25ee643b0227926ec6780a59ac272",
   "started_at_utc": "2026-09-30T14:38:00Z",
-  "completed_at_utc": "2026-09-30T14:44:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "223-001",
@@ -80,5 +80,10 @@
     "source_text_lines": 169,
     "external_audit_requests_open": 3,
     "note": "Reader real exercitado; callbacks parciais e empate diretamente provados; scroll/resize permanece fora da prova."
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }

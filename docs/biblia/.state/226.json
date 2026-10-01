@@ -2,11 +2,11 @@
   "index": 226,
   "file": "tests/visual/content-manga-pipeline.visual.js",
   "bible": "docs/biblia/tests/visual/content-manga-pipeline.visual.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": "AGENTE 3",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "61bc86351c914a1d9bb6bb4a13168b4567ac3cf9",
   "started_at_utc": "2026-09-30T15:04:28.429Z",
-  "completed_at_utc": "2026-09-30T15:12:44.585Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "226-001",
@@ -121,5 +121,10 @@
     "evidence_job": 109255348156,
     "evidence_summary": "Mesmo blob executado em Visual Tests; log registrou suites deste arquivo e resumo global 224 passed / 224 total.",
     "production_vs_mirror_distinguished": true
-  }
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
 }
