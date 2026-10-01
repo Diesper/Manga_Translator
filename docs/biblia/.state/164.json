@@ -2,8 +2,8 @@
   "index": 164,
   "file": "tests/unit/background/request-image-data-action.test.js",
   "bible": "docs/biblia/tests/unit/background/request-image-data-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
   "started_at_utc": "2026-09-30T12:30:00Z",
   "completed_at_utc": null,
@@ -82,6 +82,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
       "reason": "164-ADV-001/002: corrigir semântica das linhas 39/49 e lifecycle dos requests."
+    },
+    {
+      "at_utc": "2026-10-01T18:27:37.885Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
+      "bible_sha": "e349d896cd16856a039df2af116fd23deda27cd4",
+      "reason": "164-ADV-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
