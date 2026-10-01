@@ -10,6 +10,9 @@ const {
   evaluateAuditPipelines,
   pipelineMergeBlockers,
 } = require('./bible-audit-pipeline');
+const {
+  loadModel: loadDistributedAuditModel,
+} = require('../../docs/biblia/.coordination/audit-protocol');
 
 const root = path.resolve(__dirname, '../..');
 const bibleRoot = path.join(root, 'docs', 'biblia');
@@ -28,10 +31,39 @@ const readiness = evaluateMergeReadiness(validation, {
 const auditEvaluation = evaluateAuditPipelines(
   validation.states,
   validation.auditResults || [],
-  validation.audits
+  validation.audits,
+  { root }
 );
 for (const problem of auditEvaluation.problems) readiness.blockers.push('audit-pipeline: ' + problem);
 for (const blocker of pipelineMergeBlockers(validation.states, auditEvaluation)) readiness.blockers.push(blocker);
+
+// O validator V2 legado conhece audit-claims; o protocolo distribuído é a
+// autoridade para audit-leases, baseline de Bible revision e invariantes
+// estritas de ownership no fechamento.
+const distributedModel = loadDistributedAuditModel();
+for (const problem of distributedModel.problems || []) {
+  readiness.blockers.push('distributed-protocol: ' + problem);
+}
+for (const problem of distributedModel.merge_problems || []) {
+  readiness.blockers.push('distributed-merge: ' + problem);
+}
+if ((distributedModel.active_claims_and_leases || []).length) {
+  readiness.blockers.push(
+    'distributed claims/leases ativos=' + distributedModel.active_claims_and_leases.length
+    + ': ' + distributedModel.active_claims_and_leases.join(', ')
+  );
+}
+if ((distributedModel.expired_leases || []).length) {
+  readiness.blockers.push(
+    'distributed leases expirados residuais=' + distributedModel.expired_leases.length
+    + ': ' + distributedModel.expired_leases.join(', ')
+  );
+}
+if (!distributedModel.baseline || Object.keys(distributedModel.baseline.bibles || {}).length !== 233) {
+  readiness.blockers.push('baseline de revisão das Bíblias ausente/incompleta');
+}
+
+readiness.blockers = [...new Set(readiness.blockers)];
 readiness.ready = readiness.blockers.length === 0;
 
 if (!readiness.ready) {
