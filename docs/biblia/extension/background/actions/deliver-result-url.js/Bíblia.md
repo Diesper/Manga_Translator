@@ -1,6 +1,6 @@
 # Bíblia técnica — `extension/background/actions/deliver-result-url.js`
 
-> **Estado:** ✅ REAUDITADO E APROVÁVEL.  
+> **Estado:** 🟡 CORRIGIDO após PRIMARY+ADVERSARIAL — READY_FOR_AUDIT da revisão documental atual.  
 > **SHA auditado:** `91c50efe4764f56aac16aec2c91309e06db7d0ac`  
 > **Tipo:** action assíncrona — criação/registro de aba auxiliar de extração.  
 > **Linhas textuais:** **93**.  
@@ -10,6 +10,16 @@
 ## 1. Papel arquitetural
 
 Quando o resultado do Gemini está disponível como URL em vez de Data URL já extraído, esta action abre uma aba auxiliar inativa, registra seu mapping no estado durável e coloca o job em `awaiting_auxiliary_extraction`. Ela **não finaliza** o job.
+
+### Producer, loader e contrato upstream de produção
+
+- `extension/content/gemini/job-runner.js`, no callback `onAuxiliaryFallback`, é o **producer real**: envia `GEMINI_RESULT_URL` com `mangaTabId`, `index`, `url`, `jobId` e `batchId`.
+- O caller exige que a resposta satisfaça `registered?.ok` **e** `registered.extractionRegistered === true`; caso contrário lança `AUXILIARY_REGISTRATION_FAILED`.
+- `extension/background/router.js` mapeia `GEMINI_RESULT_URL` para o nome canônico `deliver-result-url`.
+- `extension/background.js` carrega `background/actions/deliver-result-url.js` no service worker via `importScripts` e por `require` no harness Node, tornando a action alcançável pelo router registrado.
+- `tests/unit/content-gemini/rpa-flow.test.js` exerce o producer real e afirma a emissão de `GEMINI_RESULT_URL`; isso prova o **lado emissor**, não a implementação interna desta action.
+
+A action retorna `{extractionRegistered:true, auxiliaryTabId}`; o router assíncrono envolve esse resultado em `{ok:true,...}`, que é exatamente o contrato consumido por `onAuxiliaryFallback`.
 
 A aba auxiliar será reconhecida por `CHECK_IF_EXTRACTION_TAB`; `content_manga.js` extrai a imagem e envia `IMAGE_READY_FROM_NEW_TAB`, tratado por `deliver-result-from-tab.js`.
 
@@ -33,6 +43,7 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 - URL HTTP(S) preserva path/query e substitui somente o fragmento.
 - `data:image/` não possui limite de tamanho.
 - `tabs.create` não verifica `runtime.lastError` nem valida `newTab.id`; falha pode resultar em exceção ao registrar o mapping.
+- O adapter de `assertJobOwnership` também é callback→Promise **sem timeout/cancelamento local**. Se esse callback nunca vier, `execute` fica pendente indefinidamente, assim como ocorre no adapter de `tabs.create`. Esta é a metade de `008-003` que faltava na revisão anterior.
 - Se `updateJobState` ou `syncState` falhar depois da aba abrir, não há rollback/fechamento automático dessa aba nesta action.
 
 ## 5. Matriz de evidência
@@ -54,8 +65,10 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 ### URL existente com fragmento/catch
 ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para substituição de hash existente, query preservation e o catch de `new URL()`.
 
-### Falha de `tabs.create`
-⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `runtime.lastError`, callback sem aba/id, exceção ou criação que nunca chama callback.
+### Falha/ausência de callback em adapters callback→Promise
+⚠️ **008-003 — ACCEPTED/HIGH.** Nem `assertJobOwnership` nem `chrome.tabs.create` possuem timeout/cancelamento local. Se qualquer callback não for chamado, `execute` e o canal assíncrono podem permanecer pendentes. A suíte atual sempre chama o callback de ownership e não cobre esse hang.
+
+Para `tabs.create`, também faltam provas focais de `runtime.lastError`, callback sem aba/id e exceção.
 
 ### Falha depois da aba criada
 ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `updateJobState()` ou `syncState()` rejeitando. Não existe rollback local que feche a aba/mapping parcial.
@@ -436,4 +449,6 @@ HTTP(S) recebe o fragmento `#manga-translator-extraction`. `content_manga.js` ve
 - [x] consumidor do hash verificado;
 - [x] nenhum código funcional alterado.
 
-**Veredito documental:** aprovada para `91c50efe4764f56aac16aec2c91309e06db7d0ac`.
+**Veredito documental da revisão atual:** 🟡 corrigida após PRIMARY+ADVERSARIAL; não herda o REAUDIT da revisão anterior e requer nova PRIMARY + ADVERSARIAL para o novo `BIBLE_SHA`.
+
+> **Correção pós-ADVERSARIAL v2:** loader, producer `job-runner.js`, alias e contrato de resposta/falha de `onAuxiliaryFallback` foram documentados; a revisão não é mais marcada como herdando REAUDIT antigo; o risco de callback ausente de `assertJobOwnership` foi incluído junto ao de `tabs.create`.
