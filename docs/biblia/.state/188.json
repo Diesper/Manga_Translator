@@ -2,8 +2,8 @@
   "index": 188,
   "file": "tests/unit/content-gemini/safe-background-delete.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "COORDENADOR",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
   "started_at_utc": "2026-09-30T14:59:30Z",
   "completed_at_utc": null,
@@ -78,7 +78,7 @@
     "embedded_source_exact": true,
     "documented_positions": "286/286",
     "source_text_lines": 285,
-    "external_audit_requests_open": 3,
+    "external_audit_requests_open": 0,
     "note": "Suíte autêntica da cadeia de extração/background_delete; deleção real completa é coberta separadamente."
   },
   "schema_version": 2,
@@ -92,6 +92,15 @@
       "to_status": "IN_PROGRESS",
       "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
       "reason": "188 PRIMARY+ADVERSARIAL: reconstruir mapa 1–285 + posição 286 e sincronizar lifecycle."
+    },
+    {
+      "at_utc": "2026-10-01T19:33:35.509Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
+      "bible_sha": "8b913d4768aea9eb5a80b719aa2407aa7a24633a",
+      "reason": "188-PRI/A8 corrigidos; mapa 1–285 + posição 286 reconstruído; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
     }
   ],
   "evidence": []
