@@ -97,10 +97,11 @@ try {
     commit(root, 'temporary tree loss');
     fs.writeFileSync(file, original);
     commit(root, 'restore exact result');
+    const problems = verifyAppendOnly(root);
     assert(
-      'deleção transitória com restauração byte-idêntica preserva imutabilidade',
-      verifyAppendOnly(root).length === 0,
-      JSON.stringify(verifyAppendOnly(root))
+      'deleção transitória permanece proibida mesmo após restauração byte-idêntica',
+      problems.some((p) => p.includes('histórico não é append-only') && p.includes('status=D')),
+      JSON.stringify(problems)
     );
   }
 
