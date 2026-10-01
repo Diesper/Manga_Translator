@@ -1310,3 +1310,19 @@ Após o veredito independente aprovado, o gate V2 detectou uma omissão estrutur
 - **Passagens:** 0–15 executadas; checks finais: Integridade=SIM, Veracidade=NÃO (status OPEN stale), Honestidade da classificação de evidência=SIM.
 
 **Veredito:** 🟣 CHANGES_REQUIRED
+
+### `image-translation-routing.test.js` — auditoria independente SHA-bound pelo AGENTE 5 em 2026-10-01
+
+- **Índice:** #112 — `tests/integration/ipc/image-translation-routing.test.js`.
+- **Auditor:** AGENTE 5.
+- **SHA auditado:** `4f1674c12311a48215b97faabb0415011a6cba87`.
+- **Integridade:** state, source, claim e SHA declarado na Bíblia coincidem. A fonte integral embutida é byte a byte idêntica ao source atual; 137 linhas textuais + newline final = **138/138 posições**, com seções `Linha 1` a `Linha 138` sem gaps numéricos.
+- **Falha documental 1 — linha 118 semanticamente invertida:** a fonte é `expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(false);`, mas a cobertura diz que a linha “Detecta o pedido real do content script para iniciar lote no background e permite ao teste observar o payload enviado”. A assertion prova precisamente a **ausência** desse pedido. A própria seção 3.2 e a tabela de evidência dizem que nenhum `START_BATCH` é enviado, criando contradição interna.
+- **Falha documental 2 — linha 18 classificada como helper síncrono:** `delay(ms = 0)` retorna `new Promise(...)` e é consumido por `await delay(interval)` no polling. Descrevê-lo como “helper síncrono” é semanticamente incorreto.
+- **Falha documental 3 — lifecycle da audit request stale:** a Bíblia apresenta `112-001 — TEST_REQUIRED — OPEN`, enquanto `.state/112.json` registra a mesma request como **ACCEPTED**, com auditoria e recomendação persistidas. O conteúdo da lacuna permanece válido, mas o status documental precisa ser alinhado ou explicitamente marcado como histórico.
+- **Dependências/wiring revalidados:** `load-content-script.js` realmente carrega `gtc-fingerprint.js`, `cm-gtc-client.js`, `cm-dom-replace.js`, `cm-chapter.js`, `cm-auto-restore.js` e `content_manga.js` na ordem do manifest; `jest.config.js` inclui `tests/integration/**/*.test.js`. O runtime de GTC usado pelo fluxo atual é disponibilizado por `window.MangaTranslatorGtcClient`, e `content_manga.js` o vincula antes do pipeline.
+- **Assertions/evidência:** miss verifica `START_BATCH.images === [{index:0}]` e prompt; hit verifica `src` traduzido e ausência de `START_BATCH`; filtro verifica apenas índices 0/1. O background é mockado, portanto o documento acerta ao não promover o processamento interno do service worker a prova direta.
+- **Audit request 112-001:** **ACCEPTED e não bloqueante como problema de software/cobertura**. `gtc-cache-flow.test.js` cobre hit parcial por `simulateExtractWithGTC` própria, não pelo `content_manga.js` real; continua faltando cenário integrado misto hit+miss no pipeline real.
+- **Passagens:** 0–15 executadas; a releitura final preservou o mesmo source SHA. Os três findings documentais sobreviveram à tentativa formal de refutação e à segunda auditoria da própria conclusão.
+
+**Veredito:** 🟣 CHANGES_REQUIRED
