@@ -3,12 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  validateBibleCoordination,
-} = require('./bible-coordination');
-const {
-  evaluateAuditPipelines,
-  nextAuditPhase,
-} = require('./bible-audit-pipeline');
+  loadModel,
+} = require('../../docs/biblia/.coordination/audit-protocol');
 
 const DEFAULT_AUDITOR_COUNT = 80;
 const AUDIT_PHASES = new Set(['AUTO', 'PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
@@ -100,7 +96,7 @@ function planAuditWork({
   for (const state of states || []) {
     if (claimed.has(state.index)) continue;
     const pipeline = pipelines instanceof Map ? pipelines.get(state.index) : null;
-    const nextPhase = nextAuditPhase(pipeline);
+    const nextPhase = pipeline?.next_phase || null;
     if (!nextPhase) continue;
     if (normalizedPhase !== 'AUTO' && nextPhase !== normalizedPhase) continue;
     if (!allowedForPhase(state, nextPhase)) continue;
@@ -136,6 +132,26 @@ function planAuditWork({
   };
 }
 
+function listCoordinationClaimsAndLeases(root) {
+  const roots = [
+    path.join(root, 'docs', 'biblia', '.coordination', 'audit-claims'),
+    path.join(root, 'docs', 'biblia', '.coordination', 'audit-leases'),
+  ];
+  const found = [];
+  const visit = (dir) => {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) visit(full);
+      else if (entry.isFile() && /\.lock\.md$/i.test(entry.name)) {
+        found.push(path.relative(root, full).replace(/\\/g, '/'));
+      }
+    }
+  };
+  for (const dir of roots) visit(dir);
+  return found.sort();
+}
+
 function parseArgs(argv) {
   const args = { auditor: null, auditors: DEFAULT_AUDITOR_COUNT, phase: 'AUTO', json: false, limit: 25 };
   for (let i = 0; i < argv.length; i += 1) {
@@ -155,20 +171,18 @@ function parseArgs(argv) {
 function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   const root = path.resolve(__dirname, '../..');
-  const validation = validateBibleCoordination(root, {
-    checkDerived: false,
-    enforceSingleAuditClaimPerAuditor: false,
-    headLabel: 'distributed-work-plan',
-  });
-  const evaluation = evaluateAuditPipelines(
-    validation.states,
-    validation.auditResults || [],
-    validation.audits
-  );
-  const claimSets = classifyAuditClaims(root, validation.auditClaims);
+  const model = loadModel();
+  if (model.problems.length) {
+    throw new Error('coordenação inválida: ' + model.problems.join('; '));
+  }
+
+  const pipelines = new Map(model.pipelines.map((pipeline) => [pipeline.index, pipeline]));
+  const claimPaths = listCoordinationClaimsAndLeases(root);
+  const claimSets = classifyAuditClaims(root, claimPaths);
+
   const plan = planAuditWork({
-    states: validation.states,
-    pipelines: evaluation.byIndex,
+    states: model.states,
+    pipelines,
     auditClaims: claimSets.active,
     recoverableClaimIndexes: claimSets.recoverable.map((claim) => claim.index),
     auditorOrdinal: args.auditor,
@@ -213,6 +227,7 @@ module.exports = {
   coordinationField,
   isExpiredClaimSource,
   classifyAuditClaims,
+  listCoordinationClaimsAndLeases,
   allowedForPhase,
   planAuditWork,
 };
