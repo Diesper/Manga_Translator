@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE 30",
-  "source_sha": "b6a4eb9f9062da1b647db2e4720d6d6d36b78b8d",
+  "source_sha": "500853da2950c31fd5fb4e2a91765a9331c28153",
   "started_at_utc": "2026-10-01T23:23:45Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -28,7 +28,8 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "SUPERSEDED por 060-002. O pedido de fault-injection para provar rollback atômico de storage-manager é um caso específico do mesmo gap já aceito no módulo canônico.",
       "auditor_recommended_action": "Centralizar fault injection/rollback no request 060-002 e reutilizar esse harness para o smoke se necessário.",
-      "superseded_by": "060-002"
+      "superseded_by": "060-002",
+      "repair_progress": "FAULT_INJECTION_ABORT_IMPLEMENTED; LIFECYCLE_REMAINS_SUPERSEDED_BY_060_002; CI_PENDING"
     },
     {
       "id": "126-002",
@@ -50,7 +51,7 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "ACCEPTED. `deleteByCleanUrl` no smoke verifica contagem e ausência do restore, mas não prova diretamente ausência da página/asset correspondente nem cenário multi-capítulo. O cleanup completo pode regredir sem quebrar essas assertions.",
       "auditor_recommended_action": "Adicionar assertions sobre page/asset removidos e, se contratual, caso da mesma cleanUrl em capítulos distintos.",
-      "repair_progress": "IMPLEMENTED_BUT_CI_BLOCKED_BY_060_OPEN_DB_CACHE_BUG"
+      "repair_progress": "IMPLEMENTED_AWAITING_CI"
     },
     {
       "id": "126-003",
@@ -72,25 +73,25 @@
       "audited_at_utc": "2026-09-30T21:36:00Z",
       "audit_finding": "ACCEPTED. A migração semeia duas páginas e um restore, mas aceita apenas `migrated >= 1`, flag true e cleanup legado; migração parcial ainda pode satisfazer o teste. Não há cenário de falha parcial.",
       "auditor_recommended_action": "Exigir contagem/conteúdo exatos antes da limpeza e adicionar falha parcial para definir quando a flag/remoção do legado podem ocorrer.",
-      "repair_progress": "IMPLEMENTED_BUT_CI_BLOCKED_BY_060_OPEN_DB_CACHE_BUG"
+      "repair_progress": "IMPLEMENTED_AWAITING_CI"
     }
   ],
   "document_quality": {
-    "self_audit": "CI_FAILURE_DOCUMENTED",
+    "self_audit": "AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "257/257",
+    "documented_positions": "291/291",
     "range_blocks": 11,
     "ranges_contiguous": true,
     "source_has_final_newline": true,
-    "bible_lines": 410,
+    "bible_lines": 450,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 2,
-    "note": "Smoke ampliado está documentalmente sincronizado; CI falhou porque revelou bug real em openStorageDb da unidade #060. Requests 126-002/003 permanecem ACCEPTED."
+    "note": "Smoke #126 ampliado com retry após IDB ausente/open síncrono, onversionchange, rollback por transaction.abort, cleanup completo, migração exata/falha parcial, lastError e stats. Aguardando CI verde do SHA atual."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:23:45Z",
+  "updated_at_utc": "2026-10-01T23:25:10Z",
   "history": [
     {
       "at_utc": "2026-10-01T22:36:20Z",
@@ -129,6 +130,14 @@
       "bible_sha": "53989ce00a54c2ee8f113419614898b2631ce575",
       "agent": "AGENTE 30",
       "reason": "Dependency #060 retry cache repaired; add synchronous idb.open rejection + transaction-abort rollback regressions and re-run CI."
+    },
+    {
+      "at_utc": "2026-10-01T23:25:10Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "500853da2950c31fd5fb4e2a91765a9331c28153",
+      "bible_sha": "1369666c287c648209a9c24b91a8ddaafdc14f62",
+      "agent": "AGENTE 30",
+      "reason": "Added synchronous idb.open failure/retry and transaction.abort rollback regressions; Bible synchronized to 291/291."
     }
   ],
   "evidence": [
