@@ -64,6 +64,22 @@ const botApproval = { ...approval, approved_by: 'github-actions[bot]' };
 assert.ok(gate.validateApproval(botApproval).some((x)=>x.includes('identidade humana')));
 console.log('PASS bot identity cannot satisfy human approval');
 
+const approvalV2 = {
+  ...approval,
+  schema_version:2,
+  approval_id:'007-human-v2',
+  workflow_run_id:'123456789',
+  workflow_run_attempt:1,
+  workflow_name:'Bible Human Approval',
+  repository:'Diesper/Manga_Translator',
+  target_branch:'docs/project-bible',
+  branch_head_sha:'a'.repeat(40),
+};
+assert.deepStrictEqual(gate.validateApproval(approvalV2),[]);
+const forgedV2={...approvalV2,workflow_name:'Forged Workflow'};
+assert.ok(gate.validateApproval(forgedV2).some((x)=>x.includes('workflow_name')));
+console.log('PASS schema v2 provenance rejects forged workflow metadata');
+
 const auditRecord = {
   index:7,
   source_sha:state.source_sha,
