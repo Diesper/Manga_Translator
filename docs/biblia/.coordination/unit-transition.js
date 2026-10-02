@@ -188,7 +188,7 @@ function projectAuditDecision(state, pipeline, options = {}) {
     throw new Error('RECONCILE_OPEN_REQUESTS:' + openRequests.length);
   }
 
-  const targetStatus = pipeline.decision === 'APPROVED'\n    ? 'COMPLETED'\n    : (snapshot.escalation_level === 'HUMAN' ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED');
+  const targetStatus = pipeline.decision === 'APPROVED' ? 'COMPLETED' : 'CHANGES_REQUIRED';
   const at = options.at_utc || state.updated_at_utc || state.completed_at_utc || null;
   const next = JSON.parse(JSON.stringify(state));
   const previous = next.status;
@@ -224,7 +224,6 @@ function projectAuditDecision(state, pipeline, options = {}) {
       adversarial: pipeline.adversarial?.verdict || null,
       reaudit: pipeline.reaudit?.verdict || null,
       revision_id: snapshot.revision_id,
-      correction_cycle: snapshot.current_escalation_cycle,
       audit_epoch: snapshot.audit_epoch,
       handoff_id: snapshot.handoff_id,
       reason: targetStatus === 'COMPLETED'
@@ -233,7 +232,7 @@ function projectAuditDecision(state, pipeline, options = {}) {
     });
   }
 
-  persistSnapshot(next, life.lifecycleSnapshot(next));
+  persistSnapshot(next, snapshot);
   next.progress_note = targetStatus === 'COMPLETED'
     ? 'Decisão distribuída final APPROVED vinculada à revisão atual.'
     : 'Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.';
@@ -336,10 +335,6 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     next.bible_sha = String(handoffBibleSha).toLowerCase();
     next.production_sha = handoffProductionSha ? String(handoffProductionSha).toLowerCase() : null;
 
-    const humanAuthorizedCorrection = life.activeHumanAuthorizedCorrection(state);
-    const humanStart = humanAuthorizedCorrection
-      ? [...next.history].reverse().find((entry) => entry?.type === 'HUMAN_AUTHORIZED_CORRECTION_STARTED')
-      : null;
     const nextEpoch = snapshot.audit_epoch + 1;
     const handoffId = String(state.index).padStart(3, '0')
       + '-e' + nextEpoch + '-' + life.sha256(life.stableJson({
@@ -354,7 +349,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       at_utc: at,
       type: life.HANDOFF_EVENT,
       from_status: 'IN_PROGRESS',
-      to_status: 'READY_FOR_AUDIT',
+      to_status: snapshot.current_escalation_cycle + 1 >= 7 ? 'HUMAN_LOCKED' : 'READY_FOR_AUDIT',
       source_sha: next.source_sha,
       test_sha: next.test_sha,
       bible_sha: next.bible_sha,
@@ -363,12 +358,9 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       correction_cycle: snapshot.current_escalation_cycle + 1,
       audit_epoch: nextEpoch,
       handoff_id: handoffId,
-      human_authorized_correction: humanAuthorizedCorrection,
-      approval_id: humanStart?.approval_id || null,
-      correction_token_id: humanStart?.correction_token_id || null,
       reason: String(request.reason || 'Correção entregue pelo transition engine.'),
     });
-    next.status = 'READY_FOR_AUDIT';
+    next.status = snapshot.current_escalation_cycle + 1 >= 7 ? 'HUMAN_LOCKED' : 'READY_FOR_AUDIT';
     next.agent = null;
     next.updated_at_utc = at;
     const after = life.lifecycleSnapshot(next, {
