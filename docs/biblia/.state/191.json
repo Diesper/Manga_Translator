@@ -1128,6 +1128,31 @@
         "integration_full_hit_guard_lines": "208-215",
         "protected_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
         "protected_bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509"
+      },
+      "correction_plan_if_authorized": {
+        "goal": "Preserve backward-compatible legacy recovery without allowing historical legacy to overwrite a valid modern hit.",
+        "storage_marker": "On failed GTC_SAVE, write gtc_<hash>=dataUrl plus a companion marker outside the gtc_ prefix, e.g. _mt_gtc_fallback_v1_<hash>={version:1,dataUrl}. Write both in the same storage.local.set call.",
+        "successful_modern_save": "On successful GTC_SAVE, remove both gtc_<hash> and its companion fallback marker. Per-hash save serialization already prevents older attempts from running after newer ones.",
+        "query_algorithm": [
+          "Call GTC_QUERY_MANY first.",
+          "If the whole modern request fails, preserve current compatibility behavior: read legacy gtc_<hash> for all requested hashes.",
+          "If modern request succeeds, read companion markers for requested hashes.",
+          "Read raw gtc_<hash> only for hashes missing from entriesByHash or hashes carrying a valid companion marker.",
+          "Valid marked fallback matching the raw dataUrl outranks a modern value because it represents a newer failed save.",
+          "Unmarked historical legacy is used only when the modern hash is missing; it never overwrites a modern hit."
+        ],
+        "required_regressions": [
+          "modern ok + hash miss + unmarked legacy => legacy hit",
+          "modern stale hit + matching marked latest fallback => marked fallback wins",
+          "modern valid hit + unmarked historical legacy => modern wins",
+          "full modern hit with no marker => existing integration contract keeps zero raw gtc_ legacy lookups",
+          "successful modern save after fallback => removes raw fallback and companion marker"
+        ],
+        "non_goals": [
+          "Do not change dHash/perceptual query precedence in this correction.",
+          "Do not weaken gtc-indexeddb-deep full-hit assertion.",
+          "Do not modify protected source/Bible before distributed CHANGES_REQUIRED."
+        ]
       }
     }
   ],
@@ -1147,7 +1172,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:05:00Z",
+  "updated_at_utc": "2026-10-02T06:08:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1790,6 +1815,17 @@
       "audit_request_id": "191-029",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Reconciled modern-hit no-legacy integration contract with requested miss/fallback precedence tests. No source/Bible edit and no audit verdict."
+    },
+    {
+      "at_utc": "2026-10-02T06:08:00Z",
+      "type": "READONLY_191_029_CORRECTION_PLAN_PREPARED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-029",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Prepared a non-binding marker-based fallback precedence plan and exact red/green contracts. Protected source/Bible untouched; no audit verdict."
     }
   ],
   "evidence": [
