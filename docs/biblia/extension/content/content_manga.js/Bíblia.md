@@ -1,10 +1,10 @@
 # Bíblia técnica — `extension/content/content_manga.js`
 
 > **Estado:** 🟡 CORRIGIDO — AUDIOCONTEXT DE ERRO REUTILIZÁVEL E FALHAS SÍNCRONAS OBSERVÁVEIS; VALIDAÇÃO FINAL #191 EM ANDAMENTO  
-> **SHA auditado:** `3601efd9a66f8408b724b42d008dc43d518dabe6`  
+> **SHA auditado:** `893a03442cddb9e32487d7c7599be13ba8dc349c`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript — content script Chromium Manifest V3  
-> **Linhas textuais:** **2862**  
+> **Linhas textuais:** **3095**  
 > **Posições documentais:** **2863** contando o newline terminal  
 > **PR:** `#66`  
 > **Branch:** `docs/project-bible`
@@ -342,6 +342,12 @@ if (!window.__manga_translator_content_injected) {
     let selectedImagesIndices = new Set();
     let isTranslating = false;
     let _countedJobIndices = new Set();
+    let _failedPersistenceUpdateKeys = new Set();
+    let _failedPersistenceUpdateMeta = new Map();
+    let _pendingPersistenceUpdates = new Map();
+    let _persistedUpdatePayloads = new Map();
+    let _persistedUpdatePayloadTimes = new Map();
+    const PERSISTED_UPDATE_REPLAY_TTL_MS = 120_000;
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
     let _localBatchQueuePosition = null;
@@ -349,6 +355,36 @@ if (!window.__manga_translator_content_injected) {
     // AudioContexts simultâneos. Criar um a cada lote fazia o som parar depois
     // de algumas traduções e o catch abaixo escondia a causa.
     let notificationAudioContext = null;
+
+    function prunePersistedUpdatePayloads(now = Date.now()) {
+        for (const [key, persistedAt] of _persistedUpdatePayloadTimes.entries()) {
+            if (now - persistedAt <= PERSISTED_UPDATE_REPLAY_TTL_MS) continue;
+            _persistedUpdatePayloadTimes.delete(key);
+            _persistedUpdatePayloads.delete(key);
+        }
+    }
+
+    function rememberPersistedUpdatePayload(key, dataUrl) {
+        if (!key) return;
+        const now = Date.now();
+        prunePersistedUpdatePayloads(now);
+        _persistedUpdatePayloads.set(key, dataUrl);
+        _persistedUpdatePayloadTimes.set(key, now);
+    }
+
+    function getPersistedUpdatePayload(key) {
+        if (!key) return undefined;
+        const persistedAt = _persistedUpdatePayloadTimes.get(key);
+        if (
+            typeof persistedAt === 'number'
+            && Date.now() - persistedAt > PERSISTED_UPDATE_REPLAY_TTL_MS
+        ) {
+            _persistedUpdatePayloadTimes.delete(key);
+            _persistedUpdatePayloads.delete(key);
+            return undefined;
+        }
+        return _persistedUpdatePayloads.get(key);
+    }
 
     function getNotificationAudioContext() {
         if (notificationAudioContext && notificationAudioContext.state !== 'closed') {
@@ -2024,6 +2060,12 @@ if (!window.__manga_translator_content_injected) {
             }
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
+            _failedPersistenceUpdateKeys.clear();
+            _failedPersistenceUpdateMeta.clear();
+            _pendingPersistenceUpdates.clear();
+            // ACK perdido pode ser reenviado depois que outro lote já começou.
+            // Preserve commits recentes entre lotes, mas faça poda bounded por TTL.
+            prunePersistedUpdatePayloads();
             _localBatchStatus = 'starting';
             _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
@@ -2691,6 +2733,48 @@ if (!window.__manga_translator_content_injected) {
             }).catch(() => {});
         }
 
+        function persistTranslatedUpdateWithSideEffects(pageIndex, dataUrl, meta = {}) {
+            const gtc = meta.gtc || {};
+            if (gtc.hash) {
+                saveGlobalTranslationCacheEntry(gtc.hash, dataUrl, {
+                    dHash:              gtc.dHash || null,
+                    wHash:              gtc.wHash || null,
+                    pHash:              gtc.pHash || null,
+                    wHashCrop:          gtc.wHashCrop || null,
+                    pHashCrop:          gtc.pHashCrop || null,
+                    regionalHashes:     gtc.regionalHashes || null,
+                    cleanUrl:           meta.cleanUrl || null,
+                    width:              meta.width || 0,
+                    height:             meta.height || 0,
+                    mimeType:           (dataUrl.match(/^data:([^;]+);/) || [])[1] || null,
+                    fingerprintVersion: gtc.fingerprintVersion || 'visual-v1',
+                }).catch(() => {});
+            }
+
+            return persistTranslatedPage(pageIndex, dataUrl, meta).then((result) => {
+                const { chapterId, chapter } = result;
+                chrome.storage.local.get(['autoDownload'], (settings) => {
+                    if (settings.autoDownload !== true) return;
+                    chrome.runtime.sendMessage({
+                        action: 'DOWNLOAD_IMAGE',
+                        url: dataUrl,
+                        filename: `MangaTranslator/${chapter ? chapter.title.replace(/[^a-z0-9]/gi, '_') : 'Manga_Page'}/pagina_${String(pageIndex).padStart(3, '0')}.png`
+                    }, (resp) => {
+                        if (!resp || !resp.filePath) return;
+                        enqueueChapterWrite(chapterId, async () => {
+                            const d = await storageGetAsync([`${chapterId}_paths`]);
+                            const paths = d[`${chapterId}_paths`] || {};
+                            paths[pageIndex] = resp.filePath;
+                            const toSet = { [`${chapterId}_paths`]: paths, mangaTranslatorLastPath: resp.filePath };
+                            if (resp.downloadId) toSet[`${chapterId}_dlId`] = resp.downloadId;
+                            await storageSetAsync(toSet);
+                        }).catch(() => {});
+                    });
+                });
+                return result;
+            });
+        }
+
         function checkIfComplete(force = false, jobIndex = null) {
             if (!isTranslating) return;
             if (!force) {
@@ -2727,19 +2811,133 @@ if (!window.__manga_translator_content_injected) {
                     try { sendResponse(payload); } catch (_e) {}
                 };
 
-                // Rejeitar resultados de batches antigos/cancelados
-                if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) {
-                    sendLog('warn', 'STALE_UPDATE', `UPDATE_IMAGE ignorado de batch antigo`, { received: (request.batchId||'').slice(0,8), current: (_currentBatchId||'').slice(0,8) });
+                // Recuperação idempotente de ACK perdido: o commit pode ter
+                // terminado e zerado _currentBatchId antes de o background receber
+                // sendResponse(). Se conhecemos exatamente o payload já persistido,
+                // confirme o replay sem tocar DOM/storage/completion.
+                const replayPersistenceKey = request.batchId
+                    ? `${request.batchId}:${request.index}`
+                    : null;
+                const replayPersistedPayload = getPersistedUpdatePayload(replayPersistenceKey);
+                if (replayPersistedPayload !== undefined) {
+                    if (replayPersistedPayload !== request.newSrc) {
+                        sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
+                            'Replay pós-commit rejeitado porque o payload difere do resultado persistido.', {
+                                batchId: String(request.batchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        ack({ ok: false, reason: 'payload_conflict' });
+                        return wantsAck;
+                    }
+
+                    sendLog('info', 'DUPLICATE_UPDATE_REPLAY_CONFIRMED',
+                        'Replay pós-commit confirmado sem nova persistência.', {
+                            batchId: String(request.batchId || '').slice(0, 8),
+                            index: request.index,
+                        });
+                    ack({ ok: true, persisted: true, domApplied: false });
+                    return wantsAck;
+                }
+
+                // Rejeitar resultados de batches antigos, cancelados ou já concluídos
+                // quando não existe commit conhecido que justifique um replay.
+                if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) {
+                    sendLog('warn', 'STALE_UPDATE', `UPDATE_IMAGE ignorado de batch antigo`, {
+                        received: (request.batchId || '').slice(0, 8),
+                        current: (_currentBatchId || '').slice(0, 8),
+                    });
                     ack({ ok: false, reason: 'stale_batch' });
+                    return wantsAck;
+                }
+
+                // Congela a identidade aceita antes da persistência assíncrona.
+                // O lote pode ser cancelado/concluído e outro começar enquanto
+                // SM_SAVE_PAGE ainda está pendente; nesse caso o callback antigo
+                // jamais pode contabilizar progresso no lote novo.
+                const acceptedBatchId = request.batchId || _currentBatchId || null;
+                const persistenceRetryKey = acceptedBatchId
+                    ? `${acceptedBatchId}:${request.index}`
+                    : null;
+                const isAcceptedBatchStillActive = () =>
+                    Boolean(acceptedBatchId && _currentBatchId === acceptedBatchId && isTranslating);
+
+                const pendingPersistence = persistenceRetryKey
+                    ? _pendingPersistenceUpdates.get(persistenceRetryKey)
+                    : null;
+                if (pendingPersistence) {
+                    if (pendingPersistence.dataUrl !== request.newSrc) {
+                        sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
+                            'UPDATE_IMAGE conflitante rejeitado enquanto a persistência original está em andamento.', {
+                                batchId: String(acceptedBatchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        ack({ ok: false, reason: 'payload_conflict' });
+                        return wantsAck;
+                    }
+
+                    sendLog('info', 'DUPLICATE_UPDATE_PENDING',
+                        'UPDATE_IMAGE duplicado aguardando a persistência já em andamento.', {
+                            batchId: String(acceptedBatchId || '').slice(0, 8),
+                            index: request.index,
+                        });
+                    pendingPersistence.promise
+                        .then(() => ack({ ok: true, persisted: true, domApplied: false }))
+                        .catch(() => ack({ ok: false, reason: 'persist_failed' }));
+                    return wantsAck;
+                }
+
+                const persistedPayload = getPersistedUpdatePayload(persistenceRetryKey);
+                if (persistedPayload !== undefined) {
+                    if (persistedPayload !== request.newSrc) {
+                        sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
+                            'UPDATE_IMAGE conflitante rejeitado após persistência do índice.', {
+                                batchId: String(acceptedBatchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        ack({ ok: false, reason: 'payload_conflict' });
+                        return wantsAck;
+                    }
+
+                    sendLog('info', 'DUPLICATE_UPDATE_IGNORED',
+                        'UPDATE_IMAGE duplicado confirmado pelo payload já persistido.', {
+                            batchId: String(acceptedBatchId || '').slice(0, 8),
+                            index: request.index,
+                        });
+                    ack({ ok: true, persisted: true, domApplied: false });
                     return wantsAck;
                 }
 
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
+                let shouldAccountUpdate = false;
+                let retryTranslatedImage = null;
+                let persistenceMeta = null;
                 let persistPromise = null;
 
                 for (let img of images) {
                     if (img.dataset.mangaIndex == request.index) {
+                        // Retry após falha de persistência: o DOM já pode conter a
+                        // tradução com translated=true. Não reaplique a imagem; apenas
+                        // tente persistir de novo e, se der certo, contabilize o índice.
+                        if (
+                            img.dataset.translated === 'true'
+                            && persistenceRetryKey
+                            && _failedPersistenceUpdateKeys.has(persistenceRetryKey)
+                        ) {
+                            // Apenas um PERSIST_FAIL anterior do mesmo batch+índice
+                            // transforma uma imagem já traduzida em retry legítimo.
+                            foundImage = true;
+                            shouldAccountUpdate = true;
+                            retryTranslatedImage = img;
+                            persistenceMeta = _failedPersistenceUpdateMeta.get(persistenceRetryKey) || null;
+                            persistPromise = persistTranslatedUpdateWithSideEffects(
+                                request.index,
+                                request.newSrc,
+                                persistenceMeta || undefined
+                            );
+                            break;
+                        }
+
                         const origSourceUrl    = img.getAttribute('src') || img.dataset.src || img.dataset.lazySrc || img.getAttribute('data-original') || '';
                         const origCleanUrl     = getCleanUrl(origSourceUrl);
                         const origHash         = img.dataset.origHash         || null;
@@ -2758,57 +2956,32 @@ if (!window.__manga_translator_content_injected) {
                         const newImg = applyImageReplacement(img, request.newSrc, false);
                         if (!newImg) break;
                         foundImage = true;
+                        shouldAccountUpdate = true;
 
                         const width  = newImg.naturalWidth  || img.naturalWidth  || 0;
                         const height = newImg.naturalHeight || img.naturalHeight || 0;
 
-                        // O GTC é um cache global independente da persistência
-                        // da página/capítulo. Não o deixe atrás de SM_SAVE_PAGE:
-                        // uma falha transitória no storage de assets não deve
-                        // desperdiçar uma tradução que já foi entregue ao DOM.
-                        if (origHash) {
-                            saveGlobalTranslationCacheEntry(origHash, request.newSrc, {
+                        persistenceMeta = {
+                            cleanUrl:  origCleanUrl,
+                            sourceUrl: origSourceUrl,
+                            width,
+                            height,
+                            gtc: {
+                                hash:               origHash,
                                 dHash:              origDHash,
                                 wHash:              origWHash,
                                 pHash:              origPHash,
                                 wHashCrop:          origWHashCrop,
                                 pHashCrop:          origPHashCrop,
                                 regionalHashes:     origRegional,
-                                cleanUrl:           origCleanUrl,
-                                width,
-                                height,
-                                mimeType:           (request.newSrc.match(/^data:([^;]+);/) || [])[1] || null,
                                 fingerprintVersion: origFpVersion,
-                            }).catch(() => {});
-                        }
-
-                        persistPromise = persistTranslatedPage(request.index, request.newSrc, {
-                            cleanUrl:  origCleanUrl,
-                            sourceUrl: origSourceUrl,
-                            width,
-                            height,
-                        }).then(({ chapterId, chapter }) => {
-
-                            chrome.storage.local.get(['autoDownload'], (settings) => {
-                                if (settings.autoDownload !== true) return;
-                                chrome.runtime.sendMessage({
-                                    action: 'DOWNLOAD_IMAGE',
-                                    url: request.newSrc,
-                                    filename: `MangaTranslator/${chapter ? chapter.title.replace(/[^a-z0-9]/gi, '_') : 'Manga_Page'}/pagina_${String(request.index).padStart(3, '0')}.png`
-                                }, (resp) => {
-                                    if (!resp || !resp.filePath) return;
-                                    // Também serializado: `_paths` sofria a mesma corrida.
-                                    enqueueChapterWrite(chapterId, async () => {
-                                        const d = await storageGetAsync([`${chapterId}_paths`]);
-                                        const paths = d[`${chapterId}_paths`] || {};
-                                        paths[request.index] = resp.filePath;
-                                        const toSet2 = { [`${chapterId}_paths`]: paths, mangaTranslatorLastPath: resp.filePath };
-                                        if (resp.downloadId) toSet2[`${chapterId}_dlId`] = resp.downloadId;
-                                        await storageSetAsync(toSet2);
-                                    }).catch(() => {});
-                                });
-                            });
-                        });
+                            },
+                        };
+                        persistPromise = persistTranslatedUpdateWithSideEffects(
+                            request.index,
+                            request.newSrc,
+                            persistenceMeta
+                        );
                         break;
                     }
                 }
@@ -2820,28 +2993,88 @@ if (!window.__manga_translator_content_injected) {
                     persistPromise = persistTranslatedPage(request.index, request.newSrc);
                 }
 
+                if (persistenceRetryKey && persistPromise) {
+                    _pendingPersistenceUpdates.set(persistenceRetryKey, {
+                        promise: persistPromise,
+                        dataUrl: request.newSrc,
+                    });
+                }
+
+                const clearPendingPersistence = () => {
+                    if (!persistenceRetryKey) return;
+                    const pending = _pendingPersistenceUpdates.get(persistenceRetryKey);
+                    if (pending && pending.promise === persistPromise) {
+                        _pendingPersistenceUpdates.delete(persistenceRetryKey);
+                    }
+                };
+
+                const accountPersistedUpdate = () => {
+                    if (!shouldAccountUpdate) return;
+                    if (!isAcceptedBatchStillActive()) {
+                        sendLog('warn', 'STALE_UPDATE_COMPLETION_SKIPPED',
+                            'Persistência de UPDATE_IMAGE terminou após o lote deixar de ser o ativo; contabilização ignorada.', {
+                                received: String(acceptedBatchId || '').slice(0, 8),
+                                current: String(_currentBatchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        return;
+                    }
+                    checkIfComplete(false, request.index);
+                };
+
                 persistPromise
                     .then(() => {
+                        clearPendingPersistence();
+                        if (persistenceRetryKey) {
+                            rememberPersistedUpdatePayload(persistenceRetryKey, request.newSrc);
+                            _failedPersistenceUpdateKeys.delete(persistenceRetryKey);
+                            _failedPersistenceUpdateMeta.delete(persistenceRetryKey);
+                        }
+                        if (
+                            retryTranslatedImage
+                            && isAcceptedBatchStillActive()
+                            && retryTranslatedImage.getAttribute('src') !== request.newSrc
+                        ) {
+                            retryTranslatedImage.src = request.newSrc;
+                        }
                         ack({ ok: true, persisted: true, domApplied: foundImage });
-                        if (foundImage) checkIfComplete(false, request.index);
+                        accountPersistedUpdate();
                     })
                     .catch((err) => {
+                        clearPendingPersistence();
                         sendLog('error', 'PERSIST_FAIL', `Falha ao persistir a página ${request.index}: ${err && err.message}`, { index: request.index });
                         ack({ ok: false, reason: 'persist_failed' });
-                        if (foundImage) checkIfComplete(false, request.index);
+                        if (persistenceRetryKey && isAcceptedBatchStillActive()) {
+                            _failedPersistenceUpdateKeys.add(persistenceRetryKey);
+                            if (persistenceMeta) {
+                                _failedPersistenceUpdateMeta.set(persistenceRetryKey, { ...persistenceMeta });
+                            }
+                        }
+                        // Persistência falhou: não contabilizar o índice como concluído.
+                        // O lote permanece ativo para que o background possa reenviar
+                        // o resultado; só um commit persistido com sucesso avança o lote.
                     });
 
                 return wantsAck;
             } else if (request.action === 'BATCH_COMPLETE') {
-                // Rejeitar BATCH_COMPLETE de batch antigo
-                if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) {
-                    sendLog('warn', 'STALE_COMPLETE', `BATCH_COMPLETE ignorado de batch antigo`, { received: (request.batchId||'').slice(0,8) });
+                // Rejeitar BATCH_COMPLETE de batch antigo ou já concluído.
+                // Depois de checkIfComplete(), _currentBatchId vira null; sem este
+                // segundo ramo uma conclusão duplicada deixaria de ser reconhecida
+                // como stale, embora checkIfComplete() evitasse repetir o áudio.
+                if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) {
+                    sendLog('warn', 'STALE_COMPLETE', `BATCH_COMPLETE ignorado de batch antigo`, {
+                        received: (request.batchId || '').slice(0, 8),
+                        current: (_currentBatchId || '').slice(0, 8),
+                    });
                     return;
                 }
                 if (request.hasErrors === true) batchHasErrors = true;
                 checkIfComplete(true);
             } else if (request.action === 'SHOW_ERROR_INTEGRATED') {
-                if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) return;
+                // Erro de lote antigo também é stale quando o lote original já
+                // terminou (_currentBatchId === null). Sem isso um callback tardio
+                // ainda tocava o som de erro e reabria a UI após a conclusão.
+                if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) return;
                 batchHasErrors = true; showIntegratedError(request.errorMsg, request.imgIndex, request.isDebug); checkIfComplete(false, request.imgIndex);
             } else if (request.action === 'PROGRESS') {
                 // Atualiza primeiro o estado em memória: se o DOM tiver sido
@@ -28821,3 +29054,13 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 - [x] Invariantes explícitos.
 - [x] Releitura pós-write e validação final contra o HEAD.
 - [x] Atualização atômica de STATUS/CHECKLIST/AUDITORIA/PR sob PROGRESS lock.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Esta seção é a cobertura canônica da revisão atual. A análise histórica anterior foi preservada integralmente, mas a numeração antiga deixou de representar o blob vigente após mudanças concorrentes no source.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–3096 | Blob integral atual `893a03442cddb9e32487d7c7599be13ba8dc349c` (3095 linhas textuais + newline final POSIX). | fonte integral embutida acima + SHA Git do source |
+
+A sincronização documental **não concede aprovação**. O binding novo deve receber PRIMARY + ADVERSARIAL independentes antes de qualquer conclusão.
