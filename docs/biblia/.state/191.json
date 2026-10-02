@@ -1106,7 +1106,7 @@
       "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
       "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
       "finding": "A revisão protegida atual não possui regressão direta para IndexedDB miss -> legacy hit nem para fallback mais recente marcado prevalecendo sobre IndexedDB stale.",
-      "current_evidence": "A suíte #191 contém cobertura de reorder/fallback de GTC_SAVE, mas não contém asserts diretos para miss do GTC_QUERY_MANY mesclado com gtc_<hash> nem para precedência de um fallback recente/override sobre entrada IndexedDB stale.",
+      "current_evidence": "cm-gtc-client b7bb841499a9e677f9709f0c634c648ac6a0f65b: queryGlobalTranslationCache() returns response.entriesByHash immediately whenever GTC_QUERY_MANY returns {ok:true}, including empty maps and stale hits; chrome.storage.local is consulted only when the runtime query itself is not ok. cm-gtc-client b7bb841499a9e677f9709f0c634c648ac6a0f65b: saveGlobalTranslationCacheEntry() writes raw gtc_<hash> only when GTC_SAVE fails and removes that legacy key on a later successful save; there is no companion marker distinguishing a fresh failure fallback from historical legacy data. gtc-indexeddb 0c872f23a665304b46dc2bb43c6468762feb2e31: IndexedDB entries store updatedAt, but GTC_QUERY_MANY/getMany exposes only hash -> translatedDataUrl, so the content client cannot compare recency with legacy storage. tests/integration/ipc/gtc-indexeddb-deep.test.js proves IDB hit avoids legacy lookup, but no test proves IDB miss -> legacy hit or marked latest fallback -> stale IDB override.",
       "requested_action": "O próximo auditor independente deve criar/provar os dois cenários em vermelho contra o binding atual e publicar PRIMARY/ADVERSARIAL conforme o protocolo. Este request não autoriza correção editorial.",
       "required_cases": [
         "IndexedDB miss -> legacy hit",
@@ -1114,7 +1114,11 @@
       ],
       "expected_evidence": "Resultado de auditoria append-only posterior ao handoff 2026-10-02T05:25:31Z, vinculado a SOURCE_SHA 52ede7cf... e BIBLE_SHA ef9c4326..., demonstrando explicitamente os dois contratos.",
       "severity": "HIGH",
-      "independence_requirement": "Somente auditor independente pode transformar a evidência em CHANGES_REQUIRED; corretor não deve reabrir a unidade por este request."
+      "independence_requirement": "Somente auditor independente pode transformar a evidência em CHANGES_REQUIRED; corretor não deve reabrir a unidade por este request.",
+      "missing_evidence": "Case A: GTC_QUERY_MANY returns {ok:true, entriesByHash:{}} while gtc_<hash>=LEGACY; query must return LEGACY. Case B: GTC_QUERY_MANY returns STALE_IDB while a legacy fallback explicitly marked as created by the latest failed GTC_SAVE contains LATEST; query must return LATEST. Unmarked historical legacy must not blindly overwrite a valid IndexedDB hit.",
+      "safe_fix_direction": "Do not blindly prefer legacy. Suggested contract: on failed GTC_SAVE, persist gtc_<hash> plus an explicit per-hash fallback-override marker; on successful GTC_SAVE remove both. On query, merge legacy into IndexedDB misses; only a marked fallback may override an IndexedDB hit. This is technical evidence only and does not authorize correction.",
+      "evidence_recorded_by": "AGENTE HÍBRIDO",
+      "evidence_recorded_at_utc": "2026-10-02T05:58:00Z"
     }
   ],
   "document_quality": {
@@ -1733,6 +1737,17 @@
       "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
       "audit_request_id": "191-029",
       "reason": "User-directed audit focus only: prove IndexedDB miss -> legacy hit and latest marked fallback -> stale IndexedDB precedence. No correction authorization; protected handoff remains READY_FOR_AUDIT."
+    },
+    {
+      "at_utc": "2026-10-02T05:58:00Z",
+      "type": "READONLY_AUDIT_FOCUS_EVIDENCE_ENRICHED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-029",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "No source/Bible edit and no audit verdict. Recorded exact query/fallback precedence evidence and safe expected contracts for the next independent auditor."
     }
   ],
   "evidence": [
