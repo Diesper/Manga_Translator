@@ -1233,6 +1233,27 @@
       "audited_by": "AGENTE 30",
       "audited_at_utc": "2026-10-02T06:18:30Z",
       "audit_finding": "PRIMARY adversarial concurrency finding on protected binding."
+    },
+    {
+      "id": "191-033",
+      "status": "ACCEPTED",
+      "type": "GTC_AUXILIARY_SAVE_ERROR_SWALLOWED",
+      "target_file": "extension/content/content_manga.js",
+      "related_file": "extension/content/cm-gtc-client.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "persistTranslatedUpdateWithSideEffects dispara saveGlobalTranslationCacheEntry(...).catch(() => {}), apagando completamente rejeições do cache GTC auxiliar.",
+      "current_evidence": "content_manga.js persistTranslatedUpdateWithSideEffects invokes saveGlobalTranslationCacheEntry and attaches an empty catch. There is no GTC_SAVE_FAILED/LOG_ENTRY path in the current source.",
+      "missing_evidence": "Falha/rejeição de GTC save/fallback deve manter persistência de página funcional mas emitir telemetria bounded com hash/contexto suficiente para diagnóstico.",
+      "why_needed": "Cache GTC é auxiliar e não deve bloquear a página, mas exceções silenciosas mascaram regressões de storage/quota/runtime.",
+      "requested_action": "Trocar catch vazio por log/telemetria sem rethrow e adicionar regression que comprova page persistence success + GTC failure observable.",
+      "expected_evidence": "SM/page persistence continua verde; GTC rejection emits a specific warning/error once and does not advance/rollback incorrectly.",
+      "expected_auditor_action": "ADVERSARIAL deve confirmar que observabilidade não transforma cache auxiliar em falha fatal.",
+      "possible_regression": "Cache global deixa de persistir silenciosamente e degrada hits futuros sem qualquer diagnóstico.",
+      "impact": "Observabilidade e manutenção do cache global; não perda imediata da página traduzida.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 30",
+      "audited_at_utc": "2026-10-02T06:20:30Z",
+      "audit_finding": "PRIMARY supplemental error-handling finding on protected binding."
     }
   ],
   "document_quality": {
@@ -1251,7 +1272,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:18:30Z",
+  "updated_at_utc": "2026-10-02T06:20:30Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1949,6 +1970,17 @@
       "audit_request_id": "191-032",
       "agent": "AGENTE 30",
       "reason": "Module-local gtcSaveChains cannot serialize same-hash fallback writes across tabs/isolated content-script contexts."
+    },
+    {
+      "at_utc": "2026-10-02T06:20:30Z",
+      "type": "PRIMARY_AUDIT_SUPPLEMENTAL_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-033",
+      "agent": "AGENTE 30",
+      "reason": "GTC auxiliary save rejection is swallowed by an empty catch; page persistence should remain non-blocking but failure must be observable."
     }
   ],
   "evidence": [
