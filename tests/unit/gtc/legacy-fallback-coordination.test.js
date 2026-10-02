@@ -157,6 +157,38 @@ describe('GTC legacy fallback coordination', () => {
         });
     });
 
+    test('does not let an older delayed save replace a newer legacy fallback after modern persistence fails', async () => {
+        const repository = createInMemoryRepository();
+        const put = repository.put.bind(repository);
+        repository.put = async entry => {
+            if (entry.translatedDataUrl === 'newer-fallback') throw new Error('modern persistence unavailable');
+            return put(entry);
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+
+        const newer = await invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'fallback-race',
+            translatedDataUrl: 'newer-fallback',
+            operationAt: 200,
+        });
+        const older = await invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'fallback-race',
+            translatedDataUrl: 'older-delayed-save',
+            operationAt: 100,
+        });
+
+        expect(newer).toEqual(expect.objectContaining({ ok: false }));
+        expect(older).toEqual(expect.objectContaining({ ok: true, superseded: true }));
+        expect(await storage.get(['gtc_fallback-race', 'gtc_meta_fallback-race'])).toEqual({
+            'gtc_fallback-race': 'newer-fallback',
+            'gtc_meta_fallback-race': expect.objectContaining({ schemaVersion: 1, updatedAt: 200 }),
+        });
+        const finalQuery = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['fallback-race'] });
+        expect(finalQuery.entriesByHash).toEqual({ 'fallback-race': 'newer-fallback' });
+    });
+
     test('rejects malformed saves without creating an empty legacy key', async () => {
         const repository = createInMemoryRepository();
         const handler = createGtcRuntimeHandler({ repository, logger });
@@ -204,5 +236,65 @@ describe('GTC legacy fallback coordination', () => {
 
         expect(response).toEqual(expect.objectContaining({ ok: true, fallbackReadError: true, entriesByHash: { present: 'modern' } }));
         expect(logger).toHaveBeenCalledWith('warn', 'GTC_LEGACY_READ_FAILED', expect.any(String), expect.any(Object));
+    });
+
+    test('clears legacy fallback payloads and metadata together with the modern cache', async () => {
+        await storage.set({
+            gtc_legacy: 'legacy-value',
+            gtc_meta_legacy: { schemaVersion: 1, updatedAt: 100 },
+            unrelated_setting: 'preserved',
+        });
+        const repository = createInMemoryRepository();
+        await repository.put({ hash: 'modern', translatedDataUrl: 'modern-value' });
+        const handler = createGtcRuntimeHandler({ repository, logger });
+
+        const cleared = await invoke(handler, { action: 'GTC_CLEAR_ALL' });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['legacy', 'modern'] });
+
+        expect(cleared).toEqual(expect.objectContaining({ ok: true, cleared: true }));
+        expect(query.entriesByHash).toEqual({});
+        expect(await storage.get(null)).toEqual({ unrelated_setting: 'preserved' });
+    });
+
+    test('deletes a marked legacy fallback by its clean URL when the modern save had failed', async () => {
+        const repository = createInMemoryRepository();
+        repository.put = async () => { throw new Error('IndexedDB unavailable'); };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const cleanUrl = 'https://reader.test/page-1.png';
+
+        const fallbackSave = await invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'url-delete',
+            translatedDataUrl: 'legacy-value',
+            cleanUrl,
+            operationAt: 500,
+        });
+        const deleted = await invoke(handler, { action: 'GTC_DELETE_BY_CLEAN_URL', cleanUrl });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['url-delete'] });
+
+        expect(fallbackSave).toEqual(expect.objectContaining({ ok: false }));
+        expect(deleted).toEqual(expect.objectContaining({ ok: true, legacyDeleted: 1 }));
+        expect(query.entriesByHash).toEqual({});
+    });
+
+    test('reports a failed legacy clear and lets a retry finish without swallowing the storage error', async () => {
+        await storage.set({ gtc_legacy: 'legacy-value', unrelated_setting: 'preserved' });
+        const handler = createGtcRuntimeHandler({ repository: createInMemoryRepository(), logger });
+        const originalRemove = storage.remove.bind(storage);
+        storage.remove = (_keys, callback) => {
+            runtime.lastError = { message: 'quota cleanup failure' };
+            callback();
+            runtime.lastError = null;
+        };
+
+        const failedClear = await invoke(handler, { action: 'GTC_CLEAR_ALL' });
+        storage.remove = originalRemove;
+        const retry = await invoke(handler, { action: 'GTC_CLEAR_ALL' });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['legacy'] });
+
+        expect(failedClear).toEqual(expect.objectContaining({ ok: false, error: 'quota cleanup failure' }));
+        expect(retry).toEqual(expect.objectContaining({ ok: true, cleared: true }));
+        expect(query.entriesByHash).toEqual({});
+        expect(await storage.get(null)).toEqual({ unrelated_setting: 'preserved' });
     });
 });

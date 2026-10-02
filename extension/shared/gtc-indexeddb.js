@@ -1018,6 +1018,7 @@
             }));
         }
         function legacyRemove(keys) {
+            if (!keys || (Array.isArray(keys) && keys.length === 0)) return Promise.resolve();
             const storage = legacyStorage();
             if (!storage || typeof storage.remove !== 'function') return Promise.resolve();
             return new Promise((resolve, reject) => storage.remove(keys, () => {
@@ -1219,7 +1220,19 @@
                         finalize({ saved: false, error: 'GTC_SAVE requires a hash and translatedDataUrl' });
                         return;
                     }
+                    let legacyReadError = null;
                     try {
+                        let legacy = {};
+                        try {
+                            legacy = await legacyGet([`gtc_${hash}`, `gtc_meta_${hash}`]);
+                        } catch (error) {
+                            legacyReadError = error;
+                        }
+                        const fallback = legacyPayload(legacy[`gtc_${hash}`], legacy[`gtc_meta_${hash}`]);
+                        if (fallback && fallback.marked && fallback.updatedAt > operationAt) {
+                            finalize({ saved: true, superseded: true });
+                            return;
+                        }
                         if (typeof repository.getManyEntries === 'function') {
                             const current = await repository.getManyEntries([hash]);
                             if (current[hash] && Number(current[hash].updatedAt) > operationAt) {
@@ -1257,10 +1270,24 @@
                         }
                         finalize({ ...(result || {}), legacyCleanupError: cleanupError ? cleanupError.message : null });
                     } catch (error) {
+                        if (legacyReadError) {
+                            logger('error', 'GTC_SAVE_FALLBACK_FAILED', 'Save GTC moderno falhou e o fallback não pôde ser lido com segurança', {
+                                hash,
+                                error: error && error.message ? error.message : String(error),
+                                fallbackReadError: legacyReadError.message || String(legacyReadError),
+                            });
+                            fail(new Error(`${error && error.message ? error.message : String(error)}; fallback read: ${legacyReadError.message || String(legacyReadError)}`), request.action);
+                            return;
+                        }
                         try {
                             await legacySet({
                                 [`gtc_${hash}`]: request.translatedDataUrl,
-                                [`gtc_meta_${hash}`]: { schemaVersion: 1, updatedAt: operationAt },
+                                // Keep enough identity to invalidate this fallback by URL later.
+                                [`gtc_meta_${hash}`]: {
+                                    schemaVersion: 1,
+                                    updatedAt: operationAt,
+                                    cleanUrl: request.cleanUrl || null,
+                                },
                             });
                             logger('warn', 'GTC_SAVE_FALLBACK_USED', 'Save GTC moderno falhou; fallback legado foi gravado', {
                                 hash,
@@ -1288,20 +1315,42 @@
             }
 
             if (request.action === 'GTC_DELETE_BY_CLEAN_URL') {
-                if (!repository.deleteByCleanUrl) {
-                    finalize({ deleted: 0 });
+                const cleanUrl = typeof request.cleanUrl === 'string' ? request.cleanUrl : '';
+                if (!cleanUrl) {
+                    finalize({ deleted: 0, legacyDeleted: 0 });
                     return true;
                 }
 
-                repository.deleteByCleanUrl(request.cleanUrl || '')
+                serializeGtcOperation(async () => {
+                    const result = repository.deleteByCleanUrl
+                        ? await repository.deleteByCleanUrl(cleanUrl)
+                        : { deleted: 0 };
+                    const legacy = await legacyGet(null);
+                    const metaKeys = Object.entries(legacy)
+                        .filter(([key, value]) => key.startsWith('gtc_meta_')
+                            && value && value.schemaVersion === 1 && value.cleanUrl === cleanUrl)
+                        .map(([key]) => key);
+                    const legacyKeys = metaKeys.flatMap(metaKey => {
+                        const hash = metaKey.slice('gtc_meta_'.length);
+                        return [`gtc_${hash}`, metaKey];
+                    });
+                    await legacyRemove(legacyKeys);
+                    return { ...result, legacyDeleted: metaKeys.length };
+                })
                     .then(result => finalize(result))
                     .catch(error => fail(error, request.action));
                 return true;
             }
 
             if (request.action === 'GTC_CLEAR_ALL') {
-                repository.clear()
-                    .then(() => finalize({ cleared: true }))
+                serializeGtcOperation(async () => {
+                    await repository.clear();
+                    const legacy = await legacyGet(null);
+                    const legacyKeys = Object.keys(legacy).filter(key => key.startsWith('gtc_'));
+                    await legacyRemove(legacyKeys);
+                    return { cleared: true };
+                })
+                    .then(result => finalize(result))
                     .catch(error => fail(error, request.action));
                 return true;
             }
