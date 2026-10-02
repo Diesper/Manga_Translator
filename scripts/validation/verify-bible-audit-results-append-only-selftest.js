@@ -120,6 +120,37 @@ try {
     );
   }
 
+  {
+    const root = makeRepo(); roots.push(root);
+    const legacy = resultFile(root);
+    fs.mkdirSync(path.dirname(legacy), { recursive: true });
+    fs.writeFileSync(legacy, '{"verdict":"LEGACY"}\n');
+    commit(root, 'legacy add');
+    fs.unlinkSync(legacy);
+    commit(root, 'legacy delete before policy');
+    const baseline = git(root, ['rev-parse', 'HEAD']);
+    const marker = path.join(root, 'policy-marker.txt');
+    fs.writeFileSync(marker, 'policy active\n');
+    commit(root, 'policy active');
+    assert(
+      'deleção legada anterior ao baseline é grandfathered',
+      verifyAppendOnly(root, undefined, { baselineRef: baseline }).length === 0,
+      JSON.stringify(verifyAppendOnly(root, undefined, { baselineRef: baseline }))
+    );
+
+    const post = resultFile(root);
+    fs.writeFileSync(post, '{"verdict":"POST_POLICY"}\n');
+    commit(root, 'post policy add');
+    fs.unlinkSync(post);
+    commit(root, 'post policy delete');
+    const problems = verifyAppendOnly(root, undefined, { baselineRef: baseline });
+    assert(
+      'deleção posterior ao baseline continua proibida',
+      problems.some((p) => p.includes('histórico não é append-only') && p.includes('status=D')),
+      JSON.stringify(problems)
+    );
+  }
+
   console.log('Bible audit append-only self-test: SUCCESS');
 } finally {
   for (const root of roots) fs.rmSync(root, { recursive: true, force: true });
