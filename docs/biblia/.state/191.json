@@ -2,9 +2,9 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
-  "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -645,7 +645,7 @@
     },
     {
       "id": "191-018",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "ACTIVE_DUPLICATE_STORAGE_DIVERGENCE",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -662,11 +662,33 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T03:42:38Z",
       "audit_finding": "Encontrado em auto-revisão corretiva após handoff; não usado como auditor independente.",
-      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolution": "Índice já contabilizado recebe ACK idempotente e retorna antes do fallback; duplicata não reaplica DOM nem regrava SM_SAVE_PAGE.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:52:30Z",
+      "validation": {
+        "pre_fix_run_id": 36961398214,
+        "pre_fix_node20_job_id": 110695668432,
+        "pre_fix_node22_job_id": 110695668642,
+        "pre_fix_result": "FAIL_EXACTLY_1_DUPLICATE_STORAGE_CASE_BOTH_NODES_TWO_SM_SAVE_PAGE_FOR_INDEX_0",
+        "intermediate_green_run_id": 36961537286,
+        "intermediate_green_node20_job_id": 110696093185,
+        "intermediate_green_node22_job_id": 110696093428,
+        "intermediate_green_full_job_id": 110696093288,
+        "final_source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+        "final_bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+        "production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+        "workflow_run_id": 36961793989,
+        "node20_job_id": 110696872672,
+        "node22_job_id": 110696872677,
+        "full_content_job_id": 110696872533,
+        "focal_result": "PASS_37_OF_37_AUDIO; PASS_46_OF_46_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-019",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "INFLIGHT_DUPLICATE_PERSISTENCE_RACE",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -683,21 +705,39 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T03:47:15Z",
       "audit_finding": "Encontrado na revisão corretiva adjacente ao 191-018; não usado como auditor independente.",
-      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolution": "_pendingPersistenceUpdates coalesce duplicatas do mesmo batchId:index no Promise já em andamento; nenhuma segunda persistência/alteração de DOM ocorre, e falha continua habilitando retry posterior.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:52:30Z",
+      "validation": {
+        "pre_fix_run_id": 36961746945,
+        "pre_fix_node20_job_id": 110696733742,
+        "pre_fix_node22_job_id": 110696733991,
+        "pre_fix_result": "FAIL_EXACTLY_1_INFLIGHT_DUPLICATE_CASE_BOTH_NODES_TWO_SM_SAVE_PAGE_BEFORE_FIRST_ACK",
+        "final_source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+        "final_bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+        "production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+        "workflow_run_id": 36961793989,
+        "node20_job_id": 110696872672,
+        "node22_job_id": 110696872677,
+        "full_content_job_id": 110696872533,
+        "focal_result": "PASS_37_OF_37_AUDIO; PASS_46_OF_46_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES"
+      }
     }
   ],
   "document_quality": {
-    "self_audit": "EXECUTABLE_VALIDATION_COMPLETE_AWAITING_DISTRIBUTED_AUDIT",
+    "self_audit": "CORRECTION_COMPLETE_AWAITING_INDEPENDENT_DISTRIBUTED_AUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1811/1811",
-    "source_text_lines": 1810,
-    "test_count": 36,
+    "documented_positions": "1918/1918",
+    "source_text_lines": 1917,
+    "test_count": 37,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "production_dependency_sha": "0c0a9f3420a17933db2d275a8fe5503473e8bb7c",
-    "evidence_quality": "Red→green 191-005/006/013/014/015/016/017; final run 36960711294 Node20/22 focal 45/45; full content-scripts 40/40 suites, 464/464 tests, --detectOpenHandles.",
-    "note": "Correction/revalidation complete. READY_FOR_AUDIT; new independent PRIMARY+ADVERSARIAL pair bound to current source+bible is required before COMPLETED/100."
+    "production_dependency_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+    "evidence_quality": "Red→green through 191-019; final run 36961793989 Node20/22 focal 46/46; full content-scripts 40/40 suites, 465/465 tests, --detectOpenHandles.",
+    "note": "Technical correction layer 98/100. READY_FOR_AUDIT; distinct PRIMARY+ADVERSARIAL pair bound to current source+bible is mandatory before COMPLETED/100."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -1082,6 +1122,26 @@
       "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-019 HIGH: duplicate UPDATE_IMAGE can arrive while first persistence is still pending; no in-flight coalescing exists."
+    },
+    {
+      "at_utc": "2026-10-02T03:52:30Z",
+      "type": "DUPLICATE_IDEMPOTENCY_HARDENING_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+      "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+      "production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-018/019 red→green complete; exact run 36961793989 passed Node20/22 focal 46/46 and full content-scripts 40/40 suites, 465/465 tests with detectOpenHandles."
+    },
+    {
+      "at_utc": "2026-10-02T03:52:31Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+      "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+      "production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Correction role ended after 191-019. No self-audit result is valid; a new distinct PRIMARY+ADVERSARIAL pair must acquire the current binding before COMPLETED/100."
     }
   ],
   "evidence": [
@@ -1168,7 +1228,22 @@
       "full_content_job_id": 110687117793,
       "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
       "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+    },
+    {
+      "type": "EXECUTABLE_FINAL_VALIDATION",
+      "at_utc": "2026-10-02T03:52:30Z",
+      "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+      "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+      "production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+      "workflow_run_id": 36961793989,
+      "node20_job_id": 110696872672,
+      "node22_job_id": 110696872677,
+      "full_content_job_id": 110696872533,
+      "focal_result": "PASS_37_OF_37_AUDIO; PASS_46_OF_46_WITH_RELATED_BOTH_NODES",
+      "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES",
+      "red_191_018_run_id": 36961398214,
+      "red_191_019_run_id": 36961746945
     }
   ],
-  "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e"
+  "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc"
 }
