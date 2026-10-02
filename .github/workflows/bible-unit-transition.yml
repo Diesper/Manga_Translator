@@ -103,7 +103,7 @@ jobs:
           if [ "$OPERATION" = "ISSUE_TOKEN" ]; then
             EXTRA=()
             if [ -n "$APPROVAL_ID" ]; then EXTRA+=(--approval-id "$APPROVAL_ID"); fi
-            node docs/biblia/.coordination/unit-transition.js issue-token --index "$INDEX" --at "$AT" "${EXTRA[@]}"
+            node docs/biblia/.coordination/unit-transition.js issue-token --index "$INDEX" --actor "$ACTOR" --at "$AT" "${EXTRA[@]}"
           else
             node - <<'NODE'
           const fs = require('fs');
