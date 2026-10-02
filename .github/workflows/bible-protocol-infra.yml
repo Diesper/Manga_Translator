@@ -92,6 +92,14 @@ jobs:
       - name: Canonical protocol self-tests
         run: npm run test:bible-protocol:infra
 
+      - name: Anti-loop lifecycle self-tests
+        run: |
+          node docs/biblia/.coordination/lifecycle-core-selftest.js
+          node docs/biblia/.coordination/human-gate-selftest.js
+          node docs/biblia/.coordination/unverified-findings-selftest.js
+          node docs/biblia/.coordination/unit-transition-selftest.js
+          node docs/biblia/.coordination/human-review-selftest.js
+
       - name: Enforce append-only audit result history
         run: npm run bible:audit:append-only
 
