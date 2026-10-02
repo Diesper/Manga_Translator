@@ -325,6 +325,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         });
 
         await loadOnePage();
+        await delay(0);
 
         document.getElementById('manga-main-content').click();
 
@@ -343,6 +344,46 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             extra: expect.objectContaining({
                 originTabId: 44,
                 contextState: 'running',
+            }),
+        }));
+    });
+
+    test('clique real registra falha de unlock sem impedir o início do lote', async () => {
+        installRuntimeResponder({ tabId: 45 });
+        const { ctx } = createAudioContext({
+            state: 'suspended',
+            onResume: async () => {
+                throw Object.assign(new Error('gesture-blocked'), {
+                    name: 'NotAllowedError',
+                });
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCK_FAILED'
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_UNLOCK_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 45,
+                errorName: 'NotAllowedError',
+                errorMessage: 'gesture-blocked',
             }),
         }));
     });
