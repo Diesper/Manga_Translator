@@ -1,186 +1,91 @@
-# Bíblia técnica — gtc-indexeddb-deep.test.js
+# Bíblia técnica — tests/integration/ipc/gtc-indexeddb-deep.test.js
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA DE QUALIDADE APROVADA  
-> **SHA auditado:** `39d0542f9bad4ee59fe1939396e2fb3e41e2c38d`  
-> **Agente responsável:** AGENTE 6  
-> **Tipo:** teste Jest de integração JSDOM do GTC/IndexedDB/IPC  
-> **Linhas textuais:** **311**  
-> **Posições documentais:** **312**, contando o newline final  
+> **Estado documental:** reparo corretivo materializado; decisão distribuída final pendente  
+> **SHA auditado:** `b2210cb75cc03b447399b35d71813b7b4c6463a2`  
+> **Índice do corpus:** 111  
+> **Tipo:** integração JSDOM do GTC/IndexedDB + guard sintético de regressão de CI  
+> **Linhas textuais:** **317**  
+> **Posições documentais:** **318**, contando o LF final  
+> **Tamanho textual observado:** **11439 caracteres**  
 > **PR:** #66  
-> **Branch:** `docs/project-bible`
+> **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
 
-`tests/integration/ipc/gtc-indexeddb-deep.test.js` conecta peças reais do pipeline de Global Translation Cache (GTC) em um ambiente controlado: `loadContentScript` carrega `gtc-fingerprint.js`, `cm-gtc-client.js` e então `content_manga.js` na ordem do harness; `content_manga.js` faz rebind das operações GTC para `window.MangaTranslatorGtcClient`. A suíte também usa `createFingerprintFromDescriptor` real, registra `createGtcRuntimeHandler` real sobre o runtime mock e persiste em um `createIndexedDbRepository` real alimentado por `fake-indexeddb`.
+A suíte conecta `content_manga.js`/`cm-gtc-client.js` reais ao `createGtcRuntimeHandler` e `createIndexedDbRepository` reais dentro de JSDOM/fake-indexeddb. Ela prova consulta IPC, cache hit, preservação do DOM e `UPDATE_IMAGE → GTC_SAVE`.
 
-A suíte é mais forte que um teste que reimplementa o algoritmo localmente: as decisões de consulta `GTC_QUERY_MANY`, aplicação de cache hit e persistência `GTC_SAVE` passam pelas implementações de produção dos módulos citados. Ao mesmo tempo, ela **não inicializa o service worker `extension/background.js` completo** e não usa o IndexedDB nativo de Chromium; o “background” é representado pelo handler real registrado diretamente no runtime mock.
+O caso de 50 hits é explicitamente um **guard sintético de regressão do harness de CI**. Não é SLO/SLA de Chromium e não representa decodificação de imagens 800×1200 reais.
 
-## 2. Ambiente e dependências
+## 2. Dependências revalidadas
 
-- `fake-indexeddb/auto` fornece `indexedDB` compatível com a API usada pelo repositório;
-- `v8.serialize/deserialize` é fallback de `structuredClone` quando o runtime não o oferece;
-- WebCrypto de Node é exposto como `global.crypto`;
-- `TextEncoder` de `util` é exposto globalmente;
-- `tests/helpers/repo-root.js` encontra a raiz sem depender do cwd;
-- `tests/helpers/load-content-script.js` prepara JSDOM, storage, imagens e carrega os módulos reais do content script na ordem `gtc-fingerprint → cm-gtc-client → cm-dom-replace → cm-chapter → cm-auto-restore → content_manga`;
-- `extension/content/cm-gtc-client.js` publica `window.MangaTranslatorGtcClient`; ao inicializar, `content_manga.js` exige esse objeto e reatribui `generateImageFingerprint`, queries GTC e `saveGlobalTranslationCacheEntry` para as funções do cliente;
-- `tests/mocks/chrome-api.mock.js` fornece `chrome.runtime` e `chrome.storage`;
-- `extension/shared/gtc-indexeddb.js` fornece o repositório e o handler IPC reais;
-- `extension/shared/gtc-fingerprint.js` fornece o fingerprint real;
-- `fs` é importado na linha 15, mas não é utilizado no restante do arquivo;
-- `jest.config.js` inclui `tests/integration/**/*.test.js` no projeto `integration`.
+- `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
+- `extension/content/cm-gtc-client.js`: `95d062f41b9f1bd789a576c3a5c5d903b705fa55`.
+- `extension/content/content_manga.js`: `a8b3698019f6f22027f09f544f15c0563a9f6515`.
+- `extension/shared/gtc-indexeddb.js`: `0c872f23a665304b46dc2bb43c6468762feb2e31`.
+- `extension/shared/gtc-fingerprint.js`: `fa014028d5e2ec9d9ca5d05c1199e1f6c45a2198`.
+- `jest.config.js`: `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`.
+- `package.json`: `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.
+- Workflow focal: `b42d421fa3db8ed6fda71182e5219d9919095e66`.
 
-## 3. Relação com a implementação real
+## 3. Performance: contrato corrigido
 
-### 3.1 Consulta do cache
+A revisão anterior prometia `<200ms` no cabeçalho/nome, mas a assertion era `<1000ms`. A primeira correção tentou alinhar tudo a 200 ms e o stress CI refutou essa hipótese: run `36946383899`, job `110649358532`, recebeu **443,818 ms** no primeiro attempt.
 
-No harness real desta suíte, `loadContentScript` carrega `cm-gtc-client.js` antes de `content_manga.js`; o bootstrap de `content_manga.js` obtém `window.MangaTranslatorGtcClient` e faz rebind de `queryGlobalTranslationCache` (assim como das demais operações GTC) para esse módulo. É portanto a implementação de `cm-gtc-client.js` que emite `{ action: 'GTC_QUERY_MANY', hashes }` no caminho operacional carregado pelo teste. O teste registra `createGtcRuntimeHandler({ repository })`, cujo branch `GTC_QUERY_MANY` chama `repository.getMany(...)` e responde de forma assíncrona pelo runtime mock.
+A revisão final usa `SYNTHETIC_50_HIT_BUDGET_MS = 750`. O nome e o cabeçalho usam o mesmo valor e deixam explícito que o limite pertence ao ambiente JSDOM/fake-IDB de CI, não ao produto real.
 
-Assim, o cenário de cache hit prova uma cadeia real:
+O workflow exige três execuções focais consecutivas antes da suíte integration completa. Run `36946537160`, job `110649842266`, passou as três tentativas.
 
-`content_manga.js (call site) → MangaTranslatorGtcClient → chrome.runtime.sendMessage → createGtcRuntimeHandler → createIndexedDbRepository → resposta IPC → MangaTranslatorGtcClient/content_manga.js → DOM`.
+## 4. Higiene do IndexedDB
 
-### 3.2 Persistência de UPDATE_IMAGE
+A suíte não usa mais `fake-indexeddb/auto` global. Cada `beforeEach` cria uma `IDBFactory` própria e injeta essa factory no repository.
 
-O helper `context.sendMessage` injeta uma mensagem no listener real do content script, simulando `chrome.tabs.sendMessage`. Ao receber `UPDATE_IMAGE`, `content_manga.js` usa o `origHash` da imagem e chama o salvamento GTC; esse salvamento emite `GTC_SAVE` pelo runtime mock, que é tratado por `createGtcRuntimeHandler` e gravado no repositório IndexedDB.
+`afterEach` agora é assíncrono, executa `await repository.clear()`, solta referências a repository/factory e restaura os globals/mocks. O import morto `fs` foi removido.
 
-O teste então consulta **o mesmo repositório** com `repository.getMany([hash])` e exige o `translatedDataUrl` persistido.
+## 5. Cenários funcionais mantidos
 
-### 3.3 Fingerprint
+### Fingerprint
+`createFingerprintFromDescriptor` real prova igualdade para pixels/descritor iguais mesmo com URL/extensão diferentes e diferencia o fallback sem pixels por URL.
 
-`createFingerprintFromDescriptor` usa a implementação real de `gtc-fingerprint.js`. O primeiro cenário mantém dimensões e amostra visual iguais, muda URL/extensão e prova hash igual quando `hasVisualPixels=true`; no fallback sem pixels, URLs diferentes geram hashes diferentes.
+### Cache hit por IPC
+Uma entrada semeada no repository real é recuperada por `GTC_QUERY_MANY`; não há `START_BATCH` nem lookup legacy, e atributos de framework permanecem no DOM.
 
-Isso prova o contrato do **descritor de fingerprint**. Não prova captura/decodificação real de pixels de PNG/JPEG pelo navegador.
+### UPDATE_IMAGE
+O listener real de `UPDATE_IMAGE` usa `origHash`, emite salvamento GTC e o teste lê o mesmo repository para confirmar persistência.
 
-## 4. Cenários e força das assertions
+### Lote de 50 hits
+O guard exige 50 elementos traduzidos, nenhuma chamada `fetch`, zero `START_BATCH`, uma única `GTC_QUERY_MANY` com 50 hashes e tempo do harness `<750ms`.
 
-### 4.1 Colisão visual controlada
+## 6. Audit requests
 
-Assertions:
-- `expect(pngHash).toBe(jpgHash)`;
-- `expect(fallbackHashA).not.toBe(fallbackHashB)`.
+### 111-001 — RESOLVED
+O contrato temporal agora coincide com a assertion executável. A hipótese de 200 ms foi testada e refutada em CI; o budget final de 750 ms é explicitamente sintético e passou três execuções consecutivas.
 
-**Classificação:** ✅ PROVADO DIRETAMENTE para o descritor real de fingerprint.
+### 111-002 — RESOLVED
+A força probatória foi classificada: o teste é benchmark/guard sintético do harness, não SLA de produto. Nenhuma afirmação de imagens pesadas reais/IndexedDB Chromium permanece.
 
-### 4.2 Cache hit por IPC
+### 111-003 — RESOLVED
+`fs` removido; `IDBFactory` isolada por teste; repository limpo no teardown; referências são liberadas.
 
-A entrada é semeada por `repository.put`; o content script real consulta o runtime e restaura a imagem.
+## 7. Evidência executável
 
-Assertions provam diretamente:
-- exatamente uma `GTC_QUERY_MANY`;
-- hashes consultados iguais a `[hash]`;
-- zero `START_BATCH`;
-- zero lookup legado `storage.local` em chaves `gtc_*`;
-- `src` traduzido;
-- `data-translated="true"`;
-- preservação de `data-reactid`, `data-v-app`, `aria-label` e `className`.
+- Workflow: `.github/workflows/gtc-indexeddb-deep-selftest.yml` SHA `b42d421fa3db8ed6fda71182e5219d9919095e66`.
+- Evidência negativa: run `36946383899`, job `110649358532`, `<200ms` falhou com **443,818 ms**.
+- Evidência final: run `36946537160`, job `110649842266`, conclusão `success`.
+- Stress focal: **3 execuções consecutivas**, cada uma **1/1 suíte, 4/4 testes**, com `--detectOpenHandles`.
+- Regressão relacionada: **13/13 suítes, 81/81 testes** do projeto `integration`.
 
-**Classificação:** ✅ PROVADO DIRETAMENTE para o pipeline real do content script + handler/repositório reais no ambiente JSDOM/fake-indexeddb.
+## 8. Limites honestos
 
-### 4.3 UPDATE_IMAGE → IndexedDB
+- `fake-indexeddb` não mede latência do IndexedDB nativo de Chromium.
+- Data URLs são pequenas; width/height são metadados do fixture, não payload decodificado de 800×1200 pixels.
+- `MutationObserver` é no-op durante a suíte.
+- O handler GTC é registrado diretamente no runtime mock; não inicializa o service worker completo.
+- O budget de 750 ms só é uma barreira de regressão deste harness/runner.
 
-O teste injeta `mangaIndex` e `origHash`, dispara o listener real de `UPDATE_IMAGE`, espera a gravação e lê do repositório.
+## 9. Fonte integral exata
 
-Assertion:
-- `expect(entries[hash]).toBe(translated)`.
-
-**Classificação:** ✅ PROVADO DIRETAMENTE para a persistência pelo content script real até o repositório real do módulo GTC sobre fake-indexeddb.
-
-### 4.4 Lote de 50 cache hits
-
-O teste cria 50 hashes/entradas, carrega 50 imagens e exige:
-- 50 imagens marcadas `data-translated="true"`;
-- `elapsedMs < 1000`;
-- `global.fetch` nunca chamado;
-- zero `START_BATCH`;
-- exatamente uma `GTC_QUERY_MANY`;
-- 50 hashes nessa consulta;
-- UI contendo `TRADUZIR 50`.
-
-**Classificação funcional:** ✅ PROVADO DIRETAMENTE no harness atual.  
-**Classificação da meta “<200 ms”:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — a assertion aceita até **999,999… ms**, não 200 ms.
-
-## 5. Evidência automatizada examinada
-
-| Propriedade | Evidência atual | Classificação |
-|---|---|---|
-| arquivo pertence ao projeto Jest integration | `jest.config.js` usa `tests/integration/**/*.test.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| mesmo blob do teste estava no CI #36577447500 | blob no commit do run = `39d054...` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| jobs Unit + Integration Node 20/22 terminaram verdes nesse run | jobs 109437162616 e 109437162754 | 🟨 EXECUTADO INDIRETAMENTE |
-| job Code Coverage terminou verde | job 109437162502 | 🟨 EXECUTADO INDIRETAMENTE |
-| job Windows Portability terminou verde | job 109437162789 | 🟨 EXECUTADO INDIRETAMENTE |
-| pixels iguais + URLs diferentes produzem mesmo hash visual | assertions linhas 156–157 | ✅ PROVADO DIRETAMENTE |
-| fallback sem pixels diferencia URLs | assertion linha 157 | ✅ PROVADO DIRETAMENTE |
-| cache hit passa por GTC_QUERY_MANY uma vez | linhas 206–207 | ✅ PROVADO DIRETAMENTE |
-| cache hit evita START_BATCH | linha 208 | ✅ PROVADO DIRETAMENTE |
-| cache hit evita lookup legacy gtc_* | linha 209 | ✅ PROVADO DIRETAMENTE |
-| atributos de framework sobrevivem à restauração | linhas 211–216 | ✅ PROVADO DIRETAMENTE |
-| UPDATE_IMAGE persiste por hash | linha 251 | ✅ PROVADO DIRETAMENTE |
-| 50 hits restauram sem fetch e sem Gemini | linhas 293–309 | ✅ PROVADO DIRETAMENTE no harness |
-| 50 hits restauram em menos de 200 ms | código exige apenas `elapsedMs < 1000` | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| benchmark representa Chromium + IndexedDB nativo + imagens pesadas reais | JSDOM, fake-indexeddb, data URLs pequenas e MutationObserver no-op | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| service worker completo registra/roteia o handler GTC | handler é registrado diretamente pelo teste | 🟨 EXECUTADO INDIRETAMENTE por outras superfícies; não provado por este arquivo |
-
-## 6. Limitações e riscos de interpretação
-
-1. A frase da linha 11 e o nome do teste da linha 254 dizem **menos de 200 ms**, porém a única assertion temporal é `toBeLessThan(1000)`.
-2. As “50 imagens pesadas” não contêm payloads pesados: `makeDataUrl('translated-N')` gera poucos bytes codificados em base64. As dimensões 800×1200 são metadados no DOM; JSDOM não decodifica uma imagem pesada real.
-3. O benchmark usa `fake-indexeddb` e substitui `MutationObserver` por uma classe no-op, reduzindo trabalho que existiria no navegador real.
-4. `global.fetch = jest.fn()` e a ausência de `START_BATCH` provam as duas superfícies observadas, mas “sem tráfego externo” deve ser interpretado dentro do harness, não como monitoramento geral de rede do navegador.
-5. O teste registra `createGtcRuntimeHandler` diretamente; portanto não prova que `background.js` completo tenha registrado o handler corretamente.
-6. `context.sendMessage` chama os listeners do runtime mock diretamente para simular uma mensagem de tab; essa parte não testa serialização/dispatch real do Chrome.
-7. O banco usa nome aleatório por teste e não há `clear`/delete explícito no `afterEach`; em fake-indexeddb isso limita contaminação por nome, mas mantém bancos até o fim do processo.
-8. O import `fs` é morto.
-9. O primeiro cenário testa descritores de pixels já produzidos, não o processo de extração de pixels de uma imagem real.
-10. O timeout de `waitFor` é um mecanismo do harness; passar dentro dele não define uma SLA do produto.
-
-## 7. Invariantes documentadas
-
-1. Um hit SHA-256 válido deve ser resolvido por `GTC_QUERY_MANY` antes do fallback legado.
-2. Um hit completo não deve iniciar `START_BATCH`.
-3. Aplicar tradução do cache não deve destruir atributos relevantes do elemento original.
-4. `UPDATE_IMAGE` com `origHash` válido deve persistir a tradução no GTC.
-5. Para descritores com pixels válidos, URL/formato não devem alterar o fingerprint quando dimensões e amostra visual são idênticas.
-6. Sem pixels, a URL limpa participa do fallback e pode diferenciar fingerprints.
-7. O lote de 50 hits deve ser consultado em uma única mensagem `GTC_QUERY_MANY`.
-8. Evidência de performance deve refletir exatamente o limite que a assertion executável impõe; comentários/títulos não elevam a força da prova.
-9. A validade desta Bíblia depende do SHA `39d0542f9bad4ee59fe1939396e2fb3e41e2c38d`.
-
-## 8. Solicitações ao auditor
-
-### 111-001 — PERFORMANCE_ASSERTION_GAP — ACCEPTED
-
-**Encontrado:** o contrato textual afirma “menos de 200ms”, mas a assertion aceita `elapsedMs < 1000`.  
-**Arquivo relacionado:** `tests/integration/ipc/gtc-indexeddb-deep.test.js`.  
-**Evidência atual:** linha 304 usa `toBeLessThan(1000)`.  
-**Evidência ausente:** falha executável quando o tempo é >=200 ms.  
-**Necessário:** decidir a meta real. Se 200 ms for requisito, alinhar a assertion/ambiente em alteração separada; se 1000 ms for o limite correto, alinhar nome/comentário.  
-**Risco:** regressões entre 200 e 999 ms permanecem verdes enquanto a documentação do teste promete 200 ms.  
-**Severidade:** HIGH.
-
-### 111-002 — PERFORMANCE_BENCHMARK_REVIEW — ACCEPTED
-
-**Encontrado:** o cenário “50 imagens pesadas” usa strings data URL pequenas, JSDOM, fake-indexeddb e MutationObserver no-op.  
-**Arquivo relacionado:** `tests/integration/ipc/gtc-indexeddb-deep.test.js`.  
-**Evidência atual:** o harness prova 50 hits e mede tempo dentro desse ambiente sintético.  
-**Evidência ausente:** benchmark de Chromium/IndexedDB nativo com payloads representativos e observação de custo real de DOM/imagem.  
-**Necessário:** decidir se o teste é apenas regressão de performance relativa do harness ou SLA de produto; se SLA, criar benchmark separado e estável no ambiente apropriado.  
-**Risco:** o teste pode permanecer rápido enquanto a experiência real degrada, ou flutuar por carga do runner sem representar o produto.  
-**Severidade:** NORMAL.
-
-### 111-003 — RESOURCE_CLEANUP — ACCEPTED
-
-**Encontrado:** cada `beforeEach` cria um banco com nome único, mas o `afterEach` não chama `repository.clear()` nem apaga o database; `fs` também é importado sem uso.  
-**Arquivo relacionado:** `tests/integration/ipc/gtc-indexeddb-deep.test.js`.  
-**Evidência atual:** nomes únicos impedem reutilização acidental entre os quatro casos, mas os bancos ficam vivos durante o processo.  
-**Evidência ausente:** prova de cleanup explícito/lifecycle e necessidade do import `fs`.  
-**Necessário:** avaliar cleanup explícito do banco/fixture e remover import morto em alteração separada se apropriado.  
-**Risco:** crescimento de estado em execuções longas/isoladas repetidas e ruído de manutenção; impacto atual baixo.  
-**Severidade:** LOW.
-
-## 9. Fonte integral auditada
-
-```javascript
+```js
 /**
  * gtc-indexeddb-deep.test.js
  * ─────────────────────────────────────────────────────────────────────────────
@@ -191,14 +96,14 @@ O teste cria 50 hashes/entradas, carrega 50 imagens e exige:
  * 2. Hash visual ignora formato/URL quando há pixels disponíveis
  * 3. Restauração de cache preserva atributos de framework no DOM
  * 4. UPDATE_IMAGE persiste a tradução no IndexedDB do background
- * 5. Restauração de 50 imagens ocorre em menos de 200ms e sem tráfego externo
+ * 5. Guard sintético de CI: 50 cache hits restauram em <750ms no JSDOM/fake-IDB; não é SLA de produto
  */
 
 const path = require('path');
-const fs = require('fs');
 const v8 = require('v8');
 const { TextEncoder } = require('util');
 const crypto = require('crypto');
+const { IDBFactory } = require('fake-indexeddb');
 
 if (typeof global.structuredClone !== 'function') {
     Object.defineProperty(global, 'structuredClone', {
@@ -207,7 +112,6 @@ if (typeof global.structuredClone !== 'function') {
     });
 }
 
-require('fake-indexeddb/auto');
 
 const { findRepoRoot } = require('../../helpers/repo-root');
 const ROOT = findRepoRoot(__dirname);
@@ -260,11 +164,13 @@ async function waitFor(assertion, { timeout = 2000, interval = 10 } = {}) {
 }
 
 describe('GTC IndexedDB — Integração Profunda', () => {
+    const SYNTHETIC_50_HIT_BUDGET_MS = 750;
     let runtimeMock;
     let repository;
     let sendMessageSpy;
     let storageGetSpy;
     let originalMutationObserver;
+    let indexedDbFactory;
 
     beforeEach(() => {
         runtimeMock = getRuntimeMock();
@@ -280,7 +186,9 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         window.MutationObserver = NoopMutationObserver;
         global.MutationObserver = NoopMutationObserver;
 
+        indexedDbFactory = new IDBFactory();
         repository = createIndexedDbRepository({
+            indexedDbFactory,
             dbName: `gtc-test-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         });
 
@@ -291,7 +199,10 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         global.fetch = jest.fn();
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        if (repository) await repository.clear();
+        repository = null;
+        indexedDbFactory = null;
         jest.restoreAllMocks();
         delete global.fetch;
         window.MutationObserver = originalMutationObserver;
@@ -434,7 +345,7 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         expect(entries[hash]).toBe(translated);
     });
 
-    test('restaura 50 imagens pesadas em menos de 200ms e sem tráfego externo', async () => {
+    test('guard sintético de CI restaura 50 cache hits em menos de 750ms sem tráfego externo', async () => {
         const translatedEntries = [];
         const domImages = [];
 
@@ -484,7 +395,7 @@ describe('GTC IndexedDB — Integração Profunda', () => {
             .map(([message]) => message)
             .filter(message => message && message.action === 'GTC_QUERY_MANY');
 
-        expect(elapsedMs).toBeLessThan(1000);
+        expect(elapsedMs).toBeLessThan(SYNTHETIC_50_HIT_BUDGET_MS);
         expect(global.fetch).not.toHaveBeenCalled();
         expect(startBatchMessages).toHaveLength(0);
         expect(queryMessages).toHaveLength(1);
@@ -494,41 +405,29 @@ describe('GTC IndexedDB — Integração Profunda', () => {
 });
 ```
 
-## 10. Cobertura de todas as posições
+## 10. Cobertura integral por posições
 
-Os blocos abaixo são contíguos e cobrem **1–312 sem lacunas**.
+- **1–13:** cabeçalho e contrato do guard sintético.
+- **14–27:** imports, structuredClone e preparação de dependências.
+- **28–42:** root, WebCrypto/TextEncoder e módulos reais.
+- **43–65:** helpers `cleanUrl`, hash fallback e data URL.
+- **66–77:** polling bounded.
+- **78–86:** abertura da suíte, budget e estado compartilhado.
+- **87–113:** setup com IDBFactory isolada, repository, runtime handler e spies.
+- **114–126:** teardown assíncrono e cleanup do repository/globals.
+- **127–165:** fingerprint visual/fallback.
+- **166–224:** cache hit por IPC e preservação DOM.
+- **225–259:** `UPDATE_IMAGE → IndexedDB`.
+- **260–317:** guard sintético de 50 hits, tempo/call-count e ausência de tráfego/fila.
+- **318:** posição vazia do LF final.
 
-| Posições | Função técnica | Evidência |
-|---|---|---|
-| 1–13 | cabeçalho, objetivos declarados e separador inicial | 🟦 contrato documental; objetivo temporal é confrontado com a assertion real |
-| 14–19 | imports Node; `fs` fica sem uso | 🟨 setup executado; import morto sem prova comportamental |
-| 20–28 | fallback de `structuredClone` e ativação de fake-indexeddb | 🟨 executado conforme capacidades do runtime; branch do fallback não tem assertion isolada |
-| 29–31 | localização da raiz do repositório | 🟨 dependência de setup |
-| 32–37 | instalação de WebCrypto e TextEncoder globais | 🟨 setup necessário ao fingerprint |
-| 38–42 | carregamento dos helpers e módulos reais de produção | 🟦 wiring específico + execução pelos cenários |
-| 43–52 | `cleanUrl`: null/data, URL válida e fallback por split | 🟨 caminho válido usado; branches null/data/erro não têm assertion focal nesta suíte |
-| 53–62 | `buildJsdomFallbackHash` monta descritor sem pixels | ✅ resultado é usado em assertions/persistência; campos internos participam diretamente |
-| 63–66 | `makeDataUrl` gera fixtures data URL pequenas | 🟨 usado nos cenários; não prova imagem pesada/decodificação |
-| 67–78 | polling `waitFor` com timeout | 🟨 exercitado nos cenários; branch de timeout não possui assertion específica |
-| 79–85 | abertura do `describe` e referências mutáveis | 🟨 estrutura do harness |
-| 86–110 | `beforeEach`: reset listeners, MutationObserver no-op, repositório único, handler, spies e fetch mock | 🟨 setup executado por todos os testes; vários detalhes não têm assertion isolada |
-| 111–120 | `afterEach`: restauração de mocks/globals/DOM | 🟨 cleanup executado; ausência de cleanup do banco é lacuna registrada |
-| 121–159 | cenário de fingerprint visual versus fallback por URL | ✅ linhas 156–157 são assertions diretas |
-| 160–218 | cenário de cache hit por IPC, ausência de START_BATCH/legacy e preservação de atributos | ✅ assertions 206–216 diretamente ligadas ao pipeline real |
-| 219–253 | cenário `UPDATE_IMAGE` até persistência e leitura do IndexedDB | ✅ assertion 251 prova a gravação final |
-| 254–311 | cenário de 50 hits, medição, ausência de fetch/Gemini e cardinalidade da query | ✅ funcionalmente; ⚠️ limite de 200 ms não é provado porque a linha 304 exige apenas <1000 ms |
-| 312 | newline final | 🟦 posição estrutural explicitamente contabilizada |
+**Cobertura:** 318/318 posições, contíguas e sem overlap.
 
-**Reparo editorial 2026-10-01:** a documentação foi alinhada ao finding independente: `cm-gtc-client.js` passa a constar como dependência/owner operacional das chamadas GTC carregadas pelo harness, e 111-001..003 refletem o lifecycle canônico `ACCEPTED`. O source do teste permaneceu inalterado; reauditoria independente continua necessária.
+## 11. Autoauditoria pós-correção
 
-## 11. Verificação documental final
-
-- SHA reconfirmado contra o branch antes da escrita: **sim**;
-- fonte integral incorporada: **sim**;
-- posições documentadas: **312/312**;
-- faixas contíguas sem buracos: **sim**;
-- implementação real distinguida de mocks/harness: **sim**;
-- prova direta distinguida de gate estático/execução indireta/lacuna: **sim**;
-- problemas externos não foram corrigidos para fabricar evidência: **sim**;
-- solicitações registradas no state: **3 ACCEPTED, 0 OPEN**;
-- `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, código, testes, fixtures e configs externos permaneceram somente leitura para AGENTE 6.
+- Fonte integral byte-a-byte exata com o blob auditado, exceto LF terminal fora do fence.
+- Nenhum `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME.
+- Nenhum import `fs` ou `fake-indexeddb/auto` global.
+- Limite temporal, nome e documentação usam o mesmo valor.
+- Run negativa preservada como evidência de refutação; run final 3× + suíte relacionada verde.
+- A unidade retorna para PRIMARY + ADVERSARIAL independentes; esta correção não autoaprova a decisão distribuída final.
