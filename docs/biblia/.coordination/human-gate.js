@@ -97,6 +97,30 @@ function activeHumanApproval(state, snapshot, approvals, decision = 'ALLOW_ONE_C
   return matches.length ? matches[matches.length - 1] : null;
 }
 
+function humanAuditResultProblems(states, lifecycleByIndex, approvals, records) {
+  const problems = [];
+  const stateByIndex = new Map((states || []).map((state) => [state.index, state]));
+  for (const record of records || []) {
+    const state = stateByIndex.get(record.index);
+    const snapshot = lifecycleByIndex instanceof Map ? lifecycleByIndex.get(record.index) : null;
+    if (!state || !snapshot?.human_locked) continue;
+    if (record.source_sha !== state.source_sha) continue;
+    if (record.bible_sha && snapshot.bible_sha && record.bible_sha !== snapshot.bible_sha) continue;
+    const handoffMs = Date.parse(snapshot.latest_handoff_at_utc || '');
+    if (Number.isFinite(handoffMs) && Number(record.completed_at_ms) <= handoffMs) continue;
+    const approval = activeHumanApproval(state, snapshot, approvals, 'ALLOW_AUDIT_ONLY');
+    const approvalMs = Date.parse(approval?.approved_at_utc || '');
+    if (!approval || !Number.isFinite(approvalMs) || approvalMs > Number(record.completed_at_ms)) {
+      problems.push(
+        '#' + String(record.index).padStart(3, '0')
+        + ': audit-result HUMAN sem ALLOW_AUDIT_ONLY anterior ao resultado: '
+        + (record.path || record.phase)
+      );
+    }
+  }
+  return problems;
+}
+
 function humanGateProblems(states, lifecycleByIndex, approvals) {
   const problems = [];
   for (const state of states || []) {
@@ -117,5 +141,6 @@ module.exports = {
   approvalConsumed,
   approvalMatches,
   activeHumanApproval,
+  humanAuditResultProblems,
   humanGateProblems,
 };
