@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
-  "started_at_utc": "2026-10-02T04:01:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -727,7 +727,7 @@
     },
     {
       "id": "191-020",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "RETRY_GTC_FINAL_PAYLOAD_DIVERGENCE",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -740,11 +740,32 @@
       "expected_auditor_action": "Revalidar coerência DOM/storage/GTC após retry.",
       "possible_regression": "Nova navegação/cache hit pode recuperar FAIL_FIRST enquanto capítulo contém RETRY_OK.",
       "impact": "Integridade do cache global e restauração.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T04:22:30Z",
+      "resolution": "Retry pós-PERSIST_FAIL agora reutiliza persistTranslatedUpdateWithSideEffects; GTC_SAVE é reemitido para o payload final divergente antes do commit de página, mantendo o cache global alinhado com RETRY_OK.",
+      "validation": {
+        "pre_fix_source_sha": "aa72ef00a8e7499d8a53f855c73c7ef52ea7b8df",
+        "pre_fix_production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+        "pre_fix_run_id": 36963842506,
+        "pre_fix_node20_job_id": 110703156815,
+        "pre_fix_node22_job_id": 110703156879,
+        "pre_fix_result": "FAIL_EXACTLY_1_RETRY_GTC_CASE_BOTH_NODES_EXPECTED_2_GTC_SAVES_RECEIVED_1",
+        "final_source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+        "final_bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
+        "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
+        "workflow_run_id": 36963959811,
+        "node20_job_id": 110703521016,
+        "node22_job_id": 110703520817,
+        "full_content_job_id": 110703521099,
+        "focal_result": "PASS_2_OF_2_SUITES_46_OF_46_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-021",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "RETRY_AUTODOWNLOAD_SIDE_EFFECT_GAP",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -757,25 +778,46 @@
       "expected_auditor_action": "Revalidar efeitos laterais pós-persist.",
       "possible_regression": "Retry recupera storage mas perde download automático.",
       "impact": "Consistência funcional de autoDownload.",
-      "severity": "HIGH"
+      "severity": "HIGH",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T04:22:30Z",
+      "resolution": "Fluxo normal e retry compartilham persistTranslatedUpdateWithSideEffects; após SM_SAVE_PAGE confirmar sucesso, autoDownload emite DOWNLOAD_IMAGE usando exatamente o payload final do retry.",
+      "validation": {
+        "pre_fix_source_sha": "aa72ef00a8e7499d8a53f855c73c7ef52ea7b8df",
+        "pre_fix_production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
+        "pre_fix_run_id": 36963842506,
+        "pre_fix_node20_job_id": 110703156815,
+        "pre_fix_node22_job_id": 110703156879,
+        "pre_fix_result": "PRE_FIX_RETRY_BRANCH_HAD_NO_AUTODOWNLOAD_POST_PERSIST; SAME_RED_SCENARIO_PROTECTS_FINAL_RETRY_PAYLOAD",
+        "final_source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+        "final_bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
+        "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
+        "workflow_run_id": 36963959811,
+        "node20_job_id": 110703521016,
+        "node22_job_id": 110703520817,
+        "full_content_job_id": 110703521099,
+        "focal_result": "PASS_2_OF_2_SUITES_46_OF_46_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "CORRECTION_COMPLETE_AWAITING_INDEPENDENT_DISTRIBUTED_AUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1918/1918",
-    "source_text_lines": 1917,
+    "documented_positions": "1952/1952",
+    "source_text_lines": 1951,
     "test_count": 37,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "production_dependency_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
-    "evidence_quality": "Red→green through 191-019; final run 36961793989 Node20/22 focal 46/46; full content-scripts 40/40 suites, 465/465 tests, --detectOpenHandles.",
-    "note": "Technical correction layer 98/100. READY_FOR_AUDIT; distinct PRIMARY+ADVERSARIAL pair bound to current source+bible is mandatory before COMPLETED/100."
+    "production_dependency_sha": "3484cf324525b0514cce161595b605819c6cc004",
+    "evidence_quality": "Red→green through 191-021; final run 36963959811 Node20/22 focal+related 46/46; full content-scripts 40/40 suites, 465/465 tests with --detectOpenHandles.",
+    "note": "Technical correction layer revalidated. READY_FOR_AUDIT; a distinct PRIMARY+ADVERSARIAL pair bound to current source+bible remains mandatory before COMPLETED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T04:18:30Z",
+  "updated_at_utc": "2026-10-02T04:22:31Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1195,6 +1237,26 @@
       "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-020/021 implementation applied: retry shares GTC + autoDownload side effects with normal persistence path; green validation pending."
+    },
+    {
+      "at_utc": "2026-10-02T04:22:30Z",
+      "type": "RETRY_SIDE_EFFECT_HARDENING_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+      "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
+      "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-020/021 red→green complete. Run 36963842506 failed exactly the retry GTC contract on Node20/22; final run 36963959811 passed Node20/22 46/46 and full content-scripts 40/40 suites, 465/465 tests with detectOpenHandles."
+    },
+    {
+      "at_utc": "2026-10-02T04:22:31Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+      "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
+      "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Correction role ended after 191-021. Editorial reservation will be released; same correction identity must not self-approve the current revision."
     }
   ],
   "evidence": [
@@ -1296,7 +1358,21 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES",
       "red_191_018_run_id": 36961398214,
       "red_191_019_run_id": 36961746945
+    },
+    {
+      "type": "EXECUTABLE_FINAL_VALIDATION",
+      "at_utc": "2026-10-02T04:22:30Z",
+      "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+      "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
+      "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
+      "workflow_run_id": 36963959811,
+      "node20_job_id": 110703521016,
+      "node22_job_id": 110703520817,
+      "full_content_job_id": 110703521099,
+      "focal_result": "PASS_37_OF_37_AUDIO; PASS_46_OF_46_WITH_RELATED_BOTH_NODES",
+      "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES",
+      "red_191_020_021_run_id": 36963842506
     }
   ],
-  "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc"
+  "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371"
 }
