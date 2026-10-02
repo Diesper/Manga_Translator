@@ -48,6 +48,35 @@ assert.ok(
 );
 console.log('PASS HUMAN audit-result bypass is blocked');
 
+const lockedSnapshot = life.lifecycleSnapshot(locked);
+const auditApproval = {
+  schema_version: 1,
+  approval_id: '012-human-audit',
+  index: 12,
+  locked_cycle: lockedSnapshot.current_escalation_cycle,
+  decision: 'ALLOW_AUDIT_ONLY',
+  permission: null,
+  approved_by: 'human-reviewer',
+  approved_at_utc: '2026-10-02T07:30:00Z',
+  approval_source: 'workflow_dispatch',
+  approval_environment: 'human-approval',
+  production_sha: lockedSnapshot.production_sha,
+  test_sha: lockedSnapshot.test_sha,
+  bible_sha: lockedSnapshot.bible_sha,
+  revision_id: lockedSnapshot.revision_id,
+};
+assert.deepStrictEqual(
+  guard.problemsForHumanDiff(
+    locked,
+    locked,
+    ['docs/biblia/.coordination/audit-results/012/primary/result.json'],
+    [auditApproval],
+  ),
+  [],
+);
+console.log('PASS revision-bound ALLOW_AUDIT_ONLY permits HUMAN audit artifact');
+
+
 const started = clone(locked);
 started.status = 'IN_PROGRESS';
 started.agent = 'AUTHORIZED';
