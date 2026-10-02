@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "878bbe04a4ad6409321dd8bbdcc7c18fb874bcc3",
+  "source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -413,7 +413,13 @@
       "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
       "resolution": "Guard de UPDATE_IMAGE agora rejeita batchId quando _currentBatchId é null ou divergente; regression mantém a primeira imagem e exige stale_batch.",
       "validation": {
-        "pre_fix_run_id": 36958466821
+        "pre_fix_run_id": 36958466821,
+        "pre_fix_node20_job_id": 110686626267,
+        "pre_fix_node22_job_id": 110686626342,
+        "pre_fix_result": "FAIL_EXACTLY_1_STALE_UPDATE_CONTRACT_BOTH_NODES",
+        "pre_fix_received": "ok=true,persisted=true,domApplied=false instead of stale_batch",
+        "first_post_fix_run_id": 36958500712,
+        "first_post_fix_note": "Runtime guard was reached, but auxiliary keepAlive assertion was invalid for synchronous stale ACK; assertion removed without weakening stale response/DOM/log/completion contract."
       }
     }
   ],
@@ -421,14 +427,14 @@
     "self_audit": "CORRECTION_APPLIED_AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1462/1462",
-    "source_text_lines": 1461,
+    "documented_positions": "1464/1464",
+    "source_text_lines": 1463,
     "test_count": 33,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 3,
     "production_dependency_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
     "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
-    "note": "191-007..014 aplicadas; aguarda CI final do SHA atual e novo par distribuído independente."
+    "note": "191-007..014 applied; 191-014 valid red proof recorded; awaiting green CI for exact current pair."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -709,6 +715,15 @@
       "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-014 corrigido; revisão 33 casos, Bíblia 1462/1462, production e55d6e4785683ab21026e84196497f68a6722b5e."
+    },
+    {
+      "at_utc": "2026-10-02T03:06:00Z",
+      "type": "TEST_HARNESS_ASSERTION_CORRECTED",
+      "source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+      "bible_sha": "95a3171e3d2c42be2950006bc7282842d5fb119f",
+      "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-014 red proof is valid; removed only invalid keepAlive assertion for synchronous stale ACK while preserving stale_batch, DOM, log and completion assertions."
     }
   ],
   "evidence": [
@@ -784,5 +799,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "40ecea3e4fb06f2d99884136496f056bb329413f"
+  "bible_sha": "95a3171e3d2c42be2950006bc7282842d5fb119f"
 }
