@@ -87,4 +87,22 @@ baselineProblems = guard.addedArtifactProblems(
 assert.ok(baselineProblems.length >= 2);
 console.log('PASS baseline legado malformado é rejeitado');
 
+const eventFile='docs/biblia/.coordination/unverified-finding-events/191/191-UF-001/ev.json';
+const auditFile='docs/biblia/.coordination/audit-results/191/primary/result.json';
+let authorityProblems=guard.auditBoundEventAuthorityProblems(
+  eventFile,
+  {audit_result_path:auditFile},
+  (file)=>file===eventFile?'same-commit':(file===auditFile?'same-commit':null)
+);
+assert.deepStrictEqual(authorityProblems,[]);
+console.log('PASS audit-bound event can be introduced in same commit do audit-result');
+
+authorityProblems=guard.auditBoundEventAuthorityProblems(
+  eventFile,
+  {audit_result_path:auditFile},
+  (file)=>file===eventFile?'event-commit':(file===auditFile?'audit-commit':null)
+);
+assert.ok(authorityProblems.some((x)=>x.includes('mesmo commit')));
+console.log('PASS late fabricated finding event is rejected');
+
 console.log('Unverified findings append-only self-test: SUCCESS');
