@@ -860,6 +860,27 @@
       "audited_at_utc": "2026-10-02T04:36:25Z",
       "audit_finding": "Encontrado na revisão corretiva do handshake após 191-022; não usado como auditor independente.",
       "repair_progress": "REGRESSION_PENDING_RED_PROOF"
+    },
+    {
+      "id": "191-024",
+      "status": "ACCEPTED",
+      "type": "LOST_ACK_REPLAY_ACROSS_BATCH_BOUNDARY",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "O replay pós-commit funciona enquanto _persistedUpdatePayloads existe, mas processImages() limpa esse mapa ao iniciar o lote seguinte. Se ACK de A foi perdido e B começa antes do retry de A, a identidade durável de A desaparece e o replay volta a stale_batch.",
+      "current_evidence": "_persistedUpdatePayloads.clear() é executado no início de cada lote; jobs-dom-ack pode manter o job ativo até timeout/retry mesmo após a página já considerar A concluído.",
+      "missing_evidence": "Após A persistir/concluir e B iniciar, replay idêntico de A deve continuar recebendo persisted:true sem novo save/DOM/completion e sem alterar B; conflito de A deve continuar payload_conflict.",
+      "why_needed": "ACK perdido pode ser reenviado depois que o usuário inicia outro lote. A confirmação durável não pode depender de nenhum lote novo ter começado.",
+      "requested_action": "Adicionar regressão A→B e preservar identidade persistida por uma janela bounded além da fronteira de lote.",
+      "expected_evidence": "Pré-fix: replay de A após início de B recebe stale_batch. Pós-fix: replay idêntico confirma commit A; conflito é rejeitado; B permanece ativo.",
+      "expected_auditor_action": "Reauditar recuperação exatamente-once atravessando mudança de lote.",
+      "possible_regression": "Job A fica preso/erro apesar de commit durável quando B começa antes do retry.",
+      "impact": "Recuperação de ACK perdido, exactly-once efetivo e isolamento A/B.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T04:40:00Z",
+      "audit_finding": "Encontrado na revisão corretiva pós-191-023; não usado como auditor independente.",
+      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
     }
   ],
   "document_quality": {
@@ -1346,6 +1367,16 @@
       "bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-023 HIGH: a persisted result cannot recover from lost ACK after batch completion because stale guard runs before persisted identity replay."
+    },
+    {
+      "at_utc": "2026-10-02T04:40:00Z",
+      "type": "PRIORITY_191_CORRECTION_STARTED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "97a0d2d93c6af5c2c6504cb512cbd1120fcc1075",
+      "bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-024 HIGH: lost-ACK replay identity is cleared when a new batch starts."
     }
   ],
   "evidence": [
