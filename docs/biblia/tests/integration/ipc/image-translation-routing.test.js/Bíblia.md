@@ -62,13 +62,13 @@ Duas páginas 800×1200 e um avatar 50×50 são carregados; o lote enviado deve 
 
 ## 4. Audit request
 
-### 112-001 — TEST_REQUIRED — IMPLEMENTED_AWAITING_EXECUTABLE_VALIDATION
+### 112-001 — TEST_REQUIRED — RESOLVED
 
 **Finding original:** a suíte separava 100% hit e 100% miss, sem provar composição parcial no mesmo lote.
 
 **Correção:** cenário 3.3 usa duas imagens no `content_manga.js` real, uma hit e uma miss, e valida simultaneamente DOM + payload IPC.
 
-**Gate restante:** executar o arquivo revisado e a suíte relacionada antes de marcar a request como RESOLVED.
+**Validação executável:** run `36949474407`; Node 20 job `110658968522` e Node 22 job `110658968523` executaram `image-translation-routing.test.js` com **4/4 casos PASS**. O novo caso de cache parcial passou nos dois ambientes.
 
 ## 5. Findings distribuídos da revisão anterior
 
@@ -87,9 +87,11 @@ Até esta atualização:
 - parse JavaScript estático: **PASS**;
 - source/Bíblia: **sincronizados para o SHA acima**;
 - fonte integral: **embutida abaixo**;
-- execução Jest da revisão nova: **PENDENTE**.
+- run `36949474407`, Node 20 job `110658968522`: **PASS 4/4** para `image-translation-routing.test.js`;
+- run `36949474407`, Node 22 job `110658968523`: **PASS 4/4** para `image-translation-routing.test.js`;
+- o cenário novo `cache parcial substitui hit e envia somente miss no START_BATCH real` passou em ambos.
 
-Nenhuma request é marcada RESOLVED apenas por inspeção estática.
+Os jobs globais `Unit + Integration` terminaram vermelhos por uma falha **externa a #112** em `tests/integration/performance.test.js` (`PERF-09`/storage-manager), unidade #114 já reservada por outro corretor. Nenhuma falha de #112 aparece nos logs.
 
 ## 7. Limites honestos
 
@@ -299,4 +301,5 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
 - cache parcial real: adicionado;
 - assertion negativa: hit não reaparece em `START_BATCH`;
 - source integral e SHA: sincronizados;
-- CI/Jest do SHA atual: ainda necessário antes de fechar 112-001.
+- CI focal do SHA atual: PASS 4/4 em Node 20 e Node 22.
+- Falha global remanescente do run: `PERF-09`/storage-manager, externa a #112 e já sob reserva de outro agente.
