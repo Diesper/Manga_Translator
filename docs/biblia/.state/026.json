@@ -2,8 +2,8 @@
   "index": 26,
   "file": "extension/background/jobs-dom-ack.js",
   "bible": "docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
   "source_sha": "abbf440fd4cd8db415f991235aab0f59a9dbe58e",
   "started_at_utc": "2026-10-02T00:07:05Z",
   "completed_at_utc": null,
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:12:00Z",
+  "updated_at_utc": "2026-10-02T15:39:27Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:07:05Z",
@@ -108,7 +108,32 @@
       "previous_source_sha": "44d5d9e7d4f9e0bcd2139b127d47e1b75aeef077",
       "current_source_sha": "abbf440fd4cd8db415f991235aab0f59a9dbe58e",
       "reason": "Mesmo timeoutMs agora limita updateJobState/finalizeJob após ACK; promises internas que nunca resolvem não podem deixar deliver pendente indefinidamente."
+    },
+    {
+      "at_utc": "2026-10-02T15:39:27Z",
+      "type": "PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "abbf440fd4cd8db415f991235aab0f59a9dbe58e",
+      "reopen_at_utc": null,
+      "correction_token_id": null,
+      "reservation_path": "docs/biblia/.reservas/extension/background/jobs-dom-ack.js.lock.md",
+      "actor": "AGENTE HÍBRIDO",
+      "reason": "Migração anti-loop de sessão editorial legada pré-policy: abort seguro preserva binding/histórico e exige nova correção somente via decisão distribuída + token + reserva canônicos.",
+      "previous_event_hash": "6d3e71238b5e8f9a073a7e976aeb1b57d95886f80168bf4e088db10cd0bb6dbe",
+      "event_hash": "71a1a38c987dea6ab5be575a736e11d2a026feec7dd34ccdbe64c7c3eba5bdf1"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "abbf440fd4cd8db415f991235aab0f59a9dbe58e",
+  "bible_sha": null,
+  "revision_id": "4824eaed2503514945b02717fbdb35c066a1b4afb6db0fb8b3b366881208250d"
 }
