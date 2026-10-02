@@ -55,11 +55,68 @@ assert.strictEqual(snap.bible_sha, s.bible_sha);
 assert.ok(/^[0-9a-f]{64}$/.test(snap.revision_id));
 console.log('PASS migration derives cycle/epoch/revision from history');
 
+const noCycle = baseState();
+const initialNoCycle=life.lifecycleSnapshot(noCycle);
+noCycle.history.push(
+  {at_utc:'2026-10-01T01:00:00Z',type:'UNVERIFIED_FINDING_RECORDED'},
+  {at_utc:'2026-10-01T01:01:00Z',type:'PRIMARY_SUBMITTED'},
+  {at_utc:'2026-10-01T01:02:00Z',type:'OPERATIONAL_RETRY'},
+  {at_utc:'2026-10-01T01:03:00Z',type:'ADVERSARIAL_SUBMITTED'}
+);
+const afterNonHandoff=life.lifecycleSnapshot(noCycle);
+assert.strictEqual(afterNonHandoff.correction_cycle,initialNoCycle.correction_cycle);
+assert.strictEqual(afterNonHandoff.audit_epoch,initialNoCycle.audit_epoch);
+noCycle.history.push({
+  at_utc:'2026-10-01T01:10:00Z',
+  type:life.HANDOFF_EVENT,
+  source_sha:noCycle.source_sha,
+  bible_sha:noCycle.bible_sha,
+});
+const afterOnlyHandoff=life.lifecycleSnapshot(noCycle);
+assert.strictEqual(afterOnlyHandoff.correction_cycle,initialNoCycle.correction_cycle+1);
+assert.strictEqual(afterOnlyHandoff.audit_epoch,initialNoCycle.audit_epoch+1);
+console.log('PASS finding/audit/retry events do not increment cycle or audit epoch');
+console.log('PASS correction handoff alone increments cycle and audit epoch');
+
 const same = life.revisionIdentity(s);
 const changed = life.revisionIdentity({...s, source_sha: sha('d')});
 assert.notStrictEqual(same.revision_id, changed.revision_id);
 assert.strictEqual(same.revision_id, life.revisionIdentity({...s}).revision_id);
 console.log('PASS revision_id deterministic and test-sensitive');
+
+const revisionBase=life.revisionIdentity(baseState(),{
+  production_sha:'1'.repeat(40),
+  test_sha:'2'.repeat(40),
+  bible_sha:'3'.repeat(40),
+});
+const revisionProduction=life.revisionIdentity(baseState(),{
+  production_sha:'4'.repeat(40),
+  test_sha:'2'.repeat(40),
+  bible_sha:'3'.repeat(40),
+});
+const revisionTest=life.revisionIdentity(baseState(),{
+  production_sha:'1'.repeat(40),
+  test_sha:'5'.repeat(40),
+  bible_sha:'3'.repeat(40),
+});
+const revisionBible=life.revisionIdentity(baseState(),{
+  production_sha:'1'.repeat(40),
+  test_sha:'2'.repeat(40),
+  bible_sha:'6'.repeat(40),
+});
+assert.notStrictEqual(revisionBase.revision_id,revisionProduction.revision_id);
+assert.notStrictEqual(revisionBase.revision_id,revisionTest.revision_id);
+assert.notStrictEqual(revisionBase.revision_id,revisionBible.revision_id);
+assert.strictEqual(
+  revisionBase.revision_id,
+  life.revisionIdentity(baseState(),{
+    bible_sha:'3'.repeat(40),
+    production_sha:'1'.repeat(40),
+    test_sha:'2'.repeat(40),
+  }).revision_id
+);
+console.log('PASS production/test/Bible changes independently alter revision_id');
+console.log('PASS canonical revision identity is deterministic independent of option key order');
 
 let change = life.classifyRevisionChange(
   {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40)},
