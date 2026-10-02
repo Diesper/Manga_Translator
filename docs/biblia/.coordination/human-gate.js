@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const lifecycle = require('./lifecycle-core');
 
 const HUMAN_DECISIONS = new Set([
   'ALLOW_ONE_CORRECTION',
