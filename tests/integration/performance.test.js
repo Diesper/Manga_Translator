@@ -1,4 +1,5 @@
 const path = require('path');
+const { Blob: NodeBlob } = require('buffer');
 const { IDBFactory } = require('fake-indexeddb');
 
 const { loadBackgroundModule } = require('../helpers/load-background-module.js');
@@ -354,6 +355,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
 
     test('PERF-09 persistencia canonica salva payload acima da quota local via storage-manager/IndexedDB', async () => {
         const previousIndexedDb = globalThis.indexedDB;
+        const previousBlob = globalThis.Blob;
         const quotaLimit = 64 * 1024;
         const quotaFailures = installQuotaFailingStorage(quotaLimit);
         const localSetSpy = chrome.storage.local.set;
@@ -368,6 +370,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         expect(quotaFailures).toHaveLength(1);
 
         globalThis.indexedDB = new IDBFactory();
+        globalThis.Blob = NodeBlob;
         document.title = 'Performance quota chapter';
 
         try {
@@ -436,6 +439,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
             expect(await storageManager.getChapterPageCount(persisted.chapterId)).toBe(0);
         } finally {
             globalThis.indexedDB = previousIndexedDb;
+            globalThis.Blob = previousBlob;
             delete window.MangaTranslatorChapter;
             delete globalThis.MangaTranslatorChapter;
         }
