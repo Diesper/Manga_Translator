@@ -99,7 +99,18 @@ expect('01 direct correction without token',()=>{
 
 // 2) forçar CHANGES_REQUIRED manualmente após handoff.
 expect('02 manual CHANGES_REQUIRED projection',()=>{
-  const state=baseState(1,'CHANGES_REQUIRED');
+  const state=baseState(0,'READY_FOR_AUDIT');
+  life.appendLifecycleEvent(state.history,{
+    at_utc:'2026-10-02T08:00:30Z',
+    type:life.HANDOFF_EVENT,
+    from_status:'IN_PROGRESS',
+    to_status:'READY_FOR_AUDIT',
+    source_sha:state.source_sha,
+    bible_sha:state.bible_sha,
+    production_sha:sha('c'),
+    agent:'CORR-POST-POLICY',
+  });
+  state.status='CHANGES_REQUIRED';
   assert.ok(life.lifecycleProblems(state).some((x)=>x.includes('status diverge')));
 });
 
