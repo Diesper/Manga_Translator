@@ -442,7 +442,6 @@ function lifecycleProblems(state, options = {}) {
   }
 
   if (state?.status === 'IN_PROGRESS') {
-    const updatedMs = Date.parse(state?.updated_at_utc || '');
     const hasCanonicalStart = history.some((entry) => {
       const atMs = Date.parse(entry?.at_utc || '');
       return Number.isFinite(atMs)
@@ -451,8 +450,8 @@ function lifecycleProblems(state, options = {}) {
         && typeof entry?.correction_token_id === 'string'
         && entry.correction_token_id.trim();
     });
-    if (Number.isFinite(updatedMs) && updatedMs >= effectiveMs && !hasCanonicalStart) {
-      problems.push(label + ': IN_PROGRESS pós-policy sem START_CORRECTION canônico');
+    if (!hasCanonicalStart) {
+      problems.push(label + ': IN_PROGRESS sem START_CORRECTION canônico');
     }
   }
   return problems;
