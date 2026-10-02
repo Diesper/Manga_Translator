@@ -559,7 +559,7 @@ function validateBibleCoordination(root, options = {}) {
     baseline: distributed.baseline,
   });
   for (const problem of pipelineEvaluation.problems) problems.push(problem);
-  for (const problem of postHandoffCorrectionProblems(states, distributed.records)) {
+  for (const problem of postHandoffCorrectionProblems(states, distributed.records, { root })) {
     problems.push(problem);
   }
 
