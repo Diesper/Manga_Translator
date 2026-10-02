@@ -8,14 +8,14 @@
  * 2. Hash visual ignora formato/URL quando há pixels disponíveis
  * 3. Restauração de cache preserva atributos de framework no DOM
  * 4. UPDATE_IMAGE persiste a tradução no IndexedDB do background
- * 5. Restauração de 50 imagens ocorre em menos de 200ms e sem tráfego externo
+ * 5. Guard sintético: 50 cache hits restauram em <200ms no harness JSDOM/fake-IDB, sem tráfego externo
  */
 
 const path = require('path');
-const fs = require('fs');
 const v8 = require('v8');
 const { TextEncoder } = require('util');
 const crypto = require('crypto');
+const { IDBFactory } = require('fake-indexeddb');
 
 if (typeof global.structuredClone !== 'function') {
     Object.defineProperty(global, 'structuredClone', {
@@ -24,7 +24,6 @@ if (typeof global.structuredClone !== 'function') {
     });
 }
 
-require('fake-indexeddb/auto');
 
 const { findRepoRoot } = require('../../helpers/repo-root');
 const ROOT = findRepoRoot(__dirname);
@@ -77,11 +76,13 @@ async function waitFor(assertion, { timeout = 2000, interval = 10 } = {}) {
 }
 
 describe('GTC IndexedDB — Integração Profunda', () => {
+    const SYNTHETIC_50_HIT_BUDGET_MS = 200;
     let runtimeMock;
     let repository;
     let sendMessageSpy;
     let storageGetSpy;
     let originalMutationObserver;
+    let indexedDbFactory;
 
     beforeEach(() => {
         runtimeMock = getRuntimeMock();
@@ -97,7 +98,9 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         window.MutationObserver = NoopMutationObserver;
         global.MutationObserver = NoopMutationObserver;
 
+        indexedDbFactory = new IDBFactory();
         repository = createIndexedDbRepository({
+            indexedDbFactory,
             dbName: `gtc-test-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         });
 
@@ -108,7 +111,10 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         global.fetch = jest.fn();
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        if (repository) await repository.clear();
+        repository = null;
+        indexedDbFactory = null;
         jest.restoreAllMocks();
         delete global.fetch;
         window.MutationObserver = originalMutationObserver;
@@ -251,7 +257,7 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         expect(entries[hash]).toBe(translated);
     });
 
-    test('restaura 50 imagens pesadas em menos de 200ms e sem tráfego externo', async () => {
+    test('guard sintético restaura 50 cache hits em menos de 200ms sem tráfego externo', async () => {
         const translatedEntries = [];
         const domImages = [];
 
@@ -301,7 +307,7 @@ describe('GTC IndexedDB — Integração Profunda', () => {
             .map(([message]) => message)
             .filter(message => message && message.action === 'GTC_QUERY_MANY');
 
-        expect(elapsedMs).toBeLessThan(1000);
+        expect(elapsedMs).toBeLessThan(SYNTHETIC_50_HIT_BUDGET_MS);
         expect(global.fetch).not.toHaveBeenCalled();
         expect(startBatchMessages).toHaveLength(0);
         expect(queryMessages).toHaveLength(1);
