@@ -1859,6 +1859,96 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('falha GTC tardia não deixa fallback legado stale após retry final', async () => {
+        installRuntimeResponder({ tabId: 96 });
+        const baseSendMessage = runtimeMock.sendMessage;
+        let pageSaveAttempts = 0;
+        let gtcSaveAttempts = 0;
+        let releaseFirstGtcFailure = null;
+
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action === 'GTC_SAVE' && message.hash === 'hash-retry-fallback-race') {
+                sentMessages.push(message);
+                gtcSaveAttempts++;
+                if (gtcSaveAttempts === 1) {
+                    releaseFirstGtcFailure = () => {
+                        if (callback) setTimeout(() => callback({
+                            ok: false,
+                            error: 'simulated-late-gtc-failure',
+                        }), 0);
+                    };
+                } else if (callback) {
+                    setTimeout(() => callback({ ok: true }), 0);
+                }
+                return;
+            }
+            if (message.action === 'SM_SAVE_PAGE') {
+                sentMessages.push(message);
+                pageSaveAttempts++;
+                if (callback) {
+                    setTimeout(() => callback(
+                        pageSaveAttempts === 1
+                            ? { ok: false, error: 'simulated-page-save-failure' }
+                            : { ok: true }
+                    ), 0);
+                }
+                return;
+            }
+            return baseSendMessage(message, callback);
+        });
+
+        const { ctx } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const retryImage = document.querySelector('[data-testid="img-0"]');
+        retryImage.dataset.origHash = 'hash-retry-fallback-race';
+
+        const failed = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RkFJTF9GSVJTVC==',
+            expectAck: true,
+        });
+        expect(failed.response).toEqual(expect.objectContaining({
+            ok: false,
+            reason: 'persist_failed',
+        }));
+
+        const retried = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,UkVUUllfT0s=',
+            expectAck: true,
+        });
+        expect(retried.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+        }));
+        expect(typeof releaseFirstGtcFailure).toBe('function');
+
+        releaseFirstGtcFailure();
+        await waitFor(() => gtcSaveAttempts === 2);
+        await delay(30);
+
+        const legacy = await storageMock.get('gtc_hash-retry-fallback-race');
+        expect(legacy['gtc_hash-retry-fallback-race'])
+            .not.toBe('data:image/png;base64,RkFJTF9GSVJTVC==');
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,UkVUUllfT0s=');
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
