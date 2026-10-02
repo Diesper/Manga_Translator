@@ -498,6 +498,183 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('clique com contexto já running registra unlock sem chamar resume', async () => {
+        installRuntimeResponder({ tabId: 46 });
+        const { ctx } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCKED'
+            && message.extra?.originTabId === 46
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(ctx.resume).not.toHaveBeenCalled();
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_UNLOCKED',
+            extra: expect.objectContaining({
+                originTabId: 46,
+                contextState: 'running',
+            }),
+        }));
+    });
+
+    test('clique com resume resolvido sem running registra unlock incompleto e inicia lote', async () => {
+        installRuntimeResponder({ tabId: 47 });
+        const { ctx } = createAudioContext({
+            state: 'suspended',
+            onResume: async () => {},
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCK_INCOMPLETE'
+            && message.extra?.originTabId === 47
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(ctx.state).toBe('suspended');
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_UNLOCK_INCOMPLETE',
+            extra: expect.objectContaining({
+                originTabId: 47,
+                contextState: 'suspended',
+            }),
+        }));
+    });
+
+    test('clique com estado intermediário não chama resume e registra unlock incompleto', async () => {
+        installRuntimeResponder({ tabId: 48 });
+        const { ctx } = createAudioContext({ state: 'interrupted' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCK_INCOMPLETE'
+            && message.extra?.originTabId === 48
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(ctx.resume).not.toHaveBeenCalled();
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_UNLOCK_INCOMPLETE',
+            extra: expect.objectContaining({
+                originTabId: 48,
+                contextState: 'interrupted',
+            }),
+        }));
+    });
+
+    test('clique sem AudioContext registra indisponibilidade e ainda inicia o lote', async () => {
+        installRuntimeResponder({ tabId: 49 });
+        Object.defineProperty(window, 'AudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+        Object.defineProperty(window, 'webkitAudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNAVAILABLE'
+            && message.extra?.originTabId === 49
+            && message.extra?.trigger === 'reader_button'
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_UNAVAILABLE',
+            extra: expect.objectContaining({
+                originTabId: 49,
+                trigger: 'reader_button',
+            }),
+        }));
+    });
+
+    test('falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote', async () => {
+        installRuntimeResponder({ tabId: 50 });
+        const AudioContextMock = jest.fn(() => {
+            throw new Error('unlock-constructor-boom');
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCK_FAILED'
+            && message.extra?.originTabId === 50
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_UNLOCK_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 50,
+                errorName: 'Error',
+                errorMessage: 'unlock-constructor-boom',
+            }),
+        }));
+    });
+
     test('contexto closed é descartado e substituído no próximo BATCH_COMPLETE', async () => {
         installRuntimeResponder({ tabId: 55 });
         const first = createAudioContext({ currentTime: 1 });
