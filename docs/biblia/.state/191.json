@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-02T05:30:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -1075,6 +1075,23 @@
         "gtc_cache_flow_focal_result": "PASS_1_OF_1_SUITE_4_OF_4_TESTS",
         "gtc_cache_flow_global_note": "Workflow job later failed in unrelated popup.ui.test.js with storageGet temporal-dead-zone error."
       }
+    },
+    {
+      "id": "191-028",
+      "status": "ACCEPTED",
+      "type": "GTC_LEGACY_FALLBACK_MERGE_GAP",
+      "target_file": "extension/content/cm-gtc-client.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "queryGlobalTranslationCache retorna imediatamente entriesByHash quando GTC_QUERY_MANY responde ok, sem mesclar fallback legado. Assim, misses do IndexedDB ignoram gtc_<hash> e um SAVE final que falha/faz fallback legado pode perder para um valor IndexedDB antigo.",
+      "current_evidence": "cm-gtc-client.js retorna response.entriesByHash antes de ler storage.local. Em sequência SAVE FAIL_FIRST ok -> SAVE RETRY_OK falha, o legado contém RETRY_OK mas o IndexedDB permanece FAIL_FIRST; consulta retorna FAIL_FIRST.",
+      "missing_evidence": "Consulta deve usar legado em miss do IndexedDB e deve permitir que um fallback explicitamente criado pela tentativa mais recente prevaleça sobre entrada IndexedDB stale.",
+      "why_needed": "O usuário pode receber uma tradução antiga/rejeitada mesmo após retry final aceito, e entradas legacy-only tornam-se invisíveis quando IndexedDB responde com miss.",
+      "requested_action": "Adicionar regressões reais para miss+legacy e stale-IDB+latest-fallback; implementar merge com marcador explícito de override para não deixar legado antigo sobrescrever IndexedDB válido.",
+      "expected_evidence": "Pré-fix: ambos os contratos falham; pós-fix: legacy miss é retornado e fallback marcado da tentativa mais recente prevalece sobre IDB stale.",
+      "expected_auditor_action": "Reauditar precedência/compatibilidade SHA-256 entre IndexedDB e storage.local.",
+      "possible_regression": "Cache hit pode restaurar FAIL_FIRST em vez de RETRY_OK ou ignorar cache legado existente.",
+      "impact": "Integridade do GTC, compatibilidade de cache e restauração automática.",
+      "severity": "HIGH"
     }
   ],
   "document_quality": {
@@ -1093,7 +1110,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T05:25:31Z",
+  "updated_at_utc": "2026-10-02T05:30:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1663,6 +1680,16 @@
       "gtc_client_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Correction role ended after 191-027. Reservation will be released; same correction identity must not self-approve current revision."
+    },
+    {
+      "at_utc": "2026-10-02T05:30:00Z",
+      "type": "PRIORITY_191_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-028 HIGH: successful IndexedDB query bypasses legacy fallback entirely; latest failed GTC_SAVE fallback can lose to stale IndexedDB value."
     }
   ],
   "evidence": [
