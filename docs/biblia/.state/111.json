@@ -2,15 +2,15 @@
   "index": 111,
   "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
-  "started_at_utc": "2026-09-30T06:23:49.485Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "111-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "PERFORMANCE_ASSERTION_GAP",
       "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
@@ -28,11 +28,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:58:00Z",
       "audit_finding": "ACCEPTED — assertion contradiz o contrato nominal. O cabeçalho e o nome do teste afirmam restauração de 50 imagens em menos de 200 ms, mas a única assertion temporal é `expect(elapsedMs).toBeLessThan(1000)`. Uma regressão 5× acima do objetivo declarado permanece verde.",
-      "auditor_recommended_action": "Alinhar contrato e assertion: se 200 ms é piso real, exigir <200 com metodologia estável; se 1000 ms é o limite suportado, renomear/documentar para não alegar 200 ms."
+      "auditor_recommended_action": "Alinhar contrato e assertion: se 200 ms é piso real, exigir <200 com metodologia estável; se 1000 ms é o limite suportado, renomear/documentar para não alegar 200 ms.",
+      "resolution": "Contrato temporal corrigido e testado. A tentativa <200ms foi refutada por CI (443,818ms); revisão final usa budget sintético de CI <750ms explicitamente não-SLA, com nome/comentário/assertion idênticos e 3 execuções focais consecutivas verdes.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:38:00Z",
+      "validation": {
+        "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+        "bible_sha": "437d8e73efddd1f7fcb9b4199790ed74e61c35dc",
+        "workflow_sha": "b42d421fa3db8ed6fda71182e5219d9919095e66",
+        "negative_run_id": 36946383899,
+        "negative_job_id": 110649358532,
+        "final_run_id": 36946537160,
+        "final_job_id": 110649842266,
+        "focal": "3 consecutive runs; each 1/1 suite, 4/4 tests; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     },
     {
       "id": "111-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "PERFORMANCE_BENCHMARK_REVIEW",
       "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
@@ -50,11 +64,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:25:00Z",
       "audit_finding": "ACCEPTED. O benchmark de 50 imagens usa data URLs pequenas, JSDOM, fake-indexeddb e MutationObserver no-op. Ele é útil como regressão relativa do harness/pipeline, mas não prova custo de decodificação/DOM/IndexedDB nativo em Chromium.",
-      "auditor_recommended_action": "Classificar explicitamente o limite como benchmark sintético de regressão. Se houver SLO de produto, adicionar benchmark/E2E separado em Chromium com payloads representativos."
+      "auditor_recommended_action": "Classificar explicitamente o limite como benchmark sintético de regressão. Se houver SLO de produto, adicionar benchmark/E2E separado em Chromium com payloads representativos.",
+      "resolution": "A força probatória foi definida como guard sintético de regressão JSDOM/fake-indexeddb, não benchmark/SLO de produto. Bible/source não alegam decodificação de imagens pesadas reais nem IndexedDB Chromium.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:38:00Z",
+      "validation": {
+        "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+        "bible_sha": "437d8e73efddd1f7fcb9b4199790ed74e61c35dc",
+        "workflow_sha": "b42d421fa3db8ed6fda71182e5219d9919095e66",
+        "negative_run_id": 36946383899,
+        "negative_job_id": 110649358532,
+        "final_run_id": 36946537160,
+        "final_job_id": 110649842266,
+        "focal": "3 consecutive runs; each 1/1 suite, 4/4 tests; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     },
     {
       "id": "111-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "RESOURCE_CLEANUP",
       "target_file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
@@ -72,16 +100,30 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:22:00Z",
       "audit_finding": "ACCEPTED. Cada `beforeEach` cria um IndexedDB com nome único, mas `afterEach` não fecha/apaga explicitamente o database; no fake-indexeddb isso evita colisão porém mantém estado até o fim do processo. O import `fs` também está sem uso.",
-      "auditor_recommended_action": "Avaliar cleanup explícito do DB/repository para sessões longas e remover o import morto se não houver justificativa."
+      "auditor_recommended_action": "Avaliar cleanup explícito do DB/repository para sessões longas e remover o import morto se não houver justificativa.",
+      "resolution": "Import fs removido; fake-indexeddb/auto global substituído por IDBFactory nova por teste; afterEach assíncrono executa repository.clear() e libera referências.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:38:00Z",
+      "validation": {
+        "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+        "bible_sha": "437d8e73efddd1f7fcb9b4199790ed74e61c35dc",
+        "workflow_sha": "b42d421fa3db8ed6fda71182e5219d9919095e66",
+        "negative_run_id": 36946383899,
+        "negative_job_id": 110649358532,
+        "final_run_id": 36946537160,
+        "final_job_id": 110649842266,
+        "focal": "3 consecutive runs; each 1/1 suite, 4/4 tests; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "312/312",
-    "source_text_lines": 311,
-    "bible_lines": 532,
+    "documented_positions": "318/318",
+    "source_text_lines": 317,
+    "bible_lines": 434,
     "range_blocks": 18,
     "ranges_contiguous": true,
     "source_has_final_newline": true,
@@ -93,12 +135,12 @@
       109437162502,
       109437162789
     ],
-    "evidence_note": "Mesmo blob do arquivo presente no CI verde; assertions diretas diferenciadas de execução indireta e limitações do harness.",
-    "repair_note": "Findings do AGENTE 6 corrigidos: lifecycle 111-001..003 alinhado a ACCEPTED e cm-gtc-client.js documentado como módulo carregado pelo harness e owner operacional das chamadas GTC rebindadas em content_manga.js. Source inalterado; reauditoria independente necessária."
+    "evidence_note": "Run 36946537160/job 110649842266: 3 focal passes consecutivos (4/4 cada) + integration 13/13,81/81. Run 36946383899 refutou <200ms com 443,818ms.",
+    "repair_note": "111-001..003 resolvidos: budget sintético 750ms explicitamente não-SLA, classificação honesta, IDBFactory isolada/clear e fs removido."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:36:00Z",
+  "updated_at_utc": "2026-10-02T00:38:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:38:35.147Z",
@@ -149,6 +191,17 @@
       "previous_source_sha": "71ed94a83cba8addb98a702689c11f441b7f098e",
       "current_source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
       "reason": "Stress CI mediu 443.818ms e refutou <200ms. Budget redefinido explicitamente como guard sintético CI <750ms, não SLA de produto; workflow exige 3 execuções consecutivas."
+    },
+    {
+      "at_utc": "2026-10-02T00:38:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+      "bible_sha": "437d8e73efddd1f7fcb9b4199790ed74e61c35dc",
+      "workflow_sha": "b42d421fa3db8ed6fda71182e5219d9919095e66",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "111-001..003 resolvidos; stress 3x focal + suíte integration completa verdes."
     }
   ],
   "evidence": [
@@ -166,6 +219,22 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T12:43:27Z",
       "note": "Fonte integral exata reconfirmada; lifecycle das requests e ownership/dependência de cm-gtc-client corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T00:38:00Z",
+      "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+      "bible_sha": "437d8e73efddd1f7fcb9b4199790ed74e61c35dc",
+      "workflow_sha": "b42d421fa3db8ed6fda71182e5219d9919095e66",
+      "negative_run_id": 36946383899,
+      "negative_job_id": 110649358532,
+      "final_run_id": 36946537160,
+      "final_job_id": 110649842266,
+      "result": "PASS",
+      "focal": "3x: 1/1 suite, 4/4 tests, --detectOpenHandles",
+      "related_suites": "13/13",
+      "related_tests": "81/81",
+      "note": "<200ms refutado; budget sintético <750ms passou 3x e não é SLA de produto."
     }
   ]
 }
