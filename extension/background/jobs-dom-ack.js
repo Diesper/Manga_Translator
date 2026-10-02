@@ -18,18 +18,13 @@
         let settled = false;
         let timer = null;
 
-        const finish = (result) => {
+        const settle = async (ok, reason, response = null, { legacyAccepted = false } = {}) => {
           if (settled) return;
           settled = true;
           if (timer) clearTimeout(timer);
-          resolve(result);
-        };
-
-        const settle = async (ok, reason, response = null, { legacyAccepted = false } = {}) => {
-          if (settled) return;
 
           const persisted = response?.persisted === true;
-          const domApplied = response?.domApplied !== false;
+          const domApplied = response ? response.domApplied !== false : false;
           let effectiveOk = ok === true;
           let effectiveReason = reason;
 
@@ -78,7 +73,7 @@
                   jobId: String(jobId || '').slice(0, 8),
                   errorName: error && error.name ? error.name : 'Error',
                 });
-              finish({
+              resolve({
                 ok: false,
                 reason: 'finalize_failed',
                 persisted,
@@ -88,7 +83,7 @@
             }
           }
 
-          finish({
+          resolve({
             ok: effectiveOk,
             reason: effectiveReason,
             persisted: effectiveOk && persisted,
@@ -102,17 +97,6 @@
         if (timer && typeof timer.unref === 'function') timer.unref();
 
         const start = async () => {
-          try {
-            await updateJobState(geminiTabId, { state: 'result_received' });
-          } catch (error) {
-            safeLog('warn', 'bg', 'DOM_RESULT_RECEIVED_STATE_FAILED',
-              'Não foi possível registrar result_received antes do ACK.', {
-                index,
-                jobId: String(jobId || '').slice(0, 8),
-                errorName: error && error.name ? error.name : 'Error',
-              });
-          }
-
           if (settled) return;
 
           try {
