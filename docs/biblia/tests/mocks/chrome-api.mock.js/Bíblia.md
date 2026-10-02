@@ -1,7 +1,8 @@
 # Bíblia técnica — tests/mocks/chrome-api.mock.js
 
 > **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
-> **SHA auditado:** `c1d9a056b7777183bfd3f540c49811335f410425`  
+> **SHA da revisão sincronizada:** `af6580a887f1eba1c2798bfff82849e1b34cb260`  
+> **Status desta revisão:** sincronização estrutural concluída; auditoria independente nova obrigatória.  
 > **Agente responsável:** AGENTE 18  
 > **Tipo:** infraestrutura Jest — mock stateful das APIs Chrome  
 > **Linhas textuais:** **593**  
@@ -445,8 +446,10 @@ class ChromeTabsMock {
   get(tabId, callback) {
     const tab = this._tabs.get(tabId) || null;
     if (!tab && callback) {
-      global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
-      this._schedule(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
+      this._schedule(() => {
+        global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
+        try { callback(null); } finally { global.chrome.runtime.lastError = null; }
+      }, 0);
     } else if (callback) {
       this._schedule(() => callback(tab), 0);
     }
@@ -455,15 +458,23 @@ class ChromeTabsMock {
 
   remove(tabId, callback) {
     const tabIds = Array.isArray(tabId) ? tabId : [tabId];
+    const missing = [];
     tabIds.forEach(id => {
       if (this._tabs.has(id)) {
         this._tabs.delete(id);
         this._onRemovedListeners.forEach(fn => fn(id, { isWindowClosing: false }));
       } else {
-        global.chrome.runtime.lastError = { message: `No tab with id: ${id}` };
+        missing.push(id);
       }
     });
-    if (callback) this._schedule(() => { callback(); global.chrome.runtime.lastError = null; }, 0);
+    if (callback) {
+      this._schedule(() => {
+        global.chrome.runtime.lastError = missing.length
+          ? { message: `No tab with id: ${missing[0]}` }
+          : null;
+        try { callback(); } finally { global.chrome.runtime.lastError = null; }
+      }, 0);
+    }
     return Promise.resolve();
   }
 
@@ -479,8 +490,12 @@ class ChromeTabsMock {
   sendMessage(tabId, message, callback) {
     const handlers = this._messageHandlers.get(tabId) || [];
     if (handlers.length === 0) {
-      global.chrome.runtime.lastError = { message: 'Could not establish connection.' };
-      if (callback) this._schedule(() => { callback(undefined); global.chrome.runtime.lastError = null; }, 0);
+      if (callback) {
+        this._schedule(() => {
+          global.chrome.runtime.lastError = { message: 'Could not establish connection.' };
+          try { callback(undefined); } finally { global.chrome.runtime.lastError = null; }
+        }, 0);
+      }
       return;
     }
     handlers.forEach(handler => {
@@ -648,10 +663,9 @@ class ChromeRuntimeMock {
 
     if (!responded && callback) {
       if (this._messageListeners.length === 0) {
-        this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
         this._scheduleMessageCallback(() => {
-          callback(undefined);
-          this.lastError = null;
+          this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
+          try { callback(undefined); } finally { this.lastError = null; }
         }, 0);
       } else {
         responseTimeoutId = this._scheduleMessageCallback(() => {
@@ -902,7 +916,9 @@ module.exports = {
 };
 ~~~
 
-## 14. Mapa exaustivo de posições
+## 14. Mapa exaustivo de posições da revisão anterior `c1d9a056b777…`
+
+> Este mapa detalhado é preservado como proveniência da revisão auditada anterior. A revisão atual alterou o escopo de `runtime.lastError` em callbacks assíncronos e exige nova auditoria independente; a cobertura estrutural atual está em 14A.
 
 Cada posição do blob está coberta exatamente uma vez abaixo. O mapa usa unidades semânticas contíguas em vez de repetir uma descrição genérica para cada linha de sintaxe; a fonte integral acima preserva o detalhe linha a linha.
 
@@ -976,6 +992,16 @@ Cada posição do blob está coberta exatamente uma vez abaixo. O mapa usa unida
 | 585–593 | Exports expõem somente getters dos cinco mocks; classes/init não são exportados. | 🟨 dezenas de suites importam getters |
 | 594 | Posição final correspondente ao newline terminal do blob. | 🟦 leitura integral do fonte |
 
+## 14A. Cobertura documental da revisão atual
+
+Revisão sincronizada: `af6580a887f1eba1c2798bfff82849e1b34cb260`. O fonte integral acima corresponde byte-a-byte ao blob atual.
+Esta seção prova apenas completude estrutural da revisão; não herda o veredito independente da revisão anterior.
+Mudança conhecida nesta revisão: `runtime.lastError` passa a existir somente durante callbacks que recebem a falha em `tabs.get`, `tabs.remove`, `tabs.sendMessage` e `runtime.sendMessage`, evitando vazamento transitório do erro para APIs paralelas.
+
+### Linhas 1–607 — revisão atual completa, aguardando reauditoria independente
+
+Cobertura estrutural contínua das 607 posições do blob atual, incluindo o newline terminal. O detalhamento semântico anterior permanece acima apenas como histórico e deve ser revalidado contra esta revisão antes de qualquer novo APPROVED.
+
 ## 15. Dependências e consumidores relevantes
 
 ### Dependências de runtime
@@ -1013,7 +1039,7 @@ O fato de um teste importar um getter prova dependência do fixture, mas não pr
 9. Ordering de download deve continuar entregando ID antes do evento complete.
 10. O mock não deve ser tratado como implementação completa do Chrome; superfícies ausentes/simplificadas precisam de E2E ou contrato focal.
 11. Um teste que depende de estado persistente entre casos deve tornar essa dependência explícita.
-12. Esta Bíblia é válida somente para `c1d9a056b7777183bfd3f540c49811335f410425`.
+12. A fonte integral está sincronizada com `af6580a887f1eba1c2798bfff82849e1b34cb260`; esta revisão permanece pendente de auditoria independente e não reutiliza a aprovação do blob anterior.
 
 ## 17. Autoauditoria do AGENTE 18
 
