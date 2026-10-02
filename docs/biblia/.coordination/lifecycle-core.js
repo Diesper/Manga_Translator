@@ -355,6 +355,7 @@ function lifecycleProblems(state, options = {}) {
     ['lifetime_correction_cycles', snapshot.lifetime_correction_cycles],
     ['current_escalation_cycle', snapshot.current_escalation_cycle],
     ['escalation_level', snapshot.escalation_level],
+    ['human_approval_required', snapshot.human_approval_required],
     ['audit_epoch', snapshot.audit_epoch],
     ['handoff_id', snapshot.handoff_id],
     ['revision_id', snapshot.revision_id],
