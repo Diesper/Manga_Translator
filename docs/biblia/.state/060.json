@@ -2,8 +2,8 @@
   "index": 60,
   "file": "extension/shared/storage-manager.js",
   "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
   "completed_at_utc": null,
   "audit_requests": [
@@ -57,8 +57,8 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:20:30Z",
-  "started_at_utc": null,
+  "updated_at_utc": "2026-10-02T01:06:00Z",
+  "started_at_utc": "2026-10-02T01:06:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T22:22:30Z",
@@ -100,6 +100,16 @@
       "current_bible_sha": "e425b19f67745d957e8835fd518a82e31b915ec4",
       "agent": "AGENTE 30",
       "reason": "Moved transient-IDB check before cache creation; added rejection cleanup by identity and versionchange cleanup; Bible source/header/517 positions revalidated. Test requests remain open until executable validation."
+    },
+    {
+      "at_utc": "2026-10-02T01:06:00Z",
+      "type": "EDITOR_REOPEN_AFTER_PERF09_REGRESSION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
+      "bible_sha": "e425b19f67745d957e8835fd518a82e31b915ec4",
+      "agent": "AGENTE 30",
+      "reason": "Node 20/22 full Jest exposed blobToDataUrl incompatibility with valid Blob lacking arrayBuffer() in jsdom/fake-indexeddb canonical persistence path."
     }
   ],
   "evidence": [
