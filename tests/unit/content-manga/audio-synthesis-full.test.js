@@ -904,6 +904,65 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toBe(false);
     });
 
+    test('UPDATE_IMAGE tardio do lote concluído é rejeitado sem substituir a imagem', async () => {
+        installRuntimeResponder({ tabId: 90 });
+        const { ctx } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const firstResult = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RklSU1Q=',
+            expectAck: true,
+        });
+        expect(firstResult.keepAlive).toBe(true);
+        expect(firstResult.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+        await waitFor(() =>
+            document.querySelector('[data-testid="img-0"]')?.getAttribute('src')
+            === 'data:image/png;base64,RklSU1Q='
+        );
+
+        const lateResult = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,U0VDT05E',
+            expectAck: true,
+        });
+
+        expect(lateResult.keepAlive).toBe(true);
+        expect(lateResult.response).toEqual({
+            ok: false,
+            reason: 'stale_batch',
+        });
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,RklSU1Q=');
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'warn',
+            action_name: 'STALE_UPDATE',
+        }));
+        expect(sentMessages.filter(message =>
+            message.action === 'LOG_ENTRY'
+            && message.action_name === 'BATCH_COMPLETE'
+        )).toHaveLength(1);
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
