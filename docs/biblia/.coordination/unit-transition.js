@@ -1023,11 +1023,6 @@ function main(argv=process.argv.slice(2)) {
   throw new Error('comando desconhecido: ' + args.command);
 }
 
-if (require.main===module) {
-  try { main(); }
-  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
-}
-
 module.exports = {
   finalDecisionRecord,
   decisionIdForPipeline,
@@ -1057,3 +1052,10 @@ module.exports = {
   releaseCorrectionReservation,
   ownershipIndex,
 };
+
+// audit-protocol imports this API while main() loads its model. Publish the API
+// first so the executable CLI has the same dependency behavior as require().
+if (require.main===module) {
+  try { main(); }
+  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
+}

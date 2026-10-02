@@ -7,6 +7,20 @@ const path = require('path');
 const life = require('./lifecycle-core');
 const transition = require('./unit-transition');
 
+// Exercise the executable entry point as well as the imported API. The protocol
+// loads this module again while the CLI is building its model.
+const cli = require('child_process').spawnSync(process.execPath, [
+  path.join(__dirname, 'unit-transition.js'), 'issue-token',
+  '--index', '999', '--actor', 'CLI-REGRESSION',
+  '--at', '2026-10-02T21:45:00Z', '--expected-status', 'CHANGES_REQUIRED',
+  '--expected-state-sha', '0'.repeat(40),
+  '--expected-revision-id', '0'.repeat(64), '--expected-cycle', '0',
+], { encoding: 'utf8' });
+assert.ifError(cli.error);
+assert.strictEqual(cli.status, 1);
+assert.match(cli.stderr, /Unit transition: ERROR — INDEX_NOT_FOUND/);
+console.log('PASS executable transition CLI initializes protocol dependencies before rejecting an unknown unit');
+
 function state(cycles = 0) {
   const s = {
     index: 10,
