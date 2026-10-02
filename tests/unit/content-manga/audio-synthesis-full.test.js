@@ -1175,6 +1175,130 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('replay persistido de A continua confirmável depois que B começa', async () => {
+        installRuntimeResponder({ tabId: 98 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                {
+                    src: 'http://localhost/page-0.png',
+                    width: 800,
+                    height: 1200,
+                },
+                {
+                    src: 'http://localhost/page-1.png',
+                    width: 800,
+                    height: 1200,
+                },
+            ],
+        });
+
+        const initialStarts = sentMessages.filter(message =>
+            message.action === 'START_BATCH'
+        ).length;
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        await waitFor(() =>
+            sentMessages.filter(message => message.action === 'START_BATCH').length
+            === initialStarts + 1
+        );
+        const batchA = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(batchA?.batchId).toBeTruthy();
+
+        const firstA = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: batchA.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,QkFUQ0hfQQ==',
+            expectAck: true,
+        });
+        expect(firstA.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+        await waitFor(() => oscillators.length === 3);
+
+        const startsBeforeB = sentMessages.filter(message =>
+            message.action === 'START_BATCH'
+        ).length;
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [1],
+        });
+        await waitFor(() =>
+            sentMessages.filter(message => message.action === 'START_BATCH').length
+            === startsBeforeB + 1
+        );
+        const batchB = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(batchB?.batchId).toBeTruthy();
+        expect(batchB.batchId).not.toBe(batchA.batchId);
+
+        const replayA = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: batchA.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,QkFUQ0hfQQ==',
+            expectAck: true,
+        });
+        expect(replayA.response).toEqual({
+            ok: true,
+            persisted: true,
+            domApplied: false,
+        });
+
+        const conflictA = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: batchA.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,Q09ORkxJQ1Q=',
+            expectAck: true,
+        });
+        expect(conflictA.response).toEqual({
+            ok: false,
+            reason: 'payload_conflict',
+        });
+
+        expect(sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+            && message.pageIndex === 0
+        )).toHaveLength(1);
+
+        const duringB = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(duringB.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: batchB.batchId,
+        }));
+
+        const updateB = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: batchB.batchId,
+            index: 1,
+            newSrc: 'data:image/png;base64,QkFUQ0hfQg==',
+            expectAck: true,
+        });
+        expect(updateB.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+        await waitFor(() => oscillators.length === 6);
+    });
+
     test('persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte', async () => {
         installRuntimeResponder({ tabId: 91 });
         const baseSendMessage = runtimeMock.sendMessage;
