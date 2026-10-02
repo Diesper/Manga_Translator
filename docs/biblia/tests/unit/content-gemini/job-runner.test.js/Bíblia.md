@@ -2487,421 +2487,421 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 230
 
+- **Código:** *(linha vazia)*
+- **Função:** Separa a cobertura de `FileImpl:null` da cobertura adicional de `DataUrlAtob:null`.
+- **Contexto:** RUN-01B — erros de dataURL/APIs.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — separação estrutural do cenário focal.
+
+### Linha 231
+
+- **Código:** `    const withoutAtobApi = createGeminiJobRunner({ ...options, DataUrlAtob: null });`
+- **Função:** Instancia o runner real sem a API de decodificação Base64 para provar o fail-closed equivalente ao ambiente sem `atob`.
+- **Contexto:** RUN-01B — erros de dataURL/APIs.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — dependência ausente construída explicitamente no cenário.
+
+### Linha 232
+
+- **Código:** `    expect(() => withoutAtobApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))`
+- **Função:** Executa a conversão real sob ausência de `DataUrlAtob`.
+- **Contexto:** RUN-01B — erros de dataURL/APIs.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 233
+
+- **Código:** `      .toThrow('APIs de arquivo indisponíveis');`
+- **Função:** Prova que a ausência de `DataUrlAtob` falha explicitamente com o contrato esperado.
+- **Contexto:** RUN-01B — erros de dataURL/APIs.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 234
+
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-01B — erros de dataURL/APIs.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 231
+### Linha 235
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 232
+### Linha 236
 
 - **Código:** `  test('RUN-02: recovery pendente encerra antes de abrir keepalive', async () => {`
 - **Função:** Declara cenário: RUN-02 — recovery antes do keepalive.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 233
+### Linha 237
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 234
+### Linha 238
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 235
+### Linha 239
 
 - **Código:** `    options.deletionController.recoverPending.mockResolvedValue({`
 - **Função:** Fornece controller de deletion mockado; cenários de runner verificam ordem/wiring sem reexecutar deletion real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 236
+### Linha 240
 
 - **Código:** `      handled: true,`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 237
+### Linha 241
 
 - **Código:** `      deleted: true,`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 238
+### Linha 242
 
 - **Código:** `      recovery: { delivery: { action: 'GEMINI_ERROR' } },`
 - **Função:** Observa reporte estruturado de erro do runner.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 239
+### Linha 243
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 240
+### Linha 244
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 241
+### Linha 245
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 242
+### Linha 246
 
 - **Código:** `    const result = await runner.run({`
 - **Função:** Executa pipeline real do job runner.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 243
+### Linha 247
 
 - **Código:** `      jobId: 'job-recovery',`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 244
+### Linha 248
 
 - **Código:** `      geminiTabId: 88,`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 245
+### Linha 249
 
 - **Código:** `      mangaTabId: 77,`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 246
+### Linha 250
 
 - **Código:** `      index: 1,`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 247
+### Linha 251
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 248
+### Linha 252
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 249
+### Linha 253
 
 - **Código:** `    expect(result).toEqual({`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 250
+### Linha 254
 
 - **Código:** `      status: 'recovery_handled',`
 - **Função:** Exige retorno precoce quando recovery já tratou a entrega.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 251
+### Linha 255
 
 - **Código:** `      deleted: true,`
 - **Função:** Compõe o cenário RUN-02 — recovery antes do keepalive, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 252
+### Linha 256
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 253
+### Linha 257
 
 - **Código:** `    expect(options.openKeepAlive).not.toHaveBeenCalled();`
 - **Função:** Injeta boundary observável de abertura do keep-alive.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 254
+### Linha 258
 
 - **Código:** `    expect(options.closeKeepAlive).not.toHaveBeenCalled();`
 - **Função:** Injeta boundary observável de fechamento do keep-alive.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 255
+### Linha 259
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-02 — recovery antes do keepalive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 256
+### Linha 260
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 257
+### Linha 261
 
 - **Código:** `  test('RUN-03: erro inicial fecha keepalive no finally e reporta GEMINI_ERROR', async () => {`
 - **Função:** Declara cenário: RUN-03 — erro inicial/finally.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 258
+### Linha 262
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 259
+### Linha 263
 
 - **Código:** `    const { options, runtimeMessages } = baseDependencies();`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 260
+### Linha 264
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 261
+### Linha 265
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 262
+### Linha 266
 
 - **Código:** `    const result = await runner.run({`
 - **Função:** Executa pipeline real do job runner.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 263
-
-- **Código:** `      jobId: 'job-no-image',`
-- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 264
-
-- **Código:** `      batchId: 'batch-1',`
-- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 265
-
-- **Código:** `      geminiTabId: 321,`
-- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 266
-
-- **Código:** `      mangaTabId: 77,`
-- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
 ### Linha 267
 
-- **Código:** `      index: 5,`
+- **Código:** `      jobId: 'job-no-image',`
 - **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 268
 
-- **Código:** `    });`
-- **Função:** Fecha/organiza bloco sintático anterior.
+- **Código:** `      batchId: 'batch-1',`
+- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 269
 
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Código:** `      geminiTabId: 321,`
+- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 270
-
-- **Código:** `    expect(options.openKeepAlive).toHaveBeenCalledTimes(1);`
-- **Função:** Injeta boundary observável de abertura do keep-alive.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 271
-
-- **Código:** `    expect(options.closeKeepAlive).toHaveBeenCalledTimes(1);`
-- **Função:** Injeta boundary observável de fechamento do keep-alive.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 272
-
-- **Código:** `    expect(result.status).toBe('error');`
-- **Função:** Assertion focal do contrato.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 273
-
-- **Código:** `    expect(runtimeMessages).toContainEqual(expect.objectContaining({`
-- **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 274
-
-- **Código:** `      action: 'GEMINI_ERROR',`
-- **Função:** Observa reporte estruturado de erro do runner.
-- **Contexto:** RUN-03 — erro inicial/finally.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 275
 
 - **Código:** `      mangaTabId: 77,`
 - **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 276
+### Linha 271
 
 - **Código:** `      index: 5,`
 - **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
+### Linha 272
+
+- **Código:** `    });`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 273
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 274
+
+- **Código:** `    expect(options.openKeepAlive).toHaveBeenCalledTimes(1);`
+- **Função:** Injeta boundary observável de abertura do keep-alive.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 275
+
+- **Código:** `    expect(options.closeKeepAlive).toHaveBeenCalledTimes(1);`
+- **Função:** Injeta boundary observável de fechamento do keep-alive.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 276
+
+- **Código:** `    expect(result.status).toBe('error');`
+- **Função:** Assertion focal do contrato.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
 ### Linha 277
+
+- **Código:** `    expect(runtimeMessages).toContainEqual(expect.objectContaining({`
+- **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 278
+
+- **Código:** `      action: 'GEMINI_ERROR',`
+- **Função:** Observa reporte estruturado de erro do runner.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 279
+
+- **Código:** `      mangaTabId: 77,`
+- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 280
+
+- **Código:** `      index: 5,`
+- **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-03 — erro inicial/finally.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 281
 
 - **Código:** `      jobId: 'job-no-image',`
 - **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 278
+### Linha 282
 
 - **Código:** `      batchId: 'batch-1',`
 - **Função:** Compõe o cenário RUN-03 — erro inicial/finally, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 279
+### Linha 283
 
 - **Código:** `    }));`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 280
+### Linha 284
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-03 — erro inicial/finally.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 281
+### Linha 285
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 282
+### Linha 286
 
 - **Código:** `  test('RUN-04: waitForElement resolve imediatamente quando o editor já existe', async () => {`
 - **Função:** Declara cenário: RUN-04 — waitForElement imediato.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 283
+### Linha 287
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 284
+### Linha 288
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 285
+### Linha 289
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
-- **Contexto:** RUN-04 — waitForElement imediato.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 286
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-04 — waitForElement imediato.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 287
-
-- **Código:** `    const editor = document.createElement('div');`
-- **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-04 — waitForElement imediato.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 288
-
-- **Código:** `    editor.className = 'ql-editor';`
-- **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-04 — waitForElement imediato.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 289
-
-- **Código:** `    document.body.appendChild(editor);`
-- **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -2914,141 +2914,141 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 291
 
+- **Código:** `    const editor = document.createElement('div');`
+- **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-04 — waitForElement imediato.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 292
+
+- **Código:** `    editor.className = 'ql-editor';`
+- **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-04 — waitForElement imediato.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 293
+
+- **Código:** `    document.body.appendChild(editor);`
+- **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-04 — waitForElement imediato.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 294
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-04 — waitForElement imediato.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 295
+
 - **Código:** `    await expect(`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 292
+### Linha 296
 
 - **Código:** `      runner.waitForElement('.ql-editor', 100)`
 - **Função:** Exercita helper real de espera DOM profunda.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 293
+### Linha 297
 
 - **Código:** `    ).resolves.toBe(editor);`
 - **Função:** Compõe o cenário RUN-04 — waitForElement imediato, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 294
+### Linha 298
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-04 — waitForElement imediato.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 295
+### Linha 299
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 296
+### Linha 300
 
 - **Código:** `  test('RUN-04B: waitForElement observa editor inserido depois dentro de Shadow DOM', async () => {`
 - **Função:** Declara cenário: RUN-04B — waitForElement em Shadow DOM.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 297
+### Linha 301
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 298
+### Linha 302
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 299
+### Linha 303
 
 - **Código:** `    let realDom;`
 - **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 300
+### Linha 304
 
 - **Código:** `    jest.isolateModules(() => {`
 - **Função:** Força execução isolada do módulo real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 301
+### Linha 305
 
 - **Código:** `      require(SELECTORS_PATH);`
 - **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + execução — conecta a suíte aos módulos reais.
 
-### Linha 302
+### Linha 306
 
 - **Código:** `      realDom = require(DOM_PATH);`
 - **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟦 GATE ESTÁTICO ESPECÍFICO + execução — conecta a suíte aos módulos reais.
 
-### Linha 303
+### Linha 307
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 304
+### Linha 308
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 305
+### Linha 309
 
 - **Código:** `    const { options } = baseDependencies({ domApi: realDom });`
 - **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 306
+### Linha 310
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
-- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 307
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 308
-
-- **Código:** `    const host = document.createElement('gemini-composer');`
-- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 309
-
-- **Código:** `    const shadow = host.attachShadow({ mode: 'open' });`
-- **Função:** Cria Shadow DOM aberto para detecção dinâmica.
-- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 310
-
-- **Código:** `    document.body.appendChild(host);`
-- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3061,38 +3061,38 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 312
 
-- **Código:** `    const pending = runner.waitForElement('.ql-editor', 1000);`
-- **Função:** Exercita helper real de espera DOM profunda.
+- **Código:** `    const host = document.createElement('gemini-composer');`
+- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 313
 
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Código:** `    const shadow = host.attachShadow({ mode: 'open' });`
+- **Função:** Cria Shadow DOM aberto para detecção dinâmica.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 314
 
-- **Código:** `    const editor = document.createElement('div');`
+- **Código:** `    document.body.appendChild(host);`
 - **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 315
 
-- **Código:** `    editor.className = 'ql-editor';`
-- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 316
 
-- **Código:** `    shadow.appendChild(editor);`
-- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
+- **Código:** `    const pending = runner.waitForElement('.ql-editor', 1000);`
+- **Função:** Exercita helper real de espera DOM profunda.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
 ### Linha 317
 
@@ -3103,323 +3103,323 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 318
 
+- **Código:** `    const editor = document.createElement('div');`
+- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 319
+
+- **Código:** `    editor.className = 'ql-editor';`
+- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 320
+
+- **Código:** `    shadow.appendChild(editor);`
+- **Função:** Compõe o cenário RUN-04B — waitForElement em Shadow DOM, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 321
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-04B — waitForElement em Shadow DOM.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 322
+
 - **Código:** `    await expect(pending).resolves.toBe(editor);`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 319
+### Linha 323
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-04B — waitForElement em Shadow DOM.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 320
+### Linha 324
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 321
+### Linha 325
 
 - **Código:** `  test('RUN-05: seleção manual é entregue ao observer ativo existente', () => {`
 - **Função:** Declara cenário: RUN-05 — resultado manual para observer.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 322
+### Linha 326
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 323
-
-- **Código:** `    const { options } = baseDependencies();`
-- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 324
-
-- **Código:** `    const observer = {`
-- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 325
-
-- **Código:** `      acceptResult: jest.fn(),`
-- **Função:** Observa observer.acceptResult recebendo URL manual.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 326
-
-- **Código:** `    };`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
 ### Linha 327
 
-- **Código:** `    window.__mangaTranslatorActiveGeminiObserver = observer;`
+- **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 328
 
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Código:** `    const observer = {`
+- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 329
 
-- **Código:** `    const runner = createGeminiJobRunner(options);`
-- **Função:** Instancia a implementação real com dependências do cenário.
+- **Código:** `      acceptResult: jest.fn(),`
+- **Função:** Observa observer.acceptResult recebendo URL manual.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 330
 
-- **Código:** `    runner.setManualGeminiResultUrl(`
-- **Função:** Exercita entrega de seleção manual ao observer ativo.
+- **Código:** `    };`
+- **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 331
 
-- **Código:** `      'https://cdn.example/result.png',`
+- **Código:** `    window.__mangaTranslatorActiveGeminiObserver = observer;`
 - **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 332
 
-- **Código:** `      'test'`
-- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 333
-
-- **Código:** `    );`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 334
-
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
+### Linha 333
+
+- **Código:** `    const runner = createGeminiJobRunner(options);`
+- **Função:** Instancia a implementação real com dependências do cenário.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 334
+
+- **Código:** `    runner.setManualGeminiResultUrl(`
+- **Função:** Exercita entrega de seleção manual ao observer ativo.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
+
 ### Linha 335
 
-- **Código:** `    expect(observer.acceptResult).toHaveBeenCalledWith(`
-- **Função:** Observa observer.acceptResult recebendo URL manual.
+- **Código:** `      'https://cdn.example/result.png',`
+- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 336
 
-- **Código:** `      null,`
+- **Código:** `      'test'`
 - **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 337
 
-- **Código:** `      'https://cdn.example/result.png'`
-- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-05 — resultado manual para observer.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 338
-
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
+### Linha 338
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
 ### Linha 339
 
-- **Código:** `    expect(window.__mangaTranslatorManualGeminiResultUrl).toBe(`
-- **Função:** Assertion focal do contrato.
+- **Código:** `    expect(observer.acceptResult).toHaveBeenCalledWith(`
+- **Função:** Observa observer.acceptResult recebendo URL manual.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 340
 
-- **Código:** `      'https://cdn.example/result.png'`
+- **Código:** `      null,`
 - **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 341
 
-- **Código:** `    );`
-- **Função:** Fecha/organiza bloco sintático anterior.
+- **Código:** `      'https://cdn.example/result.png'`
+- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 342
 
-- **Código:** `  });`
+- **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-05 — resultado manual para observer.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 343
 
+- **Código:** `    expect(window.__mangaTranslatorManualGeminiResultUrl).toBe(`
+- **Função:** Assertion focal do contrato.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 344
+
+- **Código:** `      'https://cdn.example/result.png'`
+- **Função:** Compõe o cenário RUN-05 — resultado manual para observer, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 345
+
+- **Código:** `    );`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 346
+
+- **Código:** `  });`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-05 — resultado manual para observer.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 347
+
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 344
+### Linha 348
 
 - **Código:** `  test('RUN-06: modos de execução escolhem anti-throttling progressivo', () => {`
 - **Função:** Declara cenário: RUN-06 — anti-throttle por modo.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 345
+### Linha 349
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 346
+### Linha 350
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-06 — anti-throttle por modo, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 347
+### Linha 351
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 348
+### Linha 352
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 349
+### Linha 353
 
 - **Código:** `    expect(runner.getAntiThrottleModeForExecutionMode('temp_chat')).toBe('minimal');`
 - **Função:** Exercita política de anti-throttling por modo.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 350
+### Linha 354
 
 - **Código:** `    expect(runner.getAntiThrottleModeForExecutionMode('background_delete')).toBe('balanced');`
 - **Função:** Exercita política de anti-throttling por modo.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 351
+### Linha 355
 
 - **Código:** `    expect(runner.getAntiThrottleModeForExecutionMode('minimized_window')).toBe('balanced');`
 - **Função:** Exercita política de anti-throttling por modo.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 352
+### Linha 356
 
 - **Código:** `    expect(runner.getAntiThrottleModeForExecutionMode('unknown')).toBe('minimal');`
 - **Função:** Exercita política de anti-throttling por modo.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 353
+### Linha 357
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-06 — anti-throttle por modo.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 354
+### Linha 358
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 355
+### Linha 359
 
 - **Código:** `  test('RUN-07: setAntiThrottleMode publica evento MAIN-world e normaliza inválidos', () => {`
 - **Função:** Declara cenário: RUN-07 — evento anti-throttle MAIN.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 356
+### Linha 360
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 357
+### Linha 361
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-07 — evento anti-throttle MAIN, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 358
+### Linha 362
 
 - **Código:** `    const received = [];`
 - **Função:** Compõe o cenário RUN-07 — evento anti-throttle MAIN, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 359
+### Linha 363
 
 - **Código:** `    const listener = event => received.push(event.detail && event.detail.mode);`
 - **Função:** Compõe o cenário RUN-07 — evento anti-throttle MAIN, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 360
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 361
-
-- **Código:** `    window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', listener);`
-- **Função:** Fixa nome do evento enviado ao MAIN world.
-- **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 362
-
-- **Código:** `    try {`
-- **Função:** Compõe o cenário RUN-07 — evento anti-throttle MAIN, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 363
-
-- **Código:** `      const runner = createGeminiJobRunner(options);`
-- **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -3432,24 +3432,24 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 365
 
-- **Código:** `      expect(runner.setAntiThrottleMode('balanced')).toBe('balanced');`
-- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Código:** `    window.addEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', listener);`
+- **Função:** Fixa nome do evento enviado ao MAIN world.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 366
 
-- **Código:** `      expect(runner.setAntiThrottleMode('legacy')).toBe('legacy');`
-- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Código:** `    try {`
+- **Função:** Compõe o cenário RUN-07 — evento anti-throttle MAIN, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 367
 
-- **Código:** `      expect(runner.setAntiThrottleMode('qualquer-coisa')).toBe('minimal');`
-- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Código:** `      const runner = createGeminiJobRunner(options);`
+- **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 368
 
@@ -3460,119 +3460,119 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 369
 
+- **Código:** `      expect(runner.setAntiThrottleMode('balanced')).toBe('balanced');`
+- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Contexto:** RUN-07 — evento anti-throttle MAIN.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 370
+
+- **Código:** `      expect(runner.setAntiThrottleMode('legacy')).toBe('legacy');`
+- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Contexto:** RUN-07 — evento anti-throttle MAIN.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 371
+
+- **Código:** `      expect(runner.setAntiThrottleMode('qualquer-coisa')).toBe('minimal');`
+- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Contexto:** RUN-07 — evento anti-throttle MAIN.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 372
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-07 — evento anti-throttle MAIN.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 373
+
 - **Código:** `      expect(received).toEqual(['balanced', 'legacy', 'minimal']);`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 370
+### Linha 374
 
 - **Código:** `    } finally {`
 - **Função:** Compõe o cenário RUN-07 — evento anti-throttle MAIN, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 371
+### Linha 375
 
 - **Código:** `      window.removeEventListener('MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE', listener);`
 - **Função:** Fixa nome do evento enviado ao MAIN world.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 372
+### Linha 376
 
 - **Código:** `    }`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 373
+### Linha 377
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07 — evento anti-throttle MAIN.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 374
+### Linha 378
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 375
+### Linha 379
 
 - **Código:** `  test('RUN-07A: setAntiThrottleMode preserva o modo sem um dispatcher de eventos', () => {`
 - **Função:** Declara cenário: RUN-07A — sem dispatcher.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 376
+### Linha 380
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 377
+### Linha 381
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-07A — sem dispatcher, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 378
+### Linha 382
 
 - **Código:** `    const runner = createGeminiJobRunner({`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 379
+### Linha 383
 
 - **Código:** `      ...options,`
 - **Função:** Compõe o cenário RUN-07A — sem dispatcher, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 380
+### Linha 384
 
 - **Código:** `      pageWindow: {},`
 - **Função:** Compõe o cenário RUN-07A — sem dispatcher, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 381
-
-- **Código:** `    });`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-07A — sem dispatcher.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 382
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-07A — sem dispatcher.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 383
-
-- **Código:** `    expect(runner.setAntiThrottleMode('balanced')).toBe('balanced');`
-- **Função:** Exercita normalização e emissão do modo anti-throttle.
-- **Contexto:** RUN-07A — sem dispatcher.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 384
-
-- **Código:** `    expect(runner.setAntiThrottleMode('invalid')).toBe('minimal');`
-- **Função:** Exercita normalização e emissão do modo anti-throttle.
-- **Contexto:** RUN-07A — sem dispatcher.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
 ### Linha 385
 
-- **Código:** `  });`
+- **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
@@ -3581,1035 +3581,1035 @@ describe('gemini/job-runner.js', () => {
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** estrutura final.
+- **Contexto:** RUN-07A — sem dispatcher.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 387
+
+- **Código:** `    expect(runner.setAntiThrottleMode('balanced')).toBe('balanced');`
+- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Contexto:** RUN-07A — sem dispatcher.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 388
+
+- **Código:** `    expect(runner.setAntiThrottleMode('invalid')).toBe('minimal');`
+- **Função:** Exercita normalização e emissão do modo anti-throttle.
+- **Contexto:** RUN-07A — sem dispatcher.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 389
+
+- **Código:** `  });`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-07A — sem dispatcher.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 390
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** estrutura final.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 391
 
 - **Código:** `  test('RUN-07B: qualquer uso do HUD manual é registrado como erro grave de automação', () => {`
 - **Função:** Declara cenário: RUN-07B — HUD manual como erro grave.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 388
+### Linha 392
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 389
-
-- **Código:** `    const { options } = baseDependencies();`
-- **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-07B — HUD manual como erro grave.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 390
-
-- **Código:** `    const runner = createGeminiJobRunner(options);`
-- **Função:** Instancia a implementação real com dependências do cenário.
-- **Contexto:** RUN-07B — HUD manual como erro grave.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 391
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-07B — HUD manual como erro grave.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 392
-
-- **Código:** `    runner.createGeminiManualPanel({`
-- **Função:** Materializa HUD manual real para observar telemetria de intervenção.
-- **Contexto:** RUN-07B — HUD manual como erro grave.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
 ### Linha 393
 
-- **Código:** `      index: 2,`
+- **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 394
 
+- **Código:** `    const runner = createGeminiJobRunner(options);`
+- **Função:** Instancia a implementação real com dependências do cenário.
+- **Contexto:** RUN-07B — HUD manual como erro grave.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 395
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-07B — HUD manual como erro grave.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 396
+
+- **Código:** `    runner.createGeminiManualPanel({`
+- **Função:** Materializa HUD manual real para observar telemetria de intervenção.
+- **Contexto:** RUN-07B — HUD manual como erro grave.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 397
+
+- **Código:** `      index: 2,`
+- **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-07B — HUD manual como erro grave.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 398
+
 - **Código:** `      jobId: 'manual-required-job',`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 395
+### Linha 399
 
 - **Código:** `      executionMode: 'temp_chat',`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 396
+### Linha 400
 
 - **Código:** `    }, () => new Set());`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 397
+### Linha 401
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 398
+### Linha 402
 
 - **Código:** `    document.getElementById('mt-gemini-use-last').click();`
 - **Função:** Dispara ação manual 'usar última'.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 399
+### Linha 403
 
 - **Código:** `    document.getElementById('mt-gemini-pick').click();`
 - **Função:** Dispara modo manual de seleção.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 400
+### Linha 404
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 401
+### Linha 405
 
 - **Código:** `    const severeCalls = options.sendLog.mock.calls.filter(`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 402
+### Linha 406
 
 - **Código:** `      ([level, action]) =>`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 403
+### Linha 407
 
 - **Código:** `        level === 'error' &&`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 404
+### Linha 408
 
 - **Código:** `        action === 'GEMINI_MANUAL_INTERVENTION_REQUIRED'`
 - **Função:** Exige classificação de intervenção manual como erro grave.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 405
+### Linha 409
 
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 406
+### Linha 410
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 407
+### Linha 411
 
 - **Código:** `    expect(severeCalls).toHaveLength(2);`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 408
+### Linha 412
 
 - **Código:** `    expect(severeCalls[0][3]).toEqual(expect.objectContaining({`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 409
+### Linha 413
 
 - **Código:** `      source: 'last-button',`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 410
+### Linha 414
 
 - **Código:** `      index: 2,`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 411
+### Linha 415
 
 - **Código:** `      executionMode: 'temp_chat',`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 412
+### Linha 416
 
 - **Código:** `      jobIdPrefix: 'manual-r',`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 413
+### Linha 417
 
 - **Código:** `    }));`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 414
+### Linha 418
 
 - **Código:** `    expect(severeCalls[1][3]).toEqual(expect.objectContaining({`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 415
+### Linha 419
 
 - **Código:** `      source: 'pick-button',`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 416
+### Linha 420
 
 - **Código:** `    }));`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 417
+### Linha 421
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 418
+### Linha 422
 
 - **Código:** `    runner.removeGeminiManualPanel();`
 - **Função:** Compõe o cenário RUN-07B — HUD manual como erro grave, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 419
+### Linha 423
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-07B — HUD manual como erro grave.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 420
+### Linha 424
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 421
+### Linha 425
 
 - **Código:** `  test('RUN-08: início da geração renova o watchdog uma única vez e valida a resposta', async () => {`
 - **Função:** Declara cenário: RUN-08 — refresh único do watchdog.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 422
+### Linha 426
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 423
+### Linha 427
 
 - **Código:** `    let clock = 10_000;`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 424
+### Linha 428
 
 - **Código:** `    jest.spyOn(Date, 'now').mockImplementation(() => clock);`
 - **Função:** Controla relógio para waits/retries determinísticos.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 425
+### Linha 429
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 426
+### Linha 430
 
 - **Código:** `    const editor = document.createElement('div');`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 427
+### Linha 431
 
 - **Código:** `    editor.setAttribute('contenteditable', 'true');`
 - **Função:** Cria editor conectado usado pelo runner.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 428
+### Linha 432
 
 - **Código:** `    const composer = document.createElement('rich-textarea');`
 - **Função:** Cria composer realista ao redor do editor.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 429
+### Linha 433
 
 - **Código:** `    composer.appendChild(editor);`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 430
+### Linha 434
 
 - **Código:** `    document.body.appendChild(composer);`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 431
+### Linha 435
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 432
+### Linha 436
 
 - **Código:** `    let onStateChange = null;`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 433
+### Linha 437
 
 - **Código:** `    const observer = {`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 434
+### Linha 438
 
 - **Código:** `      start: jest.fn(function() { return this; }),`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 435
+### Linha 439
 
 - **Código:** `      stop: jest.fn(),`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 436
+### Linha 440
 
 - **Código:** `      waitForResult: jest.fn(async () => ({`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 437
+### Linha 441
 
 - **Código:** `        image: null,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 438
+### Linha 442
 
 - **Código:** `        url: 'https://lh3.googleusercontent.com/gg-dl/RUNNER_RESULT',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 439
+### Linha 443
 
 - **Código:** `      })),`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 440
+### Linha 444
 
 - **Código:** `    };`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 441
+### Linha 445
 
 - **Código:** `    const { options, runtimeMessages } = baseDependencies({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 442
+### Linha 446
 
 - **Código:** `      sleep: async ms => { clock += Number(ms) || 0; },`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 443
+### Linha 447
 
 - **Código:** `      domApi: {`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 444
+### Linha 448
 
 - **Código:** `        getImageSource: image => image?.src || '',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 445
+### Linha 449
 
 - **Código:** `        isIgnoredGeminiImageSource: () => false,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 446
+### Linha 450
 
 - **Código:** `        isModelResponseImage: () => false,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 447
+### Linha 451
 
 - **Código:** `        getEditableElement: element => element,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 448
+### Linha 452
 
 - **Código:** `        findSendButton: () => null,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 449
+### Linha 453
 
 - **Código:** `        isElementVisible: () => true,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 450
+### Linha 454
 
 - **Código:** `        findAllDeep: (root, matcher) => [root, ...root.querySelectorAll('*')].filter(matcher),`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 451
+### Linha 455
 
 - **Código:** `      },`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 452
+### Linha 456
 
 - **Código:** `      observerApi: {`
 - **Função:** Fornece factory de observer controlada.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 453
+### Linha 457
 
 - **Código:** `        createGeminiObserver: jest.fn(config => {`
 - **Função:** Captura onStateChange e devolve observer controlado.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 454
+### Linha 458
 
 - **Código:** `          onStateChange = config.onStateChange;`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 455
+### Linha 459
 
 - **Código:** `          return observer;`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 456
+### Linha 460
 
 - **Código:** `        }),`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 457
+### Linha 461
 
 - **Código:** `      },`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 458
+### Linha 462
 
 - **Código:** `      editorApi: {`
 - **Função:** Fornece submitWithConfirmation controlado.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 459
+### Linha 463
 
 - **Código:** `        submitWithConfirmation: jest.fn(async () => {`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 460
+### Linha 464
 
 - **Código:** `          onStateChange('generation_started', { reason: 'stop_visible' });`
 - **Função:** Simula sinal observável de início de geração.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 461
+### Linha 465
 
 - **Código:** `          onStateChange('generation_started', { reason: 'response_created' });`
 - **Função:** Simula sinal observável de início de geração.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 462
+### Linha 466
 
 - **Código:** `          return { confirmed: true, attempt: 1, reason: 'stop_visible' };`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 463
+### Linha 467
 
 - **Código:** `        }),`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 464
+### Linha 468
 
 - **Código:** `      },`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 465
+### Linha 469
 
 - **Código:** `      attachmentApi: {`
 - **Função:** Fornece upload/attachment controlado.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 466
+### Linha 470
 
 - **Código:** `        attachFile: jest.fn(async () => ({`
 - **Função:** Faz attachment responder confirmado.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 467
+### Linha 471
 
 - **Código:** `          attempted: true,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 468
+### Linha 472
 
 - **Código:** `          confirmed: true,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 469
+### Linha 473
 
 - **Código:** `          evidence: { type: 'container' },`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 470
+### Linha 474
 
 - **Código:** `          methodsAttempted: ['file_input'],`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 471
+### Linha 475
 
 - **Código:** `        })),`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 472
+### Linha 476
 
 - **Código:** `        findFileInputsDeep: jest.fn(() => []),`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 473
+### Linha 477
 
 - **Código:** `        listAttachmentEvidence: jest.fn(() => []),`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 474
+### Linha 478
 
 - **Código:** `      },`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 475
+### Linha 479
 
 - **Código:** `      resultExtractor: {`
 - **Função:** Fornece extração/fallback controlados.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 476
+### Linha 480
 
 - **Código:** `        extractOrAuxiliaryFallback: jest.fn(async () => ({`
 - **Função:** Faz result extractor devolver resultado extraído direto.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 477
+### Linha 481
 
 - **Código:** `          kind: 'extracted',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 478
+### Linha 482
 
 - **Código:** `          dataUrl: 'data:image/png;base64,RESULT',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 479
+### Linha 483
 
 - **Código:** `        })),`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 480
+### Linha 484
 
 - **Código:** `      },`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 481
+### Linha 485
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 482
+### Linha 486
 
 - **Código:** `    options.runtime.sendMessage.mockImplementation((message, callback) => {`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 483
+### Linha 487
 
 - **Código:** `      runtimeMessages.push(message);`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 484
+### Linha 488
 
 - **Código:** `      if (message.action === 'REQUEST_IMAGE_DATA') {`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 485
+### Linha 489
 
 - **Código:** `        callback?.({ srcData: 'data:image/png;base64,QUJDRA==' });`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 486
+### Linha 490
 
 - **Código:** `      } else if (message.action === 'REFRESH_JOB_WATCHDOG') {`
 - **Função:** Modela/observa protocolo de renovação de watchdog.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 487
+### Linha 491
 
 - **Código:** `        callback?.({ ok: true, refreshed: true });`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 488
+### Linha 492
 
 - **Código:** `      } else if (message.action === 'GEMINI_IMAGE_EXTRACTED') {`
 - **Função:** Modela/observa stage do resultado no leitor.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 489
+### Linha 493
 
 - **Código:** `        callback?.({ ok: true, staged: true, persisted: true });`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 490
+### Linha 494
 
 - **Código:** `      } else if (message.action === 'GEMINI_RESULT_COMMIT') {`
 - **Função:** Modela/observa commit final do job após persistência.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 491
+### Linha 495
 
 - **Código:** `        callback?.({ ok: true, committed: true });`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 492
+### Linha 496
 
 - **Código:** `      } else {`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 493
+### Linha 497
 
 - **Código:** `        callback?.({ ok: true });`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 494
+### Linha 498
 
 - **Código:** `      }`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 495
+### Linha 499
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 496
+### Linha 500
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 497
+### Linha 501
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 498
+### Linha 502
 
 - **Código:** `    await expect(runner.run({`
 - **Função:** Executa pipeline real do job runner.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 499
+### Linha 503
 
 - **Código:** `      jobId: 'job-refresh',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 500
+### Linha 504
 
 - **Código:** `      batchId: 'batch-1',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 501
+### Linha 505
 
 - **Código:** `      geminiTabId: 321,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 502
+### Linha 506
 
 - **Código:** `      mangaTabId: 77,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 503
+### Linha 507
 
 - **Código:** `      index: 2,`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 504
+### Linha 508
 
 - **Código:** `      prompt: 'Traduza a imagem para português brasileiro.',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 505
+### Linha 509
 
 - **Código:** `      executionMode: 'background_delete',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 506
+### Linha 510
 
 - **Código:** `    })).resolves.toEqual({ status: 'delivered_extracted' });`
 - **Função:** Exige status final de resultado extraído e entregue.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 507
+### Linha 511
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 508
+### Linha 512
 
 - **Código:** `    expect(runtimeMessages.filter(message =>`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 509
+### Linha 513
 
 - **Código:** `      message.action === 'REFRESH_JOB_WATCHDOG'`
 - **Função:** Modela/observa protocolo de renovação de watchdog.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 510
+### Linha 514
 
 - **Código:** `    )).toEqual([{ action: 'REFRESH_JOB_WATCHDOG', jobId: 'job-refresh' }]);`
 - **Função:** Modela/observa protocolo de renovação de watchdog.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 511
+### Linha 515
 
 - **Código:** `    expect(options.sendLog).toHaveBeenCalledWith(`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 512
+### Linha 516
 
 - **Código:** `      'success',`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 513
+### Linha 517
 
 - **Código:** `      'GEMINI_WATCHDOG_REFRESH_CONFIRMED',`
 - **Função:** Exige log de refresh confirmado.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 514
+### Linha 518
 
 - **Código:** `      expect.stringContaining('reiniciado'),`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 515
+### Linha 519
 
 - **Código:** `      expect.objectContaining({ executionMode: 'background_delete' })`
 - **Função:** Compõe o cenário RUN-08 — refresh único do watchdog, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 516
+### Linha 520
 
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 517
+### Linha 521
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-08 — refresh único do watchdog.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 518
+### Linha 522
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 519
+### Linha 523
 
 - **Código:** `  test('RUN-09: seleção automática e manual recusam imagens do preview do anexo', () => {`
 - **Função:** Declara cenário: RUN-09 — preview de input recusado.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 520
+### Linha 524
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 521
+### Linha 525
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 522
+### Linha 526
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 523
+### Linha 527
 
 - **Código:** `    const preview = document.createElement('file-preview');`
 - **Função:** Cria preview do attachment que deve ser recusado como resultado.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 524
+### Linha 528
 
 - **Código:** `    const image = document.createElement('img');`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 525
+### Linha 529
 
 - **Código:** `    image.src = 'blob:https://gemini.google.com/input-preview';`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 526
+### Linha 530
 
 - **Código:** `    Object.defineProperty(image, 'naturalWidth', { value: 1200, configurable: true });`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 527
+### Linha 531
 
 - **Código:** `    Object.defineProperty(image, 'naturalHeight', { value: 1800, configurable: true });`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 528
+### Linha 532
 
 - **Código:** `    preview.appendChild(image);`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 529
+### Linha 533
 
 - **Código:** `    document.body.appendChild(preview);`
 - **Função:** Compõe o cenário RUN-09 — preview de input recusado, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-09 — preview de input recusado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 530
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-09 — preview de input recusado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 531
-
-- **Código:** `    expect(runner.isLikelyGeneratedImage(image)).toBe(false);`
-- **Função:** Exercita filtro automático de imagem candidata.
-- **Contexto:** RUN-09 — preview de input recusado.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 532
-
-- **Código:** `    expect(runner.isManualSelectableImage(image)).toBe(false);`
-- **Função:** Exercita filtro para seleção manual.
-- **Contexto:** RUN-09 — preview de input recusado.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 533
-
-- **Código:** `  });`
-- **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -4617,209 +4617,209 @@ describe('gemini/job-runner.js', () => {
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** estrutura final.
+- **Contexto:** RUN-09 — preview de input recusado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 535
+
+- **Código:** `    expect(runner.isLikelyGeneratedImage(image)).toBe(false);`
+- **Função:** Exercita filtro automático de imagem candidata.
+- **Contexto:** RUN-09 — preview de input recusado.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 536
+
+- **Código:** `    expect(runner.isManualSelectableImage(image)).toBe(false);`
+- **Função:** Exercita filtro para seleção manual.
+- **Contexto:** RUN-09 — preview de input recusado.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 537
+
+- **Código:** `  });`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-09 — preview de input recusado.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 538
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** estrutura final.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 539
 
 - **Código:** `  test('RUN-10: resultado byte a byte idêntico é bloqueado antes da entrega', async () => {`
 - **Função:** Declara cenário: RUN-10 — resultado idêntico bloqueado.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 536
+### Linha 540
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 537
+### Linha 541
 
 - **Código:** `    let clock = 20_000;`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 538
+### Linha 542
 
 - **Código:** `    jest.spyOn(Date, 'now').mockImplementation(() => clock);`
 - **Função:** Controla relógio para waits/retries determinísticos.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 539
+### Linha 543
 
 - **Código:** `    const identical = 'data:image/png;base64,SU1BR0VNX09SSUdJTkFM';`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 540
+### Linha 544
 
 - **Código:** `    const { options, runtimeMessages } = successfulPipelineDependencies({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 541
+### Linha 545
 
 - **Código:** `      inputDataUrl: identical,`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 542
+### Linha 546
 
 - **Código:** `      resultDataUrl: identical,`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 543
+### Linha 547
 
 - **Código:** `      advanceClock: ms => { clock += ms; },`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 544
+### Linha 548
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 545
+### Linha 549
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 546
+### Linha 550
 
 - **Código:** `    const result = await createGeminiJobRunner(options).run({`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 547
+### Linha 551
 
 - **Código:** `      jobId: 'job-quarantine-identical',`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 548
+### Linha 552
 
 - **Código:** `      batchId: 'batch-quarantine',`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 549
+### Linha 553
 
 - **Código:** `      geminiTabId: 321,`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 550
+### Linha 554
 
 - **Código:** `      mangaTabId: 77,`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 551
+### Linha 555
 
 - **Código:** `      index: 0,`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 552
+### Linha 556
 
 - **Código:** `      prompt: 'Traduza a imagem para português brasileiro.',`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 553
+### Linha 557
 
 - **Código:** `      executionMode: 'background_delete',`
 - **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 554
+### Linha 558
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 555
+### Linha 559
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 556
+### Linha 560
 
 - **Código:** `    expect(result.status).toBe('error');`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 557
+### Linha 561
 
 - **Código:** `    expect(result.error.code).toBe('GEMINI_RESULT_MATCHES_INPUT');`
 - **Função:** Exige bloqueio da quarentena exata para resultado idêntico.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 558
+### Linha 562
 
 - **Código:** `    expect(runtimeMessages).not.toContainEqual(expect.objectContaining({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 559
+### Linha 563
 
 - **Código:** `      action: 'GEMINI_IMAGE_EXTRACTED',`
 - **Função:** Modela/observa stage do resultado no leitor.
-- **Contexto:** RUN-10 — resultado idêntico bloqueado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 560
-
-- **Código:** `    }));`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-10 — resultado idêntico bloqueado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 561
-
-- **Código:** `    expect(runtimeMessages).toContainEqual(expect.objectContaining({`
-- **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
-- **Contexto:** RUN-10 — resultado idêntico bloqueado.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
-### Linha 562
-
-- **Código:** `      action: 'GEMINI_ERROR',`
-- **Função:** Observa reporte estruturado de erro do runner.
-- **Contexto:** RUN-10 — resultado idêntico bloqueado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 563
-
-- **Código:** `      error: expect.stringContaining('idêntico'),`
-- **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -4832,1268 +4832,1268 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 565
 
+- **Código:** `    expect(runtimeMessages).toContainEqual(expect.objectContaining({`
+- **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
+- **Contexto:** RUN-10 — resultado idêntico bloqueado.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
+
+### Linha 566
+
+- **Código:** `      action: 'GEMINI_ERROR',`
+- **Função:** Observa reporte estruturado de erro do runner.
+- **Contexto:** RUN-10 — resultado idêntico bloqueado.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 567
+
+- **Código:** `      error: expect.stringContaining('idêntico'),`
+- **Função:** Compõe o cenário RUN-10 — resultado idêntico bloqueado, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-10 — resultado idêntico bloqueado.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 568
+
+- **Código:** `    }));`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-10 — resultado idêntico bloqueado.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 569
+
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-10 — resultado idêntico bloqueado.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 566
+### Linha 570
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 567
+### Linha 571
 
 - **Código:** `  test('RUN-11: resultado com bytes diferentes atravessa a quarentena e é entregue', async () => {`
 - **Função:** Declara cenário: RUN-11 — resultado diferente entregue.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 568
+### Linha 572
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 569
+### Linha 573
 
 - **Código:** `    let clock = 30_000;`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 570
+### Linha 574
 
 - **Código:** `    jest.spyOn(Date, 'now').mockImplementation(() => clock);`
 - **Função:** Controla relógio para waits/retries determinísticos.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 571
+### Linha 575
 
 - **Código:** `    const input = 'data:image/png;base64,SU1BR0VNX09SSUdJTkFM';`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 572
+### Linha 576
 
 - **Código:** `    const translated = 'data:image/png;base64,SU1BR0VNX1RSQURVWklEQQ==';`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 573
+### Linha 577
 
 - **Código:** `    const { options, runtimeMessages } = successfulPipelineDependencies({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 574
+### Linha 578
 
 - **Código:** `      inputDataUrl: input,`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 575
+### Linha 579
 
 - **Código:** `      resultDataUrl: translated,`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 576
-
-- **Código:** `      advanceClock: ms => { clock += ms; },`
-- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-11 — resultado diferente entregue.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 577
-
-- **Código:** `    });`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-11 — resultado diferente entregue.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 578
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-11 — resultado diferente entregue.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 579
-
-- **Código:** `    await expect(createGeminiJobRunner(options).run({`
-- **Função:** Instancia a implementação real com dependências do cenário.
-- **Contexto:** RUN-11 — resultado diferente entregue.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
 ### Linha 580
 
-- **Código:** `      jobId: 'job-quarantine-different',`
+- **Código:** `      advanceClock: ms => { clock += ms; },`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 581
 
-- **Código:** `      batchId: 'batch-quarantine',`
-- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Código:** `    });`
+- **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 582
 
-- **Código:** `      geminiTabId: 321,`
-- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 583
 
-- **Código:** `      mangaTabId: 77,`
-- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Código:** `    await expect(createGeminiJobRunner(options).run({`
+- **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-11 — resultado diferente entregue.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 584
 
-- **Código:** `      index: 1,`
+- **Código:** `      jobId: 'job-quarantine-different',`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 585
 
-- **Código:** `      prompt: 'Traduza a imagem para português brasileiro.',`
+- **Código:** `      batchId: 'batch-quarantine',`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 586
 
-- **Código:** `      executionMode: 'background_delete',`
+- **Código:** `      geminiTabId: 321,`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 587
 
+- **Código:** `      mangaTabId: 77,`
+- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-11 — resultado diferente entregue.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 588
+
+- **Código:** `      index: 1,`
+- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-11 — resultado diferente entregue.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 589
+
+- **Código:** `      prompt: 'Traduza a imagem para português brasileiro.',`
+- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-11 — resultado diferente entregue.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 590
+
+- **Código:** `      executionMode: 'background_delete',`
+- **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-11 — resultado diferente entregue.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 591
+
 - **Código:** `    })).resolves.toEqual({ status: 'delivered_extracted' });`
 - **Função:** Exige status final de resultado extraído e entregue.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 588
+### Linha 592
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 589
+### Linha 593
 
 - **Código:** `    expect(runtimeMessages).toContainEqual(expect.objectContaining({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 590
+### Linha 594
 
 - **Código:** `      action: 'GEMINI_IMAGE_EXTRACTED',`
 - **Função:** Modela/observa stage do resultado no leitor.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 591
+### Linha 595
 
 - **Código:** `      src: translated,`
 - **Função:** Compõe o cenário RUN-11 — resultado diferente entregue, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 592
+### Linha 596
 
 - **Código:** `    }));`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 593
+### Linha 597
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 594
+### Linha 598
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-11 — resultado diferente entregue.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 595
+### Linha 599
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 596
+### Linha 600
 
 - **Código:** `  test('RUN-12: resultado direto é persistido antes do commit e não usa deleção-before-delivery', async () => {`
 - **Função:** Declara cenário: RUN-12 — stage antes de commit.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 597
+### Linha 601
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 598
+### Linha 602
 
 - **Código:** `    let clock = 40_000;`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 599
+### Linha 603
 
 - **Código:** `    jest.spyOn(Date, 'now').mockImplementation(() => clock);`
 - **Função:** Controla relógio para waits/retries determinísticos.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 600
+### Linha 604
 
 - **Código:** `    const input = 'data:image/png;base64,SU5QVVQ=';`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 601
+### Linha 605
 
 - **Código:** `    const translated = 'data:image/png;base64,VFJBTlNMQVRFRA==';`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 602
+### Linha 606
 
 - **Código:** `    const { options, runtimeMessages } = successfulPipelineDependencies({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 603
+### Linha 607
 
 - **Código:** `      inputDataUrl: input,`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 604
+### Linha 608
 
 - **Código:** `      resultDataUrl: translated,`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 605
-
-- **Código:** `      advanceClock: ms => { clock += ms; },`
-- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-12 — stage antes de commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 606
-
-- **Código:** `    });`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-12 — stage antes de commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 607
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-12 — stage antes de commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 608
-
-- **Código:** `    await expect(createGeminiJobRunner(options).run({`
-- **Função:** Instancia a implementação real com dependências do cenário.
-- **Contexto:** RUN-12 — stage antes de commit.
-- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
-
 ### Linha 609
 
-- **Código:** `      jobId: 'job-order',`
+- **Código:** `      advanceClock: ms => { clock += ms; },`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 610
 
-- **Código:** `      batchId: 'batch-order',`
-- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Código:** `    });`
+- **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 611
 
-- **Código:** `      geminiTabId: 321,`
-- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 612
 
-- **Código:** `      mangaTabId: 77,`
-- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Código:** `    await expect(createGeminiJobRunner(options).run({`
+- **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-12 — stage antes de commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
 ### Linha 613
 
-- **Código:** `      index: 3,`
+- **Código:** `      jobId: 'job-order',`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 614
 
-- **Código:** `      prompt: 'Traduza.',`
+- **Código:** `      batchId: 'batch-order',`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 615
 
-- **Código:** `      executionMode: 'background_delete',`
+- **Código:** `      geminiTabId: 321,`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 616
 
+- **Código:** `      mangaTabId: 77,`
+- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-12 — stage antes de commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 617
+
+- **Código:** `      index: 3,`
+- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-12 — stage antes de commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 618
+
+- **Código:** `      prompt: 'Traduza.',`
+- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-12 — stage antes de commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 619
+
+- **Código:** `      executionMode: 'background_delete',`
+- **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-12 — stage antes de commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 620
+
 - **Código:** `    })).resolves.toEqual({ status: 'delivered_extracted' });`
 - **Função:** Exige status final de resultado extraído e entregue.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 617
+### Linha 621
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 618
+### Linha 622
 
 - **Código:** `    const stageIndex = runtimeMessages.findIndex(message =>`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 619
+### Linha 623
 
 - **Código:** `      message.action === 'GEMINI_IMAGE_EXTRACTED'`
 - **Função:** Modela/observa stage do resultado no leitor.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 620
+### Linha 624
 
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 621
+### Linha 625
 
 - **Código:** `    const commitIndex = runtimeMessages.findIndex(message =>`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 622
+### Linha 626
 
 - **Código:** `      message.action === 'GEMINI_RESULT_COMMIT'`
 - **Função:** Modela/observa commit final do job após persistência.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 623
+### Linha 627
 
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 624
+### Linha 628
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 625
+### Linha 629
 
 - **Código:** `    expect(stageIndex).toBeGreaterThanOrEqual(0);`
 - **Função:** Localiza ordem da mensagem de persistência do resultado.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 626
+### Linha 630
 
 - **Código:** `    expect(commitIndex).toBeGreaterThan(stageIndex);`
 - **Função:** Localiza ordem da mensagem de persistência do resultado.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 627
+### Linha 631
 
 - **Código:** `    expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();`
 - **Função:** Fornece controller de deletion mockado; cenários de runner verificam ordem/wiring sem reexecutar deletion real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 628
+### Linha 632
 
 - **Código:** `    expect(options.resultExtractor.extractOrAuxiliaryFallback).toHaveBeenCalledWith(`
 - **Função:** Fornece extração/fallback controlados.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 629
+### Linha 633
 
 - **Código:** `      expect.objectContaining({`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 630
+### Linha 634
 
 - **Código:** `        logContext: {`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 631
+### Linha 635
 
 - **Código:** `          jobIdPrefix: 'job-orde',`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 632
+### Linha 636
 
 - **Código:** `          batchIdPrefix: 'batch-or',`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 633
+### Linha 637
 
 - **Código:** `          index: 3,`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 634
+### Linha 638
 
 - **Código:** `        },`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 635
+### Linha 639
 
 - **Código:** `      })`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 636
+### Linha 640
 
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 637
+### Linha 641
 
 - **Código:** `    expect(options.sendLog).toHaveBeenCalledWith(`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 638
+### Linha 642
 
 - **Código:** `      'success',`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 639
+### Linha 643
 
 - **Código:** `      'GEMINI_RESULT_STAGED',`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 640
+### Linha 644
 
 - **Código:** `      expect.stringContaining('persistido'),`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 641
+### Linha 645
 
 - **Código:** `      expect.objectContaining({ jobIdPrefix: expect.any(String) })`
 - **Função:** Compõe o cenário RUN-12 — stage antes de commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 642
+### Linha 646
 
 - **Código:** `    );`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 643
+### Linha 647
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-12 — stage antes de commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 644
+### Linha 648
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 645
+### Linha 649
 
 - **Código:** `  test('RUN-13: falha de staging nunca envia commit e preserva diagnóstico', async () => {`
 - **Função:** Declara cenário: RUN-13 — stage falho bloqueia commit.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 646
+### Linha 650
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 647
+### Linha 651
 
 - **Código:** `    let clock = 50_000;`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 648
+### Linha 652
 
 - **Código:** `    jest.spyOn(Date, 'now').mockImplementation(() => clock);`
 - **Função:** Controla relógio para waits/retries determinísticos.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 649
+### Linha 653
 
 - **Código:** `    const { options, runtimeMessages } = successfulPipelineDependencies({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 650
+### Linha 654
 
 - **Código:** `      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 651
-
-- **Código:** `      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',`
-- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 652
-
-- **Código:** `      advanceClock: ms => { clock += ms; },`
-- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 653
-
-- **Código:** `    });`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 654
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
 ### Linha 655
 
-- **Código:** `    options.runtime.sendMessage.mockImplementation((message, callback) => {`
+- **Código:** `      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 656
 
+- **Código:** `      advanceClock: ms => { clock += ms; },`
+- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 657
+
+- **Código:** `    });`
+- **Função:** Fecha/organiza bloco sintático anterior.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 658
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 659
+
+- **Código:** `    options.runtime.sendMessage.mockImplementation((message, callback) => {`
+- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 660
+
 - **Código:** `      runtimeMessages.push(message);`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 657
+### Linha 661
 
 - **Código:** `      if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: 'data:image/png;base64,SU5QVVQ=' });`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 658
+### Linha 662
 
 - **Código:** `      else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });`
 - **Função:** Modela/observa protocolo de renovação de watchdog.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 659
+### Linha 663
 
 - **Código:** `      else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: false, reason: 'persist_failed' });`
 - **Função:** Modela/observa stage do resultado no leitor.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 660
+### Linha 664
 
 - **Código:** `      else callback?.({ ok: true });`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 661
+### Linha 665
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 662
+### Linha 666
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 663
+### Linha 667
 
 - **Código:** `    const result = await createGeminiJobRunner(options).run({`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 664
+### Linha 668
 
 - **Código:** `      jobId: 'job-stage-fail',`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 665
+### Linha 669
 
 - **Código:** `      batchId: 'batch-stage-fail',`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 666
-
-- **Código:** `      geminiTabId: 321,`
-- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 667
-
-- **Código:** `      mangaTabId: 77,`
-- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 668
-
-- **Código:** `      index: 4,`
-- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 669
-
-- **Código:** `      prompt: 'Traduza.',`
-- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
-- **Contexto:** RUN-13 — stage falho bloqueia commit.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
 ### Linha 670
 
-- **Código:** `      executionMode: 'background_delete',`
+- **Código:** `      geminiTabId: 321,`
 - **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 671
 
+- **Código:** `      mangaTabId: 77,`
+- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 672
+
+- **Código:** `      index: 4,`
+- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 673
+
+- **Código:** `      prompt: 'Traduza.',`
+- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 674
+
+- **Código:** `      executionMode: 'background_delete',`
+- **Função:** Compõe o cenário RUN-13 — stage falho bloqueia commit, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-13 — stage falho bloqueia commit.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 675
+
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 672
+### Linha 676
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 673
+### Linha 677
 
 - **Código:** `    expect(result.status).toBe('error');`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 674
+### Linha 678
 
 - **Código:** `    expect(result.error.code).toBe('RESULT_STAGE_FAILED');`
 - **Função:** Exige erro específico quando persistência inicial falha.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 675
+### Linha 679
 
 - **Código:** `    expect(runtimeMessages).not.toContainEqual(expect.objectContaining({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 676
+### Linha 680
 
 - **Código:** `      action: 'GEMINI_RESULT_COMMIT',`
 - **Função:** Modela/observa commit final do job após persistência.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 677
+### Linha 681
 
 - **Código:** `    }));`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 678
+### Linha 682
 
 - **Código:** `    expect(options.deletionController.deleteOrScheduleRecovery).not.toHaveBeenCalled();`
 - **Função:** Fornece controller de deletion mockado; cenários de runner verificam ordem/wiring sem reexecutar deletion real.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 679
+### Linha 683
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-13 — stage falho bloqueia commit.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 680
+### Linha 684
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 681
+### Linha 685
 
 - **Código:** `  test('RUN-14: commit pós-persistência tenta novamente sem reenviar a imagem', async () => {`
 - **Função:** Declara cenário: RUN-14 — retry de commit sem reenviar imagem.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 682
+### Linha 686
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 683
+### Linha 687
 
 - **Código:** `    let clock = 60_000;`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 684
+### Linha 688
 
 - **Código:** `    jest.spyOn(Date, 'now').mockImplementation(() => clock);`
 - **Função:** Controla relógio para waits/retries determinísticos.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 685
+### Linha 689
 
 - **Código:** `    const { options, runtimeMessages } = successfulPipelineDependencies({`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 686
+### Linha 690
 
 - **Código:** `      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 687
+### Linha 691
 
 - **Código:** `      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 688
+### Linha 692
 
 - **Código:** `      advanceClock: ms => { clock += ms; },`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 689
+### Linha 693
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 690
+### Linha 694
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 691
+### Linha 695
 
 - **Código:** `    let commitAttempts = 0;`
 - **Função:** Conta tentativas de commit pós-stage.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 692
+### Linha 696
 
 - **Código:** `    options.runtime.sendMessage.mockImplementation((message, callback) => {`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 693
+### Linha 697
 
 - **Código:** `      runtimeMessages.push(message);`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 694
+### Linha 698
 
 - **Código:** `      if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: 'data:image/png;base64,SU5QVVQ=' });`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 695
+### Linha 699
 
 - **Código:** `      else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });`
 - **Função:** Modela/observa protocolo de renovação de watchdog.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 696
+### Linha 700
 
 - **Código:** `      else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: true, staged: true, persisted: true });`
 - **Função:** Modela/observa stage do resultado no leitor.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 697
+### Linha 701
 
 - **Código:** `      else if (message.action === 'GEMINI_RESULT_COMMIT') {`
 - **Função:** Modela/observa commit final do job após persistência.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 698
+### Linha 702
 
 - **Código:** `        commitAttempts += 1;`
 - **Função:** Conta tentativas de commit pós-stage.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 699
+### Linha 703
 
 - **Código:** `        callback?.(commitAttempts < 3`
 - **Função:** Conta tentativas de commit pós-stage.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 700
+### Linha 704
 
 - **Código:** `          ? { ok: false, reason: 'worker_wakeup' }`
 - **Função:** Simula ACK negativo transitório que deve ser retentado.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 701
+### Linha 705
 
 - **Código:** `          : { ok: true, committed: true });`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 702
+### Linha 706
 
 - **Código:** `      } else callback?.({ ok: true });`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 703
+### Linha 707
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 704
+### Linha 708
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 705
+### Linha 709
 
 - **Código:** `    await expect(createGeminiJobRunner(options).run({`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 706
+### Linha 710
 
 - **Código:** `      jobId: 'job-commit-retry',`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 707
+### Linha 711
 
 - **Código:** `      batchId: 'batch-commit-retry',`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 708
+### Linha 712
 
 - **Código:** `      geminiTabId: 321,`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 709
+### Linha 713
 
 - **Código:** `      mangaTabId: 77,`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 710
+### Linha 714
 
 - **Código:** `      index: 5,`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 711
+### Linha 715
 
 - **Código:** `      prompt: 'Traduza.',`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 712
+### Linha 716
 
 - **Código:** `      executionMode: 'background_delete',`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 713
+### Linha 717
 
 - **Código:** `    })).resolves.toEqual({ status: 'delivered_extracted' });`
 - **Função:** Exige status final de resultado extraído e entregue.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 714
+### Linha 718
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 715
+### Linha 719
 
 - **Código:** `    expect(commitAttempts).toBe(3);`
 - **Função:** Conta tentativas de commit pós-stage.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 716
+### Linha 720
 
 - **Código:** `    expect(runtimeMessages.filter(message =>`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 717
+### Linha 721
 
 - **Código:** `      message.action === 'GEMINI_IMAGE_EXTRACTED'`
 - **Função:** Modela/observa stage do resultado no leitor.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 718
+### Linha 722
 
 - **Código:** `    )).toHaveLength(1);`
 - **Função:** Prova cardinalidade única do efeito observado.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 719
+### Linha 723
 
 - **Código:** `    expect(runtimeMessages.filter(message =>`
 - **Função:** Coleta mensagens enviadas ao background para assertions de protocolo.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 720
+### Linha 724
 
 - **Código:** `      message.action === 'GEMINI_RESULT_COMMIT'`
 - **Função:** Modela/observa commit final do job após persistência.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 721
+### Linha 725
 
 - **Código:** `    )).toHaveLength(3);`
 - **Função:** Compõe o cenário RUN-14 — retry de commit sem reenviar imagem, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 722
+### Linha 726
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-14 — retry de commit sem reenviar imagem.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 723
+### Linha 727
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 724
+### Linha 728
 
 - **Código:** `  test('RUN-COV-01: tryClickModelImageCards retorna false quando não há candidato de resposta', () => {`
 - **Função:** Declara cenário: RUN-COV-01 — nenhum card clicável.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 725
+### Linha 729
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 726
+### Linha 730
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-COV-01 — nenhum card clicável, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 727
+### Linha 731
 
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 728
+### Linha 732
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 729
+### Linha 733
 
 - **Código:** `    expect(runner.tryClickModelImageCards()).toBe(false);`
 - **Função:** Exercita helper que tenta abrir/clicar cards/imagens de resposta.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 730
+### Linha 734
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-COV-01 — nenhum card clicável.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 731
+### Linha 735
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 732
+### Linha 736
 
 - **Código:** `  test('RUN-COV-02: tryClickModelImageCards ignora clique que lança e tenta o próximo candidato', () => {`
 - **Função:** Declara cenário: RUN-COV-02 — candidato stale e fallback.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — executa API real; assertions subsequentes fixam o contrato.
 
-### Linha 733
+### Linha 737
 
 - **Código:** `    const { createGeminiJobRunner } = loadModule();`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 734
+### Linha 738
 
 - **Código:** `    const { options } = baseDependencies();`
 - **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 735
+### Linha 739
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 736
+### Linha 740
 
 - **Código:** `    const response = document.createElement('model-response');`
 - **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 737
+### Linha 741
 
 - **Código:** `    const brokenButton = document.createElement('button');`
 - **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 738
+### Linha 742
 
 - **Código:** `    brokenButton.setAttribute('aria-label', 'image result');`
 - **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 739
+### Linha 743
 
 - **Código:** `    brokenButton.click = jest.fn(() => {`
 - **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 740
+### Linha 744
 
 - **Código:** `      throw new Error('stale element');`
 - **Função:** Simula primeiro candidato DOM stale que lança ao clicar.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 741
+### Linha 745
 
 - **Código:** `    });`
 - **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** RUN-COV-02 — candidato stale e fallback.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 742
-
-- **Código:** *(linha vazia)*
-- **Função:** Separa blocos lógicos sem efeito em runtime.
-- **Contexto:** RUN-COV-02 — candidato stale e fallback.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 743
-
-- **Código:** `    const fallbackCard = document.createElement('div');`
-- **Função:** Fornece segundo candidato clicável após falha do primeiro.
-- **Contexto:** RUN-COV-02 — candidato stale e fallback.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 744
-
-- **Código:** `    fallbackCard.className = 'image-card';`
-- **Função:** Fornece segundo candidato clicável após falha do primeiro.
-- **Contexto:** RUN-COV-02 — candidato stale e fallback.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
-
-### Linha 745
-
-- **Código:** `    fallbackCard.click = jest.fn();`
-- **Função:** Fornece segundo candidato clicável após falha do primeiro.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -6106,22 +6106,22 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 747
 
-- **Código:** `    response.appendChild(brokenButton);`
-- **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
+- **Código:** `    const fallbackCard = document.createElement('div');`
+- **Função:** Fornece segundo candidato clicável após falha do primeiro.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 748
 
-- **Código:** `    response.appendChild(fallbackCard);`
+- **Código:** `    fallbackCard.className = 'image-card';`
 - **Função:** Fornece segundo candidato clicável após falha do primeiro.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 749
 
-- **Código:** `    document.body.appendChild(response);`
-- **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
+- **Código:** `    fallbackCard.click = jest.fn();`
+- **Função:** Fornece segundo candidato clicável após falha do primeiro.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -6134,54 +6134,82 @@ describe('gemini/job-runner.js', () => {
 
 ### Linha 751
 
+- **Código:** `    response.appendChild(brokenButton);`
+- **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-COV-02 — candidato stale e fallback.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 752
+
+- **Código:** `    response.appendChild(fallbackCard);`
+- **Função:** Fornece segundo candidato clicável após falha do primeiro.
+- **Contexto:** RUN-COV-02 — candidato stale e fallback.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 753
+
+- **Código:** `    document.body.appendChild(response);`
+- **Função:** Compõe o cenário RUN-COV-02 — candidato stale e fallback, preparando, executando ou verificando o runner real.
+- **Contexto:** RUN-COV-02 — candidato stale e fallback.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 754
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos sem efeito em runtime.
+- **Contexto:** RUN-COV-02 — candidato stale e fallback.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+
+### Linha 755
+
 - **Código:** `    const runner = createGeminiJobRunner(options);`
 - **Função:** Instancia a implementação real com dependências do cenário.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 752
+### Linha 756
 
 - **Código:** `    expect(runner.tryClickModelImageCards()).toBe(true);`
 - **Função:** Exercita helper que tenta abrir/clicar cards/imagens de resposta.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 753
+### Linha 757
 
 - **Código:** `    expect(brokenButton.click).toHaveBeenCalled();`
 - **Função:** Assertion focal do contrato.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 754
+### Linha 758
 
 - **Código:** `    expect(fallbackCard.click).toHaveBeenCalledTimes(1);`
 - **Função:** Fornece segundo candidato clicável após falha do primeiro.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Linha 755
+### Linha 759
 
 - **Código:** `  });`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** RUN-COV-02 — candidato stale e fallback.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 756
+### Linha 760
 
 - **Código:** *(linha vazia)*
 - **Função:** Separa blocos lógicos sem efeito em runtime.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Linha 757
+### Linha 761
 
 - **Código:** `});`
 - **Função:** Fecha/organiza bloco sintático anterior.
 - **Contexto:** estrutura final.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
-### Posição 758 — newline final
+### Posição 762 — newline final
 
 - **Código:** newline final após a última linha textual.
 - **Função:** encerra o arquivo em formato POSIX e integra o blob auditado.
@@ -6189,7 +6217,7 @@ describe('gemini/job-runner.js', () => {
 
 ## 15. Conclusão documental
 
-Foram documentadas 757 linhas textuais e a posição 758 do newline final. Os 21 casos principais estão diretamente provados no mesmo blob verde em Node 20/22. No lifecycle canônico, 181-001 está SUPERSEDED por `045-001`, 181-002 está ACCEPTED, 181-003 está SUPERSEDED por `045-005` e 181-004 está ACCEPTED.
+Foram documentadas 761 linhas textuais e a posição 762 do newline final. Os 21 casos principais estão diretamente provados no mesmo blob verde em Node 20/22. No lifecycle canônico, 181-001 está SUPERSEDED por `045-001`, 181-002 está ACCEPTED, 181-003 está SUPERSEDED por `045-005` e 181-004 está ACCEPTED.
 
 > **Lifecycle pós-adversarial:** requests superseded continuam rastreadas nos IDs canônicos 045-001/045-005; requests ACCEPTED permanecem lacunas reconhecidas, não trabalho OPEN.
 
