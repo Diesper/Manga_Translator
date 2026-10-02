@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-007/008/009 aplicadas; revisão atual aguardando validação executável e novo par PRIMARY + ADVERSARIAL independente  
+> **Estado documental:** correções 191-007/191-008/191-009 aplicadas; revisão atual aguardando validação executável e novo par PRIMARY + ADVERSARIAL independente  
 > **SHA auditado:** `6f4154c1cb2f61e8bfcc4cd6d15103859e31315a`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
@@ -53,7 +53,7 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 25. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
 26. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
 
-A matriz atual cobre forma de onda, reuso de contexto, estados `running/suspended/interrupted/closed`, resume bem-sucedido/rejeitado/incompleto, ausência/falha de construtor, falha de scheduling, os dois call sites de unlock e continuidade do lote.
+Os casos 8–12 fecham os branches restantes de `unlockNotificationAudio()` no clique do botão principal. O caso 13 protege o segundo call site real, `TRANSLATE_CONTEXT_IMAGE → startSingleImageTranslation() → unlockNotificationAudio()`. Os casos 15–17 fecham o 191-009: estados `interrupted` de sucesso/erro e falha síncrona do construtor no `BATCH_COMPLETE`.
 
 ## 4. 191-001 — TEST_AUTHENTICITY — RESOLVED
 
@@ -119,7 +119,7 @@ Workflow **Audio Synthesis Selftest**, run `36955506902`, commit `942281386ae695
 
 ### Revisão atual
 
-A revisão `6f4154c1cb2f61e8bfcc4cd6d15103859e31315a` contém 26 testes. Runs intermediárias de 191-007/008 são superseded; somente a CI vinculada a este SHA pode ser usada como evidência final.
+A revisão `6f4154c1cb2f61e8bfcc4cd6d15103859e31315a` contém 26 testes. A prova final exige workflow verde desta revisão; runs anteriores são apenas baseline e não substituem a validação do SHA atual.
 
 ## 14. Reauditoria adversarial pós-correção
 
