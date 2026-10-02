@@ -81,6 +81,19 @@ assert.throws(()=>transition.planTransition({
 }),/TOKEN_DECISION_STALE/);
 console.log('PASS newer final decision record invalidates previously issued token');
 
+const tokenRoot=fs.mkdtempSync(path.join(os.tmpdir(),'corr-token-registry-'));
+const tokenDir=path.join(tokenRoot,'docs','biblia','.coordination','correction-authorizations','010');
+fs.mkdirSync(tokenDir,{recursive:true});
+fs.writeFileSync(path.join(tokenDir,token.token_id+'.json'),JSON.stringify(token,null,2)+'\n');
+const tokenRegistry=transition.loadCorrectionTokens(
+  tokenRoot,
+  [s],
+  {pipelines:new Map([[s.index,supersededPipeline]])}
+);
+assert.ok(tokenRegistry.problems.some((x)=>x.includes('TOKEN_DECISION_STALE')));
+fs.rmSync(tokenRoot,{recursive:true,force:true});
+console.log('PASS active token registry also rejects superseded decision before use');
+
 assert.throws(()=>transition.planTransition({
   state:s,
   token,
