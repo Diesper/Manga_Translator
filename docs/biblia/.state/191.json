@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "187e5e4b70eacae472df0f548a7e713ec02a4611",
+  "source_sha": "2e9c73d5664815bde1d2fc9a401d0aa6c32b68db",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -541,21 +541,22 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T03:12:00Z",
       "audit_finding": "Encontrado na passagem adversarial de callback tardio após persistência.",
-      "repair_progress": "REGRESSION_SCENARIO_CORRECTED_AWAITING_RED_PROOF"
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Captura acceptedBatchId no recebimento e revalida identidade/isTranslating após persistência; callback stale persiste/ACKa mas não chama checkIfComplete e emite STALE_UPDATE_COMPLETION_SKIPPED. Regression usa A índice 0 e B índice 1."
     }
   ],
   "document_quality": {
-    "self_audit": "EXECUTABLE_VALIDATION_COMPLETE_AWAITING_DISTRIBUTED_AUDIT",
+    "self_audit": "CORRECTION_APPLIED_AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1464/1464",
-    "source_text_lines": 1463,
-    "test_count": 33,
+    "documented_positions": "1602/1602",
+    "source_text_lines": 1601,
+    "test_count": 34,
     "external_audit_requests_open": 0,
-    "accepted_requests_pending_validation": 0,
-    "production_dependency_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+    "accepted_requests_pending_validation": 1,
+    "production_dependency_sha": "d9c04e901b783f7675aead4ee2ca3dc3e2c074b4",
     "evidence_quality": "Red→green 191-005/006/013/014; final run 36958628790 Node20/22 focal 42/42; full content-scripts 40/40 suites, 461/461 tests, --detectOpenHandles.",
-    "note": "Correction/revalidation complete. READY_FOR_AUDIT; independent PRIMARY+ADVERSARIAL binding current source+bible still required."
+    "note": "191-015 applied with corrected two-image A/B scenario; awaiting exact CI before READY_FOR_AUDIT."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -876,6 +877,15 @@
       "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-015 scenario now uses image 0 for cancelled batch A and image 1 for batch B, removing translated-image reentry artifact while preserving delayed persistence race."
+    },
+    {
+      "at_utc": "2026-10-02T03:15:30Z",
+      "type": "SOURCE_PRODUCTION_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "2e9c73d5664815bde1d2fc9a401d0aa6c32b68db",
+      "bible_sha": "b60fde9fa12259f4064f05d98166d5825246133c",
+      "production_sha": "d9c04e901b783f7675aead4ee2ca3dc3e2c074b4",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-015 correction synchronized; 34 cases, Bible 1602/1602; corrected A(index0)->B(index1) persistence race awaits CI."
     }
   ],
   "evidence": [
@@ -964,5 +974,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "32ab283383118d5324abf4facfc611e257b4aea1"
+  "bible_sha": "b60fde9fa12259f4064f05d98166d5825246133c"
 }
