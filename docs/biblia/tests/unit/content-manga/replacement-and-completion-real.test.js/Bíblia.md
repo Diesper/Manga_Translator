@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/replacement-and-completion-real.test.js
 
 > **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
-> **SHA auditado:** `9dcd26cf4a963ab22c11f8535421603d83260572`  
+> **SHA auditado:** `6db80514d757ea8e6861e65b12f9b4456d75a9f6`  
 > **Agente responsável:** AGENTE 25  
 > **Tipo:** suíte Jest com content script real e integrações externas mockadas  
-> **Linhas textuais:** **524**  
-> **Posições documentais:** **525**, contando o newline final  
+> **Linhas textuais:** **668**  
+> **Posições documentais:** **669**, contando a posição final conforme normalização do validador  
 > **PR:** #66  
 > **Branch:** `docs/project-bible`
 
@@ -132,9 +132,9 @@ O `load-content-script.js` injeta `gtc-fingerprint`, `cm-gtc-client`, `cm-dom-re
 
 **Severidade:** NORMAL.
 
-## 9. Fonte integral exata
+## Fonte integral auditada
 
-```js
+~~~
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -178,13 +178,27 @@ function dispatchToContent(runtimeMock, request, sender = { tab: { id: 1 } }) {
     return new Promise((resolve) => {
         let settled = false;
         let keepAlive = false;
+        let synchronousResponse;
+        let listenerReturned = false;
 
         const sendResponse = (response) => {
+            if (!listenerReturned) {
+                synchronousResponse = response;
+                return;
+            }
+            if (settled) return;
             settled = true;
             resolve({ keepAlive, response });
         };
 
         keepAlive = getContentListener(runtimeMock)(request, sender, sendResponse);
+        listenerReturned = true;
+
+        if (synchronousResponse !== undefined) {
+            settled = true;
+            resolve({ keepAlive, response: synchronousResponse });
+            return;
+        }
         if (keepAlive !== true && !settled) {
             resolve({ keepAlive, response: undefined });
         }
@@ -498,6 +512,136 @@ describe('CM-65/CM-66/CM-67/CM-68/CM-69/CM-70/CM-71/CM-72/CM-73/CM-74/CM-82/CM-8
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe('data:image/png;base64,RklSU1Q=');
     });
 
+    test('UPDATE_IMAGE rejeita payload inválido antes de tocar DOM ou persistência', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        const img = document.querySelector('[data-testid="img-0"]');
+        img.dataset.mangaIndex = '0';
+        const originalSrc = img.getAttribute('src');
+
+        const invalidSrc = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            index: 0,
+            newSrc: { unexpected: true },
+            expectAck: true,
+        });
+        expect(invalidSrc.keepAlive).toBe(true);
+        expect(invalidSrc.response).toEqual({ ok: false, reason: 'invalid_payload' });
+
+        const invalidIndex = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            index: -1,
+            newSrc: 'data:image/png;base64,SU5WQUxJRA==',
+            expectAck: true,
+        });
+        expect(invalidIndex.response).toEqual({ ok: false, reason: 'invalid_payload' });
+        expect(img.getAttribute('src')).toBe(originalSrc);
+        expect(sentMessages.some(message => message.action === 'SM_SAVE_PAGE')).toBe(false);
+        expect(sentMessages.filter(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'UPDATE_IMAGE_INVALID_PAYLOAD'
+        )).toHaveLength(2);
+    });
+
+    test('UPDATE_IMAGE de batch antigo responde stale_batch sem tocar DOM ou persistência', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        const start = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));
+        const img = document.querySelector('[data-testid="img-0"]');
+        img.dataset.mangaIndex = '0';
+        const originalSrc = img.getAttribute('src');
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            index: 0,
+            newSrc: 'data:image/png;base64,U1RBTEU=',
+            batchId: start.batchId + '-stale',
+            expectAck: true,
+        });
+
+        expect(result.keepAlive).toBe(true);
+        expect(result.response).toEqual({ ok: false, reason: 'stale_batch' });
+        expect(img.getAttribute('src')).toBe(originalSrc);
+        expect(sentMessages.some(message => message.action === 'SM_SAVE_PAGE')).toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'STALE_UPDATE',
+        }));
+    });
+
+    test('STOP_TRANSLATION_FROM_POPUP sem lote local falha fechado sem STOP_BATCH global', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'STOP_TRANSLATION_FROM_POPUP',
+        });
+
+        expect(result.response).toEqual({ ok: false, reason: 'no_local_batch' });
+        expect(sentMessages.some(message => message.action === 'STOP_BATCH')).toBe(false);
+    });
+
+    test('STOP_TRANSLATION_FROM_POPUP preserva lote local quando STOP_BATCH falha no runtime', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        const start = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));
+        const originalSendMessage = runtimeMock.sendMessage;
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action !== 'STOP_BATCH') return originalSendMessage(message, callback);
+            sentMessages.push(message);
+            runtimeMock.lastError = { message: 'stop transport failed' };
+            try {
+                if (callback) callback(undefined);
+            } finally {
+                runtimeMock.lastError = null;
+            }
+        });
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'STOP_TRANSLATION_FROM_POPUP',
+        });
+
+        expect(result.keepAlive).toBe(true);
+        expect(result.response).toEqual({
+            ok: false,
+            reason: 'background_stop_failed',
+            error: 'stop transport failed',
+        });
+        expect(sentMessages).toContainEqual({ action: 'STOP_BATCH', batchId: start.batchId });
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'BATCH_LOCAL_STOP_FAILED',
+        }));
+
+        const status = await dispatchToContent(runtimeMock, { action: 'GET_FLOATING_BUTTON_STATUS' });
+        expect(status.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: start.batchId,
+        }));
+    });
+
     test('reutiliza o AudioContext e registra a telemetria da aba de origem', async () => {
         installRuntimeResponder({ onGetTabId: () => ({ tabId: 73 }) });
         const originalAudioContext = Object.getOwnPropertyDescriptor(window, 'AudioContext');
@@ -659,7 +803,7 @@ describe('CM-65/CM-66/CM-67/CM-68/CM-69/CM-70/CM-71/CM-72/CM-73/CM-74/CM-82/CM-8
         expect(document.getElementById('manga-error-collapsible-content').textContent).toContain('Nenhum erro encontrado no lote.');
     });
 });
-```
+~~~
 
 ## 10. Cobertura documental por linha/posição
 
@@ -723,3 +867,7 @@ Terminador textual. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
 - Nenhum código/teste externo foi alterado.
 
 **Resultado da autoauditoria:** ✅ APROVADO documentalmente, com duas solicitações externas abertas.
+
+## Cobertura documental de linhas — sincronização mecânica da revisão atual
+
+- 1–669: cobertura integral da revisão `6db80514d757ea8e6861e65b12f9b4456d75a9f6`; sincronização mecânica. O estado permanece **READY_FOR_AUDIT** e requer auditoria independente da revisão atual.

@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/replacement-and-completion-real.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "9dcd26cf4a963ab22c11f8535421603d83260572",
+  "source_sha": "6db80514d757ea8e6861e65b12f9b4456d75a9f6",
   "started_at_utc": "2026-09-30T13:46:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -55,13 +55,23 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "525/525",
+    "documented_positions": "669/669",
     "bible_lines": 725,
     "external_audit_requests_open": 2
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T21:20:25Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T21:20:25Z",
+      "type": "MAINTAINER_DOCUMENTATION_SYNC",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "9dcd26cf4a963ab22c11f8535421603d83260572",
+      "source_sha": "6db80514d757ea8e6861e65b12f9b4456d75a9f6",
+      "bible_sha": "679d93effc146ada5af3d475b33ab61c97b92868",
+      "reason": "Sincronização mecânica da Bíblia #209 com a revisão atual; READY_FOR_AUDIT preservado e auditoria anterior não promovida."
+    }
+  ],
   "evidence": []
 }
