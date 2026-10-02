@@ -722,6 +722,69 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
+        installRuntimeResponder({ tabId: 85 });
+        const first = createAudioContext({
+            state: 'suspended',
+            currentTime: 3,
+            onResume: async (audioCtx) => {
+                audioCtx.state = 'running';
+            },
+        });
+        const second = createAudioContext({ state: 'running', currentTime: 9 });
+        const AudioContextMock = jest.fn()
+            .mockImplementationOnce(() => first.ctx)
+            .mockImplementationOnce(() => second.ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+
+        document.getElementById('manga-main-content').click();
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCKED'
+            && message.extra?.originTabId === 85
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro cruzado',
+            imgIndex: 0,
+            isDebug: false,
+        });
+        expect(first.oscillators).toHaveLength(2);
+
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(first.ctx.resume).toHaveBeenCalledTimes(1);
+        expect(first.oscillators).toHaveLength(5);
+        expect(first.gains).toHaveLength(5);
+        expect(second.oscillators).toHaveLength(0);
+        expect(second.gains).toHaveLength(0);
+
+        const creationLogs = sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_CONTEXT_CREATED'
+        );
+        expect(creationLogs).toHaveLength(1);
+        expect(creationLogs[0]).toEqual(expect.objectContaining({
+            extra: expect.objectContaining({
+                originTabId: 85,
+                trigger: 'reader_button',
+            }),
+        }));
+    });
+
     test('contexto closed é descartado e substituído no próximo BATCH_COMPLETE', async () => {
         installRuntimeResponder({ tabId: 55 });
         const first = createAudioContext({ currentTime: 1 });
