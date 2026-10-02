@@ -1,5 +1,7 @@
 'use strict';
 
+const lifecycleCore = require('../../docs/biblia/.coordination/lifecycle-core');
+
 const {
   resolveAuditPipeline,
   evaluateAuditPipelines,
@@ -173,6 +175,78 @@ const fencedLegacy = new Map([[6, {
 }]]);
 p = resolveAuditPipeline(fencedState, [], fencedLegacy);
 assertEqual('handoff também invalida PRIMARY legado pré-handoff', p.decision, 'WAITING_PRIMARY');
+
+const lifecycleV3State = {
+  ...state(7),
+  bible_sha: '7'.repeat(40),
+  status: 'READY_FOR_AUDIT',
+  history: [{
+    at_utc: '2026-10-02T07:00:00Z',
+    type: lifecycleCore.HANDOFF_EVENT,
+    source_sha: String(7).padStart(40, '0'),
+    bible_sha: '7'.repeat(40),
+    production_sha: 'c'.repeat(40),
+    agent: 'CORRETOR-V3',
+  }],
+};
+const lifecycleV3Snapshot = lifecycleCore.lifecycleSnapshot(lifecycleV3State);
+const v2AfterLifecycleHandoff = result(
+  lifecycleV3State,
+  'PRIMARY',
+  'APPROVED',
+  'AUDITOR-V2',
+  '2026-10-02T07:01:00Z'
+);
+p = resolveAuditPipeline(lifecycleV3State, [v2AfterLifecycleHandoff], new Map());
+assertEqual('handoff novo não aceita auditoria v2', p.decision, 'WAITING_PRIMARY');
+if (!p.audit_schema_v3_required) throw new Error('handoff pós-policy deveria exigir schema v3');
+
+function resultV3(s, phase, verdict, auditor, at) {
+  const snapshot = lifecycleCore.lifecycleSnapshot(s);
+  return {
+    ...result(s, phase, verdict, auditor, at),
+    schema_version: 3,
+    production_sha: snapshot.production_sha,
+    test_sha: snapshot.test_sha,
+    bible_sha: snapshot.bible_sha,
+    audit_epoch: snapshot.audit_epoch,
+    handoff_id: snapshot.handoff_id,
+    revision_id: snapshot.revision_id,
+  };
+}
+
+const v3Primary = resultV3(
+  lifecycleV3State,
+  'PRIMARY',
+  'APPROVED',
+  'AUDITOR-V3-1',
+  '2026-10-02T07:02:00Z'
+);
+p = resolveAuditPipeline(lifecycleV3State, [v3Primary], new Map());
+assertEqual('schema v3 PRIMARY atual aguarda adversarial', p.decision, 'WAITING_ADVERSARIAL');
+
+const wrongHandoff = {
+  ...resultV3(lifecycleV3State, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-V3-WRONG', '2026-10-02T07:03:00Z'),
+  handoff_id: lifecycleV3Snapshot.handoff_id + '-stale',
+};
+p = resolveAuditPipeline(lifecycleV3State, [v3Primary, wrongHandoff], new Map());
+assertEqual('schema v3 de outro handoff é ignorado', p.decision, 'WAITING_ADVERSARIAL');
+
+const v3Adversarial = resultV3(
+  lifecycleV3State,
+  'ADVERSARIAL',
+  'APPROVED',
+  'AUDITOR-V3-2',
+  '2026-10-02T07:04:00Z'
+);
+p = resolveAuditPipeline(lifecycleV3State, [v3Primary, v3Adversarial], new Map());
+assertEqual('schema v3 vincula auditoria a epoch + handoff + revision', p.decision, 'APPROVED');
+if (p.audit_epoch !== lifecycleV3Snapshot.audit_epoch
+  || p.handoff_id !== lifecycleV3Snapshot.handoff_id
+  || p.revision_id !== lifecycleV3Snapshot.revision_id) {
+  throw new Error('pipeline não expôs identidade lifecycle atual: ' + JSON.stringify(p));
+}
+process.stdout.write('PASS schema v3 impede reutilização entre handoffs/revisões\n');
 
 const protectedRevision = {
   ...state(2),
