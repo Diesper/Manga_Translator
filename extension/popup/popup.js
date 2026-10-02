@@ -2,6 +2,10 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
 
+    const storageGet = (keys, callback) => chrome.storage.local.get(keys, data => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao ler configurações: ${error.message}`, 'error'); if (callback) callback({}); return; } if (callback) callback(data || {}); });
+    const storageSet = (items, callback, onError) => chrome.storage.local.set(items, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao salvar configurações: ${error.message}`, 'error'); if (onError) onError(error); return; } if (callback) callback(true); });
+    const storageRemove = (keys, callback, onError) => chrome.storage.local.remove(keys, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao remover configurações: ${error.message}`, 'error'); if (onError) onError(error); return; } if (callback) callback(true); });
+
     const styleFix = document.createElement('style');
     styleFix.textContent = `
         html { width: auto; height: auto; }
