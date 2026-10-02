@@ -1,0 +1,38 @@
+name: GTC Cache Flow Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'tests/integration/ipc/gtc-cache-flow.test.js'
+      - 'tests/helpers/load-content-script.js'
+      - 'tests/mocks/chrome-api.mock.js'
+      - 'extension/content/**'
+      - 'extension/shared/gtc-indexeddb.js'
+      - 'extension/manifest.json'
+      - '.github/workflows/gtc-cache-flow-selftest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gtc-cache-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run real GTC focal integration
+        run: npx jest --config jest.config.js --selectProjects integration --runTestsByPath tests/integration/ipc/gtc-cache-flow.test.js --runInBand --detectOpenHandles
+
+      - name: Run full integration suite
+        run: npm run test:integration -- --runInBand
