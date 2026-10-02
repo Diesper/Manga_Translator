@@ -7,6 +7,14 @@ on:
       - docs/project-bible
     paths:
       - 'docs/biblia/.coordination/audit-core.js'
+      - 'docs/biblia/.state/**'
+      - 'docs/biblia/.reservas/**'
+      - 'docs/biblia/.coordination/audit-results/**'
+      - 'docs/biblia/.coordination/audit-leases/**'
+      - 'docs/biblia/.coordination/correction-authorizations/**'
+      - 'docs/biblia/.coordination/human-approvals/**'
+      - 'docs/biblia/.coordination/human-review/**'
+      - 'docs/biblia/.coordination/unverified-findings/**'
       - 'docs/biblia/.coordination/audit-core-git-selftest.js'
       - 'docs/biblia/.coordination/audit-protocol.js'
       - 'docs/biblia/.coordination/audit-protocol-selftest.js'
