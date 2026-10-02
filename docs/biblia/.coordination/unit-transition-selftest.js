@@ -48,9 +48,16 @@ function pipeline(s) {
 
 let s = state(3);
 let snap = life.lifecycleSnapshot(s);
-const token = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:30:00Z' });
+const token = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:30:00Z', actor:'AGENT-X' });
 assert.deepStrictEqual(transition.validateCorrectionToken(s, token), []);
 console.log('PASS final CHANGES_REQUIRED issues revision-bound token');
+assert.throws(()=>transition.planTransition({
+  state:s,
+  token,
+  request:{action:'START_CORRECTION',actor:'TOKEN-THIEF',at_utc:'2026-10-02T06:30:30Z'},
+}), /TOKEN_ACTOR_MISMATCH/);
+console.log('PASS token cannot be transferred to another actor');
+
 
 let planned = transition.planTransition({
   state:s,
@@ -96,7 +103,7 @@ console.log('PASS stale CAS writer is rejected');
 
 s = state(6);
 snap = life.lifecycleSnapshot(s);
-const emergencyToken = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:40:00Z' });
+const emergencyToken = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:40:00Z', actor:'NEW-AGENT' });
 assert.throws(()=>transition.planTransition({
   state:s,
   token:emergencyToken,
@@ -140,6 +147,7 @@ const approval = {
 };
 const humanToken = transition.issueCorrectionToken(hs, pipeline(hs), {
   issued_at_utc:'2026-10-02T07:01:00Z',
+  actor:'HUMAN-AUTHORIZED-AGENT',
   humanApproval:approval,
 });
 planned = transition.planTransition({
@@ -150,6 +158,8 @@ planned = transition.planTransition({
 });
 assert.strictEqual(planned.state.status,'IN_PROGRESS');
 assert.ok(planned.state.history.some((e)=>e.type==='HUMAN_APPROVAL_CONSUMED'));
-console.log('PASS HUMAN approval unlocks exactly one correction');
+assert.strictEqual(life.activeHumanAuthorizedCorrection(planned.state), true);
+assert.deepStrictEqual(life.lifecycleProblems(planned.state), []);
+console.log('PASS HUMAN approval unlocks exactly one correction without disabling HUMAN quarantine');
 
 console.log('Unit transition self-test: SUCCESS');
