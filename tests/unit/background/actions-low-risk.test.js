@@ -10,6 +10,10 @@ const ACTION_PATHS = [
     'relay-progress.js',
     'set-debug-mode.js',
 ].map(file => path.resolve(__dirname, '../../../extension/background/actions', file));
+const LOG_ENTRY_PATH = path.resolve(
+    __dirname,
+    '../../../extension/background/actions/log-entry.js'
+);
 
 function dispatch(listener, request, sender) {
     return new Promise(resolve => {
@@ -84,6 +88,127 @@ describe('ações de baixo risco do background', () => {
         expect(response).toEqual({ keepAlive: false, response: { ok: true } });
         expect(global.MangaTranslatorLog.log).toHaveBeenCalledWith(
             'info', 'manga', 'CACHE_HIT', 'Imagem atendida pelo cache', { index: 3 }
+        );
+    });
+
+    test.each(
+        ['level', 'source', 'action_name', 'detail'].flatMap(field =>
+            [null, 7, true, {}].map(value => [field, value])
+        )
+    )('log-entry rejeita %s=%p antes de chamar o logger', async (field, value) => {
+        const router = loadActions();
+        const response = await dispatch(router.createMessageRouter({}), {
+            action: 'LOG_ENTRY',
+            [field]: value,
+        }, { tab: { id: 22, url: 'https://reader.example/chapter' } });
+
+        expect(response).toEqual({
+            keepAlive: false,
+            response: {
+                ok: false,
+                error: {
+                    code: 'INVALID_PAYLOAD',
+                    message: `${field} deve ser uma string quando informado`,
+                },
+            },
+        });
+        expect(global.MangaTranslatorLog.log).not.toHaveBeenCalled();
+    });
+
+    test.each([null, [], 'texto', 7, true])(
+        'log-entry rejeita extra inválido (%p) antes de chamar o logger',
+        async extra => {
+            const router = loadActions();
+            const response = await dispatch(router.createMessageRouter({}), {
+                action: 'LOG_ENTRY',
+                extra,
+            }, { tab: { id: 22, url: 'https://reader.example/chapter' } });
+
+            expect(response).toEqual({
+                keepAlive: false,
+                response: {
+                    ok: false,
+                    error: {
+                        code: 'INVALID_PAYLOAD',
+                        message: 'extra deve ser um objeto quando informado',
+                    },
+                },
+            });
+            expect(global.MangaTranslatorLog.log).not.toHaveBeenCalled();
+        }
+    );
+
+    test.each([
+        ['router ausente', null],
+        ['registerAction ausente', {}],
+    ])('log-entry falha no bootstrap com %s', (_description, router) => {
+        const hadOwnSelf = Object.prototype.hasOwnProperty.call(global, 'self');
+        const previousSelf = global.self;
+        const scope = {};
+        if (router !== null) scope.MangaTranslatorRouter = router;
+
+        try {
+            global.self = scope;
+            expect(() => jest.isolateModules(() => require(LOG_ENTRY_PATH))).toThrow(
+                'MangaTranslatorRouter indisponível para registrar log-entry'
+            );
+        } finally {
+            if (hadOwnSelf) global.self = previousSelf;
+            else delete global.self;
+        }
+    });
+
+    test('log-entry aceita campos opcionais ausentes', async () => {
+        const router = loadActions();
+        const response = await dispatch(router.createMessageRouter({}), {
+            action: 'LOG_ENTRY',
+        }, { tab: { id: 22, url: 'https://reader.example/chapter' } });
+
+        expect(response).toEqual({ keepAlive: false, response: { ok: true } });
+        expect(global.MangaTranslatorLog.log).toHaveBeenCalledWith(
+            undefined, undefined, undefined, undefined, undefined
+        );
+    });
+
+    test('log-entry mantém compatibilidade com chamada originada pelo popup', async () => {
+        const router = loadActions();
+        const response = await dispatch(router.createMessageRouter({}), {
+            action: 'LOG_ENTRY',
+            level: 'info',
+            source: 'popup',
+            action_name: 'EXPORT_STARTED',
+        }, { id: chrome.runtime.id });
+
+        expect(response).toEqual({ keepAlive: false, response: { ok: true } });
+        expect(global.MangaTranslatorLog.log).toHaveBeenCalledWith(
+            'info', 'popup', 'EXPORT_STARTED', undefined, undefined
+        );
+    });
+
+    test('router devolve INTERNAL_ERROR se o logger injetado lançar', async () => {
+        const router = loadActions();
+        const failingLog = jest.fn(() => {
+            throw new Error('logger unavailable');
+        });
+        const response = await dispatch(router.createMessageRouter({
+            contextFactory: () => ({ log: failingLog }),
+        }), {
+            action: 'LOG_ENTRY',
+            level: 'error',
+            source: 'test',
+            action_name: 'LOG_FAILURE',
+        }, { tab: { id: 22, url: 'https://reader.example/chapter' } });
+
+        expect(response).toEqual({
+            keepAlive: false,
+            response: {
+                ok: false,
+                error: { code: 'INTERNAL_ERROR', message: 'logger unavailable' },
+            },
+        });
+        expect(failingLog).toHaveBeenCalledTimes(1);
+        expect(global.MangaTranslatorLog.log).toHaveBeenCalledWith(
+            'error', 'router', 'ACTION_ERROR', 'logger unavailable', {}
         );
     });
 
