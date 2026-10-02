@@ -7,6 +7,9 @@ on:
       - docs/project-bible
     paths:
       - 'docs/biblia/.coordination/audit-core.js'
+      - 'docs/biblia/.coordination/audit-result.js'
+      - 'docs/biblia/.coordination/audit-result-selftest.js'
+      - 'scripts/validation/verify-lifecycle-artifacts-append-only.js'
       - 'docs/biblia/.state/**'
       - 'docs/biblia/.reservas/**'
       - 'docs/biblia/.coordination/audit-results/**'
@@ -80,6 +83,7 @@ jobs:
       - name: Syntax check coordination modules
         run: |
           node --check docs/biblia/.coordination/audit-core.js
+          node --check docs/biblia/.coordination/audit-result.js
           node --check docs/biblia/.coordination/audit-core-git-selftest.js
           node --check docs/biblia/.coordination/audit-protocol.js
           node --check docs/biblia/.coordination/reconcile-audit-results.js
@@ -94,6 +98,7 @@ jobs:
           node --check docs/biblia/.coordination/unverified-findings.js
           node --check docs/biblia/.coordination/unit-transition.js
           node --check scripts/validation/verify-human-protected-diff.js
+          node --check scripts/validation/verify-lifecycle-artifacts-append-only.js
           node --check scripts/validation/verify-human-protected-diff-selftest.js
           node --check scripts/validation/verify-bible-lifecycle.js
           node --check scripts/validation/verify-bible-audit-results-append-only.js
@@ -113,6 +118,7 @@ jobs:
           node docs/biblia/.coordination/unverified-findings-selftest.js
           node docs/biblia/.coordination/unit-transition-selftest.js
           node docs/biblia/.coordination/human-review-selftest.js
+          node docs/biblia/.coordination/audit-result-selftest.js
           node scripts/validation/verify-human-protected-diff-selftest.js
 
       - name: Validate anti-loop lifecycle
@@ -123,6 +129,12 @@ jobs:
         env:
           BIBLE_BASE_SHA: ${{ github.event.before }}
         run: node scripts/validation/verify-human-protected-diff.js --base "$BIBLE_BASE_SHA"
+
+      - name: Enforce lifecycle authority artifacts append-only
+        if: github.event_name == 'push'
+        env:
+          BIBLE_BASE_SHA: ${{ github.event.before }}
+        run: node scripts/validation/verify-lifecycle-artifacts-append-only.js --base "$BIBLE_BASE_SHA"
 
       - name: Enforce append-only audit result history
         run: npm run bible:audit:append-only
