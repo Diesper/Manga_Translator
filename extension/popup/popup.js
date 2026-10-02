@@ -193,9 +193,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 
-    // ── Storage local: política única de erro; writes falhos nunca executam callbacks de sucesso.
     const storageGet = (keys, callback) => chrome.storage.local.get(keys, data => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao ler configurações: ${error.message}`, 'error'); if (callback) callback({}); return; } if (callback) callback(data || {}); });
-    const storageSet = (items, callback) => chrome.storage.local.set(items, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao salvar configurações: ${error.message}`, 'error'); return; } if (callback) callback(true); }); const storageRemove = (keys, callback) => chrome.storage.local.remove(keys, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao remover configurações: ${error.message}`, 'error'); return; } if (callback) callback(true); });
+    const storageSet = (items, callback) => chrome.storage.local.set(items, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao salvar configurações: ${error.message}`, 'error'); return; } if (callback) callback(true); });
+    const storageRemove = (keys, callback) => chrome.storage.local.remove(keys, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao remover configurações: ${error.message}`, 'error'); return; } if (callback) callback(true); });
     /** Base64 de uma página, sob demanda (exportação/download). */
     async function smGetPage(chapterId, pageIndex) {
         const resp = await smRequest({ action: 'SM_GET_PAGE', chapterId, pageIndex });
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const url      = new URL(tab.url);
     const hostname = url.hostname;
     bannedKey = `bannedImages_${hostname}`;
-    const getOwnedTabId = async () => { const [active] = await chrome.tabs.query({ active: true, currentWindow: true }); if (!active || active.id !== currentTabId) { showPopupToast('A aba ativa mudou. Reabra o popup para continuar.', 'error'); return null; } return currentTabId; };
+    const getOwnedTabId = async () => { try { const [active] = await chrome.tabs.query({ active: true, currentWindow: true }); if (!active || active.id !== currentTabId) { showPopupToast('A aba ativa mudou. Reabra o popup para continuar.', 'error'); return null; } return currentTabId; } catch (error) { showPopupToast(`Não foi possível validar a aba: ${error.message}`, 'error'); return null; } };
     function showPage(el) {
         [enablePage, appContent, settingsPage].forEach(p => {
             p.classList.remove('active');
