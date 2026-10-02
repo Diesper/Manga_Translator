@@ -392,6 +392,8 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
 
     const eligibility = life.correctorEligibility(state, actor);
     if (!snapshot.human_locked && !eligibility.eligible) throw new Error(eligibility.reason);
+    const strategyProblems = life.strategyReviewProblems(state, request.strategy_review);
+    if (strategyProblems.length) throw new Error(strategyProblems.join(';'));
     if (snapshot.current_escalation_cycle === 6) {
       const rootCauseProblems = life.rootCauseReviewProblems(state, request.root_cause_review);
       if (rootCauseProblems.length) {
@@ -433,6 +435,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       correction_token_id: token.token_id,
       approval_id: token.human_approval_id || null,
       root_cause_review: request.root_cause_review || null,
+      strategy_review: request.strategy_review || null,
       reservation_path: request.reservation_path || null,
     });
     life.appendLifecycleEvent(next.history, {
