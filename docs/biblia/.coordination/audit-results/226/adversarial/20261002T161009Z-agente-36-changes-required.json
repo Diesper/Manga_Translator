@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "index": 226,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/visual/content-manga-pipeline.visual.js",
+  "bible": "docs/biblia/tests/visual/content-manga-pipeline.visual.js/Bíblia.md",
+  "source_sha": "61bc86351c914a1d9bb6bb4a13168b4567ac3cf9",
+  "bible_sha": "ed36570b19ba66e203b75fc3edd043438a2df5ed",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "226-A36-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia mantém 226-001..004 como OPEN embora o state canônico registre as quatro como ACCEPTED após auditoria independente.",
+      "evidence": [
+        "Bíblia §14 rotula 226-001, 226-002, 226-003 e 226-004 como OPEN.",
+        "docs/biblia/.state/226.json registra status ACCEPTED para 226-001..004 e preserva audit_finding/auditor_recommended_action para cada uma.",
+        "As quatro requests foram revalidadas contra o código atual: o mirror de pipeline realmente diverge da produção visual-v4/crop; confirmWithRegionalHashes local é fail-open para dados ausentes enquanto cm-gtc-client.js retorna false; getCleanUrl local diverge de cm-dom-replace.js; e o dataset local não cobre os crop hashes atuais.",
+        "A própria Bíblia já representa honestamente esses drifts como limitações e não os promove a prova da produção; portanto o defeito bloqueante é o lifecycle textual stale, não a existência das lacunas técnicas.",
+        "Fonte integral é byte-a-byte exata e os intervalos 1–768 são contíguos, sem gaps."
+      ],
+      "required_change": "Sincronizar §14 com o lifecycle ACCEPTED das quatro requests e reconciliar o metadado derivado `external_audit_requests_open`, preservando integralmente os drifts/lacunas e suas severidades."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T16:10:09Z",
+  "passages_executed": "0-15",
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_VS_PRIMARY_AGENTE_15",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 767,
+    "documented_positions": "768/768",
+    "declared_tests": 36,
+    "current_production_checks": {
+      "cm-gtc-client.confirmWithRegionalHashes": "missing query/entry/API -> false",
+      "cm-dom-replace.getCleanUrl": "rejects data:/blob: and resolves relatives against page/document base",
+      "visual-v4": "wHashCrop/pHashCrop and crop/relaxed/correlated queries exist in current production",
+      "run-all": "announces Pipeline 6 fases / visual-v4 / Crop"
+    },
+    "ci_evidence": "Run 36521561968 / job 109255348156 used the exact source blob; Visual Tests succeeded and logs show this file's named suites inside the 224-test global run.",
+    "audit_registry": "No dedicated #226 entry was found in legacy AUDITORIA.md; append-only PRIMARY is the current phase record.",
+    "formal_refutation_attempt": "Tried to disprove PRIMARY by rechecking source/Bible identity, exact embedded source, interval coverage, runner/wiring/baseline, exact CI snapshot, mirror-vs-production claims, and all four requests. The lifecycle mismatch remained material."
+  }
+}
