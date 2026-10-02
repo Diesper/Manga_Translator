@@ -823,6 +823,87 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toHaveLength(0);
     });
 
+    test('BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente', async () => {
+        installRuntimeResponder({ tabId: 88 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+        expect(oscillators).toHaveLength(3);
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_SUCCESS_SCHEDULED'
+        )).toHaveLength(1);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'warn',
+            action_name: 'STALE_COMPLETE',
+        }));
+    });
+
+    test('SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI', async () => {
+        installRuntimeResponder({ tabId: 89 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+        expect(oscillators).toHaveLength(3);
+
+        const errorLine = document.getElementById('manga-error-line');
+        const displayBefore = errorLine.style.display;
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            batchId: liveBatch.batchId,
+            errorMsg: 'erro tardio',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(errorLine.style.display).toBe(displayBefore);
+        expect(sentMessages.some(message =>
+            message.action_name === 'BATCH_ERROR'
+            && String(message.detail || '').includes('erro tardio')
+        )).toBe(false);
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
