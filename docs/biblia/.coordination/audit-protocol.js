@@ -375,6 +375,11 @@ function loadModel() {
     approvals.approvals,
     pipelineByIndex
   );
+  const humanPermanentCloseProblems = humanGate.humanPermanentClosePipelineProblems(
+    states,
+    approvals.approvals,
+    pipelineByIndex
+  );
   const tokens = unitTransition.loadCorrectionTokens(repoRoot, states, { pipelines: pipelineByIndex });
 
   return {
@@ -403,6 +408,7 @@ function loadModel() {
       ...humanProblems,
       ...humanAuditProblems,
       ...humanApprovalAuditorProblems,
+      ...humanPermanentCloseProblems,
       ...tokens.problems,
     ],
     merge_problems: claims.strictProblems,
