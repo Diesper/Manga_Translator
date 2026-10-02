@@ -191,6 +191,19 @@ assert.ok(life.rootCauseReviewProblems(emergencyHistory,{
 }).includes('ROOT_CAUSE_RELATED_CYCLE_INVALID'));
 console.log('PASS repeated EMERGENCY must use a different strategy');
 
+const threeCycleState=baseState();
+for(let i=1;i<=3;i+=1) addCycle(threeCycleState,i,'S'+i);
+assert.strictEqual(life.strategyReviewDue(threeCycleState),true);
+assert.ok(life.strategyReviewProblems(threeCycleState,null).includes('STRATEGY_REVIEW_REQUIRED'));
+assert.deepStrictEqual(life.strategyReviewProblems(threeCycleState,{
+  related_cycles:[1,2,3],
+  observed_pattern:'same failure class repeated',
+  evidence:'three independent audit rounds reopened the unit',
+  why_previous_strategy_insufficient:'the earlier tactic only patched local symptoms',
+  new_strategy:'validate the end-to-end contract before editing',
+}),[]);
+console.log('PASS every three cycles force explicit strategy reassessment');
+
 addCycle(s, 7, 'TERCEIRO');
 s.status = 'HUMAN_LOCKED';
 snap = life.lifecycleSnapshot(s);
