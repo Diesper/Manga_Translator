@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+  "source_sha": "301f8af30b1844d3adcd788fc28ca26cd2add039",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -251,25 +251,26 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:41:14.228Z",
       "audit_finding": "ACCEPTED pela ADVERSARIAL atual; resultado append-only 191/ADVERSARIAL CHANGES_REQUIRED.",
-      "repair_progress": "IN_PROGRESS"
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionados cinco regressions de clique real cobrindo contexto running, resume incompleto, estado interrupted, API ausente e constructor failure; todos exigem continuidade do lote e telemetria específica."
     }
   ],
   "document_quality": {
-    "self_audit": "CHANGES_REQUIRED",
+    "self_audit": "CORRECTION_APPLIED_AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "807/807",
-    "source_text_lines": 806,
-    "test_count": 17,
+    "documented_positions": "984/984",
+    "source_text_lines": 983,
+    "test_count": 22,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 1,
     "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
     "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
-    "note": "191-007 em correção: branches restantes de unlockNotificationAudio serão cobertos pelo clique real."
+    "note": "191-007 aplicada no source e Bíblia; aguarda CI da revisão atual e novo par PRIMARY+ADVERSARIAL independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:41:14.228Z",
+  "updated_at_utc": "2026-10-02T02:43:07.821Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -424,6 +425,14 @@
       "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37",
       "agent": "AGENTE HÍBRIDO",
       "reason": "ADVERSARIAL atual encontrou 191-007 HIGH: branches relevantes de unlockNotificationAudio ainda não têm prova executável dedicada."
+    },
+    {
+      "at_utc": "2026-10-02T02:43:07.821Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "301f8af30b1844d3adcd788fc28ca26cd2add039",
+      "bible_sha": "1ac4c68d7772263aa08ad4591c372c51b703f694",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-007: cinco branches restantes de unlockNotificationAudio agora têm regressões reais pelo clique; Bíblia sincronizada 984/984."
     }
   ],
   "evidence": [
@@ -499,5 +508,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37"
+  "bible_sha": "1ac4c68d7772263aa08ad4591c372c51b703f694"
 }
