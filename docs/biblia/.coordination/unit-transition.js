@@ -392,8 +392,15 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
 
     const eligibility = life.correctorEligibility(state, actor);
     if (!snapshot.human_locked && !eligibility.eligible) throw new Error(eligibility.reason);
-    if (snapshot.current_escalation_cycle === 6 && !life.rootCauseReviewValid(request.root_cause_review)) {
-      throw new Error('EMERGENCY_ROOT_CAUSE_REVIEW_REQUIRED');
+    if (snapshot.current_escalation_cycle === 6) {
+      const rootCauseProblems = life.rootCauseReviewProblems(state, request.root_cause_review);
+      if (rootCauseProblems.length) {
+        throw new Error(
+          rootCauseProblems.includes('ROOT_CAUSE_REVIEW_INVALID')
+            ? 'EMERGENCY_ROOT_CAUSE_REVIEW_REQUIRED'
+            : rootCauseProblems.join(';')
+        );
+      }
     }
     if (snapshot.human_locked) {
       if (!human.approvalMatches(state, snapshot, humanApproval, 'ALLOW_ONE_CORRECTION')) {
