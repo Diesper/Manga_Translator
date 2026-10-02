@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-gemini/claim-bootstrap-keepalive.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
-> **SHA auditado:** 6e6adc2747b0974feec368fedb3652da79dc49b5  
+> **Estado documental:** correção validada; aguarda nova auditoria independente  
+> **SHA auditado:** aa03181f4d48fe1659ebe44533e6091aa00e8787  
 > **Agente responsável:** AGENTE 26  
 > **Tipo:** suíte Jest de claim/bootstrap/keep-alive do content Gemini real  
-> **Linhas textuais:** 210  
-> **Posições documentais:** 211, contando o newline final  
+> **Linhas textuais:** 321  
+> **Posições documentais:** 322, contando o newline final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -14,6 +14,8 @@
 Esta suíte valida a fronteira entre uma aba Gemini carregada e o job persistido no background. Antes de iniciar RPA, content_gemini reivindica explicitamente o job; somente um claim válido permite o job runner abrir o Port gemini-keep-alive.
 
 O loader usado pela suíte carrega selectors, DOM, quarantine, observer, editor, attachment, temporary-chat, result-extractor, deletion, job-runner e por fim content_gemini.js reais. KEEP-02/03 atravessa o job runner real até finally/closeKeepAlive.
+
+O caminho que inicia esta suíte é `package.json#test:ci` → `scripts/ci/run-jest-ci.js` → `jest.config.js`, projeto `content-scripts` → JSDOM e setup `tests/mocks/chrome-api.mock.js` + `tests/mocks/dom-environment.js`. O loader importa os módulos Gemini reais; Chrome runtime/storage e DOM são harnesses simulados. Esses testes provam o consumidor real sob respostas controladas, não a disponibilidade das APIs no Chrome instalado.
 
 ## 2. KEEP-01 — aba manual inerte
 
@@ -33,25 +35,25 @@ openKeepAlive seguido imediatamente de closeKeepAlive deve resultar em uma conex
 
 ## 6. Claim com jobId e retry
 
-Quando a URL contém late-job e o background responde job:null nas duas primeiras tentativas, claimGeminiJob aguarda/retry e aceita o job na terceira chamada. Isso prova retry até sucesso e associação ao jobId esperado.
+Quando a URL contém late-job e o background responde job:null nas duas primeiras tentativas, claimGeminiJob aguarda/retry e aceita o job na terceira chamada. A asserção adicional em `sentMessages` verifica que as três mensagens CLAIM_GEMINI_JOB carregam `jobId: 'late-job'`, provando a associação enviada junto do retry.
 
-O título menciona 'antes de desistir', mas o caso não chega ao timeout: ele tem sucesso na terceira chamada. O caminho de timeout contínuo ainda precisa de prova específica.
+O caso de sucesso na terceira tentativa é separado do timeout contínuo, agora coberto por KEEP-09.
 
 ## 7. Fallback legado de claim
 
-Se sendRuntimeMessage retorna null, content_gemini marca claimUnsupported e entra em compatibilidade transitória: tenta GET_TAB_ID até cinco vezes e depois busca gemini_job_<tabId> no storage, respeitando expectedJobId. Nenhum caso focal localizado atravessa essa rota.
+Se sendRuntimeMessage retorna null, content_gemini marca claimUnsupported e entra em compatibilidade transitória: tenta GET_TAB_ID até cinco vezes e depois busca gemini_job_<tabId> no storage. KEEP-06 faz duas tentativas sem resposta e recebe o tabId na terceira; só aceita o job quando o jobId coincide exatamente com o jobId trimado da URL. KEEP-07/08 rejeitam jobId divergente e qualquer registro residual sem jobId esperado.
 
 ## 8. Keep-alive: catches e corrida de close
 
-connectKeepAlive captura exceções de runtime.connect e retorna null; em reconnect, marca keepAliveReconnectAttempted. Além disso, um disconnect agenda callback de 250 ms que revalida keepAliveClosing/jobActive/keepAlivePort antes de reconectar. KEEP-05 fecha sem reconnect pendente; falta o caso disconnect→schedule→close antes dos 250 ms.
+connectKeepAlive captura exceções de runtime.connect e retorna null; em reconnect, marca keepAliveReconnectAttempted. KEEP-09 executa disconnect→schedule→close antes dos 250 ms e confirma que o callback tardio não reabre a porta. KEEP-10 força exceção na conexão inicial e no reconnect e prova que não há throw nem loop.
 
 ## 9. Cobertura externa correlata
 
 helpers-and-regressions-real.test.js cobre o early-return de processGeminiJob para URLs presentes em deleting_urls. job-runner.test.js possui cobertura da pipeline interna com openKeepAlive/closeKeepAlive como dependências; esta suíte #175 é a que prova a integração dessas dependências com a máquina real de Port.
 
-## 10. Evidência CI exata
+## 10. Evidência CI
 
-O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exatamente o blob 6e6adc2747b0974feec368fedb3652da79dc49b5. Os cinco casos aparecem com ✓ em Node 20.x (109255348388) e Node 22.x (109255348406); global 109/109 suítes e 851/851 testes. CI Gate 109256050280: sucesso.
+O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, é histórico e contém o blob anterior `6e6adc2747b0974feec368fedb3652da79dc49b5`; não valida os casos adicionados agora. Na revisão corrigida, `jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath tests/unit/content-gemini/claim-bootstrap-keepalive.test.js` passou em **11/11**. Os novos SHAs da suíte e desta Bíblia aguardam nova PRIMARY + ADVERSARIAL.
 
 ## 11. Matriz de evidência
 
@@ -62,43 +64,44 @@ O run 36521561968, commit e720890cf34dc9437ee91f3b8172953497d69870, contém exat
 | fim do job desconecta Port | KEEP-02/03 | ✅ PROVADO DIRETAMENTE |
 | disconnect ativo reconecta uma única vez | KEEP-04 | ✅ PROVADO DIRETAMENTE |
 | close explícito impede reconectar depois | KEEP-05 | ✅ PROVADO DIRETAMENTE no caso sem timer pendente |
-| jobId esperado faz retry até job aparecer | último caso | ✅ PROVADO DIRETAMENTE |
-| job nunca aparece até timeout → null | sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| CLAIM_GEMINI_JOB indisponível → GET_TAB_ID + storage fallback | sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| close entre disconnect e callback de 250 ms cancela reconnect | sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| runtime.connect lança na conexão inicial/reconnect | catch real, sem caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| jobId esperado é enviado em cada retry até job aparecer | caso retry + assertion em sentMessages | ✅ PROVADO DIRETAMENTE |
+| job nunca aparece até timeout → null sem fallback | KEEP-09 | ✅ PROVADO DIRETAMENTE |
+| CLAIM_GEMINI_JOB indisponível → GET_TAB_ID + storage fallback com retry do tabId | KEEP-06 | ✅ PROVADO DIRETAMENTE |
+| fallback rejeita jobId diferente ou ausente | KEEP-07/08 | ✅ PROVADO DIRETAMENTE |
+| close entre disconnect e callback de 250 ms cancela reconnect | KEEP-09 | ✅ PROVADO DIRETAMENTE |
+| runtime.connect lança na conexão inicial/reconnect sem loop | KEEP-10 | ✅ PROVADO DIRETAMENTE |
 
 ## 12. Solicitações ao auditor
 
-### 175-001 — TEST_REQUIRED — OPEN — HIGH
+### 175-001 — TEST_REQUIRED — RESOLVED — HIGH
 
-Encontrado: quando CLAIM_GEMINI_JOB é indisponível (sendRuntimeMessage retorna null), claimGeminiJob entra em fallback legado GET_TAB_ID + leitura de gemini_job_<tabId>. A suíte atual nunca retorna null no claim inicial.
+Encontrado: quando CLAIM_GEMINI_JOB é indisponível (sendRuntimeMessage retorna null), claimGeminiJob entra em fallback legado GET_TAB_ID + leitura de gemini_job_<tabId>. A suíte anterior nunca retornava null no claim inicial.
 
-Evidência ausente: CLAIM_GEMINI_JOB sem resposta, GET_TAB_ID falhando algumas vezes e depois retornando tabId, storage recebendo job compatível; exigir retorno com geminiTabId. Também provar expectedJobId divergente não aceita outro job.
+Resolução: KEEP-06 prova claim sem resposta, três tentativas de GET_TAB_ID e storage contendo job compatível; KEEP-07/08 provam rejeição de jobId divergente e ausente. A action do background também rejeita registro direto se request.jobId estiver ausente.
 
 Risco: compatibilidade transitória pode quebrar silenciosamente em instalações/backgrounds de versão diferente.
 
-### 175-002 — TEST_REQUIRED — OPEN — NORMAL
+### 175-002 — TEST_REQUIRED — RESOLVED — NORMAL
 
 Encontrado: o caso 'retry limitado antes de desistir' obtém sucesso na terceira tentativa; não prova o timeout/desistência quando todas as respostas são {ok:true,job:null}.
 
-Evidência ausente: fake timers ou clock controlado até timeoutMs, exigindo retorno null, número finito de claims e nenhum GET_TAB_ID fallback porque o protocolo é suportado.
+Resolução: KEEP-09 usa fake timers, exige retorno null após três claims no timeout de 1200 ms e confirma que o protocolo suportado não chama GET_TAB_ID.
 
 Risco: loop/retry excessivo ou timeout incorreto pode passar despercebido.
 
-### 175-003 — TEST_REQUIRED — OPEN — HIGH
+### 175-003 — TEST_REQUIRED — RESOLVED — HIGH
 
 Encontrado: após onDisconnect, reconnect é agendado para 250 ms. closeKeepAlive deve impedir o callback pendente de reabrir a porta, mas KEEP-05 fecha sem antes simular disconnect.
 
-Evidência ausente: open → _simulateDisconnect → antes de 250 ms close → avançar timer; exigir uma única chamada a connect e nenhuma porta nova.
+Resolução: KEEP-09 executa open → _simulateDisconnect → close antes de 250 ms → avança 1000 ms e exige somente a conexão inicial.
 
 Risco: job finalizado pode reabrir keep-alive por uma corrida tardia e manter Service Worker/recursos vivos indevidamente.
 
-### 175-004 — TEST_REQUIRED — OPEN — LOW
+### 175-004 — TEST_REQUIRED — RESOLVED — LOW
 
 Encontrado: connectKeepAlive captura exceção de chrome.runtime.connect tanto na conexão inicial quanto em reconnect; nenhum caso focal força throw.
 
-Evidência ausente: connect lançando na abertura deve retornar null sem propagar; no reconnect, uma falha deve consumir a única tentativa e não gerar loop.
+Resolução: KEEP-10 força connect a lançar inicialmente e durante reconnect; nenhum erro é propagado e a falha de reconnect não inicia loop adicional.
 
 Risco: mudança no catch pode propagar erro de bootstrap ou criar tempestade de reconexões.
 
@@ -313,7 +316,118 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
       geminiTabId: 456,
     }));
     expect(claimCalls).toBe(3);
+    expect(sentMessages.filter(message => message.action === 'CLAIM_GEMINI_JOB'))
+      .toEqual(Array(3).fill(expect.objectContaining({ jobId: 'late-job' })));
   }, 5000);
+
+  test('KEEP-06: fallback legado espera GET_TAB_ID e só devolve o job cujo jobId veio da URL', async () => {
+    setWindowLocation('/app', '?mangatranslator=true&jobId=legacy-job');
+    await storage.set({
+      gemini_job_321: {
+        jobId: 'legacy-job',
+        prompt: 'legacy prompt',
+        mangaTabId: 77,
+        index: 4,
+      },
+    });
+
+    let tabIdCalls = 0;
+    installResponder(message => {
+      if (message.action === 'CLAIM_GEMINI_JOB') return undefined;
+      if (message.action === 'GET_TAB_ID') {
+        tabIdCalls += 1;
+        return tabIdCalls >= 3 ? { tabId: 321 } : undefined;
+      }
+      return undefined;
+    });
+
+    const mod = loadContentGeminiModule();
+    await expect(mod.claimGeminiJob({ timeoutMs: 1500 })).resolves.toEqual({
+      jobId: 'legacy-job',
+      prompt: 'legacy prompt',
+      mangaTabId: 77,
+      index: 4,
+      geminiTabId: 321,
+    });
+
+    expect(tabIdCalls).toBe(3);
+    expect(sentMessages[0]).toEqual({ action: 'CLAIM_GEMINI_JOB', jobId: 'legacy-job' });
+  });
+
+  test.each([
+    ['different jobId', '?jobId=current-job', 'stale-job'],
+    ['missing jobId', '', 'stale-job'],
+  ])('KEEP-07/08: fallback legado rejeita registro residual com %s', async (_label, search, storedJobId) => {
+    setWindowLocation('/app', search);
+    await storage.set({
+      gemini_job_321: {
+        jobId: storedJobId,
+        prompt: 'must-not-be-disclosed',
+      },
+    });
+    installResponder(message => {
+      if (message.action === 'CLAIM_GEMINI_JOB') return undefined;
+      if (message.action === 'GET_TAB_ID') return { tabId: 321 };
+      return undefined;
+    });
+
+    const mod = loadContentGeminiModule();
+    await expect(mod.claimGeminiJob({ timeoutMs: 0 })).resolves.toBeNull();
+  });
+
+  test('KEEP-09: claim suportado desiste no timeout sem entrar no fallback de storage', async () => {
+    jest.useFakeTimers();
+    setWindowLocation('/app', '?jobId=never-available');
+    installResponder(message => {
+      if (message.action === 'CLAIM_GEMINI_JOB') return { ok: true, job: null };
+      return undefined;
+    });
+
+    const mod = loadContentGeminiModule();
+    const claim = mod.claimGeminiJob({ timeoutMs: 1200 });
+    await jest.runAllTimersAsync();
+    await expect(claim).resolves.toBeNull();
+
+    expect(sentMessages.filter(message => message.action === 'CLAIM_GEMINI_JOB')).toHaveLength(3);
+    expect(sentMessages.some(message => message.action === 'GET_TAB_ID')).toBe(false);
+  });
+
+  test('KEEP-09: close depois de disconnect cancela o callback de reconnect já agendado', async () => {
+    jest.useFakeTimers();
+    const port = createPort();
+    const connectSpy = jest.spyOn(runtime, 'connect').mockImplementation(() => port);
+
+    const mod = loadContentGeminiModule();
+    mod.openKeepAlive();
+    port._simulateDisconnect();
+    mod.closeKeepAlive();
+
+    await jest.advanceTimersByTimeAsync(1000);
+    expect(connectSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('KEEP-10: falha de connect inicial e de reconnect não propaga nem cria loop', async () => {
+    jest.useFakeTimers();
+    const port = createPort();
+    const connectSpy = jest.spyOn(runtime, 'connect')
+      .mockImplementationOnce(() => port)
+      .mockImplementationOnce(() => { throw new Error('runtime unavailable'); });
+
+    const mod = loadContentGeminiModule();
+    expect(() => mod.openKeepAlive()).not.toThrow();
+    port._simulateDisconnect();
+    await jest.advanceTimersByTimeAsync(250);
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(connectSpy).toHaveBeenCalledTimes(2);
+    mod.closeKeepAlive();
+
+    const initialFailure = connectSpy.mockReset()
+      .mockImplementation(() => { throw new Error('runtime unavailable'); });
+    expect(() => mod.openKeepAlive()).not.toThrow();
+    expect(initialFailure).toHaveBeenCalledTimes(1);
+    mod.closeKeepAlive();
+  });
 });
 ```
 
@@ -504,14 +618,14 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 ### Linha 027
 
 - **Código:** `        const index = disconnectListeners.indexOf(fn);`
-- **Função:** Mantém listeners onDisconnect registrados pelo keep-alive real.
+- **Função:** Localiza o listener a remover da lista de disconnect callbacks.
 - **Contexto:** mock de Port keep-alive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 028
 
 - **Código:** `        if (index >= 0) disconnectListeners.splice(index, 1);`
-- **Função:** Mantém listeners onDisconnect registrados pelo keep-alive real.
+- **Função:** Remove o listener somente quando ele ainda está registrado.
 - **Contexto:** mock de Port keep-alive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -539,7 +653,7 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 ### Linha 032
 
 - **Código:** `      disconnectListeners.slice().forEach(fn => fn(port));`
-- **Função:** Mantém listeners onDisconnect registrados pelo keep-alive real.
+- **Função:** Dispara uma cópia dos listeners quando o mock simula `Port.disconnect()`.
 - **Contexto:** mock de Port keep-alive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -560,7 +674,7 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 ### Linha 035
 
 - **Código:** `      disconnectListeners.slice().forEach(fn => fn(port));`
-- **Função:** Mantém listeners onDisconnect registrados pelo keep-alive real.
+- **Função:** Dispara os callbacks registrados ao simular uma desconexão externa.
 - **Contexto:** mock de Port keep-alive.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
@@ -812,8 +926,8 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 ### Linha 071
 
 - **Código:** `    jest.restoreAllMocks();`
-- **Função:** Compõe o cenário estrutura final, preparando ou verificando content_gemini real.
-- **Contexto:** estrutura final.
+- **Função:** Restaura mocks e spies do Jest depois de cada caso.
+- **Contexto:** teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 072
@@ -833,8 +947,8 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 ### Linha 074
 
 - **Código:** `    document.documentElement.innerHTML = '<head></head><body></body>';`
-- **Função:** Compõe o cenário responder de runtime, preparando ou verificando content_gemini real.
-- **Contexto:** responder de runtime.
+- **Função:** Limpa o DOM simulado para não vazar markup entre casos.
+- **Contexto:** teardown.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
 
 ### Linha 075
@@ -1777,19 +1891,46 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 
 ### Linha 209
 
-- **Código:** `  }, 5000);`
-- **Função:** Compõe o cenário claim com jobId — retry até sucesso, preparando ou verificando content_gemini real.
+- **Código:** `    expect(sentMessages.filter(message => message.action === 'CLAIM_GEMINI_JOB'))`
+- **Função:** Seleciona as mensagens de claim enviadas pelo caminho de retry.
 - **Contexto:** claim com jobId — retry até sucesso.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — prepara a assertion da linha seguinte.
 
 ### Linha 210
 
-- **Código:** `});`
-- **Função:** Fecha/organiza bloco sintático anterior.
-- **Contexto:** estrutura final.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde sem assertion exclusiva nesta linha.
+- **Código:** `      .toEqual(Array(3).fill(expect.objectContaining({ jobId: 'late-job' })));`
+- **Função:** Exige que as três mensagens de claim carreguem o jobId esperado da URL.
+- **Contexto:** claim com jobId — retry até sucesso.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion focal.
 
-### Posição 211 — newline final
+### Linha 211
+
+- **Código:** `  }, 5000);`
+- **Função:** Fecha o caso de retry e estabelece seu timeout máximo de Jest.
+- **Contexto:** claim com jobId — retry até sucesso.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — configuração do cenário, não assertion funcional.
+
+## 14.1 Regressões adicionadas nas linhas 212–320
+
+| Linhas | Bloco | Semântica e evidência |
+|---|---|---|
+| 212 | Separador | Linha vazia que separa o caso de retry do fallback compatível. |
+| 213–245 | KEEP-06 | URL com jobId gerenciado; storage mock contém o mesmo job; CLAIM sem resposta; GET_TAB_ID falha duas vezes e retorna na terceira; a função devolve o job associado e o teste verifica exatamente três tentativas e o jobId enviado. |
+| 246–267 | KEEP-07/08 | Casos parametrizados com jobId diferente e ausente; o registro residual é lido pela chave da aba, mas o claim retorna null. |
+| 268–283 | KEEP-09 timeout | Fake timers; três claims nulos até o timeout de 1200 ms encerrar o loop; exige null e prova que não entra no fallback GET_TAB_ID quando o protocolo respondeu. |
+| 284 | Separador | Linha vazia antes da corrida de teardown. |
+| 285–297 | KEEP-09 teardown | Abre Port, dispara disconnect para agendar callback de 250 ms, fecha antes do callback, avança 1000 ms e exige que nenhuma segunda conexão seja aberta. |
+| 298 | Separador | Linha vazia antes dos casos de erro do runtime. |
+| 299–320 | KEEP-10 | Faz `runtime.connect` lançar no reconnect e na abertura inicial; exige ausência de exceção externa e ausência de tentativas adicionais após o erro. |
+
+### Linha 321
+
+- **Código:** `});`
+- **Função:** Fecha a suíte de bootstrap/keep-alive.
+- **Contexto:** estrutura final.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — fechamento sintático.
+
+### Posição 322 — newline final
 
 - **Código:** newline final após a última linha textual.
 - **Função:** encerra o arquivo em formato POSIX e integra o blob auditado.
@@ -1797,4 +1938,4 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
 
 ## 15. Conclusão documental
 
-Foram documentadas 210 linhas textuais e a posição 211 do newline final. A suíte prova diretamente o bootstrap seguro e a máquina de keep-alive nominal/reconnect no mesmo blob verde em Node 20/22; as quatro solicitações OPEN delimitam fallback/timeout e corridas excepcionais ainda sem caso focal.
+Foram documentadas 321 linhas textuais e a posição 322 do newline final. O blob atual cobre bootstrap, fallback com jobId estrito, timeout, teardown concorrente e erros de Port. As quatro solicitações da revisão anterior foram corrigidas e os achados PRIMARY/ADVERSARIAL documentais receberam correções; a nova revisão continua aguardando auditoria independente.

@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "index": 5,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE HÍBRIDO 1",
+  "file": "extension/background/actions/claim-gemini-job.js",
+  "bible": "docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md",
+  "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+  "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "005-ADV-001",
+      "severity": "HIGH",
+      "type": "DIRECT_CLAIM_WITHOUT_EXPECTED_JOB_ID",
+      "summary": "A direct storage hit returns a persisted job when the Gemini page sends no jobId. A manual or stale tab can receive the prompt and job contract without proving it is the managed URL for that job.",
+      "evidence": [
+        "extension/background/actions/claim-gemini-job.js accepts directJob whenever present; the mismatch guard runs only when expectedJobId is truthy.",
+        "extension/content/content_gemini.js derives expectedJobId from the URL and sends undefined for a manual page.",
+        "extension/background/jobs-lifecycle.js always generates a jobId, inserts it into the managed URL, and persists it under gemini_job_<canonicalTabId>.",
+        "The new action regression test with a stored gemini_job_777 and no request.jobId fails: the response includes the stale job and prompt.",
+        "content_gemini.js also has a compatibility fallback after an unanswered CLAIM_GEMINI_JOB; its storage check accepts any job when expectedJobId is absent, so the same stale-tab case remains possible on that fallback path."
+      ],
+      "required_change": "Require an exact, non-empty expectedJobId match before returning any directly keyed job, and apply the same condition in the content script's compatibility storage fallback. Add regression tests for both paths, including a manual tab with a stale direct record."
+    },
+    {
+      "id": "005-ADV-002",
+      "severity": "MATERIAL",
+      "type": "RUNTIME_WIRING_AND_CONSUMER_OMISSION",
+      "summary": "The current Bible omits concrete runtime wiring and production consumer traceability for the action, despite asserting contracts that depend on those components.",
+      "evidence": [
+        "The current Bible blob 0fb29a7138b7b3a0edee1e948bc337129b2d3b10 has no references to extension/content/content_gemini.js, extension/background.js, extension/background/jobs-lifecycle.js, or the CLAIM_GEMINI_JOB router mapping.",
+        "extension/background/router.js maps CLAIM_GEMINI_JOB to claim-gemini-job and applies action source validation.",
+        "extension/background.js loads the action and its routeRegisteredAction contextFactory injects state, ensureInitialized, and initializeTabIdentity().",
+        "extension/background/jobs-lifecycle.js generates job IDs, inserts jobId into the managed Gemini URL, persists gemini_job_<canonicalTabId>, and updates jobIndex before the claim.",
+        "extension/content/content_gemini.js extracts and trims jobId from the URL and sends CLAIM_GEMINI_JOB.",
+        "The previous Bible blob had explicit runtime wiring and consumer sections; those details disappeared in the current revision."
+      ],
+      "required_change": "Restore concrete production wiring, producer, consumer, and canonical-identity references in the Bible, clearly distinguishing production paths from isolated test evidence."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T19:57:34Z"
+}

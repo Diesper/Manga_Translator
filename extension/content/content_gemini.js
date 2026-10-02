@@ -316,7 +316,7 @@ async function claimGeminiJob({ timeoutMs = 5000 } = {}) {
         );
         const job = data?.[jobKey];
 
-        if (job && (!expectedJobId || job.jobId === expectedJobId)) {
+        if (job && expectedJobId && job.jobId === expectedJobId) {
             return { ...job, geminiTabId: tabId };
         }
 

@@ -139,6 +139,27 @@ describe('CLAIM_GEMINI_JOB', () => {
     expect(result.response).toEqual({ ok: true, job: null });
   });
 
+  test('aba sem jobId não reivindica registro direto residual da mesma tab', async () => {
+    await storage.set({
+      gemini_job_777: {
+        geminiTabId: 777,
+        jobId: 'stale-job-from-previous-session',
+        batchId: 'old-batch',
+        mangaTabId: 7,
+        index: 1,
+        prompt: 'must-not-be-disclosed',
+      },
+    });
+
+    const result = await dispatch(
+      listener(),
+      { action: 'CLAIM_GEMINI_JOB' },
+      { tab: { id: 777, url: 'https://gemini.google.com/app' } }
+    );
+
+    expect(result.response).toEqual({ ok: true, job: null });
+  });
+
   test('origem não-Gemini não pode executar o claim', async () => {
     await storage.set({
       gemini_job_200: { geminiTabId: 200, jobId: 'job-ok', mangaTabId: 7, index: 1 },

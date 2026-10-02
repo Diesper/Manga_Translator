@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/background/actions/claim-gemini-job.js`
 
 > **Estado documental:** correção validada; decisão distribuída final pendente  
-> **SHA auditado:** `f5c4643d291931f133a791a2deaa6eb94ef4500d`  
+> **SHA auditado:** `a749a2157e1111ffd13bd46ee6fa5480f369c60a`
 > **Tipo:** action de autorização/claim de job Gemini  
 > **Linhas textuais:** **102**  
 > **Posições documentais:** **103**, contando o LF final  
@@ -18,6 +18,16 @@ Há dois caminhos legítimos:
 2. **alias/replacement:** a chave direta falta, o `expectedJobId` existe no `jobIndex`, o entry pertence canonicamente ao mesmo sender, a identidade é migrada e a chave canônica é relida antes da resposta.
 
 A resposta sempre passa por `safeJob`, que funciona como allowlist e evita devolver campos internos adicionados ao registro persistido.
+
+## 1.1 Wiring de produção e consumidores
+
+O fluxo real chega à action por `extension/background/router.js`: o mapa legado converte `CLAIM_GEMINI_JOB` em `claim-gemini-job`, e a action declara `allowedSources: ['gemini']`. `extension/background.js` carrega esse módulo no bootstrap do service worker e `routeRegisteredAction` cria o router real; seu `contextFactory` fornece `state`, `ensureInitialized` e `tabIdentity: initializeTabIdentity()` junto do `sender` e do adaptador `chrome.storage.local` criado pelo router.
+
+O produtor está em `extension/background/jobs-lifecycle.js`. `buildGeminiJobUrl` coloca o `jobId` gerado na URL gerenciada. A inicialização persiste `gemini_job_<canonicalTabId>` e insere o mesmo `jobId` no `state.jobIndex` antes de o content script precisar reivindicar o job. O consumidor de produção, `extension/content/content_gemini.js`, extrai e trimma `jobId` da URL e envia `{ action: 'CLAIM_GEMINI_JOB', jobId }`; para uma aba manual sem identificador, envia `jobId: undefined` e espera uma resposta nula.
+
+`extension/background/tab-identity.js`, inicializado pelo background e passado no contexto, resolve aliases de substituição e migra o registro persistido. A action só pode devolver um registro direto quando o `jobId` esperado da URL está presente e coincide exatamente com o registro; conhecer somente o tabId não autoriza revelar os dados do job.
+
+Os testes focais carregam router/action reais com storage, sender e TabIdentity simulados. O self-test causal carrega a action real com dependências controladas e prova ordenação/falhas; nenhum dos dois substitui evidência de wiring em runtime. Essa distinção separa o contrato isolado da cadeia de produção descrita acima.
 
 ## 2. Trust boundary e ownership
 
@@ -45,7 +55,7 @@ A action mantém compatibilidade quando `context.tabIdentity` não existe: nesse
 
 O sender é canonicalizado antes de construir `gemini_job_<canonicalSenderTabId>`. Isso agora possui prova causal: o self-test usa sender `100`, resolve `100 → 200` e disponibiliza o job **somente** em `gemini_job_200`; sem canonicalização do sender o cenário falharia.
 
-Quando `expectedJobId` está presente e diverge do registro direto, a action retorna `job:null` e não expõe o job.
+Quando `expectedJobId` está ausente ou diverge do registro direto, a action retorna `job:null` e não expõe o job. O teste adversarial de registro residual cobre especificamente a ausência do identificador.
 
 `safeJob` devolve apenas `jobId`, `batchId`, `mangaTabId`, `index`, `prompt`, `executionMode`, `geminiTabId` canônico e `windowId`. O self-test injeta `signedUrl` e `internalOnly` e prova que não vazam.
 
@@ -81,12 +91,16 @@ Também há casos focais para:
 Self-test: `docs/biblia/.coordination/claim-gemini-job-selftest.js` — SHA `80af4a6a2b923a785b346f5eaf7b4b42e659bbe3`.
 Workflow: `.github/workflows/claim-gemini-job-selftest.yml` — SHA `e2fa4093e6f63cdf014152ef22ae9a7b27122161`.
 
-A run `36943278337`, job `110639489841`, executou exatamente os blobs acima e o `SOURCE_SHA` atual:
+O run `36943278337`, job `110639489841`, é evidência histórica da revisão anterior: executou os blobs acima e o source SHA `f5c4643d291931f133a791a2deaa6eb94ef4500d`. Ele não valida a correção atual. A revisão corrigida é validada pelos testes pós-correção executados neste branch e permanece pendente de nova auditoria independente.
+
+Naquela revisão, a evidência registrada foi:
 
 - self-test causal: **PASS**;
 - projeto Jest `background`: **45/45 suites, 225/225 testes**;
 - execução relacionada: `--runInBand --detectOpenHandles`;
 - conclusão do workflow: **success**.
+
+Na revisão corrigida, o teste focal da action passou em **7/7** (incluindo o teste de registro residual, que falhou antes da guarda), o projeto `background` passou em **45/45 suites e 229/229 testes** com `--detectOpenHandles`, e o self-test causal passou. A suíte de bootstrap `claim-bootstrap-keepalive.test.js` também passou em **5/5**; a regressão específica do fallback legado ainda está sendo acrescentada na unidade #175, então esse resultado isolado não prova tal branch.
 
 ## 8. Audit requests históricas
 
@@ -111,6 +125,7 @@ Esta revisão remove os rótulos stale, substitui a antiga tabela remapeada por 
 ## 10. Limites honestos
 
 - A action assume unicidade prática de `jobId` no `jobIndex`; este arquivo não cria nem deduplica o índice.
+- O consumidor tem um fallback de compatibilidade que lê `gemini_job_<tabId>` apenas quando o background não responde; ele também exige correspondência exata de um `jobId` esperado, pois o identificador é obrigatório em toda URL gerenciada.
 - `expectedJobId` aceita qualquer string truthy, inclusive whitespace; o consumidor gerenciado faz trim antes do envio. Isso não concede job alheio: caminho direto ainda exige correspondência exata e fallback exige entry com o mesmo valor.
 - O contrato de validade interna dos registros persistidos pertence aos produtores; `safeJob` reduz a superfície exposta, mas não valida semanticamente cada campo.
 - Falhas de storage/TabIdentity não são convertidas localmente em `INTERNAL_ERROR`; a action propaga e o router é responsável pela tradução de erro.
@@ -164,8 +179,8 @@ Esta revisão remove os rótulos stale, substitui a antiga tabela remapeada por 
       const directData = await context.storage.get([directKey]);
       const directJob = directData && directData[directKey];
       if (directJob) {
-        if (expectedJobId && directJob.jobId !== expectedJobId) {
-          context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por jobId divergente', {
+        if (!expectedJobId || directJob.jobId !== expectedJobId) {
+          context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por jobId ausente ou divergente', {
             tabId: canonicalSenderTabId,
           });
           return { job: null };
@@ -249,7 +264,7 @@ Esta revisão remove os rótulos stale, substitui a antiga tabela remapeada por 
 
 ## 13. Autoauditoria documental
 
-- Source SHA: `f5c4643d291931f133a791a2deaa6eb94ef4500d`.
+- Source SHA: `a749a2157e1111ffd13bd46ee6fa5480f369c60a`.
 - Fonte integral inserida diretamente do blob atual.
 - As antigas remissões U07–U13 não existem mais; as faixas acima correspondem às fronteiras atuais da fonte.
 - Canonicalização do sender e read-after-write possuem agora testes causais, não apenas observação de efeito final.

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "token_id": "corr-005-38046bb23e83ab49d296",
+  "index": 5,
+  "authorization_type": "CORRECTION",
+  "decision": "CHANGES_REQUIRED",
+  "correction_cycle": 0,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+  "bible_sha": null,
+  "revision_id": "b573988e85f030c5d2903413aeb4aa52a8fed934735f04dcea0261ede2a68fb7",
+  "decision_id": "1ff6869867f580c9c78085fe5a0f95ad7c45607b69089235c6896dbcdf2a7f65",
+  "actor": "AGENTE HÍBRIDO 1",
+  "issued_at_utc": "2026-10-02T20:05:00Z",
+  "human_approval_id": null
+}

@@ -206,5 +206,116 @@ describe('content_gemini.js - claim bootstrap e keep-alive', () => {
       geminiTabId: 456,
     }));
     expect(claimCalls).toBe(3);
+    expect(sentMessages.filter(message => message.action === 'CLAIM_GEMINI_JOB'))
+      .toEqual(Array(3).fill(expect.objectContaining({ jobId: 'late-job' })));
   }, 5000);
+
+  test('KEEP-06: fallback legado espera GET_TAB_ID e só devolve o job cujo jobId veio da URL', async () => {
+    setWindowLocation('/app', '?mangatranslator=true&jobId=legacy-job');
+    await storage.set({
+      gemini_job_321: {
+        jobId: 'legacy-job',
+        prompt: 'legacy prompt',
+        mangaTabId: 77,
+        index: 4,
+      },
+    });
+
+    let tabIdCalls = 0;
+    installResponder(message => {
+      if (message.action === 'CLAIM_GEMINI_JOB') return undefined;
+      if (message.action === 'GET_TAB_ID') {
+        tabIdCalls += 1;
+        return tabIdCalls >= 3 ? { tabId: 321 } : undefined;
+      }
+      return undefined;
+    });
+
+    const mod = loadContentGeminiModule();
+    await expect(mod.claimGeminiJob({ timeoutMs: 1500 })).resolves.toEqual({
+      jobId: 'legacy-job',
+      prompt: 'legacy prompt',
+      mangaTabId: 77,
+      index: 4,
+      geminiTabId: 321,
+    });
+
+    expect(tabIdCalls).toBe(3);
+    expect(sentMessages[0]).toEqual({ action: 'CLAIM_GEMINI_JOB', jobId: 'legacy-job' });
+  });
+
+  test.each([
+    ['different jobId', '?jobId=current-job', 'stale-job'],
+    ['missing jobId', '', 'stale-job'],
+  ])('KEEP-07/08: fallback legado rejeita registro residual com %s', async (_label, search, storedJobId) => {
+    setWindowLocation('/app', search);
+    await storage.set({
+      gemini_job_321: {
+        jobId: storedJobId,
+        prompt: 'must-not-be-disclosed',
+      },
+    });
+    installResponder(message => {
+      if (message.action === 'CLAIM_GEMINI_JOB') return undefined;
+      if (message.action === 'GET_TAB_ID') return { tabId: 321 };
+      return undefined;
+    });
+
+    const mod = loadContentGeminiModule();
+    await expect(mod.claimGeminiJob({ timeoutMs: 0 })).resolves.toBeNull();
+  });
+
+  test('KEEP-09: claim suportado desiste no timeout sem entrar no fallback de storage', async () => {
+    jest.useFakeTimers();
+    setWindowLocation('/app', '?jobId=never-available');
+    installResponder(message => {
+      if (message.action === 'CLAIM_GEMINI_JOB') return { ok: true, job: null };
+      return undefined;
+    });
+
+    const mod = loadContentGeminiModule();
+    const claim = mod.claimGeminiJob({ timeoutMs: 1200 });
+    await jest.runAllTimersAsync();
+    await expect(claim).resolves.toBeNull();
+
+    expect(sentMessages.filter(message => message.action === 'CLAIM_GEMINI_JOB')).toHaveLength(3);
+    expect(sentMessages.some(message => message.action === 'GET_TAB_ID')).toBe(false);
+  });
+
+  test('KEEP-09: close depois de disconnect cancela o callback de reconnect já agendado', async () => {
+    jest.useFakeTimers();
+    const port = createPort();
+    const connectSpy = jest.spyOn(runtime, 'connect').mockImplementation(() => port);
+
+    const mod = loadContentGeminiModule();
+    mod.openKeepAlive();
+    port._simulateDisconnect();
+    mod.closeKeepAlive();
+
+    await jest.advanceTimersByTimeAsync(1000);
+    expect(connectSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('KEEP-10: falha de connect inicial e de reconnect não propaga nem cria loop', async () => {
+    jest.useFakeTimers();
+    const port = createPort();
+    const connectSpy = jest.spyOn(runtime, 'connect')
+      .mockImplementationOnce(() => port)
+      .mockImplementationOnce(() => { throw new Error('runtime unavailable'); });
+
+    const mod = loadContentGeminiModule();
+    expect(() => mod.openKeepAlive()).not.toThrow();
+    port._simulateDisconnect();
+    await jest.advanceTimersByTimeAsync(250);
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(connectSpy).toHaveBeenCalledTimes(2);
+    mod.closeKeepAlive();
+
+    const initialFailure = connectSpy.mockReset()
+      .mockImplementation(() => { throw new Error('runtime unavailable'); });
+    expect(() => mod.openKeepAlive()).not.toThrow();
+    expect(initialFailure).toHaveBeenCalledTimes(1);
+    mod.closeKeepAlive();
+  });
 });
