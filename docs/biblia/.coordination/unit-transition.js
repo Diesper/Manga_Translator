@@ -7,6 +7,100 @@ const human = require('./human-gate');
 const auditCore = require('./audit-core');
 const humanReview = require('./human-review');
 
+
+function correctionReservationRelativePath(state) {
+  return 'docs/biblia/.reservas/' + String(state?.file || '').replace(/\\/g, '/') + '.lock.md';
+}
+
+function reservationField(source, field) {
+  for (const rawLine of String(source || '').split(/\r?\n/)) {
+    const line = rawLine.trim().replace(/^[-*]\s*/, '').replace(/\*\*/g, '');
+    if (line.startsWith(field + ':')) return line.slice(field.length + 1).trim();
+  }
+  return null;
+}
+
+function activeCorrectionReservations(root) {
+  const base = path.join(root, 'docs', 'biblia', '.reservas');
+  return walk(base)
+    .filter((absolute) => /\.lock\.md$/i.test(absolute))
+    .map((absolute) => {
+      const source = fs.readFileSync(absolute, 'utf8');
+      return {
+        path: path.relative(root, absolute).replace(/\\/g, '/'),
+        agent: reservationField(source, 'AGENTE'),
+        file: reservationField(source, 'ARQUIVO'),
+        bible: reservationField(source, 'BIBLIA'),
+        source_sha: reservationField(source, 'SHA_DO_FONTE_AO_RESERVAR'),
+        state: reservationField(source, 'ESTADO'),
+      };
+    })
+    .filter((item) => !item.state || item.state === 'ACTIVE');
+}
+
+function assertCorrectionReservation(root, state, actor) {
+  const rel = correctionReservationRelativePath(state);
+  const absolute = path.join(root, rel);
+  if (!fs.existsSync(absolute)) throw new Error('CORRECTION_RESERVATION_REQUIRED');
+  const source = fs.readFileSync(absolute, 'utf8');
+  const owner = reservationField(source, 'AGENTE');
+  const file = reservationField(source, 'ARQUIVO');
+  const bible = reservationField(source, 'BIBLIA');
+  if (owner !== actor) throw new Error('CORRECTION_RESERVATION_OWNER_MISMATCH');
+  if (file && file !== state.file) throw new Error('CORRECTION_RESERVATION_FILE_MISMATCH');
+  if (bible && bible !== state.bible) throw new Error('CORRECTION_RESERVATION_BIBLE_MISMATCH');
+  return rel;
+}
+
+function createCorrectionReservation(root, state, actor, atUtc, token) {
+  if (!actor) throw new Error('ACTOR_REQUIRED');
+  if (!Number.isFinite(Date.parse(atUtc || ''))) throw new Error('RESERVATION_AT_REQUIRED');
+  const rel = correctionReservationRelativePath(state);
+  const absolute = path.join(root, rel);
+  const active = activeCorrectionReservations(root);
+  if (active.some((item) => item.path === rel) || fs.existsSync(absolute)) {
+    throw new Error('UNIT_HIGH_PRIORITY_BUT_ALREADY_RESERVED');
+  }
+  const owned = active.find((item) => item.agent === actor);
+  if (owned) throw new Error('CORRECTOR_ALREADY_RESERVED:' + owned.path);
+
+  fs.mkdirSync(path.dirname(absolute), { recursive: true });
+  const content = [
+    'AGENTE: ' + actor,
+    'ARQUIVO: ' + state.file,
+    'BIBLIA: ' + state.bible,
+    'SHA_DO_FONTE_AO_RESERVAR: ' + state.source_sha,
+    'RESERVADO_EM_UTC: ' + atUtc,
+    'ATUALIZADO_EM_UTC: ' + atUtc,
+    'PR: #66',
+    'BRANCH: docs/project-bible',
+    'ESTADO: ACTIVE',
+    'CORRECTION_TOKEN_ID: ' + (token?.token_id || '-'),
+    'REVISION_ID: ' + (token?.revision_id || '-'),
+    'CORRECTION_CYCLE: ' + (token?.correction_cycle ?? '-'),
+    '',
+  ].join('\n');
+  fs.writeFileSync(absolute, content, { flag: 'wx' });
+  return rel;
+}
+
+function releaseCorrectionReservation(root, state, actor, options = {}) {
+  const rel = correctionReservationRelativePath(state);
+  const absolute = path.join(root, rel);
+  if (!fs.existsSync(absolute)) {
+    if (options.optional) return null;
+    throw new Error('CORRECTION_RESERVATION_REQUIRED');
+  }
+  assertCorrectionReservation(root, state, actor);
+  fs.unlinkSync(absolute);
+  return rel;
+}
+
+function ownershipIndex(rel) {
+  const match = /(?:^|\/)(\d{3})\.lock\.md$/i.exec(String(rel || '').replace(/\\/g, '/'));
+  return match ? Number(match[1]) : null;
+}
+
 function finalDecisionRecord(pipeline) {
   if (!pipeline) return null;
   if (pipeline.reaudit) return pipeline.reaudit;
@@ -302,6 +396,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       correction_token_id: token.token_id,
       approval_id: token.human_approval_id || null,
       root_cause_review: request.root_cause_review || null,
+      reservation_path: request.reservation_path || null,
     });
     life.appendLifecycleEvent(next.history, {
       at_utc: at,
@@ -358,6 +453,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       correction_cycle: snapshot.current_escalation_cycle + 1,
       audit_epoch: nextEpoch,
       handoff_id: handoffId,
+      reservation_path: request.reservation_path || null,
       reason: String(request.reason || 'Correção entregue pelo transition engine.'),
     });
     next.status = snapshot.current_escalation_cycle + 1 >= 7 ? 'HUMAN_LOCKED' : 'READY_FOR_AUDIT';
@@ -383,6 +479,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       bible_sha: state.bible_sha,
       reopen_at_utc: request.reopen_at_utc || null,
       correction_token_id: request.correction_token_id || null,
+      reservation_path: request.reservation_path || null,
       actor,
       reason: String(request.reason || 'Correção abortada com restauração do binding protegido.'),
     });
@@ -634,6 +731,13 @@ function main(argv=process.argv.slice(2)) {
     const approval=args.approval_id
       ? (model.human_approvals || []).find((item)=>item.approval_id===args.approval_id)
       : null;
+    const reservationRel=correctionReservationRelativePath(state);
+    if ((model.reservations || []).includes(reservationRel)) {
+      throw new Error('UNIT_HIGH_PRIORITY_BUT_ALREADY_RESERVED');
+    }
+    if ((model.active_claims_and_leases || []).some((rel)=>ownershipIndex(rel)===state.index)) {
+      throw new Error('CORRECTION_BLOCKED_BY_ACTIVE_AUDIT_LEASE');
+    }
     const token=issueCorrectionToken(state,pipeline,{issued_at_utc:args.at_utc,humanApproval:approval,actor:args.actor});
     const out=tokenPath(root,state.index,token.token_id);
     fs.mkdirSync(path.dirname(out),{recursive:true});
@@ -656,9 +760,21 @@ function main(argv=process.argv.slice(2)) {
     const approval=request.approval_id
       ? (model.human_approvals || []).find((item)=>item.approval_id===request.approval_id)
       : null;
-    if (String(request.action || '').toUpperCase() === 'HANDOFF_FOR_AUDIT') {
+    const action=String(request.action || '').toUpperCase();
+    let reservationCreated=null;
+    if (action === 'START_CORRECTION') {
+      request.reservation_path=correctionReservationRelativePath(state);
+      if ((model.active_claims_and_leases || []).some((rel)=>ownershipIndex(rel)===state.index)) {
+        throw new Error('CORRECTION_BLOCKED_BY_ACTIVE_AUDIT_LEASE');
+      }
+    } else if (action === 'HANDOFF_FOR_AUDIT') {
+      request.reservation_path=assertCorrectionReservation(root,state,request.actor);
       Object.assign(request, workingRevision(root, state));
+    } else if (action === 'SAFE_ABORT') {
+      const rel=correctionReservationRelativePath(state);
+      if (fs.existsSync(path.join(root,rel))) request.reservation_path=assertCorrectionReservation(root,state,request.actor);
     }
+
     const result=planTransition({
       state,
       pipeline,
@@ -667,7 +783,24 @@ function main(argv=process.argv.slice(2)) {
       humanApproval:approval,
       currentStateSha:auditCore.gitBlobShaBuffer(Buffer.from(raw)),
     });
-    fs.writeFileSync(sp,JSON.stringify(result.state,null,2)+'\n');
+
+    if (action === 'START_CORRECTION') {
+      reservationCreated=createCorrectionReservation(root,state,request.actor,request.at_utc,token);
+    }
+    try {
+      fs.writeFileSync(sp,JSON.stringify(result.state,null,2)+'\n');
+    } catch (error) {
+      if (reservationCreated) {
+        try { fs.unlinkSync(path.join(root,reservationCreated)); } catch (_) {}
+      }
+      throw error;
+    }
+    if (action === 'HANDOFF_FOR_AUDIT') {
+      releaseCorrectionReservation(root,state,request.actor);
+    } else if (action === 'SAFE_ABORT' && request.reservation_path) {
+      releaseCorrectionReservation(root,state,request.actor,{optional:true});
+    }
+
     const snapshot=life.lifecycleSnapshot(result.state);
     if (snapshot.human_locked && result.state.status === 'HUMAN_LOCKED') {
       humanReview.writeHumanReview(root,result.state,snapshot,{
@@ -710,4 +843,11 @@ module.exports = {
   loadCorrectionTokens,
   tokenPath,
   loadToken,
+  correctionReservationRelativePath,
+  reservationField,
+  activeCorrectionReservations,
+  assertCorrectionReservation,
+  createCorrectionReservation,
+  releaseCorrectionReservation,
+  ownershipIndex,
 };
