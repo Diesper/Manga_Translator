@@ -1638,6 +1638,9 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function startSingleImageTranslation(img) {
+            if (readerDisposed) {
+                return { ok: false, reason: 'image_ineligible' };
+            }
             if (!clickToTranslateEnabled) {
                 return { ok: false, reason: 'disabled' };
             }
