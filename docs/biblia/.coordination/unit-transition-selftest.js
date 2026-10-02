@@ -176,4 +176,41 @@ assert.strictEqual(life.activeHumanAuthorizedCorrection(planned.state), true);
 assert.deepStrictEqual(life.lifecycleProblems(planned.state), []);
 console.log('PASS HUMAN approval unlocks exactly one correction without disabling HUMAN quarantine');
 
+const approvedPipeline = {
+  ...pipeline(hs),
+  decision:'APPROVED',
+  primary:{phase:'PRIMARY',verdict:'APPROVED',auditor:'HA1',path:'hp.json',completed_at_utc:'2026-10-02T07:10:00Z'},
+  adversarial:{phase:'ADVERSARIAL',verdict:'APPROVED',auditor:'HA2',path:'ha.json',completed_at_utc:'2026-10-02T07:11:00Z'},
+};
+const closeApproval = {
+  ...approval,
+  approval_id:'human-10-close',
+  decision:'PERMANENTLY_CLOSE',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:12:00Z',
+};
+assert.throws(()=>transition.planTransition({
+  state:hs,
+  pipeline:pipeline(hs),
+  humanApproval:closeApproval,
+  request:{action:'HUMAN_COMPLETE',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:13:00Z'},
+}),/HUMAN_COMPLETE_REQUIRES_FINAL_APPROVED/);
+assert.throws(()=>transition.planTransition({
+  state:hs,
+  pipeline:approvedPipeline,
+  humanApproval:null,
+  request:{action:'HUMAN_COMPLETE',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:13:00Z'},
+}),/HUMAN_PERMANENT_CLOSE_APPROVAL_REQUIRED/);
+const closed = transition.planTransition({
+  state:hs,
+  pipeline:approvedPipeline,
+  humanApproval:closeApproval,
+  request:{action:'HUMAN_COMPLETE',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:13:00Z'},
+});
+assert.strictEqual(closed.state.status,'COMPLETED');
+assert.strictEqual(life.lifecycleSnapshot(closed.state).lifetime_correction_cycles,7);
+assert.strictEqual(life.lifecycleSnapshot(closed.state).human_permanently_closed,true);
+assert.deepStrictEqual(life.lifecycleProblems(closed.state),[]);
+console.log('PASS HUMAN permanent close requires APPROVED + human approval');
+
 console.log('Unit transition self-test: SUCCESS');
