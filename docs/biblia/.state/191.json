@@ -1106,20 +1106,29 @@
       "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
       "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
       "finding": "A revisão protegida atual não possui regressão direta para IndexedDB miss -> legacy hit nem para fallback mais recente marcado prevalecendo sobre IndexedDB stale.",
-      "current_evidence": "cm-gtc-client b7bb841499a9e677f9709f0c634c648ac6a0f65b: queryGlobalTranslationCache() returns response.entriesByHash immediately whenever GTC_QUERY_MANY returns {ok:true}, including empty maps and stale hits; chrome.storage.local is consulted only when the runtime query itself is not ok. cm-gtc-client b7bb841499a9e677f9709f0c634c648ac6a0f65b: saveGlobalTranslationCacheEntry() writes raw gtc_<hash> only when GTC_SAVE fails and removes that legacy key on a later successful save; there is no companion marker distinguishing a fresh failure fallback from historical legacy data. gtc-indexeddb 0c872f23a665304b46dc2bb43c6468762feb2e31: IndexedDB entries store updatedAt, but GTC_QUERY_MANY/getMany exposes only hash -> translatedDataUrl, so the content client cannot compare recency with legacy storage. tests/integration/ipc/gtc-indexeddb-deep.test.js proves IDB hit avoids legacy lookup, but no test proves IDB miss -> legacy hit or marked latest fallback -> stale IDB override.",
-      "requested_action": "O próximo auditor independente deve criar/provar os dois cenários em vermelho contra o binding atual e publicar PRIMARY/ADVERSARIAL conforme o protocolo. Este request não autoriza correção editorial.",
+      "current_evidence": "cm-gtc-client.js@b7bb841499a9e677f9709f0c634c648ac6a0f65b: queryGlobalTranslationCache lines 113-119 returns entriesByHash immediately at line 116 whenever GTC_QUERY_MANY is ok, so legacy gtc_<hash> is consulted only when the whole modern request fails. The same client writes raw legacy fallback at line 190 when GTC_SAVE fails, and removes it on a later successful modern save at lines 179-184. tests/integration/ipc/gtc-indexeddb-deep.test.js@b2210cb75cc03b447399b35d71813b7b4c6463a2 lines 208-215 intentionally proves a full IndexedDB HIT performs zero legacy gtc_ lookups. That contract is compatible with fallback-on-MISS and must remain protected.",
+      "requested_action": "PRIMARY and ADVERSARIAL must independently decide whether the current early-return semantics violate fallback recovery. If CHANGES_REQUIRED is the distributed final decision, implement fallback only for modern misses plus an explicit marker/version for newly-created fallback so newest marked fallback can outrank stale IndexedDB without letting historical legacy overwrite a valid modern hit.",
       "required_cases": [
         "IndexedDB miss -> legacy hit",
         "fallback mais recente explicitamente marcado -> prevalece sobre IndexedDB stale",
         "legacy histórico não marcado + IndexedDB hit válido -> IndexedDB continua vencendo"
       ],
-      "expected_evidence": "Resultado de auditoria append-only posterior ao handoff 2026-10-02T05:25:31Z, vinculado a SOURCE_SHA 52ede7cf... e BIBLE_SHA ef9c4326..., demonstrando explicitamente os dois contratos.",
+      "expected_evidence": "Three executable contracts: modern miss -> legacy hit; newest marked fallback -> stale modern hit; valid modern hit -> unmarked historical legacy does not win. Preserve existing full modern-hit behavior and rerun GTC/content suites.",
       "severity": "HIGH",
       "independence_requirement": "Somente auditor independente pode transformar a evidência em CHANGES_REQUIRED; corretor não deve reabrir a unidade por este request.",
-      "missing_evidence": "Case A: GTC_QUERY_MANY returns {ok:true, entriesByHash:{}} while gtc_<hash>=LEGACY; query must return LEGACY. Case B: GTC_QUERY_MANY returns STALE_IDB while a legacy fallback explicitly marked as created by the latest failed GTC_SAVE contains LATEST; query must return LATEST. Unmarked historical legacy must not blindly overwrite a valid IndexedDB hit.",
+      "missing_evidence": "Independent regression A: GTC_QUERY_MANY returns ok + entriesByHash missing the requested hash while gtc_<hash> exists; query must return the legacy value. Independent regression B: a fallback created by the newest failed save must beat an older IndexedDB value for the same hash. Independent regression C: an unmarked historical legacy value must NOT overwrite a valid modern IndexedDB hit; existing full-hit zero-legacy behavior may remain.",
       "safe_fix_direction": "Do not blindly prefer legacy. Suggested contract: failed GTC_SAVE records the fallback as an explicit recent override (preferably in a dedicated marker/override map) in addition to backward-compatible gtc_<hash>; successful GTC_SAVE clears both. Query overlays only explicit recent overrides on IndexedDB hits, while unmarked legacy fills misses only. This preserves valid modern hits and backward compatibility. This is technical evidence only and does not authorize correction.",
       "evidence_recorded_by": "AGENTE HÍBRIDO",
-      "evidence_recorded_at_utc": "2026-10-02T05:58:00Z"
+      "evidence_recorded_at_utc": "2026-10-02T05:58:00Z",
+      "audit_evidence": {
+        "content_client_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+        "content_client_query_lines": "113-119",
+        "content_client_save_lines": "149-195",
+        "integration_test_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+        "integration_full_hit_guard_lines": "208-215",
+        "protected_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+        "protected_bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509"
+      }
     }
   ],
   "document_quality": {
@@ -1138,7 +1147,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T05:48:00Z",
+  "updated_at_utc": "2026-10-02T06:05:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1770,6 +1779,17 @@
       "audit_request_id": "191-029",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Added third mandatory precedence guard: unmarked historical legacy must not overwrite a valid IndexedDB hit. No source/Bible edit and no audit verdict."
+    },
+    {
+      "at_utc": "2026-10-02T06:05:00Z",
+      "type": "READONLY_191_029_CONTRACT_RECONCILED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-029",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Reconciled modern-hit no-legacy integration contract with requested miss/fallback precedence tests. No source/Bible edit and no audit verdict."
     }
   ],
   "evidence": [
