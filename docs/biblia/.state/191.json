@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
-  "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
-  "started_at_utc": "2026-10-02T05:08:00Z",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -1032,7 +1032,7 @@
     },
     {
       "id": "191-027",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "GTC_LEGACY_FALLBACK_REORDER_RACE",
       "target_file": "extension/content/cm-gtc-client.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -1048,25 +1048,52 @@
       "severity": "HIGH",
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T05:08:00Z",
-      "audit_finding": "Encontrado em revisão corretiva; não substitui auditoria independente."
+      "audit_finding": "Encontrado em revisão corretiva; não substitui auditoria independente.",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolution": "cm-gtc-client agora serializa GTC_SAVE por hash normalizado via gtcSaveChains. Falha moderna pode criar fallback legado; um save moderno posterior bem-sucedido do mesmo hash roda depois e remove o fallback stale antes de liberar a fila.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T05:25:30Z",
+      "validation": {
+        "pre_fix_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+        "pre_fix_gtc_client_sha": "95d062f41b9f1bd789a576c3a5c5d903b705fa55",
+        "pre_fix_run_id": 36968467020,
+        "pre_fix_node20_job_id": 110717239486,
+        "pre_fix_node22_job_id": 110717239621,
+        "pre_fix_result": "FAIL_EXACTLY_1_GTC_FALLBACK_REORDER_CASE_BOTH_NODES; LEGACY_RECEIVED_FAIL_FIRST",
+        "final_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+        "final_bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+        "content_manga_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+        "gtc_client_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+        "workflow_run_id": 36968592875,
+        "node20_job_id": 110717620792,
+        "node22_job_id": 110717620578,
+        "full_content_job_id": 110717620714,
+        "focal_result": "PASS_2_OF_2_SUITES_51_OF_51_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_470_OF_470_TESTS_DETECT_OPEN_HANDLES",
+        "gtc_cache_flow_run_id": 36968592957,
+        "gtc_cache_flow_job_id": 110717620563,
+        "gtc_cache_flow_focal_result": "PASS_1_OF_1_SUITE_4_OF_4_TESTS",
+        "gtc_cache_flow_global_note": "Workflow job later failed in unrelated popup.ui.test.js with storageGet temporal-dead-zone error."
+      }
     }
   ],
   "document_quality": {
-    "self_audit": "READY_FOR_INDEPENDENT_AUDIT",
+    "self_audit": "CORRECTION_COMPLETE_AWAITING_INDEPENDENT_DISTRIBUTED_AUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "2358/2358",
-    "source_text_lines": 2357,
-    "test_count": 41,
+    "documented_positions": "2448/2448",
+    "source_text_lines": 2447,
+    "test_count": 42,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
     "production_dependency_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
-    "evidence_quality": "191-025/026 validated in PR #79: Node20/22 50/50, full 40/40 suites 469/469 with detectOpenHandles.",
-    "note": "Technical layer remains ready; current binding requires a new distinct PRIMARY+ADVERSARIAL pair before COMPLETED/100."
+    "gtc_client_dependency_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+    "evidence_quality": "191-027 red→green: run 36968467020 reproduced stale legacy fallback on Node20/22; final run 36968592875 passed Node20/22 51/51 and full content-scripts 40/40 suites, 470/470 tests with detectOpenHandles. GTC cache-flow focal 4/4 also passed.",
+    "note": "Technical correction layer ready. Current source+bible still require a distinct PRIMARY+ADVERSARIAL pair before COMPLETED/100."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T05:08:00Z",
+  "updated_at_utc": "2026-10-02T05:25:31Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1614,6 +1641,28 @@
       "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-027 HIGH: late failed GTC_SAVE can overwrite legacy fallback with stale pre-retry payload."
+    },
+    {
+      "at_utc": "2026-10-02T05:25:30Z",
+      "type": "GTC_FALLBACK_ORDERING_HARDENING_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "production_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+      "gtc_client_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-027 red→green complete. Red run 36968467020 left legacy FAIL_FIRST after RETRY_OK; final run 36968592875 passed Node20/22 51/51 and full content-scripts 470/470."
+    },
+    {
+      "at_utc": "2026-10-02T05:25:31Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "production_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+      "gtc_client_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Correction role ended after 191-027. Reservation will be released; same correction identity must not self-approve current revision."
     }
   ],
   "evidence": [
@@ -1778,7 +1827,24 @@
       "current_head_node22_job_id": 110712905965,
       "current_head_focal_result": "PASS_50_OF_50_BOTH_NODES",
       "historical_note": "Old 207a1ba4/5-of-5 validation and PERF-09 text retained solely as historical provenance."
+    },
+    {
+      "type": "EXECUTABLE_FINAL_VALIDATION",
+      "at_utc": "2026-10-02T05:25:30Z",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "production_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+      "gtc_client_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+      "workflow_run_id": 36968592875,
+      "node20_job_id": 110717620792,
+      "node22_job_id": 110717620578,
+      "full_content_job_id": 110717620714,
+      "focal_result": "PASS_42_OF_42_AUDIO; PASS_51_OF_51_WITH_RELATED_BOTH_NODES",
+      "content_suite_result": "PASS_40_OF_40_SUITES_470_OF_470_TESTS_DETECT_OPEN_HANDLES",
+      "red_191_027_run_id": 36968467020,
+      "gtc_cache_flow_run_id": 36968592957,
+      "gtc_cache_flow_focal_result": "PASS_4_OF_4"
     }
   ],
-  "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e"
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509"
 }
