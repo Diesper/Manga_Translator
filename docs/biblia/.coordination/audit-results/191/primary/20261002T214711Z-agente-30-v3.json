@@ -1,0 +1,82 @@
+{
+  "schema_version": 3,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 30",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-029",
+      "severity": "HIGH",
+      "type": "INDEPENDENT_AUDIT_GTC_FALLBACK_PRECEDENCE_REGRESSION",
+      "requested_action": "PRIMARY and ADVERSARIAL must independently decide whether the current early-return semantics violate fallback recovery. If CHANGES_REQUIRED is the distributed final decision, implement fallback only for modern misses plus an explicit marker/version for newly-created fallback so newest marked fallback can outrank stale IndexedDB without letting historical legacy overwrite a valid modern hit.",
+      "summary": "A successful modern lookup hides legacy recovery on per-hash misses and newer failed saves.",
+      "evidence": [
+        "cm-gtc-client.js:116 returns entriesByHash immediately on ok=true, without consulting legacy for individual misses or later failed saves."
+      ]
+    },
+    {
+      "id": "191-030",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_CLEANUP_ERROR_SILENCED",
+      "requested_action": "No mesmo ciclo de correção de 191-029, tornar cleanup de raw fallback + marker error-aware; criar regression de remove lastError/falha e definir contrato de retorno/telemetria sem deixar stale override silencioso.",
+      "summary": "Legacy cleanup errors are silently treated as successful removal.",
+      "evidence": [
+        "cm-gtc-client.js:184 resolves chrome.storage.local.remove without inspecting chrome.runtime.lastError; a later failed modern lookup can restore stale raw fallback."
+      ]
+    },
+    {
+      "id": "191-031",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_READ_ERROR_UNHANDLED",
+      "requested_action": "Adicionar helper error-aware para get/remove do fallback e fault-injection regressions; integrar ao fix 191-029/030.",
+      "summary": "Legacy reads ignore runtime errors and unavailable callback data.",
+      "evidence": [
+        "cm-gtc-client.js:118 resolves chrome.storage.local.get without lastError handling; line 119 dereferences legacy without checking for unavailable results."
+      ]
+    },
+    {
+      "id": "191-032",
+      "severity": "HIGH",
+      "type": "GTC_CROSS_CONTEXT_FALLBACK_RACE",
+      "requested_action": "ADVERSARIAL deve decidir se o fallback deve ser coordenado no background ou possuir versão comparável/atomicidade cross-context. Qualquer marker de 191-029 deve incluir contrato explícito para concorrência entre abas.",
+      "summary": "Per-context save chains cannot prevent a late failed save in one context from resurrecting fallback after a newer save in another.",
+      "evidence": [
+        "cm-gtc-client.js:147 creates a Map inside each content context; lines 172-190 mutate shared fallback storage after each context receives its own asynchronous response."
+      ]
+    },
+    {
+      "id": "191-033",
+      "severity": "NORMAL",
+      "type": "GTC_AUXILIARY_SAVE_ERROR_SWALLOWED",
+      "requested_action": "Trocar catch vazio por log/telemetria sem rethrow e adicionar regression que comprova page persistence success + GTC failure observable.",
+      "summary": "Auxiliary GTC rejection is invisible.",
+      "evidence": [
+        "content_manga.js:2576 catches saveGlobalTranslationCacheEntry rejection with an empty function, losing the auxiliary failure while page persistence proceeds."
+      ]
+    },
+    {
+      "id": "191-034",
+      "severity": "NORMAL",
+      "type": "DOCUMENTED_DEPENDENCY_REVISION_STALE",
+      "summary": "The Bible still binds content_manga to the prior production blob while the refreshed lifecycle binds the live implementation.",
+      "evidence": [
+        "Bible section 2: content_manga.js 893a03442cddb9e32487d7c7599be13ba8dc349c; current production binding 250f0ed1b96c5b96eb46e34468e777cb1e8ebd90.",
+        "The original 42 tests passed locally, but omit modern per-hash misses, marked fallback precedence, cleanup/read lastError and cross-context fallback ownership.",
+        "The GTC auxiliary catch in persistTranslatedUpdateWithSideEffects remains empty on this exact revision."
+      ],
+      "requested_action": "Reconcile the complete production/test/dependency evidence after integrating the GTC correction; preserve the context teardown guard introduced by the concurrent correction."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T21:47:11Z",
+  "production_sha": "250f0ed1b96c5b96eb46e34468e777cb1e8ebd90",
+  "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "audit_epoch": 6,
+  "handoff_id": "191-e6-0f091ffea031",
+  "revision_id": "ac3c4d0b1ec9a4a1d68d03b2a18f177ab0152055f1fc89db577457b16279f520",
+  "human_approval_id": null
+}
