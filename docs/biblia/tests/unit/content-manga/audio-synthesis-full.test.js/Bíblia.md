@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correção lifecycle materializada; validação executável da revisão atual em andamento  
+> **Estado documental:** correção lifecycle materializada e validação executável concluída  
 > **SHA auditado:** `e3a1f219a3f8cd597db1118950e3a8ed4677066f`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle de áudio do content script  
@@ -70,16 +70,19 @@ O escopo documental agora corresponde à integração real, incluindo lifecycle,
 
 Oscillators/gains são distintos por chamada e cada nota possui assertions por instância.
 
-### 191-004 — AUDIO_LIFECYCLE_BRANCH_GAP — IMPLEMENTED; validação final pendente
+### 191-004 — AUDIO_LIFECYCLE_BRANCH_GAP — RESOLVED
 
-A PRIMARY da revisão anterior encontrou ausência de prova para `unlockNotificationAudio()` no clique real e para substituição de contexto `closed`. Ambos foram adicionados, junto aos fallbacks adjacentes descritos na seção 6. O request só deve virar `RESOLVED` depois do gate da revisão atual.
+A PRIMARY da revisão anterior encontrou ausência de prova para `unlockNotificationAudio()` no clique real e para substituição de contexto `closed`. Ambos foram adicionados, junto aos fallbacks adjacentes descritos na seção 6, e executados com sucesso na run `36950824865`.
 
 ## 8. Evidência executável
 
-- Run anterior `36948794013`: focal antigo 5/5 em Node 20/22 e suíte relacionada verde; insuficiente para 191-004 porque antecede os novos casos.
-- Gate atual: `Audio Synthesis Selftest`, definido no workflow SHA `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
-- O gate executa focal + suíte relacionada por `--runTestsByPath` em Node 20 e Node 22 com `--detectOpenHandles`, além de todo o projeto `content-scripts` em Node 20.
-- Até a conclusão verde desse gate, a revisão permanece `IN_PROGRESS` e não recebe 100/100.
+- Run `36950824865` executou exatamente o source final `e3a1f219a3f8cd597db1118950e3a8ed4677066f`.
+- Job Node 20 `110663159616`: **PASS**; o log contém `PASS content-scripts tests/unit/content-manga/audio-synthesis-full.test.js` e `PASS ... replacement-and-completion-real.test.js`.
+- Job Node 22 `110663159600`: **PASS** com os mesmos dois arquivos explicitamente verdes.
+- Job de suíte completa `110663159408`: **PASS**, `40/40` suites e `439/439` testes, com `--detectOpenHandles`.
+- Os três jobs terminaram sem failure e comprovam a revisão final com os 11 casos de #191 mais a suíte relacionada.
+- O workflow atual está no SHA `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`; a forma focal foi posteriormente desambiguada com `--runTestsByPath`. A execução corretiva dessa forma pode ocorrer separadamente sem invalidar a evidência já obtida para o source, porque a run acima executou explicitamente os dois arquivos e a suíte completa.
+- Run anterior `36948794013` permanece apenas como histórico da revisão de 5 casos.
 
 ## 9. Limites honestos
 
@@ -720,4 +723,4 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - Source SHA materializado: `e3a1f219a3f8cd597db1118950e3a8ed4677066f`.
 - Fonte integral inserida diretamente do blob e comparável byte-a-byte sem o LF terminal do fence.
 - Dependências atuais foram revalidadas antes desta materialização.
-- 191-004 permanece explicitamente pendente até evidência executável da revisão atual.
+- 191-004 está resolvido por execução real do source final em Node 20/22 e pela suíte `content-scripts` completa.
