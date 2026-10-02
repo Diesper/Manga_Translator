@@ -363,6 +363,12 @@ function loadModel() {
   });
   const handoffProblems = core.postHandoffCorrectionProblems(states, loaded.records, { root: repoRoot });
   const humanProblems = humanGate.humanGateProblems(states, lifecycle.byIndex, approvals.approvals);
+  const humanAuditProblems = humanGate.humanAuditResultProblems(
+    states,
+    lifecycle.byIndex,
+    approvals.approvals,
+    loaded.records
+  );
   const tokens = unitTransition.loadCorrectionTokens(repoRoot, states);
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
 
@@ -390,6 +396,7 @@ function loadModel() {
       ...findings.problems,
       ...approvals.problems,
       ...humanProblems,
+      ...humanAuditProblems,
       ...tokens.problems,
     ],
     merge_problems: claims.strictProblems,
