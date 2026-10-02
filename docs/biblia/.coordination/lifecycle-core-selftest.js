@@ -160,6 +160,12 @@ future.history.push({
 assert.ok(life.lifecycleProblems(future).some((x) => x.includes('sem correction_token_id')));
 console.log('PASS future direct correction without token is rejected');
 
+const forgedInProgress = baseState();
+forgedInProgress.status='IN_PROGRESS';
+forgedInProgress.updated_at_utc='2026-10-01T00:00:00Z';
+assert.ok(life.lifecycleProblems(forgedInProgress).some((x)=>x.includes('IN_PROGRESS sem START_CORRECTION canônico')));
+console.log('PASS stale/missing updated_at cannot bypass canonical correction start');
+
 const chained = baseState();
 life.appendLifecycleEvent(chained.history, {
   at_utc:'2026-10-02T06:40:00Z',
