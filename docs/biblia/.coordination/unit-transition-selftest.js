@@ -158,11 +158,26 @@ planned = transition.planTransition({
   state:planned.state,
   request:{action:'HANDOFF_FOR_AUDIT',actor:'NEW-AGENT',at_utc:'2026-10-02T06:50:00Z'},
 });
-assert.strictEqual(planned.state.status, 'HUMAN_LOCKED');
-assert.strictEqual(life.lifecycleSnapshot(planned.state).correction_cycle, 7);
-console.log('PASS cycle 6 handoff escalates to HUMAN_LOCKED');
+let thresholdSnapshot = life.lifecycleSnapshot(planned.state);
+assert.strictEqual(planned.state.status, 'READY_FOR_AUDIT');
+assert.strictEqual(thresholdSnapshot.correction_cycle, 7);
+assert.strictEqual(thresholdSnapshot.escalation_level, 'HUMAN');
+assert.strictEqual(thresholdSnapshot.human_audit_window_active, true);
+assert.strictEqual(thresholdSnapshot.human_locked, false);
+assert.deepStrictEqual(life.lifecycleProblems(planned.state), []);
+console.log('PASS cycle 6 handoff enters HUMAN audit-only window instead of skipping independent audit');
 
-const hs = planned.state;
+const lockedAfterFailedAudit = transition.planTransition({
+  state:planned.state,
+  pipeline:pipeline(planned.state),
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T06:55:00Z'},
+});
+assert.strictEqual(lockedAfterFailedAudit.state.status, 'HUMAN_LOCKED');
+assert.strictEqual(life.lifecycleSnapshot(lockedAfterFailedAudit.state).human_locked, true);
+assert.deepStrictEqual(life.lifecycleProblems(lockedAfterFailedAudit.state), []);
+console.log('PASS CHANGES_REQUIRED after HUMAN audit window returns immediately to HUMAN_LOCKED');
+
+const hs = lockedAfterFailedAudit.state;
 const hsnap = life.lifecycleSnapshot(hs);
 const approval = {
   schema_version:1,
@@ -196,6 +211,61 @@ assert.ok(planned.state.history.some((e)=>e.type==='HUMAN_APPROVAL_CONSUMED'));
 assert.strictEqual(life.activeHumanAuthorizedCorrection(planned.state), true);
 assert.deepStrictEqual(life.lifecycleProblems(planned.state), []);
 console.log('PASS HUMAN approval unlocks exactly one correction without disabling HUMAN quarantine');
+
+const resetApproval = {
+  ...approval,
+  approval_id:'human-10-reset',
+  decision:'RESET_ESCALATION',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:02:30Z',
+};
+const resetResult = transition.planTransition({
+  state:hs,
+  humanApproval:resetApproval,
+  request:{action:'HUMAN_RESET_ESCALATION',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:03:00Z'},
+});
+assert.ok(resetResult.state.history.some((e)=>e.type==='HUMAN_APPROVAL_CONSUMED' && e.approval_id===resetApproval.approval_id));
+assert.strictEqual(life.lifecycleSnapshot(resetResult.state).current_escalation_cycle,0);
+assert.strictEqual(resetResult.state.status,'READY_FOR_AUDIT');
+assert.deepStrictEqual(life.lifecycleProblems(resetResult.state),[]);
+console.log('PASS RESET_ESCALATION consumes approval and projects READY_FOR_AUDIT canonically');
+
+const humanHandoff = transition.planTransition({
+  state:planned.state,
+  request:{action:'HANDOFF_FOR_AUDIT',actor:'HUMAN-AUTHORIZED-AGENT',at_utc:'2026-10-02T07:04:00Z'},
+});
+const humanHandoffSnapshot = life.lifecycleSnapshot(humanHandoff.state);
+assert.strictEqual(humanHandoff.state.status,'READY_FOR_AUDIT');
+assert.strictEqual(humanHandoffSnapshot.human_audit_window_active,true);
+assert.strictEqual(humanHandoffSnapshot.human_locked,false);
+assert.deepStrictEqual(life.lifecycleProblems(humanHandoff.state),[]);
+console.log('PASS one-shot HUMAN correction handoff opens exactly the independent audit window');
+
+const oneShotApprovedPipeline = {
+  ...pipeline(humanHandoff.state),
+  decision:'APPROVED',
+  primary:{phase:'PRIMARY',verdict:'APPROVED',auditor:'HA1',path:'hp.json',completed_at_utc:'2026-10-02T07:10:00Z'},
+  adversarial:{phase:'ADVERSARIAL',verdict:'APPROVED',auditor:'HA2',path:'ha.json',completed_at_utc:'2026-10-02T07:11:00Z'},
+};
+const oneShotCompleted = transition.planTransition({
+  state:humanHandoff.state,
+  pipeline:oneShotApprovedPipeline,
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T07:11:30Z'},
+});
+assert.strictEqual(oneShotCompleted.state.status,'COMPLETED');
+assert.strictEqual(life.lifecycleSnapshot(oneShotCompleted.state).human_escalation_approved,true);
+assert.strictEqual(life.lifecycleSnapshot(oneShotCompleted.state).human_locked,false);
+assert.deepStrictEqual(life.lifecycleProblems(oneShotCompleted.state),[]);
+console.log('PASS APPROVED after one-shot HUMAN correction completes without a second human approval');
+
+const oneShotFailed = transition.planTransition({
+  state:humanHandoff.state,
+  pipeline:pipeline(humanHandoff.state),
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T07:12:00Z'},
+});
+assert.strictEqual(oneShotFailed.state.status,'HUMAN_LOCKED');
+assert.strictEqual(life.lifecycleSnapshot(oneShotFailed.state).human_locked,true);
+console.log('PASS repeated CHANGES_REQUIRED after one-shot HUMAN correction re-locks immediately');
 
 const approvedPipeline = {
   ...pipeline(hs),
