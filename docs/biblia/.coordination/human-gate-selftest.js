@@ -74,6 +74,7 @@ consumptionState.history.push({
   at_utc:'2026-10-02T07:01:00Z',
   type:'HUMAN_APPROVAL_CONSUMED',
   approval_id:approval.approval_id,
+  correction_token_id:'corr-human-selftest',
   source_sha:approval.test_sha,
   bible_sha:approval.bible_sha,
 });
@@ -81,6 +82,7 @@ consumptionState.history.push({
   at_utc:'2026-10-02T07:01:01Z',
   type:'HUMAN_AUTHORIZED_CORRECTION_STARTED',
   approval_id:approval.approval_id,
+  correction_token_id:'corr-human-selftest',
 });
 assert.deepStrictEqual(gate.humanApprovalConsumptionProblems([consumptionState],[approval]),[]);
 const duplicatedConsumption=JSON.parse(JSON.stringify(consumptionState));
@@ -88,6 +90,7 @@ duplicatedConsumption.history.push({
   at_utc:'2026-10-02T07:02:00Z',
   type:'HUMAN_APPROVAL_CONSUMED',
   approval_id:approval.approval_id,
+  correction_token_id:'corr-human-selftest-duplicate',
   source_sha:approval.test_sha,
   bible_sha:approval.bible_sha,
 });
@@ -95,6 +98,7 @@ duplicatedConsumption.history.push({
   at_utc:'2026-10-02T07:02:01Z',
   type:'HUMAN_AUTHORIZED_CORRECTION_STARTED',
   approval_id:approval.approval_id,
+  correction_token_id:'corr-human-selftest-duplicate',
 });
 assert.ok(gate.humanApprovalConsumptionProblems([duplicatedConsumption],[approval])
   .some((x)=>x.includes('mais de uma vez')));
