@@ -1128,12 +1128,12 @@
     "documented_positions": "2448/2448",
     "source_text_lines": 2447,
     "test_count": 42,
-    "external_audit_requests_open": 0,
+    "external_audit_requests_open": 1,
     "accepted_requests_pending_validation": 0,
     "production_dependency_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
     "gtc_client_dependency_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
     "evidence_quality": "191-027 red→green: run 36968467020 reproduced stale legacy fallback on Node20/22; final run 36968592875 passed Node20/22 51/51 and full content-scripts 40/40 suites, 470/470 tests with detectOpenHandles. GTC cache-flow focal 4/4 also passed.",
-    "note": "Technical correction layer ready. Current source+bible still require a distinct PRIMARY+ADVERSARIAL pair before COMPLETED/100."
+    "note": "Technical correction layer ready; 191-029 remains OPEN for independent PRIMARY/ADVERSARIAL review on the protected current binding."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -1748,6 +1748,16 @@
       "audit_request_id": "191-029",
       "agent": "AGENTE HÍBRIDO",
       "reason": "No source/Bible edit and no audit verdict. Recorded exact query/fallback precedence evidence and safe expected contracts for the next independent auditor."
+    },
+    {
+      "at_utc": "2026-10-02T06:00:00Z",
+      "type": "COORDINATION_METADATA_RECONCILED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "external_audit_requests_open reconciled to 1; no source/Bible edit and no audit verdict."
     }
   ],
   "evidence": [
