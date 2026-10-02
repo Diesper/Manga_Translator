@@ -156,6 +156,7 @@ assert.strictEqual(life.rootCauseReviewValid({ categories: ['CONCURRENCY'] }), f
 console.log('PASS emergency root-cause review validation');
 
 const emergencyHistory = baseState();
+for (let i=1;i<=6;i+=1) addCycle(emergencyHistory,i,'ROOT-'+i);
 emergencyHistory.history.push({
   at_utc:'2026-10-01T05:00:00Z',
   type:'EMERGENCY_ROOT_CAUSE_REVIEW',
