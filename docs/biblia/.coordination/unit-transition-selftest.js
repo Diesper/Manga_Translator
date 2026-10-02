@@ -281,7 +281,7 @@ assert.throws(()=>transition.planTransition({
   },
 }),/REVISION_REFRESH_REQUIRES_DRIFT/);
 const refreshInvalid = state(1);
-refreshInvalid.status='IN_PROGRESS';
+refreshInvalid.status='PENDING';
 assert.throws(()=>transition.planTransition({
   state:refreshInvalid,
   request:{
