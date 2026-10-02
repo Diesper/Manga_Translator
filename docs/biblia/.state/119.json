@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+  "source_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
   "started_at_utc": "2026-09-30T06:32:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -70,20 +70,21 @@
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "SOURCE_SYNC_PENDING_REAUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "594/594",
+    "documented_positions": "607/607",
     "range_blocks": 67,
     "ranges_contiguous": true,
     "source_has_final_newline": true,
     "bible_lines": 1032,
     "external_audit_requests_open": 0,
-    "note": "Auditoria independente confirmou fonte integral, cobertura 594/594, lifecycle/reset, fidelidade limitada e evidência focal; requests 119-001..003 permanecem ACCEPTED."
+    "note": "Fonte integral sincronizada ao blob af6580a... após correção de runtime.lastError; revisão atual permanece READY_FOR_AUDIT e exige PRIMARY + ADVERSARIAL novos.",
+    "source_text_lines": 606
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:33:03.444Z",
+  "updated_at_utc": "2026-10-02T20:04:19Z",
   "history": [
     {
       "at_utc": "2026-10-01T14:40:17.413Z",
@@ -110,6 +111,28 @@
       "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
       "bible_sha": "1c4983bc01b7eb6ac1908d2700c9909ab992c597",
       "reason": "119-REAUDIT-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-02T20:04:19Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "24dab4ce16536b820d2b788ea89fb053e264a91ffca0a710d5acb9e4d52d3daa",
+      "source_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
+      "test_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
+      "bible_sha": "aa21222e8a4cf4a80147ff9b22e676370f4d1f6d",
+      "production_sha": null,
+      "revision_id": "2cd3b878180443573a4c1f00a6290fa1da640d9e0fbaa67cd62a3a7ef667d365",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "119-e1-414a3ac33d0e",
+      "reason": "Sincroniza a Bíblia #119 com a correção de fidelidade de runtime.lastError; revisão nova deve receber PRIMARY + ADVERSARIAL independentes.",
+      "previous_event_hash": "4b74806bb0ab1d08f162106a9ea90812856863213a18775ea77e98ec09d0f960",
+      "event_hash": "ee61c36bfadeea55e41e9c055c51ac3c9421419e550ee6e9ad627f3826bf8b3e"
     }
   ],
   "evidence": [
@@ -121,5 +144,16 @@
       "at_utc": "2026-10-01T14:40:17.413Z",
       "note": "Passagens 0–15 concluídas. Integridade, veracidade e honestidade confirmadas 3x para a Bíblia #119."
     }
-  ]
+  ],
+  "test_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
+  "bible_sha": "aa21222e8a4cf4a80147ff9b22e676370f4d1f6d",
+  "production_sha": null,
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "119-e1-414a3ac33d0e",
+  "revision_id": "2cd3b878180443573a4c1f00a6290fa1da640d9e0fbaa67cd62a3a7ef667d365"
 }
