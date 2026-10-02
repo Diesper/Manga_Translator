@@ -2658,15 +2658,24 @@ if (!window.__manga_translator_content_injected) {
 
                 return wantsAck;
             } else if (request.action === 'BATCH_COMPLETE') {
-                // Rejeitar BATCH_COMPLETE de batch antigo
-                if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) {
-                    sendLog('warn', 'STALE_COMPLETE', `BATCH_COMPLETE ignorado de batch antigo`, { received: (request.batchId||'').slice(0,8) });
+                // Rejeitar BATCH_COMPLETE de batch antigo ou já concluído.
+                // Depois de checkIfComplete(), _currentBatchId vira null; sem este
+                // segundo ramo uma conclusão duplicada deixaria de ser reconhecida
+                // como stale, embora checkIfComplete() evitasse repetir o áudio.
+                if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) {
+                    sendLog('warn', 'STALE_COMPLETE', `BATCH_COMPLETE ignorado de batch antigo`, {
+                        received: (request.batchId || '').slice(0, 8),
+                        current: (_currentBatchId || '').slice(0, 8),
+                    });
                     return;
                 }
                 if (request.hasErrors === true) batchHasErrors = true;
                 checkIfComplete(true);
             } else if (request.action === 'SHOW_ERROR_INTEGRATED') {
-                if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) return;
+                // Erro de lote antigo também é stale quando o lote original já
+                // terminou (_currentBatchId === null). Sem isso um callback tardio
+                // ainda tocava o som de erro e reabria a UI após a conclusão.
+                if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) return;
                 batchHasErrors = true; showIntegratedError(request.errorMsg, request.imgIndex, request.isDebug); checkIfComplete(false, request.imgIndex);
             } else if (request.action === 'PROGRESS') {
                 // Atualiza primeiro o estado em memória: se o DOM tiver sido
