@@ -3,7 +3,7 @@
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
-  "agent": "AGENTE HÍBRIDO",
+  "agent": null,
   "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -1005,6 +1005,15 @@
       "production_sha": "0c0a9f3420a17933db2d275a8fe5503473e8bb7c",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-001..017 resolved; source/Bible exact 1811/1811; awaiting new independent PRIMARY+ADVERSARIAL pair bound to current SHAs."
+    },
+    {
+      "at_utc": "2026-10-02T03:38:00Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
+      "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
+      "production_sha": "0c0a9f3420a17933db2d275a8fe5503473e8bb7c",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Correction role ended. Editorial reservation released; no audit lease held. state.agent cleared so a distinct auditor can acquire PRIMARY. Correction agent must not self-audit this revision."
     }
   ],
   "evidence": [
