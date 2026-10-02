@@ -319,6 +319,22 @@ console.log('PASS cycle 6 handoff escalates to HUMAN_LOCKED');
 
 const hs = planned.state;
 const hsnap = life.lifecycleSnapshot(hs);
+assert.throws(()=>transition.planTransition({
+  state:hs,
+  pipeline:pipeline(hs),
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T06:55:00Z'},
+}),/RECONCILE_HUMAN_LOCKED/);
+assert.throws(()=>transition.planTransition({
+  state:hs,
+  pipeline:{
+    ...pipeline(hs),
+    decision:'APPROVED',
+    primary:{...pipeline(hs).primary,verdict:'APPROVED'},
+    adversarial:{...pipeline(hs).adversarial,verdict:'APPROVED'},
+  },
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T06:55:01Z'},
+}),/RECONCILE_HUMAN_LOCKED/);
+console.log('PASS HUMAN blocks automatic reconcile and automatic COMPLETED projection');
 const approval = {
   schema_version:1,
   approval_id:'human-10-1',
