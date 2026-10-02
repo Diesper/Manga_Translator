@@ -39,18 +39,26 @@ function getContentListener(runtimeMock) {
 
 function dispatchToContent(runtimeMock, request, sender = { tab: { id: 1 } }) {
     return new Promise((resolve) => {
-        let settled = false;
+        let listenerReturned = false;
+        let responded = false;
         let keepAlive = false;
+        let responseValue;
+
+        const settle = () => {
+            if (listenerReturned && (keepAlive !== true || responded)) {
+                resolve({ keepAlive, response: responseValue });
+            }
+        };
 
         const sendResponse = (response) => {
-            settled = true;
-            resolve({ keepAlive, response });
+            responded = true;
+            responseValue = response;
+            settle();
         };
 
         keepAlive = getContentListener(runtimeMock)(request, sender, sendResponse);
-        if (keepAlive !== true && !settled) {
-            resolve({ keepAlive, response: undefined });
-        }
+        listenerReturned = true;
+        settle();
     });
 }
 
