@@ -1,0 +1,64 @@
+name: Audio Synthesis Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'tests/unit/content-manga/audio-synthesis-full.test.js'
+      - 'tests/unit/content-manga/replacement-and-completion-real.test.js'
+      - 'tests/helpers/load-content-script.js'
+      - 'tests/mocks/chrome-api.mock.js'
+      - 'extension/content/**'
+      - 'extension/shared/**'
+      - 'extension/manifest.json'
+      - '.github/workflows/audio-synthesis-selftest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focal:
+    name: Focal audio (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run real audio focal and related suite
+        run: >-
+          npx jest --config jest.config.js --selectProjects content-scripts
+          tests/unit/content-manga/audio-synthesis-full.test.js
+          tests/unit/content-manga/replacement-and-completion-real.test.js
+          --runInBand --detectOpenHandles
+
+  content-suite:
+    name: Full content-scripts suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run content-scripts project with open-handle detection
+        run: npm run test:unit:content -- --runInBand --detectOpenHandles
