@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
 > **Estado documental:** correção materializada; validação executável da revisão atual pendente  
-> **SHA auditado:** `5f62d00406bf717f670d11b81d49bfa7361afddc`  
+> **SHA auditado:** `52f27af4d8d21cbdd19eabf3d1143eeef96cc9b3`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese de áudio do content script  
-> **Linhas textuais:** **386**  
-> **Posições documentais:** **387**, contando o LF final  
+> **Linhas textuais:** **389**  
+> **Posições documentais:** **390**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -54,7 +54,7 @@ Isso fecha a fraqueza anterior em que todos os eventos eram acumulados no mesmo 
 
 ## 5. Som de sucesso — runtime real
 
-O segundo teste inicia um lote real com `START_TRANSLATION_FROM_POPUP`, espera o `START_BATCH` emitido pela implementação e envia `BATCH_COMPLETE`.
+O segundo teste inicia um lote real com `START_TRANSLATION_FROM_POPUP`, espera **uma nova ocorrência** de `START_BATCH` (contagem anterior + 1) emitida pela implementação e envia `BATCH_COMPLETE`. Isso impede que o segundo ciclo reutilize a mensagem do primeiro como falso sinal de prontidão.
 
 `checkIfComplete(true)` executa `playSuccessSound()`. A suíte valida três pares oscillator/gain independentes:
 
@@ -340,11 +340,14 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
     }
 
     async function startBatch() {
+        const previousCount = sentMessages.filter(message => message.action === 'START_BATCH').length;
         await dispatchToContent(runtimeMock, {
             action: 'START_TRANSLATION_FROM_POPUP',
             indices: [0],
         });
-        await waitFor(() => sentMessages.some(message => message.action === 'START_BATCH'));
+        await waitFor(() =>
+            sentMessages.filter(message => message.action === 'START_BATCH').length === previousCount + 1
+        );
     }
 
     test('SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes', async () => {
@@ -542,15 +545,15 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **132–150:** setup por teste.
 - **151–165:** cleanup/restauração de globals por teste.
 - **166–189:** responder controlado de runtime.
-- **190–205:** helpers de página/lote.
-- **206–244:** `SHOW_ERROR_INTEGRATED → playErrorSound` real.
-- **245–309:** `BATCH_COMPLETE → playSuccessSound` real, telemetria e reuso de contexto.
-- **310–343:** lifecycle `suspended → resume → running`.
-- **344–367:** fallback `webkitAudioContext`.
-- **368–386:** falha de criação de AudioContext sem quebrar UI.
-- **387:** posição vazia do LF final.
+- **190–208:** helpers de página/lote; `startBatch()` exige incremento exato de `START_BATCH`.
+- **209–247:** `SHOW_ERROR_INTEGRATED → playErrorSound` real.
+- **248–312:** `BATCH_COMPLETE → playSuccessSound` real, telemetria e reuso de contexto.
+- **313–346:** lifecycle `suspended → resume → running`.
+- **347–370:** fallback `webkitAudioContext`.
+- **371–389:** falha de criação de AudioContext sem quebrar UI.
+- **390:** posição vazia do LF final.
 
-**Cobertura:** 387/387 posições, contíguas e sem overlap.
+**Cobertura:** 390/390 posições, contíguas e sem overlap.
 
 ## 14. Reauditoria pós-correção
 
