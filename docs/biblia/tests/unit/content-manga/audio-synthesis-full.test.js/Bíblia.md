@@ -1,448 +1,567 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
-> **SHA auditado:** `e53e43da4f20d727355666e444f0adf0428fc6dc`  
-> **Agente responsável:** AGENTE 17  
-> **Tipo:** suíte Jest de síntese de áudio baseada em mirrors/helpers extraídos  
-> **Linhas textuais:** 225  
-> **Posições documentais:** 226, contando newline final  
+> **Estado documental:** correção materializada; validação executável da revisão atual pendente  
+> **SHA auditado:** `5f62d00406bf717f670d11b81d49bfa7361afddc`  
+> **Índice do corpus:** 191  
+> **Tipo:** integração Jest real da síntese de áudio do content script  
+> **Linhas textuais:** **386**  
+> **Posições documentais:** **387**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
 
-Esta suíte descreve a forma de onda esperada para os sons de erro e sucesso do fluxo de tradução.
+Esta revisão substitui a suíte anterior de mirrors por uma prova que carrega o bundle Manga real via `loadContentScript()` e dispara as rotinas de áudio encapsuladas em `content_manga.js` pelos caminhos públicos do próprio content script.
 
-Ela **não importa as funções de áudio reais de `extension/content/content_manga.js`**.
+Não há mais import de `tests/helpers/extracted-functions.js` nem implementação local de `playSuccessSound()`. Assim, mudanças no runtime real de áudio podem quebrar esta suíte diretamente.
 
-O teste usa dois objetos diferentes:
+## 2. Dependências revalidadas
 
-- `playErrorSound` importado de `tests/helpers/extracted-functions.js`, helper que declara explicitamente reimplementar a função de produção;
-- `playSuccessSound` redefinido localmente dentro desta própria suíte como espelho histórico.
+- `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
+- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
+- `extension/content/content_manga.js`: `a8b3698019f6f22027f09f544f15c0563a9f6515`.
+- `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
+- `jest.config.js`: `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`.
+- `package.json`: `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.
 
-Logo, a evidência deste arquivo deve ser lida como **prova direta dos mirrors** e apenas evidência indireta/estrutural do runtime.
+## 3. Harness real
 
-## 2. Som de erro — mirror extraído
+`loadContentScript()` lê a ordem de scripts do `manifest.json`, configura JSDOM/Chrome mocks e carrega o bundle real. A suíte usa o listener registrado por `content_manga.js`, não uma função espelho.
 
-`playErrorSound` vem de `tests/helpers/extracted-functions.js`.
+O responder de runtime só estabiliza dependências externas ao foco:
 
-O helper cria dois pulsos:
+- `GTC_QUERY_MANY` retorna miss controlado;
+- `START_BATCH` aceita o lote;
+- `GET_TAB_ID` fornece aba para telemetria;
+- mensagens auxiliares recebem `{ ok: true }`.
 
-- sawtooth;
-- 300 Hz em t=0;
-- 150 Hz em t=0.2;
-- fade-in até 0.4 em +0.04 s;
-- fade-out exponencial até 0.001 em +0.28 s;
-- stop em +0.3 s.
+## 4. Som de erro — runtime real
 
-A implementação atual de `content_manga.js` ainda possui a mesma estrutura de síntese, mas o teste não executa aquela closure real.
+O primeiro teste envia `SHOW_ERROR_INTEGRATED` com `imgIndex=0`. Esse caminho chama `showIntegratedError()`, que no runtime executa `playErrorSound()`.
 
-## 3. Casos de erro provados no mirror
+A prova exige dois oscillators e dois gains **distintos** e valida, por instância:
 
-A suíte prova no helper extraído:
+- onda `sawtooth`;
+- frequências 300 Hz e 150 Hz;
+- offsets 0 s e 0,2 s;
+- envelope 0 → 0,4 → 0,001;
+- `osc → gain → destination`;
+- `start()` e `stop()` corretos;
+- log `BATCH_ERROR`.
 
-- exatamente 2 chamadas de `createOscillator`;
-- exatamente 2 chamadas de `createGain`;
-- tipo final sawtooth;
-- frequências 300 e 150;
-- ordem 300 antes de 150;
-- rampas de ganho;
-- starts em 0 e 0.2;
-- stops em 0.3 e 0.5;
-- exceção do factory é absorvida;
-- fallback `webkitAudioContext`;
-- conexão osc → gain → destination.
+Isso fecha a fraqueza anterior em que todos os eventos eram acumulados no mesmo mock.
 
-Essas assertions são diretas para o helper.
+## 5. Som de sucesso — runtime real
 
-## 4. Limitação dos mocks de áudio
+O segundo teste inicia um lote real com `START_TRANSLATION_FROM_POPUP`, espera o `START_BATCH` emitido pela implementação e envia `BATCH_COMPLETE`.
 
-`makeAudioMocks()` usa:
+`checkIfComplete(true)` executa `playSuccessSound()`. A suíte valida três pares oscillator/gain independentes:
 
-```js
-createOscillator: jest.fn().mockReturnValue(mockOsc)
-createGain: jest.fn().mockReturnValue(mockGain)
-```
+- 660 Hz em t+0;
+- 880 Hz em t+0,18;
+- 1100 Hz em t+0,36;
+- onda `sine`;
+- mesmo envelope procedural do runtime;
+- conexões e horários de start/stop por nota.
 
-Ou seja, as duas/três notas reutilizam o **mesmo objeto mock**.
+Também dispara `onended` da última nota e exige telemetria `AUDIO_CONTEXT_CREATED`, `AUDIO_SUCCESS_SCHEDULED` e `AUDIO_SUCCESS_FINISHED`.
 
-Isso permite provar a sequência agregada de chamadas, mas não prova que cada oscilador individual recebeu exatamente sua própria frequência, type, conexão e envelope.
+Depois inicia um segundo lote e prova que o mesmo `AudioContext` é reutilizado: uma construção do contexto e seis notas totais.
 
-## 5. Som de sucesso — mirror local
+## 6. Lifecycle suspended → resume
 
-O `playSuccessSound(audioCtxFactory)` desta suíte é definido no próprio teste.
+O terceiro teste cria contexto `suspended` com um `resume()` bloqueado por Promise controlada.
 
-Ele modela:
+Antes de liberar o resume:
 
-- 3 osciladores sine;
-- 660 / 880 / 1100 Hz;
-- delays 0 / 0.18 / 0.36;
-- envelope 0 → 0.4 → 0.001;
-- stop após 0.3 s;
-- catch silencioso.
+- `resume()` foi chamado;
+- nenhum oscillator foi criado.
 
-Esse era compatível com a forma de onda histórica, mas já não representa todo o lifecycle atual.
+Depois de liberar e mudar o estado para `running`:
 
-## 6. Divergência do runtime atual
+- três notas são agendadas;
+- a telemetria `AUDIO_SUCCESS_SCHEDULED` informa `contextState: running`.
 
-O `playSuccessSound()` real em `content_manga.js` hoje:
+Isso cobre diretamente o lifecycle moderno que o mirror anterior não representava.
 
-1. obtém contexto via `getLoggedNotificationAudioContext('batch_complete')`;
-2. reutiliza um único `notificationAudioContext`;
-3. trata estados `running`, `suspended` e outros;
-4. chama `resume()` quando suspenso;
-5. só agenda notas após contexto estar `running`;
-6. registra `AUDIO_CONTEXT_CREATED`, `AUDIO_SUCCESS_SCHEDULED`, `AUDIO_SUCCESS_FINISHED`, `AUDIO_SUCCESS_SKIPPED` e `AUDIO_SUCCESS_FAILED`;
-7. sanitiza detalhes de erro;
-8. evita som de sucesso quando o lote encerra com erros.
+## 7. Compatibilidade e falha de criação
 
-Nada disso existe no mirror local de #191.
+A suíte preserva os edge cases úteis da versão antiga, agora pelo runtime real:
 
-## 7. Cobertura real existente fora desta suíte
+- sem `window.AudioContext`, `playErrorSound()` usa `window.webkitAudioContext`;
+- se o construtor de `AudioContext` lança, o erro sonoro continua silencioso e a UI integrada de erro permanece funcional.
 
-`tests/unit/content-manga/replacement-and-completion-real.test.js` carrega o content script real e cobre, entre outros pontos:
+## 8. Audit requests
 
-- reutilização de um único `AudioContext` entre lotes;
-- 6 osciladores para dois lotes bem-sucedidos;
-- `AUDIO_CONTEXT_CREATED`;
-- `AUDIO_SUCCESS_SCHEDULED`;
-- supressão do som quando `BATCH_COMPLETE.hasErrors=true`;
-- falha de `resume()` com `AUDIO_SUCCESS_FAILED`;
-- metadados da aba de origem.
+### 191-001 — TEST_AUTHENTICITY — IMPLEMENTED_AWAITING_CI
 
-Assim, a divergência deste arquivo não significa ausência global de cobertura do som de sucesso.
+**Correção:** mirrors removidos. O teste dispara `playErrorSound()` e `playSuccessSound()` dentro da closure real de `content_manga.js`.
 
-## 8. Polyfill
+**Validação pendente:** execução focal e suíte relacionada no SHA atual.
 
-O bloco `webkitAudioContext` testa apenas o helper extraído de erro.
+### 191-002 — STALE_TEST_CONTRACT — IMPLEMENTED_AWAITING_CI
 
-Ele não prova diretamente:
+**Correção:** cabeçalho/escopo agora descrevem integração real e a suíte cobre explicitamente contexto reutilizável, estado `suspended`, `resume()` e telemetria.
 
-- `getNotificationAudioContext()` real;
-- fallback webkit do contexto reutilizável de sucesso;
-- comportamento do content script completo em navegador sem `AudioContext`.
+**Validação pendente:** execução focal e suíte relacionada no SHA atual.
 
-## 9. Matriz de evidência
+### 191-003 — TEST_STRENGTH_REVIEW — IMPLEMENTED_AWAITING_CI
 
-| Propriedade | Evidência | Classificação |
-|---|---|---|
-| helper playErrorSound cria 2 osciladores/gains | testes do mirror | ✅ PROVADO DIRETAMENTE — helper |
-| helper usa sawtooth 300→150 | testes do mirror | ✅ PROVADO DIRETAMENTE — helper |
-| helper usa envelopes/tempos esperados | testes do mirror | ✅ PROVADO DIRETAMENTE — helper |
-| helper absorve erro | teste do mirror | ✅ PROVADO DIRETAMENTE — helper |
-| helper usa webkitAudioContext | teste do mirror | ✅ PROVADO DIRETAMENTE — helper |
-| runtime real de erro mantém forma equivalente | comparação estática com content_manga.js | 🟦 GATE ESTÁTICO / NÃO EXECUTADO AQUI |
-| mirror local de sucesso cria 3 notas sine | testes locais | ✅ PROVADO DIRETAMENTE — mirror |
-| runtime real reutiliza AudioContext | outra suíte real | 🟨 PROVADO EM OUTRA SUÍTE |
-| runtime real trata suspended/resume | outra suíte real | 🟨 PROVADO EM OUTRA SUÍTE |
-| runtime real emite telemetria de sucesso/falha | outra suíte real | 🟨 PROVADO EM OUTRA SUÍTE |
-| #191 prova lifecycle atual de playSuccessSound | não | ⚠️ NÃO PROVADO |
-| cada oscilador individual recebe parâmetros próprios | mocks compartilhados | ⚠️ ASSERTION NÃO ISOLA INSTÂNCIAS |
+**Correção:** `createOscillator()` e `createGain()` criam mocks distintos a cada chamada; cada nota é validada contra seu próprio oscillator/gain.
 
-## 10. Solicitações ao auditor
+**Validação pendente:** execução focal e suíte relacionada no SHA atual.
 
-### 191-001 — TEST_AUTHENTICITY — OPEN
+## 9. Findings distribuídos da revisão anterior
 
-**Encontrado:** #191 não executa nenhuma das duas funções reais de áudio da closure de `content_manga.js`.
+### 191-PRI/ADV — mapa integral incompleto — CORRIGIDO
 
-**Evidência atual:** helper/mirror reproduzem a síntese histórica; outra suíte real cobre boa parte do sucesso atual.
+A documentação antiga omitia posições e misturava fronteiras de seções. Esta Bíblia foi regenerada para a revisão nova e usa faixas contíguas derivadas diretamente do source atual.
 
-**Evidência ausente:** execução real específica de `playErrorSound` e seus parâmetros de onda/envelope.
+### lifecycle de requests — CORRIGIDO
 
-**Ação solicitada:** adicionar teste pelo content script real que provoque `showIntegratedError(..., imgIndex)` e verifique os osciladores do erro, ou refatorar a síntese para módulo testável canônico.
+A documentação antiga rotulava 191-001/002/003 como OPEN. O state canônico os registra como ACCEPTED; esta revisão os representa como correções implementadas aguardando validação executável.
 
-**Evidência esperada:** alteração na forma real de erro torna teste vermelho sem depender de atualizar mirror manualmente.
+## 10. Evidência atual
 
-**Risco:** helper e produção podem divergir silenciosamente.
+Até esta atualização:
 
-**Severidade:** HIGH.
+- parse JavaScript estático: **PASS**;
+- source/Bíblia: **sincronizados para o SHA acima**;
+- execução Jest/CI da revisão nova: **PENDENTE**.
 
-### 191-002 — STALE_TEST_CONTRACT — OPEN
+Nenhuma request é marcada RESOLVED apenas por inspeção estática.
 
-**Encontrado:** o cabeçalho afirma testar ambos os sons de `content_manga.js`, mas o `playSuccessSound` local não inclui o lifecycle atual de contexto reutilizável, estados, resume e telemetria.
+## 11. Limites honestos
 
-**Evidência atual:** forma de onda 660/880/1100 continua compatível com `scheduleSuccessSound`.
+- O áudio é verificado com um `AudioContext` mockado; não há reprodução física em hardware.
+- A prova valida o wiring e os parâmetros que o runtime envia à Web Audio API.
+- O ambiente continua sendo JSDOM/Jest; políticas reais de autoplay do Chromium são aproximadas pelo estado/resume mockado.
+- `replacement-and-completion-real.test.js` continua cobrindo outros aspectos de completion/telemetria; #191 agora é a prova focal dos parâmetros de síntese e do lifecycle essencial.
 
-**Ação solicitada:** renomear o escopo para “forma de onda/mirror” ou remover o mirror de sucesso em favor da suíte real já existente; se mantido, sincronizar somente a parte de síntese, sem fingir cobrir lifecycle.
-
-**Evidência esperada:** descrição do teste alinhada ao objeto realmente executado.
-
-**Risco:** manutenção pode interpretar esta suíte como cobertura completa e ignorar divergência do runtime.
-
-**Severidade:** HIGH.
-
-### 191-003 — TEST_STRENGTH_REVIEW — OPEN
-
-**Encontrado:** todas as notas reutilizam o mesmo `mockOsc` e `mockGain`.
-
-**Evidência atual:** contagem e sequência agregada de chamadas são verificadas.
-
-**Evidência ausente:** associação por instância entre cada nota e seus parâmetros/conexões.
-
-**Ação solicitada:** fazer `createOscillator/createGain` retornarem objetos distintos por chamada e validar cada par individualmente.
-
-**Evidência esperada:** cada oscilador possui frequência, tipo, envelope, start/stop e conexões esperados.
-
-**Risco:** erro de wiring por nota pode permanecer verde desde que a sequência agregada pareça correta.
-
-**Severidade:** NORMAL.
-
-## 11. Fonte integral auditada
+## 12. Fonte integral exata
 
 ```js
 /**
  * audio-synthesis-full.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Testes completos de síntese de áudio procedural (Zero Dependency Asset).
+ * Integração real da síntese de áudio de content_manga.js.
  *
- * Testa AMBOS os sons implementados no content_manga.js v3.1:
- * 1. playErrorSound()  — dois pulsos sawtooth descendentes (300Hz → 150Hz)
- * 2. playSuccessSound() — arpejo ascendente sine (660Hz → 880Hz → 1100Hz)
- *
- * STATUS: Expande o audio-synthesis.test.js original (que só testava o som de erro)
- * e adiciona testes do som de sucesso (checkIfComplete) e testes de resiliência.
- *
- * MOTIVO: Documentação Seção 8 descreve os dois sons em detalhe. O teste original
- * não cobria o som de sucesso nem os edge cases de polyfill (webkitAudioContext).
+ * A suíte carrega o bundle Manga pelo manifest e dispara os caminhos públicos
+ * que executam playErrorSound()/playSuccessSound() dentro da closure real.
+ * Não existe mirror local da síntese nem helper extraído usado como prova.
  */
 
-const path = require('path');
-const fs   = require('fs');
-// Portable root finder — works regardless of where this file is placed in the tree.
-// Walks up from __dirname until it finds the folder containing extension/manifest.json.
-const { findRepoRoot } = require('../../helpers/repo-root');
-const ROOT = findRepoRoot(__dirname);
+const crypto = require('crypto');
+const { TextEncoder } = require('util');
 
-const { playErrorSound } = require(path.join(ROOT, 'tests/helpers/extracted-functions.js'));
+const { loadContentScript } = require('../../helpers/load-content-script.js');
+const {
+    getRuntimeMock,
+    getStorageMock,
+} = require('../../mocks/chrome-api.mock.js');
 
-// ── Som de sucesso — espelho de checkIfComplete (content_manga.js) ────────────
-function playSuccessSound(audioCtxFactory) {
-    try {
-        const audioCtx = audioCtxFactory
-            ? audioCtxFactory()
-            : new (window.AudioContext || window.webkitAudioContext)();
+Object.defineProperty(global, 'crypto', {
+    value: crypto.webcrypto,
+    configurable: true,
+});
+global.TextEncoder = TextEncoder;
 
-        [[660, 0], [880, 0.18], [1100, 0.36]].forEach(([freq, delay]) => {
-            const osc  = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime + delay);
-            gain.gain.linearRampToValueAtTime(0.4,   audioCtx.currentTime + delay + 0.04);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + 0.28);
-            osc.start(audioCtx.currentTime + delay);
-            osc.stop(audioCtx.currentTime  + delay + 0.3);
-        });
-    } catch (e) { /* silencioso por design */ }
+function delay(ms = 0) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-describe('Síntese de Áudio Procedural — Cobertura Completa', () => {
+async function waitFor(assertion, { timeout = 2500, interval = 10 } = {}) {
+    const startedAt = performance.now();
+    while (performance.now() - startedAt < timeout) {
+        const result = await assertion();
+        if (result) return result;
+        await delay(interval);
+    }
+    throw new Error('Timeout aguardando síntese de áudio real');
+}
 
-    let mockOsc, mockGain, mockCtx;
+function getContentListener(runtimeMock) {
+    const listeners = runtimeMock._messageListeners || [];
+    if (listeners.length !== 1) {
+        throw new Error(`Esperava 1 listener do content_manga, recebi ${listeners.length}`);
+    }
+    return listeners[0];
+}
 
-    function makeAudioMocks() {
-        mockOsc = {
-            connect: jest.fn(),
-            start: jest.fn(),
-            stop: jest.fn(),
-            frequency: { setValueAtTime: jest.fn() },
-            type: '',
+function dispatchToContent(runtimeMock, request, sender = { tab: { id: 1 } }) {
+    return new Promise((resolve) => {
+        let settled = false;
+        let keepAlive = false;
+        const sendResponse = (response) => {
+            settled = true;
+            resolve({ keepAlive, response });
         };
-        mockGain = {
-            connect: jest.fn(),
-            gain: {
-                setValueAtTime: jest.fn(),
-                linearRampToValueAtTime: jest.fn(),
-                exponentialRampToValueAtTime: jest.fn(),
-            },
-        };
-        mockCtx = {
-            createOscillator: jest.fn().mockReturnValue(mockOsc),
-            createGain: jest.fn().mockReturnValue(mockGain),
-            destination: {},
-            currentTime: 0,
-        };
-        return () => mockCtx;
+        keepAlive = getContentListener(runtimeMock)(request, sender, sendResponse);
+        if (keepAlive !== true && !settled) resolve({ keepAlive, response: undefined });
+    });
+}
+
+function createOscillatorNode() {
+    return {
+        connect: jest.fn(),
+        start: jest.fn(),
+        stop: jest.fn(),
+        frequency: { setValueAtTime: jest.fn() },
+        type: '',
+        onended: null,
+    };
+}
+
+function createGainNode() {
+    return {
+        connect: jest.fn(),
+        gain: {
+            setValueAtTime: jest.fn(),
+            linearRampToValueAtTime: jest.fn(),
+            exponentialRampToValueAtTime: jest.fn(),
+        },
+    };
+}
+
+function createAudioContext({ state = 'running', currentTime = 0, onResume = null } = {}) {
+    const oscillators = [];
+    const gains = [];
+    const ctx = {
+        state,
+        currentTime,
+        destination: {},
+        createOscillator: jest.fn(() => {
+            const node = createOscillatorNode();
+            oscillators.push(node);
+            return node;
+        }),
+        createGain: jest.fn(() => {
+            const node = createGainNode();
+            gains.push(node);
+            return node;
+        }),
+        resume: jest.fn(async () => {
+            if (onResume) await onResume(ctx);
+            else ctx.state = 'running';
+        }),
+    };
+    return { ctx, oscillators, gains };
+}
+
+function assertNote({ osc, gain, destination, type, frequency, start, stop }) {
+    expect(osc.type).toBe(type);
+    expect(osc.connect).toHaveBeenCalledTimes(1);
+    expect(osc.connect).toHaveBeenCalledWith(gain);
+    expect(gain.connect).toHaveBeenCalledTimes(1);
+    expect(gain.connect).toHaveBeenCalledWith(destination);
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledTimes(1);
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(frequency, start);
+    expect(gain.gain.setValueAtTime).toHaveBeenCalledWith(0, start);
+    expect(gain.gain.linearRampToValueAtTime).toHaveBeenCalledWith(0.4, start + 0.04);
+    expect(gain.gain.exponentialRampToValueAtTime).toHaveBeenCalledWith(0.001, start + 0.28);
+    expect(osc.start).toHaveBeenCalledTimes(1);
+    expect(osc.start).toHaveBeenCalledWith(start);
+    expect(osc.stop).toHaveBeenCalledTimes(1);
+    expect(osc.stop).toHaveBeenCalledWith(stop);
+}
+
+describe('Síntese de áudio procedural — runtime real de content_manga.js', () => {
+    let runtimeMock;
+    let storageMock;
+    let sentMessages;
+    let audioContextDescriptor;
+    let webkitAudioContextDescriptor;
+
+    beforeEach(async () => {
+        jest.resetModules();
+        runtimeMock = getRuntimeMock();
+        storageMock = getStorageMock();
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        runtimeMock.lastError = null;
+        sentMessages = [];
+        await storageMock.clear();
+
+        audioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'AudioContext');
+        webkitAudioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'webkitAudioContext');
+
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
+    });
+
+    afterEach(async () => {
+        jest.restoreAllMocks();
+        await storageMock.clear();
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
+
+        if (audioContextDescriptor) Object.defineProperty(window, 'AudioContext', audioContextDescriptor);
+        else delete window.AudioContext;
+        if (webkitAudioContextDescriptor) Object.defineProperty(window, 'webkitAudioContext', webkitAudioContextDescriptor);
+        else delete window.webkitAudioContext;
+    });
+
+    function installRuntimeResponder({ tabId = 17 } = {}) {
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            sentMessages.push(message);
+
+            if (message.action === 'GTC_QUERY_MANY') {
+                if (callback) setTimeout(() => callback({ ok: true, entriesByHash: {} }), 0);
+                return;
+            }
+            if (message.action === 'START_BATCH') {
+                if (callback) setTimeout(() => callback({ ok: true, batchId: message.batchId }), 0);
+                return;
+            }
+            if (message.action === 'GET_TAB_ID') {
+                if (callback) setTimeout(() => callback({ tabId }), 0);
+                return;
+            }
+            if (callback) setTimeout(() => callback({ ok: true }), 0);
+        });
     }
 
-    // ── playErrorSound ────────────────────────────────────────────────────────
+    async function loadOnePage() {
+        return loadContentScript({
+            hostname: 'localhost',
+            domImages: [{
+                src: 'http://localhost/page-0.png',
+                width: 800,
+                height: 1200,
+            }],
+        });
+    }
 
-    describe('playErrorSound() — Dois pulsos sawtooth descendentes', () => {
-        test('cria exatamente 2 osciladores e 2 gains', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockCtx.createOscillator).toHaveBeenCalledTimes(2);
-            expect(mockCtx.createGain).toHaveBeenCalledTimes(2);
+    async function startBatch() {
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        await waitFor(() => sentMessages.some(message => message.action === 'START_BATCH'));
+    }
+
+    test('SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes', async () => {
+        installRuntimeResponder();
+        const { ctx, oscillators, gains } = createAudioContext({ currentTime: 4 });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
         });
 
-        test('usa onda sawtooth (timbre áspero de alerta)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            // O último valor de type atribuído deve ser sawtooth
-            expect(mockOsc.type).toBe('sawtooth');
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'falha focal',
+            imgIndex: 0,
+            isDebug: false,
         });
 
-        test('frequências descendentes: 300Hz (pulso 1) e 150Hz (pulso 2)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const freqCalls = mockOsc.frequency.setValueAtTime.mock.calls;
-            const freqs = freqCalls.map(c => c[0]);
-            expect(freqs).toContain(300);
-            expect(freqs).toContain(150);
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(2);
+        expect(gains).toHaveLength(2);
+        expect(oscillators[0]).not.toBe(oscillators[1]);
+        expect(gains[0]).not.toBe(gains[1]);
+
+        assertNote({
+            osc: oscillators[0], gain: gains[0], destination: ctx.destination,
+            type: 'sawtooth', frequency: 300, start: 4, stop: 4.3,
+        });
+        assertNote({
+            osc: oscillators[1], gain: gains[1], destination: ctx.destination,
+            type: 'sawtooth', frequency: 150, start: 4.2, stop: 4.5,
         });
 
-        test('300Hz vem antes de 150Hz (padrão descendente)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const calls = mockOsc.frequency.setValueAtTime.mock.calls;
-            const freq300idx = calls.findIndex(c => c[0] === 300);
-            const freq150idx = calls.findIndex(c => c[0] === 150);
-            expect(freq300idx).toBeLessThan(freq150idx);
-        });
-
-        test('fade-in linear de 40ms (evita click mecânico)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockGain.gain.linearRampToValueAtTime)
-                .toHaveBeenCalledWith(0.4, 0.04);
-        });
-
-        test('fade-out exponencial de 240ms (decaimento natural)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockGain.gain.exponentialRampToValueAtTime)
-                .toHaveBeenCalledWith(0.001, 0.28);
-        });
-
-        test('oscilador começa em t=0 e t=0.2 (dois pulsos com 200ms de intervalo)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const startCalls = mockOsc.start.mock.calls.map(c => c[0]);
-            expect(startCalls).toContain(0);
-            expect(startCalls).toContain(0.2);
-        });
-
-        test('oscilador para em t=0.3 e t=0.5', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const stopCalls = mockOsc.stop.mock.calls.map(c => c[0]);
-            expect(stopCalls).toContain(0.3);
-            expect(stopCalls).toContain(0.5);
-        });
-
-        test('silencioso se AudioContext lançar exceção', () => {
-            const failFactory = () => { throw new Error('Not allowed'); };
-            expect(() => playErrorSound(failFactory)).not.toThrow();
-        });
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'error',
+            action_name: 'BATCH_ERROR',
+        }));
     });
 
-    // ── playSuccessSound ──────────────────────────────────────────────────────
-
-    describe('playSuccessSound() — Arpejo sine ascendente', () => {
-        test('cria exatamente 3 osciladores e 3 gains', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            expect(mockCtx.createOscillator).toHaveBeenCalledTimes(3);
-            expect(mockCtx.createGain).toHaveBeenCalledTimes(3);
+    test('BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext', async () => {
+        installRuntimeResponder({ tabId: 73 });
+        const { ctx, oscillators, gains } = createAudioContext({ currentTime: 2 });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
         });
 
-        test('usa onda sine (timbre suave de notificação)', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            expect(mockOsc.type).toBe('sine');
+        await loadOnePage();
+
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(gains).toHaveLength(3);
+        expect(new Set(oscillators).size).toBe(3);
+        expect(new Set(gains).size).toBe(3);
+
+        [
+            [660, 0],
+            [880, 0.18],
+            [1100, 0.36],
+        ].forEach(([frequency, offset], index) => {
+            assertNote({
+                osc: oscillators[index],
+                gain: gains[index],
+                destination: ctx.destination,
+                type: 'sine',
+                frequency,
+                start: 2 + offset,
+                stop: 2 + offset + 0.3,
+            });
         });
 
-        test('frequências ascendentes: 660Hz → 880Hz → 1100Hz (proporção 3:4:5)', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            const freqCalls = mockOsc.frequency.setValueAtTime.mock.calls;
-            const freqs = freqCalls.map(c => c[0]);
-            expect(freqs).toContain(660);
-            expect(freqs).toContain(880);
-            expect(freqs).toContain(1100);
-        });
+        expect(typeof oscillators[2].onended).toBe('function');
+        oscillators[2].onended();
+        expect(sentMessages).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                source: 'audio',
+                action_name: 'AUDIO_CONTEXT_CREATED',
+                extra: expect.objectContaining({ originTabId: 73 }),
+            }),
+            expect.objectContaining({
+                source: 'audio',
+                level: 'success',
+                action_name: 'AUDIO_SUCCESS_SCHEDULED',
+                extra: expect.objectContaining({ notes: 3, contextState: 'running' }),
+            }),
+            expect.objectContaining({
+                source: 'audio',
+                level: 'success',
+                action_name: 'AUDIO_SUCCESS_FINISHED',
+                extra: expect.objectContaining({ notes: 3 }),
+            }),
+        ]));
 
-        test('delays de 0ms, 180ms e 360ms (arpejo com sobreposição)', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            const startCalls = mockOsc.start.mock.calls.map(c => c[0]);
-            expect(startCalls).toContain(0);
-            expect(startCalls).toContain(0.18);
-            expect(startCalls).toContain(0.36);
-        });
-
-        test('silencioso se AudioContext lançar exceção', () => {
-            const failFactory = () => { throw new Error('Policy violation'); };
-            expect(() => playSuccessSound(failFactory)).not.toThrow();
-        });
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(6);
+        expect(gains).toHaveLength(6);
     });
 
-    // ── Polyfill webkitAudioContext ───────────────────────────────────────────
-
-    describe('Compatibilidade com polyfill webkitAudioContext', () => {
-        beforeEach(() => {
-            delete window.AudioContext;
-            window.webkitAudioContext = jest.fn().mockImplementation(() => mockCtx);
-            makeAudioMocks();
+    test('contexto suspended só agenda sucesso depois de resume real completar', async () => {
+        installRuntimeResponder();
+        let releaseResume;
+        const resumeGate = new Promise(resolve => { releaseResume = resolve; });
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            currentTime: 1,
+            onResume: async (audioCtx) => {
+                await resumeGate;
+                audioCtx.state = 'running';
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
         });
 
-        afterEach(() => {
-            delete window.webkitAudioContext;
-        });
+        await loadOnePage();
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
 
-        test('playErrorSound usa webkitAudioContext quando AudioContext não existe', () => {
-            // Não passa factory — usa o global
-            expect(() => playErrorSound()).not.toThrow();
-            expect(window.webkitAudioContext).toHaveBeenCalled();
-        });
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(0);
+
+        releaseResume();
+        await waitFor(() => oscillators.length === 3);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_SUCCESS_SCHEDULED',
+            extra: expect.objectContaining({ contextState: 'running', notes: 3 }),
+        }));
     });
 
-    // ── Conexão do grafo de áudio ─────────────────────────────────────────────
-
-    describe('Grafo de áudio: osc → gain → destination', () => {
-        test('oscilador se conecta ao gain', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockOsc.connect).toHaveBeenCalledWith(mockGain);
+    test('playErrorSound real usa webkitAudioContext quando AudioContext não existe', async () => {
+        installRuntimeResponder();
+        const { ctx, oscillators } = createAudioContext();
+        const WebkitAudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+        Object.defineProperty(window, 'webkitAudioContext', {
+            value: WebkitAudioContextMock,
+            configurable: true,
         });
 
-        test('gain se conecta ao destination', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockGain.connect).toHaveBeenCalledWith(mockCtx.destination);
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'fallback webkit',
+            imgIndex: 0,
         });
+
+        expect(WebkitAudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(2);
+    });
+
+    test('falha ao criar AudioContext no erro é silenciosa e não interrompe a UI', async () => {
+        installRuntimeResponder();
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => { throw new Error('Policy violation'); }),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await expect(dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'sem áudio',
+            imgIndex: 0,
+        })).resolves.toEqual(expect.objectContaining({ keepAlive: false }));
+
+        expect(document.getElementById('manga-error-line').style.display).toBe('flex');
+        expect(document.getElementById('manga-error-collapsible-content').textContent)
+            .toContain('sem áudio');
     });
 });
 ```
 
-## 12. Mapa integral por faixas
+## 13. Cobertura integral por posições
 
-| Linhas | Papel |
-|---:|---|
-| 1–15 | objetivo e contexto histórico |
-| 17–24 | imports/root/helper extraído |
-| 26–49 | mirror local de playSuccessSound |
-| 50–78 | mocks de AudioContext |
-| 80–149 | testes do som de erro |
-| 150–190 | testes do mirror de sucesso |
-| 191–212 | fallback webkitAudioContext |
-| 213–224 | grafo osc→gain→destination |
-| 225 | fecha describe |
-| posição 226 | newline final |
+- **1–25:** cabeçalho, imports e instalação de crypto/TextEncoder.
+- **26–39:** helpers de delay/wait.
+- **40–60:** acesso/dispatch ao listener real do content script.
+- **61–82:** factories de oscillator/gain independentes.
+- **83–107:** factory de AudioContext e coleção dos nós criados.
+- **108–124:** assertion por nota, incluindo grafo, frequência, envelope e start/stop.
+- **125–131:** abertura da suíte e estado compartilhado.
+- **132–150:** setup por teste.
+- **151–165:** cleanup/restauração de globals por teste.
+- **166–189:** responder controlado de runtime.
+- **190–205:** helpers de página/lote.
+- **206–244:** `SHOW_ERROR_INTEGRATED → playErrorSound` real.
+- **245–309:** `BATCH_COMPLETE → playSuccessSound` real, telemetria e reuso de contexto.
+- **310–343:** lifecycle `suspended → resume → running`.
+- **344–367:** fallback `webkitAudioContext`.
+- **368–386:** falha de criação de AudioContext sem quebrar UI.
+- **387:** posição vazia do LF final.
 
-## 13. Autoauditoria do AGENTE 17
+**Cobertura:** 387/387 posições, contíguas e sem overlap.
 
-- [x] reserva #191 criada e relida;
-- [x] state próprio criado;
-- [x] helper extraído comparado ao runtime;
-- [x] playSuccessSound atual comparado ao mirror;
-- [x] cobertura real de replacement-and-completion-real.test.js consultada;
-- [x] fonte integral incorporada;
-- [x] 225 linhas + newline = 226 posições;
-- [x] prova de mirror separada de prova de runtime;
-- [x] três solicitações persistíveis identificadas;
-- [x] nenhum arquivo externo modificado.
+## 14. Reauditoria pós-correção
 
-**Resultado:** #191 é útil como especificação de forma de onda, especialmente para o helper de erro, mas não deve ser tratado como “cobertura completa” do áudio real atual.
+- Mirror local de sucesso: removido.
+- Import de `extracted-functions.js`: removido.
+- Import morto `fs/path`: removidos.
+- Nós compartilhados entre notas: removidos.
+- Runtime real de erro: exercitado por mensagem pública.
+- Runtime real de sucesso: exercitado por lifecycle de lote.
+- Reuso do contexto: coberto.
+- Estado suspended/resume: coberto.
+- Fallback webkit: coberto.
+- Falha silenciosa de criação no som de erro: coberta.
+- CI do SHA atual: ainda necessário antes de fechar as requests.
