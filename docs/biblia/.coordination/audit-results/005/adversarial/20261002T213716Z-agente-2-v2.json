@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "index": 5,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 2",
+  "file": "extension/background/actions/claim-gemini-job.js",
+  "bible": "docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md",
+  "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+  "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "005-P2-001",
+      "severity": "HIGH",
+      "type": "RUNTIME_WIRING_AND_CONSUMER_OMISSION",
+      "summary": "A Bíblia não identifica o consumidor CLAIM_GEMINI_JOB, o loader/contextFactory nem os produtores duráveis do job e índice.",
+      "evidence": [
+        "content_gemini.js extrai jobId da URL e envia CLAIM_GEMINI_JOB; router.js mapeia para claim-gemini-job e aplica allowedSources.",
+        "background.js carrega a action e injeta state, ensureInitialized e TabIdentity; jobs-lifecycle.js persiste a chave gemini_job canônica e jobIndex antes de syncState.",
+        "A fonte integral e o self-test causal foram relidos; self-test PASS e 6/6 casos Jest focais PASS. O mutante sem await na migração foi rejeitado pelo self-test."
+      ],
+      "requested_action": "Documentar wiring com caminhos concretos, papéis de cada produtor/consumer e distinção entre prova focal mockada e integração de produção."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T21:37:16Z"
+}
