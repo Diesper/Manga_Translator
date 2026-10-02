@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE 30",
-  "source_sha": "10e17e85fe967d7e8ba15cdc0123c37c90458976",
+  "source_sha": "9dcc09d00a8f9d16d06cd817191bc5620311f610",
   "started_at_utc": "2026-10-02T01:12:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -77,7 +77,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:19:00Z",
+  "updated_at_utc": "2026-10-02T01:20:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:32:56.571Z",
@@ -123,6 +123,14 @@
       "bible_sha": "75e523b0ba1dc6b273c7c5ded0953884be069545",
       "agent": "AGENTE 30",
       "reason": "Replaced local chapter mirror with real cm-chapter integration; historical suffix equivalence corrected to current runtime contract; modern SM_SAVE_PAGE boundary exercised."
+    },
+    {
+      "at_utc": "2026-10-02T01:20:30Z",
+      "type": "ADVERSARIAL_TEST_HARDENING",
+      "source_sha": "9dcc09d00a8f9d16d06cd817191bc5620311f610",
+      "bible_sha": "c7f04135b14b208e69d02185c20dd1abcfa243c4",
+      "agent": "AGENTE 30",
+      "reason": "Cross-domain scenario now preloads a real other-origin chapter URL instead of simulating only an injected hostname."
     }
   ],
   "evidence": [
@@ -146,11 +154,11 @@
     "self_audit": "APPROVED_STATIC_AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "237/237",
-    "source_text_lines": 236,
+    "documented_positions": "244/244",
+    "source_text_lines": 243,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 3,
-    "note": "Mirror removido; cm-chapter real cobre URL exata, canonicalTitle real, não-colisões e persistTranslatedPage→SM_SAVE_PAGE. Execução focal ainda pendente."
+    "note": "Mirror removido; cm-chapter real cobre URL exata, canonicalTitle real, não-colisões por capítulo/domínio persistido e persistTranslatedPage→SM_SAVE_PAGE. Execução focal ainda pendente."
   },
-  "bible_sha": "75e523b0ba1dc6b273c7c5ded0953884be069545"
+  "bible_sha": "c7f04135b14b208e69d02185c20dd1abcfa243c4"
 }
