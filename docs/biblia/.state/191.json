@@ -1377,6 +1377,16 @@
       "bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-024 HIGH: lost-ACK replay identity is cleared when a new batch starts."
+    },
+    {
+      "at_utc": "2026-10-02T04:42:53Z",
+      "type": "PRIORITY_191_CORRECTION_STARTED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "6fe0e873369e558bc3f2b53c94023064487f0b1b",
+      "bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-024 HIGH: starting batch B clears batch A persisted replay identity, breaking lost-ACK recovery across A→B."
     }
   ],
   "evidence": [
