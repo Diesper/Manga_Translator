@@ -250,9 +250,13 @@ function correctorEligibility(state, actor) {
 function rootCauseReviewValid(review) {
   if (!review || typeof review !== 'object') return false;
   const categories = Array.isArray(review.categories) ? review.categories : [];
+  const relatedCycles = Array.isArray(review.related_cycles) ? review.related_cycles : [];
   return categories.length > 0
     && categories.every((item) => ROOT_CAUSE_CATEGORIES.has(String(item)))
+    && relatedCycles.length > 0
+    && relatedCycles.every((item) => Number.isInteger(Number(item)) && Number(item) >= 1)
     && typeof review.evidence === 'string' && review.evidence.trim().length > 0
+    && typeof review.why_previous_failed === 'string' && review.why_previous_failed.trim().length > 0
     && typeof review.strategy === 'string' && review.strategy.trim().length > 0;
 }
 
@@ -261,6 +265,11 @@ function rootCauseReviewProblems(state, review) {
   if (!rootCauseReviewValid(review)) {
     problems.push('ROOT_CAUSE_REVIEW_INVALID');
     return problems;
+  }
+  const currentCycle = correctionCycles(state).current_escalation_cycle;
+  const relatedCycles = review.related_cycles.map((item) => Number(item));
+  if (relatedCycles.some((cycle) => cycle > currentCycle)) {
+    problems.push('ROOT_CAUSE_RELATED_CYCLE_INVALID');
   }
   const strategy = String(review.strategy || '').trim().toLowerCase();
   const priorStrategies = historyOf(state)
