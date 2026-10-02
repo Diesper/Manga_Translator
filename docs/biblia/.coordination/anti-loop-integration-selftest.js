@@ -89,6 +89,7 @@ function startCorrection(s, actor, at, options = {}) {
       action:'START_CORRECTION',
       actor,
       at_utc:new Date(Date.parse(at) + 1000).toISOString(),
+      strategy_review:options.strategy_review || null,
       root_cause_review:options.root_cause_review || null,
     },
   });
@@ -142,6 +143,13 @@ console.log('PASS scenario 2 cycle 4 -> cycle 5 CRITICAL -> previous corrector i
 // SCENARIO 3: cycle 6 requires full root-cause review and the delivered cycle 7 is HUMAN.
 let s3=state(103,6,'CHANGES_REQUIRED');
 flow=startCorrection(s3,'EMERGENCY-CORR','2026-10-02T07:00:00Z',{
+  strategy_review:{
+    related_cycles:[4,5,6],
+    observed_pattern:'same race survived three consecutive correction cycles',
+    evidence:'cycles 4..6 repeatedly reopened around canonical writer ordering',
+    why_previous_strategy_insufficient:'local fixes did not change the mutation authority',
+    new_strategy:'move mutation behind one CAS transition authority',
+  },
   root_cause_review:{
     categories:['CONCURRENCY','STATE_MACHINE_FAILURE'],
     related_cycles:[4,5,6],
