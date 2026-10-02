@@ -57,6 +57,7 @@ const model = {
     state(4, 'IN_PROGRESS'),
     state(5),
     state(6),
+    state(10),
   ],
   pipelines: [
     pipeline(1, 'CHANGES_REQUIRED', { adversarial: changeRecord }),
@@ -65,6 +66,10 @@ const model = {
     pipeline(4, 'CHANGES_REQUIRED', { adversarial: changeRecord }),
     pipeline(5, 'APPROVED', { adversarial: { verdict: 'APPROVED' } }),
     pipeline(6, 'CHANGES_REQUIRED', { adversarial: changeRecord, problems: ['pipeline inválido'] }),
+    pipeline(10, 'CHANGES_REQUIRED', { adversarial: changeRecord }),
+  ],
+  reservations: [
+    'docs/biblia/.reservas/fixture/10.js.lock.md',
   ],
   active_claims_and_leases: [
     'docs/biblia/.coordination/audit-leases/reaudit/003.lock.md',
@@ -78,6 +83,7 @@ assert('índice com ownership de auditoria ativo fica fora', !plan.candidates.so
 assert('IN_PROGRESS editorial fica fora', !plan.candidates.some((x) => x.index === 4));
 assert('APPROVED fica fora', !plan.candidates.some((x) => x.index === 5));
 assert('pipeline com problemas não vira correção', !plan.candidates.some((x) => x.index === 6));
+assert('reserva editorial ativa fica fora da fila', !plan.candidates.some((x) => x.index === 10));
 assert('candidato expõe source_sha + bible_sha', plan.candidates[0].source_sha && plan.candidates[0].bible_sha);
 
 const humanState = state(7, 'HUMAN_LOCKED');
