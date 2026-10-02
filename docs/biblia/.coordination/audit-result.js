@@ -6,6 +6,8 @@ const core = require('./audit-core');
 const lifecycle = require('./lifecycle-core');
 const human = require('./human-gate');
 const protocol = require('./audit-protocol');
+const findingStore = require('./unverified-findings');
+const findingEvents = require('./unverified-finding-events');
 
 const repoRoot = path.resolve(__dirname, '../../..');
 
@@ -111,8 +113,57 @@ function buildAuditResult(state, pipeline, input, approvals = []) {
   };
 }
 
+function confirmActionForPhase(phase) {
+  const normalized = String(phase || '').toUpperCase();
+  if (normalized === 'PRIMARY') return 'PRIMARY_CONFIRM';
+  if (normalized === 'ADVERSARIAL') return 'ADVERSARIAL_CONFIRM';
+  if (normalized === 'REAUDIT') return 'REAUDIT_CONFIRM';
+  throw new Error('FINDING_CONFIRM_PHASE_INVALID:' + normalized);
+}
+
+function publishFindingEvents(root, resultPath, result, input) {
+  const confirms = Array.isArray(input?.confirm_findings) ? input.confirm_findings : [];
+  const rejects = Array.isArray(input?.reject_findings) ? input.reject_findings : [];
+  if (!confirms.length && !rejects.length) return [];
+
+  const loaded = findingStore.loadUnverifiedFindings(root);
+  if (loaded.problems.length) throw new Error('FINDING_STORE_INVALID:' + loaded.problems.join(';'));
+  const byId = new Map(loaded.findings.map((finding) => [finding.id, finding]));
+  const created = [];
+
+  for (const [id, action] of [
+    ...confirms.map((id) => [id, confirmActionForPhase(result.phase)]),
+    ...rejects.map((id) => [id, 'REJECT']),
+  ]) {
+    const finding = byId.get(id);
+    if (!finding) throw new Error('FINDING_NOT_FOUND:' + id);
+    const event = findingEvents.buildEvent(root, finding, {
+      action,
+      actor: result.auditor,
+      auditor: result.auditor,
+      at_utc: result.completed_at_utc,
+      audit_result_path: resultPath,
+      reason: 'Audit result ' + result.phase + ' recorded ' + action + ' for ' + id,
+    }, loaded.findings);
+    const absolute = path.join(
+      root,
+      'docs',
+      'biblia',
+      '.coordination',
+      'unverified-finding-events',
+      String(finding.index).padStart(3, '0'),
+      finding.id,
+      event.event_id + '.json'
+    );
+    fs.mkdirSync(path.dirname(absolute), { recursive: true });
+    fs.writeFileSync(absolute, JSON.stringify(event, null, 2) + '\n', { flag: 'wx' });
+    created.push(path.relative(root, absolute).replace(/\\/g, '/'));
+  }
+  return created;
+}
+
 function parseArgs(argv) {
-  const args = { findings: [] };
+  const args = { findings: [], confirm_findings: [], reject_findings: [] };
   for (let i=0;i<argv.length;i+=1) {
     const arg = argv[i];
     if (arg === '--index') args.index = Number(argv[++i]);
@@ -122,6 +173,8 @@ function parseArgs(argv) {
     else if (arg === '--at') args.completed_at_utc = String(argv[++i] || '');
     else if (arg === '--finding') args.findings.push(String(argv[++i] || ''));
     else if (arg === '--findings-json') args.findings_json = String(argv[++i] || '');
+    else if (arg === '--confirm-finding') args.confirm_findings.push(String(argv[++i] || ''));
+    else if (arg === '--reject-finding') args.reject_findings.push(String(argv[++i] || ''));
     else throw new Error('argumento desconhecido: ' + arg);
   }
   return args;
@@ -134,6 +187,12 @@ function main(argv = process.argv.slice(2)) {
     const parsed = JSON.parse(fs.readFileSync(path.resolve(args.findings_json), 'utf8'));
     if (!Array.isArray(parsed)) throw new Error('--findings-json deve conter array');
     args.findings.push(...parsed);
+  }
+  for (const id of [...args.confirm_findings, ...args.reject_findings]) {
+    if (!id) throw new Error('finding id vazio');
+    if (!args.findings.some((item) => String(item).includes(id))) {
+      args.findings.push('FINDING_ID:' + id);
+    }
   }
 
   const model = protocol.loadModel();
@@ -152,8 +211,21 @@ function main(argv = process.argv.slice(2)) {
     String(args.index).padStart(3, '0'), phaseDir, filename
   );
   fs.mkdirSync(path.dirname(absolute), { recursive: true });
-  fs.writeFileSync(absolute, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
-  console.log(path.relative(repoRoot, absolute).replace(/\\/g, '/'));
+  const resultRel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
+  const created = [];
+  try {
+    fs.writeFileSync(absolute, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+    created.push(absolute);
+    const findingEventPaths = publishFindingEvents(repoRoot, resultRel, result, args);
+    for (const rel of findingEventPaths) created.push(path.join(repoRoot, rel));
+    console.log(resultRel);
+    for (const rel of findingEventPaths) console.log(rel);
+  } catch (error) {
+    for (const file of created.reverse()) {
+      try { fs.unlinkSync(file); } catch (_) {}
+    }
+    throw error;
+  }
 }
 
 if (require.main === module) {
@@ -169,4 +241,6 @@ module.exports = {
   compactUtc,
   activeLeaseFor,
   buildAuditResult,
+  confirmActionForPhase,
+  publishFindingEvents,
 };
