@@ -1,0 +1,44 @@
+name: Bible Handoff Guard
+
+on:
+  push:
+    branches:
+      - docs/project-bible
+  workflow_dispatch:
+
+concurrency:
+  group: bible-handoff-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  handoff-guard:
+    name: Protected Handoff Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Syntax check handoff guard
+        run: |
+          node --check docs/biblia/.coordination/audit-core.js
+          node --check docs/biblia/.coordination/audit-protocol.js
+          node --check docs/biblia/.coordination/handoff-guard.js
+
+      - name: Prove handoff fence and transition rules
+        run: |
+          node scripts/validation/verify-bible-audit-pipeline-selftest.js
+          node docs/biblia/.coordination/bible-correction-work-plan-selftest.js
+          node docs/biblia/.coordination/reconcile-audit-results-selftest.js
+
+      - name: Validate current protected handoffs
+        run: node docs/biblia/.coordination/handoff-guard.js
