@@ -2,15 +2,15 @@
   "index": 150,
   "file": "tests/unit/background/jobs-dom-ack-staging.test.js",
   "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
   "started_at_utc": "2026-09-30T06:40:30Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "150-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "ASSERTION_GAP",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "tests/unit/background/jobs-dom-ack-staging.test.js",
@@ -27,7 +27,17 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T19:04:00Z",
       "audit_finding": "ACCEPTED. A suíte executa o módulo real e valida resultados do ACK, mas todos os mocks de `chrome.tabs.sendMessage` ignoram `_tabId` e `_message`; não existe assertion que fixe destino 77 nem o payload `{action:'UPDATE_IMAGE', index, newSrc, jobId, batchId, expectAck:true}`.",
-      "auditor_recommended_action": "Adicionar `toHaveBeenCalledWith` no caso positivo para tabId e campos essenciais da mensagem, mantendo callback como terceiro argumento."
+      "auditor_recommended_action": "Adicionar `toHaveBeenCalledWith` no caso positivo para tabId e campos essenciais da mensagem, mantendo callback como terceiro argumento.",
+      "resolution": "Caso positivo agora exige destino tab 77 e payload UPDATE_IMAGE com index/newSrc/jobId/batchId/expectAck:true, preservando callback real. Validado na run 36947199406/job 110651903588.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:56:00Z",
+      "validation": {
+        "source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
+        "bible_sha": "721754c2b2713fbcbf7c40af52edfea78e4068bc",
+        "run_id": 36947199406,
+        "job_id": 110651903588,
+        "related": "45/45 suites; 228/228 tests; --detectOpenHandles"
+      }
     },
     {
       "id": "150-002",
@@ -53,7 +63,7 @@
     },
     {
       "id": "150-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/jobs-dom-ack-staging.test.js",
       "found_while_auditing": "tests/unit/background/jobs-dom-ack-staging.test.js",
@@ -70,7 +80,17 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:55:00Z",
       "audit_finding": "ACCEPTED. O catch síncrono em torno de `chrome.tabs.sendMessage` não é exercitado; todos os mocks retornam normalmente. Throw antes do callback segue caminho distinto de runtime.lastError.",
-      "auditor_recommended_action": "Adicionar mock que lance sincronicamente e exigir Promise resolvida com falha/reason e política de finalize coerente."
+      "auditor_recommended_action": "Adicionar mock que lance sincronicamente e exigir Promise resolvida com falha/reason e política de finalize coerente.",
+      "resolution": "Adicionado caso em que chrome.tabs.sendMessage lança sincronicamente; deliver resolve falha send-boom/persisted:false e não finaliza job em staging. Validado na run 36947199406/job 110651903588.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:56:00Z",
+      "validation": {
+        "source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
+        "bible_sha": "721754c2b2713fbcbf7c40af52edfea78e4068bc",
+        "run_id": 36947199406,
+        "job_id": 110651903588,
+        "related": "45/45 suites; 228/228 tests; --detectOpenHandles"
+      }
     },
     {
       "id": "150-004",
@@ -99,17 +119,18 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "237/237",
-    "source_text_lines": 236,
-    "bible_lines": 3043,
+    "documented_positions": "283/283",
+    "source_text_lines": 282,
+    "bible_lines": 373,
     "bible_blob_sha": "90e2cff6554e8fd74e8aec6d2bbf17e97a7dc116",
     "evidence_quality": "Strong direct evidence against the real module for covered result branches; IPC payload and exceptional branches remain explicit gaps.",
-    "external_audit_requests_open": 4,
-    "note": "Nenhum código/teste externo foi alterado para fabricar evidência."
+    "external_audit_requests_open": 0,
+    "note": "Nenhum código/teste externo foi alterado para fabricar evidência.",
+    "repair_note": "150-001/003 resolvidos; 150-002/004 permanecem SUPERSEDED por 026-003; DOM ACK selftest e background 45/45 suites, 228/228 testes verdes."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:43:00Z",
+  "updated_at_utc": "2026-10-02T00:56:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:40:15Z",
@@ -126,7 +147,31 @@
       "previous_source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
       "current_source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
       "reason": "150-001: payload/destino UPDATE_IMAGE agora asserted; 150-003: throw síncrono de sendMessage coberto; expected negativo alinhado ao contrato canônico ack_missing."
+    },
+    {
+      "at_utc": "2026-10-02T00:56:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
+      "bible_sha": "721754c2b2713fbcbf7c40af52edfea78e4068bc",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "150-001/003 resolvidos; expected negativo alinhado a ack_missing. Run 36947199406/job 110651903588: DOM ACK focal success + background 45/45 suites, 228/228 testes."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T00:56:00Z",
+      "source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
+      "bible_sha": "721754c2b2713fbcbf7c40af52edfea78e4068bc",
+      "run_id": 36947199406,
+      "job_id": 110651903588,
+      "result": "PASS",
+      "focal": "DOM ACK selftest success",
+      "related_suites": "45/45",
+      "related_tests": "228/228",
+      "open_handles": "executado com --detectOpenHandles"
+    }
+  ]
 }
