@@ -965,6 +965,110 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toHaveLength(1);
     });
 
+    test('persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte', async () => {
+        installRuntimeResponder({ tabId: 91 });
+        const baseSendMessage = runtimeMock.sendMessage;
+        let releaseFirstSave = null;
+        let firstSaveHeld = false;
+
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action === 'SM_SAVE_PAGE' && !firstSaveHeld) {
+                firstSaveHeld = true;
+                sentMessages.push(message);
+                releaseFirstSave = () => {
+                    if (callback) setTimeout(() => callback({ ok: true }), 0);
+                };
+                return;
+            }
+            return baseSendMessage(message, callback);
+        });
+
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const batchA = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(batchA?.batchId).toBeTruthy();
+
+        const updateA = dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: batchA.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,QkFUQ0hfQQ==',
+            expectAck: true,
+        });
+        await waitFor(() => typeof releaseFirstSave === 'function');
+
+        const stopResult = await dispatchToContent(runtimeMock, {
+            action: 'STOP_TRANSLATION_FROM_POPUP',
+        });
+        expect(stopResult.response).toEqual(expect.objectContaining({
+            ok: true,
+            batchId: batchA.batchId,
+        }));
+
+        await startBatch();
+        const batchB = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(batchB?.batchId).toBeTruthy();
+        expect(batchB.batchId).not.toBe(batchA.batchId);
+
+        const beforeRelease = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(beforeRelease.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: batchB.batchId,
+        }));
+        expect(oscillators).toHaveLength(0);
+
+        releaseFirstSave();
+        const ackA = await updateA;
+        expect(ackA.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+        }));
+        await delay(20);
+
+        const afterOldPersistence = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(afterOldPersistence.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: batchB.batchId,
+        }));
+        expect(oscillators).toHaveLength(0);
+
+        const updateB = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: batchB.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,QkFUQ0hfQg==',
+            expectAck: true,
+        });
+        expect(updateB.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+        }));
+        await waitFor(() => oscillators.length === 3);
+
+        const finalStatus = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(finalStatus.response).toEqual(expect.objectContaining({
+            translating: false,
+            batchId: null,
+            batchStatus: 'complete',
+        }));
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
