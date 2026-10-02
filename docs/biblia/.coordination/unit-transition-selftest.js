@@ -165,8 +165,17 @@ console.log('PASS canonical transition history remains hash-chained');
 assert.deepStrictEqual(transition.tokenHistoryProblems([planned.state],[token]), []);
 console.log('PASS registry validates consumed token history');
 
+const abortInput=JSON.parse(JSON.stringify(planned.state));
+abortInput.audit_requests=[{
+  id:'SAFE-UF-001',
+  type:'UNVERIFIED_FINDING',
+  status:'SUPERSEDED',
+  finding:'preserve diagnostic provenance during abort',
+}];
+const abortHistoryLength=abortInput.history.length;
+const abortRevision=life.revisionIdentity(abortInput);
 const aborted = transition.planTransition({
-  state:planned.state,
+  state:abortInput,
   request:{
     action:'SAFE_ABORT',
     actor:'AGENT-X',
@@ -178,7 +187,12 @@ const aborted = transition.planTransition({
 });
 assert.strictEqual(life.lifecycleSnapshot(aborted.state).correction_cycle,3);
 assert.strictEqual(aborted.state.status,'READY_FOR_AUDIT');
+assert.ok(aborted.state.history.length>abortHistoryLength);
+assert.ok(aborted.state.history.some((e)=>e.type===life.SAFE_ABORT_EVENT));
+assert.deepStrictEqual(aborted.state.audit_requests,abortInput.audit_requests);
+assert.strictEqual(life.revisionIdentity(aborted.state).revision_id,abortRevision.revision_id);
 console.log('PASS SAFE_ABORT does not increment correction cycle');
+console.log('PASS SAFE_ABORT preserves history, revision and finding provenance and returns audit-able');
 
 const correctedHandoff = transition.planTransition({
   state: planned.state,
