@@ -2,6 +2,16 @@
 
 const baseline = require('./data/test-baseline.json');
 
+function minimumExpectedTests() {
+  const raw = process.env.MANGA_E2E_MIN_TESTS;
+  if (raw === undefined || raw === '') return baseline.e2e.minTests;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error('MANGA_E2E_MIN_TESTS deve ser inteiro positivo');
+  }
+  return value;
+}
+
 class PlaywrightGateReporter {
   constructor() {
     this.total = 0;
@@ -47,8 +57,9 @@ class PlaywrightGateReporter {
 
     const problems = [];
 
-    if (this.total < baseline.e2e.minTests) {
-      problems.push('somente ' + this.total + ' E2E descobertos; mínimo protegido: ' + baseline.e2e.minTests);
+    const minTests = minimumExpectedTests();
+    if (this.total < minTests) {
+      problems.push('somente ' + this.total + ' E2E descobertos; mínimo protegido: ' + minTests);
     }
     if (skipped > baseline.e2e.maxSkipped) {
       problems.push(skipped + ' E2E skipped; máximo permitido: ' + baseline.e2e.maxSkipped);
@@ -80,3 +91,4 @@ class PlaywrightGateReporter {
 }
 
 module.exports = PlaywrightGateReporter;
+module.exports.minimumExpectedTests = minimumExpectedTests;
