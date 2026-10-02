@@ -54,6 +54,30 @@ let snap = life.lifecycleSnapshot(s);
 const token = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:30:00Z', actor:'AGENT-X' });
 assert.deepStrictEqual(transition.validateCorrectionToken(s, token), []);
 console.log('PASS final CHANGES_REQUIRED issues revision-bound token');
+const legacyState = { ...state(), status: 'READY_FOR_AUDIT', bible_sha: null };
+const legacyPipeline = { ...pipeline(legacyState), bible_sha: 'b'.repeat(40) };
+const reconciledLegacy = transition.projectAuditDecision(legacyState, legacyPipeline, {
+  at_utc: '2026-10-02T06:20:00Z',
+}).state;
+assert.strictEqual(reconciledLegacy.bible_sha, legacyPipeline.bible_sha);
+assert.strictEqual(
+  reconciledLegacy.revision_id,
+  life.revisionIdentity(legacyState, { bible_sha: legacyPipeline.bible_sha }).revision_id
+);
+assert.strictEqual(
+  transition.issueCorrectionToken(reconciledLegacy, legacyPipeline, {
+    issued_at_utc: '2026-10-02T06:30:00Z', actor: 'AGENT-X',
+  }).bible_sha,
+  legacyPipeline.bible_sha
+);
+console.log('PASS legacy reconciliation binds the audited Bible before correction token');
+assert.throws(() => transition.projectAuditDecision(
+  legacyState, { ...legacyPipeline, bible_sha: 'invalid' }
+), /RECONCILE_BIBLE_SHA_INVALID/);
+assert.throws(() => transition.projectAuditDecision(
+  reconciledLegacy, { ...legacyPipeline, bible_sha: 'c'.repeat(40) }
+), /RECONCILE_BIBLE_STALE/);
+console.log('PASS legacy binding rejects malformed and subsequently stale Bible revisions');
 assert.strictEqual(token.token_id,transition.expectedCorrectionTokenId(token));
 const forgedTokenId={...token,token_id:'corr-010-forged'};
 assert.ok(transition.validateCorrectionToken(s,forgedTokenId,{pipeline:pipeline(s)})
