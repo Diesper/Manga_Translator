@@ -77,14 +77,14 @@
     "range_blocks": 67,
     "ranges_contiguous": true,
     "source_has_final_newline": true,
-    "bible_lines": 1032,
+    "bible_lines": 989,
     "external_audit_requests_open": 0,
-    "note": "Fonte integral sincronizada ao blob af6580a... após correção de runtime.lastError; revisão atual permanece READY_FOR_AUDIT e exige PRIMARY + ADVERSARIAL novos.",
+    "note": "Revisão atualizada após hardening de runtime.lastError; fonte integral e cobertura 607/607 sincronizadas. Nova audit epoch exige PRIMARY + ADVERSARIAL independentes.",
     "source_text_lines": 606
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:04:19Z",
+  "updated_at_utc": "2026-10-02T20:05:17Z",
   "history": [
     {
       "at_utc": "2026-10-01T14:40:17.413Z",
@@ -133,6 +133,28 @@
       "reason": "Sincroniza a Bíblia #119 com a correção de fidelidade de runtime.lastError; revisão nova deve receber PRIMARY + ADVERSARIAL independentes.",
       "previous_event_hash": "4b74806bb0ab1d08f162106a9ea90812856863213a18775ea77e98ec09d0f960",
       "event_hash": "ee61c36bfadeea55e41e9c055c51ac3c9421419e550ee6e9ad627f3826bf8b3e"
+    },
+    {
+      "at_utc": "2026-10-02T20:05:17Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
+      "previous_bible_sha": "aa21222e8a4cf4a80147ff9b22e676370f4d1f6d",
+      "previous_production_sha": null,
+      "previous_revision_id": "2cd3b878180443573a4c1f00a6290fa1da640d9e0fbaa67cd62a3a7ef667d365",
+      "source_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
+      "test_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
+      "bible_sha": "1a2875817ae433b200364a3a17df46c29380b856",
+      "production_sha": null,
+      "revision_id": "6ca1ba049ec98dbd0f92f04a47a50b5c9708c9be5fc58e7d1619711fffd90aa7",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "119-e2-ae53358a60f4",
+      "reason": "Atualiza o binding da Bíblia #119 após reauditoria documental da correção de runtime.lastError; auditorias anteriores permanecem invalidadas.",
+      "previous_event_hash": "ee61c36bfadeea55e41e9c055c51ac3c9421419e550ee6e9ad627f3826bf8b3e",
+      "event_hash": "38fbd2531ea2d9ed87055aacea4771e4aefc0853cfd88caff1e195469e8ce603"
     }
   ],
   "evidence": [
@@ -146,14 +168,14 @@
     }
   ],
   "test_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
-  "bible_sha": "aa21222e8a4cf4a80147ff9b22e676370f4d1f6d",
+  "bible_sha": "1a2875817ae433b200364a3a17df46c29380b856",
   "production_sha": null,
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "119-e1-414a3ac33d0e",
-  "revision_id": "2cd3b878180443573a4c1f00a6290fa1da640d9e0fbaa67cd62a3a7ef667d365"
+  "audit_epoch": 2,
+  "handoff_id": "119-e2-ae53358a60f4",
+  "revision_id": "6ca1ba049ec98dbd0f92f04a47a50b5c9708c9be5fc58e7d1619711fffd90aa7"
 }
