@@ -368,6 +368,55 @@ function tokenConsumptionCount(state, tokenId) {
   )).length;
 }
 
+function tokenHistoryProblems(states, tokens) {
+  const problems = [];
+  const tokenById = new Map((tokens || []).map((token) => [token.token_id, token]));
+
+  for (const state of states || []) {
+    const history = Array.isArray(state?.history) ? state.history : [];
+    for (let position = 0; position < history.length; position += 1) {
+      const entry = history[position];
+      if (entry?.type !== 'CORRECTION_TOKEN_CONSUMED') continue;
+      const tokenId = String(entry?.correction_token_id || '').trim();
+      const token = tokenById.get(tokenId);
+      const label = '#' + String(state.index).padStart(3, '0') + '/history[' + position + ']';
+      if (!token) {
+        problems.push(label + ': consumo referencia correction token inexistente: ' + (tokenId || '-'));
+        continue;
+      }
+      if (Number(token.index) !== Number(state.index)) problems.push(label + ': token pertence a outro índice');
+      if (String(token.actor || '').trim() !== String(entry.actor || '').trim()) {
+        problems.push(label + ': ator do consumo diverge do ator autorizado no token');
+      }
+      if (String(token.revision_id || '') !== String(entry.revision_id || '')) {
+        problems.push(label + ': revision_id do consumo diverge do token');
+      }
+
+      const start = history.slice(0, position).reverse().find((candidate) => (
+        candidate?.to_status === 'IN_PROGRESS'
+        && candidate?.correction_token_id === tokenId
+      ));
+      if (!start) {
+        problems.push(label + ': token consumido sem START_CORRECTION correspondente');
+      } else if (String(start.agent || start.actor || '').trim() !== String(token.actor || '').trim()) {
+        problems.push(label + ': corretor inicial diverge do ator autorizado no token');
+      }
+
+      if (token.human_approval_id) {
+        const approvalConsumption = history.slice(0, position).find((candidate) => (
+          candidate?.type === 'HUMAN_APPROVAL_CONSUMED'
+          && candidate?.approval_id === token.human_approval_id
+          && candidate?.correction_token_id === tokenId
+        ));
+        if (!approvalConsumption) {
+          problems.push(label + ': token HUMAN consumido sem HUMAN_APPROVAL_CONSUMED correspondente');
+        }
+      }
+    }
+  }
+  return problems;
+}
+
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -417,6 +466,7 @@ function loadCorrectionTokens(root, states = []) {
       }
     }
   }
+  problems.push(...tokenHistoryProblems(states, tokens));
   return { tokens, problems, activeByIndex };
 }
 
@@ -530,6 +580,7 @@ module.exports = {
   finalDecisionRecord,
   tokenConsumed,
   tokenConsumptionCount,
+  tokenHistoryProblems,
   issueCorrectionToken,
   validateCorrectionToken,
   assertCas,
