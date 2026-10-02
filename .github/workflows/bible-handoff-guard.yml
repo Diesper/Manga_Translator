@@ -51,6 +51,9 @@ jobs:
           node --check scripts/validation/verify-unverified-findings-append-only-selftest.js
           node --check scripts/validation/verify-bible-protocol-governance.js
           node --check scripts/validation/verify-bible-protocol-governance-selftest.js
+          node --check scripts/validation/bible-lifecycle-metrics.js
+          node --check scripts/validation/bible-lifecycle-metrics-selftest.js
+          node --check scripts/validation/bible-anti-loop-adversarial-selftest.js
 
       - name: Prove handoff fence and transition rules
         run: |
@@ -71,6 +74,8 @@ jobs:
           node scripts/validation/verify-unverified-findings-append-only-selftest.js
           node scripts/validation/verify-bible-protocol-governance.js
           node scripts/validation/verify-bible-protocol-governance-selftest.js
+          node scripts/validation/bible-lifecycle-metrics-selftest.js
+          node scripts/validation/bible-anti-loop-adversarial-selftest.js
 
       - name: Validate current protected handoffs
         run: node docs/biblia/.coordination/handoff-guard.js
