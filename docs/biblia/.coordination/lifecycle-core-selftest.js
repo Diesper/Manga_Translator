@@ -147,7 +147,9 @@ console.log('PASS cycle 6 blocks last two correctors');
 
 assert.strictEqual(life.rootCauseReviewValid({
   categories: ['CONCURRENCY'],
+  related_cycles: [4,5,6],
   evidence: 'race reproduzida',
+  why_previous_failed: 'correções locais não serializavam o writer compartilhado',
   strategy: 'serializar writer',
 }), true);
 assert.strictEqual(life.rootCauseReviewValid({ categories: ['CONCURRENCY'] }), false);
@@ -159,20 +161,33 @@ emergencyHistory.history.push({
   type:'EMERGENCY_ROOT_CAUSE_REVIEW',
   root_cause_review:{
     categories:['CONCURRENCY'],
+    related_cycles:[4,5],
     evidence:'race anterior',
+    why_previous_failed:'o lock anterior era local ao módulo',
     strategy:'serializar writer',
   },
 });
 assert.ok(life.rootCauseReviewProblems(emergencyHistory,{
   categories:['CONCURRENCY'],
+  related_cycles:[4,5],
   evidence:'race reaparece',
+  why_previous_failed:'o lock anterior permaneceu local',
   strategy:'serializar writer',
 }).includes('ROOT_CAUSE_STRATEGY_MUST_DIFFER_FROM_PREVIOUS_EMERGENCY'));
 assert.deepStrictEqual(life.rootCauseReviewProblems(emergencyHistory,{
   categories:['STATE_MACHINE_FAILURE'],
+  related_cycles:[4,5],
   evidence:'nova evidência',
+  why_previous_failed:'as mutações ainda não passavam pelo mesmo CAS',
   strategy:'mover transição para writer canônico',
 }),[]);
+assert.ok(life.rootCauseReviewProblems(emergencyHistory,{
+  categories:['STATE_MACHINE_FAILURE'],
+  related_cycles:[99],
+  evidence:'ciclo impossível',
+  why_previous_failed:'fixture',
+  strategy:'estratégia nova',
+}).includes('ROOT_CAUSE_RELATED_CYCLE_INVALID'));
 console.log('PASS repeated EMERGENCY must use a different strategy');
 
 addCycle(s, 7, 'TERCEIRO');
