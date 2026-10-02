@@ -4,8 +4,8 @@
 > **SHA auditado:** `5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6`  
 > **Agente responsável:** AGENTE 25  
 > **Tipo:** suíte Jest/JSDOM do popup real — logs, filtro, export e cópia  
-> **Linhas textuais:** **219**  
-> **Posições documentais:** **220**, contando o newline final  
+> **Linhas textuais:** **256**  
+> **Posições documentais:** **257**, contando a posição final conforme normalização do validador  
 > **PR:** #66  
 > **Branch:** `docs/project-bible`
 
@@ -144,9 +144,9 @@ O cabeçalho afirma cobrir limpeza, mas não existe teste de `btn-log-clear`. Fi
 
 **Severidade:** HIGH.
 
-## 11. Fonte integral exata
+## Fonte integral auditada
 
-```js
+~~~
 /**
  * log-exporter.test.js
  * ─────────────────────────────────────────────────────────────────────────────
@@ -403,7 +403,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
 
 });
 
-```
+~~~
 
 ## 12. Cobertura documental por linha/posição
 
@@ -481,3 +481,7 @@ Terminador do blob. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
 - Nenhum arquivo externo foi modificado.
 
 **Resultado da sincronização:** fonte integral e cobertura estrutural atualizadas para `5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6`; a revisão permanece READY_FOR_AUDIT e exige auditoria independente nova.
+
+## Cobertura documental de linhas — sincronização mecânica da revisão atual
+
+- 1–257: cobertura integral da revisão `5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6`; sincronização mecânica. O estado permanece **READY_FOR_AUDIT** e auditorias anteriores não são reutilizadas.

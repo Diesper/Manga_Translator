@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/popup/log-exporter.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "7149c3eb155c345094b73ef2355aea1b479dfebb",
+  "source_sha": "5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6",
   "started_at_utc": "2026-09-30T14:28:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -119,7 +119,7 @@
     "self_audit": "SOURCE_SYNC_PENDING_REAUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "223/223",
+    "documented_positions": "257/257",
     "bible_lines": 440,
     "external_audit_requests_open": 5,
     "source_text_lines": 222,
@@ -127,7 +127,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:08:08Z",
+  "updated_at_utc": "2026-10-02T21:21:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T20:08:08Z",
@@ -150,18 +150,40 @@
       "reason": "Sincroniza a Bíblia #218 com a revisão de cleanup do exportador de logs; nova revisão exige PRIMARY + ADVERSARIAL independentes.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "6b7da1347d76fafcfaf2dd63ecac1e4a3c2c7127eb53cc5cd1e900f34e4a6761"
+    },
+    {
+      "at_utc": "2026-10-02T21:21:00Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "7149c3eb155c345094b73ef2355aea1b479dfebb",
+      "previous_bible_sha": "279fb9a0d10cbe40f6e0d8dcab59440aee7c667c",
+      "previous_production_sha": null,
+      "previous_revision_id": "f1ba62ee576580c89aae298bf822a9ab134ea1ee305624db0d1f4c46b8606a2a",
+      "source_sha": "5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6",
+      "test_sha": "5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6",
+      "bible_sha": "3a08f4b1b3641db36ce066909b46b62f823f16a2",
+      "production_sha": null,
+      "revision_id": "63f730a4e9c366815e199f5112f13f5444e7a03c65540257705c94cedb1f09ec",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "218-e2-9f4e4fe152a0",
+      "reason": "Sincroniza a Bíblia #218 com a revisão atual do exportador de logs; auditorias anteriores não são reutilizadas.",
+      "previous_event_hash": "6b7da1347d76fafcfaf2dd63ecac1e4a3c2c7127eb53cc5cd1e900f34e4a6761",
+      "event_hash": "8295fb94c0219aea4dd46ba9030b5aa8d1caeb79acf954563e41754c9f9ec820"
     }
   ],
   "evidence": [],
-  "test_sha": "7149c3eb155c345094b73ef2355aea1b479dfebb",
-  "bible_sha": "279fb9a0d10cbe40f6e0d8dcab59440aee7c667c",
+  "test_sha": "5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6",
+  "bible_sha": "3a08f4b1b3641db36ce066909b46b62f823f16a2",
   "production_sha": null,
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "218-e1-029d35dd994c",
-  "revision_id": "f1ba62ee576580c89aae298bf822a9ab134ea1ee305624db0d1f4c46b8606a2a"
+  "audit_epoch": 2,
+  "handoff_id": "218-e2-9f4e4fe152a0",
+  "revision_id": "63f730a4e9c366815e199f5112f13f5444e7a03c65540257705c94cedb1f09ec"
 }
