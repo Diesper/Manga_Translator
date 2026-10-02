@@ -89,7 +89,7 @@ auditProblems = gate.humanAuditResultProblems(
   [state],
   new Map([[7,snapshot]]),
   [auditApproval],
-  [auditRecord]
+  [{ ...auditRecord, human_approval_id: auditApproval.approval_id }]
 );
 assert.deepStrictEqual(auditProblems,[]);
 console.log('PASS audit-result HUMAN posterior à aprovação é aceito');
