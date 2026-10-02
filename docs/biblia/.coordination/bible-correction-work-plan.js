@@ -38,6 +38,7 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
   const candidates = [];
   for (const pipeline of model.pipelines || []) {
     if (pipeline.decision !== 'CHANGES_REQUIRED') continue;
+    if (Array.isArray(pipeline.problems) && pipeline.problems.length) continue;
     if (busyIndexes.has(pipeline.index)) continue;
 
     const state = (model.states || []).find((item) => item.index === pipeline.index);
