@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "6d6d385b1189f99d7672580e1abe2f68aed12135",
+  "source_sha": "7825d401b9fa14ea08f59979a83cb3d0088e47fa",
   "started_at_utc": "2026-09-30T06:25:33.185Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -86,7 +86,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:45:00Z",
+  "updated_at_utc": "2026-10-02T00:47:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:30:28.877Z",
@@ -130,6 +130,13 @@
       "previous_source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
       "current_source_sha": "6d6d385b1189f99d7672580e1abe2f68aed12135",
       "reason": "PERF-09 sintético removido; persistência canônica cm-chapter→SM_SAVE_PAGE→storage-manager/IndexedDB testada sob quota local baixa. PERF-05/08 renomeados para escopo pós-clique/JSDOM e gate fake-indexeddb."
+    },
+    {
+      "at_utc": "2026-10-02T00:47:00Z",
+      "type": "SOURCE_SHA_REFRESH_AFTER_CI_REPRODUCTION",
+      "previous_source_sha": "6d6d385b1189f99d7672580e1abe2f68aed12135",
+      "current_source_sha": "7825d401b9fa14ea08f59979a83cb3d0088e47fa",
+      "reason": "CI revelou que o fault injector de quota foi removido junto com a simulação antiga. Restaurado somente o injetor ambiental e adicionado probe explícito que prova a falha QUOTA_BYTES; política local simulada continua removida."
     }
   ],
   "evidence": [
