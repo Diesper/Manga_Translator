@@ -41,6 +41,8 @@ jobs:
           node --check docs/biblia/.coordination/human-review.js
           node --check scripts/validation/verify-human-protected-diff.js
           node --check scripts/validation/verify-human-protected-diff-selftest.js
+          node --check scripts/validation/verify-bible-state-history-append-only.js
+          node --check scripts/validation/verify-bible-state-history-append-only-selftest.js
 
       - name: Prove handoff fence and transition rules
         run: |
@@ -54,9 +56,13 @@ jobs:
           node docs/biblia/.coordination/human-review-selftest.js
           node docs/biblia/.coordination/audit-result-selftest.js
           node scripts/validation/verify-human-protected-diff-selftest.js
+          node scripts/validation/verify-bible-state-history-append-only-selftest.js
 
       - name: Validate current protected handoffs
         run: node docs/biblia/.coordination/handoff-guard.js
 
       - name: Verify HUMAN protected diff
         run: node scripts/validation/verify-human-protected-diff.js --base "${{ github.event.before }}"
+
+      - name: Verify lifecycle state history append-only
+        run: node scripts/validation/verify-bible-state-history-append-only.js --base "${{ github.event.before }}"
