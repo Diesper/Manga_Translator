@@ -121,6 +121,26 @@ assert.throws(()=>transition.planTransition({
 }),/TOKEN_DECISION_STALE/);
 console.log('PASS newer final decision record invalidates previously issued token');
 
+const changedPrimaryPipeline=pipeline(s);
+changedPrimaryPipeline.primary={
+  ...changedPrimaryPipeline.primary,
+  auditor:'A9',
+  path:'p-new.json',
+  completed_at_utc:'2026-10-02T06:04:00Z',
+};
+assert.ok(
+  transition.validateCorrectionToken(s,token,{pipeline:changedPrimaryPipeline})
+    .includes('TOKEN_DECISION_STALE')
+);
+console.log('PASS token binds full PRIMARY+ADVERSARIAL evidence, not only final phase');
+
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  pipeline(s),
+  {issued_at_utc:'2026-10-02T06:00:30Z',actor:'AGENT-X'}
+),/TOKEN_ISSUED_BEFORE_FINAL_DECISION/);
+console.log('PASS token cannot predate the last audit evidence');
+
 const tokenRoot=fs.mkdtempSync(path.join(os.tmpdir(),'corr-token-registry-'));
 const tokenDir=path.join(tokenRoot,'docs','biblia','.coordination','correction-authorizations','010');
 fs.mkdirSync(tokenDir,{recursive:true});
@@ -408,6 +428,13 @@ const approval = {
   bible_sha:hsnap.bible_sha,
   revision_id:hsnap.revision_id,
 };
+assert.throws(()=>transition.issueCorrectionToken(hs,pipeline(hs),{
+  issued_at_utc:'2026-10-02T06:59:00Z',
+  actor:'HUMAN-AUTHORIZED-AGENT',
+  humanApproval:approval,
+}),/TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL/);
+console.log('PASS HUMAN correction token cannot predate human approval');
+
 const humanToken = transition.issueCorrectionToken(hs, pipeline(hs), {
   issued_at_utc:'2026-10-02T07:01:00Z',
   actor:'HUMAN-AUTHORIZED-AGENT',
