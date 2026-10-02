@@ -222,6 +222,25 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
 
         expect(sendMessageSpy).toHaveBeenCalledWith(expect.objectContaining({
             action: 'SHOW_EXISTING_FOLDER',
+            folderPath: '/home/user/Downloads/MangaTranslator/Chapter_10',
+            anchorId: 77,
+            safeTitle: 'Chapter_10',
+        }), expect.any(Function));
+
+        sendMessageSpy.mockClear();
+        await storageMock.set({
+            chap_1_paths: {
+                0: 'C:\\Users\\TestUser\\Downloads\\MangaTranslator\\Chapter_10\\pagina_000.png',
+                1: 'C:\\Users\\TestUser\\Downloads\\MangaTranslator\\Chapter_10\\pagina_001.png',
+            },
+        });
+
+        document.querySelector('.btn-open-chap-folder').click();
+        await flushAsyncTasks(8);
+
+        expect(sendMessageSpy).toHaveBeenCalledWith(expect.objectContaining({
+            action: 'SHOW_EXISTING_FOLDER',
+            folderPath: 'C:\\Users\\TestUser\\Downloads\\MangaTranslator\\Chapter_10',
             anchorId: 77,
             safeTitle: 'Chapter_10',
         }), expect.any(Function));
@@ -276,6 +295,37 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         }, expect.any(Function));
         expect(document.getElementById('debug-toggle-text').textContent).toContain('Debug ATIVADO');
     });
+    test('configurações do popup restauram e persistem o modo de janela minimizada', async () => {
+        const host = 'reader.test';
+        const tab = await createActiveTab(`https://${host}/chapter-minimized-mode`, 'Reader Test');
+        registerPopupTabHandler(tab.id, { images: buildImages(host, 1) });
+        await storageMock.set({ enabledDomains: [host], geminiExecutionMode: 'minimized_window' });
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(10);
+
+        document.getElementById('btn-options').click();
+        await flushAsyncTasks(8);
+
+        const minimizedMode = document.getElementById('popup-gemini-mode-minimized');
+        expect(minimizedMode).not.toBeNull();
+        expect(minimizedMode.checked).toBe(true);
+
+        document.getElementById('popup-gemini-mode-temp').checked = true;
+        document.getElementById('popup-gemini-mode-temp').dispatchEvent(new Event('change', { bubbles: true }));
+        await flushAsyncTasks(4);
+        expect((await storageMock.get(['geminiExecutionMode'])).geminiExecutionMode).toBe('temp_chat');
+
+        minimizedMode.checked = true;
+        minimizedMode.dispatchEvent(new Event('change', { bubbles: true }));
+        await flushAsyncTasks(4);
+        expect((await storageMock.get(['geminiExecutionMode'])).geminiExecutionMode).toBe('minimized_window');
+    });
+
     test('configurações do popup exibem e salvam o modo de exclusão segura', async () => {
         const host = 'reader.test';
         const tab = await createActiveTab(`https://${host}/chapter-safe-mode`, 'Reader Test');
