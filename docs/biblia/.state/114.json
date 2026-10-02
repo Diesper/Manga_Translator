@@ -4,13 +4,13 @@
   "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "7825d401b9fa14ea08f59979a83cb3d0088e47fa",
+  "source_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
   "started_at_utc": "2026-09-30T06:25:33.185Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "114-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_VALIDITY",
       "target_file": "tests/integration/performance.test.js",
       "found_while_auditing": "tests/integration/performance.test.js",
@@ -27,11 +27,19 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:58:00Z",
       "audit_finding": "ACCEPTED — validade do PERF-09 insuficiente. O cenário usa helper local `saveImagesWithIndexedDbFallback` e `createInMemoryRepository`; não atravessa `cm-chapter.js`, `storage-manager.js` nem o fluxo real de persistência/quota. O teste pode passar mesmo se o fallback de produção quebrar.",
-      "auditor_recommended_action": "Criar teste de performance/integração sobre o caminho canônico de persistência real com quota/falha controlada, ou reclassificar PERF-09 como benchmark do modelo auxiliar."
+      "auditor_recommended_action": "Criar teste de performance/integração sobre o caminho canônico de persistência real com quota/falha controlada, ou reclassificar PERF-09 como benchmark do modelo auxiliar.",
+      "resolution": {
+        "resolved_at_utc": "2026-10-02T19:03:29Z",
+        "resolved_by": "AGENTE HÍBRIDO",
+        "source_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+        "evidence_run": 37051069199,
+        "evidence_job": 110984314942,
+        "summary": "PERF-09 agora atravessa cm-chapter -> SM_SAVE_PAGE -> storage-manager/IndexedDB; helper de fallback local removido do cenário."
+      }
     },
     {
       "id": "114-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/integration/performance.test.js",
       "found_while_auditing": "tests/integration/performance.test.js",
@@ -48,11 +56,19 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:25:00Z",
       "audit_finding": "ACCEPTED. PERF-08 injeta `fake-indexeddb.IDBFactory`; o limite de 2s mede backend sintético em Node, não IndexedDB real do Chromium/disco. O teste continua útil como gate algorítmico, mas não como garantia de storage real.",
-      "auditor_recommended_action": "Renomear/documentar o limite como sintético ou criar benchmark/E2E em Chromium se o objetivo for um SLO de browser."
+      "auditor_recommended_action": "Renomear/documentar o limite como sintético ou criar benchmark/E2E em Chromium se o objetivo for um SLO de browser.",
+      "resolution": {
+        "resolved_at_utc": "2026-10-02T19:03:29Z",
+        "resolved_by": "AGENTE HÍBRIDO",
+        "source_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+        "evidence_run": 37051069199,
+        "evidence_job": 110984314942,
+        "summary": "PERF-08 explicitado como guard sintético fake-indexeddb; não é apresentado como SLO de Chromium."
+      }
     },
     {
       "id": "114-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "CONTRACT_REVIEW",
       "target_file": "tests/integration/performance.test.js",
       "found_while_auditing": "tests/integration/performance.test.js",
@@ -69,24 +85,32 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:22:00Z",
       "audit_finding": "ACCEPTED. PERF-05 chama `loadExtensionPage()` antes de iniciar o cronômetro; o orçamento <=1s mede a renderização após clicar a aba traduzida, não cold start do popup. O teste é válido para esse intervalo, mas o contrato precisa ser nomeado com precisão.",
-      "auditor_recommended_action": "Renomear/documentar como orçamento pós-clique ou adicionar benchmark separado para cold start se ele também for requisito."
+      "auditor_recommended_action": "Renomear/documentar como orçamento pós-clique ou adicionar benchmark separado para cold start se ele também for requisito.",
+      "resolution": {
+        "resolved_at_utc": "2026-10-02T19:03:29Z",
+        "resolved_by": "AGENTE HÍBRIDO",
+        "source_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+        "evidence_run": 37051069199,
+        "evidence_job": 110984314942,
+        "summary": "PERF-05 explicitado como medição pós-clique em JSDOM, não cold start."
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "434/434",
-    "bible_lines": 1373,
+    "documented_positions": "452/452",
+    "bible_lines": 877,
     "external_audit_requests_open": 0,
-    "evidence_run": 36577447500,
-    "evidence_job": 109437162616,
-    "evidence_summary": "Unit + Integration (20.x): performance.test.js PASS; PERF-01 a PERF-09 aparecem nominalmente e todos passaram.",
-    "repair_note": "Lifecycle documental 114-001..003 alinhado ao state canônico: ACCEPTED; conclusão corrigida sem alterar source/testes."
+    "evidence_run": 37051069199,
+    "evidence_job": 110984314942,
+    "evidence_summary": "Performance Integration Selftest: PERF-01..09 passou 3/3 vezes (9/9 cada); integração completa 13/13 suites e 83/83 testes.",
+    "repair_note": "Retomada do #114 concluída após abandono do agente anterior: revisão canônica reconciliada, requests 114-001..003 resolvidas e Bíblia atualizada."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T18:25:36Z",
+  "updated_at_utc": "2026-10-02T19:03:29Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:30:28.877Z",
@@ -151,6 +175,25 @@
       "reason": "Retomada autorizada pelo mantenedor apos desaparecimento do agente anterior; sessao corretiva legada encerrada via SAFE_ABORT para devolver #114 a auditoria independente.",
       "previous_event_hash": "52d84e1e14728668426f09c363c71ddae61d70c8727cb320f850cd2e51a804d7",
       "event_hash": "22e4924580f4bdca1ab0bee599d8c624dff772f334662345d419340db3c5e8de"
+    },
+    {
+      "at_utc": "2026-10-02T19:03:29Z",
+      "type": "MAINTAINER_ORPHAN_REPAIR_RECONCILED",
+      "source_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+      "test_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+      "bible_sha": "ff2188b61ee289cb8a94a3fa12d508051cff66a2",
+      "revision_id": "b4e61ed37ec8433236c56ce073fbb56cedf2a0e76272684d490a12fc05e29b9a",
+      "actor": "AGENTE HÍBRIDO",
+      "resolved_requests": [
+        "114-001",
+        "114-002",
+        "114-003"
+      ],
+      "evidence_run": 37051069199,
+      "evidence_job": 110984314942,
+      "reason": "Retomada autorizada pelo mantenedor concluída: revisão do #114 reconciliada após correções e CI verde; item permanece READY_FOR_AUDIT para auditoria independente da nova revisão.",
+      "previous_event_hash": "22e4924580f4bdca1ab0bee599d8c624dff772f334662345d419340db3c5e8de",
+      "event_hash": "55fd3de0cb250c4cb280899c4b13761e4cbdf40cccb009792f5211bd70b55ef0"
     }
   ],
   "evidence": [
@@ -168,6 +211,16 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T13:35:34Z",
       "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "MAINTAINER_ORPHAN_REPAIR",
+      "source_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+      "bible_sha": "ff2188b61ee289cb8a94a3fa12d508051cff66a2",
+      "actor": "AGENTE HÍBRIDO",
+      "at_utc": "2026-10-02T19:03:29Z",
+      "evidence_run": 37051069199,
+      "evidence_job": 110984314942,
+      "note": "PERF-01..09 passou em três execuções focais consecutivas; suite integration completa passou 13/13 suites e 83/83 testes."
     }
   ],
   "correction_cycle": 0,
@@ -178,7 +231,7 @@
   "audit_epoch": 0,
   "handoff_id": null,
   "production_sha": null,
-  "test_sha": "7825d401b9fa14ea08f59979a83cb3d0088e47fa",
-  "bible_sha": null,
-  "revision_id": "64e586dbe784d7b63c1c7129f95167cd186f1e37472574d4d0c8308c2ded5b56"
+  "test_sha": "21bd3ec25d71ea8eeb00108255249025253b3b50",
+  "bible_sha": "ff2188b61ee289cb8a94a3fa12d508051cff66a2",
+  "revision_id": "b4e61ed37ec8433236c56ce073fbb56cedf2a0e76272684d490a12fc05e29b9a"
 }
