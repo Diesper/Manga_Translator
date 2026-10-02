@@ -51,7 +51,7 @@ function writeAudit(phase, auditor, at, mentions=true) {
 }
 
 function writeEvent(event) {
-  const rel='docs/biblia/.coordination/unverified-finding-events/005/005-UF-001/'+event.event_id+'.json';
+  const rel='docs/biblia/.coordination/unverified-finding-events/005/'+event.finding_id+'/'+event.event_id+'.json';
   const absolute=path.join(root,rel);
   fs.mkdirSync(path.dirname(absolute),{recursive:true});
   fs.writeFileSync(absolute,JSON.stringify(event,null,2)+'\n');
@@ -156,6 +156,35 @@ const staleEvent=events.buildEvent(root,finding,{
 assert.strictEqual(staleEvent.status_before,'UNVERIFIED');
 assert.strictEqual(staleEvent.status_after,'STALE');
 console.log('PASS finding from old revision can be marked STALE without lifecycle mutation');
+
+const concurrentFinding={
+  ...finding,
+  id:'005-UF-002',
+  title:'concurrent stale fixture',
+  finding:'two coordinators observe the same old revision',
+};
+const staleA=events.buildEvent(root,concurrentFinding,{
+  action:'MARK_STALE',
+  actor:'COORDINATOR-A',
+  at_utc:'2026-10-02T07:41:00Z',
+  reason:'revision moved',
+},[finding,concurrentFinding]);
+const staleB={
+  ...staleA,
+  event_id:'005-UF-002-EV-CONCURRENT-B',
+  actor:'COORDINATOR-B',
+  at_utc:'2026-10-02T07:41:01Z',
+  reason:'same stale classification observed independently',
+};
+writeEvent(staleA);
+writeEvent(staleB);
+evaluated=events.loadFindingEvents(root,[finding,concurrentFinding]);
+assert.deepStrictEqual(evaluated.problems,[]);
+const concurrentResult=evaluated.findings.find((item)=>item.id==='005-UF-002');
+assert.strictEqual(concurrentResult.status,'STALE');
+assert.strictEqual(concurrentResult.transition_events.length,2);
+assert.strictEqual(concurrentResult.redundant_transition_events.length,1);
+console.log('PASS concurrent duplicate MARK_STALE is preserved append-only as idempotent replay');
 
 fs.rmSync(root,{recursive:true,force:true});
 console.log('Unverified finding events self-test: SUCCESS');
