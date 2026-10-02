@@ -54,6 +54,11 @@ let snap = life.lifecycleSnapshot(s);
 const token = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:30:00Z', actor:'AGENT-X' });
 assert.deepStrictEqual(transition.validateCorrectionToken(s, token), []);
 console.log('PASS final CHANGES_REQUIRED issues revision-bound token');
+assert.strictEqual(token.token_id,transition.expectedCorrectionTokenId(token));
+const forgedTokenId={...token,token_id:'corr-010-forged'};
+assert.ok(transition.validateCorrectionToken(s,forgedTokenId,{pipeline:pipeline(s)})
+  .includes('TOKEN_ID_NOT_DETERMINISTIC'));
+console.log('PASS correction token id is deterministic from its immutable authorization fields');
 
 const waitingAdversarial = {
   ...pipeline(s),
@@ -151,8 +156,16 @@ const tokenRegistry=transition.loadCorrectionTokens(
   {pipelines:new Map([[s.index,supersededPipeline]])}
 );
 assert.ok(tokenRegistry.problems.some((x)=>x.includes('TOKEN_DECISION_STALE')));
+const wrongPath=path.join(tokenDir,'wrong-token-name.json');
+fs.writeFileSync(wrongPath,JSON.stringify(token,null,2)+'\n');
+const wrongPathRegistry=transition.loadCorrectionTokens(
+  tokenRoot,
+  [s],
+  {pipelines:new Map([[s.index,pipeline(s)]])}
+);
+assert.ok(wrongPathRegistry.problems.some((x)=>x.includes('token_id diverge do filename')));
 fs.rmSync(tokenRoot,{recursive:true,force:true});
-console.log('PASS active token registry also rejects superseded decision before use');
+console.log('PASS active token registry rejects superseded decision and path/token identity forgery');
 
 assert.throws(()=>transition.planTransition({
   state:s,
@@ -440,6 +453,13 @@ const humanToken = transition.issueCorrectionToken(hs, pipeline(hs), {
   actor:'HUMAN-AUTHORIZED-AGENT',
   humanApproval:approval,
 });
+assert.ok(transition.validateCorrectionToken(hs,humanToken,{pipeline:pipeline(hs)})
+  .includes('TOKEN_HUMAN_APPROVAL_INVALID'));
+assert.deepStrictEqual(
+  transition.validateCorrectionToken(hs,humanToken,{pipeline:pipeline(hs),humanApproval:approval}),
+  []
+);
+console.log('PASS active HUMAN token requires the exact approval registry entry');
 planned = transition.planTransition({
   state:hs,
   pipeline:pipeline(hs),
