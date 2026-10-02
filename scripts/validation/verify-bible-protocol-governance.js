@@ -76,8 +76,6 @@ function disabledControlProblems(key, source, fragments) {
     const forbidden = [
       { re:/^\s*continue-on-error:\s*true\s*$/mi, label:'continue-on-error: true' },
       { re:/^\s*if:\s*(?:\$\{\{\s*)?false(?:\s*\}\})?\s*$/mi, label:'if: false' },
-      { re:/\|\|\s*true(?:\s|$)/m, label:'|| true' },
-      { re:/;\s*true\s*$/m, label:'; true' },
     ];
     for (const item of forbidden) {
       if (item.re.test(source)) {
