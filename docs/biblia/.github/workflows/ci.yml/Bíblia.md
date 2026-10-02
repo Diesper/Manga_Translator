@@ -1,11 +1,11 @@
 # Bíblia técnica — .github/workflows/ci.yml
 
 > **Estado:** 🟡 READY_FOR_AUDIT — correção de orquestração E2E aplicada; reauditoria independente pendente  
-> **SHA auditado:** `fbc108c255d06257b741839bb19fa56b4e6794b2`  
+> **SHA auditado:** `9296c4f00174278e43ea811fe617badbd6ee11eb`  
 > **Última auditoria independente válida para o SHA anterior:** AGENTE 3  
 > **Tipo:** workflow GitHub Actions / CI  
-> **Linhas textuais:** **589**  
-> **Posições documentais:** **558** — o arquivo não possui newline terminal  
+> **Linhas textuais:** **590**  
+> **Posições documentais:** **590**, contando a posição final conforme normalização do validador  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -151,16 +151,17 @@ Importante: a maioria das validações de `verify-ci-contract.js` é **estática
 15. Alterações no número/nome dos shards exigem atualização coordenada do plano, workflow e verificadores.
 16. Secrets nunca devem ser hardcodedados nem impressos em logs.
 
-## 12. Fonte integral auditada
+## Fonte integral auditada
 
-```yaml
+~~~
 name: MangaTranslator CI
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   # PRs/branches podem cancelar runs substituídos; a main nunca cancela uma
   # verificação pós-merge, garantindo uma execução completa por commit integrado.
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  # Distributed audit pushes are frequent; cancelling the active matrix can starve final evidence forever.
+  cancel-in-progress: false
 
 on:
   push:
@@ -743,7 +744,7 @@ jobs:
           fi
 
           exit "$failed"
-```
+~~~
 
 ## 13. Cobertura linha a linha
 
@@ -8583,3 +8584,7 @@ Cobertura canônica da revisão vigente; mapas anteriores permanecem como contex
 | 1–589 | Blob integral atual `fbc108c255d06257b741839bb19fa56b4e6794b2` (589 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
 
 A sincronização documental não reaproveita aprovação anterior: esta revisão requer nova auditoria distribuída.
+
+## Cobertura documental de linhas — sincronização mecânica da revisão atual
+
+- 1–590: cobertura integral da revisão `9296c4f00174278e43ea811fe617badbd6ee11eb`; sincronização mecânica. O estado permanece **READY_FOR_AUDIT** e auditorias anteriores não são reutilizadas.
