@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "index": 29,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 28",
+  "file": "extension/background/jobs-watchdog.js",
+  "bible": "docs/biblia/extension/background/jobs-watchdog.js/Bíblia.md",
+  "source_sha": "c17b766d7fbc34ea925fb82b19149d3d977de413",
+  "bible_sha": "5071b229f8e82dbdc96cb8e45583c3ade333865d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "029-REAUDIT-A28-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "category": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "finding": "A rastreabilidade é estruturalmente completa (110/110) e as células de fonte correspondem ao source real, mas diversos papéis locais descrevem operações diferentes das linhas auditadas; a cobertura posicional não é uma rastreabilidade semântica fiel.",
+      "evidence": [
+        "Posição 017 executa a primeira canonicalização `resolveCanonicalTabId(requestedTabId)`, mas o papel local diz que preserva o tabId originalmente solicitado.",
+        "Posição 034 executa a segunda canonicalização pós-write, mas recebe o mesmo papel incorreto de preservação.",
+        "Posição 038 executa `chrome.storage.local.get([oldKey, newKey])`, mas o papel local diz que calcula a chave antiga.",
+        "Posições 059–061 fazem lookup do job pelo sufixo jobId/geminiTabId e constroem as chaves candidatas de wd_data, mas são rotuladas genericamente como uso de índice de imagem/identidade.",
+        "Posições 066–070 reconstroem metadata do watchdog a partir do jobIndex; em especial 067 é geminiTabId e 070 é jobId, porém ambas são descritas como uso de índice de imagem.",
+        "Posição 075 seleciona rawTabId entre watchdog e índice, mas é descrita como uso de índice de imagem.",
+        "Posição 090 executa o efeito central `await finalizeJob(tabId, watchdog.mangaTabId, true)`, mas é descrita apenas como uso da aba leitora.",
+        "A fonte integral embutida é byte-a-byte idêntica ao blob `c17b766d7fbc34ea925fb82b19149d3d977de413`; logo o defeito é documental, não source drift."
+      ],
+      "requested_documentation_fix": "Reescrever os papéis locais afetados e revisar sistematicamente a tabela para que cada posição descreva o efeito real da linha, mantendo 110/110 somente após a fidelidade semântica."
+    },
+    {
+      "id": "029-REAUDIT-A28-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "category": "RUNTIME_CONSUMER_OMISSION",
+      "finding": "A Bíblia omite `extension/background/jobs-lifecycle.js`, consumidor central do watchdog no ciclo normal de jobs.",
+      "evidence": [
+        "`background.js` cria `MangaTranslatorJobsWatchdog.createWatchdog` e injeta `armWatchdog`/`clearWatchdog` no lifecycle.",
+        "`jobs-lifecycle.js` chama `clearWatchdog` nos fluxos de recovery/finalização/abort (linhas funcionais observadas 173, 372 e 670) e `await armWatchdog(mangaTabId, index, canonicalTabId, jobId)` no scheduler/processNextJob (linha funcional observada 596).",
+        "A Bíblia atual contém zero ocorrências de `jobs-lifecycle`, apesar de afirmar que o fluxo moderno usa jobId no scheduler.",
+        "A busca independente de consumers também localizou `background.js`, `jobs-lifecycle.js`, a action de refresh e testes; portanto a omissão não é inferida apenas do ADVERSARIAL."
+      ],
+      "requested_documentation_fix": "Adicionar `jobs-lifecycle.js` ao mapa de consumers/dependências e explicar onde o lifecycle arma e limpa watchdogs, distinguindo scheduler, finalização, recovery e abort."
+    },
+    {
+      "id": "029-REAUDIT-A28-003",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "category": "EVIDENCE_INVENTORY_INCOMPLETE",
+      "finding": "O inventário de evidência omite `tests/unit/background/helpers-real.test.js`, que executa `background.js` real e, por delegação, o módulo real de watchdog para arm/rearm/clear.",
+      "evidence": [
+        "`helpers-real.test.js` carrega `background.js` via `loadBackgroundModule`, chama `backgroundModule.armWatchdog(55, 8, 2001)`, observa criação de `watchdog_2001` e persistência de `wd_data_2001`, rearma com novo índice e depois chama `clearWatchdog(2001)` verificando remoção do alarme/storage.",
+        "`load-background-module.js` apenas acrescenta exports de teste ao source real; no caminho Node/Jest, `background.js` requer `./background/jobs-watchdog.js` e os wrappers delegam a `jobsWatchdog.arm/clear`.",
+        "A Bíblia atual contém zero ocorrências de `helpers-real.test.js` e sua tabela de evidência não registra essa execução integrada.",
+        "Isso não elimina 029-003: continuam sem prova focal a ordem exata clear→storage.set→alarms.create, a segunda canonicalização/race, falhas das APIs e fallback pelo índice. O problema documental é não representar a evidência real existente com força conservadora."
+      ],
+      "requested_documentation_fix": "Incluir `helpers-real.test.js` como evidência integrada sobre mocks da Chrome API e preservar como lacunas apenas as propriedades que suas assertions não observam diretamente."
+    }
+  ],
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X",
+    "semantic_traceability": "CONTRADITO",
+    "dependencies_consumers": "CONTRADITO",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_28_DIFERENTE_DO_PRIMARY_LEGADO_E_AGENTE_29",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "primary": "PRIMARY legado APPROVED em AUDITORIA.md corresponde ao source atual e à baseline documental corrente.",
+    "adversarial": "AGENTE 29 publicou CHANGES_REQUIRED para o mesmo SOURCE_SHA+BIBLE_SHA; a REAUDIT tentou refutar cada finding e confirmou os três de forma independente.",
+    "structural_checks": {
+      "source_text_lines": 109,
+      "final_newline": true,
+      "documented_positions": "110/110",
+      "embedded_source_exact": true,
+      "trace_source_cells_exact": true
+    },
+    "assertions_revalidated": [
+      "jobs-watchdog-ordering.test.js executa o módulo real e prova finalizeJob antes do cleanup seletivo no caminho de sucesso; não cobre rejeição de finalizeJob.",
+      "batch-lifecycle-real.test.js prova integração de timeout com wd_data, SHOW_ERROR_INTEGRATED, cleanup e activeJobsCount=0.",
+      "helpers-real.test.js prova arm/rearm/clear integrados, mas não prova ordem interna exata, race de replacement, falhas das APIs nem fallback por jobIndex."
+    ],
+    "audit_requests": [
+      "029-001 ACCEPTED e confirmado como risco funcional/testável externo honestamente descrito.",
+      "029-002 ACCEPTED e confirmado: callback async de storage contém awaits sem catch/finally abrangente.",
+      "029-003 ACCEPTED; seu escopo focal/branches continua útil, mas a documentação deve também reconhecer a cobertura integrada existente em helpers-real.test.js."
+    ],
+    "formal_refutation_attempt": "Foi tentado tratar os papéis locais como rótulos genéricos, `jobs-lifecycle.js` como consumidor implicitamente coberto por background.js e `helpers-real.test.js` como evidência redundante. As três defesas falharam: os rótulos atribuem responsabilidades factualmente diferentes a linhas centrais; o lifecycle contém chamadas diretas de arm/clear ausentes da Bíblia; e helpers-real observa efeitos reais de arm/rearm/clear que a tabela de evidência não representa."
+  },
+  "passages_executed": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T15:56:09.002Z"
+}
