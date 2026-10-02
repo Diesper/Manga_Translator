@@ -141,6 +141,22 @@ function latestAuditEvidenceMs(pipeline) {
   return values.length ? Math.max(...values) : null;
 }
 
+function expectedCorrectionTokenId(token) {
+  const seed = JSON.stringify({
+    index: Number(token?.index),
+    cycle: Number(token?.correction_cycle),
+    revision_id: token?.revision_id || null,
+    handoff_id: token?.handoff_id || null,
+    audit_epoch: Number(token?.audit_epoch),
+    decision_id: token?.decision_id || null,
+    human_approval_id: token?.human_approval_id || null,
+    actor: token?.actor || '',
+    issued_at_utc: token?.issued_at_utc || '',
+  });
+  return 'corr-' + String(Number(token?.index)).padStart(3, '0')
+    + '-' + life.sha256(seed).slice(0, 20);
+}
+
 function tokenConsumed(state, tokenId) {
   return (Array.isArray(state?.history) ? state.history : []).some((entry) => (
     entry?.type === 'CORRECTION_TOKEN_CONSUMED'
@@ -183,20 +199,9 @@ function issueCorrectionToken(state, pipeline, options = {}) {
     throw new Error('TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL');
   }
   const decisionId = decisionIdForPipeline({ ...pipeline, index: state.index });
-  const seed = JSON.stringify({
-    index: state.index,
-    cycle: snapshot.current_escalation_cycle,
-    revision_id: snapshot.revision_id,
-    handoff_id: snapshot.handoff_id,
-    audit_epoch: snapshot.audit_epoch,
-    decision_id: decisionId,
-    human_approval_id: humanApprovalId,
-    actor: tokenActor,
-    issued_at_utc: issuedAt,
-  });
-  return {
+  const token = {
     schema_version: 1,
-    token_id: 'corr-' + String(state.index).padStart(3, '0') + '-' + life.sha256(seed).slice(0, 20),
+    token_id: null,
     index: state.index,
     authorization_type: 'CORRECTION',
     decision: 'CHANGES_REQUIRED',
@@ -212,6 +217,8 @@ function issueCorrectionToken(state, pipeline, options = {}) {
     issued_at_utc: issuedAt,
     human_approval_id: humanApprovalId,
   };
+  token.token_id = expectedCorrectionTokenId(token);
+  return token;
 }
 
 function validateCorrectionToken(state, token, options = {}) {
@@ -228,7 +235,12 @@ function validateCorrectionToken(state, token, options = {}) {
   if (token?.test_sha !== snapshot.test_sha) problems.push('TOKEN_TEST_STALE');
   if (token?.bible_sha !== snapshot.bible_sha) problems.push('TOKEN_BIBLE_STALE');
   if (token?.revision_id !== snapshot.revision_id) problems.push('TOKEN_REVISION_STALE');
-  if (typeof token?.token_id !== 'string' || !token.token_id.trim()) problems.push('TOKEN_ID_MISSING');
+  if (typeof token?.token_id !== 'string' || !token.token_id.trim()) {
+    problems.push('TOKEN_ID_MISSING');
+  } else if (Number.isInteger(Number(token?.index))
+    && token.token_id !== expectedCorrectionTokenId(token)) {
+    problems.push('TOKEN_ID_NOT_DETERMINISTIC');
+  }
   const issuedMs = Date.parse(token?.issued_at_utc || '');
   if (!Number.isFinite(issuedMs)) problems.push('TOKEN_ISSUED_AT_INVALID');
   if (typeof token?.actor !== 'string' || !token.actor.trim()) problems.push('TOKEN_ACTOR_MISSING');
@@ -244,11 +256,23 @@ function validateCorrectionToken(state, token, options = {}) {
       problems.push('TOKEN_ISSUED_BEFORE_FINAL_DECISION');
     }
   }
-  if (options.humanApproval && Number.isFinite(issuedMs)) {
-    const approvalMs = Date.parse(options.humanApproval.approved_at_utc || '');
-    if (Number.isFinite(approvalMs) && issuedMs < approvalMs) {
-      problems.push('TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL');
+  if (snapshot.human_locked) {
+    const approval = options.humanApproval
+      || (options.humanApprovals || []).find((item) => item?.approval_id === token?.human_approval_id)
+      || null;
+    if (!token?.human_approval_id) {
+      problems.push('TOKEN_HUMAN_APPROVAL_MISSING');
+    } else if (!approval
+      || !human.approvalMatches(state, snapshot, approval, 'ALLOW_ONE_CORRECTION')) {
+      problems.push('TOKEN_HUMAN_APPROVAL_INVALID');
+    } else {
+      const approvalMs = Date.parse(approval.approved_at_utc || '');
+      if (Number.isFinite(issuedMs) && Number.isFinite(approvalMs) && issuedMs < approvalMs) {
+        problems.push('TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL');
+      }
     }
+  } else if (token?.human_approval_id) {
+    problems.push('TOKEN_UNEXPECTED_HUMAN_APPROVAL');
   }
   if (tokenConsumed(state, token?.token_id)) problems.push('TOKEN_ALREADY_CONSUMED');
   return problems;
@@ -730,6 +754,13 @@ function loadCorrectionTokens(root, states = [], options = {}) {
       continue;
     }
     tokens.push({ ...token, path: rel });
+    const pathMatch = /^docs\/biblia\/\.coordination\/correction-authorizations\/(\d{3})\/([^/]+)\.json$/i.exec(rel);
+    if (!pathMatch) {
+      problems.push(rel + ': path de correction token inválido');
+    } else {
+      if (Number(pathMatch[1]) !== Number(token?.index)) problems.push(rel + ': index do token diverge do path');
+      if (pathMatch[2] !== String(token?.token_id || '')) problems.push(rel + ': token_id diverge do filename');
+    }
     if (ids.has(token?.token_id)) problems.push(rel + ': token_id duplicado');
     if (token?.token_id) ids.add(token.token_id);
 
@@ -742,7 +773,10 @@ function loadCorrectionTokens(root, states = [], options = {}) {
     if (consumptionCount > 1) problems.push(rel + ': token consumido mais de uma vez');
     if (consumptionCount === 0) {
       const pipeline = options.pipelines instanceof Map ? options.pipelines.get(state.index) : null;
-      for (const problem of validateCorrectionToken(state, token, { pipeline })) problems.push(rel + ': ' + problem);
+      for (const problem of validateCorrectionToken(state, token, {
+        pipeline,
+        humanApprovals: options.humanApprovals || [],
+      })) problems.push(rel + ': ' + problem);
       if (activeByIndex.has(state.index)) {
         problems.push(rel + ': mais de um correction token ativo para o mesmo índice');
       } else {
