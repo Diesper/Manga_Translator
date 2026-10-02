@@ -55,7 +55,9 @@ function humanReviewDiagnostics(state, cycles) {
       at_utc: entry.at_utc || null,
       actor: entry.agent || entry.actor || null,
       categories: Array.isArray(review.categories) ? review.categories : [],
+      related_cycles: Array.isArray(review.related_cycles) ? review.related_cycles : [],
       evidence: review.evidence || '',
+      why_previous_failed: review.why_previous_failed || '',
       strategy: review.strategy || '',
     });
   }
@@ -215,7 +217,10 @@ function renderHumanSummary(pkg) {
     '## Possíveis causas-raiz',
     ...(pkg.possible_root_causes.length
       ? pkg.possible_root_causes.map((item) => '- ' + (item.categories.join(', ') || 'OTHER')
-        + ': ' + (item.evidence || '-') + ' | estratégia=' + (item.strategy || '-'))
+        + ' cycles=' + (item.related_cycles?.join(',') || '-')
+        + ': ' + (item.evidence || '-')
+        + ' | por que antes falhou=' + (item.why_previous_failed || '-')
+        + ' | estratégia=' + (item.strategy || '-'))
       : ['- nenhuma ROOT_CAUSE_REVIEW registrada']),
     '',
     '## Pendências',
