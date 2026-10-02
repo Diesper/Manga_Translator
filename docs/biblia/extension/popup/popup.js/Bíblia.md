@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/popup/popup.js`
 
-> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
-> **SHA auditado:** `300cfe9a9c81814443c9d52a17915d851408748b`  
+> **Estado:** 🟡 CORRIGIDO — REABERTO POR BUG WINDOWS EXPOSTO EM #116; VALIDAÇÃO PÓS-FIX PENDENTE  
+> **SHA auditado:** `ed2d8abec5fc6e0720c0e14563fe568230d211fa`  
 > **Agente responsável pela auditoria:** AGENTE 6  
 > **Tipo:** JavaScript de popup Chromium MV3 / controlador principal de UI  
 > **Linhas textuais:** **2020**  
@@ -28,7 +28,7 @@ O popup é efêmero: estado durável vive em `chrome.storage.local` ou no storag
 | Subsistema | Evidência | Classificação |
 |---|---|---|
 | aba ativa, grid, enable/reload, settings | `popup.ui.test.js` com HTML/JS reais | ✅ PROVADO DIRETAMENTE |
-| select all/none, ban/unban, translated folder, debug/paralelismo/modo Gemini | `popup.advanced.ui.test.js` | ✅ PROVADO DIRETAMENTE |
+| select all/none, ban/unban, translated folder, debug/paralelismo/modo Gemini | `popup.advanced.ui.test.js`; revisão #116 adiciona contratos POSIX/Windows de `folderPath` e `minimized_window` | 🟨 REGRESSÕES FORTALECIDAS; PÓS-FIX EXECUTÁVEL PENDENTE |
 | miniaturas traduzidas, lazy load, migração/fallback/falha | `popup-translated-thumbnails.test.js` | ✅ PROVADO DIRETAMENTE |
 | texto/disabled do botão Traduzir | `dynamic-button.test.js` | ✅ PROVADO DIRETAMENTE |
 | progresso, polling/FIFO e STOP por aba | `progress-panel.test.js` | ✅ PROVADO DIRETAMENTE |
@@ -63,7 +63,7 @@ O popup é efêmero: estado durável vive em `chrome.storage.local` ou no storag
 - Há duplicação substancial entre settings do popup e `options.js`, aumentando risco de divergência de defaults/labels.
 - Listener de `chrome.storage.onChanged` para logs é adicionado uma vez por vida do popup e não removido explicitamente; depende do descarte da página.
 - `URL.createObjectURL` do export de log não é revogada explicitamente; vida do popup reduz impacto, mas é cleanup incompleto.
-- Alguns fluxos de filesystem/download têm assertions parciais; falhas/negações do background merecem casos focais.
+- A derivação Windows de diretório em `chap-disk-path`/`SHOW_EXISTING_FOLDER` foi corrigida para cortar pelo último `/` ou `\\`; regressão #116 cobre POSIX + Windows. Outros ramos negativos de filesystem/download ainda pertencem a 054-001.
 - Re-renderizações assíncronas precisam continuar usando generation/connected checks onde há blobs; outras listas não têm token equivalente.
 
 ## 6. Segurança e privacidade
@@ -1254,10 +1254,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 return;
                             }
                             const samplePath = paths[idxs[idxs.length - 1]];
-                            const sep = samplePath.includes('\\\\') ? '\\\\' : '/';
-                            const parts = samplePath.split(sep);
-                            parts.pop();
-                            const folderPath = parts.join(sep);
+                            const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));
+                            const folderPath = slashPos >= 0
+                                ? samplePath.slice(0, slashPos)
+                                : '';
                             pathLabel.textContent = '📂 ' + folderPath;
                             pathLabel.title = folderPath;
                         });
@@ -1299,10 +1299,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 } else {
                                     if (idxs.length > 0) {
                                         const samplePath = paths[idxs[idxs.length - 1]];
-                                        const sep = samplePath.includes('\\\\') ? '\\\\' : '/';
-                                        const parts = samplePath.split(sep);
-                                        parts.pop();
-                                        const folderPath = parts.join(sep);
+                                        const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));
+                                        const folderPath = slashPos >= 0
+                                            ? samplePath.slice(0, slashPos)
+                                            : '';
                                         chrome.runtime.sendMessage({
                                             action: 'SHOW_EXISTING_FOLDER',
                                             folderPath: folderPath,
@@ -16172,51 +16172,51 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 ### Linha/posição 1173
 
-**Fonte:** `                            const sep = samplePath.includes('\\\\') ? '\\\\' : '/';`
+**Fonte:** `                            const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));`
 
-**O que faz:** Declara estado local de capítulos traduzidos, pastas e exportação.
+**O que faz:** Localiza o último separador de diretório do path persistido, aceitando POSIX (`/`) e Windows (`\\`).
 
-**Como faz:** Deriva o valor de DOM, storage, resposta ou entrada atual.
+**Como faz:** Calcula o maior índice entre `lastIndexOf('/')` e `lastIndexOf('\\')`, sem assumir separadores duplicados.
 
-**Por que assim / risco de alternativa:** Escopo local reduz vazamento de estado entre subsistemas do popup.
+**Por que assim / risco de alternativa:** `chrome.downloads.search().filename` usa separadores nativos; procurar `\\\\` exigia duas barras consecutivas e quebrava paths Windows normais.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 REGRESSÃO #116 materializada para path Windows; validação pós-fix ainda pendente.
 
 ### Linha/posição 1174
 
-**Fonte:** `                            const parts = samplePath.split(sep);`
+**Fonte:** `                            const folderPath = slashPos >= 0`
 
-**O que faz:** Declara estado local de capítulos traduzidos, pastas e exportação.
+**O que faz:** Inicia a derivação do diretório exibido a partir da posição do último separador.
 
-**Como faz:** Deriva o valor de DOM, storage, resposta ou entrada atual.
+**Como faz:** Escolhe entre cortar o filename quando há separador ou produzir string vazia quando não há diretório.
 
-**Por que assim / risco de alternativa:** Escopo local reduz vazamento de estado entre subsistemas do popup.
+**Por que assim / risco de alternativa:** Evita reconstrução por `split/join` dependente de um separador incorretamente detectado.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 Coberto indiretamente pelo regression #116 e pelo label `chap-disk-path`; pós-fix pendente.
 
 ### Linha/posição 1175
 
-**Fonte:** `                            parts.pop();`
+**Fonte:** `                                ? samplePath.slice(0, slashPos)`
 
-**O que faz:** Executa uma etapa do subsistema de capítulos traduzidos, pastas e exportação.
+**O que faz:** Remove o filename preservando exatamente os separadores originais do diretório.
 
-**Como faz:** Opera sobre estado/DOM/resposta já preparado pelas linhas vizinhas.
+**Como faz:** Recorta o path do início até, sem incluir, o último `/` ou `\\`.
 
-**Por que assim / risco de alternativa:** A ordem preserva ownership da aba e coerência entre storage, mensagens e UI.
+**Por que assim / risco de alternativa:** Funciona com POSIX, Windows e paths mistos sem normalizar indevidamente o restante do caminho.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 Contrato derivado e regression Windows/POSIX presente em #116.
 
 ### Linha/posição 1176
 
-**Fonte:** `                            const folderPath = parts.join(sep);`
+**Fonte:** `                                : '';`
 
-**O que faz:** Declara estado local de capítulos traduzidos, pastas e exportação.
+**O que faz:** Define fallback vazio quando o path não contém separador de diretório.
 
-**Como faz:** Deriva o valor de DOM, storage, resposta ou entrada atual.
+**Como faz:** Completa o ternário iniciado na linha anterior.
 
-**Por que assim / risco de alternativa:** Escopo local reduz vazamento de estado entre subsistemas do popup.
+**Por que assim / risco de alternativa:** Evita tratar um filename isolado como diretório.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 Branch estrutural/fallback; sem caso focal isolado.
 
 ### Linha/posição 1177
 
@@ -16712,51 +16712,51 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 ### Linha/posição 1218
 
-**Fonte:** `                                        const sep = samplePath.includes('\\\\') ? '\\\\' : '/';`
+**Fonte:** `                                        const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));`
 
-**O que faz:** Declara estado local de capítulos traduzidos, pastas e exportação.
+**O que faz:** Localiza o último separador no path usado pelo botão Abrir pasta.
 
-**Como faz:** Deriva o valor de DOM, storage, resposta ou entrada atual.
+**Como faz:** Aceita tanto `/` quanto `\\` e escolhe a ocorrência mais à direita.
 
-**Por que assim / risco de alternativa:** Escopo local reduz vazamento de estado entre subsistemas do popup.
+**Por que assim / risco de alternativa:** Corrige o bug em que o popup procurava duas barras invertidas consecutivas e enviava `folderPath` Windows incorreto ao background.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 116-001 exige `folderPath` exato em POSIX e Windows; pós-fix executável pendente.
 
 ### Linha/posição 1219
 
-**Fonte:** `                                        const parts = samplePath.split(sep);`
+**Fonte:** `                                        const folderPath = slashPos >= 0`
 
-**O que faz:** Declara estado local de capítulos traduzidos, pastas e exportação.
+**O que faz:** Inicia a derivação do diretório que será enviado em `SHOW_EXISTING_FOLDER`.
 
-**Como faz:** Deriva o valor de DOM, storage, resposta ou entrada atual.
+**Como faz:** Usa a posição calculada em vez de reconstruir componentes por `split`.
 
-**Por que assim / risco de alternativa:** Escopo local reduz vazamento de estado entre subsistemas do popup.
+**Por que assim / risco de alternativa:** Mantém o path nativo intacto e remove somente o filename.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 Regression #116 materializada; validação pós-fix pendente.
 
 ### Linha/posição 1220
 
-**Fonte:** `                                        parts.pop();`
+**Fonte:** `                                            ? samplePath.slice(0, slashPos)`
 
-**O que faz:** Executa uma etapa do subsistema de capítulos traduzidos, pastas e exportação.
+**O que faz:** Recorta o filename e preserva o diretório nativo.
 
-**Como faz:** Opera sobre estado/DOM/resposta já preparado pelas linhas vizinhas.
+**Como faz:** Retorna o prefixo anterior ao último separador.
 
-**Por que assim / risco de alternativa:** A ordem preserva ownership da aba e coerência entre storage, mensagens e UI.
+**Por que assim / risco de alternativa:** Evita divergência entre paths POSIX e Windows.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 Regression #116 fixa os valores esperados para ambos os sistemas.
 
 ### Linha/posição 1221
 
-**Fonte:** `                                        const folderPath = parts.join(sep);`
+**Fonte:** `                                            : '';`
 
-**O que faz:** Declara estado local de capítulos traduzidos, pastas e exportação.
+**O que faz:** Fornece diretório vazio se não houver separador no path persistido.
 
-**Como faz:** Deriva o valor de DOM, storage, resposta ou entrada atual.
+**Como faz:** Completa o ternário de `folderPath`.
 
-**Por que assim / risco de alternativa:** Escopo local reduz vazamento de estado entre subsistemas do popup.
+**Por que assim / risco de alternativa:** Permite que o background receba fallback explícito em vez de path mutilado.
 
-**Evidência:** 🟨/✅ Evidência mista: lista de traduzidas e abertura de pasta têm assertions reais; alguns ramos de export/download/delete não possuem teste focal específico.
+**Evidência:** 🟨 Fallback estrutural; o happy path POSIX/Windows é coberto por #116.
 
 ### Linha/posição 1222
 
