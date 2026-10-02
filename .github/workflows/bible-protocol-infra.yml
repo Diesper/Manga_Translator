@@ -126,15 +126,11 @@ jobs:
 
       - name: Validate HUMAN protected diff
         if: github.event_name == 'push'
-        env:
-          BIBLE_BASE_SHA: ${{ github.event.before }}
-        run: node scripts/validation/verify-human-protected-diff.js --base "$BIBLE_BASE_SHA"
+        run: node scripts/validation/verify-human-protected-diff.js --base "${{ github.event.before }}"
 
       - name: Enforce lifecycle authority artifacts append-only
         if: github.event_name == 'push'
-        env:
-          BIBLE_BASE_SHA: ${{ github.event.before }}
-        run: node scripts/validation/verify-lifecycle-artifacts-append-only.js --base "$BIBLE_BASE_SHA"
+        run: node scripts/validation/verify-lifecycle-artifacts-append-only.js --base "${{ github.event.before }}"
 
       - name: Enforce append-only audit result history
         run: npm run bible:audit:append-only
