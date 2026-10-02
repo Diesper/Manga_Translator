@@ -1215,10 +1215,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 } else {
                                     if (idxs.length > 0) {
                                         const samplePath = paths[idxs[idxs.length - 1]];
-                                        const sep = samplePath.includes('\\\\') ? '\\\\' : '/';
-                                        const parts = samplePath.split(sep);
-                                        parts.pop();
-                                        const folderPath = parts.join(sep);
+                                        const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));
+                                        const folderPath = slashPos >= 0
+                                            ? samplePath.slice(0, slashPos)
+                                            : '';
                                         chrome.runtime.sendMessage({
                                             action: 'SHOW_EXISTING_FOLDER',
                                             folderPath: folderPath,
