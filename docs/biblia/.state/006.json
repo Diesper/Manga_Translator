@@ -2,15 +2,15 @@
   "index": 6,
   "file": "extension/background/actions/commit-result.js",
   "bible": "docs/biblia/extension/background/actions/commit-result.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
-  "started_at_utc": "2026-10-02T00:01:05Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "006-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/commit-result-action.test.js",
       "found_while_auditing": "extension/background/actions/commit-result.js",
@@ -27,11 +27,26 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:15:00Z",
       "audit_finding": "ACCEPTED. O gate real aceita commit quando `resultPersisted===true` OU `state==='dom_applied'`; a suíte cobre ambos verdadeiros e dois estados ambos prematuros, mas não as combinações assimétricas. Também só cobre journal válido, não expirado/fromError/jobId divergente nem lookup rejeitando.",
-      "auditor_recommended_action": "Adicionar matriz de persistência (`true+state antigo`, `false/undefined+dom_applied`) e journals negativos/lookup failure, assertando aceitação/rejeição e idempotência."
+      "auditor_recommended_action": "Adicionar matriz de persistência (`true+state antigo`, `false/undefined+dom_applied`) e journals negativos/lookup failure, assertando aceitação/rejeição e idempotência.",
+      "resolution": "Self-test focal prova a matriz OR de persistência, marker válido/expirado/fromError/jobId divergente, ausência de storage e lookup rejeitando. Run 36943806115/job 110641150397: PASS; background 45/45 suites e 225/225 testes com --detectOpenHandles.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:02:00Z",
+      "validation": {
+        "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+        "bible_sha": "f5ba18b73f602a55d484bf3d1cc5c558cf834a68",
+        "selftest_sha": "5f979bfb77a8641112408a80513cbc7b332d5727",
+        "workflow_sha": "7262c6e4b54d7602b28780d62d36a40764b6469b",
+        "run_id": 36943806115,
+        "job_id": 110641150397,
+        "focal": "PASS",
+        "background_suites": "45/45",
+        "background_tests": "225/225",
+        "open_handles": "background suite executed with --detectOpenHandles"
+      }
     },
     {
       "id": "006-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "RELIABILITY_REVIEW",
       "target_file": "tests/unit/background/commit-result-action.test.js",
       "found_while_auditing": "extension/background/actions/commit-result.js",
@@ -48,7 +63,22 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:37:00Z",
       "audit_finding": "ACCEPTED. Os testes provam o happy path e gates anteriores, mas não há casos em que ensureInitialized, updateJobState ou finalizeJob rejeitam. Como updateJobState ocorre antes de finalizeJob, uma falha tardia pode deixar o job em estado committed sem cleanup final; os fallbacks de IDs também não têm prova focal.",
-      "auditor_recommended_action": "Adicionar testes de rejeição em cada dependência, assertando INTERNAL_ERROR e exatamente quais efeitos anteriores ocorreram; incluir fallbacks de geminiTabId/mangaTabId."
+      "auditor_recommended_action": "Adicionar testes de rejeição em cada dependência, assertando INTERNAL_ERROR e exatamente quais efeitos anteriores ocorreram; incluir fallbacks de geminiTabId/mangaTabId.",
+      "resolution": "Self-test focal cobre ensureInitialized/updateJobState/finalizeJob rejeitando, ordering update→finalize→resposta com Promises controladas e fallbacks de geminiTabId/mangaTabId. Run 36943806115/job 110641150397: PASS.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:02:00Z",
+      "validation": {
+        "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+        "bible_sha": "f5ba18b73f602a55d484bf3d1cc5c558cf834a68",
+        "selftest_sha": "5f979bfb77a8641112408a80513cbc7b332d5727",
+        "workflow_sha": "7262c6e4b54d7602b28780d62d36a40764b6469b",
+        "run_id": 36943806115,
+        "job_id": 110641150397,
+        "focal": "PASS",
+        "background_suites": "45/45",
+        "background_tests": "225/225",
+        "open_handles": "background suite executed with --detectOpenHandles"
+      }
     }
   ],
   "document_quality": {
@@ -57,12 +87,14 @@
     "embedded_source_exact": true,
     "documented_positions": "107/107",
     "source_text_lines": 106,
-    "external_audit_requests_open": 2,
-    "note": "Bíblia concorrente revalidada; fonte integral normalizada."
+    "external_audit_requests_open": 0,
+    "note": "Bíblia reconstruída com ordering/await causal e matriz de persistência/journal. Run 36943806115/job 110641150397: focal PASS; background 45/45 suites e 225/225 testes com --detectOpenHandles.",
+    "bible_lines": 259,
+    "repair_note": "Findings de mapeamento/status/evidence overclassification corrigidos; 006-001/002 RESOLVED. Unidade devolvida para auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:01:05Z",
+  "updated_at_utc": "2026-10-02T00:02:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:37:06.126Z",
@@ -90,7 +122,38 @@
       "bible_sha": "16b60b3d6aab119960bc84324e657d9f033cf845",
       "agent": "AGENTE HÍBRIDO",
       "reason": "PRIMARY/ADVERSARIAL CHANGES_REQUIRED; 006-001/002 ACCEPTED exigem matriz de persistência/journal, falhas de dependência e prova causal de ordering/await."
+    },
+    {
+      "at_utc": "2026-10-02T00:02:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+      "bible_sha": "f5ba18b73f602a55d484bf3d1cc5c558cf834a68",
+      "selftest_sha": "5f979bfb77a8641112408a80513cbc7b332d5727",
+      "workflow_sha": "7262c6e4b54d7602b28780d62d36a40764b6469b",
+      "run_id": 36943806115,
+      "job_id": 110641150397,
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Findings distribuídos corrigidos; 006-001/002 resolvidos. Focal PASS; background 45/45 suites e 225/225 testes."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T00:02:00Z",
+      "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+      "bible_sha": "f5ba18b73f602a55d484bf3d1cc5c558cf834a68",
+      "selftest_sha": "5f979bfb77a8641112408a80513cbc7b332d5727",
+      "workflow_sha": "7262c6e4b54d7602b28780d62d36a40764b6469b",
+      "run_id": 36943806115,
+      "job_id": 110641150397,
+      "result": "PASS",
+      "focal": "PASS",
+      "background_suites": "45/45",
+      "background_tests": "225/225",
+      "open_handles": "--detectOpenHandles enabled"
+    }
+  ],
+  "progress_note": "Correção híbrida validada; requests 006-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes."
 }
