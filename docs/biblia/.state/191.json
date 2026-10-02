@@ -1110,13 +1110,14 @@
       "requested_action": "O próximo auditor independente deve criar/provar os dois cenários em vermelho contra o binding atual e publicar PRIMARY/ADVERSARIAL conforme o protocolo. Este request não autoriza correção editorial.",
       "required_cases": [
         "IndexedDB miss -> legacy hit",
-        "fallback mais recente marcado -> prevalece sobre IndexedDB stale"
+        "fallback mais recente explicitamente marcado -> prevalece sobre IndexedDB stale",
+        "legacy histórico não marcado + IndexedDB hit válido -> IndexedDB continua vencendo"
       ],
       "expected_evidence": "Resultado de auditoria append-only posterior ao handoff 2026-10-02T05:25:31Z, vinculado a SOURCE_SHA 52ede7cf... e BIBLE_SHA ef9c4326..., demonstrando explicitamente os dois contratos.",
       "severity": "HIGH",
       "independence_requirement": "Somente auditor independente pode transformar a evidência em CHANGES_REQUIRED; corretor não deve reabrir a unidade por este request.",
       "missing_evidence": "Case A: GTC_QUERY_MANY returns {ok:true, entriesByHash:{}} while gtc_<hash>=LEGACY; query must return LEGACY. Case B: GTC_QUERY_MANY returns STALE_IDB while a legacy fallback explicitly marked as created by the latest failed GTC_SAVE contains LATEST; query must return LATEST. Unmarked historical legacy must not blindly overwrite a valid IndexedDB hit.",
-      "safe_fix_direction": "Do not blindly prefer legacy. Suggested contract: on failed GTC_SAVE, persist gtc_<hash> plus an explicit per-hash fallback-override marker; on successful GTC_SAVE remove both. On query, merge legacy into IndexedDB misses; only a marked fallback may override an IndexedDB hit. This is technical evidence only and does not authorize correction.",
+      "safe_fix_direction": "Do not blindly prefer legacy. Suggested contract: failed GTC_SAVE records the fallback as an explicit recent override (preferably in a dedicated marker/override map) in addition to backward-compatible gtc_<hash>; successful GTC_SAVE clears both. Query overlays only explicit recent overrides on IndexedDB hits, while unmarked legacy fills misses only. This preserves valid modern hits and backward compatibility. This is technical evidence only and does not authorize correction.",
       "evidence_recorded_by": "AGENTE HÍBRIDO",
       "evidence_recorded_at_utc": "2026-10-02T05:58:00Z"
     }
@@ -1758,6 +1759,17 @@
       "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
       "agent": "AGENTE HÍBRIDO",
       "reason": "external_audit_requests_open reconciled to 1; no source/Bible edit and no audit verdict."
+    },
+    {
+      "at_utc": "2026-10-02T06:02:00Z",
+      "type": "INDEPENDENT_AUDIT_TARGET_STRENGTHENED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-029",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Added third mandatory precedence guard: unmarked historical legacy must not overwrite a valid IndexedDB hit. No source/Bible edit and no audit verdict."
     }
   ],
   "evidence": [
