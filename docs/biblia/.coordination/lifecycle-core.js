@@ -29,8 +29,91 @@ const ROOT_CAUSE_CATEGORIES = new Set([
   'OTHER',
 ]);
 
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.keys(value).sort().map((key) => [key, stableValue(value[key])])
+    );
+  }
+  return value;
+}
+
+function stableJson(value) {
+  return JSON.stringify(stableValue(value));
+}
+
 function sha256(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex');
+}
+
+function eventPayload(entry) {
+  const copy = { ...(entry || {}) };
+  delete copy.previous_event_hash;
+  delete copy.event_hash;
+  return copy;
+}
+
+function legacyHistoryAnchor(history, endPosition) {
+  return sha256('LEGACY|' + stableJson((history || []).slice(0, endPosition)));
+}
+
+function appendLifecycleEvent(history, entry) {
+  const list = Array.isArray(history) ? history : [];
+  let previousHash = null;
+  for (let i=list.length-1;i>=0;i-=1) {
+    if (/^[0-9a-f]{64}$/i.test(String(list[i]?.event_hash || ''))) {
+      previousHash = list[i].event_hash;
+      break;
+    }
+  }
+  if (!previousHash) previousHash = legacyHistoryAnchor(list, list.length);
+  const next = {
+    ...entry,
+    previous_event_hash: previousHash,
+  };
+  next.event_hash = sha256(previousHash + '|' + stableJson(eventPayload(next)));
+  list.push(next);
+  return next;
+}
+
+function eventChainProblems(state) {
+  const history = historyOf(state);
+  const first = history.findIndex((entry) => entry?.event_hash || entry?.previous_event_hash);
+  if (first < 0) return [];
+  const problems = [];
+  let previousHash = legacyHistoryAnchor(history, first);
+  for (let i=first;i<history.length;i+=1) {
+    const entry = history[i];
+    if (!/^[0-9a-f]{64}$/i.test(String(entry?.previous_event_hash || ''))
+      || !/^[0-9a-f]{64}$/i.test(String(entry?.event_hash || ''))) {
+      problems.push('#' + String(state?.index || 0).padStart(3, '0') + ': evento pós-chain sem hashes na posição ' + i);
+      continue;
+    }
+    if (entry.previous_event_hash !== previousHash) {
+      problems.push('#' + String(state?.index || 0).padStart(3, '0') + ': previous_event_hash quebrado na posição ' + i);
+    }
+    const expected = sha256(entry.previous_event_hash + '|' + stableJson(eventPayload(entry)));
+    if (entry.event_hash !== expected) {
+      problems.push('#' + String(state?.index || 0).padStart(3, '0') + ': event_hash inválido na posição ' + i);
+    }
+    previousHash = entry.event_hash;
+  }
+  if (state?.status === 'IN_PROGRESS') {
+    const updatedMs = Date.parse(state?.updated_at_utc || '');
+    const hasCanonicalStart = history.some((entry) => {
+      const atMs = Date.parse(entry?.at_utc || '');
+      return Number.isFinite(atMs)
+        && atMs >= effectiveMs
+        && entry?.to_status === 'IN_PROGRESS'
+        && typeof entry?.correction_token_id === 'string'
+        && entry.correction_token_id.trim();
+    });
+    if (Number.isFinite(updatedMs) && updatedMs >= effectiveMs && !hasCanonicalStart) {
+      problems.push(label + ': IN_PROGRESS pós-policy sem START_CORRECTION canônico');
+    }
+  }
+  return problems;
 }
 
 function validSha(value) {
@@ -236,8 +319,11 @@ function lifecycleProblems(state, options = {}) {
     problems.push(label + ': HUMAN_LOCKED sem correction_cycle >= 7');
   }
 
+  problems.push(...eventChainProblems(state));
+
   const effectiveMs = Date.parse(options.effectiveAtUtc || LIFECYCLE_POLICY_EFFECTIVE_AT_UTC);
-  for (const entry of historyOf(state)) {
+  const history = historyOf(state);
+  for (const entry of history) {
     const atMs = Date.parse(entry?.at_utc || '');
     if (!Number.isFinite(atMs) || atMs < effectiveMs) continue;
     if (entry?.to_status === 'IN_PROGRESS' && entry?.type !== SAFE_ABORT_EVENT) {
@@ -274,7 +360,10 @@ module.exports = {
   SAFE_ABORT_EVENT,
   ESCALATION,
   ROOT_CAUSE_CATEGORIES,
+  stableJson,
   sha256,
+  appendLifecycleEvent,
+  eventChainProblems,
   validSha,
   escalationForCycle,
   handoffEvents,
