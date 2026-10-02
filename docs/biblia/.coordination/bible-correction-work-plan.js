@@ -76,6 +76,7 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
       handoff_id: lifecycle.handoff_id,
       correction_token_required: true,
       reservation_path: reservationPath,
+      strategy_review_required: lifecycleCore.strategyReviewDue(state),
       root_cause_review_required: lifecycle.correction_cycle === 6,
     });
   }
