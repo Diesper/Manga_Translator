@@ -168,6 +168,7 @@ if (!window.__manga_translator_content_injected) {
     let isTranslating = false;
     let _countedJobIndices = new Set();
     let _failedPersistenceUpdateKeys = new Set();
+    let _failedPersistenceUpdateMeta = new Map();
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
     let _localBatchQueuePosition = null;
@@ -1851,6 +1852,7 @@ if (!window.__manga_translator_content_injected) {
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
             _failedPersistenceUpdateKeys.clear();
+            _failedPersistenceUpdateMeta.clear();
             _localBatchStatus = 'starting';
             _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
@@ -2581,6 +2583,7 @@ if (!window.__manga_translator_content_injected) {
                 let foundImage = false;
                 let shouldAccountUpdate = false;
                 let retryTranslatedImage = null;
+                let persistenceMeta = null;
                 let persistPromise = null;
 
                 for (let img of images) {
@@ -2600,7 +2603,12 @@ if (!window.__manga_translator_content_injected) {
                             foundImage = true;
                             shouldAccountUpdate = true;
                             retryTranslatedImage = img;
-                            persistPromise = persistTranslatedPage(request.index, request.newSrc);
+                            persistenceMeta = _failedPersistenceUpdateMeta.get(persistenceRetryKey) || null;
+                            persistPromise = persistTranslatedPage(
+                                request.index,
+                                request.newSrc,
+                                persistenceMeta || undefined
+                            );
                             break;
                         }
 
@@ -2647,12 +2655,17 @@ if (!window.__manga_translator_content_injected) {
                             }).catch(() => {});
                         }
 
-                        persistPromise = persistTranslatedPage(request.index, request.newSrc, {
+                        persistenceMeta = {
                             cleanUrl:  origCleanUrl,
                             sourceUrl: origSourceUrl,
                             width,
                             height,
-                        }).then(({ chapterId, chapter }) => {
+                        };
+                        persistPromise = persistTranslatedPage(
+                            request.index,
+                            request.newSrc,
+                            persistenceMeta
+                        ).then(({ chapterId, chapter }) => {
 
                             chrome.storage.local.get(['autoDownload'], (settings) => {
                                 if (settings.autoDownload !== true) return;
@@ -2703,6 +2716,7 @@ if (!window.__manga_translator_content_injected) {
                     .then(() => {
                         if (persistenceRetryKey) {
                             _failedPersistenceUpdateKeys.delete(persistenceRetryKey);
+                            _failedPersistenceUpdateMeta.delete(persistenceRetryKey);
                         }
                         if (
                             retryTranslatedImage
@@ -2719,6 +2733,9 @@ if (!window.__manga_translator_content_injected) {
                         ack({ ok: false, reason: 'persist_failed' });
                         if (persistenceRetryKey && isAcceptedBatchStillActive()) {
                             _failedPersistenceUpdateKeys.add(persistenceRetryKey);
+                            if (persistenceMeta) {
+                                _failedPersistenceUpdateMeta.set(persistenceRetryKey, { ...persistenceMeta });
+                            }
                         }
                         // Persistência falhou: não contabilizar o índice como concluído.
                         // O lote permanece ativo para que o background possa reenviar
