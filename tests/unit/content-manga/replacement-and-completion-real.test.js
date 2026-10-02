@@ -41,13 +41,27 @@ function dispatchToContent(runtimeMock, request, sender = { tab: { id: 1 } }) {
     return new Promise((resolve) => {
         let settled = false;
         let keepAlive = false;
+        let synchronousResponse;
+        let listenerReturned = false;
 
         const sendResponse = (response) => {
+            if (!listenerReturned) {
+                synchronousResponse = response;
+                return;
+            }
+            if (settled) return;
             settled = true;
             resolve({ keepAlive, response });
         };
 
         keepAlive = getContentListener(runtimeMock)(request, sender, sendResponse);
+        listenerReturned = true;
+
+        if (synchronousResponse !== undefined) {
+            settled = true;
+            resolve({ keepAlive, response: synchronousResponse });
+            return;
+        }
         if (keepAlive !== true && !settled) {
             resolve({ keepAlive, response: undefined });
         }
