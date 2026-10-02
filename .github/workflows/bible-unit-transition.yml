@@ -1,0 +1,216 @@
+name: Bible Unit Transition
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Canonical transition operation'
+        required: true
+        type: choice
+        options:
+          - ISSUE_TOKEN
+          - START_CORRECTION
+          - HANDOFF_FOR_AUDIT
+          - SAFE_ABORT
+          - REFRESH_REVISION_FOR_AUDIT
+          - HUMAN_COMPLETE
+          - HUMAN_RESET_ESCALATION
+      index:
+        description: 'Bible unit index'
+        required: true
+        type: number
+      actor:
+        description: 'Agent identity'
+        required: true
+        type: string
+      token_id:
+        description: 'Correction token id for START_CORRECTION'
+        required: false
+        type: string
+      approval_id:
+        description: 'Human approval id when required'
+        required: false
+        type: string
+      expected_status:
+        description: 'CAS expected status'
+        required: true
+        type: string
+      expected_state_sha:
+        description: 'CAS expected .state Git blob SHA'
+        required: true
+        type: string
+      expected_revision_id:
+        description: 'CAS expected revision id'
+        required: true
+        type: string
+      expected_cycle:
+        description: 'CAS expected correction cycle'
+        required: true
+        type: string
+      root_cause_categories:
+        description: 'Comma-separated root-cause categories for cycle 6'
+        required: false
+        type: string
+      root_cause_evidence:
+        description: 'Root-cause evidence'
+        required: false
+        type: string
+      root_cause_related_cycles:
+        description: 'Comma-separated prior correction cycles related to the root cause'
+        required: false
+        type: string
+      root_cause_why_previous_failed:
+        description: 'Why previous correction cycles did not stabilize the unit'
+        required: false
+        type: string
+      root_cause_strategy:
+        description: 'Different strategy for cycle 6'
+        required: false
+        type: string
+      strategy_review_related_cycles:
+        description: 'Comma-separated cycles covered by periodic strategy review (e.g. 1,2,3)'
+        required: false
+        type: string
+      strategy_review_observed_pattern:
+        description: 'Repeated pattern observed across the last three cycles'
+        required: false
+        type: string
+      strategy_review_evidence:
+        description: 'Evidence supporting the periodic strategy reassessment'
+        required: false
+        type: string
+      strategy_review_why_previous_insufficient:
+        description: 'Why the previous strategy did not stabilize the unit'
+        required: false
+        type: string
+      strategy_review_new_strategy:
+        description: 'New strategy to use for the next correction'
+        required: false
+        type: string
+      reason:
+        description: 'Transition reason'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bible-unit-transition-${{ inputs.index }}
+  cancel-in-progress: false
+
+jobs:
+  transition:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical branch
+        uses: actions/checkout@v4
+        with:
+          ref: docs/project-bible
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Execute canonical transition
+        env:
+          OPERATION: ${{ inputs.operation }}
+          INDEX: ${{ inputs.index }}
+          ACTOR: ${{ inputs.actor }}
+          TOKEN_ID: ${{ inputs.token_id }}
+          APPROVAL_ID: ${{ inputs.approval_id }}
+          EXPECTED_STATUS: ${{ inputs.expected_status }}
+          EXPECTED_STATE_SHA: ${{ inputs.expected_state_sha }}
+          EXPECTED_REVISION_ID: ${{ inputs.expected_revision_id }}
+          EXPECTED_CYCLE: ${{ inputs.expected_cycle }}
+          ROOT_CAUSE_CATEGORIES: ${{ inputs.root_cause_categories }}
+          ROOT_CAUSE_EVIDENCE: ${{ inputs.root_cause_evidence }}
+          ROOT_CAUSE_RELATED_CYCLES: ${{ inputs.root_cause_related_cycles }}
+          ROOT_CAUSE_WHY_PREVIOUS_FAILED: ${{ inputs.root_cause_why_previous_failed }}
+          ROOT_CAUSE_STRATEGY: ${{ inputs.root_cause_strategy }}
+          STRATEGY_REVIEW_RELATED_CYCLES: ${{ inputs.strategy_review_related_cycles }}
+          STRATEGY_REVIEW_OBSERVED_PATTERN: ${{ inputs.strategy_review_observed_pattern }}
+          STRATEGY_REVIEW_EVIDENCE: ${{ inputs.strategy_review_evidence }}
+          STRATEGY_REVIEW_WHY_PREVIOUS_INSUFFICIENT: ${{ inputs.strategy_review_why_previous_insufficient }}
+          STRATEGY_REVIEW_NEW_STRATEGY: ${{ inputs.strategy_review_new_strategy }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ "$OPERATION" = "ISSUE_TOKEN" ]; then
+            EXTRA=()
+            if [ -n "$APPROVAL_ID" ]; then EXTRA+=(--approval-id "$APPROVAL_ID"); fi
+            node docs/biblia/.coordination/unit-transition.js issue-token \
+              --index "$INDEX" \
+              --actor "$ACTOR" \
+              --at "$AT" \
+              --expected-status "$EXPECTED_STATUS" \
+              --expected-state-sha "$EXPECTED_STATE_SHA" \
+              --expected-revision-id "$EXPECTED_REVISION_ID" \
+              --expected-cycle "$EXPECTED_CYCLE" \
+              "${EXTRA[@]}"
+          else
+            node - <<'NODE'
+          const fs = require('fs');
+          const operation = process.env.OPERATION;
+          const action = operation;
+          const request = {
+            index: Number(process.env.INDEX),
+            action,
+            actor: process.env.ACTOR,
+            at_utc: new Date().toISOString(),
+            token_id: process.env.TOKEN_ID || null,
+            approval_id: process.env.APPROVAL_ID || null,
+            expected_status: process.env.EXPECTED_STATUS || null,
+            expected_state_sha: process.env.EXPECTED_STATE_SHA || null,
+            expected_revision_id: process.env.EXPECTED_REVISION_ID || null,
+            reason: process.env.REASON || '',
+          };
+          if (process.env.EXPECTED_CYCLE) request.expected_cycle = Number(process.env.EXPECTED_CYCLE);
+          if (process.env.ROOT_CAUSE_CATEGORIES) {
+            request.root_cause_review = {
+              categories: process.env.ROOT_CAUSE_CATEGORIES.split(',').map((x) => x.trim()).filter(Boolean),
+              related_cycles: (process.env.ROOT_CAUSE_RELATED_CYCLES || '')
+                .split(',').map((x) => Number(x.trim())).filter((x) => Number.isInteger(x) && x >= 1),
+              evidence: process.env.ROOT_CAUSE_EVIDENCE || '',
+              why_previous_failed: process.env.ROOT_CAUSE_WHY_PREVIOUS_FAILED || '',
+              strategy: process.env.ROOT_CAUSE_STRATEGY || '',
+            };
+          }
+          if (process.env.STRATEGY_REVIEW_RELATED_CYCLES
+            || process.env.STRATEGY_REVIEW_OBSERVED_PATTERN
+            || process.env.STRATEGY_REVIEW_EVIDENCE
+            || process.env.STRATEGY_REVIEW_WHY_PREVIOUS_INSUFFICIENT
+            || process.env.STRATEGY_REVIEW_NEW_STRATEGY) {
+            request.strategy_review = {
+              related_cycles: (process.env.STRATEGY_REVIEW_RELATED_CYCLES || '')
+                .split(',').map((x) => Number(x.trim())).filter((x) => Number.isInteger(x) && x >= 1),
+              observed_pattern: process.env.STRATEGY_REVIEW_OBSERVED_PATTERN || '',
+              evidence: process.env.STRATEGY_REVIEW_EVIDENCE || '',
+              why_previous_strategy_insufficient: process.env.STRATEGY_REVIEW_WHY_PREVIOUS_INSUFFICIENT || '',
+              new_strategy: process.env.STRATEGY_REVIEW_NEW_STRATEGY || '',
+            };
+          }
+          fs.writeFileSync('.bible-transition-request.json', JSON.stringify(request, null, 2) + '\n');
+          NODE
+            node docs/biblia/.coordination/unit-transition.js apply --request .bible-transition-request.json
+            rm .bible-transition-request.json
+          fi
+
+      - name: Validate lifecycle after transition
+        run: node scripts/validation/verify-bible-lifecycle.js
+
+      - name: Commit canonical transition
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs/biblia/.state/ docs/biblia/.reservas/ docs/biblia/.coordination/correction-authorizations/ docs/biblia/.coordination/human-review/
+          if git diff --cached --quiet; then
+            echo "No transition changes"
+            exit 1
+          fi
+          git commit -m "coord: canonical unit ${{ inputs.index }} transition ${{ inputs.operation }}"
+          git pull --rebase origin docs/project-bible
+          node scripts/validation/verify-bible-lifecycle.js
+          git push origin HEAD:docs/project-bible

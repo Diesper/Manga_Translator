@@ -1,0 +1,84 @@
+name: Bible Human Approval
+
+on:
+  workflow_dispatch:
+    inputs:
+      index:
+        description: 'Bible unit index (1-233)'
+        required: true
+        type: number
+      decision:
+        description: 'Human decision'
+        required: true
+        type: choice
+        options:
+          - ALLOW_ONE_CORRECTION
+          - ALLOW_AUDIT_ONLY
+          - RESET_ESCALATION
+          - PERMANENTLY_CLOSE
+      reason:
+        description: 'Human rationale'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bible-human-approval-${{ inputs.index }}
+  cancel-in-progress: false
+
+jobs:
+  approve:
+    name: Human approval for Bible unit ${{ inputs.index }}
+    runs-on: ubuntu-latest
+    environment: human-approval
+    steps:
+      - name: Checkout canonical branch
+        uses: actions/checkout@v4
+        with:
+          ref: docs/project-bible
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Create append-only human approval
+        env:
+          INDEX: ${{ inputs.index }}
+          DECISION: ${{ inputs.decision }}
+          APPROVED_BY: ${{ github.actor }}
+          REASON: ${{ inputs.reason }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_BRANCH: docs/project-bible
+        run: |
+          node docs/biblia/.coordination/human-approval.js \
+            --index "$INDEX" \
+            --decision "$DECISION" \
+            --approved-by "$APPROVED_BY" \
+            --at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --reason "$REASON" \
+            --workflow-run-id "$WORKFLOW_RUN_ID" \
+            --workflow-run-attempt "$WORKFLOW_RUN_ATTEMPT" \
+            --workflow-name "$WORKFLOW_NAME" \
+            --repository "$REPOSITORY" \
+            --target-branch "$TARGET_BRANCH" \
+            --branch-head-sha "$(git rev-parse HEAD)"
+
+      - name: Commit approval only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/biblia/.coordination/human-approvals/
+          if git diff --cached --quiet; then
+            echo "No approval created"
+            exit 1
+          fi
+          git commit -m "coord: human approval for unit ${{ inputs.index }}"
+          git pull --rebase origin docs/project-bible
+          git push origin HEAD:docs/project-bible
