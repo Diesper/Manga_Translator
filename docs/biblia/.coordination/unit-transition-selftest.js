@@ -197,6 +197,29 @@ assert.strictEqual(life.activeHumanAuthorizedCorrection(planned.state), true);
 assert.deepStrictEqual(life.lifecycleProblems(planned.state), []);
 console.log('PASS HUMAN approval unlocks exactly one correction without disabling HUMAN quarantine');
 
+const resetApproval = {
+  ...approval,
+  approval_id:'human-10-reset',
+  decision:'RESET_ESCALATION',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:02:30Z',
+};
+const reset = transition.planTransition({
+  state:hs,
+  humanApproval:resetApproval,
+  request:{action:'HUMAN_RESET_ESCALATION',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:03:00Z'},
+});
+assert.strictEqual(reset.state.status,'READY_FOR_AUDIT');
+assert.strictEqual(life.lifecycleSnapshot(reset.state).current_escalation_cycle,0);
+assert.ok(reset.state.history.some((e)=>e.type==='HUMAN_APPROVAL_CONSUMED' && e.approval_id===resetApproval.approval_id));
+assert.deepStrictEqual(life.lifecycleProblems(reset.state),[]);
+assert.throws(()=>transition.planTransition({
+  state:reset.state,
+  humanApproval:resetApproval,
+  request:{action:'HUMAN_RESET_ESCALATION',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:04:00Z'},
+}),/RESET_REQUIRES_HUMAN_LOCK|HUMAN_RESET_APPROVAL_REQUIRED/);
+console.log('PASS RESET_ESCALATION consumes approval once and projects status canonically');
+
 const approvedPipeline = {
   ...pipeline(hs),
   decision:'APPROVED',
