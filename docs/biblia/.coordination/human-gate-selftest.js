@@ -94,4 +94,28 @@ auditProblems = gate.humanAuditResultProblems(
 assert.deepStrictEqual(auditProblems,[]);
 console.log('PASS audit-result HUMAN posterior à aprovação é aceito');
 
+const laterAuditApproval = {
+  ...auditApproval,
+  approval_id:'007-human-audit-later',
+  approved_at_utc:'2026-10-02T07:20:00Z',
+};
+auditProblems = gate.humanAuditResultProblems(
+  [state],
+  new Map([[7,snapshot]]),
+  [auditApproval,laterAuditApproval],
+  [{ ...auditRecord, human_approval_id: auditApproval.approval_id }]
+);
+assert.deepStrictEqual(auditProblems,[]);
+console.log('PASS approval posterior não invalida retroativamente resultado HUMAN anterior');
+
+auditProblems = gate.humanAuditResultProblems(
+  [state],
+  new Map([[7,snapshot]]),
+  [auditApproval],
+  [{ ...auditRecord, human_approval_id: 'forged-approval-id' }]
+);
+assert.ok(auditProblems.some((x)=>x.includes('ALLOW_AUDIT_ONLY')));
+console.log('PASS audit-result HUMAN com approval id fabricada é rejeitado');
+
+
 console.log('Human gate self-test: SUCCESS');
