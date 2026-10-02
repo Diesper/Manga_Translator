@@ -239,6 +239,75 @@ function humanApprovalConsumptionProblems(states, approvals) {
       problems.push('approval single-use consumida mais de uma vez: ' + approvalId + ' -> ' + labels.join(', '));
     }
   }
+
+  const humanActions = new Map([
+    ['HUMAN_AUTHORIZED_CORRECTION_STARTED', 'ALLOW_ONE_CORRECTION'],
+    ['HUMAN_PERMANENTLY_CLOSED', 'PERMANENTLY_CLOSE'],
+    [lifecycle.HUMAN_RESET_EVENT, 'RESET_ESCALATION'],
+  ]);
+  for (const state of states || []) {
+    const history = Array.isArray(state?.history) ? state.history : [];
+    for (let position = 0; position < history.length; position += 1) {
+      const entry = history[position];
+      const expectedDecision = humanActions.get(entry?.type);
+      if (!expectedDecision) continue;
+      const label = '#' + String(state.index).padStart(3, '0') + '/history[' + position + ']';
+      const approvalId = String(entry?.approval_id || '').trim();
+      const previous = history[position - 1];
+      if (!approvalId
+        || previous?.type !== 'HUMAN_APPROVAL_CONSUMED'
+        || previous?.approval_id !== approvalId) {
+        problems.push(label + ': ação HUMAN sem consumo de approval imediatamente anterior');
+        continue;
+      }
+      const approval = approvalById.get(approvalId);
+      if (!approval) {
+        problems.push(label + ': ação HUMAN vinculada a approval inexistente: ' + approvalId);
+        continue;
+      }
+      if (approval.decision !== expectedDecision) {
+        problems.push(
+          label + ': approval decision incompatível com ação HUMAN; expected='
+          + expectedDecision + ' actual=' + approval.decision
+        );
+      }
+      if (entry?.type === 'HUMAN_AUTHORIZED_CORRECTION_STARTED') {
+        const eventToken = String(entry?.correction_token_id || '').trim();
+        const consumedToken = String(previous?.correction_token_id || '').trim();
+        if (!eventToken || eventToken !== consumedToken) {
+          problems.push(label + ': correção HUMAN não coincide com token do consumo de approval');
+        }
+      }
+    }
+  }
+  return problems;
+}
+
+function humanPermanentClosePipelineProblems(states, approvals, pipelines) {
+  const problems = [];
+  const approvalById = new Map((approvals || []).map((approval) => [approval.approval_id, approval]));
+  const pipelineByIndex = pipelines instanceof Map
+    ? pipelines
+    : new Map((pipelines || []).map((pipeline) => [Number(pipeline?.index), pipeline]));
+
+  for (const state of states || []) {
+    const history = Array.isArray(state?.history) ? state.history : [];
+    for (let position = 0; position < history.length; position += 1) {
+      const entry = history[position];
+      if (entry?.type !== 'HUMAN_PERMANENTLY_CLOSED') continue;
+      const label = '#' + String(state.index).padStart(3, '0') + '/history[' + position + ']';
+      const approval = approvalById.get(String(entry?.approval_id || ''));
+      if (!approval || approval.decision !== 'PERMANENTLY_CLOSE') {
+        problems.push(label + ': HUMAN_PERMANENTLY_CLOSED sem approval PERMANENTLY_CLOSE válida');
+      }
+      const pipeline = pipelineByIndex.get(Number(state.index));
+      if (!pipeline
+        || pipeline.decision !== 'APPROVED'
+        || (Array.isArray(pipeline.problems) && pipeline.problems.length)) {
+        problems.push(label + ': HUMAN_PERMANENTLY_CLOSED sem pipeline distribuído final APPROVED válido');
+      }
+    }
+  }
   return problems;
 }
 
@@ -267,5 +336,6 @@ module.exports = {
   humanAuditResultProblems,
   humanApprovalAuditorProblems,
   humanApprovalConsumptionProblems,
+  humanPermanentClosePipelineProblems,
   humanGateProblems,
 };
