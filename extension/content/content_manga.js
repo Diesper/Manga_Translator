@@ -2564,12 +2564,6 @@ if (!window.__manga_translator_content_injected) {
                     return wantsAck;
                 }
 
-                // Congela a identidade aceita antes da persistência assíncrona.
-                // O lote pode ser cancelado/concluído e outro começar enquanto
-                // SM_SAVE_PAGE ainda está pendente; nesse caso o callback antigo
-                // jamais pode contabilizar progresso no lote novo.
-                const acceptedBatchId = request.batchId || _currentBatchId || null;
-
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
                 let persistPromise = null;
@@ -2656,29 +2650,15 @@ if (!window.__manga_translator_content_injected) {
                     persistPromise = persistTranslatedPage(request.index, request.newSrc);
                 }
 
-                const accountPersistedUpdate = () => {
-                    if (!foundImage) return;
-                    if (!acceptedBatchId || !_currentBatchId || acceptedBatchId !== _currentBatchId || !isTranslating) {
-                        sendLog('warn', 'STALE_UPDATE_COMPLETION_SKIPPED',
-                            'Persistência de UPDATE_IMAGE terminou após o lote deixar de ser o ativo; contabilização ignorada.', {
-                                received: String(acceptedBatchId || '').slice(0, 8),
-                                current: String(_currentBatchId || '').slice(0, 8),
-                                index: request.index,
-                            });
-                        return;
-                    }
-                    checkIfComplete(false, request.index);
-                };
-
                 persistPromise
                     .then(() => {
                         ack({ ok: true, persisted: true, domApplied: foundImage });
-                        accountPersistedUpdate();
+                        if (foundImage) checkIfComplete(false, request.index);
                     })
                     .catch((err) => {
                         sendLog('error', 'PERSIST_FAIL', `Falha ao persistir a página ${request.index}: ${err && err.message}`, { index: request.index });
                         ack({ ok: false, reason: 'persist_failed' });
-                        accountPersistedUpdate();
+                        if (foundImage) checkIfComplete(false, request.index);
                     });
 
                 return wantsAck;
