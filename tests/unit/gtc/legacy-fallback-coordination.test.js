@@ -102,6 +102,38 @@ describe('GTC legacy fallback coordination', () => {
         expect(finalQuery.entriesByHash).toEqual({ race: 'new-payload' });
     });
 
+    test('serializes bulk saves with single saves so an older pending write cannot overwrite the batch', async () => {
+        const repository = createInMemoryRepository();
+        const put = repository.put.bind(repository);
+        let releaseOld;
+        const oldPutStarted = new Promise(resolve => { releaseOld = resolve; });
+        repository.put = async entry => {
+            if (entry.translatedDataUrl === 'old-single-payload') {
+                await oldPutStarted;
+            }
+            return put(entry);
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+
+        const oldSingleSave = invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'bulk-race',
+            translatedDataUrl: 'old-single-payload',
+            operationAt: 100,
+        });
+        await Promise.resolve();
+        const newerBulkSave = invoke(handler, {
+            action: 'GTC_SAVE_MANY',
+            entries: [{ hash: 'bulk-race', translatedDataUrl: 'new-bulk-payload' }],
+        });
+
+        releaseOld();
+        await Promise.all([oldSingleSave, newerBulkSave]);
+        const finalQuery = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['bulk-race'] });
+
+        expect(finalQuery.entriesByHash).toEqual({ 'bulk-race': 'new-bulk-payload' });
+    });
+
     test('rejects an older save message that reaches the background after a newer modern commit', async () => {
         const repository = createInMemoryRepository(() => 200);
         await repository.put({ hash: 'race-late', translatedDataUrl: 'new-payload', updatedAt: 200 });

@@ -1281,7 +1281,7 @@
 
             // ── Save many ──────────────────────────────────────────────────
             if (request.action === 'GTC_SAVE_MANY') {
-                repository.putMany(request.entries || [])
+                serializeGtcOperation(() => repository.putMany(request.entries || []))
                     .then(result => finalize(result))
                     .catch(error => fail(error, request.action));
                 return true;
