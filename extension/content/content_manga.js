@@ -2582,10 +2582,15 @@ if (!window.__manga_translator_content_injected) {
                         // tradução com translated=true. Não reaplique a imagem; apenas
                         // tente persistir de novo e, se der certo, contabilize o índice.
                         if (img.dataset.translated === 'true') {
-                            foundImage = true;
-                            shouldAccountUpdate = true;
-                            retryTranslatedImage = img;
-                            persistPromise = persistTranslatedPage(request.index, request.newSrc);
+                            // Só é retry contabilizável enquanto o lote aceito ainda
+                            // está ativo. Duplicatas legadas pós-conclusão (sem batchId)
+                            // continuam sem reaplicar o DOM.
+                            if (isTranslating && acceptedBatchId && acceptedBatchId === _currentBatchId) {
+                                foundImage = true;
+                                shouldAccountUpdate = true;
+                                retryTranslatedImage = img;
+                                persistPromise = persistTranslatedPage(request.index, request.newSrc);
+                            }
                             break;
                         }
 
