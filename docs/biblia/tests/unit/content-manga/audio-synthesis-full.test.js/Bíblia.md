@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-001 a 191-027 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
+> **Estado documental:** correções 191-001 a 191-033 aplicadas no draft temporário #81; revalidação independente do binding corrigido ainda pendente
 > **SHA auditado:** `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
@@ -17,9 +17,12 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 ## 2. Dependências revalidadas
 
-- `extension/content/content_manga.js`: `893a03442cddb9e32487d7c7599be13ba8dc349c`.
-- `extension/content/cm-gtc-client.js`: `b7bb841499a9e677f9709f0c634c648ac6a0f65b`.
-- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
+- `extension/content/content_manga.js`: `4aaf2ba49807ed8ad780437039aa374d6ff9d4ad`.
+- `extension/content/cm-gtc-client.js`: `04227ee27470532e688949a1874948689639c4eb`.
+- `extension/shared/gtc-indexeddb.js`: `431f37eb5173c815e9db5408fcb655375ec12212`.
+- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `34d467fe19e65f8ef654d26c5d1371b94d3a89ae`.
+- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `cd86e649b38ae528bba90772e9c3c53ff7e995eb`.
+- `tests/integration/ipc/gtc-cache-flow.test.js`: `da033713d6d647a08287bb35a24c5a09d701e455`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
@@ -3084,3 +3087,30 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 **TOTAL TÉCNICO PRÉ-AUDITORIA: 98/100.**
 
 Os 2 pontos restantes ficam reservados ao protocolo: novo par **PRIMARY + ADVERSARIAL independente** no binding atual. A identidade corretora não pode autoatribuir 100/100 nem `COMPLETED`.
+
+## 36. Revalidação do draft temporário #81 — GTC e fronteiras assíncronas
+
+Os achados 191-029 a 191-033 foram corrigidos no draft isolado. A revisão adversarial desta correção também reproduziu um caso adicional do mesmo risco de ordenação: um `GTC_SAVE` antigo que chega depois de um save mais recente ter falhado no IndexedDB podia sobrescrever o fallback marcado mais novo. O handler agora compara o timestamp do fallback legado antes de persistir; quando essa leitura falha e o IndexedDB também falha, não grava sobre um fallback que não conseguiu validar.
+
+Regressões relacionadas:
+- `legacy-fallback-coordination.test.js`: 13/13 testes passaram, incluindo precedência por hash, limpeza/leitura com `lastError`, saves single/bulk serializados, mensagem antiga após commit moderno e mensagem antiga após fallback moderno.
+- `gtc-cache-flow.test.js`, `gtc-indexeddb-deep.test.js` e projeto GTC completo junto com integração: 16 suítes, 154/154 testes passaram.
+- `audio-synthesis-full.test.js` e `replacement-and-completion-real.test.js`: 2 suítes, 55/55 testes passaram.
+- `npm run lint`: sintaxe validada em 243 arquivos.
+- A execução Jest ampla pós-correção passou em 108/110 suítes (888/892 testes). O novo cenário adversarial passou após a correção. As quatro falhas restantes pertencem a outras unidades: três asserts de toast em `tests/integration/popup.advanced.ui.test.js` (índice #116) e `window.logPoller` indefinido em `tests/unit/popup/log-exporter.test.js` (índice #218); nenhuma foi alterada neste draft da unidade #191.
+
+Esta evidência ainda não representa um novo par independente PRIMARY + ADVERSARIAL no binding corrigido; o draft permanece sem declaração de 100/100.
+
+### 36.1 Revalidação local adicional após hardening dos fallbacks
+
+Depois da evidência acima, a reauditoria encontrou e corrigiu operações GTC que ainda escapavam da coordenação: `GTC_SAVE_MANY`, `GTC_CLEAR_ALL` e `GTC_DELETE_BY_CLEAN_URL`. Também foram cobertos saves obsoletos após falha moderna, leitura de timestamp com `lastError`, limpeza parcial e retry.
+
+- `legacy-fallback-coordination.test.js`: 14/14 testes.
+- Projeto GTC: 3 suítes, 67/67 testes.
+- Ponte runtime GTC: 1 suíte, 3/3 testes.
+- Integrações GTC: 2 suítes, 9/9 testes.
+- Performance integration: 1 suíte, 9/9 testes.
+- Pipeline visual GTC: 224/224 checks.
+- Lint: 243 arquivos; `git diff --check`: aprovado.
+
+Os resultados acima são validações locais anteriores ao CI do novo SHA do PR #81. As falhas globais anteriores continuam sendo evidência histórica; o head novo precisa de checks próprios. O novo par independente PRIMARY + ADVERSARIAL e a transição canônica ainda são necessários para qualquer conclusão de 100/100.
