@@ -41,6 +41,8 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
     let runtimeMessages;
     let startBatches;
     let queryManyMode;
+    let logMessages;
+    let otherMessages;
 
     function uniqueDbName() {
         return `gtc-cache-flow-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -62,6 +64,14 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
         runtimeMock.onMessage.addListener((request, sender, sendResponse) => {
             if (!request || !request.action || !request.action.startsWith('GTC_')) return false;
             runtimeMessages.push(request);
+
+            if (request.action === 'GTC_SAVE' && queryManyMode?.kind === 'save-fail') {
+                const originalPut = repository.put;
+                repository.put = async (...args) => {
+                    repository.put = originalPut;
+                    throw new Error('forced modern GTC save failure');
+                };
+            }
 
             if (request.action === 'GTC_QUERY_MANY' && queryManyMode) {
                 if (queryManyMode.kind === 'seed') {
@@ -91,7 +101,12 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
                                 ])
                             );
                             await storageMock.set(legacyEntries);
-                            sendResponse({ ok: false, error: 'forced modern GTC failure' });
+                            const originalGetManyEntries = repository.getManyEntries;
+                            repository.getManyEntries = async (...args) => {
+                                repository.getManyEntries = originalGetManyEntries;
+                                throw new Error('forced modern GTC failure');
+                            };
+                            realHandler(request, sender, sendResponse);
                         })
                         .catch(error => sendResponse({ ok: false, error: error.message }));
                     return true;
@@ -103,6 +118,9 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
 
         runtimeMock.onMessage.addListener((request, _sender, sendResponse) => {
             if (!request || !request.action) return false;
+
+            if (request.action === 'LOG_ENTRY') logMessages.push(request);
+            else otherMessages.push(request);
 
             if (request.action === 'START_BATCH') {
                 startBatches.push(request);
@@ -155,6 +173,8 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
         runtimeMessages = [];
         startBatches = [];
         queryManyMode = null;
+        logMessages = [];
+        otherMessages = [];
 
         await storageMock.clear();
         repository = createIndexedDbRepository({
@@ -259,6 +279,7 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
             shaQueries[0].hashes.map(hash => `gtc_${hash}`)
         );
         expect(Object.keys(legacyState)).toHaveLength(2);
+        expect(Object.values(legacyState)).toEqual([TRANSLATED_0, TRANSLATED_1]);
     });
 
     test('UPDATE_IMAGE real persiste tradução via GTC_SAVE no repository IndexedDB real', async () => {
@@ -286,5 +307,24 @@ describe('Global Translation Cache (GTC) — integração moderna real', () => {
             cleanUrl: 'http://localhost/page-0.png',
         }));
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe(TRANSLATED_0);
+    });
+
+    test('falha do cache GTC auxiliar é observável sem falhar o save principal da página', async () => {
+        queryManyMode = { kind: 'save-fail' };
+        const context = await loadPages(1);
+        const original = document.querySelector('[data-testid="img-0"]');
+        original.dataset.mangaIndex = '0';
+        original.dataset.origHash = 'auxiliary-cache-hash';
+
+        await context.sendMessage('UPDATE_IMAGE', {
+            index: 0,
+            newSrc: TRANSLATED_0,
+            gtc: { hash: 'auxiliary-cache-hash' },
+        });
+
+        await waitFor(() => otherMessages.some(message => message.action === 'SM_SAVE_PAGE'));
+        expect(otherMessages.filter(message => message.action === 'SM_SAVE_PAGE')).toHaveLength(1);
+        await waitFor(() => logMessages.some(message => message.action_name === 'GTC_SAVE_FAILED'));
+        expect(logMessages.filter(message => message.action_name === 'GTC_SAVE_FAILED')).toHaveLength(1);
     });
 });

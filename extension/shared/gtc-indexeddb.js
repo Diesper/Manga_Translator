@@ -74,6 +74,15 @@
                 return result;
             },
 
+            async getManyEntries(hashes) {
+                const result = {};
+                Array.from(new Set((hashes || []).map(normalizeHash).filter(Boolean))).forEach(hash => {
+                    const entry = store.get(hash);
+                    if (entry && entry.translatedDataUrl) result[hash] = { ...entry };
+                });
+                return result;
+            },
+
             async getManyByDHash(dHashes) {
                 const result  = {};
                 const dHashSet = new Set(dHashes.map(normalizeHash).filter(Boolean));
@@ -222,6 +231,7 @@
             async put(entry) {
                 const hash = normalizeHash(entry && entry.hash);
                 if (!hash || !entry || !entry.translatedDataUrl) return { saved: false };
+                const updatedAt = Number.isFinite(entry.updatedAt) ? entry.updatedAt : now();
 
                 store.set(hash, {
                     hash,
@@ -237,7 +247,7 @@
                     height:             entry.height             || 0,
                     fingerprintVersion: entry.fingerprintVersion || 'visual-v3',
                     mimeType:           entry.mimeType           || null,
-                    updatedAt:          now(),
+                    updatedAt,
                 });
                 return { saved: true };
             },
@@ -396,6 +406,19 @@
                     await Promise.all(uniqueHashes.map(async hash => {
                         const entry = await requestToPromise(store.get(hash));
                         if (entry && entry.translatedDataUrl) result[hash] = entry.translatedDataUrl;
+                    }));
+                    return result;
+                });
+            },
+
+            async getManyEntries(hashes) {
+                const uniqueHashes = Array.from(new Set((hashes || []).map(normalizeHash).filter(Boolean)));
+                if (uniqueHashes.length === 0) return {};
+                return withStore('readonly', async (store) => {
+                    const result = {};
+                    await Promise.all(uniqueHashes.map(async hash => {
+                        const entry = await requestToPromise(store.get(hash));
+                        if (entry && entry.translatedDataUrl) result[hash] = entry;
                     }));
                     return result;
                 });
@@ -846,6 +869,7 @@
             async put(entry) {
                 const hash = normalizeHash(entry && entry.hash);
                 if (!hash || !entry || !entry.translatedDataUrl) return { saved: false };
+                const updatedAt = Number.isFinite(entry.updatedAt) ? entry.updatedAt : now();
 
                 return withStore('readwrite', async (store) => {
                     store.put({
@@ -862,7 +886,7 @@
                         height:             entry.height             || 0,
                         fingerprintVersion: entry.fingerprintVersion || 'visual-v3',
                         mimeType:           entry.mimeType           || null,
-                        updatedAt:          now(),
+                        updatedAt,
                     });
                     return { saved: true };
                 });
@@ -960,6 +984,65 @@
     function createGtcRuntimeHandler({ repository, logger = () => {}, fingerprintApi = null } = {}) {
         if (!repository) { return () => false; }
 
+        // GTC_SAVE and GTC_QUERY_MANY share the legacy fallback store. Keep
+        // their read/modify/write order in the service worker so independent
+        // content-script instances cannot resurrect an older fallback after a
+        // newer save has completed.
+        let gtcOperationChain = Promise.resolve();
+        function serializeGtcOperation(operation) {
+            const result = gtcOperationChain.then(operation);
+            gtcOperationChain = result.catch(() => {});
+            return result;
+        }
+        function legacyStorage() {
+            return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local
+                ? chrome.storage.local
+                : null;
+        }
+        function legacyGet(keys) {
+            const storage = legacyStorage();
+            if (!storage || typeof storage.get !== 'function') return Promise.resolve({});
+            return new Promise((resolve, reject) => storage.get(keys, result => {
+                const error = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError;
+                if (error) reject(new Error(error.message || 'storage.local.get failed'));
+                else resolve(result && typeof result === 'object' ? result : {});
+            }));
+        }
+        function legacySet(values) {
+            const storage = legacyStorage();
+            if (!storage || typeof storage.set !== 'function') return Promise.reject(new Error('storage.local.set unavailable'));
+            return new Promise((resolve, reject) => storage.set(values, () => {
+                const error = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError;
+                if (error) reject(new Error(error.message || 'storage.local.set failed'));
+                else resolve();
+            }));
+        }
+        function legacyRemove(keys) {
+            const storage = legacyStorage();
+            if (!storage || typeof storage.remove !== 'function') return Promise.resolve();
+            return new Promise((resolve, reject) => storage.remove(keys, () => {
+                const error = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError;
+                if (error) reject(new Error(error.message || 'storage.local.remove failed'));
+                else resolve();
+            }));
+        }
+        function legacyPayload(value, marker) {
+            if (typeof value === 'string' && value) {
+                const validMarker = marker && marker.schemaVersion === 1;
+                return {
+                    translatedDataUrl: value,
+                    updatedAt: validMarker && Number.isFinite(marker.updatedAt) ? marker.updatedAt : 0,
+                    marked: Boolean(validMarker),
+                };
+            }
+            if (!value || value.schemaVersion !== 1 || typeof value.translatedDataUrl !== 'string') return null;
+            return {
+                translatedDataUrl: value.translatedDataUrl,
+                updatedAt: Number.isFinite(value.updatedAt) ? value.updatedAt : 0,
+                marked: true,
+            };
+        }
+
         return function onGtcRuntimeMessage(request, _sender, sendResponse) {
             if (!request || !request.action) return false;
 
@@ -990,9 +1073,51 @@
 
             // ── SHA-256 lookup ─────────────────────────────────────────────
             if (request.action === 'GTC_QUERY_MANY') {
-                repository.getMany(request.hashes || [])
-                    .then(entriesByHash => finalize({ entriesByHash }))
-                    .catch(error => fail(error, request.action));
+                serializeGtcOperation(async () => {
+                    const hashes = Array.from(new Set((request.hashes || []).filter(Boolean)));
+                    const normalizedHashes = Array.from(new Set(hashes.map(hash => String(hash).trim().toLowerCase()).filter(Boolean)));
+                    let modernEntries = {};
+                    let modernError = null;
+                    try {
+                        modernEntries = typeof repository.getManyEntries === 'function'
+                            ? await repository.getManyEntries(normalizedHashes)
+                            : await repository.getMany(normalizedHashes).then(entries => Object.fromEntries(
+                                Object.entries(entries).map(([hash, translatedDataUrl]) => [hash, { translatedDataUrl, updatedAt: 0 }])
+                            ));
+                    } catch (error) {
+                        modernError = error;
+                    }
+
+                    let legacy;
+                    try {
+                        legacy = await legacyGet(normalizedHashes.flatMap(hash => [`gtc_${hash}`, `gtc_meta_${hash}`]));
+                    } catch (error) {
+                        logger('warn', 'GTC_LEGACY_READ_FAILED', 'Falha ao ler fallback legado do GTC', {
+                            error: error && error.message ? error.message : String(error),
+                            hashCount: hashes.length,
+                        });
+                        if (modernError) fail(modernError, request.action);
+                        else finalize({ entriesByHash: Object.fromEntries(Object.entries(modernEntries).map(([hash, entry]) => [hash, entry.translatedDataUrl])), fallbackReadError: true });
+                        return;
+                    }
+
+                    const entriesByHash = {};
+                    for (const requestedHash of hashes) {
+                        const hash = String(requestedHash).trim().toLowerCase();
+                        const modern = modernEntries[hash];
+                        const fallback = legacyPayload(legacy[`gtc_${hash}`], legacy[`gtc_meta_${hash}`]);
+                        if (modern && modern.translatedDataUrl) {
+                            entriesByHash[requestedHash] = modern.translatedDataUrl;
+                            if (fallback && fallback.marked && fallback.updatedAt > (Number(modern.updatedAt) || 0)) {
+                                entriesByHash[requestedHash] = fallback.translatedDataUrl;
+                            }
+                        } else if (fallback) {
+                            entriesByHash[requestedHash] = fallback.translatedDataUrl;
+                        }
+                    }
+                    if (modernError && !Object.keys(entriesByHash).length) fail(modernError, request.action);
+                    else finalize({ entriesByHash, fallbackRead: true });
+                }).catch(error => fail(error, request.action));
                 return true;
             }
 
@@ -1087,23 +1212,70 @@
 
             // ── Save single ────────────────────────────────────────────────
             if (request.action === 'GTC_SAVE') {
-                repository.put({
-                    hash:               request.hash,
-                    translatedDataUrl:  request.translatedDataUrl,
-                    dHash:              request.dHash              || null,
-                    wHash:              request.wHash              || null,
-                    pHash:              request.pHash              || null,
-                    wHashCrop:          request.wHashCrop          || null,
-                    pHashCrop:          request.pHashCrop          || null,
-                    regionalHashes:     request.regionalHashes     || null,
-                    cleanUrl:           request.cleanUrl           || null,
-                    width:              request.width              || 0,
-                    height:             request.height             || 0,
-                    fingerprintVersion: request.fingerprintVersion || 'visual-v3',
-                    mimeType:           request.mimeType           || null,
-                })
-                    .then(result => finalize(result))
-                    .catch(error => fail(error, request.action));
+                serializeGtcOperation(async () => {
+                    const hash = String(request.hash || '').trim().toLowerCase();
+                    const operationAt = Number.isFinite(request.operationAt) ? request.operationAt : Date.now();
+                    if (!hash || typeof request.translatedDataUrl !== 'string' || !request.translatedDataUrl) {
+                        finalize({ saved: false, error: 'GTC_SAVE requires a hash and translatedDataUrl' });
+                        return;
+                    }
+                    try {
+                        if (typeof repository.getManyEntries === 'function') {
+                            const current = await repository.getManyEntries([hash]);
+                            if (current[hash] && Number(current[hash].updatedAt) > operationAt) {
+                                finalize({ saved: true, superseded: true });
+                                return;
+                            }
+                        }
+                        const result = await repository.put({
+                            hash,
+                            translatedDataUrl:  request.translatedDataUrl,
+                            dHash:              request.dHash              || null,
+                            wHash:              request.wHash              || null,
+                            pHash:              request.pHash              || null,
+                            wHashCrop:          request.wHashCrop          || null,
+                            pHashCrop:          request.pHashCrop          || null,
+                            regionalHashes:     request.regionalHashes     || null,
+                            cleanUrl:           request.cleanUrl           || null,
+                            width:              request.width              || 0,
+                            height:             request.height             || 0,
+                            fingerprintVersion: request.fingerprintVersion || 'visual-v3',
+                            mimeType:           request.mimeType           || null,
+                            updatedAt:          operationAt,
+                        });
+                        if (!result || result.saved !== true) {
+                            throw new Error('GTC repository rejected the save');
+                        }
+                        let cleanupError = null;
+                        try { await legacyRemove([`gtc_${hash}`, `gtc_meta_${hash}`]); }
+                        catch (error) {
+                            cleanupError = error;
+                            logger('warn', 'GTC_LEGACY_CLEANUP_FAILED', 'Falha ao remover fallback legado após save GTC', {
+                                hash,
+                                error: error && error.message ? error.message : String(error),
+                            });
+                        }
+                        finalize({ ...(result || {}), legacyCleanupError: cleanupError ? cleanupError.message : null });
+                    } catch (error) {
+                        try {
+                            await legacySet({
+                                [`gtc_${hash}`]: request.translatedDataUrl,
+                                [`gtc_meta_${hash}`]: { schemaVersion: 1, updatedAt: operationAt },
+                            });
+                            logger('warn', 'GTC_SAVE_FALLBACK_USED', 'Save GTC moderno falhou; fallback legado foi gravado', {
+                                hash,
+                                error: error && error.message ? error.message : String(error),
+                            });
+                            fail(error, request.action);
+                        } catch (storageError) {
+                            logger('error', 'GTC_SAVE_FALLBACK_FAILED', 'Save GTC e fallback legado falharam', {
+                                hash,
+                                error: storageError && storageError.message ? storageError.message : String(storageError),
+                            });
+                            fail(new Error(`${error && error.message ? error.message : String(error)}; fallback: ${storageError && storageError.message ? storageError.message : String(storageError)}`), request.action);
+                        }
+                    }
+                }).catch(error => fail(error, request.action));
                 return true;
             }
 

@@ -212,7 +212,11 @@ describe('GTC IndexedDB — Integração Profunda', () => {
         expect(queryMessages).toHaveLength(1);
         expect(queryMessages[0].hashes).toEqual([hash]);
         expect(startBatchMessages).toHaveLength(0);
-        expect(legacyGtcLookups).toHaveLength(0);
+        expect(legacyGtcLookups).toHaveLength(1);
+        expect(legacyGtcLookups[0][0]).toEqual([
+            `gtc_${hash}`,
+            `gtc_meta_${hash}`,
+        ]);
 
         expect(img.getAttribute('src')).toBe(translated);
         expect(img.dataset.translated).toBe('true');
