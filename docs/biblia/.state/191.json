@@ -210,7 +210,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:19:45Z",
+  "updated_at_utc": "2026-10-02T02:23:30Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -326,6 +326,13 @@
       "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
       "agent": "AGENTE 30",
       "reason": "191-006 HIGH: synchronous playErrorSound failures are swallowed by catch (e) {}. Regressions added; pre-fix validation PR #74 pending."
+    },
+    {
+      "at_utc": "2026-10-02T02:23:30Z",
+      "type": "REAUDIT_ADDITIONAL_FINDING",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "agent": "AGENTE 30",
+      "finding": "191-006 HIGH: synchronous playErrorSound exceptions are swallowed; pre-fix fails exactly 2 observability regressions on Node20/22."
     }
   ],
   "evidence": [
