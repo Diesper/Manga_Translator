@@ -122,5 +122,40 @@ assert.throws(()=>events.buildEvent(root,afterPrimary,{
 },[afterPrimary]),/independente do PRIMARY/);
 console.log('PASS PRIMARY auditor cannot confirm adversarial stage');
 
+const rejectPath=writeAudit('PRIMARY','AUDITOR-4','2026-10-02T07:30:00Z');
+const rejectEvent=events.buildEvent(root,finding,{
+  action:'REJECT',
+  actor:'AUDITOR-4',
+  auditor:'AUDITOR-4',
+  at_utc:'2026-10-02T07:31:00Z',
+  audit_result_path:rejectPath,
+  reason:'independent reproduction failed',
+},[finding]);
+assert.strictEqual(rejectEvent.status_before,'UNVERIFIED');
+assert.strictEqual(rejectEvent.status_after,'REJECTED');
+assert.strictEqual(events.applyEvent(finding,rejectEvent,rejectEvent.status_after).status,'REJECTED');
+console.log('PASS independent auditor can REJECT finding');
+
+const stateDir=path.join(root,'docs','biblia','.state');
+fs.mkdirSync(stateDir,{recursive:true});
+fs.writeFileSync(path.join(stateDir,'005.json'),JSON.stringify({
+  index:5,
+  status:'READY_FOR_AUDIT',
+  file:'fixture-new.js',
+  bible:'docs/biblia/fixture-new/Bíblia.md',
+  source_sha:'d'.repeat(40),
+  bible_sha:'e'.repeat(40),
+  history:[],
+},null,2)+'\n');
+const staleEvent=events.buildEvent(root,finding,{
+  action:'MARK_STALE',
+  actor:'SYSTEM',
+  at_utc:'2026-10-02T07:40:00Z',
+  reason:'revision superseded before independent confirmation',
+},[finding]);
+assert.strictEqual(staleEvent.status_before,'UNVERIFIED');
+assert.strictEqual(staleEvent.status_after,'STALE');
+console.log('PASS finding from old revision can be marked STALE without lifecycle mutation');
+
 fs.rmSync(root,{recursive:true,force:true});
 console.log('Unverified finding events self-test: SUCCESS');
