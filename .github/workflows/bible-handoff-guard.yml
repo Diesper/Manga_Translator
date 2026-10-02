@@ -37,12 +37,16 @@ jobs:
           node --check docs/biblia/.coordination/lifecycle-core.js
           node --check docs/biblia/.coordination/human-gate.js
           node --check docs/biblia/.coordination/unverified-findings.js
+          node --check docs/biblia/.coordination/unverified-finding-events.js
+          node --check docs/biblia/.coordination/unverified-finding-transition.js
           node --check docs/biblia/.coordination/unit-transition.js
           node --check docs/biblia/.coordination/human-review.js
           node --check scripts/validation/verify-human-protected-diff.js
           node --check scripts/validation/verify-human-protected-diff-selftest.js
           node --check scripts/validation/verify-bible-state-history-append-only.js
           node --check scripts/validation/verify-bible-state-history-append-only-selftest.js
+          node --check scripts/validation/verify-unverified-findings-append-only.js
+          node --check scripts/validation/verify-unverified-findings-append-only-selftest.js
 
       - name: Prove handoff fence and transition rules
         run: |
@@ -52,11 +56,13 @@ jobs:
           node docs/biblia/.coordination/lifecycle-core-selftest.js
           node docs/biblia/.coordination/human-gate-selftest.js
           node docs/biblia/.coordination/unverified-findings-selftest.js
+          node docs/biblia/.coordination/unverified-finding-events-selftest.js
           node docs/biblia/.coordination/unit-transition-selftest.js
           node docs/biblia/.coordination/human-review-selftest.js
           node docs/biblia/.coordination/audit-result-selftest.js
           node scripts/validation/verify-human-protected-diff-selftest.js
           node scripts/validation/verify-bible-state-history-append-only-selftest.js
+          node scripts/validation/verify-unverified-findings-append-only-selftest.js
 
       - name: Validate current protected handoffs
         run: node docs/biblia/.coordination/handoff-guard.js
@@ -66,3 +72,6 @@ jobs:
 
       - name: Verify lifecycle state history append-only
         run: node scripts/validation/verify-bible-state-history-append-only.js --base "${{ github.event.before }}"
+
+      - name: Verify unverified findings append-only
+        run: node scripts/validation/verify-unverified-findings-append-only.js --base "${{ github.event.before }}"
