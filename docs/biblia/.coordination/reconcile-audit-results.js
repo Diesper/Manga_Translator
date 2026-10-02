@@ -7,6 +7,7 @@ const {
   parseAuditRegistry,
 } = require('../../../scripts/validation/bible-coordination');
 const core = require('./audit-core');
+const lifecycleCore = require('./lifecycle-core');
 const {
   parseLegacyAuditRegistry,
   readStates,
@@ -34,6 +35,14 @@ function projectState(state, pipeline) {
     return { changed: false, state };
   }
   const label = '#' + String(state.index).padStart(3, '0');
+  const lifecycle = lifecycleCore.lifecycleSnapshot(state);
+  if (lifecycle.human_locked) {
+    return {
+      changed: false,
+      state,
+      blocker: label + ': HUMAN_LOCKED não aceita reconcile automático',
+    };
+  }
   if (Array.isArray(pipeline.problems) && pipeline.problems.length) {
     return {
       changed: false,
@@ -111,6 +120,18 @@ function projectState(state, pipeline) {
         : 'Pipeline distribuído produziu decisão final CHANGES_REQUIRED para source+bible atuais; exige correção editorial e nova auditoria da revisão corrigida.',
     });
   }
+
+  next.correction_cycle = lifecycle.correction_cycle;
+  next.lifetime_correction_cycles = lifecycle.lifetime_correction_cycles;
+  next.current_escalation_cycle = lifecycle.current_escalation_cycle;
+  next.escalation_level = lifecycle.escalation_level;
+  next.human_approval_required = lifecycle.human_approval_required;
+  next.audit_epoch = lifecycle.audit_epoch;
+  next.handoff_id = lifecycle.handoff_id;
+  next.production_sha = lifecycle.production_sha;
+  next.test_sha = lifecycle.test_sha;
+  next.bible_sha = lifecycle.bible_sha;
+  next.revision_id = lifecycle.revision_id;
 
   next.progress_note = targetStatus === 'COMPLETED'
     ? 'Decisão distribuída final APPROVED vinculada a source_sha + bible_sha atuais.'
