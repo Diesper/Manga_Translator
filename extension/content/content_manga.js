@@ -171,6 +171,8 @@ if (!window.__manga_translator_content_injected) {
     let _failedPersistenceUpdateMeta = new Map();
     let _pendingPersistenceUpdates = new Map();
     let _persistedUpdatePayloads = new Map();
+    let _persistedUpdatePayloadTimes = new Map();
+    const PERSISTED_UPDATE_REPLAY_TTL_MS = 120_000;
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
     let _localBatchQueuePosition = null;
@@ -178,6 +180,36 @@ if (!window.__manga_translator_content_injected) {
     // AudioContexts simultâneos. Criar um a cada lote fazia o som parar depois
     // de algumas traduções e o catch abaixo escondia a causa.
     let notificationAudioContext = null;
+
+    function prunePersistedUpdatePayloads(now = Date.now()) {
+        for (const [key, persistedAt] of _persistedUpdatePayloadTimes.entries()) {
+            if (now - persistedAt <= PERSISTED_UPDATE_REPLAY_TTL_MS) continue;
+            _persistedUpdatePayloadTimes.delete(key);
+            _persistedUpdatePayloads.delete(key);
+        }
+    }
+
+    function rememberPersistedUpdatePayload(key, dataUrl) {
+        if (!key) return;
+        const now = Date.now();
+        prunePersistedUpdatePayloads(now);
+        _persistedUpdatePayloads.set(key, dataUrl);
+        _persistedUpdatePayloadTimes.set(key, now);
+    }
+
+    function getPersistedUpdatePayload(key) {
+        if (!key) return undefined;
+        const persistedAt = _persistedUpdatePayloadTimes.get(key);
+        if (
+            typeof persistedAt === 'number'
+            && Date.now() - persistedAt > PERSISTED_UPDATE_REPLAY_TTL_MS
+        ) {
+            _persistedUpdatePayloadTimes.delete(key);
+            _persistedUpdatePayloads.delete(key);
+            return undefined;
+        }
+        return _persistedUpdatePayloads.get(key);
+    }
 
     function getNotificationAudioContext() {
         if (notificationAudioContext && notificationAudioContext.state !== 'closed') {
@@ -1856,7 +1888,9 @@ if (!window.__manga_translator_content_injected) {
             _failedPersistenceUpdateKeys.clear();
             _failedPersistenceUpdateMeta.clear();
             _pendingPersistenceUpdates.clear();
-            _persistedUpdatePayloads.clear();
+            // ACK perdido pode ser reenviado depois que outro lote já começou.
+            // Preserve commits recentes entre lotes, mas faça poda bounded por TTL.
+            prunePersistedUpdatePayloads();
             _localBatchStatus = 'starting';
             _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
@@ -2609,9 +2643,7 @@ if (!window.__manga_translator_content_injected) {
                 const replayPersistenceKey = request.batchId
                     ? `${request.batchId}:${request.index}`
                     : null;
-                const replayPersistedPayload = replayPersistenceKey
-                    ? _persistedUpdatePayloads.get(replayPersistenceKey)
-                    : undefined;
+                const replayPersistedPayload = getPersistedUpdatePayload(replayPersistenceKey);
                 if (replayPersistedPayload !== undefined) {
                     if (replayPersistedPayload !== request.newSrc) {
                         sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
@@ -2679,9 +2711,7 @@ if (!window.__manga_translator_content_injected) {
                     return wantsAck;
                 }
 
-                const persistedPayload = persistenceRetryKey
-                    ? _persistedUpdatePayloads.get(persistenceRetryKey)
-                    : undefined;
+                const persistedPayload = getPersistedUpdatePayload(persistenceRetryKey);
                 if (persistedPayload !== undefined) {
                     if (persistedPayload !== request.newSrc) {
                         sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
@@ -2821,7 +2851,7 @@ if (!window.__manga_translator_content_injected) {
                     .then(() => {
                         clearPendingPersistence();
                         if (persistenceRetryKey) {
-                            _persistedUpdatePayloads.set(persistenceRetryKey, request.newSrc);
+                            rememberPersistedUpdatePayload(persistenceRetryKey, request.newSrc);
                             _failedPersistenceUpdateKeys.delete(persistenceRetryKey);
                             _failedPersistenceUpdateMeta.delete(persistenceRetryKey);
                         }
