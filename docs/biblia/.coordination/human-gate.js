@@ -26,7 +26,7 @@ function clearlyAutomatedApprover(value) {
 function validateApproval(raw, rel = '<memory>') {
   const problems = [];
   const index = Number(raw?.index);
-  if (raw?.schema_version !== 1) problems.push(rel + ': schema_version deve ser 1');
+  if (![1,2].includes(Number(raw?.schema_version))) problems.push(rel + ': schema_version deve ser 1 ou 2');
   if (!Number.isInteger(index) || index < 1 || index > 233) problems.push(rel + ': index inválido');
   if (typeof raw?.approval_id !== 'string' || !raw.approval_id.trim()) problems.push(rel + ': approval_id ausente');
   if (!HUMAN_DECISIONS.has(String(raw?.decision || ''))) problems.push(rel + ': decision inválida');
@@ -36,6 +36,18 @@ function validateApproval(raw, rel = '<memory>') {
   if (!Number.isFinite(Date.parse(raw?.approved_at_utc || ''))) problems.push(rel + ': approved_at_utc inválido');
   if (raw?.approval_source !== 'workflow_dispatch') problems.push(rel + ': approval_source deve ser workflow_dispatch');
   if (raw?.approval_environment !== 'human-approval') problems.push(rel + ': approval_environment deve ser human-approval');
+  if (Number(raw?.schema_version) >= 2) {
+    if (!/^\d+$/.test(String(raw?.workflow_run_id || '')) || Number(raw.workflow_run_id) < 1) {
+      problems.push(rel + ': workflow_run_id inválido');
+    }
+    if (!Number.isInteger(Number(raw?.workflow_run_attempt)) || Number(raw.workflow_run_attempt) < 1) {
+      problems.push(rel + ': workflow_run_attempt inválido');
+    }
+    if (raw?.workflow_name !== 'Bible Human Approval') problems.push(rel + ': workflow_name inválido');
+    if (raw?.repository !== 'Diesper/Manga_Translator') problems.push(rel + ': repository inválido');
+    if (raw?.target_branch !== 'docs/project-bible') problems.push(rel + ': target_branch inválido');
+    if (!/^[0-9a-f]{40}$/i.test(String(raw?.branch_head_sha || ''))) problems.push(rel + ': branch_head_sha inválido');
+  }
   if (!/^[0-9a-f]{64}$/i.test(String(raw?.revision_id || ''))) problems.push(rel + ': revision_id inválido');
   if (!/^[0-9a-f]{40}$/i.test(String(raw?.test_sha || ''))) problems.push(rel + ': test_sha inválido');
   if (!/^[0-9a-f]{40}$/i.test(String(raw?.bible_sha || ''))) problems.push(rel + ': bible_sha inválido');
