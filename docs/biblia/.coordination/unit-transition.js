@@ -338,6 +338,46 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     return { state: next };
   }
 
+  if (action === 'HUMAN_COMPLETE') {
+    if (!snapshot.human_locked || state.status !== 'HUMAN_LOCKED') {
+      throw new Error('HUMAN_COMPLETE_REQUIRES_HUMAN_LOCK');
+    }
+    if (pipeline?.decision !== 'APPROVED' || (pipeline?.problems || []).length) {
+      throw new Error('HUMAN_COMPLETE_REQUIRES_FINAL_APPROVED');
+    }
+    if (!human.approvalMatches(state, snapshot, humanApproval, 'PERMANENTLY_CLOSE')) {
+      throw new Error('HUMAN_PERMANENT_CLOSE_APPROVAL_REQUIRED');
+    }
+    life.appendLifecycleEvent(next.history, {
+      at_utc: at,
+      type: 'HUMAN_APPROVAL_CONSUMED',
+      approval_id: humanApproval.approval_id,
+      actor,
+      source_sha: state.source_sha,
+      bible_sha: state.bible_sha,
+    });
+    life.appendLifecycleEvent(next.history, {
+      at_utc: at,
+      type: 'HUMAN_PERMANENTLY_CLOSED',
+      from_status: 'HUMAN_LOCKED',
+      to_status: 'COMPLETED',
+      approval_id: humanApproval.approval_id,
+      actor,
+      source_sha: state.source_sha,
+      bible_sha: state.bible_sha,
+      revision_id: snapshot.revision_id,
+      audit_epoch: snapshot.audit_epoch,
+      handoff_id: snapshot.handoff_id,
+      reason: String(request.reason || 'Fechamento humano explícito após decisão distribuída APPROVED.'),
+    });
+    next.status = 'COMPLETED';
+    next.agent = null;
+    next.completed_at_utc = at;
+    next.updated_at_utc = at;
+    persistSnapshot(next, life.lifecycleSnapshot(next));
+    return { state: next, human_closed: true };
+  }
+
   if (action === 'HUMAN_RESET_ESCALATION') {
     if (!snapshot.human_locked) throw new Error('RESET_REQUIRES_HUMAN_LOCK');
     if (!human.approvalMatches(state, snapshot, humanApproval, 'RESET_ESCALATION')) {
