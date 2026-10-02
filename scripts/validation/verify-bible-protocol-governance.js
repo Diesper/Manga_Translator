@@ -26,6 +26,8 @@ const REQUIRED = {
   handoff: [
     'branches:',
     '- docs/project-bible',
+    'group: bible-handoff-guard-${{ github.ref }}',
+    'cancel-in-progress: false',
     'node docs/biblia/.coordination/anti-loop-integration-selftest.js',
     'node docs/biblia/.coordination/anti-loop-adversarial-selftest.js',
     'node scripts/validation/bible-lifecycle-metrics-selftest.js',
