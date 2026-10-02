@@ -294,7 +294,8 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:48:15.707Z",
       "audit_finding": "Encontrado na segunda passagem adversarial pós-191-008.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION"
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionadas regressões reais para success interrupted, constructor failure no BATCH_COMPLETE e error interrupted; todos exigem telemetria específica e ausência de resume/escape indevido."
     }
   ],
   "document_quality": {
@@ -507,6 +508,14 @@
       "bible_sha": "9890a2df248924b02fde7922a042b1084a83064c",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-007/008/009 consolidadas: 26 casos reais cobrindo matriz de unlock/success/error e segundo call site; Bible 1119/1119."
+    },
+    {
+      "at_utc": "2026-10-02T02:49:30Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "6f4154c1cb2f61e8bfcc4cd6d15103859e31315a",
+      "bible_sha": "514cc02ad308a267f306419666800ba9086b7d25",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-007/008/009 reconciliados; matriz de áudio ampliada para 26 casos reais e Bíblia sincronizada 1119/1119."
     }
   ],
   "evidence": [
@@ -582,5 +591,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "9890a2df248924b02fde7922a042b1084a83064c"
+  "bible_sha": "514cc02ad308a267f306419666800ba9086b7d25"
 }
