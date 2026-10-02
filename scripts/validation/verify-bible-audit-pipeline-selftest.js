@@ -128,6 +128,52 @@ const currentAdversarial = { ...result(changedBible, 'ADVERSARIAL', 'APPROVED', 
 p = resolveAuditPipeline(changedBible, [legacyV1Primary, legacyV1Adversarial, currentPrimary, currentAdversarial], new Map(), { baseline });
 assertEqual('schema v2 revalida a nova revisão da Bíblia', p.decision, 'APPROVED');
 
+const fencedState = {
+  ...state(6),
+  bible_sha: '6'.repeat(40),
+  status: 'READY_FOR_AUDIT',
+  history: [{
+    at_utc: '2026-10-02T06:00:00Z',
+    type: 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT',
+    source_sha: String(6).padStart(40, '0'),
+    bible_sha: '6'.repeat(40),
+  }],
+};
+const stalePrimaryAfterHandoff = result(fencedState, 'PRIMARY', 'APPROVED', 'AUDITOR-OLD-1', '2026-10-02T05:50:00Z');
+const staleAdversarialAfterHandoff = result(fencedState, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-OLD-2', '2026-10-02T05:55:00Z');
+p = resolveAuditPipeline(fencedState, [stalePrimaryAfterHandoff, staleAdversarialAfterHandoff], new Map());
+assertEqual('handoff ignora resultados anteriores mesmo no mesmo binding', p.decision, 'WAITING_PRIMARY');
+if (p.handoff_after_utc !== '2026-10-02T06:00:00Z') {
+  throw new Error('pipeline deveria expor fence do handoff: ' + JSON.stringify(p));
+}
+process.stdout.write('PASS pipeline expõe fence temporal do handoff\n');
+
+const freshPrimaryAfterHandoff = result(fencedState, 'PRIMARY', 'APPROVED', 'AUDITOR-NEW-1', '2026-10-02T06:01:00Z');
+p = resolveAuditPipeline(fencedState, [
+  stalePrimaryAfterHandoff,
+  staleAdversarialAfterHandoff,
+  freshPrimaryAfterHandoff,
+], new Map());
+assertEqual('PRIMARY nova após handoff ainda exige ADVERSARIAL nova', p.decision, 'WAITING_ADVERSARIAL');
+
+const freshAdversarialAfterHandoff = result(fencedState, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-NEW-2', '2026-10-02T06:02:00Z');
+p = resolveAuditPipeline(fencedState, [
+  stalePrimaryAfterHandoff,
+  staleAdversarialAfterHandoff,
+  freshPrimaryAfterHandoff,
+  freshAdversarialAfterHandoff,
+], new Map());
+assertEqual('novo par após handoff pode aprovar', p.decision, 'APPROVED');
+
+const fencedLegacy = new Map([[6, {
+  index: 6,
+  file: fencedState.file,
+  sourceSha: fencedState.source_sha,
+  result: 'APPROVED',
+}]]);
+p = resolveAuditPipeline(fencedState, [], fencedLegacy);
+assertEqual('handoff também invalida PRIMARY legado pré-handoff', p.decision, 'WAITING_PRIMARY');
+
 const protectedRevision = {
   ...state(2),
   bible_sha: 'd'.repeat(40),
