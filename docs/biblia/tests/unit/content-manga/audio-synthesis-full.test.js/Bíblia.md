@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correção 191-007 aplicada; nova revisão aguardando validação executável e novo par PRIMARY + ADVERSARIAL independente  
-> **SHA auditado:** `301f8af30b1844d3adcd788fc28ca26cd2add039`  
+> **Estado documental:** correções 191-007/191-008 aplicadas; revisão atual aguardando validação executável e novo par PRIMARY + ADVERSARIAL independente  
+> **SHA auditado:** `e7270209f986ac385f0c1672fe336f98f9b0397a`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
-> **Linhas textuais:** **983**  
-> **Posições documentais:** **984**, contando o LF final  
+> **Linhas textuais:** **1030**  
+> **Posições documentais:** **1031**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -24,7 +24,7 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
 - `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
-## 3. Cobertura funcional atual — 22 casos
+## 3. Cobertura funcional atual — 23 casos
 
 1. `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`
 2. `erros consecutivos reutilizam um único AudioContext de notificação`
@@ -38,18 +38,19 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 10. `clique com estado intermediário não chama resume e registra unlock incompleto`
 11. `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`
 12. `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`
-13. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
-14. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
-15. `resume resolvido sem estado running não agenda som e registra skip`
-16. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
-17. `contexto suspended só agenda sucesso depois de resume real completar`
-18. `erro com resume resolvido sem running registra skip e não cria notas`
-19. `erro sem AudioContext registra indisponibilidade e preserva a UI`
-20. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
-21. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
-22. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
+13. `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`
+14. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
+15. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
+16. `resume resolvido sem estado running não agenda som e registra skip`
+17. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
+18. `contexto suspended só agenda sucesso depois de resume real completar`
+19. `erro com resume resolvido sem running registra skip e não cria notas`
+20. `erro sem AudioContext registra indisponibilidade e preserva a UI`
+21. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
+22. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
+23. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
 
-Os casos 8–12 foram adicionados pela correção 191-007 para fechar os branches restantes do `unlockNotificationAudio()` no caminho de clique real.
+Os casos 8–12 fecham os branches restantes de `unlockNotificationAudio()` no clique do botão principal. O caso 13 protege o segundo call site real, `TRANSLATE_CONTEXT_IMAGE → startSingleImageTranslation() → unlockNotificationAudio()`.
 
 ## 4. 191-001 — TEST_AUTHENTICITY — RESOLVED
 
@@ -85,32 +86,48 @@ Evidência histórica:
 
 ## 10. 191-007 — AUDIO_UNLOCK_BRANCH_GAP — CORREÇÃO APLICADA
 
-A ADVERSARIAL da revisão anterior encontrou que o clique real cobria apenas `suspended → running` e rejeição de `resume()`.
+A revisão anterior cobria no clique real apenas `suspended → running` e rejeição de `resume()`.
 
 Foram adicionadas regressões dedicadas para:
 - contexto já `running` → `AUDIO_UNLOCKED` sem chamar `resume()`;
 - `resume()` resolvido mas contexto ainda `suspended` → `AUDIO_UNLOCK_INCOMPLETE`;
 - estado intermediário `interrupted` → `AUDIO_UNLOCK_INCOMPLETE` sem `resume()`;
-- API `AudioContext`/webkit ausente no clique → `AUDIO_UNAVAILABLE` e lote continua;
-- falha síncrona do construtor no clique → `AUDIO_UNLOCK_FAILED` e lote continua.
+- API `AudioContext`/webkit ausente → `AUDIO_UNAVAILABLE` e lote continua;
+- falha síncrona do construtor → `AUDIO_UNLOCK_FAILED` e lote continua.
 
-**Estado da prova:** a implementação dos testes está no SHA `301f8af30b1844d3adcd788fc28ca26cd2add039`; a aprovação 100/100 depende de execução verde desta revisão e de novo par distribuído PRIMARY + ADVERSARIAL com auditores independentes.
+O caso original `suspended → running` também foi fortalecido para exigir `START_BATCH`, provando que o unlock não bloqueia a tradução.
 
-## 11. Evidência executável
+## 11. 191-008 — AUDIO_UNLOCK_SECOND_CALLSITE_GAP — CORREÇÃO APLICADA
 
-### Baseline anterior, antes de 191-007
+`unlockNotificationAudio()` possui dois call sites de produção:
+1. clique do botão principal;
+2. `startSingleImageTranslation()`, acionado por `TRANSLATE_CONTEXT_IMAGE`.
+
+Antes desta correção, remover o segundo call site não quebraria a suíte de áudio. A revisão atual adiciona uma regressão que:
+- habilita tradução individual;
+- envia `TRANSLATE_CONTEXT_IMAGE` ao listener real;
+- exige resposta `{ ok: true, index: 0 }`;
+- exige `resume()` no contexto suspenso;
+- exige `AUDIO_UNLOCKED` com a aba de origem;
+- exige `START_BATCH`.
+
+Assim, a ligação entre tradução individual e unlock passou a ser executavelmente observável.
+
+## 12. Evidência executável
+
+### Baseline histórica
 
 Workflow **Audio Synthesis Selftest**, run `36955506902`, commit `942281386ae6958f02ebccb36173c862af823b0a`:
 - Node 20 job `110677469400`: 2/2 suítes, 26/26 testes PASS com `--detectOpenHandles`.
 - Node 22 job `110677469562`: 2/2 suítes, 26/26 testes PASS com `--detectOpenHandles`.
 - Full content-scripts job `110677469527`: 40/40 suítes, 445/445 testes PASS.
-- A versão anterior de #191 tinha 17/17 PASS.
+- A versão correspondente de #191 tinha 17/17 PASS.
 
 ### Revisão atual
 
-A revisão `301f8af30b1844d3adcd788fc28ca26cd2add039` contém 22 testes. O novo workflow deve validar esta revisão; os números da baseline acima não são usados como prova final para o SHA atual.
+A revisão `e7270209f986ac385f0c1672fe336f98f9b0397a` contém 23 testes. A prova final exige workflow verde desta revisão; runs anteriores são apenas baseline e não substituem a validação do SHA atual.
 
-## 12. Reauditoria adversarial pós-correção
+## 13. Reauditoria adversarial pós-correção
 
 Ataques cobertos estruturalmente na revisão atual:
 - dois erros consecutivos;
@@ -124,7 +141,9 @@ Ataques cobertos estruturalmente na revisão atual:
 - fallback webkit;
 - falha de construtor no erro e no gesto;
 - falha de oscillator;
-- unlock por gesto e continuidade do lote;
+- unlock pelo botão principal;
+- unlock pela tradução individual/context menu;
+- continuidade de `START_BATCH` após unlock;
 - reuso entre lotes;
 - assertions por nó;
 - callbacks assíncronos;
@@ -132,7 +151,7 @@ Ataques cobertos estruturalmente na revisão atual:
 
 A correção documental e de cobertura está aplicada, mas a reauditoria final permanece **não concluída** até a CI do SHA atual.
 
-## 13. Fonte integral exata
+## 14. Fonte integral exata
 
 ```javascript
 /**
@@ -321,7 +340,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         });
     }
 
-    async function loadOnePage() {
+    async function loadOnePage(overrides = {}) {
         return loadContentScript({
             hostname: 'localhost',
             domImages: [{
@@ -329,6 +348,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
                 width: 800,
                 height: 1200,
             }],
+            ...overrides,
         });
     }
 
@@ -581,6 +601,9 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             message.action_name === 'AUDIO_UNLOCKED'
             && message.extra?.originTabId === 44
         ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
 
         expect(AudioContextMock).toHaveBeenCalledTimes(1);
         expect(ctx.state).toBe('running');
@@ -808,6 +831,49 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
                 originTabId: 50,
                 errorName: 'Error',
                 errorMessage: 'unlock-constructor-boom',
+            }),
+        }));
+    });
+
+    test('tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real', async () => {
+        installRuntimeResponder({ tabId: 51 });
+        const { ctx } = createAudioContext({
+            state: 'suspended',
+            onResume: async (audioCtx) => {
+                audioCtx.state = 'running';
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage({ clickToTranslateEnabled: true });
+        await delay(0);
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'TRANSLATE_CONTEXT_IMAGE',
+            srcUrl: 'http://localhost/page-0.png',
+        });
+
+        expect(result.response).toEqual({ ok: true, index: 0 });
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCKED'
+            && message.extra?.originTabId === 51
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(ctx.state).toBe('running');
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_UNLOCKED',
+            extra: expect.objectContaining({
+                originTabId: 51,
+                contextState: 'running',
             }),
         }));
     });
@@ -1120,7 +1186,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 14. Cobertura integral por posições
+## 15. Cobertura integral por posições
 
 - **1–25:** cabeçalho/imports/globals.
 - **26–39:** delay/wait.
@@ -1128,34 +1194,35 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **61–82:** factories independentes de oscillator/gain.
 - **83–107:** factory de AudioContext.
 - **108–124:** assertion por nota.
-- **125–208:** suíte, setup/cleanup, runtime responder e helpers de lote.
-- **209–247:** caso 1 — `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`.
-- **248–285:** caso 2 — `erros consecutivos reutilizam um único AudioContext de notificação`.
-- **286–318:** caso 3 — `erro com contexto suspended só agenda após resume concluir`.
-- **319–357:** caso 4 — `erro registra falha de resume sem criar notas`.
-- **358–422:** caso 5 — `BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext`.
-- **423–460:** caso 6 — `clique real desbloqueia AudioContext suspended antes do lote`.
-- **461–500:** caso 7 — `clique real registra falha de unlock sem impedir o início do lote`.
-- **501–535:** caso 8 — `clique com contexto já running registra unlock sem chamar resume`.
-- **536–572:** caso 9 — `clique com resume resolvido sem running registra unlock incompleto e inicia lote`.
-- **573–605:** caso 10 — `clique com estado intermediário não chama resume e registra unlock incompleto`.
-- **606–641:** caso 11 — `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`.
-- **642–677:** caso 12 — `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`.
-- **678–716:** caso 13 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
-- **717–745:** caso 14 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
-- **746–772:** caso 15 — `resume resolvido sem estado running não agenda som e registra skip`.
-- **773–801:** caso 16 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
-- **802–835:** caso 17 — `contexto suspended só agenda sucesso depois de resume real completar`.
-- **836–868:** caso 18 — `erro com resume resolvido sem running registra skip e não cria notas`.
-- **869–899:** caso 19 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
-- **900–930:** caso 20 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
-- **931–954:** caso 21 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
-- **955–983:** caso 22 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
-- **984:** LF terminal.
+- **125–209:** suíte, setup/cleanup, runtime responder e helpers de lote.
+- **210–248:** caso 1 — `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`.
+- **249–286:** caso 2 — `erros consecutivos reutilizam um único AudioContext de notificação`.
+- **287–319:** caso 3 — `erro com contexto suspended só agenda após resume concluir`.
+- **320–358:** caso 4 — `erro registra falha de resume sem criar notas`.
+- **359–423:** caso 5 — `BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext`.
+- **424–464:** caso 6 — `clique real desbloqueia AudioContext suspended antes do lote`.
+- **465–504:** caso 7 — `clique real registra falha de unlock sem impedir o início do lote`.
+- **505–539:** caso 8 — `clique com contexto já running registra unlock sem chamar resume`.
+- **540–576:** caso 9 — `clique com resume resolvido sem running registra unlock incompleto e inicia lote`.
+- **577–609:** caso 10 — `clique com estado intermediário não chama resume e registra unlock incompleto`.
+- **610–645:** caso 11 — `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`.
+- **646–681:** caso 12 — `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`.
+- **682–724:** caso 13 — `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`.
+- **725–763:** caso 14 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
+- **764–792:** caso 15 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
+- **793–819:** caso 16 — `resume resolvido sem estado running não agenda som e registra skip`.
+- **820–848:** caso 17 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
+- **849–882:** caso 18 — `contexto suspended só agenda sucesso depois de resume real completar`.
+- **883–915:** caso 19 — `erro com resume resolvido sem running registra skip e não cria notas`.
+- **916–946:** caso 20 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
+- **947–977:** caso 21 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
+- **978–1001:** caso 22 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
+- **1002–1030:** caso 23 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
+- **1031:** LF terminal.
 
-**Cobertura documental:** **984/984 posições**, contíguas e sem overlap.
+**Cobertura documental:** **1031/1031 posições**, contíguas e sem overlap.
 
-## 15. Pontuação provisória pós-correção
+## 16. Pontuação provisória pós-correção
 
 - Correção funcional: **25/25**
 - Robustez adversarial: **18/20**
@@ -1167,4 +1234,4 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 
 **TOTAL PROVISÓRIO: 96/100.**
 
-Os 4 pontos restantes correspondem exclusivamente à validação executável da revisão atual e ao gate distribuído independente. Não declarar 100/100 antes dessas evidências.
+Os 4 pontos restantes correspondem à validação executável da revisão atual e ao gate distribuído independente. Não declarar 100/100 antes dessas evidências.
