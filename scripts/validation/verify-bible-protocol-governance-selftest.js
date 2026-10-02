@@ -35,4 +35,52 @@ assert.ok(
 );
 console.log('PASS path-filtering the all-push Handoff Guard is rejected');
 
+const disabledProtocol={
+  ...sources,
+  protocol:sources.protocol.replace(
+    '      - name: Validate anti-loop lifecycle\n        run: npm run bible:lifecycle:verify',
+    '      - name: Validate anti-loop lifecycle\n        if: false\n        run: npm run bible:lifecycle:verify'
+  ),
+};
+assert.ok(
+  governance.validateSources(disabledProtocol).some((problem)=>problem.includes('if=false'))
+);
+console.log('PASS required protocol step cannot be disabled with if:false');
+
+const tolerantHandoff={
+  ...sources,
+  handoff:sources.handoff.replace(
+    '      - name: Validate current protected handoffs\n        run: node docs/biblia/.coordination/handoff-guard.js',
+    '      - name: Validate current protected handoffs\n        continue-on-error: true\n        run: node docs/biblia/.coordination/handoff-guard.js'
+  ),
+};
+assert.ok(
+  governance.validateSources(tolerantHandoff).some((problem)=>problem.includes('continue-on-error'))
+);
+console.log('PASS critical handoff workflow cannot tolerate failures');
+
+const shellBypass={
+  ...sources,
+  protocol:sources.protocol.replace(
+    'run: npm run bible:lifecycle:verify',
+    'run: npm run bible:lifecycle:verify || true'
+  ),
+};
+assert.ok(
+  governance.validateSources(shellBypass).some((problem)=>problem.includes('shell bypass') || problem.includes('|| true'))
+);
+console.log('PASS required command cannot be masked by shell success');
+
+const tolerantCi={
+  ...sources,
+  ci:sources.ci.replace(
+    '      - name: Validar governança do protocolo anti-loop da Bíblia\n        run: node scripts/validation/verify-bible-protocol-governance.js',
+    '      - name: Validar governança do protocolo anti-loop da Bíblia\n        continue-on-error: true\n        run: node scripts/validation/verify-bible-protocol-governance.js'
+  ),
+};
+assert.ok(
+  governance.validateSources(tolerantCi).some((problem)=>problem.includes('controle obrigatório tolera falha'))
+);
+console.log('PASS CI anti-loop governance step cannot be continue-on-error');
+
 console.log('Bible protocol governance self-test: SUCCESS');
