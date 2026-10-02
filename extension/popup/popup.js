@@ -1284,20 +1284,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                             deleteInProgress = true;
                             const newList = list.filter(c => c.id !== chap.id);
-                            storageSet({ chapterList: newList }, () => {
-                                // Remove o capítulo nos DOIS armazenamentos: o novo
-                                // (páginas + restores + assets, em uma transação) e
-                                // os resíduos legados em chrome.storage.local.
-                                smRequest({ action: 'SM_DELETE_CHAPTER', chapterId: chap.id }).then(() => {
+
+                            // O storage canônico é a autoridade. Não esconda o capítulo
+                            // da lista antes de confirmar a exclusão de páginas/restores/assets.
+                            smRequest({ action: 'SM_DELETE_CHAPTER', chapterId: chap.id }).then((result) => {
+                                if (!result?.ok) {
+                                    deleteInProgress = false;
+                                    showPopupToast('Falha ao excluir capítulo. Nenhum registro local foi removido.', 'error');
+                                    return;
+                                }
+
+                                storageSet({ chapterList: newList }, () => {
                                     storageRemove([
                                         `${chap.id}_images`, `${chap.id}_paths`, `${chap.id}_dlId`,
                                         `${chap.id}_restoreMap`, `${chap.id}_restoreMeta`, `_sm_migrated_${chap.id}`
                                     ], () => {
                                         deleteInProgress = false;
                                         loadTranslatedChapters();
-                                    });
+                                    }, () => { deleteInProgress = false; });
                                 }, () => { deleteInProgress = false; });
-                            }, () => { deleteInProgress = false; });
+                            }, () => {
+                                deleteInProgress = false;
+                                showPopupToast('Falha ao excluir capítulo. Nenhum registro local foi removido.', 'error');
+                            });
                         });
                         attachChapterThumbnails(item, chap, renderGeneration);
                         body.appendChild(item);
