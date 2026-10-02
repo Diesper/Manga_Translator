@@ -8,6 +8,7 @@ const {
 } = require('../../../scripts/validation/bible-coordination');
 const core = require('./audit-core');
 const lifecycleCore = require('./lifecycle-core');
+const unitTransition = require('./unit-transition');
 const {
   parseLegacyAuditRegistry,
   readStates,
@@ -80,65 +81,16 @@ function projectState(state, pipeline) {
     };
   }
 
-  const targetStatus = pipeline.decision === 'APPROVED' ? 'COMPLETED' : 'CHANGES_REQUIRED';
   const at = decisionTimestamp(pipeline) || state.updated_at_utc || state.completed_at_utc;
-  const next = JSON.parse(JSON.stringify(state));
-  const previous = next.status;
-  next.status = targetStatus;
-  next.agent = null;
-  next.coordination_status = 'OK';
-  next.updated_at_utc = at || next.updated_at_utc || null;
-  next.completed_at_utc = targetStatus === 'COMPLETED' ? (at || next.completed_at_utc || null) : null;
-
-  const signature = {
-    type: 'DISTRIBUTED_AUDIT_DECISION',
-    source_sha: state.source_sha,
-    bible_sha: pipeline.bible_sha || null,
-    decision: pipeline.decision,
-  };
-  next.history = Array.isArray(next.history) ? next.history : [];
-  const alreadyRecorded = next.history.some((entry) => (
-    entry?.type === signature.type
-    && entry?.source_sha === signature.source_sha
-    && (entry?.bible_sha || null) === signature.bible_sha
-    && entry?.decision === signature.decision
-  ));
-  if (!alreadyRecorded) {
-    next.history.push({
-      at_utc: at,
-      type: signature.type,
-      from_status: previous,
-      to_status: targetStatus,
-      source_sha: signature.source_sha,
-      bible_sha: signature.bible_sha,
-      decision: signature.decision,
-      primary: pipeline.primary?.verdict || null,
-      adversarial: pipeline.adversarial?.verdict || null,
-      reaudit: pipeline.reaudit?.verdict || null,
-      reason: targetStatus === 'COMPLETED'
-        ? 'PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para source+bible atuais.'
-        : 'Pipeline distribuído produziu decisão final CHANGES_REQUIRED para source+bible atuais; exige correção editorial e nova auditoria da revisão corrigida.',
-    });
+  try {
+    return unitTransition.projectAuditDecision(state, pipeline, { at_utc: at });
+  } catch (error) {
+    return {
+      changed: false,
+      state,
+      blocker: label + ': transition authority rejeitou reconcile: ' + error.message,
+    };
   }
-
-  next.correction_cycle = lifecycle.correction_cycle;
-  next.lifetime_correction_cycles = lifecycle.lifetime_correction_cycles;
-  next.current_escalation_cycle = lifecycle.current_escalation_cycle;
-  next.escalation_level = lifecycle.escalation_level;
-  next.human_approval_required = lifecycle.human_approval_required;
-  next.audit_epoch = lifecycle.audit_epoch;
-  next.handoff_id = lifecycle.handoff_id;
-  next.production_sha = lifecycle.production_sha;
-  next.test_sha = lifecycle.test_sha;
-  next.bible_sha = lifecycle.bible_sha;
-  next.revision_id = lifecycle.revision_id;
-
-  next.progress_note = targetStatus === 'COMPLETED'
-    ? 'Decisão distribuída final APPROVED vinculada a source_sha + bible_sha atuais.'
-    : 'Decisão distribuída final CHANGES_REQUIRED; corrigir Bíblia sob reserva editorial e reaudar a nova revisão.';
-
-  const changed = JSON.stringify(next) !== JSON.stringify(state);
-  return { changed, state: next };
 }
 
 function renderProjectionSection(pipelines) {
