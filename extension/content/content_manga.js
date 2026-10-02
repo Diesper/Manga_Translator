@@ -2950,6 +2950,10 @@ if (!window.__manga_translator_content_injected) {
             } else if (request.action === 'DEBUG_MODE_CHANGED') {
                 applyDebugDrawer(request.debugOn);
             } else if (request.action === 'TRANSLATE_CONTEXT_IMAGE') {
+                if (readerDisposed || !isActiveContentInstance()) {
+                    sendResponse({ ok: false, reason: 'image_ineligible' });
+                    return;
+                }
                 const img = resolveContextMenuImage(request.srcUrl || '');
                 sendResponse(startSingleImageTranslation(img));
             } else if (request.action === 'GET_PAGE_IMAGES') {
