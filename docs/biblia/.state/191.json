@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "1005872a2c6dede1c839dad3730be076ac7ef7be",
+  "source_sha": "5b0e701afe44ad8440f7843be76e5457b2ef440b",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -340,6 +340,28 @@
       "audit_finding": "Encontrado na quarta passagem adversarial pós-191-010.",
       "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
       "resolution": "Adicionada sequência real unlock→erro→novo lote→sucesso exigindo um único AudioContext, cinco nós no contexto original e zero no sentinela."
+    },
+    {
+      "id": "191-012",
+      "status": "ACCEPTED",
+      "type": "STALE_AUDIO_MESSAGE_GUARD_GAP",
+      "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "Os guards de BATCH_COMPLETE e SHOW_ERROR_INTEGRATED stale não possuíam regressão; respostas antigas poderiam voltar a disparar áudio ou contaminar o lote sem a suíte detectar.",
+      "current_evidence": "content_manga.js compara request.batchId com _currentBatchId antes de checkIfComplete/showIntegratedError, mas nenhuma suíte referenciava STALE_COMPLETE.",
+      "missing_evidence": "Mensagens stale devem produzir zero áudio/zero contaminação, e a mensagem do batch atual deve continuar funcional.",
+      "why_needed": "O requisito adversarial exige isolamento A/B/C/... e respostas fora de ordem.",
+      "requested_action": "Adicionar regressões reais para conclusão e erro stale com batchId distinto.",
+      "expected_evidence": "Remover os guards faz o teste focal tocar áudio/contaminar lote indevidamente.",
+      "expected_auditor_action": "Reauditar mensagens fora de ordem e lifecycle do batch.",
+      "possible_regression": "Batch antigo pode tocar sucesso, exibir erro ou marcar o batch atual como falho.",
+      "impact": "Correção temporal do áudio e isolamento multi-lote.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T02:57:00Z",
+      "audit_finding": "Encontrado na passagem adversarial de chamadas fora de ordem.",
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionadas regressões para BATCH_COMPLETE stale e SHOW_ERROR_INTEGRATED stale, comprovando zero áudio/contaminação e preservação do batch atual."
     }
   ],
   "document_quality": {
@@ -592,6 +614,22 @@
       "bible_sha": "8d07ab52337a53800a6c4e96bfbcb3a3b863be72",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-011 corrigido; revisão ampliada para 28 casos reais e Bíblia sincronizada 1221/1221."
+    },
+    {
+      "at_utc": "2026-10-02T02:57:00Z",
+      "type": "POST_CORRECTION_ADDITIONAL_FINDING",
+      "source_sha": "1005872a2c6dede1c839dad3730be076ac7ef7be",
+      "bible_sha": "8d07ab52337a53800a6c4e96bfbcb3a3b863be72",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-012 HIGH: guards de áudio para mensagens stale não tinham prova executável."
+    },
+    {
+      "at_utc": "2026-10-02T02:57:01Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "5b0e701afe44ad8440f7843be76e5457b2ef440b",
+      "bible_sha": "281e07e02b7040c6e5e47c72a74ec0593f8a3ed6",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-012 corrigido; revisão ampliada para 30 casos reais e Bíblia sincronizada 1322/1322."
     }
   ],
   "evidence": [
@@ -667,5 +705,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "8d07ab52337a53800a6c4e96bfbcb3a3b863be72"
+  "bible_sha": "281e07e02b7040c6e5e47c72a74ec0593f8a3ed6"
 }
