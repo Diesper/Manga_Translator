@@ -49,4 +49,12 @@ const reorderedObjectKeys = state([
 assert.deepStrictEqual(guard.historyAppendOnlyProblems(base, reorderedObjectKeys),[]);
 console.log('PASS JSON key order does not create false positive');
 
+const rawLine=':100644 100644 ' + 'a'.repeat(40) + ' ' + 'b'.repeat(40)
+  + ' M\tdocs/biblia/.state/191.json';
+const parsed=guard.parseRawHistory(rawLine);
+assert.strictEqual(parsed.length,1);
+assert.strictEqual(parsed[0].status,'M');
+assert.strictEqual(parsed[0].file,'docs/biblia/.state/191.json');
+console.log('PASS historical raw Git state change parser');
+
 console.log('State history append-only self-test: SUCCESS');
