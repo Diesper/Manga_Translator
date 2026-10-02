@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
+  "source_sha": "c89c7c91eeea616c5366bb7d98361c56b90d3f81",
   "started_at_utc": "2026-09-30T06:36:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -54,7 +54,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:24:15Z",
+  "updated_at_utc": "2026-10-02T00:27:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:05:00Z",
@@ -91,6 +91,13 @@
       "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Request 135-001 HIGH confirmado: self-test externo cobre ownership mismatch, mas a suíte #135 ainda não prova jobId correto pertencente a outra identidade canônica nem ausência de migração/rekey."
+    },
+    {
+      "at_utc": "2026-10-02T00:27:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
+      "current_source_sha": "c89c7c91eeea616c5366bb7d98361c56b90d3f81",
+      "reason": "Adicionado caso focal de ownership canônico divergente com jobId correto; valida job:null, migrate não chamado, jobIndex/storage da tab proprietária preservados."
     }
   ],
   "evidence": [
