@@ -308,6 +308,22 @@ function loadAuditResults(root, states = []) {
         problems.push('audit-result pós-handoff lifecycle exige schema v3: ' + rel);
       }
     }
+    if (state && schemaVersion === 3 && Number.isFinite(completedAtMs)) {
+      const snapshot = currentLifecycleSnapshot(state, { root });
+      const handoffMs = Date.parse(snapshot.latest_handoff_at_utc || '');
+      if (Number.isFinite(handoffMs) && completedAtMs > handoffMs) {
+        const mismatches = [];
+        if (Number(raw.audit_epoch) !== Number(snapshot.audit_epoch)) mismatches.push('AUDIT_EPOCH');
+        if (String(raw.handoff_id || '') !== String(snapshot.handoff_id || '')) mismatches.push('HANDOFF_ID');
+        if ((raw.production_sha || null) !== (snapshot.production_sha || null)) mismatches.push('PRODUCTION_SHA');
+        if (String(raw.test_sha || '').toLowerCase() !== String(snapshot.test_sha || '').toLowerCase()) mismatches.push('TEST_SHA');
+        if (String(raw.bible_sha || '').toLowerCase() !== String(snapshot.bible_sha || '').toLowerCase()) mismatches.push('BIBLE_SHA');
+        if (String(raw.revision_id || '').toLowerCase() !== String(snapshot.revision_id || '').toLowerCase()) mismatches.push('REVISION_ID');
+        if (mismatches.length) {
+          problems.push('audit-result schema v3 diverge do lifecycle atual (' + mismatches.join(',') + '): ' + rel);
+        }
+      }
+    }
 
     records.push({
       schema_version: schemaVersion,
@@ -323,6 +339,7 @@ function loadAuditResults(root, states = []) {
       audit_epoch: raw.audit_epoch === undefined ? null : Number(raw.audit_epoch),
       handoff_id: raw.handoff_id || null,
       revision_id: raw.revision_id || null,
+      human_approval_id: raw.human_approval_id || null,
       verdict,
       findings: Array.isArray(raw.findings) ? raw.findings : [],
       completed_at_utc: completedAt,
