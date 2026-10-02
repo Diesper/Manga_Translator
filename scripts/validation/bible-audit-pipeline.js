@@ -14,6 +14,7 @@ module.exports = {
   nextAuditPhase: core.nextAuditPhase,
   evaluateAuditPipelines: core.evaluateAuditPipelines,
   pipelineMergeBlockers: core.pipelineMergeBlockers,
+  postHandoffCorrectionProblems: core.postHandoffCorrectionProblems,
   displayAuditStatus: core.displayAuditStatus,
   recordMatchesCurrentBible: core.recordMatchesCurrentBible,
   loadBibleBaseline: core.loadBibleBaseline,
