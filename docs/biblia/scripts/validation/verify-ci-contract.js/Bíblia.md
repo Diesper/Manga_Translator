@@ -1,7 +1,7 @@
 # Bíblia técnica — scripts/validation/verify-ci-contract.js
 
 > **Estado documental:** ✅ CONCLUÍDA PELO AGENTE 7 — consolidação global fora do escopo deste agente  
-> **SHA auditado:** `636e4bfbaa0646cd8259e1f27f09004a92541294`  
+> **SHA auditado:** `d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a`  
 > **Agente responsável:** AGENTE 7  
 > **Tipo:** meta-gate Node.js de contratos da CI  
 > **Linhas textuais / posições:** **508**; o arquivo **não possui newline terminal**  
@@ -195,6 +195,7 @@ const requiredJobs = [
   'background-leak-bisection',
   'windows-portability',
   'fresh-developer-flow',
+  'bible-final-readiness',
   'ci-gate',
 ];
 
@@ -249,6 +250,19 @@ if (!freshDeveloperFlow.includes('playwright install chromium --with-deps --no-s
 }
 if (!freshDeveloperFlow.includes('xvfb-run --auto-servernum -- npm run test:e2e')) {
   problems.push('fresh-developer-flow precisa executar o E2E da extensão com Xvfb no Linux');
+}
+
+const bibleFinalReadiness = jobBlock('bible-final-readiness');
+for (const marker of [
+  "github.head_ref == 'docs/project-bible'",
+  "github.event_name == 'push'",
+  "github.ref == 'refs/heads/main'",
+  'run: npm run bible:final-readiness',
+  'fetch-depth: 0',
+]) {
+  if (!bibleFinalReadiness.includes(marker)) {
+    problems.push('bible-final-readiness: marcador obrigatório ausente: ' + marker);
+  }
 }
 
 for (const diagnosticJob of [
@@ -460,6 +474,10 @@ for (const marker of [
   'WINDOWS_PORTABILITY',
   'FRESH_DEVELOPER_FLOW',
   'check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"',
+  'BIBLE_FINAL_REQUIRED',
+  'BIBLE_FINAL_READINESS',
+  'if [ "$BIBLE_FINAL_REQUIRED" = "true" ]; then',
+  'check "Bible Final Readiness" "$BIBLE_FINAL_READINESS"',
 ]) {
   if (!gate.includes(marker)) {
     problems.push('ci-gate: proteção pós-merge incompleta, marcador ausente: ' + marker);
@@ -735,3 +753,13 @@ Finaliza o gate: se problems não estiver vazio, imprime cabeçalho e todos os p
 - Plano E2E atual observado: **5** grupos, **21** testes esperados.
 - Lacunas de prova não foram mascaradas; duas solicitações ao auditor foram registradas no state.
 - Nenhum código, teste, fixture, workflow, config ou arquivo de outro agente foi alterado.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Cobertura canônica da revisão atual. Os mapas históricos anteriores são preservados como contexto, mas esta seção é a referência estrutural para o blob vigente.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–526 | Blob integral atual `d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a` (526 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
+
+Esta sincronização documental **não concede aprovação**: a revisão atual deve passar novamente por PRIMARY + ADVERSARIAL independentes.
