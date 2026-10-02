@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+  "source_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
   "started_at_utc": "2026-09-30T06:22:33Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -64,7 +64,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:10:15Z",
+  "updated_at_utc": "2026-10-02T00:14:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:08:47Z",
@@ -101,6 +101,13 @@
       "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Reauditoria confirmou requests 106-001 HIGH e 106-002 NORMAL: suíte sintética não prova popup real→storage→content script real e renumera índices após filtro."
+    },
+    {
+      "at_utc": "2026-10-02T00:14:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "current_source_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
+      "reason": "Suíte sintética substituída por integração real popup.js→storage→content_manga.js; GET_PAGE_IMAGES e START_BATCH reais agora validam ban e índices DOM."
     }
   ],
   "evidence": [
