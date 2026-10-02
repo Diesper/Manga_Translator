@@ -83,6 +83,27 @@ console.log('PASS canonical transition history remains hash-chained');
 assert.deepStrictEqual(transition.tokenHistoryProblems([planned.state],[token]), []);
 console.log('PASS registry validates consumed token history');
 
+const correctedHandoff = transition.planTransition({
+  state: planned.state,
+  request: {
+    action:'HANDOFF_FOR_AUDIT',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:31:30Z',
+    test_sha:'c'.repeat(40),
+    bible_sha:'d'.repeat(40),
+    production_sha:'e'.repeat(40),
+  },
+});
+const correctedSnapshot = life.lifecycleSnapshot(correctedHandoff.state);
+assert.strictEqual(correctedHandoff.state.source_sha,'c'.repeat(40));
+assert.strictEqual(correctedHandoff.state.test_sha,'c'.repeat(40));
+assert.strictEqual(correctedHandoff.state.bible_sha,'d'.repeat(40));
+assert.strictEqual(correctedHandoff.state.production_sha,'e'.repeat(40));
+assert.notStrictEqual(correctedSnapshot.revision_id,snap.revision_id);
+assert.deepStrictEqual(life.eventChainProblems(correctedHandoff.state),[]);
+console.log('PASS handoff freezes corrected production/test/Bible revision rather than stale state binding');
+
+
 const orphanState = JSON.parse(JSON.stringify(planned.state));
 const consumed = orphanState.history.find((entry)=>entry.type==='CORRECTION_TOKEN_CONSUMED');
 consumed.correction_token_id = 'corr-missing';
