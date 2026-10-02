@@ -1,212 +1,154 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** ✅ REAUDIT FINAL APROVADA — 100/100 COM EVIDÊNCIA EXECUTÁVEL  
+> **Estado documental:** ✅ REAUDITADO E REVALIDADO — 191-001..006 RESOLVIDOS  
 > **SHA auditado:** `0a2fa6dd4024d64e21225a4dc329f0915abd4bdb`  
 > **Índice do corpus:** 191  
-> **Tipo:** integração Jest real do Web Audio de `content_manga.js`  
+> **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
 > **Linhas textuais:** **806**  
 > **Posições documentais:** **807**, contando o LF final  
-> **PR:** #66  
+> **PR principal:** #66  
 > **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
 
-Esta suíte é a prova focal do áudio real da aba leitora. Ela carrega `content_manga.js` pela ordem do `manifest.json` e aciona `playErrorSound()`, `unlockNotificationAudio()`, `playSuccessSound()` e o lifecycle compartilhado de `notificationAudioContext` pelos caminhos públicos do content script.
+Esta suíte é a prova focal do áudio **real** do reader Manga. Ela carrega os scripts na ordem do manifest por `loadContentScript()`, dispara mensagens/cliques públicos do content script e observa a closure real de `content_manga.js`. Não há mirror local de `playErrorSound()` nem de `playSuccessSound()` usado como prova principal.
 
-Não há mirror local de `playErrorSound()`/`playSuccessSound()`, nem import de `extracted-functions.js` como prova.
+A revisão final cobre:
 
-## 2. Dependências revalidadas
+- waveform e wiring por nota;
+- contexto compartilhado entre erro e sucesso;
+- erros consecutivos sem criação ilimitada de `AudioContext`;
+- estado `suspended`, `closed` e indisponibilidade da API;
+- user gesture real e `resume()`;
+- resume recusado e resume resolvido sem `running`;
+- falha de constructor;
+- falha síncrona de scheduling;
+- fallback `webkitAudioContext`;
+- telemetria bounded do lifecycle.
+
+## 2. Dependências finais revalidadas
 
 - `extension/content/content_manga.js`: `3601efd9a66f8408b724b42d008dc43d518dabe6`.
+- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
-- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
-- `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
-- `jest.config.js`: `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`.
-- `package.json`: `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.
+- `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
-## 3. Harness real e invariantes
+## 3. Matriz final dos 17 casos
 
-`loadContentScript()` carrega os módulos de produção, registra o listener real de runtime e usa JSDOM/Chrome mocks apenas nas fronteiras de navegador.
-
-O harness exige:
-
-- exatamente um listener do content script;
-- batches novos identificados por incremento real de `START_BATCH`;
-- oscillators e gains distintos por chamada;
-- validação por nó de frequência, tipo, envelope, grafo, start e stop;
-- restauração de `AudioContext`/`webkitAudioContext` após cada caso;
-- ausência de `.skip`, `.only`, `xit`, `xdescribe`, TODO ou FIXME.
-
-## 4. Matriz final — 17 casos reais
-
-1. `SHOW_ERROR_INTEGRATED` executa o som de erro real com dois nós independentes.
-2. Dois erros consecutivos reutilizam **um único** `AudioContext`.
-3. Erro em contexto `suspended` só agenda após `resume()` concluir.
-4. Rejeição de `resume()` no erro emite `AUDIO_ERROR_FAILED` e não cria notas.
-5. `BATCH_COMPLETE` agenda 660/880/1100 Hz e reutiliza o contexto.
-6. Clique real desbloqueia contexto suspenso e emite `AUDIO_UNLOCKED`.
-7. Falha de unlock por clique é observável e não impede o lote.
+1. `SHOW_ERROR_INTEGRATED` executa o som real com dois nós independentes.
+2. Erros consecutivos reutilizam um único `AudioContext`.
+3. Erro em contexto suspended só agenda após resume concluir.
+4. Erro com resume rejeitado emite `AUDIO_ERROR_FAILED` e não cria notas.
+5. `BATCH_COMPLETE` executa arpejo real por nota e reutiliza o contexto.
+6. Clique real desbloqueia contexto suspended antes do lote.
+7. Falha de unlock no clique é observável sem impedir início do lote.
 8. Contexto `closed` é descartado e substituído.
-9. API Web Audio indisponível em sucesso emite `AUDIO_UNAVAILABLE`.
-10. `resume()` de sucesso que não chega a `running` emite `AUDIO_SUCCESS_SKIPPED`.
-11. Falha de `createOscillator()` no sucesso emite `AUDIO_SUCCESS_FAILED`.
-12. Sucesso suspenso só agenda depois de `resume()`.
-13. Erro cujo `resume()` resolve mas permanece suspenso emite `AUDIO_ERROR_SKIPPED`.
-14. Erro sem `AudioContext` preserva UI e emite `AUDIO_UNAVAILABLE`.
+9. AudioContext indisponível no fluxo de sucesso emite `AUDIO_UNAVAILABLE`.
+10. Resume de sucesso que não chega a `running` gera skip.
+11. Falha de `createOscillator` no sucesso é observável.
+12. Sucesso suspended só agenda depois do resume.
+13. Erro cujo resume resolve mas continua suspended gera `AUDIO_ERROR_SKIPPED`.
+14. Erro sem AudioContext registra indisponibilidade e mantém UI.
 15. Falha síncrona de scheduling do erro emite `AUDIO_ERROR_FAILED`.
-16. Fallback `webkitAudioContext` continua funcional.
-17. Falha do construtor `AudioContext` no erro é observável e não interrompe a UI.
+16. `webkitAudioContext` é fallback real do erro.
+17. Falha ao construir AudioContext no erro emite `AUDIO_ERROR_FAILED` e mantém UI.
 
-## 5. Requests 191-001..004
+## 4. Audit requests 191-001..004
 
 ### 191-001 — TEST_AUTHENTICITY — RESOLVED
-
-Mirrors foram removidos e os paths reais de erro/sucesso são exercitados.
+Mirrors deixaram de ser fonte de verdade; erro e sucesso são acionados no content script real.
 
 ### 191-002 — STALE_TEST_CONTRACT — RESOLVED
-
-O contrato da suíte corresponde ao lifecycle atual: reuse, closed, suspended/resume, gesture unlock e telemetria.
+Descrição e objeto executado agora incluem lifecycle, reuse, resume e telemetria reais.
 
 ### 191-003 — TEST_STRENGTH_REVIEW — RESOLVED
-
-Cada oscillator/gain é uma instância distinta e cada nota é validada individualmente.
+Oscillators/gains são mocks distintos por chamada e validados por instância.
 
 ### 191-004 — AUDIO_LIFECYCLE_BRANCH_GAP — RESOLVED
+User gesture, `closed`, API ausente, resume incompleto e falhas de scheduling do sucesso foram adicionados e executados.
 
-Clique real, rejeição de unlock, contexto closed, API indisponível, resume incompleto e falha de scheduling foram materializados e validados.
+Evidência consolidada anterior: run `36951292966`, focal Node20/22 20/20; full content-scripts 40/40 suites, 439/439 testes.
 
-Evidência histórica final antes da nova REAUDIT: run `36951292966`, focal Node 20/22 verde e full content-scripts 40/40 suites, 439/439 testes.
+## 5. 191-005 — AUDIO_CONTEXT_LEAK — RESOLVED
 
-## 6. 191-005 — AUDIO_CONTEXT_LEAK
-
-### Finding da REAUDIT
-
-`playErrorSound()` criava um `new AudioContext()` para cada erro, contradizendo o lifecycle de contexto único do próprio runtime e podendo atingir o limite de AudioContexts do Chromium.
+### Finding
+`playErrorSound()` criava `new AudioContext()` a cada erro.
 
 ### Prova pre-fix
-
 PR draft #72, run `36954506306`:
-
-- Node 20 job `110674388356`: regression falhou — esperado 1 construção, recebido 2.
-- Node 22 job `110674388455`: mesma falha.
-- Os demais 20 testes focais/relacionados passaram.
+- Node20 job `110674388356`: FAIL esperado — 1 contexto esperado, 2 recebidos;
+- Node22 job `110674388455`: mesma falha;
+- os demais 20 testes focais/relacionados passaram.
 
 ### Correção
+`playErrorSound()` passou a obter `getLoggedNotificationAudioContext('integrated_error')`, compartilhando `notificationAudioContext` com o lifecycle já usado pelo sucesso.
 
-`playErrorSound()` passou a usar `getLoggedNotificationAudioContext('integrated_error')`, compartilhando `notificationAudioContext` com o lifecycle de sucesso.
-
-Também trata `running`, `suspended → resume`, resume rejeitado e estado ainda indisponível.
-
-### Prova pós-fix intermediária
-
+### Prova pós-fix
 PR draft #73, run `36954798257`:
+- Node20 `110675268570`: SUCCESS, 23/23;
+- Node22 `110675268644`: SUCCESS, 23/23;
+- full content-scripts `110675268412`: SUCCESS, 40/40 suites, 442/442 testes, `--detectOpenHandles`.
 
-- Node 20 `110675268570`: PASS;
-- Node 22 `110675268644`: PASS;
-- full content-scripts `110675268412`: **40/40 suites, 442/442 testes PASS** com `--detectOpenHandles`.
+## 6. 191-006 — ERROR_OBSERVABILITY — RESOLVED
 
-## 7. 191-006 — ERROR_OBSERVABILITY
-
-### Finding da REAUDIT
-
-Mesmo após 191-005, `playErrorSound()` terminava com `catch (e) {}`. Falhas síncronas do construtor ou de `createOscillator()/createGain()` eram engolidas.
+### Finding
+Mesmo após o reuse, `playErrorSound()` terminava em `catch (e) {}`, ocultando falhas síncronas de constructor/`createOscillator`/`createGain`/wiring.
 
 ### Prova pre-fix
-
 PR draft #74, run `36955075188`:
-
-- Node 20 `110676149604`: **2 falhas / 24 passes**;
-- Node 22 `110676149544`: **2 falhas / 24 passes**;
-- falharam somente:
-  - scheduling síncrono do erro sem `AUDIO_ERROR_FAILED`;
-  - construtor de `AudioContext` sem `AUDIO_ERROR_FAILED`.
+- Node20 job `110676149604`: FAIL exatamente nos 2 casos novos;
+- Node22 job `110676149544`: FAIL exatamente nos mesmos 2 casos;
+- falha 1: ausência de `AUDIO_ERROR_FAILED` para `error-oscillator-boom`;
+- falha 2: ausência de `AUDIO_ERROR_FAILED` para `Policy violation`;
+- os demais casos focais e a suíte relacionada permaneceram verdes.
 
 ### Correção
-
 O catch final agora emite:
 
-- `source: audio`;
-- `level: warn`;
-- `action_name: AUDIO_ERROR_FAILED`;
-- `errorName/errorMessage` via `audioErrorExtra()`;
-- `originTabId` pela telemetria comum;
+`sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Falha ao preparar ou agendar o áudio de erro.', audioErrorExtra(error))`
 
-sem rethrow e sem impedir a UI integrada de erro.
+sem rethrow, preservando a UI e tornando a falha observável com `originTabId`, `errorName` e `errorMessage`.
 
-### Prova pós-fix final — PASS
-
+### Prova pós-fix final
 PR draft #75, run `36955311711`:
+- Node20 job `110676865237`: **SUCCESS — 2/2 suites, 26/26 testes**;
+- Node22 job `110676865246`: **SUCCESS — 2/2 suites, 26/26 testes**;
+- full content-scripts job `110676864994`: **SUCCESS — 40/40 suites, 445/445 testes**, com `--detectOpenHandles`.
 
-- Node 20 job `110676865237`: **PASS — 2/2 suites, 26/26 testes**;
-- Node 22 job `110676865246`: **PASS — 2/2 suites, 26/26 testes**;
-- full content-scripts job `110676864994`: **PASS — 40/40 suites, 445/445 testes**, com `--detectOpenHandles`.
+## 7. Invariantes finais
 
-Os dois regressions que falharam no pre-fix #74 passaram no pós-fix #75. Não restou falha conhecida corrigível dentro do escopo de #191.
+- Um erro repetido não cria um novo contexto a cada ocorrência.
+- Contexto `closed` nunca é reutilizado.
+- Contexto `suspended` nunca recebe scheduling antes de resume efetivo.
+- Resume rejeitado/incompleto é observável e não gera notas.
+- Falha síncrona do erro nunca é engolida silenciosamente.
+- Falha do áudio não escapa do handler e não impede a drawer de erro.
+- Cada nota tem oscillator/gain próprios e parâmetros corretos.
+- Sucesso e erro obedecem ao mesmo lifecycle de contexto reutilizável.
+- WebKit fallback permanece funcional.
+- Não existem skips/only/TODO/FIXME usados para esconder pendências nesta suíte.
 
-## 8. Reauditoria adversarial final
+## 8. Evidência executável acumulada
 
-Passagem A — “como deveria funcionar”:
+| Revisão | Evidência |
+|---|---|
+| mirrors → runtime real | `36948794013`, focal 5/5 Node20+Node22 |
+| lifecycle user gesture/closed | `36951292966`, focal 20/20 Node20+Node22; full 439/439 |
+| 191-005 pre-fix | `36954506306`, vermelho específico em Node20+Node22 |
+| 191-005 post-fix | `36954798257`, focal 23/23 Node20+Node22; full 442/442 |
+| 191-006 pre-fix | `36955075188`, 2 falhas específicas de observabilidade Node20+Node22 |
+| 191-006 post-fix | `36955311711`, focal 26/26 Node20+Node22; full 445/445 |
 
-- um contexto de notificação por página, recriado apenas se `closed`;
-- som de erro: 300/150 Hz;
-- som de sucesso: 660/880/1100 Hz;
-- `suspended` exige resume antes de scheduling;
-- falhas devem ser observáveis sem derrubar o handler/UI.
+Todos os full-suite citados usam `--detectOpenHandles`.
 
-Passagem B — “como quebrar”:
+## 9. Limites honestos
 
-- erro repetido;
-- contexto closed;
-- API ausente;
-- fallback WebKit;
-- resume rejeitado;
-- resume resolvido sem `running`;
-- scheduling síncrono falhando;
-- construtor falhando;
-- clique real sob política de autoplay;
-- segundo lote sem reutilizar `START_BATCH` antigo.
+- JSDOM/mocks validam chamadas, parâmetros, estados e telemetria da Web Audio API; não medem saída física do hardware.
+- Política de autoplay do Chromium é aproximada pelo estado/resume mockado, mas o teste de unlock usa clique DOM real do content script.
+- A suíte relacionada continua cobrindo completion/hasErrors e telemetria adjacente.
 
-Resultado estático da revisão atual:
-
-- skips/only/TODO/FIXME: **0**;
-- mirrors de áudio como prova: **0**;
-- testes focais reais: **17**;
-- syntax parse: **PASS**;
-- source de teste: `0a2fa6dd4024d64e21225a4dc329f0915abd4bdb`;
-- runtime de áudio: `3601efd9a66f8408b724b42d008dc43d518dabe6`.
-
-## 9. Pontuação final
-
-- **Correção funcional:** 25/25
-- **Robustez adversarial:** 20/20
-- **Cobertura/testes:** 20/20
-- **Regressões/compatibilidade:** 15/15
-- **Tratamento de erros:** 10/10
-- **Qualidade estrutural:** 5/5
-- **Documentação/coerência:** 5/5
-
-**TOTAL: 100/100**
-
-Justificativa objetiva:
-
-- 17 casos focais reais, sem mirrors como prova principal;
-- red→green explícito para leak de AudioContext e exceções engolidas;
-- Node 20/22 verdes;
-- suíte relacionada verde;
-- full content-scripts 40/40 e 445/445 com detecção de open handles;
-- zero skip/only/TODO/FIXME;
-- source/Bíblia sincronizados;
-- nenhuma request 191-001..006 permanece corrigível ou sem evidência.
-
-## 10. Limites honestos
-
-- O Web Audio é mockado: a prova valida API calls/lifecycle, não pressão física em hardware.
-- JSDOM não replica integralmente políticas de autoplay do Chromium; o clique real no DOM + estados/resume simulam o contrato que o content script observa.
-- O lifecycle do contexto é por página/isolated world; teardown físico final do browser é responsabilidade da destruição do contexto da página.
-- A suíte relacionada continua necessária para completion/hasErrors e fluxos de replacement que não pertencem à síntese focal.
-
-## 11. Fonte integral exata
+## 10. Fonte integral exata
 
 ```javascript
 /**
@@ -1017,40 +959,48 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 12. Cobertura integral por posições
+## 11. Cobertura integral por posições
 
-- **1–10:** cabeçalho/escopo.
-- **11–25:** imports e globals.
-- **26–39:** delay/waitFor bounded.
-- **40–47:** listener real.
-- **48–60:** dispatch real.
-- **61–71:** oscillator factory.
-- **72–82:** gain factory.
-- **83–107:** AudioContext factory/registries.
-- **108–124:** assertion por nota.
-- **125–131:** suíte/estado.
+- **1–25:** cabeçalho/imports/globals.
+- **26–39:** delay/waitFor.
+- **40–60:** listener real e dispatch.
+- **61–82:** factories oscillator/gain.
+- **83–107:** factory de AudioContext.
+- **108–124:** `assertNote()`.
+- **125–131:** abertura da suíte/estado.
 - **132–150:** setup.
-- **151–166:** teardown/descriptors.
-- **167–186:** responder de runtime.
-- **187–197:** loadOnePage.
-- **198–208:** startBatch com incremento de START_BATCH.
-- **209–247:** erro real / duas notas independentes.
+- **151–166:** teardown.
+- **167–186:** runtime responder.
+- **187–197:** `loadOnePage()`.
+- **198–208:** `startBatch()`.
+- **209–247:** erro básico real.
 - **248–285:** dois erros / contexto único.
-- **286–318:** erro suspended → resume → scheduling.
-- **319–357:** erro / resume rejeitado.
-- **358–422:** sucesso real / arpejo / reuse / telemetria.
-- **423–460:** user-gesture unlock positivo.
-- **461–500:** user-gesture unlock rejeitado.
-- **501–539:** closed → novo contexto.
-- **540–568:** API indisponível no sucesso.
-- **569–595:** resume de sucesso sem running.
-- **596–624:** scheduling de sucesso falha observável.
-- **625–658:** sucesso suspended → resume.
-- **659–691:** erro resume sem running → skipped.
-- **692–722:** erro sem API → unavailable + UI.
-- **723–753:** scheduling síncrono de erro → failed.
-- **754–777:** fallback webkit.
-- **778–806:** construtor falha → failed + UI preservada.
-- **807:** posição vazia do LF final.
+- **286–318:** erro suspended → resume.
+- **319–357:** erro resume rejeitado.
+- **358–422:** sucesso/arpejo/reuse.
+- **423–460:** unlock positivo por clique.
+- **461–500:** unlock recusado por clique.
+- **501–539:** contexto closed.
+- **540–568:** AudioContext indisponível no sucesso.
+- **569–595:** sucesso resume sem running.
+- **596–624:** falha de scheduling no sucesso.
+- **625–658:** sucesso suspended gate.
+- **659–691:** erro resume sem running.
+- **692–722:** erro sem AudioContext.
+- **723–753:** falha síncrona de scheduling do erro.
+- **754–777:** fallback WebKit.
+- **778–806:** falha de constructor no erro + UI/telemetria.
+- **807:** LF final.
 
-**Cobertura:** **807/807 posições**, contíguas, sem gap ou overlap.
+**Cobertura:** **807/807 posições**, contíguas, sem gap/overlap.
+
+## 12. Reauditoria pós-correção
+
+- Source/Bíblia vinculados ao mesmo SHA: confirmado.
+- Runtime real, sem mirror principal: confirmado.
+- 17 testes reais: confirmado.
+- Red→green de 191-005: confirmado em Node20/22.
+- Red→green de 191-006: confirmado em Node20/22.
+- Full content-scripts: 40/40 suites, 445/445 testes, `--detectOpenHandles`.
+- Skips/only/TODO/FIXME: nenhum.
+- Pendência conhecida corrigível dentro do escopo de #191: **nenhuma**.
