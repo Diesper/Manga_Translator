@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const lifecycle = require('./lifecycle-core');
+const findingEvents = require('./unverified-finding-events');
 
 const FINDING_STATUSES = new Set([
   'UNVERIFIED',
@@ -68,6 +69,7 @@ function loadUnverifiedFindings(root) {
   const base = path.join(root, 'docs', 'biblia', '.coordination', 'unverified-findings');
   const findings = [];
   const problems = [];
+  const ids = new Set();
   for (const absolute of walk(base)) {
     const rel = path.relative(root, absolute).replace(/\\/g, '/');
     if (/\/README\.md$/i.test(rel)) continue;
@@ -82,9 +84,17 @@ function loadUnverifiedFindings(root) {
       continue;
     }
     problems.push(...validateFinding(raw, rel));
+    if (ids.has(raw?.id)) problems.push(rel + ': finding id duplicado: ' + raw.id);
+    if (raw?.id) ids.add(raw.id);
     findings.push({ ...raw, path: rel });
   }
-  return { findings, problems };
+  const evaluated = findingEvents.loadFindingEvents(root, findings);
+  return {
+    findings: evaluated.findings,
+    base_findings: findings,
+    events: evaluated.events,
+    problems: [...problems, ...evaluated.problems],
+  };
 }
 
 function buildFinding(state, snapshot, input) {
