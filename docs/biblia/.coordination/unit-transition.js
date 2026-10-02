@@ -30,6 +30,9 @@ function issueCorrectionToken(state, pipeline, options = {}) {
     throw new Error('TOKEN_PIPELINE_BIBLE_STALE');
   }
 
+  const requiredStatus = snapshot.human_locked ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED';
+  if (state?.status !== requiredStatus) throw new Error('TOKEN_STATE_INVALID:' + state?.status);
+
   let humanApprovalId = null;
   if (snapshot.human_locked) {
     const approval = options.humanApproval;
@@ -134,6 +137,10 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
 
   const snapshot = life.lifecycleSnapshot(state);
   assertCas(state, snapshot, request, currentStateSha);
+  if (action !== 'SAFE_ABORT') {
+    const stateProblems = life.lifecycleProblems(state);
+    if (stateProblems.length) throw new Error('STATE_LIFECYCLE_INVALID:' + stateProblems.join(';'));
+  }
   const next = JSON.parse(JSON.stringify(state));
   next.history = Array.isArray(next.history) ? next.history : [];
 
@@ -153,7 +160,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
         throw new Error('HUMAN_APPROVAL_REQUIRED');
       }
       if (token?.human_approval_id !== humanApproval.approval_id) throw new Error('TOKEN_HUMAN_APPROVAL_MISMATCH');
-      next.history.push({
+      life.appendLifecycleEvent(next.history, {
         at_utc: at,
         type: 'HUMAN_APPROVAL_CONSUMED',
         approval_id: humanApproval.approval_id,
@@ -164,7 +171,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       });
     }
 
-    next.history.push({
+    life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: snapshot.human_locked ? 'HUMAN_AUTHORIZED_CORRECTION_STARTED' : 'EDITOR_CORRECTION_STARTED',
       from_status: state.status,
@@ -179,7 +186,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       correction_token_id: token.token_id,
       root_cause_review: request.root_cause_review || null,
     });
-    next.history.push({
+    life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: 'CORRECTION_TOKEN_CONSUMED',
       correction_token_id: token.token_id,
@@ -205,7 +212,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
         source_sha: state.source_sha,
         bible_sha: state.bible_sha,
       })).slice(0, 12);
-    next.history.push({
+    life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: life.HANDOFF_EVENT,
       from_status: 'IN_PROGRESS',
@@ -229,7 +236,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
 
   if (action === 'SAFE_ABORT') {
     if (state.status !== 'IN_PROGRESS') throw new Error('SAFE_ABORT_REQUIRES_IN_PROGRESS');
-    next.history.push({
+    life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: life.SAFE_ABORT_EVENT,
       from_status: 'IN_PROGRESS',
@@ -253,7 +260,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     if (!human.approvalMatches(state, snapshot, humanApproval, 'RESET_ESCALATION')) {
       throw new Error('HUMAN_RESET_APPROVAL_REQUIRED');
     }
-    next.history.push({
+    life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: life.HUMAN_RESET_EVENT,
       approval_id: humanApproval.approval_id,
