@@ -39,10 +39,11 @@ jobs:
 
       - name: Run real audio focal and related suite
         run: >-
-          npx jest --config jest.config.js --selectProjects content-scripts
+          npx jest --config jest.config.js
+          --selectProjects content-scripts
+          --runInBand --detectOpenHandles --runTestsByPath
           tests/unit/content-manga/audio-synthesis-full.test.js
           tests/unit/content-manga/replacement-and-completion-real.test.js
-          --runInBand --detectOpenHandles
 
   content-suite:
     name: Full content-scripts suite
