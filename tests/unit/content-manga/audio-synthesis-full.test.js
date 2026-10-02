@@ -1432,6 +1432,10 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         expect(retryGtcSaves[1]).toEqual(expect.objectContaining({
             translatedDataUrl: 'data:image/png;base64,UkVUUllfT0s=',
         }));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'DOWNLOAD_IMAGE'
+            && message.url === 'data:image/png;base64,UkVUUllfT0s='
+        ));
         expect(sentMessages).toContainEqual(expect.objectContaining({
             action: 'DOWNLOAD_IMAGE',
             url: 'data:image/png;base64,UkVUUllfT0s=',
