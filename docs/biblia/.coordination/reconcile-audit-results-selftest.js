@@ -58,6 +58,12 @@ assert('APPROVED não sobrescreve BLOCKED', guarded.blocker && guarded.state.sta
 guarded = projectState({ ...base, coordination_status: 'REPAIR_REQUIRED' }, approved);
 assert('APPROVED não mascara REPAIR_REQUIRED', guarded.blocker && guarded.state.coordination_status === 'REPAIR_REQUIRED');
 
+guarded = projectState(
+  { ...base, status: 'READY_FOR_AUDIT', completed_at_utc: null },
+  { ...changes, problems: ['PRIMARY e ADVERSARIAL não são independentes'] }
+);
+assert('pipeline inválido não é projetado', guarded.blocker && guarded.state.status === 'READY_FOR_AUDIT');
+
 guarded = projectState({
   ...base,
   status: 'READY_FOR_AUDIT',
