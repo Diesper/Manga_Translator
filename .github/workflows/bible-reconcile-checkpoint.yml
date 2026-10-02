@@ -2,6 +2,9 @@ name: Bible Reconciliation Checkpoint
 
 on:
   workflow_dispatch:
+  pull_request:
+    types:
+      - labeled
 
 permissions:
   contents: write
@@ -13,7 +16,7 @@ concurrency:
 jobs:
   reconcile:
     name: Reconcile Distributed Bible State
-    if: github.ref == 'refs/heads/docs/project-bible'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'docs/project-bible' && github.event.label.name == 'bible-reconcile')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact branch head
