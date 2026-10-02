@@ -4,6 +4,7 @@ const {
   resolveAuditPipeline,
   evaluateAuditPipelines,
   pipelineMergeBlockers,
+  postHandoffCorrectionProblems,
 } = require('./bible-audit-pipeline');
 
 function state(index = 1) {
@@ -24,6 +25,7 @@ function result(s, phase, verdict, auditor, at) {
     file: s.file,
     bible: s.bible,
     source_sha: s.source_sha,
+    bible_sha: s.bible_sha || null,
     verdict,
     findings: [],
     completed_at_utc: at,
@@ -125,5 +127,62 @@ const currentPrimary = { ...result(changedBible, 'PRIMARY', 'APPROVED', 'AUDITOR
 const currentAdversarial = { ...result(changedBible, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-4', '2026-10-01T13:10:00Z'), bible_sha: changedBible.bible_sha };
 p = resolveAuditPipeline(changedBible, [legacyV1Primary, legacyV1Adversarial, currentPrimary, currentAdversarial], new Map(), { baseline });
 assertEqual('schema v2 revalida a nova revisão da Bíblia', p.decision, 'APPROVED');
+
+const protectedRevision = {
+  ...state(2),
+  bible_sha: 'd'.repeat(40),
+  status: 'IN_PROGRESS',
+  history: [
+    {
+      at_utc: '2026-10-02T06:00:00Z',
+      type: 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT',
+      source_sha: String(2).padStart(40, '0'),
+      bible_sha: 'd'.repeat(40),
+    },
+    {
+      at_utc: '2026-10-02T06:05:00Z',
+      type: 'CORRECTION_STARTED',
+      from_status: 'READY_FOR_AUDIT',
+      to_status: 'IN_PROGRESS',
+      source_sha: String(2).padStart(40, '0'),
+      bible_sha: 'd'.repeat(40),
+    },
+  ],
+};
+
+let handoffProblems = postHandoffCorrectionProblems([protectedRevision], []);
+if (!handoffProblems.some((item) => item.includes('handoff protegido reaberto'))) {
+  throw new Error('handoff protegido deveria rejeitar reabertura sem auditoria: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS handoff bloqueia correção espontânea\n');
+
+const onlyPrimary = [
+  result(protectedRevision, 'PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
+];
+handoffProblems = postHandoffCorrectionProblems([protectedRevision], onlyPrimary);
+if (!handoffProblems.some((item) => item.includes('decision=WAITING_ADVERSARIAL'))) {
+  throw new Error('PRIMARY isolada não deveria liberar correção: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS PRIMARY isolada não libera correção pós-handoff\n');
+
+const finalChangesRequired = [
+  result(protectedRevision, 'PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
+  result(protectedRevision, 'ADVERSARIAL', 'CHANGES_REQUIRED', 'AUDITOR-2', '2026-10-02T06:03:00Z'),
+];
+handoffProblems = postHandoffCorrectionProblems([protectedRevision], finalChangesRequired);
+if (handoffProblems.length !== 0) {
+  throw new Error('decisão final CHANGES_REQUIRED deveria liberar correção: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS decisão final CHANGES_REQUIRED libera correção pós-handoff\n');
+
+const finalApproved = [
+  result(protectedRevision, 'PRIMARY', 'APPROVED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
+  result(protectedRevision, 'ADVERSARIAL', 'APPROVED', 'AUDITOR-2', '2026-10-02T06:03:00Z'),
+];
+handoffProblems = postHandoffCorrectionProblems([protectedRevision], finalApproved);
+if (!handoffProblems.some((item) => item.includes('decision=APPROVED'))) {
+  throw new Error('aprovação final não deveria permitir reabertura editorial: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS aprovação final não permite reabrir após handoff\n');
 
 process.stdout.write('Bible audit pipeline self-test: SUCCESS\n');
