@@ -71,6 +71,27 @@ async function getTranslatorLog(storageMock) {
     return data.translatorLog || [];
 }
 
+function installQuotaFailingStorage(byteLimit) {
+    const originalSet = chrome.storage.local.set.bind(chrome.storage.local);
+    const quotaFailures = [];
+
+    jest.spyOn(chrome.storage.local, 'set').mockImplementation((items, callback) => {
+        const serializedBytes = Buffer.byteLength(JSON.stringify(items || {}), 'utf8');
+        if (serializedBytes > byteLimit) {
+            quotaFailures.push(Object.keys(items || {}));
+            chrome.runtime.lastError = { message: 'QUOTA_BYTES quota exceeded' };
+            setTimeout(() => {
+                if (callback) callback();
+                chrome.runtime.lastError = null;
+            }, 0);
+            return Promise.resolve();
+        }
+        return originalSet(items, callback);
+    });
+
+    return quotaFailures;
+}
+
 
 describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-09: limites de performance e storage', () => {
     let storageMock;
@@ -337,6 +358,15 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         const quotaFailures = installQuotaFailingStorage(quotaLimit);
         const localSetSpy = chrome.storage.local.set;
 
+        const quotaProbeError = await new Promise(resolve => {
+            chrome.storage.local.set(
+                { __quota_probe: 'Q'.repeat(quotaLimit + 1024) },
+                () => resolve(chrome.runtime.lastError ? chrome.runtime.lastError.message : null)
+            );
+        });
+        expect(quotaProbeError).toMatch(/QUOTA_BYTES/);
+        expect(quotaFailures).toHaveLength(1);
+
         globalThis.indexedDB = new IDBFactory();
         document.title = 'Performance quota chapter';
 
@@ -387,7 +417,8 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
             });
 
             // O payload grande não passa por chrome.storage.local; somente chapterList/metadados pequenos.
-            expect(quotaFailures).toHaveLength(0);
+            // A única falha de quota é o probe acima; o fluxo canônico não tenta gravar o payload no storage local.
+            expect(quotaFailures).toHaveLength(1);
             const localState = await storageMock.get(null);
             expect(localState.chapterList).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: persisted.chapterId }),
@@ -395,10 +426,11 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
             expect(Object.keys(localState).some(key => key.endsWith('_images'))).toBe(false);
             expect(Object.keys(localState).some(key => key.endsWith('_restoreMap'))).toBe(false);
 
-            const oversizedLocalWrite = localSetSpy.mock.calls.some(([items]) =>
-                Buffer.byteLength(JSON.stringify(items || {}), 'utf8') > quotaLimit
-            );
-            expect(oversizedLocalWrite).toBe(false);
+            const canonicalOversizedLocalWrite = localSetSpy.mock.calls.some(([items]) => {
+                if (items && Object.prototype.hasOwnProperty.call(items, '__quota_probe')) return false;
+                return Buffer.byteLength(JSON.stringify(items || {}), 'utf8') > quotaLimit;
+            });
+            expect(canonicalOversizedLocalWrite).toBe(false);
 
             await storageManager.deleteChapter(persisted.chapterId);
             expect(await storageManager.getChapterPageCount(persisted.chapterId)).toBe(0);
