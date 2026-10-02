@@ -180,6 +180,27 @@ if (!handoffProblems.some((item) => item.includes('handoff protegido sem SOURCE_
 }
 process.stdout.write('PASS handoff protegido exige SOURCE_SHA+BIBLE_SHA\n');
 
+const missingTransition = {
+  ...protectedRevision,
+  history: [protectedRevision.history[0]],
+};
+handoffProblems = postHandoffCorrectionProblems([missingTransition], []);
+if (!handoffProblems.some((item) => item.includes('state IN_PROGRESS sem transição de correção registrada'))) {
+  throw new Error('state IN_PROGRESS sem evento de correção deveria falhar: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS state/lock não burlam handoff sem history de correção\n');
+
+const silentlyChangedRevision = {
+  ...missingTransition,
+  status: 'READY_FOR_AUDIT',
+  source_sha: '9'.repeat(40),
+};
+handoffProblems = postHandoffCorrectionProblems([silentlyChangedRevision], []);
+if (!handoffProblems.some((item) => item.includes('revisão alterada sem correção autorizada'))) {
+  throw new Error('mudança silenciosa de revisão deveria falhar: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS revisão não pode mudar silenciosamente após handoff\n');
+
 const onlyPrimary = [
   result(protectedRevision, 'PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
 ];
@@ -198,6 +219,23 @@ if (handoffProblems.length !== 0) {
   throw new Error('decisão final CHANGES_REQUIRED deveria liberar correção: ' + JSON.stringify(handoffProblems));
 }
 process.stdout.write('PASS decisão final CHANGES_REQUIRED libera correção pós-handoff\n');
+
+const projectedChangesRequired = {
+  ...protectedRevision,
+  history: [
+    protectedRevision.history[0],
+    {
+      ...protectedRevision.history[1],
+      from_status: 'CHANGES_REQUIRED',
+      type: 'EDITOR_CORRECTION_STARTED',
+    },
+  ],
+};
+handoffProblems = postHandoffCorrectionProblems([projectedChangesRequired], finalChangesRequired);
+if (handoffProblems.length !== 0) {
+  throw new Error('CHANGES_REQUIRED -> IN_PROGRESS deveria ser aceito após decisão final: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS CHANGES_REQUIRED projetado pode iniciar correção autorizada\n');
 
 const finalApproved = [
   result(protectedRevision, 'PRIMARY', 'APPROVED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
