@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/integration/popup.advanced.ui.test.js/Bíblia.md",
   "status": "CHANGES_REQUIRED",
   "agent": null,
-  "source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+  "source_sha": "a92750646ee1f0b7ff21ee0d83a1ed2c55304402",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -57,7 +57,7 @@
     "self_audit": "APPROVED_PARTIAL",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "361/361",
+    "documented_positions": "480/480",
     "source_text_lines": 360,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 2,
@@ -65,7 +65,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:33:00Z",
+  "updated_at_utc": "2026-10-02T21:19:02Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:36:23.079Z",
@@ -115,6 +115,15 @@
       "agent": "AGENTE 30",
       "dependency_unit": 54,
       "reason": "Windows SHOW_EXISTING_FOLDER regression proves popup.js checks/splits two consecutive backslashes; product fix required before 116-001 can close. minimized_window regression also added."
+    },
+    {
+      "at_utc": "2026-10-02T21:19:02Z",
+      "type": "MAINTAINER_DOCUMENTATION_SYNC",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+      "source_sha": "a92750646ee1f0b7ff21ee0d83a1ed2c55304402",
+      "bible_sha": "35af5b035b49b2c9b7ba7e2440c0d35ae283beb4",
+      "reason": "Sincronização mecânica da Bíblia #116 com a revisão atual; CHANGES_REQUIRED e findings permanecem sem promoção automática."
     }
   ],
   "evidence": [
@@ -142,5 +151,5 @@
       "pre_fix_ci_status": "PENDING"
     }
   ],
-  "bible_sha": "aa524e4a2f4cce93003210ca67885d5aa20992b4"
+  "bible_sha": "35af5b035b49b2c9b7ba7e2440c0d35ae283beb4"
 }
