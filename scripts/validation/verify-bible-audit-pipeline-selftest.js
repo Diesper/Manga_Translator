@@ -236,6 +236,28 @@ if (!handoffProblems.some((item) => item.includes('state IN_PROGRESS sem transi�
 }
 process.stdout.write('PASS state/lock não burlam handoff sem history de correção\n');
 
+const safelyAborted = {
+  ...protectedRevision,
+  status: 'READY_FOR_AUDIT',
+  history: [
+    ...protectedRevision.history,
+    {
+      at_utc: '2026-10-02T06:06:00Z',
+      type: 'PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED',
+      from_status: 'IN_PROGRESS',
+      to_status: 'READY_FOR_AUDIT',
+      source_sha: String(2).padStart(40, '0'),
+      bible_sha: 'd'.repeat(40),
+      reopen_at_utc: '2026-10-02T06:05:00Z',
+    },
+  ],
+};
+handoffProblems = postHandoffCorrectionProblems([safelyAborted], []);
+if (handoffProblems.length !== 0) {
+  throw new Error('abort seguro deveria restaurar o handoff protegido: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS abort seguro restaura handoff sem apagar histórico\n');
+
 const silentlyChangedRevision = {
   ...missingTransition,
   status: 'READY_FOR_AUDIT',
@@ -282,6 +304,16 @@ if (handoffProblems.length !== 0) {
   throw new Error('CHANGES_REQUIRED -> IN_PROGRESS deveria ser aceito após decisão final: ' + JSON.stringify(handoffProblems));
 }
 process.stdout.write('PASS CHANGES_REQUIRED projetado pode iniciar correção autorizada\n');
+
+const endedWithoutRehandoff = {
+  ...projectedChangesRequired,
+  status: 'READY_FOR_AUDIT',
+};
+handoffProblems = postHandoffCorrectionProblems([endedWithoutRehandoff], finalChangesRequired);
+if (!handoffProblems.some((item) => item.includes('terminou sem novo CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT'))) {
+  throw new Error('correção concluída deveria exigir novo handoff: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS correção autorizada exige novo handoff ao voltar READY_FOR_AUDIT\n');
 
 const finalApproved = [
   result(protectedRevision, 'PRIMARY', 'APPROVED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
