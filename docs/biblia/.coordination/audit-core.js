@@ -479,9 +479,7 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         .map((candidate) => candidate.position)
         .sort((a, b) => a - b)[0] ?? Number.POSITIVE_INFINITY;
 
-      // Qualquer retorno ao papel de corretor/editor após o handoff precisa ser
-      // explicitamente auditável no history. Não basta mudar state/lock.
-      const correctionStart = history
+      const correctionStarts = history
         .map((entry, position) => ({
           entry,
           position,
@@ -493,9 +491,22 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
           && Number.isFinite(at_ms)
           && entry?.to_status === 'IN_PROGRESS'
         ))
-        .sort((a, b) => a.position - b.position)[0];
+        .sort((a, b) => a.position - b.position);
 
-      if (!correctionStart) {
+      const activeStarts = correctionStarts.filter((start) => {
+        const aborted = history.some((entry, position) => (
+          position > start.position
+          && position < nextHandoffPosition
+          && entry?.type === 'PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED'
+          && entry?.reopen_at_utc === start.entry?.at_utc
+          && entry?.to_status === 'READY_FOR_AUDIT'
+          && String(entry?.source_sha || '').toLowerCase() === sourceSha
+          && String(entry?.bible_sha || '').toLowerCase() === bibleSha
+        ));
+        return !aborted;
+      });
+
+      if (!activeStarts.length) {
         // Para o handoff protegido mais recente, também valida o snapshot atual.
         // Isso fecha o bypass de editar status/lock sem registrar a transição.
         if (!Number.isFinite(nextHandoffPosition) && state.status === 'IN_PROGRESS') {
@@ -526,52 +537,64 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         continue;
       }
 
-      const reopenSourceSha = String(correctionStart.entry?.source_sha || '').toLowerCase();
-      const reopenBibleSha = String(correctionStart.entry?.bible_sha || '').toLowerCase();
-      if (reopenSourceSha !== sourceSha || reopenBibleSha !== bibleSha) {
-        problems.push(
-          'handoff protegido reaberto com binding ausente/divergente: #'
-          + String(state.index).padStart(3, '0')
-          + ' handoff_source=' + sourceSha.slice(0, 12)
-          + ' handoff_bible=' + bibleSha.slice(0, 12)
-          + ' reopen_source=' + (reopenSourceSha.slice(0, 12) || '-')
-          + ' reopen_bible=' + (reopenBibleSha.slice(0, 12) || '-')
-          + ' reopen=' + correctionStart.entry.at_utc
-        );
-        continue;
+      for (const correctionStart of activeStarts) {
+        const reopenSourceSha = String(correctionStart.entry?.source_sha || '').toLowerCase();
+        const reopenBibleSha = String(correctionStart.entry?.bible_sha || '').toLowerCase();
+        if (reopenSourceSha !== sourceSha || reopenBibleSha !== bibleSha) {
+          problems.push(
+            'handoff protegido reaberto com binding ausente/divergente: #'
+            + String(state.index).padStart(3, '0')
+            + ' handoff_source=' + sourceSha.slice(0, 12)
+            + ' handoff_bible=' + bibleSha.slice(0, 12)
+            + ' reopen_source=' + (reopenSourceSha.slice(0, 12) || '-')
+            + ' reopen_bible=' + (reopenBibleSha.slice(0, 12) || '-')
+            + ' reopen=' + correctionStart.entry.at_utc
+          );
+          continue;
+        }
+
+        const eligibleRecords = (records || []).filter((record) => (
+          record?.index === state.index
+          && String(record?.source_sha || '').toLowerCase() === sourceSha
+          && String(record?.bible_sha || '').toLowerCase() === bibleSha
+          && Number.isFinite(record?.completed_at_ms)
+          && record.completed_at_ms > handoff.at_ms
+          && record.completed_at_ms <= correctionStart.at_ms
+        ));
+        const boundState = {
+          ...state,
+          source_sha: sourceSha,
+          bible_sha: bibleSha,
+          // Limita o fence ao handoff que está sendo validado. Um handoff
+          // posterior do mesmo binding não pode reescrever retroativamente
+          // a decisão que autorizou esta correção histórica.
+          history: history.slice(0, correctionStart.position + 1),
+        };
+        const pipeline = resolveAuditPipeline(boundState, eligibleRecords, new Map(), {
+          root: null,
+          baseline: null,
+        });
+
+        if (pipeline.problems.length || pipeline.decision !== 'CHANGES_REQUIRED') {
+          problems.push(
+            'handoff protegido reaberto sem decisão final CHANGES_REQUIRED: #'
+            + String(state.index).padStart(3, '0')
+            + ' source=' + sourceSha.slice(0, 12)
+            + ' bible=' + bibleSha.slice(0, 12)
+            + ' handoff=' + handoff.entry.at_utc
+            + ' reopen=' + correctionStart.entry.at_utc
+            + ' decision=' + pipeline.decision
+          );
+        }
       }
 
-      const eligibleRecords = (records || []).filter((record) => (
-        record?.index === state.index
-        && String(record?.source_sha || '').toLowerCase() === sourceSha
-        && String(record?.bible_sha || '').toLowerCase() === bibleSha
-        && Number.isFinite(record?.completed_at_ms)
-        && record.completed_at_ms >= handoff.at_ms
-        && record.completed_at_ms <= correctionStart.at_ms
-      ));
-      const boundState = {
-        ...state,
-        source_sha: sourceSha,
-        bible_sha: bibleSha,
-        // Limita o fence ao handoff que está sendo validado. Um handoff
-        // posterior do mesmo binding não pode reescrever retroativamente
-        // a decisão que autorizou esta correção histórica.
-        history: history.slice(0, correctionStart.position + 1),
-      };
-      const pipeline = resolveAuditPipeline(boundState, eligibleRecords, new Map(), {
-        root: null,
-        baseline: null,
-      });
-
-      if (pipeline.problems.length || pipeline.decision !== 'CHANGES_REQUIRED') {
+      // Uma correção autorizada encerra o handoff anterior. Ao voltar para
+      // READY_FOR_AUDIT, uma nova revisão precisa de um novo handoff protegido.
+      if (!Number.isFinite(nextHandoffPosition) && state.status === 'READY_FOR_AUDIT') {
         problems.push(
-          'handoff protegido reaberto sem decisão final CHANGES_REQUIRED: #'
+          'correção pós-handoff terminou sem novo CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT: #'
           + String(state.index).padStart(3, '0')
-          + ' source=' + sourceSha.slice(0, 12)
-          + ' bible=' + bibleSha.slice(0, 12)
-          + ' handoff=' + handoff.entry.at_utc
-          + ' reopen=' + correctionStart.entry.at_utc
-          + ' decision=' + pipeline.decision
+          + ' previous_handoff=' + handoff.entry.at_utc
         );
       }
     }
