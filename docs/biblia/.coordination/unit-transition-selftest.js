@@ -54,6 +54,46 @@ let snap = life.lifecycleSnapshot(s);
 const token = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:30:00Z', actor:'AGENT-X' });
 assert.deepStrictEqual(transition.validateCorrectionToken(s, token), []);
 console.log('PASS final CHANGES_REQUIRED issues revision-bound token');
+
+const waitingAdversarial = {
+  ...pipeline(s),
+  decision:'WAITING_ADVERSARIAL',
+  adversarial:null,
+};
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  waitingAdversarial,
+  {issued_at_utc:'2026-10-02T06:30:05Z',actor:'AGENT-X'}
+),/TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED/);
+console.log('PASS isolated PRIMARY cannot mint correction token');
+
+const divergentNoReaudit = {
+  ...pipeline(s),
+  decision:'REAUDIT_REQUIRED',
+  primary:{...pipeline(s).primary,verdict:'APPROVED'},
+  adversarial:{...pipeline(s).adversarial,verdict:'CHANGES_REQUIRED'},
+  reaudit:null,
+};
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  divergentNoReaudit,
+  {issued_at_utc:'2026-10-02T06:30:06Z',actor:'AGENT-X'}
+),/TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED/);
+console.log('PASS divergence without REAUDIT cannot mint correction token');
+
+const approvedNoCorrection = {
+  ...pipeline(s),
+  decision:'APPROVED',
+  primary:{...pipeline(s).primary,verdict:'APPROVED'},
+  adversarial:{...pipeline(s).adversarial,verdict:'APPROVED'},
+};
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  approvedNoCorrection,
+  {issued_at_utc:'2026-10-02T06:30:07Z',actor:'AGENT-X'}
+),/TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED/);
+console.log('PASS APPROVED pipeline cannot mint correction token');
+
 assert.throws(()=>transition.planTransition({
   state:s,
   pipeline:pipeline(s),
@@ -194,6 +234,24 @@ assert.throws(()=>transition.planTransition({
 assert.strictEqual(life.lifecycleSnapshot(s).correction_cycle,3);
 console.log('PASS stale CAS writer is rejected');
 console.log('PASS stale CAS rejection leaves correction cycle unchanged');
+
+transition.assertCas(s,snap,{
+  expected_status:'CHANGES_REQUIRED',
+  expected_cycle:3,
+  expected_revision_id:snap.revision_id,
+  expected_state_sha:'state-sha',
+},'state-sha');
+assert.throws(()=>transition.assertCas(
+  s,snap,{expected_status:'READY_FOR_AUDIT'},'state-sha'
+),/REJECTED_STATE_CHANGED:status/);
+assert.throws(()=>transition.assertCas(
+  s,snap,{expected_cycle:4},'state-sha'
+),/REJECTED_STATE_CHANGED:cycle/);
+assert.throws(()=>transition.assertCas(
+  s,snap,{expected_revision_id:'f'.repeat(64)},'state-sha'
+),/REJECTED_STATE_CHANGED:revision/);
+console.log('PASS CAS correct preconditions pass');
+console.log('PASS CAS rejects status, cycle and revision drift independently');
 
 assert.deepStrictEqual(
   transition.revisionBindingProblems(
