@@ -65,6 +65,31 @@ assert('REAUDIT somente na divergência', plan.candidates.some((item) => item.in
 assert('pipeline final não gera trabalho', !plan.candidates.some((item) => item.index === 5));
 assert('trabalho do shard local vem antes de steal', plan.candidates[0].shard === 2);
 
+const escalatedState = state(8);
+escalatedState.bible_sha = '8'.repeat(40);
+escalatedState.history = [];
+for (let i=1;i<=4;i+=1) {
+  escalatedState.history.push({
+    at_utc:'2026-10-01T0' + i + ':10:00Z',
+    type:lifecycleCore.HANDOFF_EVENT,
+    source_sha:escalatedState.source_sha,
+    bible_sha:escalatedState.bible_sha,
+  });
+}
+const normalPriorityState = state(9);
+normalPriorityState.bible_sha = '9'.repeat(40);
+const priorityPlan = planAuditWork({
+  states:[normalPriorityState,escalatedState],
+  pipelines:new Map([
+    [9,{primary:null,adversarial:null,reaudit:null,divergent:false}],
+    [8,{primary:null,adversarial:null,reaudit:null,divergent:false}],
+  ]),
+  auditorOrdinal:1,
+  shardCount:4,
+});
+assert('escalation priority vence preferência de shard', priorityPlan.candidates[0].index === 8);
+assert('audit planner expõe HIGH e priority score', priorityPlan.candidates[0].escalation_level === 'HIGH' && priorityPlan.candidates[0].priority_score > priorityPlan.candidates[1].priority_score);
+
 const humanState = state(6, 'HUMAN_LOCKED');
 humanState.bible_sha = 'b'.repeat(40);
 humanState.history = [];
