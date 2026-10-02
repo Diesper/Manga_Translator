@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-02T01:56:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -170,7 +170,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:41:42Z",
+  "updated_at_utc": "2026-10-02T01:56:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -239,6 +239,16 @@
       "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Workflow focal desambiguado com --runTestsByPath concluiu verde em Node 20/22; full content-scripts também verde. Nenhum source/Bible foi alterado."
+    },
+    {
+      "at_utc": "2026-10-02T01:56:00Z",
+      "type": "EDITOR_DOCUMENTATION_REPAIR_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+      "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
+      "agent": "AGENTE 30",
+      "reason": "REAUDIT 191-REAUDIT-A30-001: Bible executable-evidence section is stale relative to already-successful follow-up run 36951292966."
     }
   ],
   "evidence": [
