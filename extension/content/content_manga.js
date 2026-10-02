@@ -167,6 +167,7 @@ if (!window.__manga_translator_content_injected) {
     let selectedImagesIndices = new Set();
     let isTranslating = false;
     let _countedJobIndices = new Set();
+    let _failedPersistenceUpdateKeys = new Set();
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
     let _localBatchQueuePosition = null;
@@ -1849,6 +1850,7 @@ if (!window.__manga_translator_content_injected) {
             }
             disconnectAutoRestorer();
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
+            _failedPersistenceUpdateKeys.clear();
             _localBatchStatus = 'starting';
             _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
@@ -2569,6 +2571,11 @@ if (!window.__manga_translator_content_injected) {
                 // SM_SAVE_PAGE ainda está pendente; nesse caso o callback antigo
                 // jamais pode contabilizar progresso no lote novo.
                 const acceptedBatchId = request.batchId || _currentBatchId || null;
+                const persistenceRetryKey = acceptedBatchId
+                    ? `${acceptedBatchId}:${request.index}`
+                    : null;
+                const isAcceptedBatchStillActive = () =>
+                    Boolean(acceptedBatchId && _currentBatchId === acceptedBatchId && isTranslating);
 
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
@@ -2581,16 +2588,19 @@ if (!window.__manga_translator_content_injected) {
                         // Retry após falha de persistência: o DOM já pode conter a
                         // tradução com translated=true. Não reaplique a imagem; apenas
                         // tente persistir de novo e, se der certo, contabilize o índice.
-                        if (img.dataset.translated === 'true') {
-                            // Só é retry contabilizável enquanto o lote aceito ainda
-                            // está ativo. Duplicatas legadas pós-conclusão (sem batchId)
-                            // continuam sem reaplicar o DOM.
-                            if (isTranslating && acceptedBatchId && acceptedBatchId === _currentBatchId) {
-                                foundImage = true;
-                                shouldAccountUpdate = true;
-                                retryTranslatedImage = img;
-                                persistPromise = persistTranslatedPage(request.index, request.newSrc);
-                            }
+                        if (
+                            img.dataset.translated === 'true'
+                            && persistenceRetryKey
+                            && _failedPersistenceUpdateKeys.has(persistenceRetryKey)
+                        ) {
+                            // Apenas um PERSIST_FAIL anterior do mesmo batch+índice
+                            // transforma uma imagem já traduzida em retry legítimo.
+                            // Duplicatas comuns, mesmo com lote ainda ativo, continuam
+                            // sem reaplicar o DOM nem avançar a contabilidade.
+                            foundImage = true;
+                            shouldAccountUpdate = true;
+                            retryTranslatedImage = img;
+                            persistPromise = persistTranslatedPage(request.index, request.newSrc);
                             break;
                         }
 
@@ -2677,7 +2687,7 @@ if (!window.__manga_translator_content_injected) {
 
                 const accountPersistedUpdate = () => {
                     if (!shouldAccountUpdate) return;
-                    if (!acceptedBatchId || !_currentBatchId || acceptedBatchId !== _currentBatchId || !isTranslating) {
+                    if (!isAcceptedBatchStillActive()) {
                         sendLog('warn', 'STALE_UPDATE_COMPLETION_SKIPPED',
                             'Persistência de UPDATE_IMAGE terminou após o lote deixar de ser o ativo; contabilização ignorada.', {
                                 received: String(acceptedBatchId || '').slice(0, 8),
@@ -2691,7 +2701,14 @@ if (!window.__manga_translator_content_injected) {
 
                 persistPromise
                     .then(() => {
-                        if (retryTranslatedImage && retryTranslatedImage.getAttribute('src') !== request.newSrc) {
+                        if (persistenceRetryKey) {
+                            _failedPersistenceUpdateKeys.delete(persistenceRetryKey);
+                        }
+                        if (
+                            retryTranslatedImage
+                            && isAcceptedBatchStillActive()
+                            && retryTranslatedImage.getAttribute('src') !== request.newSrc
+                        ) {
                             retryTranslatedImage.src = request.newSrc;
                         }
                         ack({ ok: true, persisted: true, domApplied: foundImage });
@@ -2700,6 +2717,9 @@ if (!window.__manga_translator_content_injected) {
                     .catch((err) => {
                         sendLog('error', 'PERSIST_FAIL', `Falha ao persistir a página ${request.index}: ${err && err.message}`, { index: request.index });
                         ack({ ok: false, reason: 'persist_failed' });
+                        if (persistenceRetryKey && isAcceptedBatchStillActive()) {
+                            _failedPersistenceUpdateKeys.add(persistenceRetryKey);
+                        }
                         // Persistência falhou: não contabilizar o índice como concluído.
                         // O lote permanece ativo para que o background possa reenviar
                         // o resultado; só um commit persistido com sucesso avança o lote.
