@@ -1,10 +1,10 @@
 # Bíblia técnica — tests/e2e/reader-offline.spec.js
 
 > **Estado documental:** 🟡 CORRIGIDA após REAUDIT — READY_FOR_AUDIT da revisão documental atual  
-> **SHA auditado:** `1ab953d0a031f77cb458befd31650e9ba9c4c052`  
+> **SHA auditado:** `2837775deacca5123fa99232633b4652774abf96`  
 > **Agente responsável:** AGENTE 16  
 > **Tipo:** Playwright E2E — Chromium persistente + extensão MV3 real + leitor offline  
-> **Linhas textuais:** **276**  
+> **Linhas textuais:** **422**  
 > **Posições documentais:** **277**, contando o newline final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
@@ -386,10 +386,16 @@ async function getBackgroundWorker(context) {
     return context.waitForEvent('serviceworker', { timeout: 15000 });
 }
 
-async function resetExtensionState(backgroundWorker) {
-    await backgroundWorker.evaluate(() => {
-        return new Promise(resolve => {
+async function resetExtensionState(backgroundWorker, { forceIndexedDbFailure = false } = {}) {
+    await backgroundWorker.evaluate(async () => {
+        await new Promise((resolve, reject) => {
             chrome.storage.local.clear(() => {
+                const clearError = chrome.runtime.lastError;
+                if (clearError) {
+                    reject(new Error(clearError.message || 'chrome.storage.local.clear falhou'));
+                    return;
+                }
+
                 chrome.storage.local.set({
                     enabledDomains: ['localhost', '127.0.0.1'],
                     debugMode: false,
@@ -409,28 +415,88 @@ async function resetExtensionState(backgroundWorker) {
                         completedJobs: 0,
                         activeJobsCount: 0,
                     },
-                }, resolve);
+                }, () => {
+                    const setError = chrome.runtime.lastError;
+                    if (setError) reject(new Error(setError.message || 'chrome.storage.local.set falhou'));
+                    else resolve();
+                });
             });
         });
     });
 
-    await backgroundWorker.evaluate(async () => {
-        if (self.MangaTranslatorStorageManager && typeof self.MangaTranslatorStorageManager.openStorageDb === 'function') {
-            try {
-                const db = await self.MangaTranslatorStorageManager.openStorageDb();
-                const storeNames = ['chapters', 'chapterPages', 'restoreEntries', 'assets'].filter(name => db.objectStoreNames.contains(name));
-                if (storeNames.length > 0) {
-                    await new Promise(resolve => {
-                        const tx = db.transaction(storeNames, 'readwrite');
-                        storeNames.forEach(name => tx.objectStore(name).clear());
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => resolve();
-                    });
-                }
-            } catch (_e) {}
+    await backgroundWorker.evaluate(async shouldForceFailure => {
+        const sm = self.MangaTranslatorStorageManager;
+        if (!sm || typeof sm.openStorageDb !== 'function') {
+            throw new Error('StorageManager indisponível durante reset E2E');
         }
-    });
+
+        const db = await sm.openStorageDb();
+        const storeNames = ['chapters', 'chapterPages', 'restoreEntries', 'assets'];
+        const missingStores = storeNames.filter(name => !db.objectStoreNames.contains(name));
+        if (missingStores.length > 0) {
+            throw new Error(`Stores IndexedDB ausentes no reset E2E: ${missingStores.join(', ')}`);
+        }
+
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(storeNames, 'readwrite');
+            let settled = false;
+            const failure = fallback => (
+                shouldForceFailure
+                    ? new Error('E2E_INJECTED_IDB_RESET_FAILURE')
+                    : (tx.error || new Error(fallback))
+            );
+            const fail = reason => {
+                if (settled) return;
+                settled = true;
+                reject(reason instanceof Error ? reason : new Error(String(reason || 'IndexedDB reset falhou')));
+            };
+
+            tx.oncomplete = () => {
+                if (settled) return;
+                settled = true;
+                resolve();
+            };
+            tx.onerror = () => fail(failure('IndexedDB reset transaction error'));
+            tx.onabort = () => fail(failure('IndexedDB reset transaction aborted'));
+
+            storeNames.forEach(name => tx.objectStore(name).clear());
+            if (shouldForceFailure) tx.abort();
+        });
+
+        const counts = {};
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(storeNames, 'readonly');
+            let settled = false;
+            const fail = reason => {
+                if (settled) return;
+                settled = true;
+                reject(reason instanceof Error ? reason : new Error(String(reason || 'IndexedDB post-condition falhou')));
+            };
+
+            storeNames.forEach(name => {
+                const request = tx.objectStore(name).count();
+                request.onsuccess = () => { counts[name] = request.result; };
+                request.onerror = () => fail(request.error || new Error(`Falha contando store ${name}`));
+            });
+
+            tx.oncomplete = () => {
+                if (settled) return;
+                settled = true;
+                resolve();
+            };
+            tx.onerror = () => fail(tx.error || new Error('IndexedDB post-condition transaction error'));
+            tx.onabort = () => fail(tx.error || new Error('IndexedDB post-condition transaction aborted'));
+        });
+
+        const dirtyStores = Object.entries(counts).filter(([, count]) => count !== 0);
+        if (dirtyStores.length > 0) {
+            throw new Error(`IndexedDB reset incompleto: ${JSON.stringify(Object.fromEntries(dirtyStores))}`);
+        }
+
+        return counts;
+    }, forceIndexedDbFailure);
 }
+
 
 function makeSvgDataUrl(label) {
     const svg = `
@@ -442,10 +508,12 @@ function makeSvgDataUrl(label) {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+const DEFAULT_READER_INDICES = [0, 2, 5, 8, 10, 11, 14, 20, 33, 50, 51, 77, 88, 99, 200];
+
 async function seedReaderChapter(backgroundWorker, {
     chapterId = 'chap_reader_e2e',
     title = 'Capitulo E2E do Reader',
-    indices = [0, 2, 5, 8, 10, 11, 14, 20, 33, 50, 51, 77, 88, 99, 200],
+    indices = DEFAULT_READER_INDICES,
 } = {}) {
     const images = {};
     indices.forEach(index => {
@@ -475,15 +543,47 @@ async function getReaderUrl(backgroundWorker, chapterId) {
     }, chapterId);
 }
 
+async function readReaderMigrationState(backgroundWorker, chapterId) {
+    return backgroundWorker.evaluate(async requestedChapterId => {
+        const sm = self.MangaTranslatorStorageManager;
+        if (!sm) throw new Error('StorageManager indisponível ao verificar migração');
+
+        const pageIndex = await sm.getChapterPageIndex(requestedChapterId);
+        const pageCount = await sm.getChapterPageCount(requestedChapterId);
+        const firstPage = await sm.getPageDataUrl(requestedChapterId, 0);
+        const lastPage = await sm.getPageDataUrl(requestedChapterId, 200);
+        const legacyKey = `${requestedChapterId}_images`;
+        const flagKey = `_sm_migrated_${requestedChapterId}`;
+
+        const storage = await new Promise((resolve, reject) => {
+            chrome.storage.local.get([legacyKey, flagKey], value => {
+                const error = chrome.runtime.lastError;
+                if (error) reject(new Error(error.message || 'chrome.storage.local.get falhou'));
+                else resolve(value);
+            });
+        });
+
+        return {
+            indices: pageIndex.map(entry => entry.pageIndex),
+            pageCount,
+            firstPagePresent: typeof firstPage === 'string' && firstPage.startsWith('data:image/'),
+            lastPagePresent: typeof lastPage === 'string' && lastPage.startsWith('data:image/'),
+            legacyImagesPresent: Object.prototype.hasOwnProperty.call(storage, legacyKey),
+            migrationFlag: storage[flagKey],
+        };
+    }, chapterId);
+}
+
 let browserContext;
 let backgroundWorker;
+let userDataDir;
 
 test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
     // O reader compartilha persistent context/storage entre casos deste arquivo.
     test.describe.configure({ mode: 'serial' });
     test.beforeAll(async () => {
         const pathToExtension = getExtensionPath(__dirname);
-        const userDataDir = path.join(os.tmpdir(), `pw-manga-reader-${Date.now()}`);
+        userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pw-manga-reader-'));
         const browserMode = getBrowserModeConfig();
         const launchArgs = [
             `--disable-extensions-except=${pathToExtension}`,
@@ -505,12 +605,48 @@ test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
     });
 
     test.afterAll(async () => {
-        if (browserContext) await browserContext.close();
+        let closeError = null;
+        try {
+            if (browserContext) await browserContext.close();
+        } catch (error) {
+            closeError = error;
+        }
+
+        let cleanupError = null;
+        try {
+            if (userDataDir) {
+                fs.rmSync(userDataDir, {
+                    recursive: true,
+                    force: true,
+                    maxRetries: 3,
+                    retryDelay: 100,
+                });
+                if (fs.existsSync(userDataDir)) {
+                    throw new Error(`Persistent profile não removido: ${userDataDir}`);
+                }
+            }
+        } catch (error) {
+            cleanupError = error;
+        }
+
+        if (closeError) {
+            if (cleanupError && Object.isExtensible(closeError)) closeError.cleanupError = cleanupError;
+            throw closeError;
+        }
+        if (cleanupError) throw cleanupError;
     });
 
     test.beforeEach(async () => {
         backgroundWorker = await getBackgroundWorker(browserContext);
         await resetExtensionState(backgroundWorker);
+    });
+
+    test('reset de IndexedDB falha fechado quando a limpeza não pode ser confirmada', { tag: '@e2e-fast' }, async () => {
+        await expect(resetExtensionState(backgroundWorker, {
+            forceIndexedDbFailure: true,
+        })).rejects.toThrow('E2E_INJECTED_IDB_RESET_FAILURE');
+
+        await expect(resetExtensionState(backgroundWorker)).resolves.toBeUndefined();
     });
 
     test('renderiza paginas salvas em ordem numerica correta e contador inicial consistente', { tag: '@e2e-fast' }, async () => {
@@ -547,6 +683,16 @@ test.describe('E2E-19/E2E-20/E2E-21/E2E-22: E2E - reader offline real', () => {
         await expect(lastImg).toHaveAttribute('src', /.+/, { timeout: 10000 });
         const lastSrc = await lastImg.getAttribute('src');
         expect(decodeSrc(lastSrc)).toContain('idx-200');
+
+        const migration = await readReaderMigrationState(backgroundWorker, chapterId);
+        expect(migration).toEqual({
+            indices: DEFAULT_READER_INDICES,
+            pageCount: DEFAULT_READER_INDICES.length,
+            firstPagePresent: true,
+            lastPagePresent: true,
+            legacyImagesPresent: false,
+            migrationFlag: true,
+        });
 
         await readerPage.close();
     });
@@ -1032,3 +1178,13 @@ Fecha o `describe` e documenta explicitamente o newline final. Não há comporta
 - [x] nenhum código, teste, fixture, workflow ou configuração externo foi modificado para fabricar evidência.
 
 **Resultado da revisão documental:** as lacunas técnicas continuam registradas; 093-001, 093-002 e 093-003 estão ACCEPTED no state canônico e não permanecem OPEN. A revisão atual retorna a READY_FOR_AUDIT.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Cobertura canônica da revisão vigente; mapas anteriores permanecem como contexto histórico.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–423 | Blob integral atual `2837775deacca5123fa99232633b4652774abf96` (422 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
+
+A sincronização documental não reaproveita aprovação anterior: esta revisão requer nova auditoria distribuída.
