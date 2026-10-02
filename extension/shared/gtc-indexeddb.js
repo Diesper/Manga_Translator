@@ -1308,7 +1308,18 @@
 
             // ── Save many ──────────────────────────────────────────────────
             if (request.action === 'GTC_SAVE_MANY') {
-                serializeGtcOperation(() => repository.putMany(request.entries || []))
+                serializeGtcOperation(async () => {
+                    const entries = Array.isArray(request.entries) ? request.entries : [];
+                    const result = await repository.putMany(entries);
+                    if (result && result.saved === true) {
+                        const hashes = Array.from(new Set(entries
+                            .filter(entry => entry && entry.translatedDataUrl)
+                            .map(entry => normalizeHash(entry.hash))
+                            .filter(Boolean)));
+                        await legacyRemove(hashes.flatMap(hash => [`gtc_${hash}`, `gtc_meta_${hash}`]));
+                    }
+                    return result;
+                })
                     .then(result => finalize(result))
                     .catch(error => fail(error, request.action));
                 return true;

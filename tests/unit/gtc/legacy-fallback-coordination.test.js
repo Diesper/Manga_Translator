@@ -134,6 +134,28 @@ describe('GTC legacy fallback coordination', () => {
         expect(finalQuery.entriesByHash).toEqual({ 'bulk-race': 'new-bulk-payload' });
     });
 
+    test('bulk save clears marked fallback for every successfully persisted hash', async () => {
+        const repository = createInMemoryRepository(() => 100);
+        await storage.set({
+            gtc_bulk: 'stale-fallback',
+            gtc_meta_bulk: { schemaVersion: 1, updatedAt: 500 },
+        });
+        const handler = createGtcRuntimeHandler({ repository, logger });
+
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE_MANY',
+            entries: [{ hash: 'bulk', translatedDataUrl: 'new-bulk-payload' }],
+        });
+        const queried = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['bulk'] });
+
+        expect(saved).toEqual(expect.objectContaining({ ok: true }));
+        expect(queried.entriesByHash).toEqual({ bulk: 'new-bulk-payload' });
+        expect(await storage.get(['gtc_bulk', 'gtc_meta_bulk'])).toEqual({
+            gtc_bulk: undefined,
+            gtc_meta_bulk: undefined,
+        });
+    });
+
     test('rejects an older save message that reaches the background after a newer modern commit', async () => {
         const repository = createInMemoryRepository(() => 200);
         await repository.put({ hash: 'race-late', translatedDataUrl: 'new-payload', updatedAt: 200 });

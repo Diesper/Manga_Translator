@@ -13,6 +13,10 @@ const { TextEncoder } = require('util');
 
 const { loadContentScript } = require('../../helpers/load-content-script.js');
 const {
+    createGtcRuntimeHandler,
+    createInMemoryRepository,
+} = require('../../../extension/shared/gtc-indexeddb.js');
+const {
     getRuntimeMock,
     getStorageMock,
 } = require('../../mocks/chrome-api.mock.js');
@@ -206,6 +210,79 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             sentMessages.filter(message => message.action === 'START_BATCH').length === previousCount + 1
         );
     }
+
+    function installGtcBridge(repository) {
+        const handler = createGtcRuntimeHandler({ repository });
+        const fallback = runtimeMock.sendMessage;
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action?.startsWith('GTC_')) {
+                sentMessages.push(message);
+                return handler(message, {}, callback);
+            }
+            return fallback(message, callback);
+        });
+    }
+
+    test('GTC moderno com miss por hash recupera fallback legado pelo cliente real', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        const repository = createInMemoryRepository();
+        await repository.put({ hash: 'modern', translatedDataUrl: 'data:modern' });
+        await storageMock.set({ gtc_miss: 'data:legacy' });
+        installGtcBridge(repository);
+
+        await expect(window.MangaTranslatorGtcClient.queryGlobalTranslationCache(['modern', 'miss']))
+            .resolves.toEqual({ modern: 'data:modern', miss: 'data:legacy' });
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GTC_QUERY_MANY', hashes: ['modern', 'miss'],
+        }));
+    });
+
+    test('GTC fallback marcado mais novo prevalece sobre entrada moderna stale', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        const repository = createInMemoryRepository(() => 100);
+        await repository.put({ hash: 'same', translatedDataUrl: 'data:old-modern' });
+        await storageMock.set({
+            gtc_same: 'data:new-fallback',
+            gtc_meta_same: { schemaVersion: 1, updatedAt: 200 },
+        });
+        installGtcBridge(repository);
+
+        await expect(window.MangaTranslatorGtcClient.queryGlobalTranslationCache(['same']))
+            .resolves.toEqual({ same: 'data:new-fallback' });
+    });
+
+    test('GTC legado sem marcador não sobrescreve hit moderno válido', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        const repository = createInMemoryRepository(() => 200);
+        await repository.put({ hash: 'same', translatedDataUrl: 'data:modern' });
+        await storageMock.set({ gtc_same: 'data:old-legacy' });
+        installGtcBridge(repository);
+
+        await expect(window.MangaTranslatorGtcClient.queryGlobalTranslationCache(['same']))
+            .resolves.toEqual({ same: 'data:modern' });
+    });
+
+    test('GTC_SAVE com resposta ok mas saved false não é tratado como persistido', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            sentMessages.push(message);
+            if (message.action === 'GTC_SAVE') {
+                callback({ ok: true, saved: false, error: 'rejected by repository' });
+            } else {
+                callback({ ok: true });
+            }
+        });
+
+        await expect(window.MangaTranslatorGtcClient.saveGlobalTranslationCacheEntry('hash', 'data:value'))
+            .resolves.toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'data:value',
+        }));
+    });
 
     test('SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes', async () => {
         installRuntimeResponder();
