@@ -553,6 +553,10 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         ...state,
         source_sha: sourceSha,
         bible_sha: bibleSha,
+        // Limita o fence ao handoff que está sendo validado. Um handoff
+        // posterior do mesmo binding não pode reescrever retroativamente
+        // a decisão que autorizou esta correção histórica.
+        history: history.slice(0, correctionStart.position + 1),
       };
       const pipeline = resolveAuditPipeline(boundState, eligibleRecords, new Map(), {
         root: null,
