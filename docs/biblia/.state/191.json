@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "e67349833ff14f35cc1f8a041e00df0d696d8687",
+  "source_sha": "878bbe04a4ad6409321dd8bbdcc7c18fb874bcc3",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -390,20 +390,45 @@
         "pre_fix_node22_job_id": 110685347973,
         "pre_fix_result": "EXPECTED_FAIL_EXACTLY_2_BOTH_NODES"
       }
+    },
+    {
+      "id": "191-014",
+      "status": "ACCEPTED",
+      "type": "POST_COMPLETION_STALE_UPDATE_GAP",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "UPDATE_IMAGE com batchId do lote concluído atravessava o guard quando _currentBatchId já era null e podia substituir/persistir resultado tardio.",
+      "current_evidence": "O guard antigo exigia _currentBatchId truthy; após conclusão esse valor é limpo.",
+      "missing_evidence": "Resultado tardio identificado deve receber stale_batch e não alterar DOM/persistência.",
+      "why_needed": "Resultados assíncronos atrasados não podem sobrescrever estado já concluído.",
+      "requested_action": "Aplicar ao UPDATE_IMAGE o mesmo critério null-or-mismatch dos guards pós-conclusão.",
+      "expected_evidence": "Regressão pré-fix falha; pós-fix passa em Node20/22 e full content-scripts.",
+      "expected_auditor_action": "Reauditar isolamento temporal de UPDATE_IMAGE.",
+      "possible_regression": "Imagem antiga/tardia pode sobrescrever o resultado final depois do término.",
+      "impact": "Integridade visual, persistência e isolamento entre lotes.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T03:04:00Z",
+      "audit_finding": "Padrão irmão de 191-013 identificado no guard de UPDATE_IMAGE.",
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Guard de UPDATE_IMAGE agora rejeita batchId quando _currentBatchId é null ou divergente; regression mantém a primeira imagem e exige stale_batch.",
+      "validation": {
+        "pre_fix_run_id": 36958466821
+      }
     }
   ],
   "document_quality": {
     "self_audit": "CORRECTION_APPLIED_AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1119/1119",
-    "source_text_lines": 1118,
-    "test_count": 26,
+    "documented_positions": "1462/1462",
+    "source_text_lines": 1461,
+    "test_count": 33,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 3,
-    "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+    "production_dependency_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
     "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
-    "note": "191-007/008/009 aplicadas; matriz de branches completa em 26 testes, Bíblia 1119/1119; aguarda CI atual e auditoria distribuída."
+    "note": "191-007..014 aplicadas; aguarda CI final do SHA atual e novo par distribuído independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -667,6 +692,23 @@
       "production_sha": "c8bc1f4b7e7855d21be7e92c231573c2a44df405",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-013: pre-fix run 36958049293 falhou exatamente 2 casos em Node20/22; runtime corrigido sem enfraquecer testes."
+    },
+    {
+      "at_utc": "2026-10-02T03:04:00Z",
+      "type": "POST_CORRECTION_ADDITIONAL_FINDING",
+      "source_sha": "e67349833ff14f35cc1f8a041e00df0d696d8687",
+      "production_sha": "c8bc1f4b7e7855d21be7e92c231573c2a44df405",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-014 HIGH: UPDATE_IMAGE tardio pós-conclusão ainda podia alterar resultado."
+    },
+    {
+      "at_utc": "2026-10-02T03:04:01Z",
+      "type": "SOURCE_PRODUCTION_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "878bbe04a4ad6409321dd8bbdcc7c18fb874bcc3",
+      "bible_sha": "40ecea3e4fb06f2d99884136496f056bb329413f",
+      "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-014 corrigido; revisão 33 casos, Bíblia 1462/1462, production e55d6e4785683ab21026e84196497f68a6722b5e."
     }
   ],
   "evidence": [
@@ -742,5 +784,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "53df22a951c39e61712b5bb398f84b98b11c21d7"
+  "bible_sha": "40ecea3e4fb06f2d99884136496f056bb329413f"
 }
