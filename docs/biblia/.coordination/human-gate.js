@@ -81,6 +81,9 @@ function loadHumanApprovals(root) {
       continue;
     }
     problems.push(...validateApproval(raw, rel));
+    if (Number(raw?.schema_version) !== 2) {
+      problems.push(rel + ': approval materializada deve usar schema_version 2 com proveniência de workflow');
+    }
     if (ids.has(raw?.approval_id)) problems.push(rel + ': approval_id duplicado: ' + raw.approval_id);
     if (raw?.approval_id) ids.add(raw.approval_id);
     approvals.push({ ...raw, path: rel });
