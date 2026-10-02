@@ -39,4 +39,5 @@ jobs:
           CI: 'true'
           MANGA_E2E_BROWSER_MODE: stealth
           MANGA_E2E_WORKERS: '1'
+          MANGA_E2E_MIN_TESTS: '4'
         run: xvfb-run --auto-servernum -- npx playwright test tests/e2e/reader-offline.spec.js --config=playwright.config.js --workers=1 --retries=0
