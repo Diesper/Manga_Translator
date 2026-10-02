@@ -112,6 +112,35 @@ let humanPlan = planAuditWork({
 });
 assert('HUMAN sem aprovação fica fora', humanPlan.candidates.length === 0);
 
+const humanAdversarialPlan=planAuditWork({
+  states:[humanState],
+  pipelines:new Map([[6,{
+    primary:{verdict:'APPROVED',auditor:'P1'},
+    adversarial:null,
+    reaudit:null,
+    divergent:false,
+  }]]),
+  auditorOrdinal:1,
+  shardCount:4,
+  humanApprovals:[],
+});
+assert('HUMAN sem aprovação bloqueia ADVERSARIAL', humanAdversarialPlan.candidates.length === 0);
+
+const humanReauditPlan=planAuditWork({
+  states:[humanState],
+  pipelines:new Map([[6,{
+    primary:{verdict:'APPROVED',auditor:'P1'},
+    adversarial:{verdict:'CHANGES_REQUIRED',auditor:'A1'},
+    reaudit:null,
+    divergent:true,
+  }]]),
+  auditorOrdinal:1,
+  shardCount:4,
+  humanApprovals:[],
+});
+assert('HUMAN sem aprovação bloqueia REAUDIT', humanReauditPlan.candidates.length === 0);
+console.log('PASS HUMAN sem aprovação bloqueia PRIMARY, ADVERSARIAL e REAUDIT');
+
 const auditApproval = {
   schema_version:1,
   approval_id:'006-human-audit',
