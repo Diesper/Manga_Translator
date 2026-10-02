@@ -1,0 +1,31 @@
+{
+  "schema_version": 3,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 2",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "requested_action": "Adicionar o teste focal à revisão por correção autorizada e atualizar a Bíblia e seu binding antes de nova auditoria.",
+      "type": "MISSING_EXECUTABLE_REGRESSION",
+      "id": "191-P2-001",
+      "severity": "NORMAL",
+      "summary": "A suíte 191 não prova que uma falha do GTC auxiliar permanece observável enquanto SM_SAVE_PAGE confirma persistência da página.",
+      "evidence": [
+        "content_manga.js registra GTC_SAVE_FAILED em falha, mas a suíte 191 atual não faz assertion desse evento junto com ACK persisted true.",
+        "Teste focal proposto reproduz o cenário e passa localmente: 43/43, mas ainda não integra a revisão protegida."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-02T21:19:51Z",
+  "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+  "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "audit_epoch": 6,
+  "handoff_id": "191-e6-265d2744877c",
+  "revision_id": "8a10045637dd09a6c863de4bd9a1424032bd9af84d3400f4c7ba851bd0037694",
+  "human_approval_id": null
+}
