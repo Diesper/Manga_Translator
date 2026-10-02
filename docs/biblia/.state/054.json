@@ -2,10 +2,10 @@
   "index": 54,
   "file": "extension/popup/popup.js",
   "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
-  "completed_at_utc": "2026-09-30T06:23:52.758Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "054-001",
@@ -66,8 +66,19 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "started_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T01:34:00Z",
+  "started_at_utc": "2026-10-02T01:34:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T01:34:00Z",
+      "type": "EDITOR_REOPEN_EXPOSED_BUG",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+      "agent": "AGENTE 30",
+      "exposed_by_unit": 116,
+      "reason": "116-001 Windows regression exposed SHOW_EXISTING_FOLDER directory extraction bug: popup.js checks/splits two consecutive backslashes although stored download filenames use single Windows separators."
+    }
+  ],
   "evidence": []
 }
