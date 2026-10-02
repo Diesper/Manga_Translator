@@ -2,8 +2,8 @@
   "index": 107,
   "file": "tests/integration/chapter-dedup.test.js",
   "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
   "source_sha": "9dcc09d00a8f9d16d06cd817191bc5620311f610",
   "started_at_utc": "2026-10-02T01:12:00Z",
   "completed_at_utc": null,
@@ -77,7 +77,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:20:30Z",
+  "updated_at_utc": "2026-10-02T15:39:27Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:32:56.571Z",
@@ -131,6 +131,21 @@
       "bible_sha": "c7f04135b14b208e69d02185c20dd1abcfa243c4",
       "agent": "AGENTE 30",
       "reason": "Cross-domain scenario now preloads a real other-origin chapter URL instead of simulating only an injected hostname."
+    },
+    {
+      "at_utc": "2026-10-02T15:39:27Z",
+      "type": "PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "9dcc09d00a8f9d16d06cd817191bc5620311f610",
+      "bible_sha": "c7f04135b14b208e69d02185c20dd1abcfa243c4",
+      "reopen_at_utc": null,
+      "correction_token_id": null,
+      "reservation_path": "docs/biblia/.reservas/tests/integration/chapter-dedup.test.js.lock.md",
+      "actor": "AGENTE 30",
+      "reason": "Migração anti-loop de sessão editorial legada pré-policy: abort seguro preserva binding/histórico e exige nova correção somente via decisão distribuída + token + reserva canônicos.",
+      "previous_event_hash": "340034b279c2104f6aacda57cf4a717f8d3d163afe68b6db32bb392ba1210151",
+      "event_hash": "4d658cd54f0758bbcd2f700bf4b9e031de67c9beac6d065b30eb6caf95144385"
     }
   ],
   "evidence": [
@@ -160,5 +175,15 @@
     "accepted_requests_pending_validation": 3,
     "note": "Mirror removido; cm-chapter real cobre URL exata, canonicalTitle real, não-colisões por capítulo/domínio persistido e persistTranslatedPage→SM_SAVE_PAGE. Execução focal ainda pendente."
   },
-  "bible_sha": "c7f04135b14b208e69d02185c20dd1abcfa243c4"
+  "bible_sha": "c7f04135b14b208e69d02185c20dd1abcfa243c4",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "9dcc09d00a8f9d16d06cd817191bc5620311f610",
+  "revision_id": "99785fff0fcb81832a58b489e0cfaa58e6054373e5bdd1b764996bfe020571b9"
 }
