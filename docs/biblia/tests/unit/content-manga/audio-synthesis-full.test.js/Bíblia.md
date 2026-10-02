@@ -81,7 +81,10 @@ A PRIMARY da revisão anterior encontrou ausência de prova para `unlockNotifica
 - Job Node 22 `110663159600`: **PASS** com os mesmos dois arquivos explicitamente verdes.
 - Job de suíte completa `110663159408`: **PASS**, `40/40` suites e `439/439` testes, com `--detectOpenHandles`.
 - Os três jobs terminaram sem failure e comprovam a revisão final com os 11 casos de #191 mais a suíte relacionada.
-- O workflow atual está no SHA `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`; a forma focal foi posteriormente desambiguada com `--runTestsByPath`. A execução corretiva dessa forma pode ocorrer separadamente sem invalidar a evidência já obtida para o source, porque a run acima executou explicitamente os dois arquivos e a suíte completa.
+- Follow-up `36951292966` executou o mesmo source final com o workflow SHA `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f` e a forma focal desambiguada por `--runTestsByPath`.
+- Job Node 20 `110664598493`: **PASS**, `2/2` suites e `20/20` testes.
+- Job Node 22 `110664598462`: **PASS**, `2/2` suites e `20/20` testes.
+- Job full content-scripts `110664598276`: **PASS**, `40/40` suites e `439/439` testes com `--detectOpenHandles`.
 - Run anterior `36948794013` permanece apenas como histórico da revisão de 5 casos.
 
 ## 9. Limites honestos
