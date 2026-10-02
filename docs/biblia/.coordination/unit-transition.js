@@ -386,6 +386,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
   if (action === 'START_CORRECTION') {
     const expectedStatus = snapshot.human_locked ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED';
     if (state.status !== expectedStatus) throw new Error('START_CORRECTION_STATUS_INVALID:' + state.status);
+    if (!pipeline) throw new Error('START_CORRECTION_PIPELINE_REQUIRED');
     const tokenProblems = validateCorrectionToken(state, token, { actor, pipeline });
     if (tokenProblems.length) throw new Error(tokenProblems.join(';'));
 
