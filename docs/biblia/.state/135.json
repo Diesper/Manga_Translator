@@ -2,8 +2,8 @@
   "index": 135,
   "file": "tests/unit/background/claim-gemini-job-action.test.js",
   "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
   "started_at_utc": "2026-09-30T06:36:00Z",
   "completed_at_utc": null,
@@ -54,7 +54,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:11:14Z",
+  "updated_at_utc": "2026-10-02T00:24:15Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:05:00Z",
@@ -82,6 +82,15 @@
       "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
       "agent": "AGENTE 23",
       "reason": "Reparo #135 concluído sem alterar o source; classificação de evidência e lifecycle das requests alinhados à auditoria independente."
+    },
+    {
+      "at_utc": "2026-10-02T00:24:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "0cb6cb2f100d7493abfdf4038546e8be747289f1",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Request 135-001 HIGH confirmado: self-test externo cobre ownership mismatch, mas a suíte #135 ainda não prova jobId correto pertencente a outra identidade canônica nem ausência de migração/rekey."
     }
   ],
   "evidence": [
