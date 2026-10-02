@@ -10,6 +10,33 @@
       }
     };
 
+    const awaitBounded = (promise, timeoutReason) => new Promise((resolve, reject) => {
+      let done = false;
+      const timeout = setTimeout(() => {
+        if (done) return;
+        done = true;
+        const error = new Error(timeoutReason);
+        error.code = timeoutReason;
+        reject(error);
+      }, timeoutMs);
+      if (timeout && typeof timeout.unref === 'function') timeout.unref();
+
+      Promise.resolve(promise).then(
+        value => {
+          if (done) return;
+          done = true;
+          clearTimeout(timeout);
+          resolve(value);
+        },
+        error => {
+          if (done) return;
+          done = true;
+          clearTimeout(timeout);
+          reject(error);
+        }
+      );
+    });
+
     function deliver({
       mangaTabId, index, src, jobId, batchId, geminiTabId,
       finalizeOnAck = true,
@@ -35,14 +62,16 @@
 
           if (effectiveOk && persisted) {
             try {
-              await updateJobState(geminiTabId, {
+              await awaitBounded(updateJobState(geminiTabId, {
                 state: 'dom_applied',
                 resultPersisted: true,
                 resultPersistedAt: Date.now(),
-              });
+              }), 'state_update_timeout');
             } catch (error) {
               effectiveOk = false;
-              effectiveReason = 'state_update_failed';
+              effectiveReason = error && error.code === 'state_update_timeout'
+                ? 'state_update_timeout'
+                : 'state_update_failed';
               safeLog('error', 'bg', 'DOM_ACK_STATE_UPDATE_FAILED',
                 'ACK de persistência recebido, mas o estado durável do job não pôde ser atualizado.', {
                   index,
@@ -65,7 +94,10 @@
 
           if (finalizeOnAck && effectiveReason !== 'state_update_failed') {
             try {
-              await finalizeJob(geminiTabId, mangaTabId, !effectiveOk);
+              await awaitBounded(
+                finalizeJob(geminiTabId, mangaTabId, !effectiveOk),
+                'finalize_timeout'
+              );
             } catch (error) {
               safeLog('error', 'bg', 'DOM_ACK_FINALIZE_FAILED',
                 'Falha ao finalizar job após conclusão do handshake DOM.', {
@@ -75,7 +107,9 @@
                 });
               resolve({
                 ok: false,
-                reason: 'finalize_failed',
+                reason: error && error.code === 'finalize_timeout'
+                  ? 'finalize_timeout'
+                  : 'finalize_failed',
                 persisted,
                 domApplied,
               });
