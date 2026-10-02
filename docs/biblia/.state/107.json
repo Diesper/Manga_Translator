@@ -2,10 +2,10 @@
   "index": 107,
   "file": "tests/integration/chapter-dedup.test.js",
   "bible": "docs/biblia/tests/integration/chapter-dedup.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
-  "started_at_utc": "2026-09-30T06:32:00Z",
+  "started_at_utc": "2026-10-02T01:12:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -74,7 +74,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:40:02Z",
+  "updated_at_utc": "2026-10-02T01:12:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:32:56.571Z",
@@ -102,6 +102,16 @@
       "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
       "agent": "AGENTE 23",
       "reason": "Reparo #107 concluído conforme auditoria independente; source permaneceu inalterado."
+    },
+    {
+      "at_utc": "2026-10-02T01:12:00Z",
+      "type": "HYBRID_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e62187cd957a2fe241e4e704aaa9f8285e89162e",
+      "bible_sha": "6966d6dfd94617e5b303e97aef41152e1d84c269",
+      "agent": "AGENTE 30",
+      "reason": "PRIMARY CHANGES_REQUIRED + accepted HIGH authenticity/drift requests; replace local chapter mirror with cm-chapter production integration and real storage-manager persistence."
     }
   ],
   "evidence": [
