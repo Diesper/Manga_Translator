@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/content/content_manga.js`
 
-> **Estado:** 🟡 CORRIGIDO — AUDIOCONTEXT DE ERRO REUTILIZÁVEL; REAUDITORIA/VALIDAÇÃO FINAL EM ANDAMENTO  
-> **SHA auditado:** `50f01eab6cbe3d6c0ad4e31ce2f2c78f286a6ba8`  
+> **Estado:** 🟡 CORRIGIDO — AUDIOCONTEXT DE ERRO REUTILIZÁVEL E FALHAS SÍNCRONAS OBSERVÁVEIS; VALIDAÇÃO FINAL #191 EM ANDAMENTO  
+> **SHA auditado:** `3601efd9a66f8408b724b42d008dc43d518dabe6`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript — content script Chromium Manifest V3  
 > **Linhas textuais:** **2862**  
@@ -123,7 +123,7 @@ A presença de nome/string não foi tratada como cobertura. Só foi marcado **�
 4. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — resultado tardio quando `_currentBatchId === null`.** A guarda de stale em `UPDATE_IMAGE` só rejeita divergência se há batch atual. Teste necessário: limpar/concluir A e depois entregar `UPDATE_IMAGE {batchId:A}`. Regressão possível: resultado antigo ser persistido/aplicado após a ownership local ter sido encerrada.
 5. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — payloads IPC malformados.** Testar `SET_SELECTED_IMAGES` e `START_TRANSLATION_FROM_POPUP` com `indices` ausente, string, objeto e valores fora do DOM. Regressão possível: exceção no listener ou seleção incoerente.
 6. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — sanitização de logs do leitor.** Testar `cleanUrl` com query sensível e objetos extras contendo token/base64. Regressão possível: dados desnecessários em `translatorLog`.
-7. **✅ CORRIGIDO — AudioContext do som de erro.** `playErrorSound` usa `getLoggedNotificationAudioContext('integrated_error')`, reutiliza o contexto de notificação, trata `suspended`/resume e registra falha/skip. `audio-synthesis-full.test.js` prova dois erros consecutivos com um único contexto; o regression falhou pre-fix em Node 20/22 e passou pós-fix em ambos.
+7. **✅ CORRIGIDO — AudioContext/observabilidade do som de erro.** `playErrorSound` usa `getLoggedNotificationAudioContext('integrated_error')`, reutiliza o contexto de notificação, trata `suspended`/resume e registra falha/skip. Falhas síncronas de criação/agendamento também emitem `AUDIO_ERROR_FAILED` com `audioErrorExtra`. `audio-synthesis-full.test.js` prova reuse, resume e observabilidade por red→green.
 8. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — fail-fast de módulos ausentes.** Harness sempre carrega dependências corretamente. Testar ausência isolada de `MangaTranslatorDomReplace`, `MangaTranslatorGtcClient`, `MangaTranslatorChapter` e `MangaTranslatorAutoRestore`.
 9. **⚠️ DÍVIDA TÉCNICA — implementações inline supersedidas.** Fingerprint/GTC e auto-restore possuem corpos antigos ainda presentes, mas o runtime os substitui pelos módulos. Regressão possível: manutenção atualizar a cópia errada.
 10. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — erros de persistência em cache hit.** `_persistCacheHit(...).catch(() => {})` é best-effort e silencioso. Teste necessário: falhar storage/IndexedDB durante hit e confirmar telemetria/comportamento esperado.
@@ -1324,7 +1324,7 @@ if (!window.__manga_translator_content_injected) {
                     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.28);
                     osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.3);
                 }); if (audioCtx.state === 'running') schedule(); else if (audioCtx.state === 'suspended') Promise.resolve(audioCtx.resume()).then(() => { if (audioCtx.state === 'running') schedule(); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state }); }).catch(error => sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Não foi possível retomar o áudio de erro.', audioErrorExtra(error))); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto indisponível.', { contextState: audioCtx.state });
-            } catch (e) {}
+            } catch (error) { sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Falha ao preparar ou agendar o áudio de erro.', audioErrorExtra(error)); }
         }
 
         function showIntegratedError(errorMsg, imgIndex, isDebug) {
@@ -13402,12 +13402,12 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 
 ### Linha 1152
 
-**Fonte:** `} catch (e) {}`  
-**O que faz:** Captura falha do bloco anterior: `} catch (e) {}`.  
-**Como faz:** Converte uma exceção em fallback, telemetria ou degradação controlada conforme a unidade atual.  
-**Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
-**Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
+**Fonte:** `} catch (error) { sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Falha ao preparar ou agendar o áudio de erro.', audioErrorExtra(error)); }`  
+**O que faz:** Captura qualquer falha síncrona restante do som de erro e a torna observável sem rethrow para o handler de UI.  
+**Como faz:** Emite `AUDIO_ERROR_FAILED` no canal `audio` com `errorName/errorMessage` bounded por `audioErrorExtra(error)`, preservando `originTabId` pelo `sendAudioLog`.  
+**Por que assim:** Construtor, `createOscillator`, `createGain` ou wiring podem falhar sincronicamente; engolir a exceção deixava áudio quebrado sem diagnóstico.  
+**Alternativa ingênua pior:** `catch (e) {}` preserva a UI, mas mascara a causa e impede diferenciar política do navegador de regressão da síntese.  
+**Evidência:** 🟨 RED pre-fix confirmado em Node 20/22 no PR #74 para construtor/agendamento; pós-fix focal do PR #75 deve fechar esta evidência.  
 
 ### Linha 1153
 
