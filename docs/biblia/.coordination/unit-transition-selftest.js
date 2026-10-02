@@ -125,6 +125,21 @@ console.log('PASS canonical transition history remains hash-chained');
 assert.deepStrictEqual(transition.tokenHistoryProblems([planned.state],[token]), []);
 console.log('PASS registry validates consumed token history');
 
+const aborted = transition.planTransition({
+  state:planned.state,
+  request:{
+    action:'SAFE_ABORT',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:31:15Z',
+    restore_status:'READY_FOR_AUDIT',
+    correction_token_id:token.token_id,
+    reason:'fixture abort',
+  },
+});
+assert.strictEqual(life.lifecycleSnapshot(aborted.state).correction_cycle,3);
+assert.strictEqual(aborted.state.status,'READY_FOR_AUDIT');
+console.log('PASS SAFE_ABORT does not increment correction cycle');
+
 const correctedHandoff = transition.planTransition({
   state: planned.state,
   request: {
@@ -176,7 +191,9 @@ assert.throws(()=>transition.planTransition({
     expected_state_sha:'old-sha',
   },
 }), /REJECTED_STATE_CHANGED:state_sha/);
+assert.strictEqual(life.lifecycleSnapshot(s).correction_cycle,3);
 console.log('PASS stale CAS writer is rejected');
+console.log('PASS stale CAS rejection leaves correction cycle unchanged');
 
 assert.deepStrictEqual(
   transition.revisionBindingProblems(
