@@ -243,6 +243,39 @@ function loadFindingEvents(root, baseFindings) {
     }
     const current = currentById.get(event.finding_id);
     const checked = validateEvent(root, finding, current, event, baseById, event.path || '<event>');
+
+    // Distributed writers can independently classify the same old revision as STALE
+    // before either sees the other's append-only event. Preserve both immutable
+    // events, but make the later equivalent MARK_STALE a no-op rather than
+    // treating append-only concurrency as corruption.
+    if (checked.problems.length
+      && current?.status === 'STALE'
+      && event?.action === 'MARK_STALE'
+      && event?.status_after === 'STALE'
+      && ['UNVERIFIED', 'CONFIRMED_BY_PRIMARY'].includes(String(event?.status_before || ''))) {
+      const replayBase = { ...current, status: event.status_before };
+      const replay = validateEvent(
+        root,
+        finding,
+        replayBase,
+        event,
+        baseById,
+        event.path || '<event>'
+      );
+      if (!replay.problems.length && replay.nextStatus === 'STALE') {
+        const preserved = {
+          ...current,
+          transition_events: [...(current.transition_events || []), event.path],
+          redundant_transition_events: [
+            ...(current.redundant_transition_events || []),
+            event.path,
+          ],
+        };
+        currentById.set(event.finding_id, preserved);
+        continue;
+      }
+    }
+
     problems.push(...checked.problems);
     if (!checked.problems.length && checked.nextStatus) {
       const applied = applyEvent(current, event, checked.nextStatus);
