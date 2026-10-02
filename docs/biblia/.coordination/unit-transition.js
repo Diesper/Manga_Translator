@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const life = require('./lifecycle-core');
 const human = require('./human-gate');
+const auditCore = require('./audit-core');
+const humanReview = require('./human-review');
 
 function finalDecisionRecord(pipeline) {
   if (!pipeline) return null;
@@ -337,6 +339,100 @@ function loadToken(root, index, tokenId) {
   const absolute = tokenPath(root, index, tokenId);
   if (!fs.existsSync(absolute)) return null;
   return JSON.parse(fs.readFileSync(absolute, 'utf8'));
+}
+
+function parseCli(argv) {
+  const command = argv[0] || 'status';
+  const args = { command };
+  for (let i=1;i<argv.length;i+=1) {
+    const arg=argv[i];
+    if (arg === '--index') args.index=Number(argv[++i]);
+    else if (arg === '--at') args.at_utc=String(argv[++i] || '');
+    else if (arg === '--approval-id') args.approval_id=String(argv[++i] || '');
+    else if (arg === '--request') args.request=String(argv[++i] || '');
+    else throw new Error('argumento desconhecido: ' + arg);
+  }
+  return args;
+}
+
+function statePathFor(root, index) {
+  return path.join(root, 'docs', 'biblia', '.state', String(index).padStart(3, '0') + '.json');
+}
+
+function main(argv=process.argv.slice(2)) {
+  const args=parseCli(argv);
+  const root=path.resolve(__dirname,'../../..');
+  if (!Number.isInteger(args.index) && args.command !== 'apply') throw new Error('--index obrigatório');
+
+  if (args.command === 'status') {
+    const state=JSON.parse(fs.readFileSync(statePathFor(root,args.index),'utf8'));
+    console.log(JSON.stringify(life.lifecycleSnapshot(state),null,2));
+    return;
+  }
+
+  const protocol=require('./audit-protocol');
+  const model=protocol.loadModel();
+
+  if (args.command === 'issue-token') {
+    const state=model.states.find((item)=>item.index===args.index);
+    const pipeline=model.pipelines.find((item)=>item.index===args.index);
+    if (!state || !pipeline) throw new Error('INDEX_NOT_FOUND');
+    const approval=args.approval_id
+      ? (model.human_approvals || []).find((item)=>item.approval_id===args.approval_id)
+      : null;
+    const token=issueCorrectionToken(state,pipeline,{issued_at_utc:args.at_utc,humanApproval:approval});
+    const out=tokenPath(root,state.index,token.token_id);
+    fs.mkdirSync(path.dirname(out),{recursive:true});
+    if (fs.existsSync(out)) throw new Error('TOKEN_ALREADY_EXISTS');
+    fs.writeFileSync(out,JSON.stringify(token,null,2)+'\n');
+    console.log(path.relative(root,out).replace(/\\/g,'/'));
+    return;
+  }
+
+  if (args.command === 'apply') {
+    if (!args.request) throw new Error('--request obrigatório');
+    const request=JSON.parse(fs.readFileSync(path.resolve(args.request),'utf8'));
+    if (!Number.isInteger(Number(request.index))) throw new Error('request.index inválido');
+    const sp=statePathFor(root,Number(request.index));
+    const raw=fs.readFileSync(sp,'utf8');
+    const state=JSON.parse(raw);
+    const pipeline=model.pipelines.find((item)=>item.index===state.index) || null;
+    const token=request.token_id ? loadToken(root,state.index,request.token_id) : null;
+    const approval=request.approval_id
+      ? (model.human_approvals || []).find((item)=>item.approval_id===request.approval_id)
+      : null;
+    const result=planTransition({
+      state,
+      pipeline,
+      request,
+      token,
+      humanApproval:approval,
+      currentStateSha:auditCore.gitBlobShaBuffer(Buffer.from(raw)),
+    });
+    fs.writeFileSync(sp,JSON.stringify(result.state,null,2)+'\n');
+    const snapshot=life.lifecycleSnapshot(result.state);
+    if (snapshot.human_locked && result.state.status === 'HUMAN_LOCKED') {
+      humanReview.writeHumanReview(root,result.state,snapshot,{
+        generated_at_utc:request.at_utc,
+        unverified_findings:model.unverified_findings || [],
+      });
+    }
+    console.log(JSON.stringify({
+      index:result.state.index,
+      status:result.state.status,
+      correction_cycle:snapshot.correction_cycle,
+      escalation:snapshot.escalation_level,
+      revision_id:snapshot.revision_id,
+    },null,2));
+    return;
+  }
+
+  throw new Error('comando desconhecido: ' + args.command);
+}
+
+if (require.main===module) {
+  try { main(); }
+  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
 }
 
 module.exports = {
