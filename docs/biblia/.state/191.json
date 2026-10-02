@@ -1193,6 +1193,26 @@
       "audited_by": "AGENTE 30",
       "audited_at_utc": "2026-10-02T06:14:30Z",
       "audit_finding": "PRIMARY supplemental finding on protected binding."
+    },
+    {
+      "id": "191-031",
+      "status": "ACCEPTED",
+      "type": "GTC_FALLBACK_READ_ERROR_UNHANDLED",
+      "target_file": "extension/content/cm-gtc-client.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "queryGlobalTranslationCache lê fallback legado com callback de chrome.storage.local.get sem verificar chrome.runtime.lastError nem normalizar resultado ausente.",
+      "current_evidence": "cm-gtc-client.js line 118 wraps storage.local.get(..., resolve); line 119 indexa `legacy[gtc_<hash>]`. Nenhuma suíte injeta lastError nesse read.",
+      "missing_evidence": "Falha de storage.local.get deve produzir comportamento bounded/observável (ex.: miss seguro + telemetria/erro controlado), nunca TypeError nem recuperação silenciosamente inconsistente.",
+      "why_needed": "O fallback existe justamente para recuperação sob falha do caminho moderno; seu próprio read não pode ser um ponto de falha não tratado.",
+      "requested_action": "Adicionar helper error-aware para get/remove do fallback e fault-injection regressions; integrar ao fix 191-029/030.",
+      "expected_evidence": "lastError no legacy get não causa TypeError e o contrato de retorno/observabilidade é explícito; cleanup remove lastError também é coberto.",
+      "expected_auditor_action": "ADVERSARIAL deve revisar todos os branches de storage.local no cliente GTC.",
+      "possible_regression": "Fallback recovery falha silenciosamente ou lança quando chrome.storage.local.get reporta erro.",
+      "impact": "Robustez do recovery path do cache global.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 30",
+      "audited_at_utc": "2026-10-02T06:16:30Z",
+      "audit_finding": "PRIMARY supplemental finding on protected binding."
     }
   ],
   "document_quality": {
@@ -1211,7 +1231,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:14:30Z",
+  "updated_at_utc": "2026-10-02T06:16:30Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1887,6 +1907,17 @@
       "audit_request_id": "191-030",
       "agent": "AGENTE 30",
       "reason": "Successful GTC_SAVE cleanup ignores storage.local.remove lastError; stale legacy fallback can survive and later reappear when modern query falls back."
+    },
+    {
+      "at_utc": "2026-10-02T06:16:30Z",
+      "type": "PRIMARY_AUDIT_SUPPLEMENTAL_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-031",
+      "agent": "AGENTE 30",
+      "reason": "Legacy fallback read ignores storage.local.get lastError and has no fault-injection coverage."
     }
   ],
   "evidence": [
