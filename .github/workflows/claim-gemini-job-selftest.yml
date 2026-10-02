@@ -7,6 +7,7 @@ on:
       - 'extension/background/router.js'
       - 'extension/background/tab-identity.js'
       - 'tests/mocks/**'
+      - 'tests/unit/background/claim-gemini-job-action.test.js'
       - 'jest.config.js'
       - 'docs/biblia/.coordination/claim-gemini-job-selftest.js'
       - '.github/workflows/claim-gemini-job-selftest.yml'
