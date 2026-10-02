@@ -47,6 +47,16 @@ const wrongRevision = { ...approval, revision_id: 'f'.repeat(64) };
 assert.strictEqual(gate.approvalMatches(state, snapshot, wrongRevision), false);
 console.log('PASS approval stale não libera revisão diferente');
 
+const wrongCycle={...approval,approval_id:'007-human-wrong-cycle',locked_cycle:8};
+const wrongTestSha={...approval,approval_id:'007-human-wrong-test',test_sha:'c'.repeat(40)};
+const wrongBibleSha={...approval,approval_id:'007-human-wrong-bible',bible_sha:'d'.repeat(40)};
+const wrongProductionSha={...approval,approval_id:'007-human-wrong-production',production_sha:'e'.repeat(40)};
+assert.strictEqual(gate.approvalMatches(state,snapshot,wrongCycle,'ALLOW_ONE_CORRECTION'),false);
+assert.strictEqual(gate.approvalMatches(state,snapshot,wrongTestSha,'ALLOW_ONE_CORRECTION'),false);
+assert.strictEqual(gate.approvalMatches(state,snapshot,wrongBibleSha,'ALLOW_ONE_CORRECTION'),false);
+assert.strictEqual(gate.approvalMatches(state,snapshot,wrongProductionSha,'ALLOW_ONE_CORRECTION'),false);
+console.log('PASS approval wrong cycle/SHA bindings are rejected');
+
 state.history.push({
   at_utc: '2026-10-02T07:01:00Z',
   type: 'HUMAN_APPROVAL_CONSUMED',
