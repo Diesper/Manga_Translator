@@ -68,14 +68,73 @@ node docs/biblia/.coordination/audit-protocol.js verify
 node scripts/validation/verify-bible-merge-readiness.js
 ~~~
 
-## Binding de revisão documental — schema v2
+## Binding de lifecycle — schema v3
 
-Resultados novos DEVEM usar `schema_version: 2` e registrar também:
+A migração preserva resultados históricos:
+
+- schema v1: compatibilidade condicionada à Bible baseline;
+- schema v2: SOURCE_SHA + BIBLE_SHA;
+- schema v3: identidade transacional completa da rodada.
+
+Para um handoff criado **antes** de `LIFECYCLE_POLICY_EFFECTIVE_AT_UTC`, v1/v2 continuam sendo lidos pelas regras de migração já existentes.
+
+Para qualquer `CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT` criado **depois** da ativação do lifecycle anti-loop, um resultado da rodada atual deve usar schema v3:
 
 ```json
-"bible_sha": "<git-blob-sha de docs/biblia/<arquivo>/Bíblia.md>"
+{
+  "schema_version": 3,
+  "index": 87,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 12",
+  "file": "scripts/example.js",
+  "bible": "docs/biblia/scripts/example.js/Bíblia.md",
+  "source_sha": "<40-hex>",
+  "production_sha": "<40-hex ou null>",
+  "test_sha": "<40-hex>",
+  "bible_sha": "<40-hex>",
+  "audit_epoch": 13,
+  "handoff_id": "087-e13-...",
+  "revision_id": "<64-hex SHA-256>",
+  "human_approval_id": null,
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-02T07:00:00Z"
+}
 ```
 
-A unidade auditada é `SOURCE_SHA + BIBLE_SHA`. Alterar somente a Bíblia invalida PRIMARY/ADVERSARIAL/REAUDIT da revisão anterior.
+A identidade canônica passa a ser, para novas rodadas:
 
-Resultados históricos schema v1 permanecem válidos apenas enquanto a Bíblia for byte-a-byte igual à baseline registrada em `../audit-bible-baseline.json`. Isso preserva o trabalho em voo durante a migração sem permitir reutilização depois de uma correção documental.
+```text
+index
++ phase
++ audit_epoch
++ handoff_id
++ production_sha
++ test_sha
++ bible_sha
++ revision_id
+```
+
+Um resultado schema v3 da rodada corrente com epoch, handoff ou revision divergentes é inválido; não é apenas ignorado.
+
+O publicador canônico é:
+
+```bash
+npm run bible:audit:publish -- \
+  --index 87 \
+  --phase PRIMARY \
+  --auditor "AGENTE 12" \
+  --verdict APPROVED \
+  --at 2026-10-02T07:00:00Z
+```
+
+Ele:
+
+1. exige lease ativo e compatível da mesma fase/auditor/revisão;
+2. exige que a fase seja a próxima fase calculada pelo pipeline;
+3. monta schema v3 automaticamente quando existe handoff/epoch;
+4. usa CREATE ONLY para o resultado append-only;
+5. em `HUMAN_LOCKED`, exige `ALLOW_AUDIT_ONLY` válida e grava o `human_approval_id`.
+
+Não monte manualmente um schema v3 se o publicador canônico estiver disponível.
+
