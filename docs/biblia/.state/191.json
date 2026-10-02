@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+  "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
   "started_at_utc": "2026-10-02T04:01:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -775,7 +775,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T04:01:00Z",
+  "updated_at_utc": "2026-10-02T04:18:30Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1186,6 +1186,15 @@
       "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
       "agent": "AGENTE HÍBRIDO",
       "reason": "User prioritized #191. 191-020/021 accepted: retry divergence leaves GTC stale and skips autoDownload."
+    },
+    {
+      "at_utc": "2026-10-02T04:18:30Z",
+      "type": "SOURCE_PRODUCTION_UPDATED_AWAITING_CI",
+      "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+      "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+      "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-020/021 implementation applied: retry shares GTC + autoDownload side effects with normal persistence path; green validation pending."
     }
   ],
   "evidence": [
