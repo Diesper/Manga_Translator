@@ -1,0 +1,52 @@
+'use strict';
+
+const assert = require('assert');
+const guard = require('./verify-bible-state-history-append-only');
+
+function state(history) {
+  return { index: 191, history };
+}
+
+const base = state([
+  { at_utc:'2026-10-02T01:00:00Z', type:'A', value:1 },
+  { at_utc:'2026-10-02T02:00:00Z', type:'B', value:2 },
+]);
+
+assert.deepStrictEqual(
+  guard.historyAppendOnlyProblems(base, state([
+    ...base.history,
+    { at_utc:'2026-10-02T03:00:00Z', type:'C', value:3 },
+  ])),
+  []
+);
+console.log('PASS appending lifecycle event is allowed');
+
+let problems = guard.historyAppendOnlyProblems(base, state([
+  base.history[1],
+]));
+assert.ok(problems.some((x)=>x.includes('history truncado')));
+console.log('PASS deleting an old event is rejected');
+
+problems = guard.historyAppendOnlyProblems(base, state([
+  { at_utc:'2026-10-02T01:00:00Z', type:'A', value:999 },
+  base.history[1],
+]));
+assert.ok(problems.some((x)=>x.includes('append-only na posição 0')));
+console.log('PASS mutating an old event is rejected');
+
+problems = guard.historyAppendOnlyProblems(base, state([
+  base.history[0],
+  { at_utc:'2026-10-02T01:30:00Z', type:'INSERTED' },
+  base.history[1],
+]));
+assert.ok(problems.some((x)=>x.includes('append-only na posição 1')));
+console.log('PASS inserting an event in the middle is rejected');
+
+const reorderedObjectKeys = state([
+  { value:1, type:'A', at_utc:'2026-10-02T01:00:00Z' },
+  { value:2, at_utc:'2026-10-02T02:00:00Z', type:'B' },
+]);
+assert.deepStrictEqual(guard.historyAppendOnlyProblems(base, reorderedObjectKeys),[]);
+console.log('PASS JSON key order does not create false positive');
+
+console.log('State history append-only self-test: SUCCESS');
