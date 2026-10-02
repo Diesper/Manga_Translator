@@ -2636,6 +2636,26 @@ if (!window.__manga_translator_content_injected) {
                     try { sendResponse(payload); } catch (_e) {}
                 };
 
+                // UPDATE_IMAGE atravessa IPC e não pode confiar na shape do payload.
+                // Falhar antes de qualquer acesso ao DOM/storage evita persistir valores
+                // corrompidos ou chamar métodos de String em tipos inesperados.
+                const normalizedIndex = Number(request.index);
+                const validIndex = Number.isInteger(normalizedIndex) && normalizedIndex >= 0;
+                const validImageDataUrl = typeof request.newSrc === 'string'
+                    && /^data:image\/[a-z0-9.+-]+(?:;[^,]*)?,/i.test(request.newSrc);
+                if (!validIndex || !validImageDataUrl) {
+                    sendLog('warn', 'UPDATE_IMAGE_INVALID_PAYLOAD',
+                        'UPDATE_IMAGE rejeitado por payload inválido.', {
+                            index: request.index,
+                            indexValid: validIndex,
+                            newSrcType: typeof request.newSrc,
+                            imageDataUrlValid: validImageDataUrl,
+                        });
+                    ack({ ok: false, reason: 'invalid_payload' });
+                    return wantsAck;
+                }
+                request.index = normalizedIndex;
+
                 // Recuperação idempotente de ACK perdido: o commit pode ter
                 // terminado e zerado _currentBatchId antes de o background receber
                 // sendResponse(). Se conhecemos exatamente o payload já persistido,
