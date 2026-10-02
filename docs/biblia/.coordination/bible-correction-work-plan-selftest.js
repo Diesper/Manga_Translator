@@ -170,6 +170,11 @@ assert(
   'EMERGENCY candidate requires root-cause review',
   escalationPlan.candidates[0].root_cause_review_required === true
 );
+assert(
+  'cycle 3 and cycle 6 expose periodic strategy review',
+  escalationPlan.candidates.find((item)=>item.index===11).strategy_review_required === true
+    && escalationPlan.candidates.find((item)=>item.index===14).strategy_review_required === true
+);
 console.log('PASS full escalation priority ordering');
 
 console.log('Bible correction work plan self-test: SUCCESS');
