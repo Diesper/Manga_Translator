@@ -117,4 +117,27 @@ future.history.push({
 assert.ok(life.lifecycleProblems(future).some((x) => x.includes('sem correction_token_id')));
 console.log('PASS future direct correction without token is rejected');
 
+const chained = baseState();
+life.appendLifecycleEvent(chained.history, {
+  at_utc:'2026-10-02T06:40:00Z',
+  type:'CORRECTION_TOKEN_CONSUMED',
+  correction_token_id:'corr-test',
+});
+life.appendLifecycleEvent(chained.history, {
+  at_utc:'2026-10-02T06:41:00Z',
+  type:'EDITOR_CORRECTION_STARTED',
+  to_status:'IN_PROGRESS',
+  correction_token_id:'corr-test',
+});
+assert.deepStrictEqual(life.eventChainProblems(chained), []);
+const tampered = JSON.parse(JSON.stringify(chained));
+tampered.history[tampered.history.length-1].correction_token_id = 'corr-tampered';
+assert.ok(life.eventChainProblems(tampered).some((x)=>x.includes('event_hash inválido')));
+console.log('PASS hash chain detects tampering');
+
+const inserted = JSON.parse(JSON.stringify(chained));
+inserted.history.push({at_utc:'2026-10-02T06:42:00Z',type:'MANUAL_EVENT'});
+assert.ok(life.eventChainProblems(inserted).some((x)=>x.includes('sem hashes')));
+console.log('PASS chain rejects unchained event insertion');
+
 console.log('Bible lifecycle core self-test: SUCCESS');
