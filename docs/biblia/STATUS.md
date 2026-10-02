@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **133**
+- READY_FOR_AUDIT: **134**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **100**
+- COMPLETED: **99**
 - requests OPEN: **0**
 - requests ACCEPTED: **584**
 - requests RESOLVED: **8**
@@ -90,7 +90,7 @@
 | 065 | .github/workflows/ci.yml | READY_FOR_AUDIT | CHANGES_REQUIRED | - | 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a | 1 |
 | 066 | .github/workflows/publish.yml | COMPLETED | APPROVED | - | f673d445a3cc022d473f9b59ae1e0c8972ecd013 | 5 |
 | 067 | .github/workflows/recover-cancelled-ci.yml | COMPLETED | APPROVED | - | 4809f824f177e93686c11270793eb672aee5952b | 3 |
-| 068 | scripts/ci/data/e2e-shard-plan.json | COMPLETED | APPROVED | - | 22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc | 3 |
+| 068 | scripts/ci/data/e2e-shard-plan.json | READY_FOR_AUDIT | NOT_AUDITED | - | 2df6bf7c323d28595d258249a9c6f4bfa25c6b1f | 3 |
 | 069 | scripts/ci/data/regression-matrix.json | COMPLETED | APPROVED | - | f9b9e17e5870c0c6dff9394ef944a803414cc4d2 | 3 |
 | 070 | scripts/ci/data/test-baseline.json | COMPLETED | APPROVED | - | 52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e | 4 |
 | 071 | scripts/ci/jest-worker-warning.js | COMPLETED | APPROVED | - | b1379b6811e5513b955ebbbef4450ca4ca1e77da | 1 |

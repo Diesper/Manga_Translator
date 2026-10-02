@@ -2,11 +2,11 @@
   "index": 68,
   "file": "scripts/ci/data/e2e-shard-plan.json",
   "bible": "docs/biblia/scripts/ci/data/e2e-shard-plan.json/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc",
+  "source_sha": "2df6bf7c323d28595d258249a9c6f4bfa25c6b1f",
   "started_at_utc": "2026-09-30T13:40:00Z",
-  "completed_at_utc": "2026-09-30T13:45:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "068-001",
@@ -63,12 +63,47 @@
     "embedded_source_exact": true,
     "documented_positions": "46/46",
     "source_text_lines": 45,
-    "external_audit_requests_open": 3,
-    "note": "Bíblia pré-existente do AGENTE 5 revalidada pelo AGENTE 17; fonte integral exata."
+    "external_audit_requests_open": 0,
+    "note": "Plano fast atualizado para 10 testes; nova auditoria distribuída obrigatória.",
+    "bible_lines": 231
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-02T19:50:20Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T19:50:20Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "MAINTAINER",
+      "previous_source_sha": "22e8c20df9f42c0163a2d83c4e7b6f2d31f0dabc",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "f1e5da06bb062383383cfc40cc9bc012657102d00d931285195728d1e3eaea4d",
+      "source_sha": "2df6bf7c323d28595d258249a9c6f4bfa25c6b1f",
+      "test_sha": "2df6bf7c323d28595d258249a9c6f4bfa25c6b1f",
+      "bible_sha": "4f02504470ecad706e08061c92452170fa6d5625",
+      "production_sha": null,
+      "revision_id": "1daa857385f5645ef12b95389966b351e3e12aeeeffbdbfc46ba235f0ac1347e",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "068-e1-d0052f8698df",
+      "reason": "Plano E2E e Bíblia sincronizados; auditoria APPROVED da revisão anterior invalidada.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "ef0ae5feb954c5825e719127fc0fd43221c21c4b4c7d8a4e7293fe2b6945a790"
+    }
+  ],
+  "evidence": [],
+  "test_sha": "2df6bf7c323d28595d258249a9c6f4bfa25c6b1f",
+  "bible_sha": "4f02504470ecad706e08061c92452170fa6d5625",
+  "production_sha": null,
+  "revision_id": "1daa857385f5645ef12b95389966b351e3e12aeeeffbdbfc46ba235f0ac1347e",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "068-e1-d0052f8698df"
 }

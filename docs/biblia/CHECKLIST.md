@@ -69,7 +69,7 @@
 - [ ] 065 — `.github/workflows/ci.yml` — READY_FOR_AUDIT
 - [x] 066 — `.github/workflows/publish.yml` — COMPLETED
 - [x] 067 — `.github/workflows/recover-cancelled-ci.yml` — COMPLETED
-- [x] 068 — `scripts/ci/data/e2e-shard-plan.json` — COMPLETED
+- [ ] 068 — `scripts/ci/data/e2e-shard-plan.json` — READY_FOR_AUDIT
 - [x] 069 — `scripts/ci/data/regression-matrix.json` — COMPLETED
 - [x] 070 — `scripts/ci/data/test-baseline.json` — COMPLETED
 - [x] 071 — `scripts/ci/jest-worker-warning.js` — COMPLETED
