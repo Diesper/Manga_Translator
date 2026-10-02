@@ -157,6 +157,49 @@ describe('CLAIM_GEMINI_JOB', () => {
     });
   });
 
+  test('ownership canônico divergente rejeita claim e preserva job da outra tab', async () => {
+    state.patch({
+      jobIndex: [{ geminiTabId: 100, jobId: 'job-owned', batchId: 'b', mangaTabId: 7, index: 2 }],
+    });
+    await storage.set({
+      gemini_job_100: {
+        geminiTabId: 100,
+        jobId: 'job-owned',
+        batchId: 'b',
+        mangaTabId: 7,
+        index: 2,
+        prompt: 'translate',
+        executionMode: 'temp_chat',
+      },
+    });
+
+    const migrateSpy = jest.spyOn(identity, 'migrateTabIdentity');
+
+    const result = await dispatch(
+      listener(),
+      { action: 'CLAIM_GEMINI_JOB', jobId: 'job-owned' },
+      { tab: { id: 200, url: 'https://gemini.google.com/app?jobId=job-owned' } }
+    );
+
+    expect(result.keepAlive).toBe(true);
+    expect(result.response).toEqual({ ok: true, job: null });
+    expect(migrateSpy).not.toHaveBeenCalled();
+    expect(state.jobIndex).toEqual([
+      expect.objectContaining({
+        geminiTabId: 100,
+        jobId: 'job-owned',
+        index: 2,
+      }),
+    ]);
+    expect((await storage.get('gemini_job_100')).gemini_job_100)
+      .toEqual(expect.objectContaining({
+        geminiTabId: 100,
+        jobId: 'job-owned',
+        index: 2,
+      }));
+    expect((await storage.get('gemini_job_200')).gemini_job_200).toBeUndefined();
+  });
+
   test('TAB-06: sender na aba substituta recupera job antigo pelo alias e migra ownership', async () => {
     state.patch({
       jobIndex: [{ geminiTabId: 100, jobId: 'job-alias', batchId: 'b', mangaTabId: 7, index: 4 }],
