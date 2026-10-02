@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('assert');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -580,5 +581,22 @@ assert.strictEqual(life.lifecycleSnapshot(closed.state).lifetime_correction_cycl
 assert.strictEqual(life.lifecycleSnapshot(closed.state).human_permanently_closed,true);
 assert.deepStrictEqual(life.lifecycleProblems(closed.state),[]);
 console.log('PASS HUMAN permanent close requires APPROVED + human approval');
+
+const cliRoot = path.resolve(__dirname, '../../..');
+const cliProbe = spawnSync(process.execPath, [
+  path.join(__dirname, 'unit-transition.js'),
+  'issue-token',
+  '--index', '191',
+  '--at', '2026-10-02T21:00:00Z',
+  '--actor', 'AGENTE 3',
+  '--expected-status', 'READY_FOR_AUDIT',
+  '--expected-cycle', '5',
+  '--expected-revision-id', 'stale-revision',
+  '--expected-state-sha', 'stale-state-sha',
+], { cwd: cliRoot, encoding: 'utf8' });
+assert.strictEqual(cliProbe.status, 1, cliProbe.stdout + cliProbe.stderr);
+assert.match(cliProbe.stderr, /REJECTED_STATE_CHANGED:revision/);
+assert.doesNotMatch(cliProbe.stderr, /loadCorrectionTokens is not a function/);
+console.log('PASS CLI exports are initialized before audit-protocol imports them');
 
 console.log('Unit transition self-test: SUCCESS');

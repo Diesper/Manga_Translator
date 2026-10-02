@@ -1023,11 +1023,6 @@ function main(argv=process.argv.slice(2)) {
   throw new Error('comando desconhecido: ' + args.command);
 }
 
-if (require.main===module) {
-  try { main(); }
-  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
-}
-
 module.exports = {
   finalDecisionRecord,
   decisionIdForPipeline,
@@ -1057,3 +1052,8 @@ module.exports = {
   releaseCorrectionReservation,
   ownershipIndex,
 };
+
+if (require.main===module) {
+  try { main(); }
+  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
+}
