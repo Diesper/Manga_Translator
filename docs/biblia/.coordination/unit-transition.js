@@ -233,7 +233,7 @@ function projectAuditDecision(state, pipeline, options = {}) {
     });
   }
 
-  persistSnapshot(next, snapshot);
+  persistSnapshot(next, life.lifecycleSnapshot(next));
   next.progress_note = targetStatus === 'COMPLETED'
     ? 'Decisão distribuída final APPROVED vinculada à revisão atual.'
     : 'Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.';
