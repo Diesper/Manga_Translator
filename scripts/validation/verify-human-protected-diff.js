@@ -4,6 +4,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const life = require('../../docs/biblia/.coordination/lifecycle-core');
+const humanGate = require('../../docs/biblia/.coordination/human-gate');
 
 const root = path.resolve(__dirname, '../..');
 
@@ -78,7 +79,7 @@ function humanCorrectionAuthorized(before, current) {
   ));
 }
 
-function problemsForHumanDiff(before, current, changed) {
+function problemsForHumanDiff(before, current, changed, approvals = []) {
   const beforeLife = life.lifecycleSnapshot(before);
   if (!beforeLife.human_locked) return [];
 
@@ -91,9 +92,18 @@ function problemsForHumanDiff(before, current, changed) {
   const label = '#' + String(current.index).padStart(3, '0');
   const auditControl = touched.filter((candidate) => humanAuditControlPath(before.index, candidate));
   if (auditControl.length) {
-    return [
-      label + ': HUMAN não permite lease/resultado de auditoria automático: ' + auditControl.join(', '),
-    ];
+    const approval = humanGate.activeHumanApproval(
+      before,
+      beforeLife,
+      approvals,
+      'ALLOW_AUDIT_ONLY'
+    );
+    if (!approval) {
+      return [
+        label + ': HUMAN não permite lease/resultado de auditoria sem ALLOW_AUDIT_ONLY válido: '
+          + auditControl.join(', '),
+      ];
+    }
   }
 
   if (!humanCorrectionAuthorized(before, current)) {
@@ -121,11 +131,16 @@ function main(argv = process.argv.slice(2)) {
     throw new Error('base inválida');
   }
 
+  const approvalLoad = humanGate.loadHumanApprovals(root);
+  if (approvalLoad.problems.length) {
+    throw new Error('aprovações humanas inválidas: ' + approvalLoad.problems.join('; '));
+  }
+
   const problems = [];
   for (const current of currentStates()) {
     const before = baseState(base, current.index);
     if (!before) continue;
-    problems.push(...problemsForHumanDiff(before, current, changed));
+    problems.push(...problemsForHumanDiff(before, current, changed, approvalLoad.approvals));
   }
 
   if (problems.length) {
