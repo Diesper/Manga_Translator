@@ -1,225 +1,386 @@
 /**
  * audio-synthesis-full.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Testes completos de síntese de áudio procedural (Zero Dependency Asset).
+ * Integração real da síntese de áudio de content_manga.js.
  *
- * Testa AMBOS os sons implementados no content_manga.js v3.1:
- * 1. playErrorSound()  — dois pulsos sawtooth descendentes (300Hz → 150Hz)
- * 2. playSuccessSound() — arpejo ascendente sine (660Hz → 880Hz → 1100Hz)
- *
- * STATUS: Expande o audio-synthesis.test.js original (que só testava o som de erro)
- * e adiciona testes do som de sucesso (checkIfComplete) e testes de resiliência.
- *
- * MOTIVO: Documentação Seção 8 descreve os dois sons em detalhe. O teste original
- * não cobria o som de sucesso nem os edge cases de polyfill (webkitAudioContext).
+ * A suíte carrega o bundle Manga pelo manifest e dispara os caminhos públicos
+ * que executam playErrorSound()/playSuccessSound() dentro da closure real.
+ * Não existe mirror local da síntese nem helper extraído usado como prova.
  */
 
-const path = require('path');
-const fs   = require('fs');
-// Portable root finder — works regardless of where this file is placed in the tree.
-// Walks up from __dirname until it finds the folder containing extension/manifest.json.
-const { findRepoRoot } = require('../../helpers/repo-root');
-const ROOT = findRepoRoot(__dirname);
+const crypto = require('crypto');
+const { TextEncoder } = require('util');
 
-const { playErrorSound } = require(path.join(ROOT, 'tests/helpers/extracted-functions.js'));
+const { loadContentScript } = require('../../helpers/load-content-script.js');
+const {
+    getRuntimeMock,
+    getStorageMock,
+} = require('../../mocks/chrome-api.mock.js');
 
-// ── Som de sucesso — espelho de checkIfComplete (content_manga.js) ────────────
-function playSuccessSound(audioCtxFactory) {
-    try {
-        const audioCtx = audioCtxFactory
-            ? audioCtxFactory()
-            : new (window.AudioContext || window.webkitAudioContext)();
+Object.defineProperty(global, 'crypto', {
+    value: crypto.webcrypto,
+    configurable: true,
+});
+global.TextEncoder = TextEncoder;
 
-        [[660, 0], [880, 0.18], [1100, 0.36]].forEach(([freq, delay]) => {
-            const osc  = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime + delay);
-            gain.gain.linearRampToValueAtTime(0.4,   audioCtx.currentTime + delay + 0.04);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + 0.28);
-            osc.start(audioCtx.currentTime + delay);
-            osc.stop(audioCtx.currentTime  + delay + 0.3);
-        });
-    } catch (e) { /* silencioso por design */ }
+function delay(ms = 0) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-describe('Síntese de Áudio Procedural — Cobertura Completa', () => {
+async function waitFor(assertion, { timeout = 2500, interval = 10 } = {}) {
+    const startedAt = performance.now();
+    while (performance.now() - startedAt < timeout) {
+        const result = await assertion();
+        if (result) return result;
+        await delay(interval);
+    }
+    throw new Error('Timeout aguardando síntese de áudio real');
+}
 
-    let mockOsc, mockGain, mockCtx;
+function getContentListener(runtimeMock) {
+    const listeners = runtimeMock._messageListeners || [];
+    if (listeners.length !== 1) {
+        throw new Error(`Esperava 1 listener do content_manga, recebi ${listeners.length}`);
+    }
+    return listeners[0];
+}
 
-    function makeAudioMocks() {
-        mockOsc = {
-            connect: jest.fn(),
-            start: jest.fn(),
-            stop: jest.fn(),
-            frequency: { setValueAtTime: jest.fn() },
-            type: '',
+function dispatchToContent(runtimeMock, request, sender = { tab: { id: 1 } }) {
+    return new Promise((resolve) => {
+        let settled = false;
+        let keepAlive = false;
+        const sendResponse = (response) => {
+            settled = true;
+            resolve({ keepAlive, response });
         };
-        mockGain = {
-            connect: jest.fn(),
-            gain: {
-                setValueAtTime: jest.fn(),
-                linearRampToValueAtTime: jest.fn(),
-                exponentialRampToValueAtTime: jest.fn(),
-            },
-        };
-        mockCtx = {
-            createOscillator: jest.fn().mockReturnValue(mockOsc),
-            createGain: jest.fn().mockReturnValue(mockGain),
-            destination: {},
-            currentTime: 0,
-        };
-        return () => mockCtx;
+        keepAlive = getContentListener(runtimeMock)(request, sender, sendResponse);
+        if (keepAlive !== true && !settled) resolve({ keepAlive, response: undefined });
+    });
+}
+
+function createOscillatorNode() {
+    return {
+        connect: jest.fn(),
+        start: jest.fn(),
+        stop: jest.fn(),
+        frequency: { setValueAtTime: jest.fn() },
+        type: '',
+        onended: null,
+    };
+}
+
+function createGainNode() {
+    return {
+        connect: jest.fn(),
+        gain: {
+            setValueAtTime: jest.fn(),
+            linearRampToValueAtTime: jest.fn(),
+            exponentialRampToValueAtTime: jest.fn(),
+        },
+    };
+}
+
+function createAudioContext({ state = 'running', currentTime = 0, onResume = null } = {}) {
+    const oscillators = [];
+    const gains = [];
+    const ctx = {
+        state,
+        currentTime,
+        destination: {},
+        createOscillator: jest.fn(() => {
+            const node = createOscillatorNode();
+            oscillators.push(node);
+            return node;
+        }),
+        createGain: jest.fn(() => {
+            const node = createGainNode();
+            gains.push(node);
+            return node;
+        }),
+        resume: jest.fn(async () => {
+            if (onResume) await onResume(ctx);
+            else ctx.state = 'running';
+        }),
+    };
+    return { ctx, oscillators, gains };
+}
+
+function assertNote({ osc, gain, destination, type, frequency, start, stop }) {
+    expect(osc.type).toBe(type);
+    expect(osc.connect).toHaveBeenCalledTimes(1);
+    expect(osc.connect).toHaveBeenCalledWith(gain);
+    expect(gain.connect).toHaveBeenCalledTimes(1);
+    expect(gain.connect).toHaveBeenCalledWith(destination);
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledTimes(1);
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(frequency, start);
+    expect(gain.gain.setValueAtTime).toHaveBeenCalledWith(0, start);
+    expect(gain.gain.linearRampToValueAtTime).toHaveBeenCalledWith(0.4, start + 0.04);
+    expect(gain.gain.exponentialRampToValueAtTime).toHaveBeenCalledWith(0.001, start + 0.28);
+    expect(osc.start).toHaveBeenCalledTimes(1);
+    expect(osc.start).toHaveBeenCalledWith(start);
+    expect(osc.stop).toHaveBeenCalledTimes(1);
+    expect(osc.stop).toHaveBeenCalledWith(stop);
+}
+
+describe('Síntese de áudio procedural — runtime real de content_manga.js', () => {
+    let runtimeMock;
+    let storageMock;
+    let sentMessages;
+    let audioContextDescriptor;
+    let webkitAudioContextDescriptor;
+
+    beforeEach(async () => {
+        jest.resetModules();
+        runtimeMock = getRuntimeMock();
+        storageMock = getStorageMock();
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        runtimeMock.lastError = null;
+        sentMessages = [];
+        await storageMock.clear();
+
+        audioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'AudioContext');
+        webkitAudioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'webkitAudioContext');
+
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
+    });
+
+    afterEach(async () => {
+        jest.restoreAllMocks();
+        await storageMock.clear();
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
+
+        if (audioContextDescriptor) Object.defineProperty(window, 'AudioContext', audioContextDescriptor);
+        else delete window.AudioContext;
+        if (webkitAudioContextDescriptor) Object.defineProperty(window, 'webkitAudioContext', webkitAudioContextDescriptor);
+        else delete window.webkitAudioContext;
+    });
+
+    function installRuntimeResponder({ tabId = 17 } = {}) {
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            sentMessages.push(message);
+
+            if (message.action === 'GTC_QUERY_MANY') {
+                if (callback) setTimeout(() => callback({ ok: true, entriesByHash: {} }), 0);
+                return;
+            }
+            if (message.action === 'START_BATCH') {
+                if (callback) setTimeout(() => callback({ ok: true, batchId: message.batchId }), 0);
+                return;
+            }
+            if (message.action === 'GET_TAB_ID') {
+                if (callback) setTimeout(() => callback({ tabId }), 0);
+                return;
+            }
+            if (callback) setTimeout(() => callback({ ok: true }), 0);
+        });
     }
 
-    // ── playErrorSound ────────────────────────────────────────────────────────
+    async function loadOnePage() {
+        return loadContentScript({
+            hostname: 'localhost',
+            domImages: [{
+                src: 'http://localhost/page-0.png',
+                width: 800,
+                height: 1200,
+            }],
+        });
+    }
 
-    describe('playErrorSound() — Dois pulsos sawtooth descendentes', () => {
-        test('cria exatamente 2 osciladores e 2 gains', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockCtx.createOscillator).toHaveBeenCalledTimes(2);
-            expect(mockCtx.createGain).toHaveBeenCalledTimes(2);
+    async function startBatch() {
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        await waitFor(() => sentMessages.some(message => message.action === 'START_BATCH'));
+    }
+
+    test('SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes', async () => {
+        installRuntimeResponder();
+        const { ctx, oscillators, gains } = createAudioContext({ currentTime: 4 });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
         });
 
-        test('usa onda sawtooth (timbre áspero de alerta)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            // O último valor de type atribuído deve ser sawtooth
-            expect(mockOsc.type).toBe('sawtooth');
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'falha focal',
+            imgIndex: 0,
+            isDebug: false,
         });
 
-        test('frequências descendentes: 300Hz (pulso 1) e 150Hz (pulso 2)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const freqCalls = mockOsc.frequency.setValueAtTime.mock.calls;
-            const freqs = freqCalls.map(c => c[0]);
-            expect(freqs).toContain(300);
-            expect(freqs).toContain(150);
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(2);
+        expect(gains).toHaveLength(2);
+        expect(oscillators[0]).not.toBe(oscillators[1]);
+        expect(gains[0]).not.toBe(gains[1]);
+
+        assertNote({
+            osc: oscillators[0], gain: gains[0], destination: ctx.destination,
+            type: 'sawtooth', frequency: 300, start: 4, stop: 4.3,
+        });
+        assertNote({
+            osc: oscillators[1], gain: gains[1], destination: ctx.destination,
+            type: 'sawtooth', frequency: 150, start: 4.2, stop: 4.5,
         });
 
-        test('300Hz vem antes de 150Hz (padrão descendente)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const calls = mockOsc.frequency.setValueAtTime.mock.calls;
-            const freq300idx = calls.findIndex(c => c[0] === 300);
-            const freq150idx = calls.findIndex(c => c[0] === 150);
-            expect(freq300idx).toBeLessThan(freq150idx);
-        });
-
-        test('fade-in linear de 40ms (evita click mecânico)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockGain.gain.linearRampToValueAtTime)
-                .toHaveBeenCalledWith(0.4, 0.04);
-        });
-
-        test('fade-out exponencial de 240ms (decaimento natural)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockGain.gain.exponentialRampToValueAtTime)
-                .toHaveBeenCalledWith(0.001, 0.28);
-        });
-
-        test('oscilador começa em t=0 e t=0.2 (dois pulsos com 200ms de intervalo)', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const startCalls = mockOsc.start.mock.calls.map(c => c[0]);
-            expect(startCalls).toContain(0);
-            expect(startCalls).toContain(0.2);
-        });
-
-        test('oscilador para em t=0.3 e t=0.5', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            const stopCalls = mockOsc.stop.mock.calls.map(c => c[0]);
-            expect(stopCalls).toContain(0.3);
-            expect(stopCalls).toContain(0.5);
-        });
-
-        test('silencioso se AudioContext lançar exceção', () => {
-            const failFactory = () => { throw new Error('Not allowed'); };
-            expect(() => playErrorSound(failFactory)).not.toThrow();
-        });
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'error',
+            action_name: 'BATCH_ERROR',
+        }));
     });
 
-    // ── playSuccessSound ──────────────────────────────────────────────────────
-
-    describe('playSuccessSound() — Arpejo sine ascendente', () => {
-        test('cria exatamente 3 osciladores e 3 gains', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            expect(mockCtx.createOscillator).toHaveBeenCalledTimes(3);
-            expect(mockCtx.createGain).toHaveBeenCalledTimes(3);
+    test('BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext', async () => {
+        installRuntimeResponder({ tabId: 73 });
+        const { ctx, oscillators, gains } = createAudioContext({ currentTime: 2 });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
         });
 
-        test('usa onda sine (timbre suave de notificação)', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            expect(mockOsc.type).toBe('sine');
+        await loadOnePage();
+
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(gains).toHaveLength(3);
+        expect(new Set(oscillators).size).toBe(3);
+        expect(new Set(gains).size).toBe(3);
+
+        [
+            [660, 0],
+            [880, 0.18],
+            [1100, 0.36],
+        ].forEach(([frequency, offset], index) => {
+            assertNote({
+                osc: oscillators[index],
+                gain: gains[index],
+                destination: ctx.destination,
+                type: 'sine',
+                frequency,
+                start: 2 + offset,
+                stop: 2 + offset + 0.3,
+            });
         });
 
-        test('frequências ascendentes: 660Hz → 880Hz → 1100Hz (proporção 3:4:5)', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            const freqCalls = mockOsc.frequency.setValueAtTime.mock.calls;
-            const freqs = freqCalls.map(c => c[0]);
-            expect(freqs).toContain(660);
-            expect(freqs).toContain(880);
-            expect(freqs).toContain(1100);
-        });
+        expect(typeof oscillators[2].onended).toBe('function');
+        oscillators[2].onended();
+        expect(sentMessages).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                source: 'audio',
+                action_name: 'AUDIO_CONTEXT_CREATED',
+                extra: expect.objectContaining({ originTabId: 73 }),
+            }),
+            expect.objectContaining({
+                source: 'audio',
+                level: 'success',
+                action_name: 'AUDIO_SUCCESS_SCHEDULED',
+                extra: expect.objectContaining({ notes: 3, contextState: 'running' }),
+            }),
+            expect.objectContaining({
+                source: 'audio',
+                level: 'success',
+                action_name: 'AUDIO_SUCCESS_FINISHED',
+                extra: expect.objectContaining({ notes: 3 }),
+            }),
+        ]));
 
-        test('delays de 0ms, 180ms e 360ms (arpejo com sobreposição)', () => {
-            const factory = makeAudioMocks();
-            playSuccessSound(factory);
-            const startCalls = mockOsc.start.mock.calls.map(c => c[0]);
-            expect(startCalls).toContain(0);
-            expect(startCalls).toContain(0.18);
-            expect(startCalls).toContain(0.36);
-        });
-
-        test('silencioso se AudioContext lançar exceção', () => {
-            const failFactory = () => { throw new Error('Policy violation'); };
-            expect(() => playSuccessSound(failFactory)).not.toThrow();
-        });
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(6);
+        expect(gains).toHaveLength(6);
     });
 
-    // ── Polyfill webkitAudioContext ───────────────────────────────────────────
-
-    describe('Compatibilidade com polyfill webkitAudioContext', () => {
-        beforeEach(() => {
-            delete window.AudioContext;
-            window.webkitAudioContext = jest.fn().mockImplementation(() => mockCtx);
-            makeAudioMocks();
+    test('contexto suspended só agenda sucesso depois de resume real completar', async () => {
+        installRuntimeResponder();
+        let releaseResume;
+        const resumeGate = new Promise(resolve => { releaseResume = resolve; });
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            currentTime: 1,
+            onResume: async (audioCtx) => {
+                await resumeGate;
+                audioCtx.state = 'running';
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
         });
 
-        afterEach(() => {
-            delete window.webkitAudioContext;
-        });
+        await loadOnePage();
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
 
-        test('playErrorSound usa webkitAudioContext quando AudioContext não existe', () => {
-            // Não passa factory — usa o global
-            expect(() => playErrorSound()).not.toThrow();
-            expect(window.webkitAudioContext).toHaveBeenCalled();
-        });
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(0);
+
+        releaseResume();
+        await waitFor(() => oscillators.length === 3);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_SUCCESS_SCHEDULED',
+            extra: expect.objectContaining({ contextState: 'running', notes: 3 }),
+        }));
     });
 
-    // ── Conexão do grafo de áudio ─────────────────────────────────────────────
-
-    describe('Grafo de áudio: osc → gain → destination', () => {
-        test('oscilador se conecta ao gain', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockOsc.connect).toHaveBeenCalledWith(mockGain);
+    test('playErrorSound real usa webkitAudioContext quando AudioContext não existe', async () => {
+        installRuntimeResponder();
+        const { ctx, oscillators } = createAudioContext();
+        const WebkitAudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+        Object.defineProperty(window, 'webkitAudioContext', {
+            value: WebkitAudioContextMock,
+            configurable: true,
         });
 
-        test('gain se conecta ao destination', () => {
-            const factory = makeAudioMocks();
-            playErrorSound(factory);
-            expect(mockGain.connect).toHaveBeenCalledWith(mockCtx.destination);
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'fallback webkit',
+            imgIndex: 0,
         });
+
+        expect(WebkitAudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(2);
+    });
+
+    test('falha ao criar AudioContext no erro é silenciosa e não interrompe a UI', async () => {
+        installRuntimeResponder();
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => { throw new Error('Policy violation'); }),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await expect(dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'sem áudio',
+            imgIndex: 0,
+        })).resolves.toEqual(expect.objectContaining({ keepAlive: false }));
+
+        expect(document.getElementById('manga-error-line').style.display).toBe('flex');
+        expect(document.getElementById('manga-error-collapsible-content').textContent)
+            .toContain('sem áudio');
     });
 });
