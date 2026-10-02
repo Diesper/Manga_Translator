@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
-  "started_at_utc": "2026-10-02T02:41:14.228Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -234,7 +234,7 @@
     },
     {
       "id": "191-007",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_UNLOCK_BRANCH_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -251,12 +251,25 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:41:14.228Z",
       "audit_finding": "ACCEPTED pela ADVERSARIAL atual; resultado append-only 191/ADVERSARIAL CHANGES_REQUIRED.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
-      "resolution": "Adicionados cinco regressions de clique real cobrindo contexto running, resume incompleto, estado interrupted, API ausente e constructor failure; todos exigem continuidade do lote e telemetria específica."
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionados cinco regressions de clique real cobrindo contexto running, resume incompleto, estado interrupted, API ausente e constructor failure; todos exigem continuidade do lote e telemetria específica.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z",
+      "validation": {
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-008",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_UNLOCK_SECOND_CALLSITE_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -273,11 +286,24 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:45:53.015Z",
       "audit_finding": "Encontrado na passagem adversarial pós-correção de 191-007.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION"
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z",
+      "validation": {
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-009",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_STATE_BRANCH_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -294,12 +320,25 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:48:15.707Z",
       "audit_finding": "Encontrado na segunda passagem adversarial pós-191-008.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
-      "resolution": "Adicionadas regressões reais para success interrupted, constructor failure no BATCH_COMPLETE e error interrupted; todos exigem telemetria específica e ausência de resume/escape indevido."
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionadas regressões reais para success interrupted, constructor failure no BATCH_COMPLETE e error interrupted; todos exigem telemetria específica e ausência de resume/escape indevido.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z",
+      "validation": {
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-010",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_SUCCESS_RESUME_REJECTION_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -316,12 +355,25 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:51:30Z",
       "audit_finding": "Encontrado na terceira passagem adversarial pós-191-009.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
-      "resolution": "Adicionada regressão BATCH_COMPLETE com resume rejeitado exigindo AUDIO_SUCCESS_FAILED, zero notas, errorName/errorMessage e handler seguro."
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionada regressão BATCH_COMPLETE com resume rejeitado exigindo AUDIO_SUCCESS_FAILED, zero notas, errorName/errorMessage e handler seguro.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z",
+      "validation": {
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-011",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_CONTEXT_CROSS_PATH_REUSE_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -338,12 +390,25 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:54:00Z",
       "audit_finding": "Encontrado na quarta passagem adversarial pós-191-010.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
-      "resolution": "Adicionada sequência real unlock→erro→novo lote→sucesso exigindo um único AudioContext, cinco nós no contexto original e zero no sentinela."
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionada sequência real unlock→erro→novo lote→sucesso exigindo um único AudioContext, cinco nós no contexto original e zero no sentinela.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z",
+      "validation": {
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-012",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "STALE_AUDIO_MESSAGE_GUARD_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -360,12 +425,25 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:57:00Z",
       "audit_finding": "Encontrado na passagem adversarial de chamadas fora de ordem.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
-      "resolution": "Adicionadas regressões para BATCH_COMPLETE stale e SHOW_ERROR_INTEGRATED stale, comprovando zero áudio/contaminação e preservação do batch atual."
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionadas regressões para BATCH_COMPLETE stale e SHOW_ERROR_INTEGRATED stale, comprovando zero áudio/contaminação e preservação do batch atual.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z",
+      "validation": {
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-013",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "POST_COMPLETION_DUPLICATE_MESSAGE_GAP",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -382,18 +460,29 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T03:00:00Z",
       "audit_finding": "Reproduzido com red proof real em Node20 e Node22.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
       "resolution": "Guards de BATCH_COMPLETE/SHOW_ERROR_INTEGRATED agora rejeitam batchId também quando _currentBatchId está null; testes permanecem inalterados.",
       "validation": {
         "pre_fix_run_id": 36958049293,
         "pre_fix_node20_job_id": 110685347718,
         "pre_fix_node22_job_id": 110685347973,
-        "pre_fix_result": "EXPECTED_FAIL_EXACTLY_2_BOTH_NODES"
-      }
+        "pre_fix_result": "EXPECTED_FAIL_EXACTLY_2_BOTH_NODES",
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      },
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z"
     },
     {
       "id": "191-014",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "POST_COMPLETION_STALE_UPDATE_GAP",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -410,7 +499,7 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T03:04:00Z",
       "audit_finding": "Padrão irmão de 191-013 identificado no guard de UPDATE_IMAGE.",
-      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
       "resolution": "Guard de UPDATE_IMAGE agora rejeita batchId quando _currentBatchId é null ou divergente; regression mantém a primeira imagem e exige stale_batch.",
       "validation": {
         "pre_fix_run_id": 36958466821,
@@ -419,22 +508,33 @@
         "pre_fix_result": "FAIL_EXACTLY_1_STALE_UPDATE_CONTRACT_BOTH_NODES",
         "pre_fix_received": "ok=true,persisted=true,domApplied=false instead of stale_batch",
         "first_post_fix_run_id": 36958500712,
-        "first_post_fix_note": "Runtime guard was reached, but auxiliary keepAlive assertion was invalid for synchronous stale ACK; assertion removed without weakening stale response/DOM/log/completion contract."
-      }
+        "first_post_fix_note": "Runtime guard was reached, but auxiliary keepAlive assertion was invalid for synchronous stale ACK; assertion removed without weakening stale response/DOM/log/completion contract.",
+        "final_source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+        "final_bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+        "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+        "workflow_run_id": 36958628790,
+        "node20_job_id": 110687118088,
+        "node22_job_id": 110687118010,
+        "full_content_job_id": 110687117793,
+        "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
+      },
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T03:10:00Z"
     }
   ],
   "document_quality": {
-    "self_audit": "CORRECTION_APPLIED_AWAITING_CI",
+    "self_audit": "EXECUTABLE_VALIDATION_COMPLETE_AWAITING_DISTRIBUTED_AUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "1464/1464",
     "source_text_lines": 1463,
     "test_count": 33,
     "external_audit_requests_open": 0,
-    "accepted_requests_pending_validation": 3,
+    "accepted_requests_pending_validation": 0,
     "production_dependency_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
-    "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
-    "note": "191-007..014 applied; 191-014 valid red proof recorded; awaiting green CI for exact current pair."
+    "evidence_quality": "Red→green 191-005/006/013/014; final run 36958628790 Node20/22 focal 42/42; full content-scripts 40/40 suites, 461/461 tests, --detectOpenHandles.",
+    "note": "Correction/revalidation complete. READY_FOR_AUDIT; independent PRIMARY+ADVERSARIAL binding current source+bible still required."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -724,6 +824,17 @@
       "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-014 red proof is valid; removed only invalid keepAlive assertion for synchronous stale ACK while preserving stale_batch, DOM, log and completion assertions."
+    },
+    {
+      "at_utc": "2026-10-02T03:10:00Z",
+      "type": "HYBRID_CORRECTION_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+      "bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+      "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-007..014 resolved; exact revision passed Node20/22 focal 42/42 and full content-scripts 40/40 suites, 461/461 tests with detectOpenHandles. Awaiting new independent PRIMARY+ADVERSARIAL pair."
     }
   ],
   "evidence": [
@@ -797,7 +908,20 @@
       "full_content_job_id": 110677469527,
       "focal_result": "PASS_17_OF_17_AUDIO; PASS_26_OF_26_WITH_RELATED_BOTH_NODES",
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
+    },
+    {
+      "type": "EXECUTABLE_FINAL_VALIDATION",
+      "at_utc": "2026-10-02T03:10:00Z",
+      "source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+      "bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85",
+      "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+      "workflow_run_id": 36958628790,
+      "node20_job_id": 110687118088,
+      "node22_job_id": 110687118010,
+      "full_content_job_id": 110687117793,
+      "focal_result": "PASS_33_OF_33_AUDIO; PASS_42_OF_42_WITH_RELATED_BOTH_NODES",
+      "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "95a3171e3d2c42be2950006bc7282842d5fb119f"
+  "bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85"
 }
