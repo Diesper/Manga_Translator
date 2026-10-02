@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "668714d95b63e04ccc219e7170c8222609ce816c",
+  "source_sha": "1005872a2c6dede1c839dad3730be076ac7ef7be",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -318,6 +318,28 @@
       "audit_finding": "Encontrado na terceira passagem adversarial pós-191-009.",
       "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
       "resolution": "Adicionada regressão BATCH_COMPLETE com resume rejeitado exigindo AUDIO_SUCCESS_FAILED, zero notas, errorName/errorMessage e handler seguro."
+    },
+    {
+      "id": "191-011",
+      "status": "ACCEPTED",
+      "type": "AUDIO_CONTEXT_CROSS_PATH_REUSE_GAP",
+      "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "O contrato é um único notificationAudioContext por página, mas os testes provavam reuso apenas dentro de sucesso repetido ou erro repetido, não entre unlock/erro/sucesso.",
+      "current_evidence": "Uma implementação com contextos separados por tipo poderia preservar testes isolados e ainda violar o contexto único/autoplay.",
+      "missing_evidence": "Uma sequência real deve criar/desbloquear o contexto pelo gesto, usá-lo no erro e reutilizá-lo em sucesso posterior sem nova construção.",
+      "why_needed": "O unlock por gesto só protege autoplay se as notificações seguintes usarem o mesmo contexto.",
+      "requested_action": "Adicionar regressão cruzando unlock, erro e sucesso entre lotes e exigir construtor único.",
+      "expected_evidence": "Separar contextos por fluxo quebra cardinalidade e nós no contexto sentinela.",
+      "expected_auditor_action": "Reauditar lifecycle transversal e cardinalidade de contexto.",
+      "possible_regression": "Áudio pode voltar a criar contextos distintos, perder desbloqueio por gesto e reintroduzir pressão no limite do Chromium.",
+      "impact": "Autoplay, estabilidade e consumo de AudioContext.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T02:54:00Z",
+      "audit_finding": "Encontrado na quarta passagem adversarial pós-191-010.",
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionada sequência real unlock→erro→novo lote→sucesso exigindo um único AudioContext, cinco nós no contexto original e zero no sentinela."
     }
   ],
   "document_quality": {
@@ -554,6 +576,22 @@
       "bible_sha": "e57cf7b2e265553c53fb4c139f3dcbfd477147da",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-010 corrigido; matriz ampliada para 27 casos reais e Bíblia sincronizada 1158/1158."
+    },
+    {
+      "at_utc": "2026-10-02T02:54:00Z",
+      "type": "POST_CORRECTION_ADDITIONAL_FINDING",
+      "source_sha": "668714d95b63e04ccc219e7170c8222609ce816c",
+      "bible_sha": "e57cf7b2e265553c53fb4c139f3dcbfd477147da",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-011 HIGH: contexto único ainda não tinha prova transversal entre unlock, erro e sucesso."
+    },
+    {
+      "at_utc": "2026-10-02T02:54:01Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "1005872a2c6dede1c839dad3730be076ac7ef7be",
+      "bible_sha": "8d07ab52337a53800a6c4e96bfbcb3a3b863be72",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-011 corrigido; revisão ampliada para 28 casos reais e Bíblia sincronizada 1221/1221."
     }
   ],
   "evidence": [
@@ -629,5 +667,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "e57cf7b2e265553c53fb4c139f3dcbfd477147da"
+  "bible_sha": "8d07ab52337a53800a6c4e96bfbcb3a3b863be72"
 }
