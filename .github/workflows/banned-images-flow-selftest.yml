@@ -34,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: Run banned-images real integration
-        run: npx jest --config jest.config.js --selectProjects integration tests/integration/banned-images-flow.test.js --runInBand --detectOpenHandles
+        run: npx jest --config jest.config.js --selectProjects integration --runTestsByPath tests/integration/banned-images-flow.test.js --runInBand --detectOpenHandles
 
       - name: Run full integration suite
         run: npm run test:integration -- --runInBand
