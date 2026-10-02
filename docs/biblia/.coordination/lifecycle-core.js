@@ -300,8 +300,10 @@ function lifecycleSnapshot(state, options = {}) {
     ...cycles,
     correction_cycle: cycles.current_escalation_cycle,
     escalation_level: escalation,
-    human_approval_required: escalation === 'HUMAN',
+    human_approval_required: escalation === 'HUMAN' && !humanPermanentlyClosed(state),
     human_locked: escalation === 'HUMAN',
+    human_permanently_closed: humanPermanentlyClosed(state),
+    human_quarantine_active: escalation === 'HUMAN' && !humanPermanentlyClosed(state),
     audit_epoch: epoch,
     handoff_id: deterministicHandoffId(state, handoff, epoch),
     latest_handoff_at_utc: handoff?.entry?.at_utc || null,
@@ -309,6 +311,16 @@ function lifecycleSnapshot(state, options = {}) {
     ...revision,
     priority_score: ESCALATION[escalation],
   };
+}
+
+function humanPermanentlyClosed(state) {
+  if (state?.status !== 'COMPLETED') return false;
+  const history = historyOf(state);
+  const latestHandoff = [...history].reverse().findIndex((entry) => entry?.type === HANDOFF_EVENT);
+  const latestClose = [...history].reverse().findIndex((entry) => entry?.type === 'HUMAN_PERMANENTLY_CLOSED');
+  if (latestClose < 0) return false;
+  // reverse indexes: smaller means later in the original history.
+  return latestHandoff < 0 || latestClose < latestHandoff;
 }
 
 function activeHumanAuthorizedCorrection(state) {
@@ -353,8 +365,11 @@ function lifecycleProblems(state, options = {}) {
     }
   }
 
-  if (snapshot.human_locked && state?.status !== 'HUMAN_LOCKED' && !activeHumanAuthorizedCorrection(state)) {
-    problems.push(label + ': correction_cycle >= 7 exige status HUMAN_LOCKED ou correção humana one-shot ativa');
+  if (snapshot.human_locked
+    && state?.status !== 'HUMAN_LOCKED'
+    && !activeHumanAuthorizedCorrection(state)
+    && !snapshot.human_permanently_closed) {
+    problems.push(label + ': correction_cycle >= 7 exige HUMAN_LOCKED, correção humana one-shot ou fechamento humano');
   }
   if (!snapshot.human_locked && state?.status === 'HUMAN_LOCKED') {
     problems.push(label + ': HUMAN_LOCKED sem correction_cycle >= 7');
@@ -399,7 +414,7 @@ function evaluateLifecycleStates(states, options = {}) {
     const snapshot = lifecycleSnapshot(state, options);
     byIndex.set(state.index, snapshot);
     for (const problem of lifecycleProblems(state, options)) problems.push(problem);
-    if (snapshot.human_locked) humanLocked.push({
+    if (snapshot.human_quarantine_active) humanLocked.push({
       index: state.index,
       file: state.file,
       cycle: snapshot.correction_cycle,
@@ -433,6 +448,7 @@ module.exports = {
   correctorEligibility,
   rootCauseReviewValid,
   classifyRevisionChange,
+  humanPermanentlyClosed,
   priorityForState,
   lifecycleSnapshot,
   activeHumanAuthorizedCorrection,
