@@ -4,7 +4,7 @@ const childProcess = require('child_process');
 const path = require('path');
 
 const DEFAULT_RESULTS_ROOT = 'docs/biblia/.coordination/audit-results';
-const DEFAULT_ENFORCEMENT_BASELINE = '0a27c07802c3266ccf71d550599f8769c845d747';
+// O primeiro enforcement sofreu uma perda/restauração atômica de árvore em ed5f64b..a1d252b.\n// A partir da restauração completa, toda mutação/deleção volta a ser estritamente proibida.\nconst DEFAULT_ENFORCEMENT_BASELINE = 'a1d252b84f4cf02cf3b41b1f0e9605e5b188ac38';
 const ZERO_SHA = '0'.repeat(40);
 
 function git(root, args) {
