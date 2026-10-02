@@ -1,9 +1,12 @@
 'use strict';
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const lifecycle = require('./lifecycle-core');
 const findingEvents = require('./unverified-finding-events');
+
+const LEGACY_BASELINE_RELATIVE = 'docs/biblia/.coordination/unverified-findings-legacy-baseline.json';
 
 const FINDING_STATUSES = new Set([
   'UNVERIFIED',
@@ -13,6 +16,19 @@ const FINDING_STATUSES = new Set([
   'SUPERSEDED',
   'STALE',
 ]);
+
+function gitBlobShaBuffer(buffer) {
+  const body = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+  const header = Buffer.from('blob ' + body.length + '\0');
+  return crypto.createHash('sha1').update(Buffer.concat([header, body])).digest('hex');
+}
+
+function loadLegacyFindingBaseline(root) {
+  const absolute = path.join(root, LEGACY_BASELINE_RELATIVE);
+  if (!fs.existsSync(absolute)) return { schema_version:1, legacy_findings:{} };
+  const raw = JSON.parse(fs.readFileSync(absolute, 'utf8'));
+  return raw && typeof raw === 'object' ? raw : { schema_version:1, legacy_findings:{} };
+}
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -70,6 +86,17 @@ function loadUnverifiedFindings(root) {
   const findings = [];
   const problems = [];
   const ids = new Set();
+  let legacyBaseline = { schema_version:1, legacy_findings:{} };
+  try {
+    legacyBaseline = loadLegacyFindingBaseline(root);
+    if (legacyBaseline?.schema_version !== 1 || !legacyBaseline?.legacy_findings
+      || typeof legacyBaseline.legacy_findings !== 'object') {
+      problems.push(LEGACY_BASELINE_RELATIVE + ': baseline legado inválido');
+      legacyBaseline = { schema_version:1, legacy_findings:{} };
+    }
+  } catch (error) {
+    problems.push(LEGACY_BASELINE_RELATIVE + ': baseline JSON inválido: ' + error.message);
+  }
   for (const absolute of walk(base)) {
     const rel = path.relative(root, absolute).replace(/\\/g, '/');
     if (/\/README\.md$/i.test(rel)) continue;
@@ -78,12 +105,23 @@ function loadUnverifiedFindings(root) {
       continue;
     }
     let raw;
-    try { raw = JSON.parse(fs.readFileSync(absolute, 'utf8')); }
+    let rawBuffer;
+    try {
+      rawBuffer = fs.readFileSync(absolute);
+      raw = JSON.parse(rawBuffer.toString('utf8'));
+    }
     catch (error) {
       problems.push(rel + ': JSON inválido: ' + error.message);
       continue;
     }
     problems.push(...validateFinding(raw, rel));
+    if (raw?.status !== 'UNVERIFIED') {
+      const legacy = legacyBaseline.legacy_findings?.[rel];
+      const blobSha = gitBlobShaBuffer(rawBuffer);
+      if (!legacy || legacy.blob_sha !== blobSha || legacy.status !== raw.status) {
+        problems.push(rel + ': finding base não-UNVERIFIED fora da baseline legada imutável');
+      }
+    }
     if (ids.has(raw?.id)) problems.push(rel + ': finding id duplicado: ' + raw.id);
     if (raw?.id) ids.add(raw.id);
     findings.push({ ...raw, path: rel });
@@ -167,7 +205,10 @@ if (require.main === module) {
 }
 
 module.exports = {
+  LEGACY_BASELINE_RELATIVE,
   FINDING_STATUSES,
+  gitBlobShaBuffer,
+  loadLegacyFindingBaseline,
   validateFinding,
   loadUnverifiedFindings,
   buildFinding,
