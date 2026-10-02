@@ -2,10 +2,10 @@
   "index": 93,
   "file": "tests/e2e/reader-offline.spec.js",
   "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
   "source_sha": "2837775deacca5123fa99232633b4652774abf96",
-  "started_at_utc": "2026-09-30T06:14:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -73,7 +73,7 @@
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "PAUSED_FOR_HIGHER_PRIORITY_191",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "277/277",
@@ -83,11 +83,12 @@
     "evidence_job": 109437162728,
     "evidence_summary": "Mesmo blob 1ab953d... executado no shard fast; os três casos aparecem nominalmente e o shard terminou 9 passed.",
     "source_text_lines": 276,
-    "evidence_note": " Revisão pós-REAUDIT sincronizou 093-001/002/003 como ACCEPTED."
+    "evidence_note": " Revisão pós-REAUDIT sincronizou 093-001/002/003 como ACCEPTED.",
+    "note": "Correction work on #093 paused without approval/validation so AGENTE HÍBRIDO can prioritize #191. Source remains at current SHA; accepted requests remain pending and must be resumed later."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:13:00Z",
+  "updated_at_utc": "2026-10-02T04:00:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:30:20Z",
@@ -137,6 +138,15 @@
       "previous_source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
       "current_source_sha": "2837775deacca5123fa99232633b4652774abf96",
       "reason": "Cenário fail-closed agora aborta uma transação IndexedDB real e valida tx.onerror/tx.onabort, em vez de lançar antes da transação."
+    },
+    {
+      "at_utc": "2026-10-02T04:00:00Z",
+      "type": "EDITORIAL_PREEMPTION_FOR_PRIORITY_191",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "User explicitly prioritized #191. #093 is paused without claiming correction complete or audit approval; editorial reservation will be released."
     }
   ],
   "evidence": [
