@@ -49,6 +49,41 @@ const reorderedObjectKeys = state([
 assert.deepStrictEqual(guard.historyAppendOnlyProblems(base, reorderedObjectKeys),[]);
 console.log('PASS JSON key order does not create false positive');
 
+const invalidHashEvent = {
+  at_utc:'2026-10-02T03:00:00Z',
+  type:'HASHED',
+  value:3,
+  previous_event_hash:'a'.repeat(64),
+  event_hash:'b'.repeat(64),
+};
+const repairedHashEvent = {
+  ...invalidHashEvent,
+  event_hash: guard.canonicalEventHash(invalidHashEvent),
+};
+assert.deepStrictEqual(
+  guard.historyAppendOnlyProblems(
+    state([invalidHashEvent]),
+    state([repairedHashEvent])
+  ),
+  []
+);
+console.log('PASS canonical hash-only repair is allowed');
+
+problems = guard.historyAppendOnlyProblems(
+  state([invalidHashEvent]),
+  state([{ ...repairedHashEvent, value:999 }])
+);
+assert.ok(problems.some((x)=>x.includes('append-only na posição 0')));
+console.log('PASS hash repair cannot smuggle semantic payload changes');
+
+const validHashEvent = repairedHashEvent;
+problems = guard.historyAppendOnlyProblems(
+  state([validHashEvent]),
+  state([{ ...validHashEvent, event_hash:'c'.repeat(64) }])
+);
+assert.ok(problems.some((x)=>x.includes('append-only na posição 0')));
+console.log('PASS already-valid lifecycle hash cannot be rewritten');
+
 const rawLine=':100644 100644 ' + 'a'.repeat(40) + ' ' + 'b'.repeat(40)
   + ' M\tdocs/biblia/.state/191.json';
 const parsed=guard.parseRawHistory(rawLine);
