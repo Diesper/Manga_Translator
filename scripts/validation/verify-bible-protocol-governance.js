@@ -161,7 +161,9 @@ function reconcileRefreshProblems(source) {
   let previous = -1;
   const problems = [];
   for (const fragment of ordered) {
-    const position = source.indexOf(fragment);
+    const position = fragment.startsWith('echo "sha=$(git rev-parse HEAD)"')
+      ? source.lastIndexOf(fragment)
+      : source.indexOf(fragment);
     if (position < 0) continue;
     if (position <= previous) problems.push('reconcile: refresh/observed-head ordering inválido antes da mutação: ' + fragment);
     previous = position;
