@@ -283,6 +283,78 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toHaveLength(1);
     });
 
+    test('erro com contexto suspended só agenda após resume concluir', async () => {
+        installRuntimeResponder({ tabId: 75 });
+        let releaseResume;
+        const resumeGate = new Promise(resolve => { releaseResume = resolve; });
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            currentTime: 7,
+            onResume: async (audioCtx) => {
+                await resumeGate;
+                audioCtx.state = 'running';
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro suspenso',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(0);
+
+        releaseResume();
+        await waitFor(() => oscillators.length === 2);
+        expect(ctx.state).toBe('running');
+    });
+
+    test('erro registra falha de resume sem criar notas', async () => {
+        installRuntimeResponder({ tabId: 76 });
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            onResume: async () => {
+                throw Object.assign(new Error('error-resume-blocked'), {
+                    name: 'NotAllowedError',
+                });
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro sem resume',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_ERROR_FAILED'
+        ));
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_ERROR_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 76,
+                errorName: 'NotAllowedError',
+                errorMessage: 'error-resume-blocked',
+            }),
+        }));
+    });
+
     test('BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext', async () => {
         installRuntimeResponder({ tabId: 73 });
         const { ctx, oscillators, gains } = createAudioContext({ currentTime: 2 });
