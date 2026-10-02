@@ -128,4 +128,48 @@ const priorityPlan = planCorrections({
 assert('HIGH precede NORMAL dentro da fila de correção', priorityPlan.candidates[0].index === 8);
 assert('candidato expõe escalation e exige token', priorityPlan.candidates[0].escalation_level === 'HIGH' && priorityPlan.candidates[0].correction_token_required === true);
 
+function escalatedState(index, cycles) {
+  const item=state(index);
+  item.bible_sha=String(index).padStart(40,'e');
+  item.history=[];
+  for(let i=1;i<=cycles;i+=1){
+    item.history.push({
+      at_utc:'2026-10-01T'+String(i).padStart(2,'0')+':10:00Z',
+      type:lifecycleCore.HANDOFF_EVENT,
+      source_sha:item.source_sha,
+      bible_sha:item.bible_sha,
+    });
+  }
+  return item;
+}
+const elevated=escalatedState(11,3);
+const high=escalatedState(12,4);
+const critical=escalatedState(13,5);
+const emergency=escalatedState(14,6);
+const escalationPlan=planCorrections({
+  states:[elevated,high,critical,emergency],
+  pipelines:[
+    pipeline(11,'CHANGES_REQUIRED',{adversarial:changeRecord}),
+    pipeline(12,'CHANGES_REQUIRED',{adversarial:changeRecord}),
+    pipeline(13,'CHANGES_REQUIRED',{adversarial:changeRecord}),
+    pipeline(14,'CHANGES_REQUIRED',{adversarial:changeRecord}),
+  ],
+  reservations:[],
+  active_claims_and_leases:[],
+},1,4);
+assert(
+  'EMERGENCY > CRITICAL > HIGH > ELEVATED',
+  JSON.stringify(escalationPlan.candidates.map((x)=>x.escalation_level))
+    === JSON.stringify(['EMERGENCY','CRITICAL','HIGH','ELEVATED'])
+);
+assert(
+  'priority scores strictly descend from cycle 6 to 3',
+  escalationPlan.candidates.every((item,i,list)=>i===0 || list[i-1].priority_score>item.priority_score)
+);
+assert(
+  'EMERGENCY candidate requires root-cause review',
+  escalationPlan.candidates[0].root_cause_review_required === true
+);
+console.log('PASS full escalation priority ordering');
+
 console.log('Bible correction work plan self-test: SUCCESS');
