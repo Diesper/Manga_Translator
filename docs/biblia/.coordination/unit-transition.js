@@ -261,6 +261,23 @@ function workingRevision(root, state) {
   };
 }
 
+function revisionBindingProblems(expected, actual) {
+  const problems = [];
+  if ((expected?.production_sha || null) !== (actual?.production_sha || null)) problems.push('PRODUCTION');
+  if ((expected?.test_sha || null) !== (actual?.test_sha || null)) problems.push('TEST');
+  if ((expected?.bible_sha || null) !== (actual?.bible_sha || null)) problems.push('BIBLE');
+  if (expected?.revision_id && actual?.revision_id && expected.revision_id !== actual.revision_id) problems.push('REVISION_ID');
+  return problems;
+}
+
+function currentWorkingIdentity(root, state) {
+  const actual = workingRevision(root, state);
+  return {
+    ...actual,
+    revision_id: life.revisionIdentity(state, actual).revision_id,
+  };
+}
+
 function projectAuditDecision(state, pipeline, options = {}) {
   if (!pipeline || !['APPROVED', 'CHANGES_REQUIRED'].includes(pipeline.decision)) {
     throw new Error('RECONCILE_DECISION_INVALID');
@@ -728,6 +745,9 @@ function main(argv=process.argv.slice(2)) {
     const stateRaw=fs.readFileSync(statePathFor(root,args.index),'utf8');
     const snapshot=life.lifecycleSnapshot(state);
     assertCas(state,snapshot,args,auditCore.gitBlobShaBuffer(Buffer.from(stateRaw)));
+    const working=currentWorkingIdentity(root,state);
+    const drift=revisionBindingProblems(snapshot,working);
+    if (drift.length) throw new Error('TOKEN_REJECTS_WORKING_REVISION_DRIFT:'+drift.join(','));
     const approval=args.approval_id
       ? (model.human_approvals || []).find((item)=>item.approval_id===args.approval_id)
       : null;
@@ -767,6 +787,9 @@ function main(argv=process.argv.slice(2)) {
       if ((model.active_claims_and_leases || []).some((rel)=>ownershipIndex(rel)===state.index)) {
         throw new Error('CORRECTION_BLOCKED_BY_ACTIVE_AUDIT_LEASE');
       }
+      const working=currentWorkingIdentity(root,state);
+      const drift=revisionBindingProblems(token || {},working);
+      if (drift.length) throw new Error('TOKEN_WORKING_REVISION_STALE:'+drift.join(','));
     } else if (action === 'HANDOFF_FOR_AUDIT') {
       request.reservation_path=assertCorrectionReservation(root,state,request.actor);
       Object.assign(request, workingRevision(root, state));
@@ -838,6 +861,8 @@ module.exports = {
   persistSnapshot,
   deterministicProductionSha,
   workingRevision,
+  revisionBindingProblems,
+  currentWorkingIdentity,
   projectAuditDecision,
   planTransition,
   loadCorrectionTokens,
