@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/floating-button-guard-and-single-click.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "a417ca15acc4d2b604a3a72cecad19e476ff4626",
+  "source_sha": "710e6208befa13f414724bcca5be0f70e744c312",
   "started_at_utc": "2026-09-30T07:05:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -86,7 +86,7 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "411/411",
+    "documented_positions": "436/436",
     "source_text_lines": 410,
     "bible_lines": 801,
     "external_audit_requests_open": 3,
@@ -95,7 +95,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T16:28:54.618Z",
+  "updated_at_utc": "2026-10-02T21:19:45Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:24:00Z",
@@ -120,6 +120,15 @@
       "current_source_sha": "a417ca15acc4d2b604a3a72cecad19e476ff4626",
       "bible_sha": "16d5f45666ba2a5d887a029360ceaf69d3b34147",
       "reason": "Assertion de ausência de START_BATCH passou a limpar o spy imediatamente antes de TRANSLATE_CONTEXT_IMAGE, isolando a ação testada de callbacks assíncronos anteriores sem alterar a implementação de produção."
+    },
+    {
+      "at_utc": "2026-10-02T21:19:45Z",
+      "type": "MAINTAINER_DOCUMENTATION_SYNC",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "a417ca15acc4d2b604a3a72cecad19e476ff4626",
+      "source_sha": "710e6208befa13f414724bcca5be0f70e744c312",
+      "bible_sha": "c6a468be00eca41254eeb158d221c605843b7643",
+      "reason": "Sincronização mecânica da Bíblia #204 com a revisão atual após reforço de teardown/context translation; READY_FOR_AUDIT preservado."
     }
   ],
   "evidence": []

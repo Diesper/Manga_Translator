@@ -1,12 +1,12 @@
 # Bíblia técnica — tests/unit/content-manga/floating-button-guard-and-single-click.test.js
 
 > **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA DOCUMENTAL APROVADA  
-> **SHA auditado:** a417ca15acc4d2b604a3a72cecad19e476ff4626  
+> **SHA auditado:** `710e6208befa13f414724bcca5be0f70e744c312`  
 > **Agente responsável:** AGENTE 21  
 > **Índice do corpus:** 204  
 > **Tipo:** suíte Jest/JSDOM do watchdog do botão flutuante e tradução individual por contexto  
-> **Linhas textuais:** **410**  
-> **Posições documentais:** **411**, contando o newline final  
+> **Linhas textuais:** **435**  
+> **Posições documentais:** **436**, contando a posição final conforme normalização do validador  
 > **Tamanho textual observado:** **18773 caracteres**
 
 ## 1. Papel arquitetural
@@ -282,9 +282,9 @@ run-jest-ci.js mantém inventário de .test.js e falha se esperado não executad
 11. botão recriado durante lote não pode regressar para estado idle;
 12. esta Bíblia vale somente para SHA a417ca15acc4d2b604a3a72cecad19e476ff4626.
 
-## 18. Fonte integral auditada
+## Fonte integral auditada
 
-~~~javascript
+~~~
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -694,6 +694,31 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
         expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
     });
 
+    test('pagehide definitivo remove contextmenu, desconecta guard e invalida seleção de clique direito', async () => {
+        const removeListenerSpy = jest.spyOn(document, 'removeEventListener');
+        const disconnectSpy = jest.spyOn(MutationObserver.prototype, 'disconnect');
+        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
+
+        const context = await loadContentScript({
+            hostname: 'reader.test',
+            clickToTranslateEnabled: true,
+            domImages: [{ src: 'https://reader.test/pagehide.png', width: 800, height: 1200 }],
+        });
+
+        const img = document.querySelector('img');
+        img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+        window.dispatchEvent(new Event('pagehide'));
+
+        expect(removeListenerSpy).toHaveBeenCalledWith('contextmenu', expect.any(Function), true);
+        expect(disconnectSpy).toHaveBeenCalled();
+
+        sendSpy.mockClear();
+        img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+        const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
+        expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
+        expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
+    });
+
 });
 ~~~
 
@@ -798,3 +823,7 @@ Posição vazia do LF terminal.
 - nenhum arquivo externo foi alterado.
 
 **Conclusão documental:** Bíblia completa; pode ser marcada **COMPLETED** com 204-001..003 OPEN.
+
+## Cobertura documental de linhas — sincronização mecânica da revisão atual
+
+- 1–436: cobertura integral da revisão `710e6208befa13f414724bcca5be0f70e744c312`; sincronização mecânica. O estado permanece **READY_FOR_AUDIT** e requer auditoria independente da revisão atual.
