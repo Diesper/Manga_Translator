@@ -17,6 +17,18 @@ on:
       - 'docs/biblia/.coordination/handoff-guard.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan-selftest.js'
+      - 'docs/biblia/.coordination/lifecycle-core.js'
+      - 'docs/biblia/.coordination/lifecycle-core-selftest.js'
+      - 'docs/biblia/.coordination/human-gate.js'
+      - 'docs/biblia/.coordination/human-gate-selftest.js'
+      - 'docs/biblia/.coordination/human-approval.js'
+      - 'docs/biblia/.coordination/human-review.js'
+      - 'docs/biblia/.coordination/human-review-selftest.js'
+      - 'docs/biblia/.coordination/unverified-findings.js'
+      - 'docs/biblia/.coordination/unverified-findings-selftest.js'
+      - 'docs/biblia/.coordination/unit-transition.js'
+      - 'docs/biblia/.coordination/unit-transition-selftest.js'
+      - 'scripts/validation/verify-human-protected-diff.js'
       - 'scripts/validation/verify-bible-audit-results-append-only.js'
       - 'scripts/validation/verify-bible-audit-results-append-only-selftest.js'
       - 'scripts/validation/bible-audit-pipeline.js'
@@ -63,6 +75,13 @@ jobs:
           node --check docs/biblia/.coordination/audit-summary.js
           node --check docs/biblia/.coordination/handoff-guard.js
           node --check docs/biblia/.coordination/bible-correction-work-plan.js
+          node --check docs/biblia/.coordination/lifecycle-core.js
+          node --check docs/biblia/.coordination/human-gate.js
+          node --check docs/biblia/.coordination/human-approval.js
+          node --check docs/biblia/.coordination/human-review.js
+          node --check docs/biblia/.coordination/unverified-findings.js
+          node --check docs/biblia/.coordination/unit-transition.js
+          node --check scripts/validation/verify-human-protected-diff.js
           node --check scripts/validation/verify-bible-audit-results-append-only.js
           node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js
           node --check scripts/validation/bible-audit-pipeline.js
