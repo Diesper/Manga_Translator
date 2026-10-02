@@ -60,9 +60,10 @@
     "bible:final-readiness": "npm run test:bible-protocol:infra && npm run bible:audit:append-only && npm run bible:reconcile:check && npm run bible:audit:verify && npm run bible:merge-readiness",
     "test:bible-audit-append-only:infra": "node scripts/validation/verify-bible-audit-results-append-only-selftest.js",
     "bible:audit:append-only": "node scripts/validation/verify-bible-audit-results-append-only.js",
-    "test:bible-lifecycle:infra": "node docs/biblia/.coordination/lifecycle-core-selftest.js && node docs/biblia/.coordination/human-gate-selftest.js && node docs/biblia/.coordination/unverified-findings-selftest.js && node docs/biblia/.coordination/unit-transition-selftest.js && node docs/biblia/.coordination/human-review-selftest.js",
+    "test:bible-lifecycle:infra": "node docs/biblia/.coordination/lifecycle-core-selftest.js && node docs/biblia/.coordination/human-gate-selftest.js && node docs/biblia/.coordination/unverified-findings-selftest.js && node docs/biblia/.coordination/unit-transition-selftest.js && node docs/biblia/.coordination/human-review-selftest.js && node docs/biblia/.coordination/audit-result-selftest.js",
     "bible:lifecycle:verify": "node scripts/validation/verify-bible-lifecycle.js",
-    "bible:transition": "node docs/biblia/.coordination/unit-transition.js"
+    "bible:transition": "node docs/biblia/.coordination/unit-transition.js",
+    "bible:audit:publish": "node docs/biblia/.coordination/audit-result.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
