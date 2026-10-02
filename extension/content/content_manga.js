@@ -169,6 +169,7 @@ if (!window.__manga_translator_content_injected) {
     let _countedJobIndices = new Set();
     let _failedPersistenceUpdateKeys = new Set();
     let _failedPersistenceUpdateMeta = new Map();
+    let _pendingPersistenceUpdates = new Map();
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
     let _localBatchQueuePosition = null;
@@ -1853,6 +1854,7 @@ if (!window.__manga_translator_content_injected) {
             isTranslating = true; processedCount = 0; batchHasErrors = false; _countedJobIndices.clear();
             _failedPersistenceUpdateKeys.clear();
             _failedPersistenceUpdateMeta.clear();
+            _pendingPersistenceUpdates.clear();
             _localBatchStatus = 'starting';
             _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
@@ -2579,6 +2581,21 @@ if (!window.__manga_translator_content_injected) {
                 const isAcceptedBatchStillActive = () =>
                     Boolean(acceptedBatchId && _currentBatchId === acceptedBatchId && isTranslating);
 
+                const pendingPersistence = persistenceRetryKey
+                    ? _pendingPersistenceUpdates.get(persistenceRetryKey)
+                    : null;
+                if (pendingPersistence) {
+                    sendLog('info', 'DUPLICATE_UPDATE_PENDING',
+                        'UPDATE_IMAGE duplicado aguardando a persistência já em andamento.', {
+                            batchId: String(acceptedBatchId || '').slice(0, 8),
+                            index: request.index,
+                        });
+                    pendingPersistence
+                        .then(() => ack({ ok: true, persisted: true, domApplied: false }))
+                        .catch(() => ack({ ok: false, reason: 'persist_failed' }));
+                    return wantsAck;
+                }
+
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
                 let shouldAccountUpdate = false;
@@ -2711,6 +2728,19 @@ if (!window.__manga_translator_content_injected) {
                     persistPromise = persistTranslatedPage(request.index, request.newSrc);
                 }
 
+                if (persistenceRetryKey && persistPromise) {
+                    _pendingPersistenceUpdates.set(persistenceRetryKey, persistPromise);
+                }
+
+                const clearPendingPersistence = () => {
+                    if (
+                        persistenceRetryKey
+                        && _pendingPersistenceUpdates.get(persistenceRetryKey) === persistPromise
+                    ) {
+                        _pendingPersistenceUpdates.delete(persistenceRetryKey);
+                    }
+                };
+
                 const accountPersistedUpdate = () => {
                     if (!shouldAccountUpdate) return;
                     if (!isAcceptedBatchStillActive()) {
@@ -2727,6 +2757,7 @@ if (!window.__manga_translator_content_injected) {
 
                 persistPromise
                     .then(() => {
+                        clearPendingPersistence();
                         if (persistenceRetryKey) {
                             _failedPersistenceUpdateKeys.delete(persistenceRetryKey);
                             _failedPersistenceUpdateMeta.delete(persistenceRetryKey);
@@ -2742,6 +2773,7 @@ if (!window.__manga_translator_content_injected) {
                         accountPersistedUpdate();
                     })
                     .catch((err) => {
+                        clearPendingPersistence();
                         sendLog('error', 'PERSIST_FAIL', `Falha ao persistir a página ${request.index}: ${err && err.message}`, { index: request.index });
                         ack({ ok: false, reason: 'persist_failed' });
                         if (persistenceRetryKey && isAcceptedBatchStillActive()) {
