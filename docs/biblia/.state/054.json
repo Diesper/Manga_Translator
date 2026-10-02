@@ -2,9 +2,9 @@
   "index": 54,
   "file": "extension/popup/popup.js",
   "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+  "source_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -60,13 +60,15 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "2021/2021",
+    "documented_positions": "2024/2024",
     "bible_lines": 26361,
-    "external_audit_requests_open": 4
+    "external_audit_requests_open": 4,
+    "source_text_lines": 2023,
+    "note": "Fonte integral e cobertura 2024/2024 sincronizadas; revisão devolvida para auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T15:39:27Z",
+  "updated_at_utc": "2026-10-02T20:17:18Z",
   "started_at_utc": "2026-10-02T01:34:00Z",
   "history": [
     {
@@ -92,6 +94,28 @@
       "reason": "Migração anti-loop de sessão editorial legada pré-policy: abort seguro preserva binding/histórico e exige nova correção somente via decisão distribuída + token + reserva canônicos.",
       "previous_event_hash": "a3a466a8d47fd01c49d5100ba9a9577a96847279ae99d291c0759e7552b401e9",
       "event_hash": "f234b464c4079a908f54fa6b327a15d8f1584def9f9600f74a68988fee2ffef4"
+    },
+    {
+      "at_utc": "2026-10-02T20:17:18Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "25e017e8badfa082b801deb33426292626b81eacc5cf6fc0df1ba6e34f046fec",
+      "source_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
+      "test_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
+      "bible_sha": "e8c84f061633d0eab96d1007dd9637a6847765c8",
+      "production_sha": null,
+      "revision_id": "bc2a9c7daa94f2e1ab0d1770e098f9d3f0d467c2df477bf943ae2be972c96f36",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "054-e1-22b3d9c5a421",
+      "reason": "Sincroniza a Bíblia #054 com popup.js atual e invalida auditorias da revisão anterior; requer PRIMARY + ADVERSARIAL independentes.",
+      "previous_event_hash": "f234b464c4079a908f54fa6b327a15d8f1584def9f9600f74a68988fee2ffef4",
+      "event_hash": "964097fe504d144af21ecd09b7bcef65268d2824869e065e80c2732ea60f3f44"
     }
   ],
   "evidence": [],
@@ -100,10 +124,10 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 0,
-  "handoff_id": null,
+  "audit_epoch": 1,
+  "handoff_id": "054-e1-22b3d9c5a421",
   "production_sha": null,
-  "test_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
-  "bible_sha": null,
-  "revision_id": "25e017e8badfa082b801deb33426292626b81eacc5cf6fc0df1ba6e34f046fec"
+  "test_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
+  "bible_sha": "e8c84f061633d0eab96d1007dd9637a6847765c8",
+  "revision_id": "bc2a9c7daa94f2e1ab0d1770e098f9d3f0d467c2df477bf943ae2be972c96f36"
 }
