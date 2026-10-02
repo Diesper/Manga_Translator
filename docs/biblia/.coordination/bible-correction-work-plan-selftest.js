@@ -1,5 +1,7 @@
 'use strict';
 
+const lifecycleCore = require('./lifecycle-core');
+
 const {
   correctionRecord,
   planCorrections,
@@ -77,5 +79,47 @@ assert('IN_PROGRESS editorial fica fora', !plan.candidates.some((x) => x.index =
 assert('APPROVED fica fora', !plan.candidates.some((x) => x.index === 5));
 assert('pipeline com problemas não vira correção', !plan.candidates.some((x) => x.index === 6));
 assert('candidato expõe source_sha + bible_sha', plan.candidates[0].source_sha && plan.candidates[0].bible_sha);
+
+const humanState = state(7, 'HUMAN_LOCKED');
+humanState.bible_sha = '7'.repeat(40);
+humanState.history = [];
+for (let i=1;i<=7;i+=1) {
+  humanState.history.push({
+    at_utc: '2026-10-01T0' + i + ':10:00Z',
+    type: lifecycleCore.HANDOFF_EVENT,
+    source_sha: humanState.source_sha,
+    bible_sha: humanState.bible_sha,
+  });
+}
+const humanModel = {
+  states:[humanState],
+  pipelines:[pipeline(7,'CHANGES_REQUIRED',{adversarial:changeRecord})],
+  active_claims_and_leases:[],
+};
+assert('HUMAN nunca entra na fila de correção', planCorrections(humanModel,1,4).candidates.length === 0);
+
+const highState = state(8);
+highState.bible_sha = '8'.repeat(40);
+highState.history = [];
+for (let i=1;i<=4;i+=1) {
+  highState.history.push({
+    at_utc: '2026-10-01T0' + i + ':10:00Z',
+    type: lifecycleCore.HANDOFF_EVENT,
+    source_sha: highState.source_sha,
+    bible_sha: highState.bible_sha,
+  });
+}
+const normalState = state(9);
+normalState.bible_sha = '9'.repeat(40);
+const priorityPlan = planCorrections({
+  states:[normalState,highState],
+  pipelines:[
+    pipeline(9,'CHANGES_REQUIRED',{adversarial:changeRecord}),
+    pipeline(8,'CHANGES_REQUIRED',{adversarial:changeRecord}),
+  ],
+  active_claims_and_leases:[],
+},1,4);
+assert('HIGH precede NORMAL dentro da fila de correção', priorityPlan.candidates[0].index === 8);
+assert('candidato expõe escalation e exige token', priorityPlan.candidates[0].escalation_level === 'HIGH' && priorityPlan.candidates[0].correction_token_required === true);
 
 console.log('Bible correction work plan self-test: SUCCESS');
