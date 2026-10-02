@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/integration/chapter-dedup.test.js
 
 > **Estado documental:** correção materializada; execução focal pendente  
-> **SHA auditado:** `10e17e85fe967d7e8ba15cdc0123c37c90458976`  
+> **SHA auditado:** `9dcc09d00a8f9d16d06cd817191bc5620311f610`  
 > **Índice do corpus:** 107  
 > **Tipo:** Jest integration — identidade e persistência de capítulo pelo módulo real  
-> **Linhas textuais:** **236**  
-> **Posições documentais:** **237**, contando o LF final  
+> **Linhas textuais:** **243**  
+> **Posições documentais:** **244**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -100,7 +100,7 @@ Isso resolve 107-002 sem alterar produção para satisfazer uma expectativa hist
 A suíte também prova diretamente:
 
 - capítulos `1050` e `1051` no mesmo host permanecem separados;
-- mesmo título com `hostname` contratado diferente não deduplica.
+- um capítulo já persistido com o mesmo título em `https://other.example/...` não é reutilizado pelo manager da origem corrente.
 
 ## 5. Persistência moderna entre sessões
 
@@ -328,17 +328,24 @@ describe('Deduplicação de capítulos — cm-chapter real', () => {
         expect(await chapterList()).toHaveLength(2);
     });
 
-    test('mesmo título não deduplica quando o hostname contratado é diferente', async () => {
-        setPage('/site-a/chapter/1', 'Mesmo Título');
-        const idA = await createManager({ hostname: window.location.hostname })
-            .getOrCreateChapterId();
+    test('mesmo título armazenado em outro domínio não é reutilizado', async () => {
+        await storageMock.set({
+            chapterList: [{
+                id: 'chap_other_domain',
+                url: 'https://other.example/chapter/1',
+                title: chapterApi.canonicalTitle('Mesmo Título'),
+                timestamp: 1,
+            }],
+        });
 
         setPage('/site-b/chapter/1', 'Mesmo Título');
-        const idB = await createManager({ hostname: 'different.example' })
-            .getOrCreateChapterId();
+        const currentId = await createManager().getOrCreateChapterId();
 
-        expect(idB).not.toBe(idA);
-        expect(await chapterList()).toHaveLength(2);
+        expect(currentId).not.toBe('chap_other_domain');
+        expect(await chapterList()).toEqual(expect.arrayContaining([
+            expect.objectContaining({ id: 'chap_other_domain' }),
+            expect.objectContaining({ id: currentId, url: window.location.href }),
+        ]));
     });
 
     test('persistTranslatedPage de duas sessões envia páginas ao SM_SAVE_PAGE sob o mesmo chapterId', async () => {
@@ -438,12 +445,12 @@ describe('Deduplicação de capítulos — cm-chapter real', () => {
 - **95–116:** deduplicação real por canonical title equivalente e atualização do registro.
 - **117–130:** rejeição da equivalência artificial `| Ler ↔ - Mangás`.
 - **131–141:** capítulos 1050/1051 permanecem distintos.
-- **142–154:** hostname contratado distinto impede deduplicação.
-- **155–235:** duas sessões por `persistTranslatedPage → SM_SAVE_PAGE`, restores e ausência de storage legacy manual.
-- **236:** fechamento da suíte.
-- **237:** posição vazia do LF final.
+- **142–161:** registro de outro domínio não é reutilizado na origem corrente.
+- **162–242:** duas sessões por `persistTranslatedPage → SM_SAVE_PAGE`, restores e ausência de storage legacy manual.
+- **243:** fechamento da suíte.
+- **244:** posição vazia do LF final.
 
-**Cobertura:** 237/237 posições, contíguas e sem overlap.
+**Cobertura:** 244/244 posições, contíguas e sem overlap.
 
 ## 11. Reauditoria pós-correção
 
@@ -457,6 +464,6 @@ describe('Deduplicação de capítulos — cm-chapter real', () => {
 - URL exata: coberta.
 - match aproximado real: coberto.
 - divergência histórica de sufixos: explicitada sem inventar contrato.
-- separação por capítulo/hostname: coberta.
+- separação por capítulo e domínio persistido: coberta.
 - `persistTranslatedPage → SM_SAVE_PAGE`: coberto no boundary.
 - execução focal: necessária antes de resolver requests.
