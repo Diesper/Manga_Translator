@@ -24,7 +24,7 @@ A revisão atual cobre não só a forma de onda, mas também ownership/lifecycle
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
 - `jest.config.js`: `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`.
 - `package.json`: `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.
-- `.github/workflows/audio-synthesis-selftest.yml`: `4f79652d226d8ea5d578030dd6e34443c9a3ac49`.
+- `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
 ## 3. Harness e autenticidade
 
@@ -77,8 +77,8 @@ A PRIMARY da revisão anterior encontrou ausência de prova para `unlockNotifica
 ## 8. Evidência executável
 
 - Run anterior `36948794013`: focal antigo 5/5 em Node 20/22 e suíte relacionada verde; insuficiente para 191-004 porque antecede os novos casos.
-- Gate atual: `Audio Synthesis Selftest`, definido no workflow SHA `4f79652d226d8ea5d578030dd6e34443c9a3ac49`.
-- O gate executa focal + suíte relacionada em Node 20 e Node 22 com `--detectOpenHandles`, além de todo o projeto `content-scripts` em Node 20.
+- Gate atual: `Audio Synthesis Selftest`, definido no workflow SHA `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
+- O gate executa focal + suíte relacionada por `--runTestsByPath` em Node 20 e Node 22 com `--detectOpenHandles`, além de todo o projeto `content-scripts` em Node 20.
 - Até a conclusão verde desse gate, a revisão permanece `IN_PROGRESS` e não recebe 100/100.
 
 ## 9. Limites honestos
