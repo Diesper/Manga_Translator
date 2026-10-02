@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/shared/storage-manager.js`
 
 > **Estado:** 🟡 CORRIGIDO — AGUARDANDO NOVA AUDITORIA PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `b81b122a098038a9164f05fc0a4b9fb6d3140d79`  
+> **SHA auditado:** `f4e1e231fa62d22dd50fb20cf0cffbb09da98bee`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript compartilhado — persistência IndexedDB do Manga Translator  
 > **Runtime principal:** Chromium MV3 Service Worker / páginas internas da extensão  
@@ -275,10 +275,10 @@ function dataUrlToBlob(dataUrl) {
     return new Blob([decoded], { type: mime });
 }
 
-/** Blob → Data URL. Prefere arrayBuffer (Service Worker); FileReader cobre Blob de DOM/JSDOM sem esse método. */
+/** Blob → Data URL. FileReader não existe em Service Worker: usamos arrayBuffer. */
 async function blobToDataUrl(blob) {
     if (!blob) return null;
-    const buffer = typeof blob.arrayBuffer === 'function' ? await blob.arrayBuffer() : await new Promise((resolve, reject) => { if (typeof FileReader === 'undefined') { reject(new Error('Blob sem suporte a leitura binária')); return; } const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(reader.error || new Error('Falha ao ler Blob')); reader.readAsArrayBuffer(blob); });
+    const buffer = await blob.arrayBuffer();
     const bytes = new Uint8Array(buffer);
     let binary = '';
     const CHUNK = 0x8000; // evita "Maximum call stack size exceeded" em imagens grandes
@@ -1887,46 +1887,46 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 
 ### Linha 0137
 
-**Fonte:** `/** Blob → Data URL. Prefere arrayBuffer (Service Worker); FileReader cobre Blob de DOM/JSDOM sem esse método. */`  
-**O que faz:** Documenta os dois caminhos de leitura binária: `Blob.arrayBuffer()` primário e `FileReader` de compatibilidade.  
-**Como faz:** Explicita que Service Worker continua no caminho nativo enquanto DOM/JSDOM sem `arrayBuffer()` usa fallback.  
-**Por que assim:** Mantém compatibilidade entre Chromium MV3 e o ambiente DOM usado pelos testes canônicos sem trocar o formato persistido.  
-**Risco/alternativa:** O fallback depende de `FileReader`; se nenhum dos dois mecanismos existir, a conversão rejeita explicitamente.  
-**Evidência:** 🟨 CAMINHO NATIVO PROVADO; FALLBACK AGUARDA REEXECUÇÃO — smoke-04 prova round-trip nativo; PERF-09 reproduziu a ausência de `arrayBuffer()` antes desta correção.  
+**Fonte:** `/** Blob → Data URL. FileReader não existe em Service Worker: usamos arrayBuffer. */`  
+**O que faz:** Comentário/JSDoc registra: “* Blob → Data URL. FileReader não existe em Service Worker: usamos arrayBuffer. */”.  
+**Como faz:** Documenta ownership, schema, atomicidade, migração ou intenção de memória sem side effect.  
+**Por que assim:** Esses comentários explicitam invariantes de dados importantes para futuras mudanças.  
+**Risco/alternativa:** Comentário desatualizado pode induzir alteração que reintroduza perda de dados.  
+**Evidência:** ✅ PROVADO DIRETAMENTE NO CAMINHO BASE64 — smoke-04 faz round-trip PNG base64; Blob input, data URL textual e erros malformados não têm asserts específicos.
 
 ### Linha 0138
 
 **Fonte:** `async function blobToDataUrl(blob) {`  
-**O que faz:** Declara `blobToDataUrl`, conversão usada ao ler assets Blob de volta como Data URL.  
+**O que faz:** Declara a função `blobToDataUrl` em **Blob para Data URL em Service Worker**.  
 **Como faz:** Abre o escopo da operação de storage descrita nas linhas seguintes.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
-**Evidência:** 🟨 NATIVE PROVADO / FALLBACK PENDENTE — smoke-04 cobre `arrayBuffer`; PERF-09 é a regressão focal do Blob DOM/JSDOM.  
+**Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
 ### Linha 0139
 
 **Fonte:** `if (!blob) return null;`  
 **O que faz:** Aplica a guarda `if (!blob) return null;`.  
 **Como faz:** Rejeita input, escolhe fallback ou evita trabalho desnecessário antes de tocar o storage.  
-**Por que assim:** Mantém `null` como retorno neutro antes de qualquer caminho de leitura.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
-**Evidência:** ✅ GUARDA DIRETA + 🟨 FALLBACK PENDENTE.  
+**Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
 ### Linha 0140
 
-**Fonte:** `const buffer = typeof blob.arrayBuffer === 'function' ? await blob.arrayBuffer() : await new Promise((resolve, reject) => { if (typeof FileReader === 'undefined') { reject(new Error('Blob sem suporte a leitura binária')); return; } const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(reader.error || new Error('Falha ao ler Blob')); reader.readAsArrayBuffer(blob); });`  
-**O que faz:** Seleciona leitura binária nativa quando disponível; caso contrário usa `FileReader.readAsArrayBuffer`.  
-**Como faz:** Testa `typeof blob.arrayBuffer === 'function'`; no fallback rejeita se `FileReader` também faltar e propaga `reader.error` quando a leitura falha.  
-**Por que assim:** Chromium Service Worker usa o caminho nativo; JSDOM/DOM Blob sem `arrayBuffer()` continua suportado sem alterar bytes/MIME.  
-**Risco/alternativa:** Ambos os caminhos materializam o buffer completo; o pico de memória de conversão continua um risco separado.  
-**Evidência:** 🟨 REGRESSÃO IMPLEMENTADA, EXECUÇÃO PENDENTE — o erro anterior foi `TypeError: blob.arrayBuffer is not a function` em PERF-09 Node 20/22.  
+**Fonte:** `const buffer = await blob.arrayBuffer();`  
+**O que faz:** Inicializa `buffer` com `await blob.arrayBuffer();`.  
+**Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
+**Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
+**Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
 ### Linha 0141
 
 **Fonte:** `const bytes = new Uint8Array(buffer);`  
 **O que faz:** Inicializa `bytes` com `new Uint8Array(buffer);`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1935,7 +1935,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `let binary = '';`  
 **O que faz:** Inicializa `binary` com `'';`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1944,7 +1944,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `const CHUNK = 0x8000; // evita "Maximum call stack size exceeded" em imagens grandes`  
 **O que faz:** Inicializa `CHUNK` com `0x8000; // evita "Maximum call stack size exceeded" em imagens grandes`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1953,7 +1953,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `for (let i = 0; i < bytes.length; i += CHUNK) {`  
 **O que faz:** Inicia a iteração `for (let i = 0; i < bytes.length; i += CHUNK) {`.  
 **Como faz:** Percorre bytes, capítulos, páginas, restores ou assets na ordem do algoritmo.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1971,7 +1971,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `}`  
 **O que faz:** Fecha/continua a estrutura sintática de **Blob para Data URL em Service Worker** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1980,7 +1980,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `const mime = blob.type \|\| 'image/png';`  
 **O que faz:** Inicializa `mime` com `blob.type \|\| 'image/png';`.  
 **Como faz:** Materializa store name, transaction, registro, buffer, contador ou estado intermediário.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1989,7 +1989,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `return \`data:${mime};base64,${btoa(binary)}\`;`  
 **O que faz:** Retorna `return \`data:${mime};base64,${btoa(binary)}\`;`.  
 **Como faz:** Encerra a função/ramificação com valor, Promise, Blob, metadado ou resultado de mutação.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
@@ -1998,7 +1998,7 @@ Cada posição abaixo corresponde exatamente a `source.split("\n")`. A classific
 **Fonte:** `}`  
 **O que faz:** Fecha/continua a estrutura sintática de **Blob para Data URL em Service Worker** com `}`.  
 **Como faz:** Delimita função, object literal, array ou chamada aberta nas linhas anteriores.  
-**Por que assim:** prefere `Blob.arrayBuffer()` no Service Worker e usa `FileReader` apenas como fallback quando o Blob não expõe esse método; chunks limitam o `apply`.  
+**Por que assim:** evita FileReader, ausente em Service Worker, usando arrayBuffer e chunks.  
 **Risco/alternativa:** construir string binária completa ainda duplica memória para imagens grandes.  
 **Evidência:** ✅ PROVADO DIRETAMENTE — smoke-04 prova round-trip exato; E2E obtém páginas como data:image/png;base64.
 
