@@ -1028,6 +1028,7 @@
             }));
         }
         function legacyPayload(value, marker) {
+            if (marker && marker.schemaVersion === 1 && marker.invalidated === true) return null;
             if (typeof value === 'string' && value) {
                 const validMarker = marker && marker.schemaVersion === 1;
                 return {
@@ -1042,6 +1043,24 @@
                 updatedAt: Number.isFinite(value.updatedAt) ? value.updatedAt : 0,
                 marked: true,
             };
+        }
+
+        async function cleanupLegacyAfterSave(hashes, updatedAt) {
+            try {
+                await legacyRemove(hashes.flatMap(hash => [`gtc_${hash}`, `gtc_meta_${hash}`]));
+                return null;
+            } catch (error) {
+                // Persist the invalidation even if removing the old payload fails.
+                // A restarted worker must not serve that payload on an IDB outage.
+                await legacySet(Object.fromEntries(hashes.map(hash => [
+                    `gtc_meta_${hash}`, { schemaVersion: 1, updatedAt, invalidated: true },
+                ])));
+                logger('warn', 'GTC_LEGACY_CLEANUP_FAILED', 'Fallback legado invalidado após falha de remoção', {
+                    hashCount: hashes.length,
+                    error: error && error.message ? error.message : String(error),
+                });
+                return error.message || String(error);
+            }
         }
 
         return function onGtcRuntimeMessage(request, _sender, sendResponse) {
@@ -1098,7 +1117,13 @@
                             hashCount: hashes.length,
                         });
                         if (modernError) fail(modernError, request.action);
-                        else finalize({ entriesByHash: Object.fromEntries(Object.entries(modernEntries).map(([hash, entry]) => [hash, entry.translatedDataUrl])), fallbackReadError: true });
+                        else finalize({
+                            entriesByHash: Object.fromEntries(hashes
+                                .map(requestedHash => [requestedHash, modernEntries[normalizeHash(requestedHash)]])
+                                .filter(([, entry]) => entry && entry.translatedDataUrl)
+                                .map(([requestedHash, entry]) => [requestedHash, entry.translatedDataUrl])),
+                            fallbackReadError: true,
+                        });
                         return;
                     }
 
@@ -1229,7 +1254,10 @@
                             legacyReadError = error;
                         }
                         const fallback = legacyPayload(legacy[`gtc_${hash}`], legacy[`gtc_meta_${hash}`]);
-                        if (fallback && fallback.marked && fallback.updatedAt > operationAt) {
+                        const marker = legacy[`gtc_meta_${hash}`];
+                        const legacyUpdatedAt = marker && marker.schemaVersion === 1 && Number.isFinite(marker.updatedAt)
+                            ? marker.updatedAt : fallback && fallback.marked ? fallback.updatedAt : 0;
+                        if (legacyUpdatedAt > operationAt) {
                             finalize({ saved: true, superseded: true });
                             return;
                         }
@@ -1259,16 +1287,8 @@
                         if (!result || result.saved !== true) {
                             throw new Error('GTC repository rejected the save');
                         }
-                        let cleanupError = null;
-                        try { await legacyRemove([`gtc_${hash}`, `gtc_meta_${hash}`]); }
-                        catch (error) {
-                            cleanupError = error;
-                            logger('warn', 'GTC_LEGACY_CLEANUP_FAILED', 'Falha ao remover fallback legado após save GTC', {
-                                hash,
-                                error: error && error.message ? error.message : String(error),
-                            });
-                        }
-                        finalize({ ...(result || {}), legacyCleanupError: cleanupError ? cleanupError.message : null });
+                        const cleanupError = await cleanupLegacyAfterSave([hash], operationAt);
+                        finalize({ ...(result || {}), legacyCleanupError: cleanupError });
                     } catch (error) {
                         if (legacyReadError) {
                             logger('error', 'GTC_SAVE_FALLBACK_FAILED', 'Save GTC moderno falhou e o fallback não pôde ser lido com segurança', {
@@ -1316,7 +1336,8 @@
                             .filter(entry => entry && entry.translatedDataUrl)
                             .map(entry => normalizeHash(entry.hash))
                             .filter(Boolean)));
-                        await legacyRemove(hashes.flatMap(hash => [`gtc_${hash}`, `gtc_meta_${hash}`]));
+                        const cleanupError = await cleanupLegacyAfterSave(hashes, Date.now());
+                        return { ...result, legacyCleanupError: cleanupError };
                     }
                     return result;
                 })

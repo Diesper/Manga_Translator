@@ -253,11 +253,39 @@ describe('GTC legacy fallback coordination', () => {
         };
         const handler = createGtcRuntimeHandler({ repository, logger });
 
-        const response = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['present'] });
+        const response = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['PRESENT'] });
         storage.get = originalGet;
 
-        expect(response).toEqual(expect.objectContaining({ ok: true, fallbackReadError: true, entriesByHash: { present: 'modern' } }));
+        expect(response).toEqual(expect.objectContaining({ ok: true, fallbackReadError: true, entriesByHash: { PRESENT: 'modern' } }));
         expect(logger).toHaveBeenCalledWith('warn', 'GTC_LEGACY_READ_FAILED', expect.any(String), expect.any(Object));
+    });
+
+    test('failed cleanup durably invalidates stale fallback before a later modern read failure', async () => {
+        const repository = createInMemoryRepository(() => 400);
+        await storage.set({ gtc_hash: 'stale-legacy' });
+        const originalRemove = storage.remove.bind(storage);
+        storage.remove = (_keys, callback) => {
+            runtime.lastError = { message: 'cleanup failed' };
+            callback();
+            runtime.lastError = null;
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'current', operationAt: 400,
+        });
+        storage.remove = originalRemove;
+        repository.getManyEntries = jest.fn().mockRejectedValue(new Error('modern unavailable'));
+        const restarted = createGtcRuntimeHandler({ repository, logger });
+        const query = await invoke(restarted, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(saved).toEqual(expect.objectContaining({ ok: true, legacyCleanupError: 'cleanup failed' }));
+        expect(query).toEqual(expect.objectContaining({ ok: false, error: 'modern unavailable' }));
+        expect(query.entriesByHash).toBeUndefined();
+        const oldSave = await invoke(restarted, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'older', operationAt: 100,
+        });
+        expect(oldSave).toEqual(expect.objectContaining({ ok: true, superseded: true }));
+        expect((await storage.get('gtc_hash')).gtc_hash).toBe('stale-legacy');
     });
 
     test('clears legacy fallback payloads and metadata together with the modern cache', async () => {
