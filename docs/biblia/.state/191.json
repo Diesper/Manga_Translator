@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "e7270209f986ac385f0c1672fe336f98f9b0397a",
+  "source_sha": "6f4154c1cb2f61e8bfcc4cd6d15103859e31315a",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -294,25 +294,25 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T02:48:15.707Z",
       "audit_finding": "Encontrado na segunda passagem adversarial pós-191-008.",
-      "repair_progress": "IN_PROGRESS"
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION"
     }
   ],
   "document_quality": {
-    "self_audit": "CHANGES_REQUIRED",
+    "self_audit": "CORRECTION_APPLIED_AWAITING_CI",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1031/1031",
-    "source_text_lines": 1030,
-    "test_count": 23,
+    "documented_positions": "1119/1119",
+    "source_text_lines": 1118,
+    "test_count": 26,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 3,
     "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
     "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
-    "note": "191-007/008 aplicadas; 191-009 em correção para fechar outer-state/catch branches de success/error."
+    "note": "191-007/008/009 aplicadas; matriz de branches completa em 26 testes, Bíblia 1119/1119; aguarda CI atual e auditoria distribuída."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:48:15.707Z",
+  "updated_at_utc": "2026-10-02T02:49:21.473Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -499,6 +499,14 @@
       "bible_sha": "9bb587ba12ab71a3c881ca29b6fb762fd8d4ed14",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-009 HIGH: outer else de playSuccessSound/playErrorSound e constructor failure do success ainda sem regressões dedicadas."
+    },
+    {
+      "at_utc": "2026-10-02T02:49:21.473Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "6f4154c1cb2f61e8bfcc4cd6d15103859e31315a",
+      "bible_sha": "9890a2df248924b02fde7922a042b1084a83064c",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-007/008/009 consolidadas: 26 casos reais cobrindo matriz de unlock/success/error e segundo call site; Bible 1119/1119."
     }
   ],
   "evidence": [
@@ -574,5 +582,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "9bb587ba12ab71a3c881ca29b6fb762fd8d4ed14"
+  "bible_sha": "9890a2df248924b02fde7922a042b1084a83064c"
 }
