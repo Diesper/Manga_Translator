@@ -296,27 +296,14 @@ function lifecycleSnapshot(state, options = {}) {
   const handoff = latestHandoff(state);
   const escalation = escalationForCycle(cycles.current_escalation_cycle);
   const revision = revisionIdentity(state, options);
-  const permanentlyClosed = humanPermanentlyClosed(state);
-  const activeAuthorizedCorrection = activeHumanAuthorizedCorrection(state);
-  const auditWindow = humanEscalationAuditWindow(state);
-  const escalationApproved = humanEscalationApproved(state);
-  const humanEscalation = escalation === 'HUMAN';
-  const quarantineActive = humanEscalation
-    && !permanentlyClosed
-    && !activeAuthorizedCorrection
-    && !auditWindow
-    && !escalationApproved;
   return {
     ...cycles,
     correction_cycle: cycles.current_escalation_cycle,
     escalation_level: escalation,
-    human_escalation: humanEscalation,
-    human_approval_required: quarantineActive,
-    human_locked: quarantineActive,
-    human_permanently_closed: permanentlyClosed,
-    human_audit_window_active: Boolean(auditWindow),
-    human_escalation_approved: escalationApproved,
-    human_quarantine_active: quarantineActive,
+    human_approval_required: escalation === 'HUMAN' && !humanPermanentlyClosed(state),
+    human_locked: escalation === 'HUMAN',
+    human_permanently_closed: humanPermanentlyClosed(state),
+    human_quarantine_active: escalation === 'HUMAN' && !humanPermanentlyClosed(state),
     audit_epoch: epoch,
     handoff_id: deterministicHandoffId(state, handoff, epoch),
     latest_handoff_at_utc: handoff?.entry?.at_utc || null,
@@ -356,50 +343,6 @@ function activeHumanAuthorizedCorrection(state) {
     ));
   }
   return false;
-}
-
-function humanEscalationAuditWindow(state) {
-  if (state?.status !== 'READY_FOR_AUDIT') return null;
-  const history = historyOf(state);
-  for (let i = history.length - 1; i >= 0; i -= 1) {
-    const entry = history[i];
-    if (entry?.type !== HANDOFF_EVENT) continue;
-    const cycle = Number(entry?.correction_cycle);
-    if (!Number.isInteger(cycle) || cycle < 7) return null;
-    const terminal = history.slice(i + 1).some((candidate) => (
-      candidate?.type === 'DISTRIBUTED_AUDIT_DECISION'
-      || candidate?.type === SAFE_ABORT_EVENT
-      || candidate?.type === HUMAN_RESET_EVENT
-      || candidate?.type === 'HUMAN_PERMANENTLY_CLOSED'
-    ));
-    if (terminal) return null;
-    return {
-      position: i,
-      correction_cycle: cycle,
-      audit_epoch: Number(entry?.audit_epoch) || null,
-      handoff_id: entry?.handoff_id || null,
-      approval_id: entry?.approval_id || null,
-      correction_token_id: entry?.correction_token_id || null,
-    };
-  }
-  return null;
-}
-
-function humanEscalationApproved(state) {
-  if (state?.status !== 'COMPLETED') return false;
-  const history = historyOf(state);
-  let handoffPosition = -1;
-  for (let i = history.length - 1; i >= 0; i -= 1) {
-    const entry = history[i];
-    if (entry?.type !== HANDOFF_EVENT) continue;
-    if (Number(entry?.correction_cycle) >= 7) handoffPosition = i;
-    break;
-  }
-  if (handoffPosition < 0) return false;
-  const decision = history.slice(handoffPosition + 1)
-    .filter((entry) => entry?.type === 'DISTRIBUTED_AUDIT_DECISION')
-    .slice(-1)[0];
-  return decision?.decision === 'APPROVED' && decision?.to_status === 'COMPLETED';
 }
 
 function lifecycleProblems(state, options = {}) {
@@ -542,8 +485,6 @@ module.exports = {
   rootCauseReviewValid,
   classifyRevisionChange,
   humanPermanentlyClosed,
-  humanEscalationAuditWindow,
-  humanEscalationApproved,
   priorityForState,
   lifecycleSnapshot,
   activeHumanAuthorizedCorrection,
