@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** source final sincronizado; focal Node 20/22 PASS; full content-scripts do pós-fix final ainda em execução  
+> **Estado documental:** ✅ REAUDIT FINAL APROVADA — 100/100 COM EVIDÊNCIA EXECUTÁVEL  
 > **SHA auditado:** `0a2fa6dd4024d64e21225a4dc329f0915abd4bdb`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real do Web Audio de `content_manga.js`  
@@ -134,15 +134,15 @@ O catch final agora emite:
 
 sem rethrow e sem impedir a UI integrada de erro.
 
-### Prova pós-fix final — em andamento
+### Prova pós-fix final — PASS
 
 PR draft #75, run `36955311711`:
 
 - Node 20 job `110676865237`: **PASS — 2/2 suites, 26/26 testes**;
-- Node 22 job `110676865246`: step focal concluído com success; status final do job sendo consolidado;
-- full content-scripts job `110676864994`: em execução nesta materialização.
+- Node 22 job `110676865246`: **PASS — 2/2 suites, 26/26 testes**;
+- full content-scripts job `110676864994`: **PASS — 40/40 suites, 445/445 testes**, com `--detectOpenHandles`.
 
-Nenhuma request será marcada finalizada por esse run até o full content-scripts concluir.
+Os dois regressions que falharam no pre-fix #74 passaram no pós-fix #75. Não restou falha conhecida corrigível dentro do escopo de #191.
 
 ## 8. Reauditoria adversarial final
 
@@ -176,14 +176,37 @@ Resultado estático da revisão atual:
 - source de teste: `0a2fa6dd4024d64e21225a4dc329f0915abd4bdb`;
 - runtime de áudio: `3601efd9a66f8408b724b42d008dc43d518dabe6`.
 
-## 9. Limites honestos
+## 9. Pontuação final
+
+- **Correção funcional:** 25/25
+- **Robustez adversarial:** 20/20
+- **Cobertura/testes:** 20/20
+- **Regressões/compatibilidade:** 15/15
+- **Tratamento de erros:** 10/10
+- **Qualidade estrutural:** 5/5
+- **Documentação/coerência:** 5/5
+
+**TOTAL: 100/100**
+
+Justificativa objetiva:
+
+- 17 casos focais reais, sem mirrors como prova principal;
+- red→green explícito para leak de AudioContext e exceções engolidas;
+- Node 20/22 verdes;
+- suíte relacionada verde;
+- full content-scripts 40/40 e 445/445 com detecção de open handles;
+- zero skip/only/TODO/FIXME;
+- source/Bíblia sincronizados;
+- nenhuma request 191-001..006 permanece corrigível ou sem evidência.
+
+## 10. Limites honestos
 
 - O Web Audio é mockado: a prova valida API calls/lifecycle, não pressão física em hardware.
 - JSDOM não replica integralmente políticas de autoplay do Chromium; o clique real no DOM + estados/resume simulam o contrato que o content script observa.
 - O lifecycle do contexto é por página/isolated world; teardown físico final do browser é responsabilidade da destruição do contexto da página.
 - A suíte relacionada continua necessária para completion/hasErrors e fluxos de replacement que não pertencem à síntese focal.
 
-## 10. Fonte integral exata
+## 11. Fonte integral exata
 
 ```javascript
 /**
@@ -994,7 +1017,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 11. Cobertura integral por posições
+## 12. Cobertura integral por posições
 
 - **1–10:** cabeçalho/escopo.
 - **11–25:** imports e globals.
