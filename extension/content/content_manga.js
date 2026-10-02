@@ -2522,6 +2522,48 @@ if (!window.__manga_translator_content_injected) {
             }).catch(() => {});
         }
 
+        function persistTranslatedUpdateWithSideEffects(pageIndex, dataUrl, meta = {}) {
+            const gtc = meta.gtc || {};
+            if (gtc.hash) {
+                saveGlobalTranslationCacheEntry(gtc.hash, dataUrl, {
+                    dHash:              gtc.dHash || null,
+                    wHash:              gtc.wHash || null,
+                    pHash:              gtc.pHash || null,
+                    wHashCrop:          gtc.wHashCrop || null,
+                    pHashCrop:          gtc.pHashCrop || null,
+                    regionalHashes:     gtc.regionalHashes || null,
+                    cleanUrl:           meta.cleanUrl || null,
+                    width:              meta.width || 0,
+                    height:             meta.height || 0,
+                    mimeType:           (dataUrl.match(/^data:([^;]+);/) || [])[1] || null,
+                    fingerprintVersion: gtc.fingerprintVersion || 'visual-v1',
+                }).catch(() => {});
+            }
+
+            return persistTranslatedPage(pageIndex, dataUrl, meta).then((result) => {
+                const { chapterId, chapter } = result;
+                chrome.storage.local.get(['autoDownload'], (settings) => {
+                    if (settings.autoDownload !== true) return;
+                    chrome.runtime.sendMessage({
+                        action: 'DOWNLOAD_IMAGE',
+                        url: dataUrl,
+                        filename: `MangaTranslator/${chapter ? chapter.title.replace(/[^a-z0-9]/gi, '_') : 'Manga_Page'}/pagina_${String(pageIndex).padStart(3, '0')}.png`
+                    }, (resp) => {
+                        if (!resp || !resp.filePath) return;
+                        enqueueChapterWrite(chapterId, async () => {
+                            const d = await storageGetAsync([`${chapterId}_paths`]);
+                            const paths = d[`${chapterId}_paths`] || {};
+                            paths[pageIndex] = resp.filePath;
+                            const toSet = { [`${chapterId}_paths`]: paths, mangaTranslatorLastPath: resp.filePath };
+                            if (resp.downloadId) toSet[`${chapterId}_dlId`] = resp.downloadId;
+                            await storageSetAsync(toSet);
+                        }).catch(() => {});
+                    });
+                });
+                return result;
+            });
+        }
+
         function checkIfComplete(force = false, jobIndex = null) {
             if (!isTranslating) return;
             if (!force) {
@@ -2619,7 +2661,7 @@ if (!window.__manga_translator_content_injected) {
                             shouldAccountUpdate = true;
                             retryTranslatedImage = img;
                             persistenceMeta = _failedPersistenceUpdateMeta.get(persistenceRetryKey) || null;
-                            persistPromise = persistTranslatedPage(
+                            persistPromise = persistTranslatedUpdateWithSideEffects(
                                 request.index,
                                 request.newSrc,
                                 persistenceMeta || undefined
@@ -2665,58 +2707,27 @@ if (!window.__manga_translator_content_injected) {
                         const width  = newImg.naturalWidth  || img.naturalWidth  || 0;
                         const height = newImg.naturalHeight || img.naturalHeight || 0;
 
-                        // O GTC é um cache global independente da persistência
-                        // da página/capítulo. Não o deixe atrás de SM_SAVE_PAGE:
-                        // uma falha transitória no storage de assets não deve
-                        // desperdiçar uma tradução que já foi entregue ao DOM.
-                        if (origHash) {
-                            saveGlobalTranslationCacheEntry(origHash, request.newSrc, {
+                        persistenceMeta = {
+                            cleanUrl:  origCleanUrl,
+                            sourceUrl: origSourceUrl,
+                            width,
+                            height,
+                            gtc: {
+                                hash:               origHash,
                                 dHash:              origDHash,
                                 wHash:              origWHash,
                                 pHash:              origPHash,
                                 wHashCrop:          origWHashCrop,
                                 pHashCrop:          origPHashCrop,
                                 regionalHashes:     origRegional,
-                                cleanUrl:           origCleanUrl,
-                                width,
-                                height,
-                                mimeType:           (request.newSrc.match(/^data:([^;]+);/) || [])[1] || null,
                                 fingerprintVersion: origFpVersion,
-                            }).catch(() => {});
-                        }
-
-                        persistenceMeta = {
-                            cleanUrl:  origCleanUrl,
-                            sourceUrl: origSourceUrl,
-                            width,
-                            height,
+                            },
                         };
-                        persistPromise = persistTranslatedPage(
+                        persistPromise = persistTranslatedUpdateWithSideEffects(
                             request.index,
                             request.newSrc,
                             persistenceMeta
-                        ).then(({ chapterId, chapter }) => {
-
-                            chrome.storage.local.get(['autoDownload'], (settings) => {
-                                if (settings.autoDownload !== true) return;
-                                chrome.runtime.sendMessage({
-                                    action: 'DOWNLOAD_IMAGE',
-                                    url: request.newSrc,
-                                    filename: `MangaTranslator/${chapter ? chapter.title.replace(/[^a-z0-9]/gi, '_') : 'Manga_Page'}/pagina_${String(request.index).padStart(3, '0')}.png`
-                                }, (resp) => {
-                                    if (!resp || !resp.filePath) return;
-                                    // Também serializado: `_paths` sofria a mesma corrida.
-                                    enqueueChapterWrite(chapterId, async () => {
-                                        const d = await storageGetAsync([`${chapterId}_paths`]);
-                                        const paths = d[`${chapterId}_paths`] || {};
-                                        paths[request.index] = resp.filePath;
-                                        const toSet2 = { [`${chapterId}_paths`]: paths, mangaTranslatorLastPath: resp.filePath };
-                                        if (resp.downloadId) toSet2[`${chapterId}_dlId`] = resp.downloadId;
-                                        await storageSetAsync(toSet2);
-                                    }).catch(() => {});
-                                });
-                            });
-                        });
+                        );
                         break;
                     }
                 }
