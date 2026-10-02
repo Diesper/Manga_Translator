@@ -4,13 +4,13 @@
   "bible": "docs/biblia/tests/unit/content-gemini/claim-bootstrap-keepalive.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "6e6adc2747b0974feec368fedb3652da79dc49b5",
+  "source_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
   "started_at_utc": "2026-09-30T14:40:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "175-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -27,11 +27,20 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T19:20:00Z",
       "audit_finding": "ACCEPTED. A suíte possui claim nulo, claim válido e retry do protocolo moderno, mas não atravessa o fallback legado `GET_TAB_ID` + `gemini_job_<tabId>` quando `CLAIM_GEMINI_JOB` não responde/não está disponível.",
-      "auditor_recommended_action": "Adicionar fallback legado com storage contendo job compatível e caso de jobId divergente; usar implementação real."
+      "auditor_recommended_action": "Adicionar fallback legado com storage contendo job compatível e caso de jobId divergente; usar implementação real.",
+      "resolution": "KEEP-06/07/08 cobrem fallback legado, retry de GET_TAB_ID, correspondência estrita de jobId e rejeição sem jobId; KEEP-09 cobre timeout sem fallback e close antes do reconnect; KEEP-10 cobre connect lançando na abertura/reconnect.",
+      "resolved_by": "AGENTE HÍBRIDO 1",
+      "resolved_at_utc": "2026-10-02T20:47:00Z",
+      "validation": {
+        "test_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+        "bible_sha": "c9c3e9b1ee7ffd4eb175b709eda287c3e3054a14",
+        "command": "jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+        "result": "PASS — 11/11 tests"
+      }
     },
     {
       "id": "175-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -48,11 +57,20 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:40:00Z",
       "audit_finding": "ACCEPTED. O retry de claim com jobId na URL tem sucesso na terceira tentativa; não existe cenário em que todas as respostas sejam `{ok:true,job:null}` até esgotar o limite/timeout. A desistência completa não está provada.",
-      "auditor_recommended_action": "Adicionar caso com todas as tentativas nulas e fake timers/controle determinístico, exigindo término sem abrir keep-alive nem iniciar job indevido."
+      "auditor_recommended_action": "Adicionar caso com todas as tentativas nulas e fake timers/controle determinístico, exigindo término sem abrir keep-alive nem iniciar job indevido.",
+      "resolution": "KEEP-06/07/08 cobrem fallback legado, retry de GET_TAB_ID, correspondência estrita de jobId e rejeição sem jobId; KEEP-09 cobre timeout sem fallback e close antes do reconnect; KEEP-10 cobre connect lançando na abertura/reconnect.",
+      "resolved_by": "AGENTE HÍBRIDO 1",
+      "resolved_at_utc": "2026-10-02T20:47:00Z",
+      "validation": {
+        "test_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+        "bible_sha": "c9c3e9b1ee7ffd4eb175b709eda287c3e3054a14",
+        "command": "jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+        "result": "PASS — 11/11 tests"
+      }
     },
     {
       "id": "175-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -69,11 +87,20 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T19:20:00Z",
       "audit_finding": "ACCEPTED. KEEP-04 prova reconnect após disconnect e KEEP-05 prova close explícito sem reconnect pendente, mas não combina os dois. Falta a corrida open→disconnect→timer 250ms pendente→close→avançar timer.",
-      "auditor_recommended_action": "Adicionar fake-timer test garantindo que closeKeepAlive invalida o reconnect já agendado e nenhuma nova porta é aberta."
+      "auditor_recommended_action": "Adicionar fake-timer test garantindo que closeKeepAlive invalida o reconnect já agendado e nenhuma nova porta é aberta.",
+      "resolution": "KEEP-06/07/08 cobrem fallback legado, retry de GET_TAB_ID, correspondência estrita de jobId e rejeição sem jobId; KEEP-09 cobre timeout sem fallback e close antes do reconnect; KEEP-10 cobre connect lançando na abertura/reconnect.",
+      "resolved_by": "AGENTE HÍBRIDO 1",
+      "resolved_at_utc": "2026-10-02T20:47:00Z",
+      "validation": {
+        "test_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+        "bible_sha": "c9c3e9b1ee7ffd4eb175b709eda287c3e3054a14",
+        "command": "jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+        "result": "PASS — 11/11 tests"
+      }
     },
     {
       "id": "175-004",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
       "found_while_auditing": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
@@ -90,28 +117,117 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:25:00Z",
       "audit_finding": "ACCEPTED. `connectKeepAlive()` captura exceções de `chrome.runtime.connect` tanto na abertura quanto no reconnect, porém KEEP-01..05 nunca fazem `runtime.connect` lançar. Esses branches de robustez ficam sem prova focal.",
-      "auditor_recommended_action": "Adicionar casos em que connect lança na abertura e no reconnect, verificando ausência de loop/reconnect excessivo e estado final das flags/porta."
+      "auditor_recommended_action": "Adicionar casos em que connect lança na abertura e no reconnect, verificando ausência de loop/reconnect excessivo e estado final das flags/porta.",
+      "resolution": "KEEP-06/07/08 cobrem fallback legado, retry de GET_TAB_ID, correspondência estrita de jobId e rejeição sem jobId; KEEP-09 cobre timeout sem fallback e close antes do reconnect; KEEP-10 cobre connect lançando na abertura/reconnect.",
+      "resolved_by": "AGENTE HÍBRIDO 1",
+      "resolved_at_utc": "2026-10-02T20:47:00Z",
+      "validation": {
+        "test_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+        "bible_sha": "c9c3e9b1ee7ffd4eb175b709eda287c3e3054a14",
+        "command": "jest --config jest.config.js --selectProjects content-scripts --runInBand --detectOpenHandles --runTestsByPath tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+        "result": "PASS — 11/11 tests"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "211/211",
-    "source_text_lines": 210,
-    "bible_lines": 1801,
-    "external_audit_requests_open": 4,
+    "documented_positions": "322/322",
+    "source_text_lines": 321,
+    "bible_lines": 1942,
+    "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
       109255348388,
       109255348406,
       109256050280
     ],
-    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; cinco casos passaram individualmente; global 109/109 suítes e 851/851 testes."
+    "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; cinco casos passaram individualmente; global 109/109 suítes e 851/851 testes.",
+    "note": "Bíblia sincronizada ao blob 0d379e30c9653b2a497ce518954b127f04f97831; mapeamento 322/322; 11/11 testes focais passaram. PRIMARY + ADVERSARIAL independentes obrigatórias para esta revisão.",
+    "repair_note": "175-ADV-001..004 corrigidos; solicitações 175-001..004 resolvidas por KEEP-06..10; validação independente da nova revisão pendente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-02T20:47:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T20:35:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "6e6adc2747b0974feec368fedb3652da79dc49b5",
+      "bible_sha": "87717da4bd69b7f3ce8f9cee607aebedd4e1d04c",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "4426ddf1b76cb952a9e5d0a3375c5260d16efb2df700572358329ef767af7f6d",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "0ef893c151283487eec4bef7639505bc569a116358a50b06243bf5c12d84ae07"
+    },
+    {
+      "at_utc": "2026-10-02T20:35:00Z",
+      "type": "EDITOR_CORRECTION_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "agent": "AGENTE HÍBRIDO 1",
+      "source_sha": "6e6adc2747b0974feec368fedb3652da79dc49b5",
+      "bible_sha": null,
+      "correction_cycle": 0,
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "revision_id": "4426ddf1b76cb952a9e5d0a3375c5260d16efb2df700572358329ef767af7f6d",
+      "correction_token_id": "corr-175-ac03cde32a4cf74ea226",
+      "approval_id": null,
+      "root_cause_review": null,
+      "strategy_review": null,
+      "reservation_path": null,
+      "previous_event_hash": "0ef893c151283487eec4bef7639505bc569a116358a50b06243bf5c12d84ae07",
+      "event_hash": "dea5bc886711f39c68a4004049152cb449587dfc1955288b9549d1767b99c8dc"
+    },
+    {
+      "at_utc": "2026-10-02T20:35:00Z",
+      "type": "CORRECTION_TOKEN_CONSUMED",
+      "correction_token_id": "corr-175-ac03cde32a4cf74ea226",
+      "actor": "AGENTE HÍBRIDO 1",
+      "revision_id": "4426ddf1b76cb952a9e5d0a3375c5260d16efb2df700572358329ef767af7f6d",
+      "previous_event_hash": "dea5bc886711f39c68a4004049152cb449587dfc1955288b9549d1767b99c8dc",
+      "event_hash": "5315b4088aee8ec71260e6f45ae8801d07d3502912c6b98c4b168755bbefe4d4"
+    },
+    {
+      "at_utc": "2026-10-02T20:47:00Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+      "test_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+      "bible_sha": "c9c3e9b1ee7ffd4eb175b709eda287c3e3054a14",
+      "production_sha": null,
+      "agent": "AGENTE HÍBRIDO 1",
+      "correction_cycle": 1,
+      "audit_epoch": 1,
+      "handoff_id": "175-e1-67a79026d746",
+      "reservation_path": "docs/biblia/.reservas/tests/unit/content-gemini/claim-bootstrap-keepalive.test.js.lock.md",
+      "reason": "175-001..004 e findings PRIMARY/ADVERSARIAL corrigidos; fallback/jobId, timeout, teardown, falhas de Port, status requests, mapa semântico e wiring CI validados.",
+      "previous_event_hash": "5315b4088aee8ec71260e6f45ae8801d07d3502912c6b98c4b168755bbefe4d4",
+      "event_hash": "b4943a3cc365dec8e6106993c7b3c032938d29fa330de61a8e75aa57421a5847"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 1,
+  "lifetime_correction_cycles": 1,
+  "current_escalation_cycle": 1,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "175-e1-67a79026d746",
+  "production_sha": null,
+  "test_sha": "aa03181f4d48fe1659ebe44533e6091aa00e8787",
+  "bible_sha": "c9c3e9b1ee7ffd4eb175b709eda287c3e3054a14",
+  "revision_id": "4abd523827d2ec538e04100bc491a6373c3ef011a9aa996577517db1c7116547",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }
