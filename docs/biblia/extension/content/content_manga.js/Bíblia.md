@@ -1,7 +1,7 @@
 # Bíblia técnica — `extension/content/content_manga.js`
 
-> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
-> **SHA auditado:** `a8b3698019f6f22027f09f544f15c0563a9f6515`  
+> **Estado:** 🟡 CORRIGIDO — AUDIOCONTEXT DE ERRO REUTILIZÁVEL; REAUDITORIA/VALIDAÇÃO FINAL EM ANDAMENTO  
+> **SHA auditado:** `50f01eab6cbe3d6c0ad4e31ce2f2c78f286a6ba8`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript — content script Chromium Manifest V3  
 > **Linhas textuais:** **2862**  
@@ -123,7 +123,7 @@ A presença de nome/string não foi tratada como cobertura. Só foi marcado **�
 4. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — resultado tardio quando `_currentBatchId === null`.** A guarda de stale em `UPDATE_IMAGE` só rejeita divergência se há batch atual. Teste necessário: limpar/concluir A e depois entregar `UPDATE_IMAGE {batchId:A}`. Regressão possível: resultado antigo ser persistido/aplicado após a ownership local ter sido encerrada.
 5. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — payloads IPC malformados.** Testar `SET_SELECTED_IMAGES` e `START_TRANSLATION_FROM_POPUP` com `indices` ausente, string, objeto e valores fora do DOM. Regressão possível: exceção no listener ou seleção incoerente.
 6. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — sanitização de logs do leitor.** Testar `cleanUrl` com query sensível e objetos extras contendo token/base64. Regressão possível: dados desnecessários em `translatorLog`.
-7. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — AudioContext do som de erro.** `playErrorSound` cria novo contexto a cada erro e não o fecha/reutiliza. Os testes detalhados de áudio de erro são espelhos. Teste real necessário: emitir vários erros no content real e verificar criação/cleanup. Regressão possível: atingir limite de AudioContexts do Chromium.
+7. **✅ CORRIGIDO — AudioContext do som de erro.** `playErrorSound` usa `getLoggedNotificationAudioContext('integrated_error')`, reutiliza o contexto de notificação, trata `suspended`/resume e registra falha/skip. `audio-synthesis-full.test.js` prova dois erros consecutivos com um único contexto; o regression falhou pre-fix em Node 20/22 e passou pós-fix em ambos.
 8. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — fail-fast de módulos ausentes.** Harness sempre carrega dependências corretamente. Testar ausência isolada de `MangaTranslatorDomReplace`, `MangaTranslatorGtcClient`, `MangaTranslatorChapter` e `MangaTranslatorAutoRestore`.
 9. **⚠️ DÍVIDA TÉCNICA — implementações inline supersedidas.** Fingerprint/GTC e auto-restore possuem corpos antigos ainda presentes, mas o runtime os substitui pelos módulos. Regressão possível: manutenção atualizar a cópia errada.
 10. **⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — erros de persistência em cache hit.** `_persistCacheHit(...).catch(() => {})` é best-effort e silencioso. Teste necessário: falhar storage/IndexedDB durante hit e confirmar telemetria/comportamento esperado.
@@ -1314,8 +1314,8 @@ if (!window.__manga_translator_content_injected) {
 
         function playErrorSound() {
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                [0, 0.2].forEach((t, i) => {
+                const audioCtx = getLoggedNotificationAudioContext('integrated_error'); if (!audioCtx) return;
+                const schedule = () => [0, 0.2].forEach((t, i) => {
                     const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
                     osc.connect(gain); gain.connect(audioCtx.destination);
                     osc.type = 'sawtooth'; osc.frequency.setValueAtTime([300, 150][i], audioCtx.currentTime + t);
@@ -1323,7 +1323,7 @@ if (!window.__manga_translator_content_injected) {
                     gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + t + 0.04);
                     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.28);
                     osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.3);
-                });
+                }); if (audioCtx.state === 'running') schedule(); else if (audioCtx.state === 'suspended') Promise.resolve(audioCtx.resume()).then(() => { if (audioCtx.state === 'running') schedule(); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state }); }).catch(error => sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Não foi possível retomar o áudio de erro.', audioErrorExtra(error))); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto indisponível.', { contextState: audioCtx.state });
             } catch (e) {}
         }
 
@@ -12903,7 +12903,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Abre o escopo que implementa o contrato associado a `normalizeBlockedImagesStore`; parâmetros e closures visíveis são usados pelas linhas seguintes.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1097
 
@@ -12912,7 +12912,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1098
 
@@ -12921,7 +12921,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Define o resultado/saída antecipada desta ramificação de **Configuração de auto-restore, drawer de erro e sincronização de storage** e impede que o restante do bloco rode neste caso.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1099
 
@@ -12930,7 +12930,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1100
 
@@ -12939,7 +12939,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Define o resultado/saída antecipada desta ramificação de **Configuração de auto-restore, drawer de erro e sincronização de storage** e impede que o restante do bloco rode neste caso.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1101
 
@@ -12948,7 +12948,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1102
 
@@ -12957,7 +12957,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1103
 
@@ -12966,7 +12966,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1104
 
@@ -12975,7 +12975,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Define o resultado/saída antecipada desta ramificação de **Configuração de auto-restore, drawer de erro e sincronização de storage** e impede que o restante do bloco rode neste caso.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1105
 
@@ -12984,7 +12984,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1106
 
@@ -12993,7 +12993,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1107
 
@@ -13002,7 +13002,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Abre o escopo que implementa o contrato associado a `loadAutoRestoreConfig`; parâmetros e closures visíveis são usados pelas linhas seguintes.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1108
 
@@ -13011,7 +13011,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Define o resultado/saída antecipada desta ramificação de **Configuração de auto-restore, drawer de erro e sincronização de storage** e impede que o restante do bloco rode neste caso.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1109
 
@@ -13020,7 +13020,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Lê ou grava estado persistente necessário a **Configuração de auto-restore, drawer de erro e sincronização de storage**, em vez de depender apenas da memória da página.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1110
 
@@ -13029,7 +13029,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1111
 
@@ -13038,7 +13038,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1112
 
@@ -13047,7 +13047,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1113
 
@@ -13056,7 +13056,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Encapsula comportamento adiado ou transformação local usada por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1114
 
@@ -13065,7 +13065,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1115
 
@@ -13074,7 +13074,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1116
 
@@ -13083,7 +13083,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1117
 
@@ -13092,7 +13092,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1118
 
@@ -13101,7 +13101,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1119
 
@@ -13110,7 +13110,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1120
 
@@ -13119,7 +13119,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1121
 
@@ -13128,7 +13128,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1122
 
@@ -13137,7 +13137,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1123
 
@@ -13146,7 +13146,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1124
 
@@ -13155,7 +13155,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Abre o escopo que implementa o contrato associado a `isAutoRestoreAllowedFor`; parâmetros e closures visíveis são usados pelas linhas seguintes.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1125
 
@@ -13164,7 +13164,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1126
 
@@ -13173,7 +13173,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1127
 
@@ -13182,7 +13182,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1128
 
@@ -13191,7 +13191,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Define o resultado/saída antecipada desta ramificação de **Configuração de auto-restore, drawer de erro e sincronização de storage** e impede que o restante do bloco rode neste caso.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1129
 
@@ -13200,7 +13200,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1130
 
@@ -13209,7 +13209,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1131
 
@@ -13218,7 +13218,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Abre o escopo que implementa o contrato associado a `disconnectAutoRestorer`; parâmetros e closures visíveis são usados pelas linhas seguintes.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1132
 
@@ -13227,7 +13227,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1133
 
@@ -13236,7 +13236,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1134
 
@@ -13245,7 +13245,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1135
 
@@ -13254,7 +13254,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1136
 
@@ -13263,7 +13263,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1137
 
@@ -13272,7 +13272,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1138
 
@@ -13281,7 +13281,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1139
 
@@ -13290,7 +13290,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1140
 
@@ -13299,7 +13299,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Abre o escopo que implementa o contrato associado a `playErrorSound`; parâmetros e closures visíveis são usados pelas linhas seguintes.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1141
 
@@ -13308,25 +13308,25 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** As operações potencialmente falíveis seguintes ficam vinculadas ao `catch`/`finally` correspondente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1142
 
-**Fonte:** `const audioCtx = new (window.AudioContext \|\| window.webkitAudioContext)();`  
-**O que faz:** Declara `audioCtx` com `const`; a expressão local é `const audioCtx = new (window.AudioContext \|\| window.webkitAudioContext)();`.  
-**Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
-**Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
-**Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Fonte:** `const audioCtx = getLoggedNotificationAudioContext('integrated_error'); if (!audioCtx) return;`  
+**O que faz:** Obtém o contexto compartilhado de notificação para o som de erro e encerra se a Web Audio API estiver indisponível.  
+**Como faz:** Reusa `notificationAudioContext` via `getLoggedNotificationAudioContext`, que também registra criação/indisponibilidade e recria contexto `closed`.  
+**Por que assim:** Evita criar um AudioContext por erro e atingir o limite baixo de contextos do Chromium.  
+**Alternativa ingênua pior:** Instanciar `new AudioContext()` por erro vaza/fragmenta recursos e pode silenciar notificações após várias falhas.  
+**Evidência:** ✅ RED→GREEN DIRETO — regression de dois `SHOW_ERROR_INTEGRATED` esperava 1 contexto; pre-fix recebeu 2 em Node 20/22, pós-fix passou nos dois.  
 
 ### Linha 1143
 
-**Fonte:** `[0, 0.2].forEach((t, i) => {`  
-**O que faz:** Define callback/função curta na expressão `[0, 0.2].forEach((t, i) => {`.  
-**Como faz:** Encapsula comportamento adiado ou transformação local usada por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
-**Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
-**Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Fonte:** `const schedule = () => [0, 0.2].forEach((t, i) => {`  
+**O que faz:** Define o agendamento dos dois pulsos de erro sobre o contexto compartilhado.  
+**Como faz:** Encapsula a criação/configuração das notas para permitir execução imediata quando `running` ou após `resume()` quando `suspended`.  
+**Por que assim:** Separa obtenção/lifecycle do contexto da síntese das notas e permite reuse sem duplicar waveform.  
+**Alternativa ingênua pior:** Recriar contexto para cada execução esconderia o lifecycle e reintroduziria o leak.  
+**Evidência:** ✅ PROVADO DIRETAMENTE pelo teste real de waveform e pelos novos casos de contexto compartilhado/suspended.  
 
 ### Linha 1144
 
@@ -13335,7 +13335,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1145
 
@@ -13344,7 +13344,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1146
 
@@ -13353,7 +13353,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1147
 
@@ -13362,7 +13362,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1148
 
@@ -13371,7 +13371,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1149
 
@@ -13380,7 +13380,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1150
 
@@ -13389,16 +13389,16 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1151
 
-**Fonte:** `});`  
-**O que faz:** Participa de **Configuração de auto-restore, drawer de erro e sincronização de storage** com a operação `});`.  
-**Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
-**Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
-**Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Fonte:** `}); if (audioCtx.state === 'running') schedule(); else if (audioCtx.state === 'suspended') Promise.resolve(audioCtx.resume()).then(() => { if (audioCtx.state === 'running') schedule(); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state }); }).catch(error => sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Não foi possível retomar o áudio de erro.', audioErrorExtra(error))); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto indisponível.', { contextState: audioCtx.state });`  
+**O que faz:** Executa a síntese imediatamente em `running`, tenta `resume()` em `suspended` e degrada com telemetria em estados/falhas não reproduzíveis.  
+**Como faz:** Após o forEach definido por `schedule`, ramifica pelo estado; a Promise de resume só agenda notas depois de confirmar `running`, caso contrário emite `AUDIO_ERROR_SKIPPED`/`AUDIO_ERROR_FAILED`.  
+**Por que assim:** Preserva a política de autoplay e impede falso sucesso quando o contexto não ficou executável.  
+**Alternativa ingênua pior:** Agendar em contexto suspenso ou engolir rejeição de resume deixa o usuário sem som e sem diagnóstico.  
+**Evidência:** ✅ PROVADO DIRETAMENTE — #191 cobre erro `suspended → running` e rejeição de resume sem criação de notas.  
 
 ### Linha 1152
 
@@ -13407,7 +13407,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Converte uma exceção em fallback, telemetria ou degradação controlada conforme a unidade atual.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1153
 
@@ -13416,7 +13416,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1154
 
@@ -13425,7 +13425,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1155
 
@@ -13434,7 +13434,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Abre o escopo que implementa o contrato associado a `showIntegratedError`; parâmetros e closures visíveis são usados pelas linhas seguintes.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1156
 
@@ -13443,7 +13443,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1157
 
@@ -13452,7 +13452,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1158
 
@@ -13461,7 +13461,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1159
 
@@ -13470,7 +13470,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1160
 
@@ -13479,7 +13479,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1161
 
@@ -13488,7 +13488,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1162
 
@@ -13497,7 +13497,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1163
 
@@ -13506,7 +13506,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1164
 
@@ -13515,7 +13515,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1165
 
@@ -13524,7 +13524,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Registra o evento operacional da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** com nível/action_name e metadados próximos.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1166
 
@@ -13533,7 +13533,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1167
 
@@ -13542,7 +13542,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Define o resultado/saída antecipada desta ramificação de **Configuração de auto-restore, drawer de erro e sincronização de storage** e impede que o restante do bloco rode neste caso.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1168
 
@@ -13551,7 +13551,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1169
 
@@ -13560,7 +13560,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1170
 
@@ -13569,7 +13569,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1171
 
@@ -13578,7 +13578,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1172
 
@@ -13587,7 +13587,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1173
 
@@ -13596,7 +13596,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1174
 
@@ -13605,7 +13605,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1175
 
@@ -13614,7 +13614,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1176
 
@@ -13623,7 +13623,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1177
 
@@ -13632,7 +13632,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1178
 
@@ -13641,7 +13641,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1179
 
@@ -13650,7 +13650,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1180
 
@@ -13659,7 +13659,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1181
 
@@ -13668,7 +13668,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1182
 
@@ -13677,7 +13677,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1183
 
@@ -13686,7 +13686,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1184
 
@@ -13695,7 +13695,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1185
 
@@ -13704,7 +13704,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1186
 
@@ -13713,7 +13713,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1187
 
@@ -13722,7 +13722,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Preserva tratamento separado para o caso que não satisfez a guarda anterior: `} else {`.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1188
 
@@ -13731,7 +13731,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1189
 
@@ -13740,7 +13740,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1190
 
@@ -13749,7 +13749,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1191
 
@@ -13758,7 +13758,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1192
 
@@ -13767,7 +13767,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1193
 
@@ -13776,7 +13776,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1194
 
@@ -13785,7 +13785,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1195
 
@@ -13794,7 +13794,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1196
 
@@ -13803,7 +13803,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1197
 
@@ -13812,7 +13812,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Registra o evento operacional da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** com nível/action_name e metadados próximos.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1198
 
@@ -13821,7 +13821,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Preserva tratamento separado para o caso que não satisfez a guarda anterior: `} else if (isDebug) {`.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1199
 
@@ -13830,7 +13830,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Documenta intenção/contrato local da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** sem alterar o estado em runtime.  
 **Por que assim:** Aqui o comentário é útil para explicar restrições operacionais, compatibilidade ou ordem do fluxo junto ao código afetado.  
 **Alternativa ingênua pior:** Apagar comentário não muda execução, mas elimina contexto necessário para manter o comportamento sem regressões.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1200
 
@@ -13839,7 +13839,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Documenta intenção/contrato local da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** sem alterar o estado em runtime.  
 **Por que assim:** Aqui o comentário é útil para explicar restrições operacionais, compatibilidade ou ordem do fluxo junto ao código afetado.  
 **Alternativa ingênua pior:** Apagar comentário não muda execução, mas elimina contexto necessário para manter o comportamento sem regressões.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1201
 
@@ -13848,7 +13848,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1202
 
@@ -13857,7 +13857,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1203
 
@@ -13866,7 +13866,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1204
 
@@ -13875,7 +13875,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1205
 
@@ -13884,7 +13884,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1206
 
@@ -13893,7 +13893,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1207
 
@@ -13902,7 +13902,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1208
 
@@ -13911,7 +13911,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1209
 
@@ -13920,7 +13920,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1210
 
@@ -13929,7 +13929,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1211
 
@@ -13938,7 +13938,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Lê ou grava estado persistente necessário a **Configuração de auto-restore, drawer de erro e sincronização de storage**, em vez de depender apenas da memória da página.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1212
 
@@ -13947,7 +13947,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1213
 
@@ -13956,7 +13956,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1214
 
@@ -13965,7 +13965,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1215
 
@@ -13974,7 +13974,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1216
 
@@ -13983,7 +13983,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1217
 
@@ -13992,7 +13992,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1218
 
@@ -14001,7 +14001,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1219
 
@@ -14010,7 +14010,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1220
 
@@ -14019,7 +14019,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1221
 
@@ -14028,7 +14028,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1222
 
@@ -14037,7 +14037,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1223
 
@@ -14046,7 +14046,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1224
 
@@ -14055,7 +14055,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1225
 
@@ -14064,7 +14064,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1226
 
@@ -14073,7 +14073,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Encapsula comportamento adiado ou transformação local usada por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1227
 
@@ -14082,7 +14082,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1228
 
@@ -14091,7 +14091,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1229
 
@@ -14100,7 +14100,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1230
 
@@ -14109,7 +14109,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1231
 
@@ -14118,7 +14118,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1232
 
@@ -14127,7 +14127,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1233
 
@@ -14136,7 +14136,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1234
 
@@ -14145,7 +14145,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1235
 
@@ -14154,7 +14154,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1236
 
@@ -14163,7 +14163,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1237
 
@@ -14172,7 +14172,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Preserva tratamento separado para o caso que não satisfez a guarda anterior: `} else {`.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1238
 
@@ -14181,7 +14181,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1239
 
@@ -14190,7 +14190,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1240
 
@@ -14199,7 +14199,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1241
 
@@ -14208,7 +14208,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1242
 
@@ -14217,7 +14217,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1243
 
@@ -14226,7 +14226,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1244
 
@@ -14235,7 +14235,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1245
 
@@ -14244,7 +14244,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1246
 
@@ -14253,7 +14253,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1247
 
@@ -14262,7 +14262,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1248
 
@@ -14271,7 +14271,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1249
 
@@ -14280,7 +14280,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1250
 
@@ -14289,7 +14289,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1251
 
@@ -14298,7 +14298,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1252
 
@@ -14307,7 +14307,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1253
 
@@ -14316,7 +14316,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Não gera instrução JavaScript; mantém a fronteira visual entre blocos adjacentes.  
 **Por que assim:** A separação facilita revisão e faz a numeração documental continuar alinhada ao arquivo físico.  
 **Alternativa ingênua pior:** Remover a posição não muda o runtime, mas quebraria a equivalência linha-a-linha desta auditoria.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1254
 
@@ -14325,7 +14325,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Só permite que o ramo seguinte altere estado/DOM/IPC quando essa condição da unidade **Configuração de auto-restore, drawer de erro e sincronização de storage** é satisfeita.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1255
 
@@ -14334,7 +14334,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Materializa estado, dependência ou valor intermediário usado por **Configuração de auto-restore, drawer de erro e sincronização de storage**.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1256
 
@@ -14343,7 +14343,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1257
 
@@ -14352,7 +14352,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1258
 
@@ -14361,7 +14361,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Mantém o escopo/expressão JavaScript iniciado nas posições anteriores; não cria um contrato independente.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1259
 
@@ -14370,7 +14370,7 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 **Como faz:** Aplica a expressão ao estado/DOM/IPC que está em escopo naquele bloco; seu efeito concreto é determinado pelos identificadores e chamadas exibidos na própria linha.  
 **Por que assim:** Separa erro persistente, configuração dinâmica e controles de restauração sem reload.  
 **Alternativa ingênua pior:** Interpolar erro em HTML permitiria injeção; ignorar mudanças de storage deixaria UI/config obsoletas.  
-**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos apenas por espelhos.
+**Evidência:** ✅ PROVADO DIRETAMENTE em UI/config; ⚠️ parcial no áudio de erro — `drawer-real.test.js` prova conteúdo como texto, countdown/debug; suítes de auto-restore reais verificam preferências; detalhes sonoros de erro são cobertos pelo content script real em `audio-synthesis-full.test.js`; red pre-fix e green pós-fix Node 20/22 foram observados.
 
 ### Linha 1260
 
