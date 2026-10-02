@@ -1,5 +1,6 @@
 'use strict';
 
+const childProcess = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -21,6 +22,24 @@ function gitBlobShaBuffer(buffer) {
   const body = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
   const header = Buffer.from('blob ' + body.length + '\0');
   return crypto.createHash('sha1').update(Buffer.concat([header, body])).digest('hex');
+}
+
+function canonicalFindingBlobSha(root, rel, rawBuffer) {
+  try {
+    const value = childProcess.execFileSync(
+      'git',
+      ['rev-parse', 'HEAD:' + String(rel).replace(/\\/g, '/')],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }
+    ).trim();
+    if (/^[0-9a-f]{40}$/i.test(value)) return value.toLowerCase();
+  } catch (_) {
+    // Fixtures fora de um checkout Git usam os bytes fornecidos.
+  }
+  return gitBlobShaBuffer(rawBuffer);
 }
 
 function loadLegacyFindingBaseline(root) {
@@ -117,7 +136,7 @@ function loadUnverifiedFindings(root) {
     problems.push(...validateFinding(raw, rel));
     if (raw?.status !== 'UNVERIFIED') {
       const legacy = legacyBaseline.legacy_findings?.[rel];
-      const blobSha = gitBlobShaBuffer(rawBuffer);
+      const blobSha = canonicalFindingBlobSha(root, rel, rawBuffer);
       if (!legacy || legacy.blob_sha !== blobSha || legacy.status !== raw.status) {
         problems.push(rel + ': finding base não-UNVERIFIED fora da baseline legada imutável');
       }
@@ -208,6 +227,7 @@ module.exports = {
   LEGACY_BASELINE_RELATIVE,
   FINDING_STATUSES,
   gitBlobShaBuffer,
+  canonicalFindingBlobSha,
   loadLegacyFindingBaseline,
   validateFinding,
   loadUnverifiedFindings,
