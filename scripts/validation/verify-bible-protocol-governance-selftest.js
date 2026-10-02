@@ -11,13 +11,16 @@ assert.deepStrictEqual(governance.validateSources(sources), []);
 console.log('PASS canonical workflow governance is intact');
 
 for (const [key, fragments] of Object.entries(governance.REQUIRED)) {
-  const fragment = fragments[0];
-  const tampered = { ...sources, [key]: sources[key].replace(fragment, 'REMOVED-CONTROL') };
-  assert.ok(
-    governance.validateSources(tampered).some((problem) => problem.startsWith(key + ':')),
-    'expected governance failure for ' + key
-  );
-  console.log('PASS removing required control is rejected: ' + key);
+  for (const fragment of fragments) {
+    const tampered = { ...sources, [key]: sources[key].replace(fragment, 'REMOVED-CONTROL') };
+    assert.ok(
+      governance.validateSources(tampered).some((problem) => (
+        problem.startsWith(key + ':') && problem.includes(fragment)
+      )),
+      'expected governance failure for ' + key + ' fragment=' + fragment
+    );
+  }
+  console.log('PASS removing any required control is rejected: ' + key + ' (' + fragments.length + ' fragments)');
 }
 
 const pathFiltered = {
