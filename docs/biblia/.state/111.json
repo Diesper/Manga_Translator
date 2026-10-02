@@ -2,8 +2,8 @@
   "index": 111,
   "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
   "started_at_utc": "2026-09-30T06:23:49.485Z",
   "completed_at_utc": null,
@@ -98,7 +98,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:43:27Z",
+  "updated_at_utc": "2026-10-02T00:32:15Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:38:35.147Z",
@@ -126,6 +126,15 @@
       "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
       "agent": "AGENTE 23",
       "reason": "Reparo #111 concluído conforme auditoria independente; source permaneceu inalterado."
+    },
+    {
+      "at_utc": "2026-10-02T00:32:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Reauditoria confirmou 111-001 HIGH: contrato <200ms com assertion <1000ms; 111-002 benchmark sintético rotulado como produto; 111-003 bancos/import acumulados."
     }
   ],
   "evidence": [
