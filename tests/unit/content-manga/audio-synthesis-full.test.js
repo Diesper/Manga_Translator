@@ -1103,6 +1103,104 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('UPDATE_IMAGE duplicado enquanto persistência está pendente compartilha o primeiro commit', async () => {
+        installRuntimeResponder({ tabId: 94 });
+        const baseSendMessage = runtimeMock.sendMessage;
+        let releaseFirstSave = null;
+        let firstSaveHeld = false;
+
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action === 'SM_SAVE_PAGE' && !firstSaveHeld) {
+                firstSaveHeld = true;
+                sentMessages.push(message);
+                releaseFirstSave = () => {
+                    if (callback) setTimeout(() => callback({ ok: true }), 0);
+                };
+                return;
+            }
+            return baseSendMessage(message, callback);
+        });
+
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const firstUpdate = dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RklSU1Q=',
+            expectAck: true,
+        });
+        await waitFor(() => typeof releaseFirstSave === 'function');
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,RklSU1Q=');
+
+        const duplicateUpdate = dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,U0VDT05E',
+            expectAck: true,
+        });
+
+        await delay(20);
+
+        const pendingSaves = sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+            && message.pageIndex === 0
+        );
+        expect(pendingSaves).toHaveLength(1);
+        expect(pendingSaves[0]).toEqual(expect.objectContaining({
+            dataUrl: 'data:image/png;base64,RklSU1Q=',
+        }));
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,RklSU1Q=');
+        expect(oscillators).toHaveLength(0);
+
+        releaseFirstSave();
+        const [firstAck, duplicateAck] = await Promise.all([
+            firstUpdate,
+            duplicateUpdate,
+        ]);
+        expect(firstAck.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+        expect(duplicateAck.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: false,
+        }));
+
+        expect(sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+            && message.pageIndex === 0
+        )).toHaveLength(1);
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,RklSU1Q=');
+
+        await waitFor(() => oscillators.length === 3);
+        const finalStatus = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(finalStatus.response).toEqual(expect.objectContaining({
+            translating: false,
+            batchId: null,
+            batchStatus: 'complete',
+        }));
+    });
+
     test('UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência', async () => {
         installRuntimeResponder({ tabId: 93 });
         const { ctx, oscillators } = createAudioContext({ state: 'running' });
