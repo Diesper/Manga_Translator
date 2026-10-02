@@ -356,5 +356,124 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         await flushAsyncTasks(4);
         expect((await storageMock.get(['geminiExecutionMode'])).geminiExecutionMode).toBe('background_delete');
     });
+    test('exportação de capítulo restaura o botão e mostra erro quando o background rejeita', async () => {
+        const host = 'reader.test';
+        const tab = await createActiveTab(`https://${host}/chapter-export-fail`, 'Reader Test');
+        registerPopupTabHandler(tab.id, { images: buildImages(host, 1) });
+
+        await storageMock.set({
+            enabledDomains: [host],
+            chapterList: [{ id: 'chap_fail', title: 'Chapter Fail', url: `https://${host}/chapter-export-fail`, timestamp: Date.now() }],
+            chap_fail_images: { 0: 'data:image/png;base64,RkFJTA==' },
+        });
+
+        const sendMessageSpy = jest.spyOn(global.chrome.runtime, 'sendMessage')
+            .mockImplementation((message, callback) => {
+                if (message.action === 'DOWNLOAD_CHAPTER_AND_SHOW') {
+                    if (callback) callback({ ok: false, error: 'download rejected' });
+                    return;
+                }
+                if (callback) callback({ ok: true });
+            });
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(10);
+        document.querySelector('.tab-btn[data-target="translated-tab"]').click();
+        await flushAsyncTasks(10);
+
+        const button = document.querySelector('.btn-export-chap');
+        const originalText = button.textContent;
+        button.click();
+        await flushAsyncTasks(10);
+
+        expect(sendMessageSpy).toHaveBeenCalledWith(expect.objectContaining({
+            action: 'DOWNLOAD_CHAPTER_AND_SHOW',
+            chapId: 'chap_fail',
+        }), expect.any(Function));
+        expect(button.disabled).toBe(false);
+        expect(button.textContent).toBe(originalText);
+        expect(document.body.textContent).toContain('Falha na exportação');
+    });
+
+    test('falha de SM_DELETE_CHAPTER preserva chapterList e resíduos legados', async () => {
+        const host = 'reader.test';
+        const tab = await createActiveTab(`https://${host}/chapter-delete-fail`, 'Reader Test');
+        registerPopupTabHandler(tab.id, { images: buildImages(host, 1) });
+        const chapter = { id: 'chap_keep', title: 'Keep Me', url: `https://${host}/chapter-delete-fail`, timestamp: Date.now() };
+
+        await storageMock.set({
+            enabledDomains: [host],
+            chapterList: [chapter],
+            chap_keep_images: { 0: 'data:image/png;base64,S0VFUA==' },
+            chap_keep_paths: { 0: '/tmp/keep.png' },
+            chap_keep_dlId: 77,
+        });
+
+        const removeSpy = jest.spyOn(storageMock, 'remove');
+        const sendMessageSpy = jest.spyOn(global.chrome.runtime, 'sendMessage')
+            .mockImplementation((message, callback) => {
+                if (message.action === 'SM_DELETE_CHAPTER') {
+                    if (callback) callback({ ok: false, error: 'delete rejected' });
+                    return;
+                }
+                if (callback) callback({ ok: true });
+            });
+        global.confirm = jest.fn(() => true);
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(10);
+        document.querySelector('.tab-btn[data-target="translated-tab"]').click();
+        await flushAsyncTasks(10);
+
+        document.querySelector('.btn-delete-chap').click();
+        await flushAsyncTasks(10);
+
+        expect(sendMessageSpy).toHaveBeenCalledWith({
+            action: 'SM_DELETE_CHAPTER',
+            chapterId: 'chap_keep',
+        }, expect.any(Function));
+        const stored = await storageMock.get(['chapterList', 'chap_keep_images', 'chap_keep_paths', 'chap_keep_dlId']);
+        expect(stored.chapterList).toEqual([chapter]);
+        expect(stored.chap_keep_images).toEqual({ 0: 'data:image/png;base64,S0VFUA==' });
+        expect(stored.chap_keep_paths).toEqual({ 0: '/tmp/keep.png' });
+        expect(stored.chap_keep_dlId).toBe(77);
+        expect(removeSpy).not.toHaveBeenCalled();
+        expect(document.body.textContent).toContain('Falha ao excluir capítulo');
+    });
+
+    test('troca da aba ativa bloqueia comandos dirigidos à aba capturada no bootstrap', async () => {
+        const host = 'reader.test';
+        const originalTab = await createActiveTab(`https://${host}/chapter-owned`, 'Reader Test');
+        registerPopupTabHandler(originalTab.id, { images: buildImages(host, 1) });
+        await storageMock.set({ enabledDomains: [host] });
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(10);
+
+        const sendSpy = jest.spyOn(global.chrome.tabs, 'sendMessage');
+        sendSpy.mockClear();
+        tabsMock._tabs.get(originalTab.id).active = false;
+        const otherTab = await tabsMock.create({ url: 'https://other.test/', active: true });
+        tabsMock._tabs.get(otherTab.id).active = true;
+
+        document.getElementById('btn-translate').click();
+        await flushAsyncTasks(8);
+
+        expect(sendSpy).not.toHaveBeenCalled();
+        expect(document.body.textContent).toContain('A aba ativa mudou');
+    });
+
 });
 
