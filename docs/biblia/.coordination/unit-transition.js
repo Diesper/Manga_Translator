@@ -758,6 +758,10 @@ function main(argv=process.argv.slice(2)) {
     if ((model.active_claims_and_leases || []).some((rel)=>ownershipIndex(rel)===state.index)) {
       throw new Error('CORRECTION_BLOCKED_BY_ACTIVE_AUDIT_LEASE');
     }
+    const activeToken=(model.correction_tokens || []).find((item)=>(
+      Number(item.index)===Number(state.index) && !tokenConsumed(state,item.token_id)
+    ));
+    if (activeToken) throw new Error('ACTIVE_CORRECTION_TOKEN_EXISTS:' + activeToken.token_id);
     const token=issueCorrectionToken(state,pipeline,{issued_at_utc:args.at_utc,humanApproval:approval,actor:args.actor});
     const out=tokenPath(root,state.index,token.token_id);
     fs.mkdirSync(path.dirname(out),{recursive:true});
