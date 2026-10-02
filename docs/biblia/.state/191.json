@@ -2,8 +2,8 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -115,7 +115,7 @@
     },
     {
       "id": "191-004",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_LIFECYCLE_BRANCH_GAP",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -131,22 +131,43 @@
       "severity": "HIGH",
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T01:22:00Z",
-      "audit_finding": "ACCEPTED pela PRIMARY 20261002T012200Z."
+      "audit_finding": "ACCEPTED pela PRIMARY 20261002T012200Z.",
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionados testes reais para clique/user-gesture unlock (sucesso e rejeição), substituição de AudioContext closed, API indisponível, resume incompleto e falha de scheduling. A revisão final foi executada com o content script real.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T01:34:00Z",
+      "validation": {
+        "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+        "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
+        "run_id": 36950824865,
+        "node20_job_id": 110663159616,
+        "node22_job_id": 110663159600,
+        "full_content_job_id": 110663159408,
+        "focal": "PASS em Node 20 e Node 22; logs contêm PASS explícito de audio-synthesis-full.test.js e replacement-and-completion-real.test.js",
+        "related": "PASS em Node 20 e Node 22",
+        "content_suite": "40/40 suites e 439/439 testes PASS com --detectOpenHandles",
+        "workflow_current_sha": "eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f",
+        "workflow_followup_run": 36951292966,
+        "workflow_followup_status": "queued no momento do fechamento corretivo; a evidência do source final já foi obtida na run 36950824865"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "390/390",
-    "source_text_lines": 389,
+    "documented_positions": "592/592",
+    "source_text_lines": 591,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "note": "Mirrors removidos; runtime real de áudio validado. Focal #191 passou 5/5 em Node 20 e Node 22; suíte relacionada replacement-and-completion-real também passou nos dois. Falha global do run é externa: PERF-09/storage-manager."
+    "note": "191-001..004 corrigidos. Revisão final e3a1f219 passou explicitamente em Node 20/22 e no projeto content-scripts completo; unidade devolvida para auditoria distribuída independente.",
+    "bible_lines": 727,
+    "bible_blob_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
+    "evidence_quality": "Real content_manga audio integration; 11 lifecycle/synthesis cases; Node 20/22 + full content-scripts suite with open-handle detection."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:29:00Z",
+  "updated_at_utc": "2026-10-02T01:34:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -197,6 +218,16 @@
       "previous_source_sha": "a1862a1dd6c8d5df052b618e958603744c03e843",
       "current_source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
       "reason": "Cobertura do clique real ampliada para sucesso e falha de resume; total 11 casos reais de áudio."
+    },
+    {
+      "at_utc": "2026-10-02T01:34:00Z",
+      "type": "HYBRID_AUDIO_LIFECYCLE_HARDENING_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+      "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-004 resolvido; source final passou focal Node20/22 e content-scripts 40/40 suites, 439/439 tests com detectOpenHandles."
     }
   ],
   "evidence": [
@@ -211,7 +242,20 @@
       "focal_result": "PASS_5_OF_5_BOTH_NODES",
       "related_result": "PASS_REPLACEMENT_AND_COMPLETION_REAL_BOTH_NODES",
       "external_failure": "PERF-09 tests/integration/performance.test.js: blob.arrayBuffer is not a function in storage-manager.js"
+    },
+    {
+      "type": "EXECUTABLE_VALIDATION",
+      "at_utc": "2026-10-02T01:34:00Z",
+      "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+      "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
+      "workflow_run_id": 36950824865,
+      "node20_job_id": 110663159616,
+      "node22_job_id": 110663159600,
+      "full_content_job_id": 110663159408,
+      "focal_result": "PASS_FINAL_SOURCE_NODE20_NODE22",
+      "related_result": "PASS_REPLACEMENT_AND_COMPLETION_REAL_NODE20_NODE22",
+      "content_suite_result": "PASS_40_OF_40_SUITES_439_OF_439_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "1c49f79ad10800973f252f7ee2617b3031346a18"
+  "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6"
 }
