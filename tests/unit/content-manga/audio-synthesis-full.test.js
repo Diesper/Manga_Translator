@@ -1180,6 +1180,8 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             persisted: true,
         }));
         expect(saveAttempts).toBe(2);
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,UkVUUllfT0s=');
         await waitFor(() => oscillators.length === 3);
 
         const finalStatus = await dispatchToContent(runtimeMock, {
