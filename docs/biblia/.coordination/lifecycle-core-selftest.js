@@ -104,6 +104,58 @@ assert.strictEqual(life.correctorEligibility(s, 'QUALQUER').reason, 'HUMAN_LOCKE
 assert.deepStrictEqual(life.lifecycleProblems(s), []);
 console.log('PASS cycle 7 enters HUMAN_LOCKED');
 
+const thresholdAudit = baseState();
+for (let i=1;i<=6;i+=1) addCycle(thresholdAudit, i, 'THRESHOLD-' + i);
+thresholdAudit.history.push({
+  at_utc:'2026-10-02T07:10:00Z',
+  type:life.HANDOFF_EVENT,
+  from_status:'IN_PROGRESS',
+  to_status:'READY_FOR_AUDIT',
+  source_sha:thresholdAudit.source_sha,
+  bible_sha:thresholdAudit.bible_sha,
+  production_sha:sha('c'),
+  agent:'THRESHOLD-7',
+  correction_cycle:7,
+  audit_epoch:7,
+  handoff_id:'191-e7-threshold',
+});
+let thresholdLife = life.lifecycleSnapshot(thresholdAudit);
+assert.strictEqual(thresholdLife.escalation_level,'HUMAN');
+assert.strictEqual(thresholdLife.human_audit_window_active,true);
+assert.strictEqual(thresholdLife.human_locked,false);
+assert.deepStrictEqual(life.lifecycleProblems(thresholdAudit),[]);
+console.log('PASS cycle 7 preserves an audit-only window for the delivered correction');
+
+const thresholdFailed = JSON.parse(JSON.stringify(thresholdAudit));
+thresholdFailed.history.push({
+  at_utc:'2026-10-02T07:20:00Z',
+  type:'DISTRIBUTED_AUDIT_DECISION',
+  from_status:'READY_FOR_AUDIT',
+  to_status:'HUMAN_LOCKED',
+  decision:'CHANGES_REQUIRED',
+});
+thresholdFailed.status='HUMAN_LOCKED';
+thresholdLife = life.lifecycleSnapshot(thresholdFailed);
+assert.strictEqual(thresholdLife.human_audit_window_active,false);
+assert.strictEqual(thresholdLife.human_locked,true);
+assert.deepStrictEqual(life.lifecycleProblems(thresholdFailed),[]);
+console.log('PASS failed audit at HUMAN escalation activates quarantine');
+
+const thresholdApproved = JSON.parse(JSON.stringify(thresholdAudit));
+thresholdApproved.history.push({
+  at_utc:'2026-10-02T07:20:00Z',
+  type:'DISTRIBUTED_AUDIT_DECISION',
+  from_status:'READY_FOR_AUDIT',
+  to_status:'COMPLETED',
+  decision:'APPROVED',
+});
+thresholdApproved.status='COMPLETED';
+thresholdLife = life.lifecycleSnapshot(thresholdApproved);
+assert.strictEqual(thresholdLife.human_escalation_approved,true);
+assert.strictEqual(thresholdLife.human_locked,false);
+assert.deepStrictEqual(life.lifecycleProblems(thresholdApproved),[]);
+console.log('PASS successful audit at HUMAN escalation completes without quarantine');
+
 const forged = JSON.parse(JSON.stringify(s));
 forged.status = 'READY_FOR_AUDIT';
 forged.correction_cycle = 0;
@@ -121,8 +173,11 @@ console.log('PASS human_approval_required removal is detected');
 s.history.push({
   at_utc: '2026-10-02T08:00:00Z',
   type: life.HUMAN_RESET_EVENT,
+  from_status:'HUMAN_LOCKED',
+  to_status:'READY_FOR_AUDIT',
   actor: 'HUMAN',
 });
+s.status='READY_FOR_AUDIT';
 snap = life.lifecycleSnapshot(s);
 assert.strictEqual(snap.lifetime_correction_cycles, 7);
 assert.strictEqual(snap.current_escalation_cycle, 0);
