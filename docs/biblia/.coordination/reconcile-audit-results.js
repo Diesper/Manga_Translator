@@ -34,6 +34,13 @@ function projectState(state, pipeline) {
     return { changed: false, state };
   }
   const label = '#' + String(state.index).padStart(3, '0');
+  if (Array.isArray(pipeline.problems) && pipeline.problems.length) {
+    return {
+      changed: false,
+      state,
+      blocker: label + ': decisão distribuída inválida não pode ser projetada: ' + pipeline.problems.join('; '),
+    };
+  }
   if (state.status === 'IN_PROGRESS') {
     return {
       changed: false,
