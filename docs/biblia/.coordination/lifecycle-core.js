@@ -256,6 +256,22 @@ function rootCauseReviewValid(review) {
     && typeof review.strategy === 'string' && review.strategy.trim().length > 0;
 }
 
+function rootCauseReviewProblems(state, review) {
+  const problems = [];
+  if (!rootCauseReviewValid(review)) {
+    problems.push('ROOT_CAUSE_REVIEW_INVALID');
+    return problems;
+  }
+  const strategy = String(review.strategy || '').trim().toLowerCase();
+  const priorStrategies = historyOf(state)
+    .map((entry) => String(entry?.root_cause_review?.strategy || '').trim().toLowerCase())
+    .filter(Boolean);
+  if (strategy && priorStrategies.includes(strategy)) {
+    problems.push('ROOT_CAUSE_STRATEGY_MUST_DIFFER_FROM_PREVIOUS_EMERGENCY');
+  }
+  return problems;
+}
+
 function classifyRevisionChange(previous, current, options = {}) {
   const changes = [];
   const before = previous || {};
@@ -483,6 +499,7 @@ module.exports = {
   correctionAgents,
   correctorEligibility,
   rootCauseReviewValid,
+  rootCauseReviewProblems,
   classifyRevisionChange,
   humanPermanentlyClosed,
   priorityForState,
