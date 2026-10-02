@@ -5,7 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const { verifyAppendOnly } = require('./verify-bible-audit-results-append-only');
+const {\n  DEFAULT_ENFORCEMENT_BASELINE,\n  verifyAppendOnly,\n} = require('./verify-bible-audit-results-append-only');
 
 function git(root, args) {
   return childProcess.execFileSync('git', args, {
