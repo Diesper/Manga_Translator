@@ -4,7 +4,8 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   # PRs/branches podem cancelar runs substituídos; a main nunca cancela uma
   # verificação pós-merge, garantindo uma execução completa por commit integrado.
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  # Distributed audit pushes are frequent; cancelling the active matrix can starve final evidence forever.
+  cancel-in-progress: false
 
 on:
   push:
