@@ -6,6 +6,7 @@ const {
   loadModel,
 } = require('../../docs/biblia/.coordination/audit-protocol');
 const lifecycleCore = require('../../docs/biblia/.coordination/lifecycle-core');
+const humanGate = require('../../docs/biblia/.coordination/human-gate');
 
 const DEFAULT_AUDITOR_COUNT = 80;
 const AUDIT_PHASES = new Set(['AUTO', 'PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
@@ -89,6 +90,7 @@ function planAuditWork({
   pipelines,
   auditClaims = [],
   recoverableClaimIndexes = [],
+  humanApprovals = [],
   auditorOrdinal,
   shardCount = DEFAULT_AUDITOR_COUNT,
   phase = 'AUTO',
@@ -105,7 +107,10 @@ function planAuditWork({
   for (const state of states || []) {
     if (claimed.has(state.index)) continue;
     const lifecycle = lifecycleCore.lifecycleSnapshot(state);
-    if (lifecycle.human_locked) continue;
+    const humanAuditApproval = lifecycle.human_locked
+      ? humanGate.activeHumanApproval(state, lifecycle, humanApprovals, 'ALLOW_AUDIT_ONLY')
+      : null;
+    if (lifecycle.human_locked && !humanAuditApproval) continue;
     const pipeline = pipelines instanceof Map ? pipelines.get(state.index) : null;
     const nextPhase = nextPhaseForPipeline(pipeline);
     if (!nextPhase) continue;
@@ -132,6 +137,7 @@ function planAuditWork({
       revision_id: lifecycle.revision_id,
       audit_epoch: lifecycle.audit_epoch,
       handoff_id: lifecycle.handoff_id,
+      human_audit_approval_id: humanAuditApproval?.approval_id || null,
     });
   }
 
@@ -204,6 +210,7 @@ function main(argv = process.argv.slice(2)) {
     pipelines,
     auditClaims: claimSets.active,
     recoverableClaimIndexes: claimSets.recoverable.map((claim) => claim.index),
+    humanApprovals: model.human_approvals || [],
     auditorOrdinal: args.auditor,
     shardCount: args.auditors,
     phase: args.phase,
