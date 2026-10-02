@@ -2564,12 +2564,29 @@ if (!window.__manga_translator_content_injected) {
                     return wantsAck;
                 }
 
+                // Congela a identidade aceita antes da persistência assíncrona.
+                // O lote pode ser cancelado/concluído e outro começar enquanto
+                // SM_SAVE_PAGE ainda está pendente; nesse caso o callback antigo
+                // jamais pode contabilizar progresso no lote novo.
+                const acceptedBatchId = request.batchId || _currentBatchId || null;
+
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
+                let shouldAccountUpdate = false;
                 let persistPromise = null;
 
                 for (let img of images) {
                     if (img.dataset.mangaIndex == request.index) {
+                        // Retry após falha de persistência: o DOM já pode conter a
+                        // tradução com translated=true. Não reaplique a imagem; apenas
+                        // tente persistir de novo e, se der certo, contabilize o índice.
+                        if (img.dataset.translated === 'true') {
+                            foundImage = true;
+                            shouldAccountUpdate = true;
+                            persistPromise = persistTranslatedPage(request.index, request.newSrc);
+                            break;
+                        }
+
                         const origSourceUrl    = img.getAttribute('src') || img.dataset.src || img.dataset.lazySrc || img.getAttribute('data-original') || '';
                         const origCleanUrl     = getCleanUrl(origSourceUrl);
                         const origHash         = img.dataset.origHash         || null;
@@ -2588,6 +2605,7 @@ if (!window.__manga_translator_content_injected) {
                         const newImg = applyImageReplacement(img, request.newSrc, false);
                         if (!newImg) break;
                         foundImage = true;
+                        shouldAccountUpdate = true;
 
                         const width  = newImg.naturalWidth  || img.naturalWidth  || 0;
                         const height = newImg.naturalHeight || img.naturalHeight || 0;
@@ -2650,15 +2668,31 @@ if (!window.__manga_translator_content_injected) {
                     persistPromise = persistTranslatedPage(request.index, request.newSrc);
                 }
 
+                const accountPersistedUpdate = () => {
+                    if (!shouldAccountUpdate) return;
+                    if (!acceptedBatchId || !_currentBatchId || acceptedBatchId !== _currentBatchId || !isTranslating) {
+                        sendLog('warn', 'STALE_UPDATE_COMPLETION_SKIPPED',
+                            'Persistência de UPDATE_IMAGE terminou após o lote deixar de ser o ativo; contabilização ignorada.', {
+                                received: String(acceptedBatchId || '').slice(0, 8),
+                                current: String(_currentBatchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        return;
+                    }
+                    checkIfComplete(false, request.index);
+                };
+
                 persistPromise
                     .then(() => {
                         ack({ ok: true, persisted: true, domApplied: foundImage });
-                        if (foundImage) checkIfComplete(false, request.index);
+                        accountPersistedUpdate();
                     })
                     .catch((err) => {
                         sendLog('error', 'PERSIST_FAIL', `Falha ao persistir a página ${request.index}: ${err && err.message}`, { index: request.index });
                         ack({ ok: false, reason: 'persist_failed' });
-                        if (foundImage) checkIfComplete(false, request.index);
+                        // Persistência falhou: não contabilizar o índice como concluído.
+                        // O lote permanece ativo para que o background possa reenviar
+                        // o resultado; só um commit persistido com sucesso avança o lote.
                     });
 
                 return wantsAck;
