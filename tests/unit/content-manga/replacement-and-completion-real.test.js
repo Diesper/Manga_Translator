@@ -361,6 +361,136 @@ describe('CM-65/CM-66/CM-67/CM-68/CM-69/CM-70/CM-71/CM-72/CM-73/CM-74/CM-82/CM-8
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe('data:image/png;base64,RklSU1Q=');
     });
 
+    test('UPDATE_IMAGE rejeita payload inválido antes de tocar DOM ou persistência', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        const img = document.querySelector('[data-testid="img-0"]');
+        img.dataset.mangaIndex = '0';
+        const originalSrc = img.getAttribute('src');
+
+        const invalidSrc = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            index: 0,
+            newSrc: { unexpected: true },
+            expectAck: true,
+        });
+        expect(invalidSrc.keepAlive).toBe(true);
+        expect(invalidSrc.response).toEqual({ ok: false, reason: 'invalid_payload' });
+
+        const invalidIndex = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            index: -1,
+            newSrc: 'data:image/png;base64,SU5WQUxJRA==',
+            expectAck: true,
+        });
+        expect(invalidIndex.response).toEqual({ ok: false, reason: 'invalid_payload' });
+        expect(img.getAttribute('src')).toBe(originalSrc);
+        expect(sentMessages.some(message => message.action === 'SM_SAVE_PAGE')).toBe(false);
+        expect(sentMessages.filter(message =>
+            message.action === 'LOG_ENTRY' && message.action_name === 'UPDATE_IMAGE_INVALID_PAYLOAD'
+        )).toHaveLength(2);
+    });
+
+    test('UPDATE_IMAGE de batch antigo responde stale_batch sem tocar DOM ou persistência', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        const start = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));
+        const img = document.querySelector('[data-testid="img-0"]');
+        img.dataset.mangaIndex = '0';
+        const originalSrc = img.getAttribute('src');
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            index: 0,
+            newSrc: 'data:image/png;base64,U1RBTEU=',
+            batchId: start.batchId + '-stale',
+            expectAck: true,
+        });
+
+        expect(result.keepAlive).toBe(true);
+        expect(result.response).toEqual({ ok: false, reason: 'stale_batch' });
+        expect(img.getAttribute('src')).toBe(originalSrc);
+        expect(sentMessages.some(message => message.action === 'SM_SAVE_PAGE')).toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'STALE_UPDATE',
+        }));
+    });
+
+    test('STOP_TRANSLATION_FROM_POPUP sem lote local falha fechado sem STOP_BATCH global', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'STOP_TRANSLATION_FROM_POPUP',
+        });
+
+        expect(result.response).toEqual({ ok: false, reason: 'no_local_batch' });
+        expect(sentMessages.some(message => message.action === 'STOP_BATCH')).toBe(false);
+    });
+
+    test('STOP_TRANSLATION_FROM_POPUP preserva lote local quando STOP_BATCH falha no runtime', async () => {
+        installRuntimeResponder();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [{ src: 'http://localhost/page-0.png', width: 800, height: 1200 }],
+        });
+
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0],
+        });
+        const start = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));
+        const originalSendMessage = runtimeMock.sendMessage;
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action !== 'STOP_BATCH') return originalSendMessage(message, callback);
+            sentMessages.push(message);
+            runtimeMock.lastError = { message: 'stop transport failed' };
+            try {
+                if (callback) callback(undefined);
+            } finally {
+                runtimeMock.lastError = null;
+            }
+        });
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'STOP_TRANSLATION_FROM_POPUP',
+        });
+
+        expect(result.keepAlive).toBe(true);
+        expect(result.response).toEqual({
+            ok: false,
+            reason: 'background_stop_failed',
+            error: 'stop transport failed',
+        });
+        expect(sentMessages).toContainEqual({ action: 'STOP_BATCH', batchId: start.batchId });
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            action_name: 'BATCH_LOCAL_STOP_FAILED',
+        }));
+
+        const status = await dispatchToContent(runtimeMock, { action: 'GET_FLOATING_BUTTON_STATUS' });
+        expect(status.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: start.batchId,
+        }));
+    });
+
     test('reutiliza o AudioContext e registra a telemetria da aba de origem', async () => {
         installRuntimeResponder({ onGetTabId: () => ({ tabId: 73 }) });
         const originalAudioContext = Object.getOwnPropertyDescriptor(window, 'AudioContext');
