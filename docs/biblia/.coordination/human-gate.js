@@ -18,6 +18,11 @@ function walk(dir) {
   });
 }
 
+function clearlyAutomatedApprover(value) {
+  const actor = String(value || '').trim();
+  return /\[bot\]$/i.test(actor) || /^github-actions(?:\[bot\])?$/i.test(actor);
+}
+
 function validateApproval(raw, rel = '<memory>') {
   const problems = [];
   const index = Number(raw?.index);
@@ -27,6 +32,7 @@ function validateApproval(raw, rel = '<memory>') {
   if (!HUMAN_DECISIONS.has(String(raw?.decision || ''))) problems.push(rel + ': decision inválida');
   if (!Number.isInteger(Number(raw?.locked_cycle)) || Number(raw.locked_cycle) < 7) problems.push(rel + ': locked_cycle deve ser >= 7');
   if (typeof raw?.approved_by !== 'string' || !raw.approved_by.trim()) problems.push(rel + ': approved_by ausente');
+  if (clearlyAutomatedApprover(raw?.approved_by)) problems.push(rel + ': approved_by deve ser identidade humana, não bot');
   if (!Number.isFinite(Date.parse(raw?.approved_at_utc || ''))) problems.push(rel + ': approved_at_utc inválido');
   if (raw?.approval_source !== 'workflow_dispatch') problems.push(rel + ': approval_source deve ser workflow_dispatch');
   if (raw?.approval_environment !== 'human-approval') problems.push(rel + ': approval_environment deve ser human-approval');
@@ -147,6 +153,7 @@ function humanGateProblems(states, lifecycleByIndex, approvals) {
 
 module.exports = {
   HUMAN_DECISIONS,
+  clearlyAutomatedApprover,
   validateApproval,
   loadHumanApprovals,
   approvalConsumed,
