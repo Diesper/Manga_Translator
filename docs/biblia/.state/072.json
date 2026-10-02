@@ -2,11 +2,11 @@
   "index": 72,
   "file": "scripts/ci/playwright-gate-reporter.js",
   "bible": "docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "71fb92c1215a86cdb309f4599ea8d0b422e9b02e",
+  "source_sha": "16bddbd559f0c8def18b3d7923695ca693332391",
   "started_at_utc": "2026-09-30T03:30:21Z",
-  "completed_at_utc": "2026-09-30T05:09:12Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "072-001",
@@ -66,7 +66,50 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-02T19:51:21Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T19:51:21Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "MAINTAINER",
+      "previous_source_sha": "71fb92c1215a86cdb309f4599ea8d0b422e9b02e",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "d43c91f10a443242b28b412cb0432cf731dc379a7549185561a84bade575fea3",
+      "source_sha": "16bddbd559f0c8def18b3d7923695ca693332391",
+      "test_sha": "16bddbd559f0c8def18b3d7923695ca693332391",
+      "bible_sha": "c4185f8591d72a3d3302404f6f0803d6ce976ff2",
+      "production_sha": null,
+      "revision_id": "f846f5e9e0a8ab0c9b5e8685e68943b18c7b6e3bf243275f48f01cf9e0c5902c",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "072-e1-9c1533077e30",
+      "reason": "Reporter E2E e Bíblia sincronizados; auditoria da revisão anterior invalidada.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "e6cfa5f4f82a3c5438b4705f3353ebfa6e62e6f13956e1cdaba0d0c0c4288865"
+    }
+  ],
+  "evidence": [],
+  "test_sha": "16bddbd559f0c8def18b3d7923695ca693332391",
+  "bible_sha": "c4185f8591d72a3d3302404f6f0803d6ce976ff2",
+  "production_sha": null,
+  "revision_id": "f846f5e9e0a8ab0c9b5e8685e68943b18c7b6e3bf243275f48f01cf9e0c5902c",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "072-e1-9c1533077e30",
+  "document_quality": {
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "95/95",
+    "source_text_lines": 94,
+    "bible_lines": 275,
+    "external_audit_requests_open": 0,
+    "note": "Reporter focal/global sincronizado; nova auditoria distribuída obrigatória."
+  }
 }

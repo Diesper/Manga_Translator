@@ -73,7 +73,7 @@
 - [x] 069 — `scripts/ci/data/regression-matrix.json` — COMPLETED
 - [x] 070 — `scripts/ci/data/test-baseline.json` — COMPLETED
 - [x] 071 — `scripts/ci/jest-worker-warning.js` — COMPLETED
-- [x] 072 — `scripts/ci/playwright-gate-reporter.js` — COMPLETED
+- [ ] 072 — `scripts/ci/playwright-gate-reporter.js` — READY_FOR_AUDIT
 - [x] 073 — `scripts/ci/playwright-merge.config.js` — COMPLETED
 - [x] 074 — `scripts/ci/run-e2e-group.js` — COMPLETED
 - [x] 075 — `scripts/ci/run-jest-ci.js` — COMPLETED

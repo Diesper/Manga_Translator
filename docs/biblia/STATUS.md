@@ -8,10 +8,10 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **134**
+- READY_FOR_AUDIT: **135**
 - CHANGES_REQUIRED: **0**
 - BLOCKED: **0**
-- COMPLETED: **99**
+- COMPLETED: **98**
 - requests OPEN: **0**
 - requests ACCEPTED: **584**
 - requests RESOLVED: **8**
@@ -94,7 +94,7 @@
 | 069 | scripts/ci/data/regression-matrix.json | COMPLETED | APPROVED | - | f9b9e17e5870c0c6dff9394ef944a803414cc4d2 | 3 |
 | 070 | scripts/ci/data/test-baseline.json | COMPLETED | APPROVED | - | 52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e | 4 |
 | 071 | scripts/ci/jest-worker-warning.js | COMPLETED | APPROVED | - | b1379b6811e5513b955ebbbef4450ca4ca1e77da | 1 |
-| 072 | scripts/ci/playwright-gate-reporter.js | COMPLETED | APPROVED | - | 71fb92c1215a86cdb309f4599ea8d0b422e9b02e | 3 |
+| 072 | scripts/ci/playwright-gate-reporter.js | READY_FOR_AUDIT | NOT_AUDITED | - | 16bddbd559f0c8def18b3d7923695ca693332391 | 3 |
 | 073 | scripts/ci/playwright-merge.config.js | COMPLETED | APPROVED | - | 59839922aca9f6f442100b3e6723313ef53d3a54 | 1 |
 | 074 | scripts/ci/run-e2e-group.js | COMPLETED | APPROVED | - | e23c7aaa17123e63904799c1b366c48e344ed82a | 4 |
 | 075 | scripts/ci/run-jest-ci.js | COMPLETED | APPROVED | - | 6d2e36a647aadeadb2b875c1b3f92df24cd2f494 | 4 |
