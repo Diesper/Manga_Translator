@@ -1356,7 +1356,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             action: 'UPDATE_IMAGE',
             batchId: liveBatch.batchId,
             index: 0,
-            newSrc: 'data:image/png;base64,U0VDT05E',
+            newSrc: 'data:image/png;base64,RklSU1Q=',
             expectAck: true,
         });
         expect(duplicate.response).toEqual(expect.objectContaining({
@@ -1407,6 +1407,107 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             batchId: null,
             batchStatus: 'complete',
         }));
+    });
+
+    test('UPDATE_IMAGE conflitante após persistência do índice é rejeitado', async () => {
+        installRuntimeResponder({ tabId: 96 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                {
+                    src: 'http://localhost/page-0.png',
+                    width: 800,
+                    height: 1200,
+                },
+                {
+                    src: 'http://localhost/page-1.png',
+                    width: 800,
+                    height: 1200,
+                },
+            ],
+        });
+
+        const previousStartCount = sentMessages.filter(message =>
+            message.action === 'START_BATCH'
+        ).length;
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [0, 1],
+        });
+        await waitFor(() =>
+            sentMessages.filter(message => message.action === 'START_BATCH').length
+            === previousStartCount + 1
+        );
+
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const first = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RklSU1Q=',
+            expectAck: true,
+        });
+        expect(first.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+
+        const conflict = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,U0VDT05E',
+            expectAck: true,
+        });
+        expect(conflict.response).toEqual({
+            ok: false,
+            reason: 'payload_conflict',
+        });
+
+        expect(sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+            && message.pageIndex === 0
+        )).toEqual([
+            expect.objectContaining({
+                dataUrl: 'data:image/png;base64,RklSU1Q=',
+            }),
+        ]);
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,RklSU1Q=');
+
+        const midStatus = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(midStatus.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: liveBatch.batchId,
+        }));
+        expect(oscillators).toHaveLength(0);
+
+        const second = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 1,
+            newSrc: 'data:image/png;base64,VEhJUkQ=',
+            expectAck: true,
+        });
+        expect(second.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+        await waitFor(() => oscillators.length === 3);
     });
 
     test('falha de persistência não conclui o lote e retry bem-sucedido conclui', async () => {
