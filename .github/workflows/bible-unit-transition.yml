@@ -54,6 +54,14 @@ on:
         description: 'Root-cause evidence'
         required: false
         type: string
+      root_cause_related_cycles:
+        description: 'Comma-separated prior correction cycles related to the root cause'
+        required: false
+        type: string
+      root_cause_why_previous_failed:
+        description: 'Why previous correction cycles did not stabilize the unit'
+        required: false
+        type: string
       root_cause_strategy:
         description: 'Different strategy for cycle 6'
         required: false
@@ -98,6 +106,8 @@ jobs:
           EXPECTED_CYCLE: ${{ inputs.expected_cycle }}
           ROOT_CAUSE_CATEGORIES: ${{ inputs.root_cause_categories }}
           ROOT_CAUSE_EVIDENCE: ${{ inputs.root_cause_evidence }}
+          ROOT_CAUSE_RELATED_CYCLES: ${{ inputs.root_cause_related_cycles }}
+          ROOT_CAUSE_WHY_PREVIOUS_FAILED: ${{ inputs.root_cause_why_previous_failed }}
           ROOT_CAUSE_STRATEGY: ${{ inputs.root_cause_strategy }}
           REASON: ${{ inputs.reason }}
         run: |
@@ -135,7 +145,10 @@ jobs:
           if (process.env.ROOT_CAUSE_CATEGORIES) {
             request.root_cause_review = {
               categories: process.env.ROOT_CAUSE_CATEGORIES.split(',').map((x) => x.trim()).filter(Boolean),
+              related_cycles: (process.env.ROOT_CAUSE_RELATED_CYCLES || '')
+                .split(',').map((x) => Number(x.trim())).filter((x) => Number.isInteger(x) && x >= 1),
               evidence: process.env.ROOT_CAUSE_EVIDENCE || '',
+              why_previous_failed: process.env.ROOT_CAUSE_WHY_PREVIOUS_FAILED || '',
               strategy: process.env.ROOT_CAUSE_STRATEGY || '',
             };
           }
