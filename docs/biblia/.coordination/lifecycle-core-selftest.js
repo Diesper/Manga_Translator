@@ -61,6 +61,21 @@ assert.notStrictEqual(same.revision_id, changed.revision_id);
 assert.strictEqual(same.revision_id, life.revisionIdentity({...s}).revision_id);
 console.log('PASS revision_id deterministic and test-sensitive');
 
+let change = life.classifyRevisionChange(
+  {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40)},
+  {production_sha:'d'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40)}
+);
+assert.deepStrictEqual(change.changes,['PRODUCTION']);
+assert.strictEqual(change.invalidates_audit_revision,true);
+change = life.classifyRevisionChange(
+  {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40)},
+  {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'d'.repeat(40)},
+  {bible_change_type:'BIBLE_FORMATTING'}
+);
+assert.deepStrictEqual(change.changes,['BIBLE_FORMATTING']);
+assert.strictEqual(change.invalidates_audit_revision,true);
+console.log('PASS revision change classification is conservative');
+
 let eligibility = life.correctorEligibility(s, 'AGENTE-5');
 assert.strictEqual(eligibility.reason, 'CYCLE_5_REQUIRES_DIFFERENT_CORRECTOR');
 assert.strictEqual(life.correctorEligibility(s, 'OUTRO').eligible, true);
