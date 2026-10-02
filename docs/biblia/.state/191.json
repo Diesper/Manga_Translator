@@ -2,9 +2,9 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
-  "source_sha": "b21edb0d42e61cf03cce9d0e4104773205c18c93",
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
+  "source_sha": "7512f2686f5651874b3b7ef8bdfc15ea9f9cfb00",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -521,6 +521,27 @@
       },
       "resolved_by": "AGENTE HÍBRIDO",
       "resolved_at_utc": "2026-10-02T03:10:00Z"
+    },
+    {
+      "id": "191-015",
+      "status": "ACCEPTED",
+      "type": "ASYNC_PERSISTENCE_REENTRY_GAP",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "UPDATE_IMAGE validado no recebimento chama checkIfComplete somente após persistTranslatedPage resolver; se o lote A for cancelado e B iniciar nesse intervalo, o callback tardio de A pode contabilizar o índice no estado global de B.",
+      "current_evidence": "O .then/.catch de persistPromise chama checkIfComplete(false, request.index) sem reconfirmar request.batchId contra _currentBatchId.",
+      "missing_evidence": "Persistência atrasada de A após cancelamento/reentrada deve concluir seu ACK sem alterar translating/batchId/contagem de B; B só conclui com seu próprio UPDATE_IMAGE.",
+      "why_needed": "Callbacks tardios de lote antigo não podem interferir no lote promovido/seguinte.",
+      "requested_action": "Adicionar regression com SM_SAVE_PAGE bloqueado, cancelar A, iniciar B, liberar A e impedir checkIfComplete stale.",
+      "expected_evidence": "Pré-fix deve concluir B prematuramente; pós-fix deve manter B ativo até seu próprio resultado.",
+      "expected_auditor_action": "Reauditar persistência assíncrona, cancelamento e reentrada A/B/C.",
+      "possible_regression": "Resultado aceito de A persiste depois do cancelamento e incrementa/completa B, tocando sucesso e zerando o batchId errado.",
+      "impact": "Contabilidade multi-lote, conclusão prematura e áudio/UI de sucesso.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T03:12:00Z",
+      "audit_finding": "Encontrado na passagem adversarial de callback tardio após persistência.",
+      "repair_progress": "REGRESSION_ADDED_AWAITING_RED_PROOF"
     }
   ],
   "document_quality": {
@@ -835,6 +856,17 @@
       "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-007..014 resolved; exact revision passed Node20/22 focal 42/42 and full content-scripts 40/40 suites, 461/461 tests with detectOpenHandles. Awaiting new independent PRIMARY+ADVERSARIAL pair."
+    },
+    {
+      "at_utc": "2026-10-02T03:12:00Z",
+      "type": "POST_AUDIT_ADDITIONAL_FINDING",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "7512f2686f5651874b3b7ef8bdfc15ea9f9cfb00",
+      "bible_sha": "32ab283383118d5324abf4facfc611e257b4aea1",
+      "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-015 HIGH: persistência tardia de A pode executar checkIfComplete sobre B após cancelamento/reentrada; regression adicionada aguardando red proof."
     }
   ],
   "evidence": [
@@ -923,5 +955,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_461_OF_461_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "9bf581e789dfdd332c5365102d6824b2069dea85"
+  "bible_sha": "32ab283383118d5324abf4facfc611e257b4aea1"
 }
