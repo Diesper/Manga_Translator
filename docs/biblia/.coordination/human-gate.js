@@ -150,6 +150,33 @@ function humanAuditResultProblems(states, lifecycleByIndex, approvals, records) 
   return problems;
 }
 
+function humanApprovalAuditorProblems(approvals, pipelines) {
+  const problems = [];
+  const pipelineByIndex = pipelines instanceof Map
+    ? pipelines
+    : new Map((pipelines || []).map((pipeline) => [Number(pipeline?.index), pipeline]));
+
+  for (const approval of approvals || []) {
+    const pipeline = pipelineByIndex.get(Number(approval?.index));
+    if (!pipeline) continue;
+    const auditors = [
+      pipeline?.primary?.auditor,
+      pipeline?.adversarial?.auditor,
+      pipeline?.reaudit?.auditor,
+    ].filter((value) => typeof value === 'string' && value.trim())
+      .map((value) => value.trim());
+    const approver = String(approval?.approved_by || '').trim();
+    if (approver && auditors.includes(approver)) {
+      problems.push(
+        (approval?.path || '<approval>')
+        + ': aprovação humana deve ser independente dos auditores da revisão atual; conflito='
+        + approver
+      );
+    }
+  }
+  return problems;
+}
+
 function humanGateProblems(states, lifecycleByIndex, approvals) {
   const problems = [];
   for (const state of states || []) {
@@ -172,5 +199,6 @@ module.exports = {
   approvalMatches,
   activeHumanApproval,
   humanAuditResultProblems,
+  humanApprovalAuditorProblems,
   humanGateProblems,
 };
