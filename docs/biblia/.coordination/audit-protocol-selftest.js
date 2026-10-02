@@ -8,6 +8,7 @@ const {
   commonClaimProblems,
   duplicateIndexProblem,
   leaseRevisionProblems,
+  validateEditorialReservationEntries,
 } = require('./audit-protocol');
 
 function state() {
@@ -226,6 +227,77 @@ assert(
   'gate final rejeita lease expirado residual',
   ownership.some((problem) => problem.includes('lease expirado residual')),
   JSON.stringify(ownership)
+);
+
+const reservationStates = [
+  {
+    index: 11,
+    file:'tests/a.test.js',
+    bible:'docs/biblia/tests/a.test.js/Bíblia.md',
+    source_sha:'1'.repeat(40),
+    status:'IN_PROGRESS',
+    agent:'CORRETOR-X',
+  },
+  {
+    index: 12,
+    file:'tests/b.test.js',
+    bible:'docs/biblia/tests/b.test.js/Bíblia.md',
+    source_sha:'2'.repeat(40),
+    status:'IN_PROGRESS',
+    agent:'CORRETOR-X',
+  },
+];
+const oneReservation = validateEditorialReservationEntries(reservationStates, [{
+  path:'docs/biblia/.reservas/tests/a.test.js.lock.md',
+  agent:'CORRETOR-X',
+  file:'tests/a.test.js',
+  bible:'docs/biblia/tests/a.test.js/Bíblia.md',
+  source_sha:'1'.repeat(40),
+  state:'ACTIVE',
+}]);
+assert(
+  'reserva editorial coerente é aceita',
+  oneReservation.problems.length===0 && oneReservation.strictProblems.length===0,
+  JSON.stringify(oneReservation)
+);
+
+const badReservation = validateEditorialReservationEntries(reservationStates, [{
+  path:'docs/biblia/.reservas/tests/a.test.js.lock.md',
+  agent:'OUTRO-CORRETOR',
+  file:'tests/a.test.js',
+  bible:'docs/biblia/tests/a.test.js/Outra.md',
+  source_sha:'1'.repeat(40),
+  state:'ACTIVE',
+}]);
+assert(
+  'reserva editorial owner/Bíblia divergentes são rejeitados',
+  badReservation.problems.some((problem)=>problem.includes('BIBLIA diverge'))
+    && badReservation.problems.some((problem)=>problem.includes('AGENTE diverge')),
+  JSON.stringify(badReservation)
+);
+
+const duplicateReservations = validateEditorialReservationEntries(reservationStates, [
+  {
+    path:'docs/biblia/.reservas/tests/a.test.js.lock.md',
+    agent:'CORRETOR-X',
+    file:'tests/a.test.js',
+    bible:'docs/biblia/tests/a.test.js/Bíblia.md',
+    source_sha:'1'.repeat(40),
+    state:'ACTIVE',
+  },
+  {
+    path:'docs/biblia/.reservas/tests/b.test.js.lock.md',
+    agent:'CORRETOR-X',
+    file:'tests/b.test.js',
+    bible:'docs/biblia/tests/b.test.js/Bíblia.md',
+    source_sha:'2'.repeat(40),
+    state:'ACTIVE',
+  },
+]);
+assert(
+  'gate distribuído rejeita corretor com duas reservas editoriais ativas',
+  duplicateReservations.strictProblems.some((problem)=>problem.includes('>1 reserva editorial ativa')),
+  JSON.stringify(duplicateReservations)
 );
 
 const protocolSource = fs.readFileSync(path.join(__dirname, 'audit-protocol.js'), 'utf8');
