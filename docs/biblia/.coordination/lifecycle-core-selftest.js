@@ -112,6 +112,12 @@ assert.ok(forgedProblems.some((x) => x.includes('correction_cycle persistido div
 assert.ok(forgedProblems.some((x) => x.includes('exige status HUMAN_LOCKED')));
 console.log('PASS HUMAN/cycle downgrade is detected');
 
+const approvalFlagTamper = JSON.parse(JSON.stringify(s));
+approvalFlagTamper.human_approval_required = false;
+const approvalFlagProblems = life.lifecycleProblems(approvalFlagTamper);
+assert.ok(approvalFlagProblems.some((x)=>x.includes('human_approval_required persistido diverge')));
+console.log('PASS human_approval_required removal is detected');
+
 s.history.push({
   at_utc: '2026-10-02T08:00:00Z',
   type: life.HUMAN_RESET_EVENT,
