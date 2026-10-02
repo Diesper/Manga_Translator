@@ -1149,7 +1149,7 @@ if (!window.__manga_translator_content_injected) {
                     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.28);
                     osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.3);
                 }); if (audioCtx.state === 'running') schedule(); else if (audioCtx.state === 'suspended') Promise.resolve(audioCtx.resume()).then(() => { if (audioCtx.state === 'running') schedule(); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state }); }).catch(error => sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Não foi possível retomar o áudio de erro.', audioErrorExtra(error))); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto indisponível.', { contextState: audioCtx.state });
-            } catch (e) {}
+            } catch (error) { sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Falha ao preparar ou agendar o áudio de erro.', audioErrorExtra(error)); }
         }
 
         function showIntegratedError(errorMsg, imgIndex, isDebug) {
