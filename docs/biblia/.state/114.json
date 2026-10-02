@@ -193,7 +193,7 @@
       "evidence_job": 110984314942,
       "reason": "Retomada autorizada pelo mantenedor concluída: revisão do #114 reconciliada após correções e CI verde; item permanece READY_FOR_AUDIT para auditoria independente da nova revisão.",
       "previous_event_hash": "22e4924580f4bdca1ab0bee599d8c624dff772f334662345d419340db3c5e8de",
-      "event_hash": "55fd3de0cb250c4cb280899c4b13761e4cbdf40cccb009792f5211bd70b55ef0"
+      "event_hash": "29da7142d6f888dca70829a2c5034056ffec4d665520299bb2f7e8c2cf776108"
     }
   ],
   "evidence": [
