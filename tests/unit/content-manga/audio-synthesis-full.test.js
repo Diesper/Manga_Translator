@@ -1174,6 +1174,15 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
             .toBe('data:image/png;base64,RklSU1Q=');
 
+        const indexZeroSaves = sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+            && message.pageIndex === 0
+        );
+        expect(indexZeroSaves).toHaveLength(1);
+        expect(indexZeroSaves[0]).toEqual(expect.objectContaining({
+            dataUrl: 'data:image/png;base64,RklSU1Q=',
+        }));
+
         const midStatus = await dispatchToContent(runtimeMock, {
             action: 'GET_FLOATING_BUTTON_STATUS',
         });
