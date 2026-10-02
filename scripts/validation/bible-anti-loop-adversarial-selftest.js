@@ -20,7 +20,7 @@ function baseState(cycles = 0, status = 'CHANGES_REQUIRED') {
     agent: null,
     file: 'tests/unit/example.test.js',
     bible: 'docs/biblia/tests/unit/example.test.js/Bíblia.md',
-    production_files: ['extension/content_manga.js'],
+    production_files: ['extension/content/content_manga.js'],
     source_sha: sha('a'),
     bible_sha: sha('b'),
     history: [],
@@ -216,7 +216,7 @@ expect('13 emergency repeats prior strategy',()=>{
 for (const [n,label,file] of [
   ['14','HUMAN source edit without approval','tests/unit/example.test.js'],
   ['15','HUMAN Bible edit without approval','docs/biblia/tests/unit/example.test.js/Bíblia.md'],
-  ['16','HUMAN production edit without approval','extension/content_manga.js'],
+  ['16','HUMAN production edit without approval','extension/content/content_manga.js'],
 ]) {
   expect(n+' '+label,()=>{
     const state=humanLockedState();
