@@ -355,3 +355,224 @@ node docs/biblia/.coordination/reconcile-audit-results.js --write
 ```
 
 O modo `--write` é idempotente e deve ser commitado usando o mesmo protocolo READ LATEST → VERIFY → CONDITIONAL WRITE do restante da coordenação.
+
+## Anti-loop estrutural — ciclos, HUMAN gate e lifecycle transacional
+
+A trava pós-handoff continua válida, mas agora existe uma camada estrutural acima dela.
+
+### Ciclos e escalonamento
+
+`correction_cycle` é derivado canonicamente dos handoffs corretivos do histórico. A migração não reescreve em massa os 233 states: os valores persistidos, quando existirem, são projeções e precisam coincidir com o valor derivado.
+
+```text
+cycle 0–2  → NORMAL
+cycle 3    → ELEVATED
+cycle 4    → HIGH
+cycle 5    → CRITICAL
+cycle 6    → EMERGENCY
+cycle >= 7 → HUMAN
+```
+
+O contador `lifetime_correction_cycles` é monotônico. `HUMAN_RESET_ESCALATION` pode reiniciar apenas o ciclo de escalonamento corrente mediante aprovação humana explícita; ele não apaga o histórico vitalício.
+
+Os work planners ordenam a mesma classe operacional por:
+
+```text
+EMERGENCY > CRITICAL > HIGH > ELEVATED > NORMAL
+```
+
+Prioridade não concede ownership. Leases/reservas continuam garantindo um writer por unidade.
+
+### Diversidade e EMERGENCY
+
+- cycle 5: o corretor do ciclo anterior é inelegível;
+- cycle 6: os dois corretores mais recentes são inelegíveis;
+- cycle 6 exige `ROOT_CAUSE_REVIEW` com categoria, evidência e estratégia diferente;
+- cycle >= 7 não possui corretor automático elegível.
+
+Categorias de causa-raiz suportadas incluem `TEST_WEAKNESS`, `PRODUCTION_DESIGN`, `MOCK_CONTAMINATION`, `CONCURRENCY`, `PROTOCOL_FAILURE`, `SPEC_AMBIGUITY`, `AUDIT_SCOPE_GAP`, `STATE_MACHINE_FAILURE`, `CROSS_FILE_REGRESSION` e `OTHER`.
+
+### HUMAN_LOCKED
+
+Ao entregar o sétimo ciclo, o transition engine muda a unidade para `HUMAN_LOCKED`.
+
+Sem aprovação humana válida, agentes automáticos não podem:
+
+- iniciar correção;
+- adquirir correção canônica;
+- reconciliar automaticamente;
+- auditar a revisão HUMAN;
+- fechar a unidade;
+- resetar o escalonamento.
+
+Existem permissões humanas distintas:
+
+- `ALLOW_AUDIT_ONLY`: libera PRIMARY/ADVERSARIAL/REAUDIT somente para a revisão HUMAN atual;
+- `ALLOW_ONE_CORRECTION`: após decisão final `CHANGES_REQUIRED`, libera exatamente uma correção;
+- `PERMANENTLY_CLOSE`: após decisão final `APPROVED`, permite `HUMAN_COMPLETE → COMPLETED`;
+- `RESET_ESCALATION`: reinicia o escalonamento corrente, preservando o lifetime.
+
+`ALLOW_ONE_CORRECTION` é single-use. O artefato original não é reescrito; o consumo é registrado no event log.
+
+Aprovações são criadas apenas pelo workflow:
+
+```text
+Bible Human Approval
+environment: human-approval
+```
+
+**Configuração administrativa necessária:** o environment GitHub `human-approval` deve possuir required reviewer(s) humanos. O repositório não consegue transformar um nome de environment em revisão humana real sem essa configuração do GitHub.
+
+### Transition engine + CAS
+
+O caminho canônico para mutações de lifecycle é:
+
+```bash
+npm run bible:transition -- status --index 191
+```
+
+e o workflow `Bible Unit Transition`.
+
+Transições usam compare-and-swap por:
+
+- expected status;
+- expected correction cycle;
+- expected revision_id;
+- expected state Git blob SHA.
+
+Writer stale recebe `REJECTED_STATE_CHANGED`.
+
+Ações implementadas incluem:
+
+- `START_CORRECTION`;
+- `HANDOFF_FOR_AUDIT`;
+- `SAFE_ABORT`;
+- `HUMAN_COMPLETE`;
+- `HUMAN_RESET_ESCALATION`.
+
+### Correction authorization token
+
+Uma correção nova depende de token append-only emitido somente quando:
+
+```text
+pipeline final == CHANGES_REQUIRED
+AND pipeline.problems == 0
+AND revisão atual coincide
+AND ator autorizado coincide
+AND regras HUMAN/cycle são satisfeitas
+```
+
+O token é vinculado a:
+
+```text
+index
++ actor
++ correction_cycle
++ audit_epoch
++ handoff_id
++ production_sha
++ test_sha
++ bible_sha
++ revision_id
++ decision_id
+```
+
+O consumo é append-only em `.state.history`. O registry valida também no sentido inverso: um `CORRECTION_TOKEN_CONSUMED` sem token existente, com ator diferente ou revision divergente é erro.
+
+JSONs em `correction-authorizations/` e `human-approvals/` são append-only e o CI exige que sejam introduzidos pelo writer canônico `github-actions[bot]`.
+
+### Event chain
+
+Eventos canônicos novos são encadeados:
+
+```text
+previous_event_hash
+event_hash = SHA256(previous_event_hash + canonical_event)
+```
+
+O primeiro evento novo ancora o histórico legado existente. Depois disso:
+
+- alterar evento antigo quebra o hash;
+- inserir evento sem hashes quebra a cadeia;
+- apagar/reordenar eventos quebra a cadeia.
+
+Isso mantém compatibilidade com o histórico pré-migração sem reescrevê-lo.
+
+### Findings pós-handoff
+
+Suspeitas encontradas sem autoridade de auditoria entram em:
+
+```text
+docs/biblia/.coordination/unverified-findings/NNN/
+```
+
+Criador canônico:
+
+```bash
+npm run bible:finding:create -- --index NNN ...
+```
+
+Regra central:
+
+```text
+UNVERIFIED_FINDING != CHANGES_REQUIRED
+```
+
+O finding não muda status, ciclo, leases, revisão nem cria correction token. O reporter não pode auto-confirmá-lo como PRIMARY/ADVERSARIAL. Estados suportados: `UNVERIFIED`, `CONFIRMED_BY_PRIMARY`, `CONFIRMED`, `REJECTED`, `SUPERSEDED`, `STALE`.
+
+### Identidade de revisão
+
+O lifecycle separa:
+
+- `production_sha`;
+- `test_sha`;
+- `bible_sha`.
+
+E calcula:
+
+```text
+revision_id = SHA256(canonical_json({
+  production_sha,
+  test_sha,
+  bible_sha
+}))
+```
+
+`audit_epoch` cresce a cada handoff corretivo; `handoff_id` identifica a entrega específica. Para handoffs novos, auditorias usam schema v3 e precisam coincidir com epoch/handoff/revision atuais.
+
+Mudanças são classificadas como `PRODUCTION`, `TEST`, `BIBLE_SEMANTIC`, `BIBLE_VALIDATION_EVIDENCE`, `BIBLE_METADATA`, `BIBLE_FORMATTING` ou `PROTOCOL`. A política inicial é conservadora: qualquer mudança de revisão invalida a evidência da rodada, inclusive metadata/formatting; uma exceção futura exigirá prova semântica explícita.
+
+### Human review package
+
+Quando uma unidade entra em HUMAN, o transition engine gera:
+
+```text
+human-review/NNN.json
+human-review/NNN.md
+```
+
+com ciclos, corretores, revisão, padrões recorrentes e findings, para evitar que o humano precise reconstruir manualmente dezenas de eventos.
+
+### Limite técnico do enforcement
+
+O caminho oficial já é transacional, e CI/merge-readiness rejeitam mutações fora das regras. Porém, se a branch continuar permitindo pushes diretos sem ruleset/branch protection, um ator com write permission ainda pode enviar um commit inválido; o commit fica **detectavelmente inválido** e não deve ser mergeado.
+
+Para aproximar enforcement físico, configure no GitHub:
+
+1. branch/ruleset exigindo `Bible Protocol Infrastructure` e `Bible Handoff Guard`;
+2. impedir bypass desses checks por apps/agentes comuns;
+3. environment `human-approval` com required human reviewers;
+4. restringir alteração dos workflows de autoridade a maintainers humanos.
+
+### Comandos novos
+
+```bash
+npm run test:bible-lifecycle:infra
+npm run bible:lifecycle:verify
+npm run bible:transition
+npm run bible:audit:publish
+npm run bible:finding:create
+```
+
+O objetivo é deixar de depender de “o agente deve obedecer” e fazer os caminhos canônicos recusarem transições inválidas por construção.
+
