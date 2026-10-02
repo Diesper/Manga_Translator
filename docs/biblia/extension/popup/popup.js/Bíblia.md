@@ -1,10 +1,10 @@
 # Bíblia técnica — `extension/popup/popup.js`
 
 > **Estado:** 🟡 CORRIGIDO — REABERTO POR BUG WINDOWS EXPOSTO EM #116; VALIDAÇÃO PÓS-FIX PENDENTE  
-> **SHA auditado:** `4387046ab10cc3741ddb9d8ef9f56952113ccc8b`  
+> **SHA auditado:** `9b5af7108acb8932b7b4d323fca8dd101ce32923`  
 > **Agente responsável pela auditoria:** AGENTE 6  
 > **Tipo:** JavaScript de popup Chromium MV3 / controlador principal de UI  
-> **Linhas textuais:** **2023**  
+> **Linhas textuais:** **2032**  
 > **Posições documentais:** **2021**, contando o newline final  
 > **PR:** #66  
 > **Branch:** `docs/project-bible`
@@ -1368,20 +1368,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                             deleteInProgress = true;
                             const newList = list.filter(c => c.id !== chap.id);
-                            storageSet({ chapterList: newList }, () => {
-                                // Remove o capítulo nos DOIS armazenamentos: o novo
-                                // (páginas + restores + assets, em uma transação) e
-                                // os resíduos legados em chrome.storage.local.
-                                smRequest({ action: 'SM_DELETE_CHAPTER', chapterId: chap.id }).then(() => {
+
+                            // O storage canônico é a autoridade. Não esconda o capítulo
+                            // da lista antes de confirmar a exclusão de páginas/restores/assets.
+                            smRequest({ action: 'SM_DELETE_CHAPTER', chapterId: chap.id }).then((result) => {
+                                if (!result?.ok) {
+                                    deleteInProgress = false;
+                                    showPopupToast('Falha ao excluir capítulo. Nenhum registro local foi removido.', 'error');
+                                    return;
+                                }
+
+                                storageSet({ chapterList: newList }, () => {
                                     storageRemove([
                                         `${chap.id}_images`, `${chap.id}_paths`, `${chap.id}_dlId`,
                                         `${chap.id}_restoreMap`, `${chap.id}_restoreMeta`, `_sm_migrated_${chap.id}`
                                     ], () => {
                                         deleteInProgress = false;
                                         loadTranslatedChapters();
-                                    });
+                                    }, () => { deleteInProgress = false; });
                                 }, () => { deleteInProgress = false; });
-                            }, () => { deleteInProgress = false; });
+                            }, () => {
+                                deleteInProgress = false;
+                                showPopupToast('Falha ao excluir capítulo. Nenhum registro local foi removido.', 'error');
+                            });
                         });
                         attachChapterThumbnails(item, chap, renderGeneration);
                         body.appendChild(item);
@@ -26363,10 +26372,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 ## Cobertura documental de linhas/posições — revisão atual
 
-Esta seção é a cobertura canônica da revisão atual. A análise histórica anterior permanece preservada; o mapa antigo ficou stale após as correções recentes do popup.
+Esta seção é a cobertura canônica da revisão atual. O mapa histórico permanece preservado, mas a revisão vigente inclui o fail-closed da exclusão canônica de capítulos.
 
 | Linhas/posição | Escopo | Evidência |
 |---:|---|---|
-| 1–2024 | Blob integral atual `4387046ab10cc3741ddb9d8ef9f56952113ccc8b` (2023 linhas textuais + newline final POSIX). | fonte integral embutida acima + SHA Git do source |
+| 1–2033 | Blob integral atual `9b5af7108acb8932b7b4d323fca8dd101ce32923` (2032 linhas textuais + newline final POSIX). | fonte integral embutida acima + SHA Git do source |
 
-A sincronização documental **não concede aprovação**. A revisão atual deve passar por PRIMARY + ADVERSARIAL independentes.
+### Delta revalidado
+
+- A exclusão de capítulo chama `SM_DELETE_CHAPTER` antes de remover o item de `chapterList`.
+- Resposta canônica sem `ok` preserva os registros locais e informa falha ao usuário.
+- Falha/rejeição da exclusão canônica limpa `deleteInProgress` sem mascarar o erro.
+
+A sincronização documental **não concede aprovação**. A revisão exige nova auditoria distribuída.
