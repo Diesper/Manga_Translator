@@ -1173,6 +1173,26 @@
         ]
       },
       "repair_progress": "PRIMARY_CONFIRMED_CHANGES_REQUIRED; AWAITING_DISTINCT_ADVERSARIAL"
+    },
+    {
+      "id": "191-030",
+      "status": "ACCEPTED",
+      "type": "GTC_FALLBACK_CLEANUP_ERROR_SILENCED",
+      "target_file": "extension/content/cm-gtc-client.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "Após GTC_SAVE moderno bem-sucedido, o cleanup de `gtc_<hash>` usa callback de storage.local.remove que resolve sem verificar chrome.runtime.lastError; saveGlobalTranslationCacheEntry retorna true mesmo se o fallback stale permanecer.",
+      "current_evidence": "cm-gtc-client.js lines 179-186: response.ok entra no cleanup; line 184 `await new Promise(resolve => chrome.storage.local.remove(legacyKey, resolve));`; nenhum lastError é consultado. Query fallback lines 117-119 pode posteriormente reutilizar essa entrada quando a consulta moderna inteira falhar.",
+      "missing_evidence": "Falha injetada de storage.local.remove deve ser observável e não pode reportar cleanup concluído/sucesso incondicional que permita fallback stale ressurgir.",
+      "why_needed": "Um save moderno confirmado pode ser seguido por falha transitória de query; se cleanup falhou silenciosamente, a tradução legada antiga volta e contradiz o estado moderno confirmado.",
+      "requested_action": "No mesmo ciclo de correção de 191-029, tornar cleanup de raw fallback + marker error-aware; criar regression de remove lastError/falha e definir contrato de retorno/telemetria sem deixar stale override silencioso.",
+      "expected_evidence": "Successful GTC_SAVE + cleanup failure não é tratado como sucesso limpo; uma consulta de fallback posterior não deve servir valor stale como se estivesse válido.",
+      "expected_auditor_action": "ADVERSARIAL deve revisar atomicidade/error handling do cleanup junto com a precedência marker/raw.",
+      "possible_regression": "Fallback stale ressuscita após um save moderno válido quando storage cleanup falha.",
+      "impact": "Correção do cache global sob falhas parciais de storage.local.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 30",
+      "audited_at_utc": "2026-10-02T06:14:30Z",
+      "audit_finding": "PRIMARY supplemental finding on protected binding."
     }
   ],
   "document_quality": {
@@ -1191,7 +1211,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:06:30Z",
+  "updated_at_utc": "2026-10-02T06:14:30Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1856,6 +1876,17 @@
       "audit_request_id": "191-029",
       "agent": "AGENTE 30",
       "reason": "Independent PRIMARY confirmed fallback precedence gap. Protected handoff remains READY_FOR_AUDIT until distinct ADVERSARIAL result."
+    },
+    {
+      "at_utc": "2026-10-02T06:14:30Z",
+      "type": "PRIMARY_AUDIT_SUPPLEMENTAL_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-030",
+      "agent": "AGENTE 30",
+      "reason": "Successful GTC_SAVE cleanup ignores storage.local.remove lastError; stale legacy fallback can survive and later reappear when modern query falls back."
     }
   ],
   "evidence": [
