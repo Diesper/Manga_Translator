@@ -472,6 +472,23 @@ jobs:
         run: npm test
 
 
+  bible-final-readiness:
+    name: Bible Final Readiness
+    if: ${{ (github.event_name == 'pull_request' && github.head_ref == 'docs/project-bible') || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código com histórico completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Executar gate final da Bíblia e anti-loop
+        run: npm run bible:final-readiness
+
+
   ci-gate:
     name: CI Gate
     # Avalia falhas reais e jobs skipped, mas não ressuscita o gate quando o
@@ -496,6 +513,7 @@ jobs:
       - background-leak-bisection
       - windows-portability
       - fresh-developer-flow
+      - bible-final-readiness
     steps:
       - name: Exigir execução e sucesso de todos os gates
         env:
@@ -515,6 +533,8 @@ jobs:
           BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
           WINDOWS_PORTABILITY: ${{ needs.windows-portability.result }}
           FRESH_DEVELOPER_FLOW: ${{ needs.fresh-developer-flow.result }}
+          BIBLE_FINAL_REQUIRED: ${{ (github.event_name == 'pull_request' && github.head_ref == 'docs/project-bible') || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
+          BIBLE_FINAL_READINESS: ${{ needs.bible-final-readiness.result }}
         run: |
           failed=0
           check() {
@@ -538,6 +558,13 @@ jobs:
           check "E2E Shards" "$E2E_SHARDS"
           check "E2E Tests" "$E2E"
           check "Windows Portability" "$WINDOWS_PORTABILITY"
+
+          if [ "$BIBLE_FINAL_REQUIRED" = "true" ]; then
+            echo "🔒 Bible lifecycle/final readiness é obrigatório para esta revisão."
+            check "Bible Final Readiness" "$BIBLE_FINAL_READINESS"
+          else
+            echo "ℹ️ Bible Final Readiness não se aplica a esta PR."
+          fi
 
           if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
             echo "🔒 Verificação completa pós-merge/manual: diagnósticos pesados são obrigatórios."
