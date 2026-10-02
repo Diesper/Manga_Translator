@@ -42,6 +42,7 @@ const REQUIRED = {
   ],
   transition: [
     'workflow_dispatch:',
+    'REFRESH_REVISION_FOR_AUDIT',
     'bible-unit-transition-${{ inputs.index }}',
     'node scripts/validation/verify-bible-lifecycle.js',
     'git add -A docs/biblia/.state/ docs/biblia/.reservas/',
