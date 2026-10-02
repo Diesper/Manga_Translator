@@ -76,7 +76,10 @@ on:
 
 concurrency:
   group: bible-protocol-infra-${{ github.ref }}
-  cancel-in-progress: true
+  # Não cancelar o run ativo: com muitos agentes/pushes, cancel-in-progress=true
+  # causa starvation e impede qualquer prova Linux/Windows de terminar.
+  # GitHub mantém no máximo um run ativo + um pendente por grupo.
+  cancel-in-progress: false
 
 jobs:
   protocol-infra:
