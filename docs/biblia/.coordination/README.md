@@ -203,6 +203,38 @@ REAUDIT CHANGES_REQUIRED
 
 A decisão não requer coordenador central.
 
+## Trava pós-handoff contra loop de correção
+
+Depois de `CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT`, a revisão entregue fica protegida pelo binding exato:
+
+```text
+(index, SOURCE_SHA, BIBLE_SHA)
+```
+
+Enquanto esse binding estiver em auditoria independente, é proibido reabrir editorialmente a unidade apenas porque um corretor encontrou um novo possível problema. Em particular:
+
+- mudança do `HEAD` global do PR não autoriza reabertura;
+- finding informal, comentário ou inspeção do corretor não autoriza `READY_FOR_AUDIT → IN_PROGRESS`;
+- PRIMARY isolada em `CHANGES_REQUIRED` ainda não autoriza correção, porque ADVERSARIAL continua obrigatória;
+- divergência PRIMARY × ADVERSARIAL exige REAUDIT antes de qualquer correção;
+- somente uma decisão distribuída final `CHANGES_REQUIRED`, válida para o mesmo SOURCE_SHA+BIBLE_SHA e sem violações de independência, libera nova correção.
+
+Fluxo protegido:
+
+```text
+CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT
+→ PRIMARY
+→ ADVERSARIAL
+→ [REAUDIT se houver divergência]
+→ decisão final
+   ├─ APPROVED          → não reabrir editorialmente
+   └─ CHANGES_REQUIRED  → correção pode adquirir reserva e iniciar
+```
+
+A CI valida esse histórico. Reabertura pós-handoff sem decisão final `CHANGES_REQUIRED` torna o modelo distribuído inválido.
+
+A migração preserva a correção da unidade #191 que já estava aberta em `2026-10-02T05:08:00Z`; handoffs posteriores ficam integralmente protegidos.
+
 ## Migração do registro legado
 
 docs/biblia/AUDITORIA.md continua legível como histórico e compatibilidade.
@@ -241,6 +273,8 @@ READ LATEST
 → calcular decisão deterministicamente
 → se divergência: claim REAUDIT + resultado append-only
 → decisão distribuída concluída
+→ se CHANGES_REQUIRED: liberar correção editorial da revisão
+→ se APPROVED: proibir reabertura editorial daquela revisão
 → continuar imediatamente para outra Bíblia
 → em checkpoint separado, qualquer agente/auditor pode projetar resultados legados em lote
 ~~~
