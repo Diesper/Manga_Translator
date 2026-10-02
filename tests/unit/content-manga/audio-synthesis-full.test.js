@@ -184,7 +184,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         });
     }
 
-    async function loadOnePage() {
+    async function loadOnePage(overrides = {}) {
         return loadContentScript({
             hostname: 'localhost',
             domImages: [{
@@ -192,6 +192,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
                 width: 800,
                 height: 1200,
             }],
+            ...overrides,
         });
     }
 
@@ -444,6 +445,9 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             message.action_name === 'AUDIO_UNLOCKED'
             && message.extra?.originTabId === 44
         ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
 
         expect(AudioContextMock).toHaveBeenCalledTimes(1);
         expect(ctx.state).toBe('running');
@@ -671,6 +675,49 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
                 originTabId: 50,
                 errorName: 'Error',
                 errorMessage: 'unlock-constructor-boom',
+            }),
+        }));
+    });
+
+    test('tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real', async () => {
+        installRuntimeResponder({ tabId: 51 });
+        const { ctx } = createAudioContext({
+            state: 'suspended',
+            onResume: async (audioCtx) => {
+                audioCtx.state = 'running';
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage({ clickToTranslateEnabled: true });
+        await delay(0);
+
+        const result = await dispatchToContent(runtimeMock, {
+            action: 'TRANSLATE_CONTEXT_IMAGE',
+            srcUrl: 'http://localhost/page-0.png',
+        });
+
+        expect(result.response).toEqual({ ok: true, index: 0 });
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCKED'
+            && message.extra?.originTabId === 51
+        ));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'START_BATCH'
+        ));
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(ctx.state).toBe('running');
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_UNLOCKED',
+            extra: expect.objectContaining({
+                originTabId: 51,
+                contextState: 'running',
             }),
         }));
     });
