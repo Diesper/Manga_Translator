@@ -80,6 +80,20 @@ assert.ok(planned.state.history.some((e)=>e.correction_token_id===token.token_id
 assert.deepStrictEqual(life.eventChainProblems(planned.state), []);
 console.log('PASS token is consumed append-only on correction start');
 console.log('PASS canonical transition history remains hash-chained');
+assert.deepStrictEqual(transition.tokenHistoryProblems([planned.state],[token]), []);
+console.log('PASS registry validates consumed token history');
+
+const orphanState = JSON.parse(JSON.stringify(planned.state));
+const consumed = orphanState.history.find((entry)=>entry.type==='CORRECTION_TOKEN_CONSUMED');
+consumed.correction_token_id = 'corr-missing';
+assert.ok(transition.tokenHistoryProblems([orphanState],[token]).some((x)=>x.includes('inexistente')));
+console.log('PASS registry rejects orphan token consumption');
+
+const transferredState = JSON.parse(JSON.stringify(planned.state));
+const transferred = transferredState.history.find((entry)=>entry.type==='CORRECTION_TOKEN_CONSUMED');
+transferred.actor = 'TOKEN-THIEF';
+assert.ok(transition.tokenHistoryProblems([transferredState],[token]).some((x)=>x.includes('ator do consumo diverge')));
+console.log('PASS registry rejects transferred token consumption');
 
 assert.throws(()=>transition.planTransition({
   state:planned.state,
