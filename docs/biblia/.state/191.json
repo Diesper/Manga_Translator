@@ -2,8 +2,8 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -642,6 +642,27 @@
       },
       "resolved_by": "AGENTE HÍBRIDO",
       "resolved_at_utc": "2026-10-02T03:37:00Z"
+    },
+    {
+      "id": "191-018",
+      "status": "ACCEPTED",
+      "type": "ACTIVE_DUPLICATE_STORAGE_DIVERGENCE",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "Duplicata de UPDATE_IMAGE para índice já concluído em lote ainda ativo preserva o DOM, mas cai no fallback !foundImage e chama persistTranslatedPage com o segundo payload, podendo deixar DOM=FIRST e storage=SECOND.",
+      "current_evidence": "No branch translated=true sem failedPersistence key, o loop faz break com foundImage=false; o fallback subsequente persiste request.newSrc. persistTranslatedPage envia esse dataUrl diretamente em SM_SAVE_PAGE.",
+      "missing_evidence": "Duplicata ativa já concluída deve ser idempotente também no storage: zero novo SM_SAVE_PAGE, DOM inalterado, sem avanço de contabilidade e lote aguardando os demais índices.",
+      "why_needed": "Idempotência parcial apenas no DOM não evita divergência entre UI, persistência e restore.",
+      "requested_action": "Fortalecer regressão de duplicata ativa para contar SM_SAVE_PAGE e corrigir runtime para ACK idempotente sem nova persistência quando o índice já foi contabilizado.",
+      "expected_evidence": "Pré-fix emite segundo SM_SAVE_PAGE com payload SECOND; pós-fix mantém uma única persistência para índice 0 e conclui somente após índice 1.",
+      "expected_auditor_action": "Reauditar idempotência DOM/storage de duplicatas durante lote ativo.",
+      "possible_regression": "Reload/restore pode trazer SECOND enquanto a página exibiu FIRST, apesar de completion e áudio parecerem corretos.",
+      "impact": "Integridade entre DOM, storage, restore e idempotência multi-imagem.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T03:42:38Z",
+      "audit_finding": "Encontrado em auto-revisão corretiva após handoff; não usado como auditor independente.",
+      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
     }
   ],
   "document_quality": {
@@ -1022,6 +1043,16 @@
       "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "A PRIMARY lease was created under the same AGENTE HÍBRIDO identity that corrected this revision. No result was published. Lease was removed because the correction agent cannot serve as an independent auditor of its own correction."
+    },
+    {
+      "at_utc": "2026-10-02T03:42:38Z",
+      "type": "POST_HANDOFF_CORRECTION_FINDING",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
+      "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-018 HIGH: active duplicate preserves DOM but still rewrites persisted page with the duplicate payload; correction role reopened, independent audit remains invalid until new handoff."
     }
   ],
   "evidence": [
