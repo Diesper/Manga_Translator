@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+  "source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -87,7 +87,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:04:15Z",
+  "updated_at_utc": "2026-10-02T01:09:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:30:20Z",
@@ -123,6 +123,13 @@
       "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Dois findings HIGH confirmados: reset IndexedDB fail-open e E2E de reader não distingue migração real de fallback legado. Também será fechado o cleanup do persistent profile 093-003."
+    },
+    {
+      "at_utc": "2026-10-02T01:09:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "current_source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
+      "reason": "Reader E2E agora falha fechado no reset chrome.storage/IndexedDB, verifica pós-condição de stores vazios, prova migração via page index/count + flag + remoção legado e remove persistent profile no teardown."
     }
   ],
   "evidence": [
