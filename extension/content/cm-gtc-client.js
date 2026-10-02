@@ -113,10 +113,36 @@
     async function queryGlobalTranslationCache(hashes) {
         const normalized = unique(hashes); if (!normalized.length) return {};
         const response = await sendRuntimeMessageAsync({ action: 'GTC_QUERY_MANY', hashes: normalized });
-        if (response && response.ok && response.entriesByHash) return response.entriesByHash;
-        if (!rootScope.chrome || !chrome.storage || !chrome.storage.local) return {};
-        const legacy = await new Promise(resolve => chrome.storage.local.get(normalized.map(hash => `gtc_${hash}`), resolve));
-        return normalized.reduce((entries, hash) => { if (legacy[`gtc_${hash}`]) entries[hash] = legacy[`gtc_${hash}`]; return entries; }, {});
+        const indexedEntries = response && response.ok && response.entriesByHash
+            ? { ...response.entriesByHash }
+            : null;
+
+        if (!rootScope.chrome || !chrome.storage || !chrome.storage.local) {
+            return indexedEntries || {};
+        }
+
+        const legacyKeys = normalized.flatMap(hash => [
+            `gtc_${hash}`,
+            `gtc_override_${hash}`,
+        ]);
+        const legacy = await new Promise(resolve => chrome.storage.local.get(legacyKeys, resolve));
+
+        if (indexedEntries) {
+            normalized.forEach(hash => {
+                const legacyValue = legacy[`gtc_${hash}`];
+                const overrideIndexed = legacy[`gtc_override_${hash}`] === true;
+                if (!legacyValue) return;
+                if (overrideIndexed || !indexedEntries[hash]) {
+                    indexedEntries[hash] = legacyValue;
+                }
+            });
+            return indexedEntries;
+        }
+
+        return normalized.reduce((entries, hash) => {
+            if (legacy[`gtc_${hash}`]) entries[hash] = legacy[`gtc_${hash}`];
+            return entries;
+        }, {});
     }
     async function queryGlobalTranslationCacheByDHash(dHashes) {
         const d = unique(dHashes); if (!d.length) return {};
@@ -170,6 +196,7 @@
             });
 
             const legacyKey = `gtc_${hash}`;
+            const overrideKey = `gtc_override_${hash}`;
             const hasLegacyStorage = Boolean(
                 rootScope.chrome
                 && chrome.storage
@@ -177,17 +204,26 @@
             );
 
             if (response && response.ok) {
-                // IndexedDB venceu para este hash. Qualquer fallback legado criado
-                // por uma tentativa anterior deve desaparecer para nunca ressurgir
-                // como tradução stale se uma consulta futura cair no fallback.
+                // IndexedDB venceu para este hash. Remova também o marcador de
+                // override: ele só existe quando a tentativa mais recente precisou
+                // cair no fallback legado.
                 if (hasLegacyStorage && typeof chrome.storage.local.remove === 'function') {
-                    await new Promise(resolve => chrome.storage.local.remove(legacyKey, resolve));
+                    await new Promise(resolve => chrome.storage.local.remove(
+                        [legacyKey, overrideKey],
+                        resolve
+                    ));
                 }
                 return true;
             }
 
             if (hasLegacyStorage) {
-                await chrome.storage.local.set({ [legacyKey]: translatedDataUrl });
+                // O IndexedDB pode ainda conter uma tradução de uma tentativa
+                // anterior. O marcador permite que a consulta diferencie um
+                // fallback atual intencional de um legado antigo coexistente.
+                await chrome.storage.local.set({
+                    [legacyKey]: translatedDataUrl,
+                    [overrideKey]: true,
+                });
             }
             return false;
         });
