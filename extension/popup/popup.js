@@ -197,9 +197,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 
-    const storageGet = (keys, callback) => chrome.storage.local.get(keys, data => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao ler configurações: ${error.message}`, 'error'); if (callback) callback({}); return; } if (callback) callback(data || {}); });
-    const storageSet = (items, callback, onError) => chrome.storage.local.set(items, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao salvar configurações: ${error.message}`, 'error'); if (onError) onError(error); return; } if (callback) callback(true); });
-    const storageRemove = (keys, callback, onError) => chrome.storage.local.remove(keys, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao remover configurações: ${error.message}`, 'error'); if (onError) onError(error); return; } if (callback) callback(true); });
     /** Base64 de uma página, sob demanda (exportação/download). */
     async function smGetPage(chapterId, pageIndex) {
         const resp = await smRequest({ action: 'SM_GET_PAGE', chapterId, pageIndex });
