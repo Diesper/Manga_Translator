@@ -60,6 +60,10 @@ const forged = { ...approval, approval_source: 'agent_commit' };
 assert.ok(gate.validateApproval(forged).some((x) => x.includes('workflow_dispatch')));
 console.log('PASS approval fora do workflow humano é inválida');
 
+const botApproval = { ...approval, approved_by: 'github-actions[bot]' };
+assert.ok(gate.validateApproval(botApproval).some((x)=>x.includes('identidade humana')));
+console.log('PASS bot identity cannot satisfy human approval');
+
 const auditRecord = {
   index:7,
   source_sha:state.source_sha,
