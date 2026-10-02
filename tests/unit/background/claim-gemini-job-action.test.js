@@ -183,6 +183,13 @@ describe('CLAIM_GEMINI_JOB', () => {
 
     expect(result.keepAlive).toBe(true);
     expect(result.response).toEqual({ ok: true, job: null });
+    expect(log).toHaveBeenCalledWith(
+      'warn',
+      'bg',
+      'TAB_CLAIM_REJECTED',
+      'Claim rejeitado por ownership de aba',
+      { tabId: 200, indexedTabId: 100 }
+    );
     expect(migrateSpy).not.toHaveBeenCalled();
     expect(state.jobIndex).toEqual([
       expect.objectContaining({
