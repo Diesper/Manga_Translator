@@ -7,7 +7,7 @@
 
 ## Papel arquitetural
 
-`log-entry.js` é o adaptador IPC que recebe `LOG_ENTRY` de content scripts e encaminha os campos para o logger central do background. Ele não persiste logs por conta própria; sua responsabilidade é validar o envelope e chamar `context.log(...)`.
+`log-entry.js` é o adaptador IPC que recebe `LOG_ENTRY` e encaminha os campos ao `context.log(...)` fornecido pelo roteador. Ele não persiste logs por conta própria; sua responsabilidade é validar o envelope e fazer a chamada síncrona ao sink injetado.
 
 Os emissores reais incluem `content_manga.js` e `content_gemini.js`, que usam `LOG_ENTRY` para telemetria e diagnóstico de etapas do fluxo.
 
@@ -26,48 +26,44 @@ A validação **não** impõe:
 
 Esses limites permanecem responsabilidade do contrato de logging e dos emissores.
 
-## Relação com o logger central
+## Relação com o logger do worker
 
-O `context.log` usado pelo background aponta para `MangaTranslatorLog.log`. O logger central:
+A action depende somente de `context.log`; ela não escolhe nem importa um logger global. O roteador cria um contexto padrão com `MangaTranslatorLog.log`, mas o worker real sobrescreve esse campo: `background.js` chama `createMessageRouter` com `contextFactory` que injeta a função `log` local do próprio worker. `router.js` espalha o contexto padrão primeiro e o resultado de `contextFactory` depois, então a função local do worker prevalece.
 
-1. enfileira a entrada sincronamente;
-2. aplica defaults como `info`, `bg`, `UNKNOWN` e objeto vazio;
-3. inicia `_flushLog()` assíncrono;
-4. persiste em `chrome.storage.local.translatorLog`;
-5. mantém no máximo 500 entradas;
-6. captura silenciosamente erros de storage.
+O `background.js` declarado em `extension/manifest.json` carrega `background/actions/log-entry.js` e define o sink `log` inline. Esse sink enfileira a entrada sincronamente, aplica defaults, inicia `_flushLog()` e persiste em `chrome.storage.local.translatorLog`, mantendo até 500 entradas. Erros de storage são absorvidos pelo logger do worker.
 
-Por isso a resposta síncrona `{ok:true}` desta action significa **entrada aceita/encaminhada**, não prova de persistência durável no storage.
+`extension/background/log.js` expõe outro `MangaTranslatorLog.log`, mas não é carregado pelo bootstrap atual do service worker. Portanto, é um módulo relacionado, não uma dependência de runtime desta action no fluxo de produção documentado.
+
+A resposta síncrona `{ok:true}` significa **entrada aceita pelo sink**, não prova de persistência durável no storage.
 
 ## Evidência
 
 | Fonte | Classificação | O que realmente prova |
 |---|---|---|
-| `tests/unit/background/actions-low-risk.test.js` | ✅ PROVADO DIRETAMENTE | A action real encaminha os cinco argumentos ao logger central e retorna em canal síncrono. |
-| `tests/unit/background/routed-actions-legacy.test.js` | ✅ PROVADO NO BACKGROUND INTEGRADO | LOG_ENTRY passa pelo roteador real e mantém resposta `{ok:true}`. |
-| `extension/background/log.js` | 🟨 DEPENDÊNCIA REAL | Queue, defaults, flush assíncrono, retenção de 500 e swallow de erro de storage. |
+| `tests/unit/background/actions-low-risk.test.js` | ✅ PROVADO DIRETAMENTE | A action real encaminha os cinco argumentos ao logger do contexto, valida payloads inválidos antes da chamada, falha cedo sem `registerAction`, aceita campos opcionais ausentes e converte exceção síncrona do sink em erro do roteador. O logger global usado aqui é o contexto padrão isolado, não prova o wiring do worker. |
+| `tests/unit/background/plan-missing-handlers-real.test.js` | ✅ PROVADO NO WORKER REAL | A action percorre o `background.js` real; `LOG_ENTRY` retorna `{ok:true}` e a entrada aparece em `translatorLog`, provando o sink inline injetado pelo worker. |
+| `tests/unit/background/handlers-extra-real.test.js` | ✅ PROVADO NO WORKER REAL | A rota integrada preserva as 500 entradas mais recentes e descarta as mais antigas. |
+| `extension/background/log.js` | ℹ️ MÓDULO RELACIONADO, NÃO CARREGADO | Define um logger modular, mas não participa do bootstrap atual de `background.js`. |
 | `content_manga.js` / `content_gemini.js` | 🟨 EMISSORES REAIS | Produzem mensagens LOG_ENTRY em fluxos de manga/Gemini. |
 
 ## Lacunas de teste
 
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para cada campo string receber número/boolean/null.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `extra:null`, array, string ou número.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `MangaTranslatorRouter` ausente no carregamento desta action.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para `context.log` lançar sincronicamente.
-- ⚠️ **SEM TESTE PROBATÓRIO ESPECÍFICO** para popup/external source, apesar de `allowedSources:['any']`.
+- ⚠️ O teste unitário focal usa o contexto padrão do roteador; a identidade do sink de produção é provada separadamente pelas duas suítes que carregam o worker real.
+- ⚠️ A rota aceita `allowedSources:['any']` por compatibilidade; as suítes citadas não cobrem todos os formatos de remetente externo.
 - ⚠️ Não há limites de payload/metadata no validator local.
-- ⚠️ A persistência do log é assíncrona e falhas de storage são absorvidas em `background/log.js`.
+- ⚠️ A persistência no worker é assíncrona; `_flushLog()` em `background.js` absorve falhas de storage, então `{ok:true}` não confirma persistência durável.
 
 ## Invariantes
 
-1. Payload de log inválido deve falhar antes de `context.log`.
+1. Payload de log inválido deve falhar antes de `context.log`; a suíte focal cobre cada campo string com null, número, boolean e objeto, e `extra` com null, array e primitivos.
 2. Campos ausentes são permitidos.
 3. Campos string presentes não são normalizados pela action.
 4. `extra` precisa ser objeto não-array quando presente.
 5. O logger recebe exatamente `level, source, action_name, detail, extra`.
 6. A action é síncrona para o router.
-7. `ok:true` não deve ser interpretado como ACK de persistência em storage.
-8. A action não deve conhecer a implementação de retenção/flush do logger.
+7. A action não escolhe o logger: o worker real injeta o sink local de `background.js`, que substitui o fallback `MangaTranslatorLog.log` do contexto padrão.
+8. `ok:true` não deve ser interpretado como ACK de persistência em storage.
+9. A action não deve conhecer a implementação de retenção/flush do logger.
 
 ## Fonte integral
 
