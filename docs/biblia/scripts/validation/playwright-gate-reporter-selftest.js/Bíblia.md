@@ -4,8 +4,8 @@
 > **SHA auditado:** 478d6673dbb6d751e19f185feaed78764ebe6fde  
 > **Agente responsável:** AGENTE 2  
 > **Tipo:** tooling Node.js / self-test de infraestrutura / gate E2E  
-> **Linhas textuais:** **79**  
-> **Posições documentais:** **80**, contando o newline final  
+> **Linhas textuais:** **102**  
+> **Posições documentais:** **103**, contando o newline final
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -240,6 +240,29 @@ function passedAttempts(total = 21) {
       await finish({ total: 20, attempts }),
       { status: 'failed' }
     );
+  }
+
+  {
+    const previous = process.env.MANGA_E2E_MIN_TESTS;
+    process.env.MANGA_E2E_MIN_TESTS = '4';
+    try {
+      assert.strictEqual(
+        await finish({ total: 4, attempts: passedAttempts(4) }),
+        undefined
+      );
+      assert.deepStrictEqual(
+        await finish({ total: 3, attempts: passedAttempts(3) }),
+        { status: 'failed' }
+      );
+      process.env.MANGA_E2E_MIN_TESTS = '0';
+      assert.throws(
+        () => PlaywrightGateReporter.minimumExpectedTests(),
+        /inteiro positivo/
+      );
+    } finally {
+      if (previous === undefined) delete process.env.MANGA_E2E_MIN_TESTS;
+      else process.env.MANGA_E2E_MIN_TESTS = previous;
+    }
   }
 
   for (const terminalStatus of ['failed', 'timedOut', 'interrupted']) {
@@ -1400,3 +1423,13 @@ O blob auditado contém newline final. A posição documental 80 representa expl
 ### Conclusão
 
 A Bíblia descreve integralmente o comportamento real do arquivo no SHA auditado e separa prova direta, gate estático e ausência de prova específica. As duas lacunas identificadas não impedem a conclusão documental: elas foram registradas como solicitações externas e não foram usadas como evidência inexistente.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Cobertura canônica da revisão atual. Os mapas históricos anteriores são preservados como contexto, mas esta seção é a referência estrutural para o blob vigente.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–103 | Blob integral atual `a9bd151874609bb8529f14379647589b1f7b37e6` (102 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
+
+Esta sincronização documental **não concede aprovação**: a revisão atual deve passar novamente por PRIMARY + ADVERSARIAL independentes.
