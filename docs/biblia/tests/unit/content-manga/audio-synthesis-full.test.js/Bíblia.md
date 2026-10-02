@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-007 a 191-012 aplicadas; revisão atual aguardando validação executável e novo par PRIMARY + ADVERSARIAL independente  
-> **SHA auditado:** `5b0e701afe44ad8440f7843be76e5457b2ef440b`  
+> **Estado documental:** correções 191-007 a 191-013 aplicadas; revisão atual aguardando validação executável e novo par PRIMARY + ADVERSARIAL independente  
+> **SHA auditado:** `e67349833ff14f35cc1f8a041e00df0d696d8687`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
-> **Linhas textuais:** **1321**  
-> **Posições documentais:** **1322**, contando o LF final  
+> **Linhas textuais:** **1402**  
+> **Posições documentais:** **1403**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -17,14 +17,14 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 ## 2. Dependências revalidadas
 
-- `extension/content/content_manga.js`: `3601efd9a66f8408b724b42d008dc43d518dabe6`.
+- `extension/content/content_manga.js`: `c8bc1f4b7e7855d21be7e92c231573c2a44df405`.
 - `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
 - `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
-## 3. Cobertura funcional atual — 30 casos
+## 3. Cobertura funcional atual — 32 casos
 
 1. `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`
 2. `erros consecutivos reutilizam um único AudioContext de notificação`
@@ -41,23 +41,25 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 13. `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`
 14. `BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui`
 15. `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`
-16. `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`
-17. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
-18. `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`
-19. `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`
-20. `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`
-21. `erro em estado interrupted registra skip sem tentar resume`
-22. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
-23. `resume resolvido sem estado running não agenda som e registra skip`
-24. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
-25. `contexto suspended só agenda sucesso depois de resume real completar`
-26. `erro com resume resolvido sem running registra skip e não cria notas`
-27. `erro sem AudioContext registra indisponibilidade e preserva a UI`
-28. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
-29. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
-30. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
+16. `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`
+17. `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`
+18. `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`
+19. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
+20. `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`
+21. `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`
+22. `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`
+23. `erro em estado interrupted registra skip sem tentar resume`
+24. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
+25. `resume resolvido sem estado running não agenda som e registra skip`
+26. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
+27. `contexto suspended só agenda sucesso depois de resume real completar`
+28. `erro com resume resolvido sem running registra skip e não cria notas`
+29. `erro sem AudioContext registra indisponibilidade e preserva a UI`
+30. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
+31. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
+32. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
 
-Os casos 8–12 fecham os branches restantes de `unlockNotificationAudio()` no clique do botão principal. O caso 13 protege o segundo call site real. Os casos 14–15 protegem mensagens stale de conclusão/erro contra interferência entre lotes. O caso 16 prova reuso transversal do mesmo `AudioContext` entre unlock, erro e sucesso. Os casos 18–20 fecham o 191-009, e o caso 21 fecha o 191-010.
+Os casos 8–12 fecham os branches restantes de `unlockNotificationAudio()` no clique do botão principal. O caso 13 protege o segundo call site real. Os casos 14–15 protegem mensagens stale enquanto há lote ativo. Os casos 16–17 protegem duplicatas/callbacks tardios depois da conclusão. O caso 18 prova reuso transversal do mesmo `AudioContext` entre unlock, erro e sucesso. Os casos 20–22 fecham o 191-009, e o caso 23 fecha o 191-010.
 
 ## 4. 191-001 — TEST_AUTHENTICITY — RESOLVED
 
@@ -167,7 +169,38 @@ Foram adicionadas duas regressões:
 
 Isso protege diretamente respostas fora de ordem e interferência A/B/C/... no gatilho de áudio.
 
-## 16. Evidência executável
+## 16. 191-013 — POST_COMPLETION_DUPLICATE_MESSAGE_GAP — CORREÇÃO APLICADA COM RED→GREEN PENDENTE
+
+A passagem de duplicidade revelou uma assimetria no guard de mensagens:
+
+- enquanto `_currentBatchId` existia, IDs antigos eram rejeitados;
+- após a conclusão, `checkIfComplete()` zerava `_currentBatchId`;
+- um `SHOW_ERROR_INTEGRATED` tardio com o batchId recém-concluído atravessava o guard, tocava duas notas de erro e reabria a UI;
+- um `BATCH_COMPLETE` duplicado não repetia o som graças a `isTranslating=false`, mas também deixava de ser reconhecido/registrado como stale.
+
+Foram adicionadas regressões para os dois casos.
+
+### Prova pré-correção
+
+Workflow **Audio Synthesis Selftest**, run `36958049293`, commit de teste `cc2042f833d7353f95af8afec62bbea3d73f9f4c`:
+
+- Node 20 job `110685347718`: **2 falhas, 39 passes**;
+- Node 22 job `110685347973`: **2 falhas, 39 passes**;
+- as duas falhas foram exatamente:
+  - `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`;
+  - `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`.
+- no erro tardio, a expectativa era manter 3 osciladores do sucesso; o runtime recebeu **5**, provando duas notas sawtooth indevidas.
+
+### Correção
+
+Os guards agora consideram stale qualquer mensagem que traz `batchId` quando:
+
+- não existe mais lote ativo; ou
+- o ID recebido difere do lote ativo.
+
+O `BATCH_COMPLETE` duplicado passa a emitir `STALE_COMPLETE`; o erro tardio retorna antes de `batchHasErrors`, UI e áudio.
+
+## 17. Evidência executável
 
 ### Baseline histórica
 
@@ -179,9 +212,9 @@ Workflow **Audio Synthesis Selftest**, run `36955506902`, commit `942281386ae695
 
 ### Revisão atual
 
-A revisão `5b0e701afe44ad8440f7843be76e5457b2ef440b` contém 30 testes. A prova final exige workflow verde desta revisão; runs anteriores são apenas baseline e não substituem a validação do SHA atual.
+A revisão `e67349833ff14f35cc1f8a041e00df0d696d8687` contém 32 testes e depende de `content_manga.js` `c8bc1f4b7e7855d21be7e92c231573c2a44df405`. A prova final exige workflow verde desse par exato; runs anteriores são baseline/red proof e não substituem a validação pós-correção.
 
-## 17. Reauditoria adversarial pós-correção
+## 18. Reauditoria adversarial pós-correção
 
 Matriz de ataques coberta estruturalmente:
 - erro e sucesso em `running`;
@@ -201,11 +234,13 @@ Matriz de ataques coberta estruturalmente:
 - callbacks assíncronos;
 - `BATCH_COMPLETE` stale não produz áudio nem conclui o lote atual;
 - `SHOW_ERROR_INTEGRATED` stale não toca erro nem contamina `batchHasErrors`;
+- conclusão duplicada pós-completion é reconhecida como stale;
+- erro tardio pós-completion não toca áudio nem reabre a UI;
 - ausência de skips/only/TODO/FIXME.
 
 A correção está aplicada, mas a reauditoria final permanece **não concluída** até a CI do SHA atual.
 
-## 18. Fonte integral exata
+## 19. Fonte integral exata
 
 ```javascript
 /**
@@ -1033,6 +1068,87 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toHaveLength(0);
     });
 
+    test('BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente', async () => {
+        installRuntimeResponder({ tabId: 88 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+        expect(oscillators).toHaveLength(3);
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_SUCCESS_SCHEDULED'
+        )).toHaveLength(1);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'warn',
+            action_name: 'STALE_COMPLETE',
+        }));
+    });
+
+    test('SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI', async () => {
+        installRuntimeResponder({ tabId: 89 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+        expect(oscillators).toHaveLength(3);
+
+        const errorLine = document.getElementById('manga-error-line');
+        const displayBefore = errorLine.style.display;
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            batchId: liveBatch.batchId,
+            errorMsg: 'erro tardio',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(errorLine.style.display).toBe(displayBefore);
+        expect(sentMessages.some(message =>
+            message.action_name === 'BATCH_ERROR'
+            && String(message.detail || '').includes('erro tardio')
+        )).toBe(false);
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
@@ -1531,7 +1647,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 19. Cobertura integral por posições
+## 20. Cobertura integral por posições
 
 - **1–25:** cabeçalho/imports/globals.
 - **26–39:** delay/wait.
@@ -1555,26 +1671,28 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **682–724:** caso 13 — `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`.
 - **725–767:** caso 14 — `BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui`.
 - **768–825:** caso 15 — `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`.
-- **826–888:** caso 16 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
-- **889–927:** caso 17 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
-- **928–953:** caso 18 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
-- **954–984:** caso 19 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
-- **985–1023:** caso 20 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
-- **1024–1054:** caso 21 — `erro em estado interrupted registra skip sem tentar resume`.
-- **1055–1083:** caso 22 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
-- **1084–1110:** caso 23 — `resume resolvido sem estado running não agenda som e registra skip`.
-- **1111–1139:** caso 24 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
-- **1140–1173:** caso 25 — `contexto suspended só agenda sucesso depois de resume real completar`.
-- **1174–1206:** caso 26 — `erro com resume resolvido sem running registra skip e não cria notas`.
-- **1207–1237:** caso 27 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
-- **1238–1268:** caso 28 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
-- **1269–1292:** caso 29 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
-- **1293–1321:** caso 30 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
-- **1322:** LF terminal.
+- **826–865:** caso 16 — `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`.
+- **866–906:** caso 17 — `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`.
+- **907–969:** caso 18 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
+- **970–1008:** caso 19 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
+- **1009–1034:** caso 20 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
+- **1035–1065:** caso 21 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
+- **1066–1104:** caso 22 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
+- **1105–1135:** caso 23 — `erro em estado interrupted registra skip sem tentar resume`.
+- **1136–1164:** caso 24 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
+- **1165–1191:** caso 25 — `resume resolvido sem estado running não agenda som e registra skip`.
+- **1192–1220:** caso 26 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
+- **1221–1254:** caso 27 — `contexto suspended só agenda sucesso depois de resume real completar`.
+- **1255–1287:** caso 28 — `erro com resume resolvido sem running registra skip e não cria notas`.
+- **1288–1318:** caso 29 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
+- **1319–1349:** caso 30 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
+- **1350–1373:** caso 31 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
+- **1374–1402:** caso 32 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
+- **1403:** LF terminal.
 
-**Cobertura documental:** **1322/1322 posições**, contíguas e sem overlap.
+**Cobertura documental:** **1403/1403 posições**, contíguas e sem overlap.
 
-## 20. Pontuação provisória pós-correção
+## 21. Pontuação provisória pós-correção
 
 - Correção funcional: **25/25**
 - Robustez adversarial: **18/20**
