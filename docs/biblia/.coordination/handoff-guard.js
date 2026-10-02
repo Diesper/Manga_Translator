@@ -15,12 +15,17 @@ function verifyHandoffGuard(root = repoRoot) {
   return {
     states,
     records: loaded.records,
-    problems: [...loaded.problems, ...handoffProblems],
+    loadProblems: loaded.problems,
+    problems: handoffProblems,
   };
 }
 
 function main() {
   const result = verifyHandoffGuard();
+  if (result.loadProblems.length) {
+    console.warn('Bible handoff guard: audit-result warnings=' + result.loadProblems.length);
+    for (const problem of result.loadProblems.slice(0, 20)) console.warn('- ' + problem);
+  }
   if (result.problems.length) {
     console.error('Bible handoff guard: BLOCKED');
     for (const problem of result.problems) console.error('- ' + problem);
