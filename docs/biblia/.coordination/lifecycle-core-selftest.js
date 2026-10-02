@@ -131,7 +131,7 @@ forged.status = 'READY_FOR_AUDIT';
 forged.correction_cycle = 0;
 const forgedProblems = life.lifecycleProblems(forged);
 assert.ok(forgedProblems.some((x) => x.includes('correction_cycle persistido diverge')));
-assert.ok(forgedProblems.some((x) => x.includes('exige status HUMAN_LOCKED')));
+assert.ok(forgedProblems.some((x) => x.includes('correction_cycle >= 7 exige HUMAN_LOCKED')));
 console.log('PASS HUMAN/cycle downgrade is detected');
 
 const approvalFlagTamper = JSON.parse(JSON.stringify(s));
