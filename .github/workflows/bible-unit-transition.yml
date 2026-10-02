@@ -12,6 +12,7 @@ on:
           - START_CORRECTION
           - HANDOFF_FOR_AUDIT
           - SAFE_ABORT
+          - REFRESH_REVISION_FOR_AUDIT
           - HUMAN_COMPLETE
           - HUMAN_RESET_ESCALATION
       index:
