@@ -2,8 +2,8 @@
   "index": 54,
   "file": "extension/popup/popup.js",
   "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
   "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
   "completed_at_utc": null,
   "audit_requests": [
@@ -66,7 +66,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:34:00Z",
+  "updated_at_utc": "2026-10-02T15:39:27Z",
   "started_at_utc": "2026-10-02T01:34:00Z",
   "history": [
     {
@@ -78,7 +78,32 @@
       "agent": "AGENTE 30",
       "exposed_by_unit": 116,
       "reason": "116-001 Windows regression exposed SHOW_EXISTING_FOLDER directory extraction bug: popup.js checks/splits two consecutive backslashes although stored download filenames use single Windows separators."
+    },
+    {
+      "at_utc": "2026-10-02T15:39:27Z",
+      "type": "PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+      "reopen_at_utc": null,
+      "correction_token_id": null,
+      "reservation_path": "docs/biblia/.reservas/extension/popup/popup.js.lock.md",
+      "actor": "AGENTE 30",
+      "reason": "Migração anti-loop de sessão editorial legada pré-policy: abort seguro preserva binding/histórico e exige nova correção somente via decisão distribuída + token + reserva canônicos.",
+      "previous_event_hash": "a3a466a8d47fd01c49d5100ba9a9577a96847279ae99d291c0759e7552b401e9",
+      "event_hash": "f234b464c4079a908f54fa6b327a15d8f1584def9f9600f74a68988fee2ffef4"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+  "bible_sha": null,
+  "revision_id": "25e017e8badfa082b801deb33426292626b81eacc5cf6fc0df1ba6e34f046fec"
 }
