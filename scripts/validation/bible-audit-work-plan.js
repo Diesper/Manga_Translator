@@ -77,7 +77,8 @@ function nextPhaseForPipeline(pipeline) {
   return null;
 }
 
-function allowedForPhase(state, phase) {
+function allowedForPhase(state, phase, humanAuditAuthorized = false) {
+  if (state.status === 'HUMAN_LOCKED') return humanAuditAuthorized === true;
   if (phase === 'PRIMARY') return state.status === 'READY_FOR_AUDIT';
   if (phase === 'ADVERSARIAL' || phase === 'REAUDIT') {
     return state.status === 'READY_FOR_AUDIT' || state.status === 'COMPLETED';
@@ -115,7 +116,7 @@ function planAuditWork({
     const nextPhase = nextPhaseForPipeline(pipeline);
     if (!nextPhase) continue;
     if (normalizedPhase !== 'AUTO' && nextPhase !== normalizedPhase) continue;
-    if (!allowedForPhase(state, nextPhase)) continue;
+    if (!allowedForPhase(state, nextPhase, Boolean(humanAuditApproval))) continue;
 
     const shard = shardForIndex(state.index, count);
     candidates.push({
