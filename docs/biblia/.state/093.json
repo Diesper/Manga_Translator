@@ -2,7 +2,7 @@
   "index": 93,
   "file": "tests/e2e/reader-offline.spec.js",
   "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
   "source_sha": "2837775deacca5123fa99232633b4652774abf96",
   "started_at_utc": null,
@@ -76,19 +76,19 @@
     "self_audit": "PAUSED_FOR_HIGHER_PRIORITY_191",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "277/277",
-    "bible_lines": 1035,
+    "documented_positions": "423/423",
+    "bible_lines": 1191,
     "external_audit_requests_open": 0,
     "evidence_run": 36577447500,
     "evidence_job": 109437162728,
     "evidence_summary": "Mesmo blob 1ab953d... executado no shard fast; os três casos aparecem nominalmente e o shard terminou 9 passed.",
-    "source_text_lines": 276,
+    "source_text_lines": 422,
     "evidence_note": " Revisão pós-REAUDIT sincronizou 093-001/002/003 como ACCEPTED.",
-    "note": "Correction work on #093 paused without approval/validation so AGENTE HÍBRIDO can prioritize #191. Source remains at current SHA; accepted requests remain pending and must be resumed later."
+    "note": "Fonte integral e cobertura 423/423 sincronizadas; revisão devolvida para auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T04:00:00Z",
+  "updated_at_utc": "2026-10-02T20:11:39Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:30:20Z",
@@ -147,6 +147,28 @@
       "source_sha": "2837775deacca5123fa99232633b4652774abf96",
       "agent": "AGENTE HÍBRIDO",
       "reason": "User explicitly prioritized #191. #093 is paused without claiming correction complete or audit approval; editorial reservation will be released."
+    },
+    {
+      "at_utc": "2026-10-02T20:11:39Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "d2979cde156fe0d7e5b9f1a273ecc08363d20b5c93c9a52f9f60e2183620b7b6",
+      "source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "test_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "bible_sha": "beca4d49ddb2b130658a1580796e8a4d379c5d0b",
+      "production_sha": null,
+      "revision_id": "9f3f4e1ed4118ebc149420dfbe542b8d0f75d178fe8388acecca4c56e0a5e096",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "093-e1-21d126f5bf7c",
+      "reason": "Sincroniza a Bíblia #093 com a revisão atual; auditorias antigas não são reutilizadas.",
+      "previous_event_hash": "94b33d332a7586977be96e366e639df37a923aafab7e88c84a3719a89ae1a559",
+      "event_hash": "750a71f68bfd138e426bc5e21a518bdb261d71a9a8209cdc5c2af4956ae6197d"
     }
   ],
   "evidence": [
@@ -158,5 +180,16 @@
       "at_utc": "2026-10-01T04:30:20Z",
       "note": "Run 36577447500 / job 109437162728 executou o mesmo blob e terminou 9 passed; 093-001..003 permanecem ACCEPTED."
     }
-  ]
+  ],
+  "test_sha": "2837775deacca5123fa99232633b4652774abf96",
+  "bible_sha": "beca4d49ddb2b130658a1580796e8a4d379c5d0b",
+  "production_sha": null,
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "093-e1-21d126f5bf7c",
+  "revision_id": "9f3f4e1ed4118ebc149420dfbe542b8d0f75d178fe8388acecca4c56e0a5e096"
 }
