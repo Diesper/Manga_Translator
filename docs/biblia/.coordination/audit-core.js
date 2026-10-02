@@ -441,12 +441,15 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         );
         continue;
       }
+
       const nextHandoffPosition = handoffs
         .filter((candidate) => candidate.position > handoff.position)
         .map((candidate) => candidate.position)
         .sort((a, b) => a - b)[0] ?? Number.POSITIVE_INFINITY;
 
-      const reopen = history
+      // Qualquer retorno ao papel de corretor/editor após o handoff precisa ser
+      // explicitamente auditável no history. Não basta mudar state/lock.
+      const correctionStart = history
         .map((entry, position) => ({
           entry,
           position,
@@ -456,15 +459,43 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
           position > handoff.position
           && position < nextHandoffPosition
           && Number.isFinite(at_ms)
-          && entry?.from_status === 'READY_FOR_AUDIT'
           && entry?.to_status === 'IN_PROGRESS'
         ))
         .sort((a, b) => a.position - b.position)[0];
 
-      if (!reopen) continue;
+      if (!correctionStart) {
+        // Para o handoff protegido mais recente, também valida o snapshot atual.
+        // Isso fecha o bypass de editar status/lock sem registrar a transição.
+        if (!Number.isFinite(nextHandoffPosition) && state.status === 'IN_PROGRESS') {
+          problems.push(
+            'handoff protegido com state IN_PROGRESS sem transição de correção registrada: #'
+            + String(state.index).padStart(3, '0')
+            + ' handoff=' + handoff.entry.at_utc
+          );
+        }
 
-      const reopenSourceSha = String(reopen.entry?.source_sha || '').toLowerCase();
-      const reopenBibleSha = String(reopen.entry?.bible_sha || '').toLowerCase();
+        const currentSourceSha = String(state?.source_sha || '').toLowerCase();
+        const currentBible = currentBibleSha(options.root || null, state);
+        const currentBibleShaValue = String(currentBible || state?.bible_sha || '').toLowerCase();
+        if (!Number.isFinite(nextHandoffPosition)
+          && (
+            currentSourceSha !== sourceSha
+            || currentBibleShaValue !== bibleSha
+          )) {
+          problems.push(
+            'handoff protegido teve revisão alterada sem correção autorizada: #'
+            + String(state.index).padStart(3, '0')
+            + ' handoff_source=' + sourceSha.slice(0, 12)
+            + ' handoff_bible=' + bibleSha.slice(0, 12)
+            + ' current_source=' + (currentSourceSha.slice(0, 12) || '-')
+            + ' current_bible=' + (currentBibleShaValue.slice(0, 12) || '-')
+          );
+        }
+        continue;
+      }
+
+      const reopenSourceSha = String(correctionStart.entry?.source_sha || '').toLowerCase();
+      const reopenBibleSha = String(correctionStart.entry?.bible_sha || '').toLowerCase();
       if (reopenSourceSha !== sourceSha || reopenBibleSha !== bibleSha) {
         problems.push(
           'handoff protegido reaberto com binding ausente/divergente: #'
@@ -473,7 +504,7 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
           + ' handoff_bible=' + bibleSha.slice(0, 12)
           + ' reopen_source=' + (reopenSourceSha.slice(0, 12) || '-')
           + ' reopen_bible=' + (reopenBibleSha.slice(0, 12) || '-')
-          + ' reopen=' + reopen.entry.at_utc
+          + ' reopen=' + correctionStart.entry.at_utc
         );
         continue;
       }
@@ -484,7 +515,7 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         && String(record?.bible_sha || '').toLowerCase() === bibleSha
         && Number.isFinite(record?.completed_at_ms)
         && record.completed_at_ms >= handoff.at_ms
-        && record.completed_at_ms <= reopen.at_ms
+        && record.completed_at_ms <= correctionStart.at_ms
       ));
       const boundState = {
         ...state,
@@ -503,7 +534,7 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
           + ' source=' + sourceSha.slice(0, 12)
           + ' bible=' + bibleSha.slice(0, 12)
           + ' handoff=' + handoff.entry.at_utc
-          + ' reopen=' + reopen.entry.at_utc
+          + ' reopen=' + correctionStart.entry.at_utc
           + ' decision=' + pipeline.decision
         );
       }
