@@ -2,8 +2,8 @@
   "index": 114,
   "file": "tests/integration/performance.test.js",
   "bible": "docs/biblia/tests/integration/performance.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
   "started_at_utc": "2026-09-30T06:25:33.185Z",
   "completed_at_utc": null,
@@ -86,7 +86,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T13:35:34Z",
+  "updated_at_utc": "2026-10-02T00:41:15Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:30:28.877Z",
@@ -114,6 +114,15 @@
       "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
       "agent": "AGENTE 23",
       "reason": "Bíblia #114 corrigida conforme auditoria independente: 114-001..003 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
+    },
+    {
+      "at_utc": "2026-10-02T00:41:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a2e759feddd003793d3e5fb7aa90f6aa0ea8ce8a",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Reauditoria confirmou 114-001 HIGH: PERF-09 simula política quota/fallback fora da produção; 114-002/003 exigem contratos temporais alinhados ao ambiente e ao intervalo realmente medido."
     }
   ],
   "evidence": [
