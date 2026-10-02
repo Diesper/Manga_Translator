@@ -25,6 +25,12 @@ function parseNameStatus(output) {
     });
 }
 
+function isAuditResultPath(file, relativeRoot = DEFAULT_RESULTS_ROOT) {
+  const normalized = String(file || '').replace(/\\/g, '/');
+  const target = String(relativeRoot || '').replace(/\\/g, '/').replace(/\/$/, '');
+  return normalized.startsWith(target + '/') && /\.json$/i.test(normalized);
+}
+
 function parseRawHistory(output) {
   return String(output || '')
     .split(/\r?\n/)
@@ -68,6 +74,7 @@ function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT) {
       problems.push('histórico de audit-result não pôde ser interpretado: ' + change.file);
       continue;
     }
+    if (!isAuditResultPath(change.file, target)) continue;
     if (change.status !== 'A') {
       problems.push(
         'audit-result histórico não é append-only: status='
@@ -86,7 +93,7 @@ function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT) {
     git(root, ['ls-tree', '-r', '--name-only', 'HEAD', '--', target])
       .split(/\r?\n/)
       .map((line) => line.trim())
-      .filter(Boolean)
+      .filter((line) => isAuditResultPath(line, target))
   );
 
   for (const [file, blobs] of blobsByPath) {
@@ -109,6 +116,7 @@ function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT) {
   ]) {
     const pending = git(root, args);
     for (const change of parseNameStatus(pending)) {
+      if (!isAuditResultPath(change.file, target)) continue;
       if (change.status !== 'A') {
         problems.push(
           'audit-result possui mutação local não append-only: status='
@@ -143,6 +151,7 @@ if (require.main === module) {
 module.exports = {
   DEFAULT_RESULTS_ROOT,
   ZERO_SHA,
+  isAuditResultPath,
   parseNameStatus,
   parseRawHistory,
   verifyAppendOnly,
