@@ -989,7 +989,22 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             configurable: true,
         });
 
-        await loadOnePage();
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                {
+                    src: 'http://localhost/page-0.png',
+                    width: 800,
+                    height: 1200,
+                },
+                {
+                    src: 'http://localhost/page-1.png',
+                    width: 800,
+                    height: 1200,
+                },
+            ],
+        });
+
         await startBatch();
         const batchA = [...sentMessages].reverse().find(message =>
             message.action === 'START_BATCH'
@@ -1013,7 +1028,18 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             batchId: batchA.batchId,
         }));
 
-        await startBatch();
+        const previousStartCount = sentMessages.filter(message =>
+            message.action === 'START_BATCH'
+        ).length;
+        await dispatchToContent(runtimeMock, {
+            action: 'START_TRANSLATION_FROM_POPUP',
+            indices: [1],
+        });
+        await waitFor(() =>
+            sentMessages.filter(message => message.action === 'START_BATCH').length
+            === previousStartCount + 1
+        );
+
         const batchB = [...sentMessages].reverse().find(message =>
             message.action === 'START_BATCH'
         );
@@ -1045,11 +1071,19 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             batchId: batchB.batchId,
         }));
         expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'warn',
+            action_name: 'STALE_UPDATE_COMPLETION_SKIPPED',
+            extra: expect.objectContaining({
+                index: 0,
+            }),
+        }));
 
         const updateB = await dispatchToContent(runtimeMock, {
             action: 'UPDATE_IMAGE',
             batchId: batchB.batchId,
-            index: 0,
+            index: 1,
             newSrc: 'data:image/png;base64,QkFUQ0hfQg==',
             expectAck: true,
         });
