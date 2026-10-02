@@ -161,4 +161,38 @@ inserted.history.push({at_utc:'2026-10-02T06:42:00Z',type:'MANUAL_EVENT'});
 assert.ok(life.eventChainProblems(inserted).some((x)=>x.includes('sem hashes')));
 console.log('PASS chain rejects unchained event insertion');
 
+const projected = baseState();
+projected.status = 'IN_PROGRESS';
+projected.updated_at_utc = '2026-10-02T06:50:00Z';
+life.appendLifecycleEvent(projected.history, {
+  at_utc:'2026-10-02T06:50:00Z',
+  type:'EDITOR_CORRECTION_STARTED',
+  from_status:'CHANGES_REQUIRED',
+  to_status:'IN_PROGRESS',
+  correction_token_id:'corr-projection',
+});
+const projectedSnapshot = life.lifecycleSnapshot(projected);
+Object.assign(projected, {
+  correction_cycle:projectedSnapshot.correction_cycle,
+  lifetime_correction_cycles:projectedSnapshot.lifetime_correction_cycles,
+  current_escalation_cycle:projectedSnapshot.current_escalation_cycle,
+  escalation_level:projectedSnapshot.escalation_level,
+  human_approval_required:projectedSnapshot.human_approval_required,
+  audit_epoch:projectedSnapshot.audit_epoch,
+  handoff_id:projectedSnapshot.handoff_id,
+  production_sha:projectedSnapshot.production_sha,
+  test_sha:projectedSnapshot.test_sha,
+  bible_sha:projectedSnapshot.bible_sha,
+  revision_id:projectedSnapshot.revision_id,
+});
+assert.deepStrictEqual(life.lifecycleProblems(projected),[]);
+const statusTampered = {...projected,status:'READY_FOR_AUDIT'};
+assert.ok(life.lifecycleProblems(statusTampered).some((x)=>x.includes('status diverge da projeção')));
+console.log('PASS state status must match latest lifecycle event');
+
+const missingProjection = {...projected};
+delete missingProjection.revision_id;
+assert.ok(life.lifecycleProblems(missingProjection).some((x)=>x.includes('projeção lifecycle pós-chain ausente: revision_id')));
+console.log('PASS chained event requires complete state projection');
+
 console.log('Bible lifecycle core self-test: SUCCESS');
