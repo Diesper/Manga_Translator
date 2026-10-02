@@ -44,6 +44,8 @@ on:
       - 'docs/biblia/.coordination/unverified-finding-transition.js'
       - 'docs/biblia/.coordination/unit-transition.js'
       - 'docs/biblia/.coordination/unit-transition-selftest.js'
+      - 'docs/biblia/.coordination/anti-loop-adversarial-selftest.js'
+      - 'docs/biblia/.coordination/anti-loop-integration-selftest.js'
       - 'scripts/validation/verify-human-protected-diff.js'
       - 'scripts/validation/verify-human-protected-diff-selftest.js'
       - 'scripts/validation/verify-bible-state-history-append-only.js'
@@ -108,6 +110,8 @@ jobs:
           node --check docs/biblia/.coordination/unverified-finding-events.js
           node --check docs/biblia/.coordination/unverified-finding-transition.js
           node --check docs/biblia/.coordination/unit-transition.js
+          node --check docs/biblia/.coordination/anti-loop-integration-selftest.js
+          node --check docs/biblia/.coordination/anti-loop-adversarial-selftest.js
           node --check scripts/validation/verify-human-protected-diff.js
           node --check scripts/validation/verify-lifecycle-artifacts-append-only.js
           node --check scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js
@@ -134,6 +138,8 @@ jobs:
           node docs/biblia/.coordination/unverified-findings-selftest.js
           node docs/biblia/.coordination/unverified-finding-events-selftest.js
           node docs/biblia/.coordination/unit-transition-selftest.js
+          node docs/biblia/.coordination/anti-loop-integration-selftest.js
+          node docs/biblia/.coordination/anti-loop-adversarial-selftest.js
           node docs/biblia/.coordination/human-review-selftest.js
           node docs/biblia/.coordination/audit-result-selftest.js
           node scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js
