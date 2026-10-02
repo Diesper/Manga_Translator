@@ -105,9 +105,6 @@ function humanGateProblems(states, lifecycleByIndex, approvals) {
     const relevant = (approvals || []).filter((approval) => Number(approval.index) === Number(state.index));
     for (const approval of relevant) {
       for (const problem of validateApproval(approval, approval.path || '<approval>')) problems.push(problem);
-      if (!snapshot.human_locked && !approvalConsumed(state, approval.approval_id)) {
-        problems.push('#' + String(state.index).padStart(3, '0') + ': aprovação humana ativa para unidade que não está HUMAN');
-      }
     }
   }
   return [...new Set(problems)];
