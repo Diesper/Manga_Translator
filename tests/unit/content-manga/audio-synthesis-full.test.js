@@ -761,6 +761,94 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         ]));
     });
 
+    test('BATCH_COMPLETE em estado interrupted registra skip sem tentar resume', async () => {
+        installRuntimeResponder({ tabId: 81 });
+        const { ctx, oscillators } = createAudioContext({ state: 'interrupted' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        expect(ctx.resume).not.toHaveBeenCalled();
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_SUCCESS_SKIPPED',
+            extra: expect.objectContaining({
+                originTabId: 81,
+                contextState: 'interrupted',
+            }),
+        }));
+    });
+
+    test('falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar', async () => {
+        installRuntimeResponder({ tabId: 82 });
+        const AudioContextMock = jest.fn(() => {
+            throw new Error('success-constructor-boom');
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+        await startBatch();
+
+        await expect(dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+        })).resolves.toEqual({ keepAlive: undefined, response: undefined });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_SUCCESS_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 82,
+                errorName: 'Error',
+                errorMessage: 'success-constructor-boom',
+            }),
+        }));
+    });
+
+    test('erro em estado interrupted registra skip sem tentar resume', async () => {
+        installRuntimeResponder({ tabId: 83 });
+        const { ctx, oscillators } = createAudioContext({ state: 'interrupted' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro em estado interrupted',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(ctx.resume).not.toHaveBeenCalled();
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_ERROR_SKIPPED',
+            extra: expect.objectContaining({
+                originTabId: 83,
+                contextState: 'interrupted',
+            }),
+        }));
+        expect(document.getElementById('manga-error-line').style.display).toBe('flex');
+    });
+
     test('AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som', async () => {
         installRuntimeResponder({ tabId: 66 });
         Object.defineProperty(window, 'AudioContext', {
