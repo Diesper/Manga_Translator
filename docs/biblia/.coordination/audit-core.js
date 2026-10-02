@@ -272,6 +272,33 @@ function loadAuditResults(root, states = []) {
   return { records, problems, baseline };
 }
 
+function latestProtectedHandoff(state, options = {}) {
+  const effectiveAtUtc = options.effectiveAtUtc || HANDOFF_GUARD_EFFECTIVE_AT_UTC;
+  const effectiveAtMs = Date.parse(effectiveAtUtc);
+  if (!Number.isFinite(effectiveAtMs)) return null;
+
+  const currentSource = String(state?.source_sha || '').toLowerCase();
+  const currentBible = String(currentBibleSha(options.root || null, state) || state?.bible_sha || '').toLowerCase();
+  const history = Array.isArray(state?.history) ? state.history : [];
+
+  const candidates = history
+    .map((entry, position) => ({
+      entry,
+      position,
+      at_ms: Date.parse(entry?.at_utc || ''),
+    }))
+    .filter(({ entry, at_ms }) => (
+      entry?.type === 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT'
+      && Number.isFinite(at_ms)
+      && at_ms >= effectiveAtMs
+      && String(entry?.source_sha || '').toLowerCase() === currentSource
+      && String(entry?.bible_sha || '').toLowerCase() === currentBible
+    ))
+    .sort((a, b) => a.position - b.position || a.at_ms - b.at_ms);
+
+  return candidates.length ? candidates[candidates.length - 1] : null;
+}
+
 function latestFor(records, state, phase, options = {}) {
   const candidates = records.filter((record) => (
     record.index === state.index
@@ -288,10 +315,14 @@ function latestFor(records, state, phase, options = {}) {
 function resolveAuditPipeline(state, records = [], legacyAudits = new Map(), options = {}) {
   const baseline = options.baseline || (options.root ? loadBibleBaseline(options.root) : null);
   const versionOptions = { ...options, baseline };
-  const primary = latestFor(records, state, 'PRIMARY', versionOptions)
-    || legacyAuditForState(legacyAudits, state, versionOptions);
-  const adversarial = latestFor(records, state, 'ADVERSARIAL', versionOptions);
-  const reaudit = latestFor(records, state, 'REAUDIT', versionOptions);
+  const handoff = latestProtectedHandoff(state, versionOptions);
+  const revisionRecords = handoff
+    ? records.filter((record) => Number.isFinite(record?.completed_at_ms) && record.completed_at_ms > handoff.at_ms)
+    : records;
+  const primary = latestFor(revisionRecords, state, 'PRIMARY', versionOptions)
+    || (handoff ? null : legacyAuditForState(legacyAudits, state, versionOptions));
+  const adversarial = latestFor(revisionRecords, state, 'ADVERSARIAL', versionOptions);
+  const reaudit = latestFor(revisionRecords, state, 'REAUDIT', versionOptions);
   const problems = [];
 
   if (adversarial && !primary) problems.push('ADVERSARIAL sem PRIMARY válido para source+bible atuais');
@@ -326,7 +357,7 @@ function resolveAuditPipeline(state, records = [], legacyAudits = new Map(), opt
     }
   }
 
-  const currentDistributed = records.filter((record) => (
+  const currentDistributed = revisionRecords.filter((record) => (
     record.index === state.index
     && record.source_sha === state.source_sha
     && recordMatchesCurrentBible(record, state, versionOptions)
@@ -345,6 +376,7 @@ function resolveAuditPipeline(state, records = [], legacyAudits = new Map(), opt
     decision,
     next_phase: nextPhase,
     problems,
+    handoff_after_utc: handoff?.entry?.at_utc || null,
     hasDistributed: currentDistributed.length > 0,
   };
 }
@@ -566,6 +598,7 @@ module.exports = {
   recordMatchesCurrentBible,
   legacyAuditForState,
   loadAuditResults,
+  latestProtectedHandoff,
   latestFor,
   resolveAuditPipeline,
   nextAuditPhase,
