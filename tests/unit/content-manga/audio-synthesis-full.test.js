@@ -904,6 +904,51 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toBe(false);
     });
 
+    test('SHOW_ERROR_INTEGRATED tardio após o lote concluído é ignorado', async () => {
+        installRuntimeResponder({ tabId: 88 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+        expect(oscillators).toHaveLength(3);
+
+        const batchErrorsBefore = sentMessages.filter(message =>
+            message.action === 'LOG_ENTRY'
+            && message.action_name === 'BATCH_ERROR'
+        ).length;
+
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            batchId: liveBatch.batchId,
+            errorMsg: 'erro tardio após o lote concluído',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(sentMessages.filter(message =>
+            message.action === 'LOG_ENTRY'
+            && message.action_name === 'BATCH_ERROR'
+        )).toHaveLength(batchErrorsBefore);
+        expect(document.getElementById('manga-error-collapsible-content').textContent)
+            .not.toContain('erro tardio após o lote concluído');
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
