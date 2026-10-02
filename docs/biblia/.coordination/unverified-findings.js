@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const lifecycle = require('./lifecycle-core');
 
 const FINDING_STATUSES = new Set([
   'UNVERIFIED',
@@ -116,6 +117,43 @@ function buildFinding(state, snapshot, input) {
   const problems = validateFinding(finding);
   if (problems.length) throw new Error(problems.join('; '));
   return finding;
+}
+
+function parseArgs(argv) {
+  const args = {};
+  for (let i=0;i<argv.length;i+=1) {
+    const arg=argv[i];
+    if (arg === '--index') args.index=Number(argv[++i]);
+    else if (arg === '--id') args.id=String(argv[++i] || '');
+    else if (arg === '--reported-by') args.reported_by=String(argv[++i] || '');
+    else if (arg === '--at') args.reported_at_utc=String(argv[++i] || '');
+    else if (arg === '--title') args.title=String(argv[++i] || '');
+    else if (arg === '--finding') args.finding=String(argv[++i] || '');
+    else if (arg === '--evidence') args.evidence=String(argv[++i] || '');
+    else if (arg === '--suggested-test') args.suggested_test=String(argv[++i] || '');
+    else throw new Error('argumento desconhecido: ' + arg);
+  }
+  return args;
+}
+
+function main(argv = process.argv.slice(2)) {
+  const args=parseArgs(argv);
+  if (!Number.isInteger(args.index)) throw new Error('--index obrigatório');
+  const root=path.resolve(__dirname,'../../..');
+  const statePath=path.join(root,'docs','biblia','.state',String(args.index).padStart(3,'0')+'.json');
+  const state=JSON.parse(fs.readFileSync(statePath,'utf8'));
+  const snapshot=lifecycle.lifecycleSnapshot(state);
+  const finding=buildFinding(state,snapshot,args);
+  const dir=path.join(root,'docs','biblia','.coordination','unverified-findings',String(args.index).padStart(3,'0'));
+  fs.mkdirSync(dir,{recursive:true});
+  const out=path.join(dir,finding.id+'.json');
+  fs.writeFileSync(out,JSON.stringify(finding,null,2)+'\n',{flag:'wx'});
+  console.log(path.relative(root,out).replace(/\\/g,'/'));
+}
+
+if (require.main === module) {
+  try { main(); }
+  catch (error) { console.error('Unverified finding: ERROR — '+error.message); process.exit(1); }
 }
 
 module.exports = {
