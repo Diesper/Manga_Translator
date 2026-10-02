@@ -59,4 +59,32 @@ assert.strictEqual(parsed[0].status,'M');
 assert.strictEqual(parsed[0].file,'docs/biblia/.coordination/unverified-findings/191/191-UF-001.json');
 console.log('PASS historical raw finding change parser');
 
+let baselineProblems = guard.addedArtifactProblems(
+  'docs/biblia/.coordination/unverified-findings-legacy-baseline.json',
+  {
+    schema_version:1,
+    effective_at_utc:'2026-10-02T07:28:18Z',
+    legacy_findings:{
+      'docs/biblia/.coordination/unverified-findings/191/191-UF-001.json':{
+        blob_sha:'a'.repeat(40),
+        status:'CONFIRMED_BY_PRIMARY',
+      },
+    },
+  }
+);
+assert.deepStrictEqual(baselineProblems,[]);
+console.log('PASS baseline legado válido é aceito');
+
+baselineProblems = guard.addedArtifactProblems(
+  'docs/biblia/.coordination/unverified-findings-legacy-baseline.json',
+  {
+    schema_version:1,
+    legacy_findings:{
+      'not-a-finding':{blob_sha:'bad',status:'UNVERIFIED'},
+    },
+  }
+);
+assert.ok(baselineProblems.length >= 2);
+console.log('PASS baseline legado malformado é rejeitado');
+
 console.log('Unverified findings append-only self-test: SUCCESS');
