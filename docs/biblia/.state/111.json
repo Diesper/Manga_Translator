@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+  "source_sha": "71ed94a83cba8addb98a702689c11f441b7f098e",
   "started_at_utc": "2026-09-30T06:23:49.485Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -98,7 +98,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:32:15Z",
+  "updated_at_utc": "2026-10-02T00:34:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:38:35.147Z",
@@ -135,6 +135,13 @@
       "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Reauditoria confirmou 111-001 HIGH: contrato <200ms com assertion <1000ms; 111-002 benchmark sintético rotulado como produto; 111-003 bancos/import acumulados."
+    },
+    {
+      "at_utc": "2026-10-02T00:34:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+      "current_source_sha": "71ed94a83cba8addb98a702689c11f441b7f098e",
+      "reason": "Guard sintético alinhado a <200ms; fake IndexedDB isolado por IDBFactory/teste; teardown limpa repository; import fs removido."
     }
   ],
   "evidence": [
