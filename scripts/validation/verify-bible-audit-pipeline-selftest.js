@@ -156,6 +156,18 @@ if (!handoffProblems.some((item) => item.includes('handoff protegido reaberto'))
 }
 process.stdout.write('PASS handoff bloqueia correção espontânea\n');
 
+const divergentBinding = {
+  ...protectedRevision,
+  history: protectedRevision.history.map((entry, index) => (
+    index === 1 ? { ...entry, bible_sha: 'e'.repeat(40) } : entry
+  )),
+};
+handoffProblems = postHandoffCorrectionProblems([divergentBinding], []);
+if (!handoffProblems.some((item) => item.includes('binding ausente/divergente'))) {
+  throw new Error('reabertura com binding divergente deveria falhar: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS handoff exige binding exato na reabertura\n');
+
 const onlyPrimary = [
   result(protectedRevision, 'PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
 ];
