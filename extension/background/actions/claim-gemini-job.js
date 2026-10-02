@@ -44,8 +44,8 @@
       const directData = await context.storage.get([directKey]);
       const directJob = directData && directData[directKey];
       if (directJob) {
-        if (expectedJobId && directJob.jobId !== expectedJobId) {
-          context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por jobId divergente', {
+        if (!expectedJobId || directJob.jobId !== expectedJobId) {
+          context.log('warn', 'bg', 'TAB_CLAIM_REJECTED', 'Claim rejeitado por jobId ausente ou divergente', {
             tabId: canonicalSenderTabId,
           });
           return { job: null };
