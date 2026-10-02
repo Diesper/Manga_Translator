@@ -23,6 +23,8 @@ function tokenConsumed(state, tokenId) {
 
 function issueCorrectionToken(state, pipeline, options = {}) {
   const snapshot = life.lifecycleSnapshot(state, options.revision || {});
+  const tokenActor = String(options.actor || '').trim();
+  if (!tokenActor) throw new Error('TOKEN_ACTOR_REQUIRED');
   if (pipeline?.decision !== 'CHANGES_REQUIRED') throw new Error('TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED');
   if (Array.isArray(pipeline?.problems) && pipeline.problems.length) throw new Error('TOKEN_REJECTS_INVALID_PIPELINE');
   if (pipeline?.source_sha && pipeline.source_sha !== state.source_sha) throw new Error('TOKEN_PIPELINE_SOURCE_STALE');
@@ -61,6 +63,7 @@ function issueCorrectionToken(state, pipeline, options = {}) {
     audit_epoch: snapshot.audit_epoch,
     decision_id: decisionId,
     human_approval_id: humanApprovalId,
+    actor: tokenActor,
     issued_at_utc: issuedAt,
   });
   return {
@@ -77,6 +80,7 @@ function issueCorrectionToken(state, pipeline, options = {}) {
     bible_sha: snapshot.bible_sha,
     revision_id: snapshot.revision_id,
     decision_id: decisionId,
+    actor: tokenActor,
     issued_at_utc: issuedAt,
     human_approval_id: humanApprovalId,
   };
@@ -97,6 +101,8 @@ function validateCorrectionToken(state, token, options = {}) {
   if (token?.bible_sha !== snapshot.bible_sha) problems.push('TOKEN_BIBLE_STALE');
   if (token?.revision_id !== snapshot.revision_id) problems.push('TOKEN_REVISION_STALE');
   if (typeof token?.token_id !== 'string' || !token.token_id.trim()) problems.push('TOKEN_ID_MISSING');
+  if (typeof token?.actor !== 'string' || !token.actor.trim()) problems.push('TOKEN_ACTOR_MISSING');
+  if (options.actor && String(token?.actor || '').trim() !== String(options.actor).trim()) problems.push('TOKEN_ACTOR_MISMATCH');
   if (tokenConsumed(state, token?.token_id)) problems.push('TOKEN_ALREADY_CONSUMED');
   return problems;
 }
@@ -147,7 +153,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
   if (action === 'START_CORRECTION') {
     const expectedStatus = snapshot.human_locked ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED';
     if (state.status !== expectedStatus) throw new Error('START_CORRECTION_STATUS_INVALID:' + state.status);
-    const tokenProblems = validateCorrectionToken(state, token);
+    const tokenProblems = validateCorrectionToken(state, token, { actor });
     if (tokenProblems.length) throw new Error(tokenProblems.join(';'));
 
     const eligibility = life.correctorEligibility(state, actor);
@@ -184,6 +190,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
       handoff_id: snapshot.handoff_id,
       revision_id: snapshot.revision_id,
       correction_token_id: token.token_id,
+      approval_id: token.human_approval_id || null,
       root_cause_review: request.root_cause_review || null,
     });
     life.appendLifecycleEvent(next.history, {
@@ -356,6 +363,7 @@ function parseCli(argv) {
     if (arg === '--index') args.index=Number(argv[++i]);
     else if (arg === '--at') args.at_utc=String(argv[++i] || '');
     else if (arg === '--approval-id') args.approval_id=String(argv[++i] || '');
+    else if (arg === '--actor') args.actor=String(argv[++i] || '');
     else if (arg === '--request') args.request=String(argv[++i] || '');
     else throw new Error('argumento desconhecido: ' + arg);
   }
@@ -387,7 +395,7 @@ function main(argv=process.argv.slice(2)) {
     const approval=args.approval_id
       ? (model.human_approvals || []).find((item)=>item.approval_id===args.approval_id)
       : null;
-    const token=issueCorrectionToken(state,pipeline,{issued_at_utc:args.at_utc,humanApproval:approval});
+    const token=issueCorrectionToken(state,pipeline,{issued_at_utc:args.at_utc,humanApproval:approval,actor:args.actor});
     const out=tokenPath(root,state.index,token.token_id);
     fs.mkdirSync(path.dirname(out),{recursive:true});
     if (fs.existsSync(out)) throw new Error('TOKEN_ALREADY_EXISTS');
