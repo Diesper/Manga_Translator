@@ -1,7 +1,7 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
 > **Estado documental:** correção materializada; validação executável da revisão atual pendente  
-> **SHA auditado:** `52f27af4d8d21cbdd19eabf3d1143eeef96cc9b3`  
+> **SHA auditado:** `207a1ba48085ee9090ab55974db84ae8cf00c4a3`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese de áudio do content script  
 > **Linhas textuais:** **389**  
@@ -524,7 +524,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             action: 'SHOW_ERROR_INTEGRATED',
             errorMsg: 'sem áudio',
             imgIndex: 0,
-        })).resolves.toEqual(expect.objectContaining({ keepAlive: false }));
+        })).resolves.toEqual({ keepAlive: undefined, response: undefined });
 
         expect(document.getElementById('manga-error-line').style.display).toBe('flex');
         expect(document.getElementById('manga-error-collapsible-content').textContent)
@@ -568,3 +568,4 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - Fallback webkit: coberto.
 - Falha silenciosa de criação no som de erro: coberta.
 - CI do SHA atual: ainda necessário antes de fechar as requests.
+- Reauditoria adversarial do harness: corrigida espera do segundo lote por incremento de `START_BATCH` e alinhada semântica real `keepAlive: undefined` de `SHOW_ERROR_INTEGRATED`.
