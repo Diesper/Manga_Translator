@@ -3111,6 +3111,7 @@ Depois da evidência acima, a reauditoria encontrou e corrigiu operações GTC q
 - Integrações GTC: 2 suítes, 9/9 testes.
 - Performance integration: 1 suíte, 9/9 testes.
 - Pipeline visual GTC: 224/224 checks.
+- Após incorporar o head atualizado de `docs/project-bible`, as asserções do toast foram alinhadas a `textContent`: suíte focal popup 9/9 e integração completa 13 suítes, 87/87.
 - Lint: 243 arquivos; `git diff --check`: aprovado.
 
 Os resultados acima são validações locais anteriores ao CI do novo SHA do PR #81. As falhas globais anteriores continuam sendo evidência histórica; o head novo precisa de checks próprios. O novo par independente PRIMARY + ADVERSARIAL e a transição canônica ainda são necessários para qualquer conclusão de 100/100.
