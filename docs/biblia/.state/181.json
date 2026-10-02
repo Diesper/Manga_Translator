@@ -99,11 +99,11 @@
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "SOURCE_SYNC_PENDING_REAUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "758/758",
-    "source_text_lines": 757,
+    "documented_positions": "762/762",
+    "source_text_lines": 761,
     "bible_lines": 6189,
     "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
@@ -113,11 +113,11 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 21 casos RUN/RUN-COV passaram individualmente; global 109/109 suítes e 851/851 testes.",
-    "note": "RUN-01B ampliado para cobrir DataUrlAtob:null; Bíblia sincronizada com o novo source."
+    "note": "Mapa linha a linha corrigido após inserção DataUrlAtob:null; revisão atual permanece READY_FOR_AUDIT e exige PRIMARY + ADVERSARIAL novos."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:29:40.752Z",
+  "updated_at_utc": "2026-10-02T20:06:29Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:50:14.016Z",
@@ -153,7 +153,40 @@
       "current_source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
       "bible_sha": "c2433449872cf63eedc0569c4057d8e31ff49ae4",
       "reason": "179-004 implementada em RUN-01B. Nova revisão de source+Bíblia exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-02T20:06:29Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "f3e0c6c3a37a99e831166d04f767ab172cb322a7dbe0e1c334aa7eb7707320bb",
+      "source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+      "test_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+      "bible_sha": "81b10ff06407f9a040cf1b5afda3b94fc7c4779b",
+      "production_sha": null,
+      "revision_id": "b97d5587eb99f545f3fb26a0f65122faedd2ac1a0fcbbd4935b48b3d7a301d72",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "181-e1-833ac96b1f4c",
+      "reason": "Corrige o mapa linha a linha da Bíblia #181 após expansão de RUN-01B; nova revisão exige PRIMARY + ADVERSARIAL independentes.",
+      "previous_event_hash": "63d15e00e11fc74e80da4ac607e1cabb2117bfe48975fcde617294d25a63886f",
+      "event_hash": "29e9ad08672911fd53aa15c4a16d3a3c38a24eb5c58d4017e9131037f450295a"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "test_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+  "bible_sha": "81b10ff06407f9a040cf1b5afda3b94fc7c4779b",
+  "production_sha": null,
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "181-e1-833ac96b1f4c",
+  "revision_id": "b97d5587eb99f545f3fb26a0f65122faedd2ac1a0fcbbd4935b48b3d7a301d72"
 }
