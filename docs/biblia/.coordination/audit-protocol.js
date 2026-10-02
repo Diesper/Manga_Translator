@@ -95,6 +95,84 @@ function reservationFilesBySource() {
   return result;
 }
 
+function loadEditorialReservationEntries() {
+  const entries = [];
+  const prefix = 'docs/biblia/.reservas/';
+  for (const absolute of walk(reserveRoot)) {
+    const rel = path.relative(repoRoot, absolute).replace(/\\/g, '/');
+    if (!rel.endsWith('.lock.md') || !rel.startsWith(prefix)) continue;
+    const source = fs.readFileSync(absolute, 'utf8');
+    entries.push({
+      path: rel,
+      agent: parseClaimField(source, 'AGENTE'),
+      file: parseClaimField(source, 'ARQUIVO'),
+      bible: parseClaimField(source, 'BIBLIA'),
+      source_sha: parseClaimField(source, 'SHA_DO_FONTE_AO_RESERVAR'),
+      state: parseClaimField(source, 'ESTADO'),
+    });
+  }
+  return entries;
+}
+
+function validateEditorialReservationEntries(states, entries = []) {
+  const problems = [];
+  const strictProblems = [];
+  const stateByFile = new Map((states || []).map((state) => [state.file, state]));
+  const activeByAgent = new Map();
+  const active = [];
+
+  for (const entry of entries || []) {
+    const rel = String(entry?.path || '').replace(/\\/g, '/');
+    const agent = String(entry?.agent || '').trim();
+    const file = String(entry?.file || '').replace(/\\/g, '/').trim();
+    const bible = String(entry?.bible || '').replace(/\\/g, '/').trim();
+    const sourceSha = String(entry?.source_sha || '').trim().toLowerCase();
+    const lockState = String(entry?.state || '').trim().toUpperCase();
+    const expectedPath = file ? 'docs/biblia/.reservas/' + file + '.lock.md' : null;
+
+    if (!agent) problems.push('reserva editorial sem AGENTE: ' + rel);
+    if (!file) problems.push('reserva editorial sem ARQUIVO: ' + rel);
+    if (!bible) problems.push('reserva editorial sem BIBLIA: ' + rel);
+    if (expectedPath && rel !== expectedPath) problems.push('reserva editorial path/ARQUIVO divergente: ' + rel);
+    if (!/^[0-9a-f]{40}$/i.test(sourceSha)) problems.push('reserva editorial SHA inválido: ' + rel);
+    if (lockState !== 'ACTIVE') problems.push('reserva editorial deve estar ACTIVE ou ser removida: ' + rel);
+
+    const state = stateByFile.get(file);
+    if (!state) {
+      problems.push('reserva editorial fora do corpus: ' + rel);
+      continue;
+    }
+    if (bible && bible !== state.bible) problems.push('reserva editorial BIBLIA diverge do state: ' + rel);
+    if (state.status !== 'IN_PROGRESS') {
+      problems.push('reserva editorial ACTIVE exige state IN_PROGRESS: #' + String(state.index).padStart(3, '0') + '/' + state.status);
+    }
+    if (agent && String(state.agent || '').trim() !== agent) {
+      problems.push('reserva editorial AGENTE diverge do owner do state: #' + String(state.index).padStart(3, '0'));
+    }
+
+    if (lockState === 'ACTIVE') {
+      active.push(rel);
+      if (agent) {
+        const list = activeByAgent.get(agent) || [];
+        list.push(rel);
+        activeByAgent.set(agent, list);
+      }
+    }
+  }
+
+  for (const [agent, paths] of activeByAgent.entries()) {
+    if (paths.length > 1) {
+      strictProblems.push('corretor possui >1 reserva editorial ativa: ' + agent + ' -> ' + paths.join(', '));
+    }
+  }
+
+  return { problems, strictProblems, active, activeByAgent };
+}
+
+function validateEditorialReservations(states) {
+  return validateEditorialReservationEntries(states, loadEditorialReservationEntries());
+}
+
 function commonClaimProblems({
   state,
   index,
@@ -357,6 +435,7 @@ function loadModel() {
     lifecycleByIndex: lifecycle.byIndex,
     humanApprovals: approvals.approvals,
   });
+  const editorialReservations = validateEditorialReservations(states);
   const evaluation = core.evaluateAuditPipelines(states, loaded.records, legacyAudits, {
     root: repoRoot,
     baseline,
@@ -399,10 +478,12 @@ function loadModel() {
     active_correction_tokens: [...tokens.activeByIndex.values()],
     active_claims_and_leases: claims.active,
     expired_leases: claims.expired,
-    reservations: claims.reservations,
+    reservations: editorialReservations.active,
+    editorial_reservations_by_agent: editorialReservations.activeByAgent,
     problems: [
       ...loaded.problems,
       ...claims.problems,
+      ...editorialReservations.problems,
       ...evaluation.problems,
       ...handoffProblems,
       ...lifecycle.problems,
@@ -414,7 +495,7 @@ function loadModel() {
       ...humanPermanentCloseProblems,
       ...tokens.problems,
     ],
-    merge_problems: claims.strictProblems,
+    merge_problems: [...claims.strictProblems, ...editorialReservations.strictProblems],
   };
 }
 
@@ -505,6 +586,9 @@ module.exports = {
   readStates,
   parseClaimField,
   reservationFilesBySource,
+  loadEditorialReservationEntries,
+  validateEditorialReservationEntries,
+  validateEditorialReservations,
   commonClaimProblems,
   duplicateIndexProblem,
   leaseRevisionProblems,
