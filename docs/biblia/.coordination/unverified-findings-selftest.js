@@ -17,6 +17,9 @@ const state = {
   history: [],
 };
 const snapshot = lifecycleSnapshot(state);
+const stateBeforeFinding=JSON.stringify(state);
+const cycleBeforeFinding=snapshot.correction_cycle;
+const revisionBeforeFinding=snapshot.revision_id;
 const finding = buildFinding(state, snapshot, {
   id: '005-UF-001',
   reported_by: 'CORRETOR-1',
@@ -29,7 +32,13 @@ const finding = buildFinding(state, snapshot, {
 assert.strictEqual(finding.status, 'UNVERIFIED');
 assert.strictEqual(finding.may_change_lifecycle, false);
 assert.deepStrictEqual(validateFinding(finding), []);
+assert.strictEqual(JSON.stringify(state),stateBeforeFinding);
+assert.strictEqual(lifecycleSnapshot(state).correction_cycle,cycleBeforeFinding);
+assert.strictEqual(lifecycleSnapshot(state).revision_id,revisionBeforeFinding);
+assert.strictEqual(Object.prototype.hasOwnProperty.call(finding,'correction_token'),false);
+assert.strictEqual(Object.prototype.hasOwnProperty.call(finding,'authorization'),false);
 console.log('PASS UNVERIFIED não possui autoridade de lifecycle');
+console.log('PASS finding creation preserves status/cycle/revision and cannot mint token');
 
 const autoPrimary = { ...finding, status: 'CONFIRMED_BY_PRIMARY', confirmed_by_primary: 'CORRETOR-1' };
 assert.ok(validateFinding(autoPrimary).some((x) => x.includes('auto-confirmar')));
