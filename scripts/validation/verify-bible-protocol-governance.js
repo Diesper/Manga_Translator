@@ -52,6 +52,10 @@ const REQUIRED = {
     'npm run bible:final-readiness',
     'node scripts/validation/verify-bible-protocol-governance.js',
   ],
+  package: [
+    '"bible:lifecycle:metrics:check": "node scripts/validation/bible-lifecycle-metrics.js --check"',
+    'npm run bible:lifecycle:metrics:check',
+  ],
 };
 
 const PROTOCOL_POST_LIFECYCLE_CONTROLS = [
@@ -77,6 +81,7 @@ function loadSources(root) {
     human: read('.github/workflows/bible-human-approval.yml'),
     transition: read('.github/workflows/bible-unit-transition.yml'),
     ci: read('.github/workflows/ci.yml'),
+    package: read('package.json'),
   };
 }
 
