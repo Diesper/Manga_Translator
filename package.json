@@ -57,7 +57,7 @@
     "bible:lease-gc": "node docs/biblia/.coordination/audit-lease-gc.js",
     "bible:lease-gc:write": "node docs/biblia/.coordination/audit-lease-gc.js --write-safe",
     "bible:merge-readiness": "node scripts/validation/verify-bible-merge-readiness.js",
-    "bible:final-readiness": "npm run test:bible-protocol:infra && npm run bible:audit:append-only && npm run bible:reconcile:check && npm run bible:audit:verify && npm run bible:merge-readiness",
+    "bible:final-readiness": "npm run test:bible-protocol:infra && npm run test:bible-lifecycle:infra && npm run bible:lifecycle:verify && npm run bible:lifecycle-artifacts:append-only && npm run bible:state-history:append-only && npm run bible:findings:append-only && npm run bible:audit:append-only && npm run bible:reconcile:check && npm run bible:audit:verify && npm run bible:merge-readiness",
     "test:bible-audit-append-only:infra": "node scripts/validation/verify-bible-audit-results-append-only-selftest.js",
     "bible:audit:append-only": "node scripts/validation/verify-bible-audit-results-append-only.js",
     "test:bible-lifecycle:infra": "node docs/biblia/.coordination/lifecycle-core-selftest.js && node docs/biblia/.coordination/human-gate-selftest.js && node docs/biblia/.coordination/unverified-findings-selftest.js && node docs/biblia/.coordination/unverified-finding-events-selftest.js && node docs/biblia/.coordination/unit-transition-selftest.js && node docs/biblia/.coordination/human-review-selftest.js && node docs/biblia/.coordination/audit-result-selftest.js && node scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js && node scripts/validation/verify-bible-state-history-append-only-selftest.js && node scripts/validation/verify-unverified-findings-append-only-selftest.js",
@@ -65,7 +65,10 @@
     "bible:transition": "node docs/biblia/.coordination/unit-transition.js",
     "bible:audit:publish": "node docs/biblia/.coordination/audit-result.js",
     "bible:finding:create": "node docs/biblia/.coordination/unverified-findings.js",
-    "bible:finding:transition": "node docs/biblia/.coordination/unverified-finding-transition.js"
+    "bible:finding:transition": "node docs/biblia/.coordination/unverified-finding-transition.js",
+    "bible:lifecycle-artifacts:append-only": "node scripts/validation/verify-lifecycle-artifacts-append-only.js",
+    "bible:state-history:append-only": "node scripts/validation/verify-bible-state-history-append-only.js",
+    "bible:findings:append-only": "node scripts/validation/verify-unverified-findings-append-only.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
