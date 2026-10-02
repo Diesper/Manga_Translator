@@ -115,7 +115,7 @@
     "embedded_source_exact": true,
     "documented_positions": "684/684",
     "source_text_lines": 683,
-    "bible_lines": 5573,
+    "bible_lines": 5622,
     "external_audit_requests_open": 0,
     "evidence_run": 36521561968,
     "evidence_jobs": [
@@ -124,11 +124,11 @@
       109256050280
     ],
     "evidence_summary": "Mesmo blob executado em Node 20.x e 22.x; os 15 casos passaram; global 109/109 suítes e 851/851 testes. Cobertura externa de File API indisponível já existe em job-runner.test.js.",
-    "note": "Revisão pós-adversarial: 683 blocos line-a-line revalidados; 683 contextos e 359 funções realinhados ao source atual."
+    "note": "Fonte integral e cobertura estrutural 684/684 sincronizadas; nova audit epoch exige PRIMARY + ADVERSARIAL."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:30:22.653Z",
+  "updated_at_utc": "2026-10-02T20:07:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:52:55.822Z",
@@ -182,7 +182,40 @@
       "request_id": "179-004",
       "resolution_source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
       "reason": "179-004 fechada por teste focal no #181; nova revisão da Bíblia #179 exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-02T20:07:30Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "219fb60facf2d9ba1f8e7eb24892be7ce4e06066ab7181536b33bad06f4bb6f6",
+      "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "test_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+      "bible_sha": "6fbd6581f76d5d47cc2e7fb02408ba1b4debbad5",
+      "production_sha": null,
+      "revision_id": "fe5252b985e47c582339dd2ceba700f54478fe4bf0c78b0c67a091d67263ad03",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "179-e1-cfdfaf4809f7",
+      "reason": "Sincroniza a Bíblia #179 com cobertura documental canônica 684/684; revisão atual exige PRIMARY + ADVERSARIAL independentes.",
+      "previous_event_hash": "ae33d69aac9a73e0c9f0568d04bce34389435bf7f1d371f9b4e1a42e058063c6",
+      "event_hash": "df018025fe03eee036cd628234b686526f783b363963076ed08236076c5a8820"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "test_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "bible_sha": "6fbd6581f76d5d47cc2e7fb02408ba1b4debbad5",
+  "production_sha": null,
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "179-e1-cfdfaf4809f7",
+  "revision_id": "fe5252b985e47c582339dd2ceba700f54478fe4bf0c78b0c67a091d67263ad03"
 }
