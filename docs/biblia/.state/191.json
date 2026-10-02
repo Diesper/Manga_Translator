@@ -173,6 +173,26 @@
       "audited_by": "AGENTE 30",
       "audited_at_utc": "2026-10-02T01:54:30Z",
       "audit_finding": "REAUDIT final encontrou divergência entre lifecycle de sucesso/contexto único e playErrorSound que instancia contexto novo por erro."
+    },
+    {
+      "id": "191-006",
+      "status": "ACCEPTED",
+      "type": "ERROR_OBSERVABILITY",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "playErrorSound() termina com catch (e) {}, engolindo falhas síncronas do construtor AudioContext e do agendamento createOscillator/createGain sem telemetria.",
+      "current_evidence": "Falha de resume assíncrona já emite AUDIO_ERROR_FAILED, mas falhas síncronas no mesmo fluxo são silenciosas.",
+      "missing_evidence": "Constructor/scheduling failures devem manter a UI funcional e emitir AUDIO_ERROR_FAILED com errorName/errorMessage/originTabId.",
+      "why_needed": "Exceções engolidas escondem falhas reais e impedem diagnóstico de regressões/políticas do navegador.",
+      "requested_action": "Fortalecer testes reais para constructor/createOscillator e substituir catch vazio por telemetria bounded sem rethrow.",
+      "expected_evidence": "Pre-fix deve falhar nas assertions AUDIO_ERROR_FAILED; pós-fix deve passar sem quebrar a UI.",
+      "expected_auditor_action": "Confirmar que nenhum erro síncrono do áudio de erro é engolido.",
+      "possible_regression": "Áudio pode parar silenciosamente sem pista diagnóstica.",
+      "impact": "Observabilidade e robustez do Web Audio no caminho de erro.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 30",
+      "audited_at_utc": "2026-10-02T02:19:45Z",
+      "audit_finding": "REAUDIT pós-191-005 encontrou catch vazio em playErrorSound apesar de lifecycle já instrumentado."
     }
   ],
   "document_quality": {
@@ -190,7 +210,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:55:15Z",
+  "updated_at_utc": "2026-10-02T02:19:45Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -299,6 +319,13 @@
       "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
       "agent": "AGENTE 30",
       "reason": "Implement regression for 191-005 then fix content_manga shared error AudioContext lifecycle."
+    },
+    {
+      "at_utc": "2026-10-02T02:19:45Z",
+      "type": "REAUDIT_ADDITIONAL_FINDING",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "agent": "AGENTE 30",
+      "reason": "191-006 HIGH: synchronous playErrorSound failures are swallowed by catch (e) {}. Regressions added; pre-fix validation PR #74 pending."
     }
   ],
   "evidence": [
