@@ -457,6 +457,8 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: life.HUMAN_RESET_EVENT,
+      from_status: 'HUMAN_LOCKED',
+      to_status: 'READY_FOR_AUDIT',
       approval_id: humanApproval.approval_id,
       actor,
       lifetime_correction_cycles: snapshot.lifetime_correction_cycles,
