@@ -169,32 +169,37 @@ jobs:
         run: npm run bible:lifecycle:verify
 
       - name: Report anti-loop lifecycle metrics
+        if: ${{ always() }}
         run: npm run bible:lifecycle:metrics
 
       - name: Validate HUMAN protected diff
-        if: github.event_name == 'push'
+        if: ${{ always() && github.event_name == 'push' }}
         run: node scripts/validation/verify-human-protected-diff.js --base "${{ github.event.before }}"
 
       - name: Enforce lifecycle authority artifacts append-only
-        if: github.event_name == 'push'
+        if: ${{ always() && github.event_name == 'push' }}
         run: node scripts/validation/verify-lifecycle-artifacts-append-only.js --base "${{ github.event.before }}"
 
       - name: Enforce lifecycle state history append-only
-        if: github.event_name == 'push'
+        if: ${{ always() && github.event_name == 'push' }}
         run: node scripts/validation/verify-bible-state-history-append-only.js --base "${{ github.event.before }}"
 
       - name: Enforce unverified findings append-only
-        if: github.event_name == 'push'
+        if: ${{ always() && github.event_name == 'push' }}
         run: node scripts/validation/verify-unverified-findings-append-only.js --base "${{ github.event.before }}"
 
       - name: Enforce append-only audit result history
+        if: ${{ always() }}
         run: npm run bible:audit:append-only
 
       - name: Validate live distributed model
+        if: ${{ always() }}
         run: node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt
 
       - name: Classify claim and lease garbage safely
+        if: ${{ always() }}
         run: node docs/biblia/.coordination/audit-lease-gc.js
 
       - name: Summarize live distributed model
+        if: ${{ always() }}
         run: node docs/biblia/.coordination/audit-summary.js

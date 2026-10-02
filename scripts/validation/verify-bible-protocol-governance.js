@@ -14,8 +14,13 @@ const REQUIRED = {
     'npm run bible:lifecycle:verify',
     'npm run bible:lifecycle:metrics',
     'verify-human-protected-diff.js --base',
+    'verify-lifecycle-artifacts-append-only.js --base',
     'verify-bible-state-history-append-only.js --base',
     'verify-unverified-findings-append-only.js --base',
+    'npm run bible:audit:append-only',
+    'node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt',
+    'node docs/biblia/.coordination/audit-lease-gc.js',
+    'node docs/biblia/.coordination/audit-summary.js',
   ],
   handoff: [
     'branches:',
@@ -47,6 +52,18 @@ const REQUIRED = {
     'node scripts/validation/verify-bible-protocol-governance.js',
   ],
 };
+
+const PROTOCOL_POST_LIFECYCLE_CONTROLS = [
+  { command: 'npm run bible:lifecycle:metrics', pushOnly: false },
+  { command: 'verify-human-protected-diff.js --base', pushOnly: true },
+  { command: 'verify-lifecycle-artifacts-append-only.js --base', pushOnly: true },
+  { command: 'verify-bible-state-history-append-only.js --base', pushOnly: true },
+  { command: 'verify-unverified-findings-append-only.js --base', pushOnly: true },
+  { command: 'npm run bible:audit:append-only', pushOnly: false },
+  { command: 'node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt', pushOnly: false },
+  { command: 'node docs/biblia/.coordination/audit-lease-gc.js', pushOnly: false },
+  { command: 'node docs/biblia/.coordination/audit-summary.js', pushOnly: false },
+];
 
 function loadSources(root) {
   function read(rel) {
@@ -105,6 +122,21 @@ function disabledControlProblems(key, source, fragments) {
   return problems;
 }
 
+function protocolContinuationProblems(source) {
+  const problems = [];
+  for (const control of PROTOCOL_POST_LIFECYCLE_CONTROLS) {
+    const block = stepBlockForFragment(source, control.command);
+    if (!block) continue;
+    const expected = control.pushOnly
+      ? /^\s*if:\s*\$\{\{\s*always\(\)\s*&&\s*github\.event_name\s*==\s*['"]push['"]\s*\}\}\s*$/mi
+      : /^\s*if:\s*\$\{\{\s*always\(\)\s*\}\}\s*$/mi;
+    if (!expected.test(block)) {
+      problems.push('protocol: controle pós-lifecycle não continua após bloqueio anterior: ' + control.command);
+    }
+  }
+  return problems;
+}
+
 function validateSources(sources) {
   const problems = [];
   for (const [key, fragments] of Object.entries(REQUIRED)) {
@@ -120,6 +152,8 @@ function validateSources(sources) {
     }
     problems.push(...disabledControlProblems(key, source, fragments));
   }
+
+  problems.push(...protocolContinuationProblems(String(sources?.protocol || '')));
 
   const handoff = String(sources?.handoff || '');
   const onBlock = handoff.split(/\n(?=permissions:|concurrency:)/)[0] || handoff;
@@ -145,8 +179,10 @@ if (require.main === module) main();
 
 module.exports = {
   REQUIRED,
+  PROTOCOL_POST_LIFECYCLE_CONTROLS,
   loadSources,
   stepBlockForFragment,
   disabledControlProblems,
+  protocolContinuationProblems,
   validateSources,
 };

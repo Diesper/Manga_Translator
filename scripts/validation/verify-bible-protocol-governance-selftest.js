@@ -26,6 +26,29 @@ for (const [key, fragments] of Object.entries(governance.REQUIRED)) {
   console.log('PASS removing any required control is rejected: ' + key + ' (' + fragments.length + ' fragments)');
 }
 
+for (const control of governance.PROTOCOL_POST_LIFECYCLE_CONTROLS) {
+  const block = governance.stepBlockForFragment(sources.protocol, control.command);
+  assert.ok(block, 'expected canonical block for ' + control.command);
+  const weakenedBlock = block.replace(
+    /^\s*if:.*$/m,
+    '        if: ${{ success() }}'
+  );
+  const tampered = {
+    ...sources,
+    protocol: sources.protocol.replace(block, weakenedBlock),
+  };
+  assert.ok(
+    governance.validateSources(tampered).some((problem) => (
+      problem.includes('não continua após bloqueio anterior') && problem.includes(control.command)
+    )),
+    'expected post-lifecycle continuation governance failure for ' + control.command
+  );
+}
+console.log(
+  'PASS every post-lifecycle diagnostic remains runnable after an earlier lifecycle block ('+
+  governance.PROTOCOL_POST_LIFECYCLE_CONTROLS.length+' controls)'
+);
+
 const pathFiltered = {
   ...sources,
   handoff: sources.handoff.replace(
