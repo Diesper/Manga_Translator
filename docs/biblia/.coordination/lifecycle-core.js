@@ -475,26 +475,53 @@ function lifecycleProblems(state, options = {}) {
       + latestStatusEvent.to_status + ' actual=' + state?.status
     );
   }
-  for (const entry of history) {
+  const canonicalStartTypes = new Set([
+    'EDITOR_CORRECTION_STARTED',
+    'HUMAN_AUTHORIZED_CORRECTION_STARTED',
+  ]);
+  for (let position = 0; position < history.length; position += 1) {
+    const entry = history[position];
     const atMs = Date.parse(entry?.at_utc || '');
     if (!Number.isFinite(atMs) || atMs < effectiveMs) continue;
-    if (entry?.to_status === 'IN_PROGRESS' && entry?.type !== SAFE_ABORT_EVENT) {
-      if (typeof entry?.correction_token_id !== 'string' || !entry.correction_token_id.trim()) {
-        problems.push(label + ': correção pós-policy sem correction_token_id em ' + entry.at_utc);
-      }
+    if (entry?.to_status !== 'IN_PROGRESS') continue;
+
+    if (!canonicalStartTypes.has(entry?.type)) {
+      problems.push(
+        label + ': evento pós-policy não canônico tentou abrir IN_PROGRESS: '
+        + String(entry?.type || '<sem tipo>') + ' em ' + entry.at_utc
+      );
+      continue;
+    }
+
+    const tokenId = typeof entry?.correction_token_id === 'string'
+      ? entry.correction_token_id.trim()
+      : '';
+    if (!tokenId) {
+      problems.push(label + ': correção pós-policy sem correction_token_id em ' + entry.at_utc);
+      continue;
+    }
+
+    const tokenConsumption = history[position + 1];
+    if (tokenConsumption?.type !== 'CORRECTION_TOKEN_CONSUMED'
+      || String(tokenConsumption?.correction_token_id || '').trim() !== tokenId) {
+      problems.push(
+        label + ': START_CORRECTION sem CORRECTION_TOKEN_CONSUMED imediatamente posterior em '
+        + entry.at_utc
+      );
     }
   }
 
   if (state?.status === 'IN_PROGRESS') {
-    const hasCanonicalStart = history.some((entry) => {
+    const latestInProgress = [...history].reverse().find((entry) => {
       const atMs = Date.parse(entry?.at_utc || '');
       return Number.isFinite(atMs)
         && atMs >= effectiveMs
-        && entry?.to_status === 'IN_PROGRESS'
-        && typeof entry?.correction_token_id === 'string'
-        && entry.correction_token_id.trim();
+        && entry?.to_status === 'IN_PROGRESS';
     });
-    if (!hasCanonicalStart) {
+    if (!latestInProgress
+      || !canonicalStartTypes.has(latestInProgress.type)
+      || typeof latestInProgress.correction_token_id !== 'string'
+      || !latestInProgress.correction_token_id.trim()) {
       problems.push(label + ': IN_PROGRESS sem START_CORRECTION canônico');
     }
   }
