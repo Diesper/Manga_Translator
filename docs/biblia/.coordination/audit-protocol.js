@@ -380,7 +380,10 @@ function loadModel() {
     approvals.approvals,
     pipelineByIndex
   );
-  const tokens = unitTransition.loadCorrectionTokens(repoRoot, states, { pipelines: pipelineByIndex });
+  const tokens = unitTransition.loadCorrectionTokens(repoRoot, states, {
+    pipelines: pipelineByIndex,
+    humanApprovals: approvals.approvals,
+  });
 
   return {
     states,
