@@ -196,11 +196,14 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
     }
 
     async function startBatch() {
+        const previousCount = sentMessages.filter(message => message.action === 'START_BATCH').length;
         await dispatchToContent(runtimeMock, {
             action: 'START_TRANSLATION_FROM_POPUP',
             indices: [0],
         });
-        await waitFor(() => sentMessages.some(message => message.action === 'START_BATCH'));
+        await waitFor(() =>
+            sentMessages.filter(message => message.action === 'START_BATCH').length === previousCount + 1
+        );
     }
 
     test('SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes', async () => {
