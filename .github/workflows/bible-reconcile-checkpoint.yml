@@ -30,13 +30,80 @@ jobs:
         with:
           node-version: 20.x
 
-      - name: Remember observed head
-        id: observed
+      - name: Remember protocol-validated head
+        id: validated
         shell: bash
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Validate canonical protocol infrastructure before mutation
         run: npm run test:bible-protocol:infra
+
+      - name: Refresh dynamic branch head after protocol validation
+        id: observed
+        env:
+          VALIDATED_SHA: ${{ steps.validated.outputs.sha }}
+        shell: bash
+        run: |
+          git fetch origin docs/project-bible
+          REMOTE_SHA="$(git rev-parse origin/docs/project-bible)"
+          if [ "$REMOTE_SHA" != "$VALIDATED_SHA" ]; then
+            PROTOCOL_CHANGED="$(
+              git diff --name-only "$VALIDATED_SHA" "$REMOTE_SHA" |
+              grep -E '^(package\.json|\.github/workflows/bible-.*\.yml|docs/biblia/\.coordination/[^/]+\.js|scripts/validation/.*\.js)        run: npm run bible:audit:append-only
+
+      - name: Reconcile append-only results into compatibility state
+        run: npm run bible:reconcile:write
+
+      - name: Remove only conclusively consumed claims and leases
+        run: npm run bible:lease-gc:write
+
+      - name: Prove reconciliation idempotence after cleanup
+        run: npm run bible:reconcile:check
+
+      - name: Commit checkpoint locally
+        id: commit
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No checkpoint changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/biblia
+          git commit -m "coord: reconcile distributed Bible checkpoint"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Conditional fast-forward publish
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          OBSERVED_SHA: ${{ steps.observed.outputs.sha }}
+        shell: bash
+        run: |
+          git fetch origin docs/project-bible
+          REMOTE_SHA="$(git rev-parse origin/docs/project-bible)"
+          if [ "$REMOTE_SHA" != "$OBSERVED_SHA" ]; then
+            echo "::error::Branch moved from $OBSERVED_SHA to $REMOTE_SHA while checkpoint was computed. Refusing to overwrite/rebase concurrent work; rerun the checkpoint."
+            exit 1
+          fi
+          git push origin HEAD:docs/project-bible
+ || true
+            )"
+            if [ -n "$PROTOCOL_CHANGED" ]; then
+              echo "::error::Protocol infrastructure changed after validation; rerun checkpoint on the newer protocol revision."
+              echo "$PROTOCOL_CHANGED"
+              exit 1
+            fi
+            git reset --hard "$REMOTE_SHA"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Validate refreshed live head before mutation
+        run: |
+          node scripts/validation/verify-bible-protocol-governance.js
+          npm run bible:lifecycle:verify
+          npm run bible:audit:append-only
 
       - name: Prove published audit results are immutable
         run: npm run bible:audit:append-only

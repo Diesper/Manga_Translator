@@ -86,6 +86,7 @@ function loadSources(root) {
     human: read('.github/workflows/bible-human-approval.yml'),
     transition: read('.github/workflows/bible-unit-transition.yml'),
     ci: read('.github/workflows/ci.yml'),
+    reconcile: read('.github/workflows/bible-reconcile-checkpoint.yml'),
     package: read('package.json'),
   };
 }
@@ -104,7 +105,7 @@ function stepBlockForFragment(source, fragment) {
 
 function disabledControlProblems(key, source, fragments) {
   const problems = [];
-  const criticalWholeWorkflow = new Set(['protocol', 'handoff', 'human', 'transition']);
+  const criticalWholeWorkflow = new Set(['protocol', 'handoff', 'human', 'transition', 'reconcile']);
   if (criticalWholeWorkflow.has(key)) {
     const forbidden = [
       { re:/^\s*continue-on-error:\s*true\s*$/mi, label:'continue-on-error: true' },
@@ -149,6 +150,25 @@ function protocolContinuationProblems(source) {
   return problems;
 }
 
+function reconcileRefreshProblems(source) {
+  const ordered = [
+    'npm run test:bible-protocol:infra',
+    'git fetch origin docs/project-bible',
+    'git reset --hard "$REMOTE_SHA"',
+    'echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"',
+    'npm run bible:reconcile:write',
+  ];
+  let previous = -1;
+  const problems = [];
+  for (const fragment of ordered) {
+    const position = source.indexOf(fragment);
+    if (position < 0) continue;
+    if (position <= previous) problems.push('reconcile: refresh/observed-head ordering inválido antes da mutação: ' + fragment);
+    previous = position;
+  }
+  return problems;
+}
+
 function validateSources(sources) {
   const problems = [];
   for (const [key, fragments] of Object.entries(REQUIRED)) {
@@ -166,6 +186,7 @@ function validateSources(sources) {
   }
 
   problems.push(...protocolContinuationProblems(String(sources?.protocol || '')));
+  problems.push(...reconcileRefreshProblems(String(sources?.reconcile || '')));
 
   const handoff = String(sources?.handoff || '');
   const onBlock = handoff.split(/\n(?=permissions:|concurrency:)/)[0] || handoff;
@@ -196,5 +217,6 @@ module.exports = {
   stepBlockForFragment,
   disabledControlProblems,
   protocolContinuationProblems,
+  reconcileRefreshProblems,
   validateSources,
 };
