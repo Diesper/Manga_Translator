@@ -16,6 +16,12 @@ function parseArgs(argv) {
     else if (arg === '--approved-by') args.approved_by=String(argv[++i] || '');
     else if (arg === '--at') args.approved_at_utc=String(argv[++i] || '');
     else if (arg === '--reason') args.reason=String(argv[++i] || '');
+    else if (arg === '--workflow-run-id') args.workflow_run_id=String(argv[++i] || '');
+    else if (arg === '--workflow-run-attempt') args.workflow_run_attempt=Number(argv[++i]);
+    else if (arg === '--workflow-name') args.workflow_name=String(argv[++i] || '');
+    else if (arg === '--repository') args.repository=String(argv[++i] || '');
+    else if (arg === '--target-branch') args.target_branch=String(argv[++i] || '');
+    else if (arg === '--branch-head-sha') args.branch_head_sha=String(argv[++i] || '');
     else throw new Error('argumento desconhecido: ' + arg);
   }
   return args;
@@ -35,7 +41,7 @@ function buildApproval(state, snapshot, args) {
     approved_at_utc: args.approved_at_utc,
   });
   const approval = {
-    schema_version: 1,
+    schema_version: 2,
     approval_id: String(state.index).padStart(3, '0') + '-human-' + life.sha256(seed).slice(0, 16),
     index: state.index,
     locked_cycle: snapshot.current_escalation_cycle,
@@ -45,6 +51,12 @@ function buildApproval(state, snapshot, args) {
     approved_at_utc: args.approved_at_utc,
     approval_source: 'workflow_dispatch',
     approval_environment: 'human-approval',
+    workflow_run_id: args.workflow_run_id || null,
+    workflow_run_attempt: Number(args.workflow_run_attempt) || null,
+    workflow_name: args.workflow_name || null,
+    repository: args.repository || null,
+    target_branch: args.target_branch || null,
+    branch_head_sha: args.branch_head_sha || null,
     production_sha: snapshot.production_sha,
     test_sha: snapshot.test_sha,
     bible_sha: snapshot.bible_sha,
