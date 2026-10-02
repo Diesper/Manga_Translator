@@ -34,6 +34,9 @@ function parseBase(argv) {
 
 function artifactKind(file) {
   const normalized = String(file || '').replace(/\\/g, '/');
+  if (normalized === 'docs/biblia/.coordination/unverified-findings-legacy-baseline.json') {
+    return 'BASELINE';
+  }
   if (/^docs\/biblia\/\.coordination\/unverified-findings\/\d{3}\/[^/]+\.json$/i.test(normalized)) {
     return 'FINDING';
   }
@@ -57,7 +60,20 @@ function addedArtifactProblems(file, raw) {
   }
 
   const parts = normalized.split('/');
-  const index = kind === 'FINDING' ? Number(parts[4]) : Number(parts[4]);
+  if (kind === 'BASELINE') {
+    if (value?.schema_version !== 1 || !value?.legacy_findings || typeof value.legacy_findings !== 'object') {
+      problems.push(normalized + ': baseline legado inválido');
+    } else {
+      for (const [findingPath, entry] of Object.entries(value.legacy_findings)) {
+        if (artifactKind(findingPath) !== 'FINDING') problems.push(normalized + ': path legado inválido: ' + findingPath);
+        if (!/^[0-9a-f]{40}$/i.test(String(entry?.blob_sha || ''))) problems.push(normalized + ': blob_sha legado inválido: ' + findingPath);
+        if (!entry?.status || entry.status === 'UNVERIFIED') problems.push(normalized + ': baseline deve registrar somente status legado promovido: ' + findingPath);
+      }
+    }
+    return problems;
+  }
+
+  const index = Number(parts[4]);
   if (Number(value?.index) !== index) problems.push(normalized + ': index do JSON diverge do path');
 
   if (kind === 'FINDING') {
@@ -117,6 +133,7 @@ function verifyHistoricalAppendOnly() {
     '--',
     'docs/biblia/.coordination/unverified-findings',
     'docs/biblia/.coordination/unverified-finding-events',
+    'docs/biblia/.coordination/unverified-findings-legacy-baseline.json',
   ]);
   for (const change of parseRawHistory(raw)) {
     if (!artifactKind(change.file)) continue;
