@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "index": 4,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 3",
+  "file": "extension/background/actions/check-extraction-tab.js",
+  "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
+  "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+  "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "004-A3-ADV-20261002-001",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_DEPENDENCY_WIRING_OMISSION",
+      "summary": "A Bíblia atual descreve corretamente a lógica local da action, mas omite o wiring/consumer que define o contrato externo real de CHECK_IF_EXTRACTION_TAB e omite as provas integradas específicas desse contrato.",
+      "evidence": [
+        "extension/background/router.js:33 mapeia CHECK_IF_EXTRACTION_TAB -> check-extraction-tab; esse alias não aparece na Bíblia atual.",
+        "extension/background.js:60 (importScripts) e :119 (require) carregam a action nos dois bootstraps; :460-470 inclui CHECK_IF_EXTRACTION_TAB em legacyResponseActions e remove o wrapper ok:true antes de responder. Nenhum desses contratos aparece na Bíblia atual.",
+        "extension/content/content_manga.js:769-781 envia CHECK_IF_EXTRACTION_TAB e usa response.isExtractionTab para repetir o lookup, encerrar ou iniciar a extração; esse consumer de produção não aparece na Bíblia.",
+        "tests/unit/background/routed-actions-legacy.test.js:140-159 prova alias/roteamento e a resposta externa sem ok; batch-lifecycle-real.test.js:148-213 prova registro e reidratação do mapping; plan-missing-handlers-real.test.js:388-439 prova hit/miss no background real. A Bíblia não referencia/classifica nenhuma dessas provas.",
+        "tests/unit/content-manga/extraction-and-handlers-real.test.js prova o consumer: isExtractionTab:false impede entrega e o lookup é repetido até o mapping ficar disponível. Essa evidência também está ausente.",
+        "O self-test focal carrega o source real em vm, mas injeta MangaTranslatorRouter.registerAction e chama action.execute diretamente; portanto alias, bootstrap de background.js, compatibilidade de resposta e consumer podem regredir sem esse self-test focal detectar.",
+        "docs/biblia/AUDITORIA.md da revisão SHA anterior registrava explicitamente routed-actions-legacy/plan-missing-handlers e o wiring CHECK_IF_EXTRACTION_TAB -> check-extraction-tab; a revisão atual perdeu essa rastreabilidade em vez de demonstrar que ela deixou de ser relevante."
+      ],
+      "required_change": "Documentar o alias CHECK_IF_EXTRACTION_TAB, o carregamento por background.js, a compatibilidade legada que remove ok:true, o consumer content_manga.js e seu efeito de controle de fluxo; classificar separadamente self-test local, provas integradas de background e prova de consumer, sem atribuir ao self-test focal cobertura desses vínculos."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:45:35.873Z"
+}
