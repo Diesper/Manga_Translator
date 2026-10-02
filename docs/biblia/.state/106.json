@@ -2,8 +2,8 @@
   "index": 106,
   "file": "tests/integration/banned-images-flow.test.js",
   "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
   "started_at_utc": "2026-09-30T06:22:33Z",
   "completed_at_utc": null,
@@ -64,7 +64,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T12:16:01Z",
+  "updated_at_utc": "2026-10-02T00:10:15Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:08:47Z",
@@ -92,6 +92,15 @@
       "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
       "agent": "AGENTE 23",
       "reason": "Reparo #106 concluído sem alterar o source; lifecycle das requests e rastreabilidade de package.json corrigidos."
+    },
+    {
+      "at_utc": "2026-10-02T00:10:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Reauditoria confirmou requests 106-001 HIGH e 106-002 NORMAL: suíte sintética não prova popup real→storage→content script real e renumera índices após filtro."
     }
   ],
   "evidence": [
