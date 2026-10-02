@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -231,24 +231,45 @@
         "post_fix_full_job_id": 110676864994,
         "post_fix_result": "PASS_NODE20_NODE22_26_OF_26_AND_FULL_40_OF_40_445_OF_445_DETECT_OPEN_HANDLES"
       }
+    },
+    {
+      "id": "191-007",
+      "status": "ACCEPTED",
+      "type": "AUDIO_UNLOCK_BRANCH_GAP",
+      "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "A suíte real cobre unlock suspended→running e rejeição de resume, mas deixa sem prova dedicada os branches de contexto já running, resume resolvido sem running, estado não-running/não-suspended, ausência de AudioContext e falha síncrona do construtor no clique real.",
+      "current_evidence": "unlockNotificationAudio possui branches explícitos para esses estados; os testes existentes de indisponibilidade/construtor exercitam outros gatilhos, não o user-gesture unlock.",
+      "missing_evidence": "Regressões pelo clique real devem provar telemetria e continuidade do lote em todos os branches relevantes de unlock.",
+      "why_needed": "Política de autoplay e observabilidade dependem do caminho exato do gesto do usuário; cobertura por outros gatilhos não garante esse contrato.",
+      "requested_action": "Adicionar regressões reais pelo clique para running, resume incompleto, estado intermediário, API ausente e constructor failure; manter o lote funcional.",
+      "expected_evidence": "Mudanças em cada branch de unlock quebram a suíte focal; Node 20/22 e content-scripts permanecem verdes.",
+      "expected_auditor_action": "Reauditar integralmente o lifecycle de unlock após a correção.",
+      "possible_regression": "Unlock pode falhar ou perder telemetria em estados reais do navegador sem a suíte detectar.",
+      "impact": "Autoplay, diagnóstico de áudio e início de tradução pelo gesto.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T02:41:14.228Z",
+      "audit_finding": "ACCEPTED pela ADVERSARIAL atual; resultado append-only 191/ADVERSARIAL CHANGES_REQUIRED.",
+      "repair_progress": "IN_PROGRESS"
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "CHANGES_REQUIRED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "807/807",
     "source_text_lines": 806,
     "test_count": 17,
     "external_audit_requests_open": 0,
-    "accepted_requests_pending_validation": 0,
+    "accepted_requests_pending_validation": 1,
     "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
     "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
-    "note": "Correction complete. COMPLETED/100 state was reverted because distributed protocol requires current PRIMARY + ADVERSSARIAL from different auditors; standalone REAUDIT on final revision is invalid."
+    "note": "191-007 em correção: branches restantes de unlockNotificationAudio serão cobertos pelo clique real."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:31:00Z",
+  "updated_at_utc": "2026-10-02T02:41:14.228Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -393,6 +414,16 @@
       "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37",
       "agent": "AGENTE 30",
       "reason": "Final source+bible have no current PRIMARY+ADVERSARIAL pair. audit-core requires distinct auditors and permits REAUDIT only after a divergent pair; prior standalone REAUDIT APPROVED cannot justify COMPLETED."
+    },
+    {
+      "at_utc": "2026-10-02T02:41:14.228Z",
+      "type": "HYBRID_UNLOCK_BRANCH_HARDENING_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "ADVERSARIAL atual encontrou 191-007 HIGH: branches relevantes de unlockNotificationAudio ainda não têm prova executável dedicada."
     }
   ],
   "evidence": [
