@@ -2,8 +2,8 @@
   "index": 110,
   "file": "tests/integration/ipc/gtc-cache-flow.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
   "started_at_utc": "2026-09-30T06:27:00Z",
   "completed_at_utc": null,
@@ -111,7 +111,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T06:08:14Z",
+  "updated_at_utc": "2026-10-02T00:22:15Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:59:10Z",
@@ -139,6 +139,15 @@
       "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
       "agent": "AGENTE 23",
       "reason": "Rótulos OPEN stale da Bíblia #110 foram alinhados aos cinco requests ACCEPTED do state canônico; source não foi alterado."
+    },
+    {
+      "at_utc": "2026-10-02T00:22:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Reauditoria confirmou 110-001/002 HIGH e 110-003/004/005 corrigíveis: suíte reimplementa GTC legado, não executa pipeline moderno e contém alegação de eficiência não provada/import morto."
     }
   ],
   "evidence": [
