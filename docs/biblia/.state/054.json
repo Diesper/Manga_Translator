@@ -4,7 +4,7 @@
   "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
+  "source_sha": "9b5af7108acb8932b7b4d323fca8dd101ce32923",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -60,15 +60,15 @@
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "2024/2024",
+    "documented_positions": "2033/2033",
     "bible_lines": 26361,
     "external_audit_requests_open": 4,
-    "source_text_lines": 2023,
-    "note": "Fonte integral e cobertura 2024/2024 sincronizadas; revisão devolvida para auditoria independente."
+    "source_text_lines": 2032,
+    "note": "Fonte integral e cobertura 2033/2033 sincronizadas após fail-closed da exclusão canônica; nova audit epoch exige auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:17:18Z",
+  "updated_at_utc": "2026-10-02T20:19:34Z",
   "started_at_utc": "2026-10-02T01:34:00Z",
   "history": [
     {
@@ -116,6 +116,28 @@
       "reason": "Sincroniza a Bíblia #054 com popup.js atual e invalida auditorias da revisão anterior; requer PRIMARY + ADVERSARIAL independentes.",
       "previous_event_hash": "f234b464c4079a908f54fa6b327a15d8f1584def9f9600f74a68988fee2ffef4",
       "event_hash": "964097fe504d144af21ecd09b7bcef65268d2824869e065e80c2732ea60f3f44"
+    },
+    {
+      "at_utc": "2026-10-02T20:19:34Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
+      "previous_bible_sha": "e8c84f061633d0eab96d1007dd9637a6847765c8",
+      "previous_production_sha": null,
+      "previous_revision_id": "bc2a9c7daa94f2e1ab0d1770e098f9d3f0d467c2df477bf943ae2be972c96f36",
+      "source_sha": "9b5af7108acb8932b7b4d323fca8dd101ce32923",
+      "test_sha": "9b5af7108acb8932b7b4d323fca8dd101ce32923",
+      "bible_sha": "b7562194e81862938480b8ee9a3af7518c423996",
+      "production_sha": null,
+      "revision_id": "adc2e8166c15de33e942e30559bde32d3cc4576af3e5fda64c685deac9add168",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "054-e2-d64b1afcb0d4",
+      "reason": "Atualiza #054 após fail-closed de exclusão canônica de capítulo; epoch anterior permanece no histórico e a nova revisão requer auditoria independente.",
+      "previous_event_hash": "964097fe504d144af21ecd09b7bcef65268d2824869e065e80c2732ea60f3f44",
+      "event_hash": "2d6e0815ea50a4233815a6471904ef9139c41ea294984ab4c4923d815e55d696"
     }
   ],
   "evidence": [],
@@ -124,10 +146,10 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "054-e1-22b3d9c5a421",
+  "audit_epoch": 2,
+  "handoff_id": "054-e2-d64b1afcb0d4",
   "production_sha": null,
-  "test_sha": "4387046ab10cc3741ddb9d8ef9f56952113ccc8b",
-  "bible_sha": "e8c84f061633d0eab96d1007dd9637a6847765c8",
-  "revision_id": "bc2a9c7daa94f2e1ab0d1770e098f9d3f0d467c2df477bf943ae2be972c96f36"
+  "test_sha": "9b5af7108acb8932b7b4d323fca8dd101ce32923",
+  "bible_sha": "b7562194e81862938480b8ee9a3af7518c423996",
+  "revision_id": "adc2e8166c15de33e942e30559bde32d3cc4576af3e5fda64c685deac9add168"
 }
