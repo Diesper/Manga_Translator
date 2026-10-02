@@ -1,10 +1,10 @@
 # Bíblia técnica — `extension/content/content_manga.js`
 
 > **Estado:** 🟡 CORRIGIDO — AUDIOCONTEXT DE ERRO REUTILIZÁVEL E FALHAS SÍNCRONAS OBSERVÁVEIS; VALIDAÇÃO FINAL #191 EM ANDAMENTO  
-> **SHA auditado:** `893a03442cddb9e32487d7c7599be13ba8dc349c`  
+> **SHA auditado:** `ca8419ae0f2f0d4adfc036ee9e81ce0a039d1d94`  
 > **Agente responsável pela auditoria:** `GPT-5.6-Sol#Agent-A`  
 > **Tipo:** JavaScript — content script Chromium Manifest V3  
-> **Linhas textuais:** **3095**  
+> **Linhas textuais:** **3115**  
 > **Posições documentais:** **2863** contando o newline terminal  
 > **PR:** `#66`  
 > **Branch:** `docs/project-bible`
@@ -2810,6 +2810,26 @@ if (!window.__manga_translator_content_injected) {
                     if (!wantsAck) return;
                     try { sendResponse(payload); } catch (_e) {}
                 };
+
+                // UPDATE_IMAGE atravessa IPC e não pode confiar na shape do payload.
+                // Falhar antes de qualquer acesso ao DOM/storage evita persistir valores
+                // corrompidos ou chamar métodos de String em tipos inesperados.
+                const normalizedIndex = Number(request.index);
+                const validIndex = Number.isInteger(normalizedIndex) && normalizedIndex >= 0;
+                const validImageDataUrl = typeof request.newSrc === 'string'
+                    && /^data:image\/[a-z0-9.+-]+(?:;[^,]*)?,/i.test(request.newSrc);
+                if (!validIndex || !validImageDataUrl) {
+                    sendLog('warn', 'UPDATE_IMAGE_INVALID_PAYLOAD',
+                        'UPDATE_IMAGE rejeitado por payload inválido.', {
+                            index: request.index,
+                            indexValid: validIndex,
+                            newSrcType: typeof request.newSrc,
+                            imageDataUrlValid: validImageDataUrl,
+                        });
+                    ack({ ok: false, reason: 'invalid_payload' });
+                    return wantsAck;
+                }
+                request.index = normalizedIndex;
 
                 // Recuperação idempotente de ACK perdido: o commit pode ter
                 // terminado e zerado _currentBatchId antes de o background receber
@@ -29057,10 +29077,10 @@ A seção abaixo possui exatamente uma entrada para cada posição que `source.s
 
 ## Cobertura documental de linhas/posições — revisão atual
 
-Esta seção é a cobertura canônica da revisão atual. A análise histórica anterior foi preservada integralmente, mas a numeração antiga deixou de representar o blob vigente após mudanças concorrentes no source.
+Esta seção é a cobertura canônica da revisão atual. A análise histórica anterior permanece preservada; a numeração antiga não representa o blob vigente.
 
 | Linhas/posição | Escopo | Evidência |
 |---:|---|---|
-| 1–3096 | Blob integral atual `893a03442cddb9e32487d7c7599be13ba8dc349c` (3095 linhas textuais + newline final POSIX). | fonte integral embutida acima + SHA Git do source |
+| 1–3116 | Blob integral atual `ca8419ae0f2f0d4adfc036ee9e81ce0a039d1d94` (3115 linhas textuais + newline final POSIX). | fonte integral embutida acima + SHA Git do source |
 
-A sincronização documental **não concede aprovação**. O binding novo deve receber PRIMARY + ADVERSARIAL independentes antes de qualquer conclusão.
+A sincronização documental **não concede aprovação**. O binding novo requer PRIMARY + ADVERSARIAL independentes.
