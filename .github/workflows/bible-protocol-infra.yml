@@ -52,6 +52,8 @@ on:
       - 'scripts/validation/verify-bible-state-history-append-only-selftest.js'
       - 'scripts/validation/verify-unverified-findings-append-only.js'
       - 'scripts/validation/verify-unverified-findings-append-only-selftest.js'
+      - 'scripts/validation/bible-lifecycle-metrics.js'
+      - 'scripts/validation/bible-lifecycle-metrics-selftest.js'
       - '.github/workflows/ci.yml'
       - 'scripts/validation/verify-bible-protocol-governance-selftest.js'
       - 'scripts/validation/verify-bible-protocol-governance.js'
@@ -123,6 +125,8 @@ jobs:
           node --check scripts/validation/verify-bible-state-history-append-only-selftest.js
           node --check scripts/validation/verify-unverified-findings-append-only.js
           node --check scripts/validation/verify-unverified-findings-append-only-selftest.js
+          node --check scripts/validation/bible-lifecycle-metrics.js
+          node --check scripts/validation/bible-lifecycle-metrics-selftest.js
           node --check scripts/validation/verify-bible-protocol-governance.js
           node --check scripts/validation/verify-bible-protocol-governance-selftest.js
           node --check scripts/validation/verify-bible-lifecycle.js
@@ -151,11 +155,15 @@ jobs:
           node scripts/validation/verify-human-protected-diff-selftest.js
           node scripts/validation/verify-bible-state-history-append-only-selftest.js
           node scripts/validation/verify-unverified-findings-append-only-selftest.js
+          node scripts/validation/bible-lifecycle-metrics-selftest.js
           node scripts/validation/verify-bible-protocol-governance.js
           node scripts/validation/verify-bible-protocol-governance-selftest.js
 
       - name: Validate anti-loop lifecycle
         run: npm run bible:lifecycle:verify
+
+      - name: Report anti-loop lifecycle metrics
+        run: npm run bible:lifecycle:metrics
 
       - name: Validate HUMAN protected diff
         if: github.event_name == 'push'
