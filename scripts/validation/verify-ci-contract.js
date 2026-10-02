@@ -86,6 +86,7 @@ const requiredJobs = [
   'background-leak-bisection',
   'windows-portability',
   'fresh-developer-flow',
+  'bible-final-readiness',
   'ci-gate',
 ];
 
@@ -140,6 +141,19 @@ if (!freshDeveloperFlow.includes('playwright install chromium --with-deps --no-s
 }
 if (!freshDeveloperFlow.includes('xvfb-run --auto-servernum -- npm run test:e2e')) {
   problems.push('fresh-developer-flow precisa executar o E2E da extensão com Xvfb no Linux');
+}
+
+const bibleFinalReadiness = jobBlock('bible-final-readiness');
+for (const marker of [
+  "github.head_ref == 'docs/project-bible'",
+  "github.event_name == 'push'",
+  "github.ref == 'refs/heads/main'",
+  'run: npm run bible:final-readiness',
+  'fetch-depth: 0',
+]) {
+  if (!bibleFinalReadiness.includes(marker)) {
+    problems.push('bible-final-readiness: marcador obrigatório ausente: ' + marker);
+  }
 }
 
 for (const diagnosticJob of [
@@ -351,6 +365,10 @@ for (const marker of [
   'WINDOWS_PORTABILITY',
   'FRESH_DEVELOPER_FLOW',
   'check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"',
+  'BIBLE_FINAL_REQUIRED',
+  'BIBLE_FINAL_READINESS',
+  'if [ "$BIBLE_FINAL_REQUIRED" = "true" ]; then',
+  'check "Bible Final Readiness" "$BIBLE_FINAL_READINESS"',
 ]) {
   if (!gate.includes(marker)) {
     problems.push('ci-gate: proteção pós-merge incompleta, marcador ausente: ' + marker);
