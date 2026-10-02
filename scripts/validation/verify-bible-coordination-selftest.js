@@ -357,6 +357,24 @@ expectPass('coverage tabela com newline literal passa',(root)=>{
   const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
   write(root,s.bible,v2Bible(s.file,s.source_sha,source,'## Mapa integral\n\n| Linhas/posição | Papel |\\n|---:|---|\\n| 1–2 | fixture |'));
 });
+expectPass('coverage por bullets numéricos em seção explícita passa',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  write(root,s.bible,v2Bible(
+    s.file,
+    s.source_sha,
+    source,
+    '## Cobertura integral por posições\n\n- **1:** código\n- **2:** LF final'
+  ));
+});
+expectFail('bullets numéricos fora de seção de cobertura não são aceitos','nenhuma cobertura V1/V2 reconhecida',(root)=>{
+  const s=readJson(root,statePath(1));const source=fs.readFileSync(path.join(root,s.file),'utf8');
+  write(root,s.bible,v2Bible(
+    s.file,
+    s.source_sha,
+    source,
+    '## Cenários\n\n- **1:** primeiro cenário\n- **2:** segundo cenário'
+  ));
+});
 expectPass('SHA de CRLF usa bytes brutos',(root)=>{
   const s=readJson(root,statePath(1));
   const raw='const n = 1;\r\n';
