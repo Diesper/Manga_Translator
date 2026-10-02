@@ -16,6 +16,16 @@ const ESCALATION = Object.freeze({
   HUMAN: 100000,
 });
 
+const REVISION_CHANGE_TYPES = new Set([
+  'PRODUCTION',
+  'TEST',
+  'BIBLE_SEMANTIC',
+  'BIBLE_VALIDATION_EVIDENCE',
+  'BIBLE_METADATA',
+  'BIBLE_FORMATTING',
+  'PROTOCOL',
+]);
+
 const ROOT_CAUSE_CATEGORIES = new Set([
   'TEST_WEAKNESS',
   'PRODUCTION_DESIGN',
@@ -246,6 +256,29 @@ function rootCauseReviewValid(review) {
     && typeof review.strategy === 'string' && review.strategy.trim().length > 0;
 }
 
+function classifyRevisionChange(previous, current, options = {}) {
+  const changes = [];
+  const before = previous || {};
+  const after = current || {};
+  if ((before.production_sha || null) !== (after.production_sha || null)) changes.push('PRODUCTION');
+  if ((before.test_sha || null) !== (after.test_sha || null)) changes.push('TEST');
+  if ((before.bible_sha || null) !== (after.bible_sha || null)) {
+    const declared = String(options.bible_change_type || 'BIBLE_SEMANTIC').toUpperCase();
+    changes.push(REVISION_CHANGE_TYPES.has(declared) && declared.startsWith('BIBLE_')
+      ? declared
+      : 'BIBLE_SEMANTIC');
+  }
+  if (options.protocol_changed) changes.push('PROTOCOL');
+  return {
+    changes: [...new Set(changes)],
+    changed: changes.length > 0,
+    // Política inicial deliberadamente conservadora: até metadata/formatting
+    // muda revision_id e exige nova evidência. Uma futura exceção precisará
+    // de prova semântica explícita e self-test dedicado.
+    invalidates_audit_revision: changes.length > 0,
+  };
+}
+
 function priorityForState(state) {
   const cycle = correctionCycles(state).current_escalation_cycle;
   const escalation = escalationForCycle(cycle);
@@ -382,6 +415,7 @@ module.exports = {
   HUMAN_RESET_EVENT,
   SAFE_ABORT_EVENT,
   ESCALATION,
+  REVISION_CHANGE_TYPES,
   ROOT_CAUSE_CATEGORIES,
   stableJson,
   sha256,
@@ -398,6 +432,7 @@ module.exports = {
   correctionAgents,
   correctorEligibility,
   rootCauseReviewValid,
+  classifyRevisionChange,
   priorityForState,
   lifecycleSnapshot,
   activeHumanAuthorizedCorrection,
